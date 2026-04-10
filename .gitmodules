@@ -1,0 +1,3 @@
+[submodule "extensions/pg_facets/deps/pg_roaringbitmap"]
+	path = extensions/pg_facets/deps/pg_roaringbitmap
+	url = https://github.com/ChenHuajun/pg_roaringbitmap.git

@@ -1,0 +1,221 @@
+{
+  "schema_version": "1.0.0",
+  "exported_at": "2026-03-31T00:00:00Z",
+  "workspace": {
+    "id": "crm-outbound",
+    "label": "CRM Outbound",
+    "description": "Mini CRM outbound: accounts, contacts, campaigns, enrollments, and activities.",
+    "domain_profile": "crm",
+    "pg_schema": "ws_crm_outbound"
+  },
+  "tables": [
+    {
+      "schema_name": "crm",
+      "table_name": "accounts",
+      "table_role": "actor",
+      "entity_family": "account",
+      "primary_time_column": "created_at",
+      "volume_driver": "low",
+      "emit_facets": true,
+      "emit_graph_entities": true,
+      "emit_graph_relations": false,
+      "emit_projections": true
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "contacts",
+      "table_role": "actor",
+      "entity_family": "contact",
+      "primary_time_column": "created_at",
+      "volume_driver": "medium",
+      "emit_facets": true,
+      "emit_graph_entities": true,
+      "emit_graph_relations": true,
+      "emit_projections": true
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "campaigns",
+      "table_role": "stateful_item",
+      "entity_family": "campaign",
+      "primary_time_column": "launched_at",
+      "volume_driver": "low",
+      "emit_facets": true,
+      "emit_graph_entities": true,
+      "emit_graph_relations": true,
+      "emit_projections": true
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "campaign_enrollments",
+      "table_role": "association",
+      "entity_family": "campaign_enrollment",
+      "primary_time_column": "enrolled_at",
+      "volume_driver": "medium",
+      "emit_facets": true,
+      "emit_graph_entities": false,
+      "emit_graph_relations": true,
+      "emit_projections": true
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "activities",
+      "table_role": "event",
+      "entity_family": "activity",
+      "primary_time_column": "occurred_at",
+      "volume_driver": "high",
+      "emit_facets": true,
+      "emit_graph_entities": false,
+      "emit_graph_relations": false,
+      "emit_projections": false
+    }
+  ],
+  "columns": [
+    {
+      "schema_name": "crm",
+      "table_name": "accounts",
+      "column_name": "id",
+      "column_role": "id",
+      "semantic_type": "identifier",
+      "graph_usage": "entity_name",
+      "is_nullable": false
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "accounts",
+      "column_name": "name",
+      "column_role": "label",
+      "semantic_type": "free_text",
+      "facet_key": "account_name",
+      "graph_usage": "entity_property",
+      "is_nullable": false
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "contacts",
+      "column_name": "full_name",
+      "column_role": "label",
+      "semantic_type": "free_text",
+      "facet_key": "contact_name",
+      "graph_usage": "entity_property",
+      "is_nullable": false
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "contacts",
+      "column_name": "account_id",
+      "column_role": "fk",
+      "semantic_type": "identifier",
+      "graph_usage": "edge_target",
+      "is_nullable": false
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "campaigns",
+      "column_name": "name",
+      "column_role": "label",
+      "semantic_type": "free_text",
+      "facet_key": "campaign_name",
+      "graph_usage": "entity_property",
+      "is_nullable": false
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "campaigns",
+      "column_name": "status",
+      "column_role": "status",
+      "semantic_type": "state",
+      "facet_key": "campaign_status",
+      "graph_usage": "entity_property",
+      "projection_signal": "priority",
+      "is_nullable": false
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "campaign_enrollments",
+      "column_name": "enrollment_status",
+      "column_role": "status",
+      "semantic_type": "state",
+      "facet_key": "enrollment_status",
+      "projection_signal": "alert_trigger",
+      "is_nullable": false
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "activities",
+      "column_name": "activity_type",
+      "column_role": "category",
+      "semantic_type": "enum",
+      "facet_key": "activity_type",
+      "is_nullable": false
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "activities",
+      "column_name": "outcome",
+      "column_role": "status",
+      "semantic_type": "state",
+      "facet_key": "activity_outcome",
+      "projection_signal": "alert_trigger",
+      "is_nullable": true
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "activities",
+      "column_name": "occurred_at",
+      "column_role": "timestamp",
+      "semantic_type": "temporal",
+      "is_nullable": false
+    }
+  ],
+  "relations": [
+    {
+      "source_schema": "crm",
+      "source_table": "contacts",
+      "source_column": "account_id",
+      "target_schema": "crm",
+      "target_table": "accounts",
+      "target_column": "id",
+      "relation_role": "works_at",
+      "hierarchical": false,
+      "graph_label": "WORKS_AT",
+      "cardinality": "1:n"
+    },
+    {
+      "source_schema": "crm",
+      "source_table": "campaign_enrollments",
+      "source_column": "campaign_id",
+      "target_schema": "crm",
+      "target_table": "campaigns",
+      "target_column": "id",
+      "relation_role": "targets",
+      "hierarchical": false,
+      "graph_label": "TARGETS",
+      "cardinality": "1:n"
+    },
+    {
+      "source_schema": "crm",
+      "source_table": "campaign_enrollments",
+      "source_column": "contact_id",
+      "target_schema": "crm",
+      "target_table": "contacts",
+      "target_column": "id",
+      "relation_role": "targets",
+      "hierarchical": false,
+      "graph_label": "TARGETS",
+      "cardinality": "1:n"
+    },
+    {
+      "source_schema": "crm",
+      "source_table": "activities",
+      "source_column": "enrollment_id",
+      "target_schema": "crm",
+      "target_table": "campaign_enrollments",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": false,
+      "graph_label": null,
+      "cardinality": "1:n"
+    }
+  ]
+}

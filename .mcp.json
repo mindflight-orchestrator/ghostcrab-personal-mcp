@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "ghostcrab": {
+      "command": "node",
+      "args": ["/Users/francois/Documents/mars2026/ghostcrab-mcp/dist/index.js"],
+      "env": {
+        "DATABASE_URL": "postgres://ghostcrab:ghostcrab@localhost:55432/ghostcrab",
+        "GHOSTCRAB_EMBEDDINGS_MODE": "disabled"
+      }
+    }
+  }
+}

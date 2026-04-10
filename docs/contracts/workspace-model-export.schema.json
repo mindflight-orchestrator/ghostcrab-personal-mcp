@@ -1,0 +1,320 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghostcrab.dev/contracts/workspace-model-export/1.0.0",
+  "title": "GhostCrabWorkspaceModelExport",
+  "description": "Machine-readable semantic model of a GhostCrab workspace, produced by ghostcrab_workspace_export_model. Consumed by synthetic data generators and validation agents.",
+  "type": "object",
+  "required": ["schema_version", "exported_at", "workspace", "tables"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "SemVer of this export contract. Breaking changes bump the major version.",
+      "examples": ["1.0.0"]
+    },
+    "exported_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when this model was exported."
+    },
+    "workspace": {
+      "$ref": "#/$defs/WorkspaceMeta"
+    },
+    "tables": {
+      "type": "array",
+      "description": "Semantic descriptors for all Layer 1 tables in the workspace.",
+      "items": { "$ref": "#/$defs/TableExport" }
+    },
+    "columns": {
+      "type": "array",
+      "description": "Semantic descriptors for individual columns. Keyed by schema_name + table_name + column_name.",
+      "items": { "$ref": "#/$defs/ColumnExport" },
+      "default": []
+    },
+    "relations": {
+      "type": "array",
+      "description": "Semantic descriptors for inter-table relationships.",
+      "items": { "$ref": "#/$defs/RelationExport" },
+      "default": []
+    },
+    "generation_hints": {
+      "$ref": "#/$defs/GenerationHints"
+    },
+    "validation_warnings": {
+      "type": "array",
+      "description": "List of semantic inconsistencies detected at export time (DDL tables missing annotations, orphaned column semantics, etc.).",
+      "items": { "type": "string" },
+      "default": []
+    }
+  },
+
+  "$defs": {
+    "WorkspaceMeta": {
+      "type": "object",
+      "required": ["id", "label"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{1,62}[a-z0-9]$|^[a-z][a-z0-9]$",
+          "description": "Workspace identifier (lowercase alphanum + hyphens)."
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Human-readable workspace label."
+        },
+        "description": {
+          "type": ["string", "null"],
+          "description": "Optional workspace description."
+        },
+        "domain_profile": {
+          "type": ["string", "null"],
+          "description": "Logical domain classification, e.g. casino, crm, kanban, project_delivery.",
+          "examples": ["casino", "crm", "kanban", "project_delivery"]
+        },
+        "pg_schema": {
+          "type": "string",
+          "description": "PostgreSQL schema name used for Layer 1 tables.",
+          "examples": ["ws_casino_benchmark"]
+        }
+      }
+    },
+
+    "TableRole": {
+      "type": "string",
+      "enum": ["actor", "event", "transaction", "stateful_item", "reference", "hierarchy", "association"],
+      "description": "Business role of this table. Drives generation strategy selection.\n- actor: a persistent entity that performs actions (players, contacts, users)\n- event: an immutable record of something that happened (visits, clicks, logs)\n- transaction: a financial or state-change record (payments, bookings)\n- stateful_item: an entity that transitions through lifecycle states (tasks, orders, leads)\n- reference: a small, stable lookup table (game types, categories, regions)\n- hierarchy: a self-referencing or tree-structured table (org charts, nested categories)\n- association: a many-to-many join table with its own attributes"
+    },
+
+    "GenerationStrategy": {
+      "type": "string",
+      "enum": ["seed_table", "per_parent", "time_series", "sparse_events", "static_ref"],
+      "description": "How a synthetic generator should approach populating this table.\n- seed_table: generate N independent root records\n- per_parent: generate X records per parent row (respects FK hierarchy)\n- time_series: distribute records across a time window with realistic density\n- sparse_events: low-frequency events, not every parent has one\n- static_ref: small static reference data, typically < 50 rows"
+    },
+
+    "VolumeDriver": {
+      "type": "string",
+      "enum": ["high", "medium", "low", "tiny"],
+      "description": "Expected relative row count. Guides multipliers: tiny<50, low<500, medium<10k, high<1M+"
+    },
+
+    "TableExport": {
+      "type": "object",
+      "required": ["schema_name", "table_name", "table_role"],
+      "additionalProperties": false,
+      "properties": {
+        "schema_name": {
+          "type": "string",
+          "description": "PostgreSQL schema name."
+        },
+        "table_name": {
+          "type": "string",
+          "description": "PostgreSQL table name."
+        },
+        "table_role": {
+          "$ref": "#/$defs/TableRole"
+        },
+        "entity_family": {
+          "type": ["string", "null"],
+          "description": "Semantic entity type, e.g. player, contact, task, opportunity.",
+          "examples": ["player", "contact", "task", "opportunity", "visit", "payment"]
+        },
+        "primary_time_column": {
+          "type": ["string", "null"],
+          "description": "Column that represents the primary temporal dimension for this table.",
+          "examples": ["created_at", "occurred_at", "visit_at", "started_at"]
+        },
+        "volume_driver": {
+          "$ref": "#/$defs/VolumeDriver"
+        },
+        "generation_strategy": {
+          "$ref": "#/$defs/GenerationStrategy"
+        },
+        "emit_facets": {
+          "type": "boolean",
+          "description": "Whether records from this table should be indexed in mfo_facets.",
+          "default": false
+        },
+        "emit_graph_entities": {
+          "type": "boolean",
+          "description": "Whether records from this table should produce graph.entity nodes.",
+          "default": false
+        },
+        "emit_graph_relations": {
+          "type": "boolean",
+          "description": "Whether records from this table should produce graph.relation edges.",
+          "default": false
+        },
+        "emit_projections": {
+          "type": "boolean",
+          "description": "Whether this table contributes signals to mfo_projections.",
+          "default": false
+        },
+        "notes": {
+          "type": ["object", "null"],
+          "description": "Freeform JSONB metadata for this table.",
+          "additionalProperties": true
+        }
+      }
+    },
+
+    "ColumnRole": {
+      "type": "string",
+      "enum": [
+        "id", "fk", "status", "timestamp", "amount", "score",
+        "category", "owner", "parent_ref", "text_content",
+        "geo", "embedding_source", "label", "flag"
+      ],
+      "description": "Semantic role of this column. Drives value generation strategy.\n- id: primary key or unique identifier\n- fk: foreign key reference to another table\n- status: lifecycle state enum (active, closed, pending)\n- timestamp: temporal column\n- amount: numeric monetary or quantity value\n- score: numeric ranking or probability\n- category: discrete classification\n- owner: user/actor reference\n- parent_ref: self-referential FK for hierarchy\n- text_content: free text, description, note\n- geo: geographic coordinates or region code\n- embedding_source: source text for vector embedding\n- label: human-readable name or title\n- flag: boolean indicator"
+    },
+
+    "SemanticType": {
+      "type": "string",
+      "enum": ["identifier", "state", "measure", "enum", "free_text", "temporal", "spatial", "vector", "boolean"],
+      "description": "Abstract semantic type independent of SQL storage type."
+    },
+
+    "GraphUsage": {
+      "type": "string",
+      "enum": ["entity_name", "entity_property", "edge_source", "edge_target", "edge_metadata"],
+      "description": "How this column is used when building the graph layer."
+    },
+
+    "ColumnExport": {
+      "type": "object",
+      "required": ["schema_name", "table_name", "column_name"],
+      "additionalProperties": false,
+      "properties": {
+        "schema_name": { "type": "string" },
+        "table_name": { "type": "string" },
+        "column_name": { "type": "string" },
+        "column_role": {
+          "$ref": "#/$defs/ColumnRole"
+        },
+        "semantic_type": {
+          "$ref": "#/$defs/SemanticType"
+        },
+        "facet_key": {
+          "type": ["string", "null"],
+          "description": "If set, this column maps to this facet key in mfo_facets."
+        },
+        "graph_usage": {
+          "$ref": "#/$defs/GraphUsage"
+        },
+        "projection_signal": {
+          "type": ["string", "null"],
+          "description": "Signal name used in mfo_projections, e.g. alert_trigger, priority, rank_signal.",
+          "examples": ["alert_trigger", "priority", "rank_signal", "churn_risk"]
+        },
+        "is_nullable": {
+          "type": "boolean",
+          "description": "Whether this column allows NULL values.",
+          "default": true
+        },
+        "distribution_hint": {
+          "type": ["object", "null"],
+          "description": "Hints for synthetic value generation (enum values, range, format).",
+          "additionalProperties": true,
+          "examples": [
+            { "values": ["active", "vip", "churned", "suspended"] },
+            { "min": 0, "max": 10000, "currency": "USD" },
+            { "format": "email" }
+          ]
+        }
+      }
+    },
+
+    "RelationRole": {
+      "type": "string",
+      "enum": [
+        "belongs_to", "contains", "depends_on", "targets",
+        "registered_for", "works_at", "assigned_to", "references"
+      ],
+      "description": "Business meaning of this relationship."
+    },
+
+    "Cardinality": {
+      "type": "string",
+      "enum": ["1:1", "1:n", "n:n"],
+      "description": "Relationship cardinality."
+    },
+
+    "RelationExport": {
+      "type": "object",
+      "required": ["source_schema", "source_table", "source_column", "target_schema", "target_table", "target_column"],
+      "additionalProperties": false,
+      "properties": {
+        "source_schema": { "type": "string" },
+        "source_table": { "type": "string" },
+        "source_column": { "type": "string" },
+        "target_schema": { "type": "string" },
+        "target_table": { "type": "string" },
+        "target_column": { "type": "string" },
+        "relation_role": {
+          "$ref": "#/$defs/RelationRole"
+        },
+        "hierarchical": {
+          "type": "boolean",
+          "description": "True if this relation defines a parent-child hierarchy.",
+          "default": false
+        },
+        "graph_label": {
+          "type": ["string", "null"],
+          "description": "Edge label in the graph layer, e.g. CONTAINS, BLOCKS, TARGETED_BY.",
+          "examples": ["CONTAINS", "BLOCKS", "TARGETED_BY", "VISITED_BY", "PLACED_BY"]
+        },
+        "cardinality": {
+          "$ref": "#/$defs/Cardinality"
+        },
+        "notes": {
+          "type": ["object", "null"],
+          "additionalProperties": true
+        }
+      }
+    },
+
+    "GenerationHints": {
+      "type": "object",
+      "description": "Aggregate hints for a synthetic generator about how to approach this workspace.",
+      "additionalProperties": false,
+      "properties": {
+        "table_order": {
+          "type": "array",
+          "description": "Topologically sorted list of fully-qualified table names (schema.table) for insertion order. Parents before children.",
+          "items": { "type": "string" },
+          "examples": [["casino.players", "casino.visits", "casino.transactions"]]
+        },
+        "estimated_total_rows": {
+          "type": "integer",
+          "description": "Rough estimate of total rows across all Layer 1 tables after generation.",
+          "minimum": 0
+        },
+        "seed_multipliers": {
+          "type": "object",
+          "description": "Suggested row counts per volume_driver tier.",
+          "additionalProperties": false,
+          "properties": {
+            "tiny": { "type": "integer", "default": 20 },
+            "low": { "type": "integer", "default": 200 },
+            "medium": { "type": "integer", "default": 2000 },
+            "high": { "type": "integer", "default": 10000 }
+          }
+        },
+        "domain_profile": {
+          "type": ["string", "null"],
+          "description": "Domain profile identifier for domain-specific generation recipes.",
+          "examples": ["casino", "crm", "kanban", "project_delivery"]
+        },
+        "time_window_days": {
+          "type": "integer",
+          "description": "Number of days in the past to spread time_series events across.",
+          "default": 90,
+          "minimum": 1
+        }
+      }
+    }
+  }
+}

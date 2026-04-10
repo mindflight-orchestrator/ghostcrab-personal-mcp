@@ -1,0 +1,35 @@
+# macOS
+.DS_Store
+
+# Node / TypeScript
+.env
+.env.local
+.env.*.local
+coverage/
+dist/
+node_modules/
+*.tsbuildinfo
+
+# Zig build artifacts
+.zig-cache/
+zig-out/
+
+# Vendored PostgreSQL install (from build-macos.sh)
+.pg_install/
+
+# Editor — track plans & rules; ignore other Cursor cache
+.cursor/*
+!.cursor/plans/
+!.cursor/plans/**
+!.cursor/rules/
+!.cursor/rules/**
+
+data/
+doc_ext/
+logs/
+*.log
+
+.cursor/
+.claude/
+.claude.md
+CLAUDE.md

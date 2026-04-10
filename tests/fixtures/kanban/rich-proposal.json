@@ -1,0 +1,224 @@
+{
+  "table_semantics": [
+    {
+      "table_schema": "kanban",
+      "table_name": "members",
+      "business_role": "actor",
+      "generation_strategy": "synthetic",
+      "emit_facets": true,
+      "emit_graph_entity": true,
+      "emit_graph_relation": false,
+      "table_role": "actor",
+      "entity_family": "member",
+      "volume_driver": "low",
+      "primary_time_column": "joined_at",
+      "emit_projections": false
+    },
+    {
+      "table_schema": "kanban",
+      "table_name": "boards",
+      "business_role": "stateful_item",
+      "generation_strategy": "synthetic",
+      "emit_facets": true,
+      "emit_graph_entity": true,
+      "emit_graph_relation": false,
+      "table_role": "stateful_item",
+      "entity_family": "board",
+      "volume_driver": "low",
+      "primary_time_column": "created_at",
+      "emit_projections": false
+    },
+    {
+      "table_schema": "kanban",
+      "table_name": "columns",
+      "business_role": "reference",
+      "generation_strategy": "synthetic",
+      "emit_facets": false,
+      "emit_graph_entity": false,
+      "emit_graph_relation": false,
+      "table_role": "reference",
+      "entity_family": "column",
+      "volume_driver": "low",
+      "emit_projections": false
+    },
+    {
+      "table_schema": "kanban",
+      "table_name": "cards",
+      "business_role": "stateful_item",
+      "generation_strategy": "synthetic",
+      "emit_facets": true,
+      "emit_graph_entity": true,
+      "emit_graph_relation": true,
+      "table_role": "stateful_item",
+      "entity_family": "card",
+      "volume_driver": "medium",
+      "primary_time_column": "created_at",
+      "emit_projections": true
+    },
+    {
+      "table_schema": "kanban",
+      "table_name": "comments",
+      "business_role": "event",
+      "generation_strategy": "synthetic",
+      "emit_facets": false,
+      "emit_graph_entity": false,
+      "emit_graph_relation": false,
+      "table_role": "event",
+      "entity_family": "comment",
+      "volume_driver": "medium",
+      "primary_time_column": "created_at",
+      "emit_projections": false
+    }
+  ],
+  "column_semantics": [
+    {
+      "table_schema": "kanban",
+      "table_name": "boards",
+      "column_name": "id",
+      "column_role": "id",
+      "public_column_role": "id",
+      "semantic_type": "identifier",
+      "graph_usage": "entity_name",
+      "is_nullable": false,
+      "distribution_hint": { "format": "uuid" }
+    },
+    {
+      "table_schema": "kanban",
+      "table_name": "boards",
+      "column_name": "name",
+      "column_role": "attribute",
+      "public_column_role": "label",
+      "semantic_type": "free_text",
+      "facet_key": "board_name",
+      "graph_usage": "entity_property",
+      "is_nullable": false,
+      "distribution_hint": { "format": "project_name" }
+    },
+    {
+      "table_schema": "kanban",
+      "table_name": "cards",
+      "column_name": "id",
+      "column_role": "id",
+      "public_column_role": "id",
+      "semantic_type": "identifier",
+      "graph_usage": "entity_name",
+      "is_nullable": false,
+      "distribution_hint": { "format": "uuid" }
+    },
+    {
+      "table_schema": "kanban",
+      "table_name": "cards",
+      "column_name": "title",
+      "column_role": "attribute",
+      "public_column_role": "label",
+      "semantic_type": "free_text",
+      "facet_key": "card_title",
+      "graph_usage": "entity_property",
+      "is_nullable": false,
+      "distribution_hint": { "format": "task_title" }
+    },
+    {
+      "table_schema": "kanban",
+      "table_name": "cards",
+      "column_name": "status",
+      "column_role": "status",
+      "public_column_role": "status",
+      "semantic_type": "state",
+      "facet_key": "card_status",
+      "graph_usage": "entity_property",
+      "projection_signal": "alert_trigger",
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["backlog", "todo", "in_progress", "review", "done", "blocked"],
+        "weights": [0.20, 0.15, 0.30, 0.10, 0.20, 0.05]
+      }
+    },
+    {
+      "table_schema": "kanban",
+      "table_name": "cards",
+      "column_name": "priority",
+      "column_role": "attribute",
+      "public_column_role": "score",
+      "semantic_type": "enum",
+      "facet_key": "card_priority",
+      "projection_signal": "priority",
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["low", "medium", "high", "critical"],
+        "weights": [0.30, 0.40, 0.25, 0.05]
+      }
+    },
+    {
+      "table_schema": "kanban",
+      "table_name": "cards",
+      "column_name": "assignee_id",
+      "column_role": "fk",
+      "public_column_role": "owner",
+      "semantic_type": "identifier",
+      "facet_key": "card_assignee",
+      "graph_usage": "edge_target",
+      "is_nullable": true
+    },
+    {
+      "table_schema": "kanban",
+      "table_name": "members",
+      "column_name": "display_name",
+      "column_role": "attribute",
+      "public_column_role": "label",
+      "semantic_type": "free_text",
+      "facet_key": "member_name",
+      "graph_usage": "entity_property",
+      "is_nullable": false,
+      "distribution_hint": { "format": "full_name" }
+    }
+  ],
+  "relation_semantics": [
+    {
+      "from_schema": "kanban",
+      "from_table": "columns",
+      "to_schema": "kanban",
+      "to_table": "boards",
+      "fk_column": "board_id",
+      "relation_kind": "many_to_one",
+      "relation_role": "belongs_to",
+      "hierarchical": true,
+      "graph_label": "CONTAINS",
+      "target_column": "id"
+    },
+    {
+      "from_schema": "kanban",
+      "from_table": "cards",
+      "to_schema": "kanban",
+      "to_table": "columns",
+      "fk_column": "column_id",
+      "relation_kind": "many_to_one",
+      "relation_role": "belongs_to",
+      "hierarchical": true,
+      "graph_label": "CONTAINS",
+      "target_column": "id"
+    },
+    {
+      "from_schema": "kanban",
+      "from_table": "cards",
+      "to_schema": "kanban",
+      "to_table": "members",
+      "fk_column": "assignee_id",
+      "relation_kind": "many_to_one",
+      "relation_role": "assigned_to",
+      "hierarchical": false,
+      "graph_label": "ASSIGNED_TO",
+      "target_column": "id"
+    },
+    {
+      "from_schema": "kanban",
+      "from_table": "comments",
+      "to_schema": "kanban",
+      "to_table": "cards",
+      "fk_column": "card_id",
+      "relation_kind": "many_to_one",
+      "relation_role": "belongs_to",
+      "hierarchical": false,
+      "target_column": "id"
+    }
+  ]
+}

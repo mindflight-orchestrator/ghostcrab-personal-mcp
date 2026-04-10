@@ -1,0 +1,349 @@
+{
+  "schema_version": "1.0.0",
+  "exported_at": "2026-03-31T00:00:00Z",
+  "workspace": {
+    "id": "casino-benchmark",
+    "label": "Casino Benchmark",
+    "description": "Full casino domain model: players, visits, gaming sessions, transactions, hotel stays, events, campaigns and app telemetry.",
+    "domain_profile": "casino",
+    "pg_schema": "ws_casino_benchmark"
+  },
+  "tables": [
+    {
+      "schema_name": "casino",
+      "table_name": "players",
+      "table_role": "actor",
+      "entity_family": "player",
+      "primary_time_column": "created_at",
+      "volume_driver": "medium",
+      "generation_strategy": "seed_table",
+      "emit_facets": true,
+      "emit_graph_entities": true,
+      "emit_graph_relations": false,
+      "emit_projections": true,
+      "notes": { "segment_field": "tier", "identity_fields": ["email"] }
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "game_types",
+      "table_role": "reference",
+      "entity_family": "game_type",
+      "primary_time_column": null,
+      "volume_driver": "tiny",
+      "generation_strategy": "static_ref",
+      "emit_facets": false,
+      "emit_graph_entities": true,
+      "emit_graph_relations": false,
+      "emit_projections": false,
+      "notes": null
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "visits",
+      "table_role": "event",
+      "entity_family": "visit",
+      "primary_time_column": "visit_at",
+      "volume_driver": "high",
+      "generation_strategy": "per_parent",
+      "emit_facets": true,
+      "emit_graph_entities": false,
+      "emit_graph_relations": true,
+      "emit_projections": true,
+      "notes": { "parent_table": "players", "avg_per_parent": 15 }
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "game_sessions",
+      "table_role": "event",
+      "entity_family": "game_session",
+      "primary_time_column": "started_at",
+      "volume_driver": "high",
+      "generation_strategy": "per_parent",
+      "emit_facets": true,
+      "emit_graph_entities": false,
+      "emit_graph_relations": true,
+      "emit_projections": false,
+      "notes": { "parent_table": "visits", "avg_per_parent": 5 }
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "transactions",
+      "table_role": "transaction",
+      "entity_family": "transaction",
+      "primary_time_column": "occurred_at",
+      "volume_driver": "high",
+      "generation_strategy": "per_parent",
+      "emit_facets": true,
+      "emit_graph_entities": false,
+      "emit_graph_relations": false,
+      "emit_projections": true,
+      "notes": { "parent_table": "players", "avg_per_parent": 30, "amount_currency": "USD" }
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "hotel_stays",
+      "table_role": "stateful_item",
+      "entity_family": "hotel_stay",
+      "primary_time_column": "check_in_at",
+      "volume_driver": "medium",
+      "generation_strategy": "sparse_events",
+      "emit_facets": true,
+      "emit_graph_entities": false,
+      "emit_graph_relations": true,
+      "emit_projections": true,
+      "notes": { "parent_table": "players", "coverage_pct": 0.3 }
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "event_registrations",
+      "table_role": "association",
+      "entity_family": "event_registration",
+      "primary_time_column": "registered_at",
+      "volume_driver": "medium",
+      "generation_strategy": "sparse_events",
+      "emit_facets": false,
+      "emit_graph_entities": false,
+      "emit_graph_relations": true,
+      "emit_projections": false,
+      "notes": { "parent_table": "players", "coverage_pct": 0.2 }
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "campaigns",
+      "table_role": "reference",
+      "entity_family": "campaign",
+      "primary_time_column": "start_date",
+      "volume_driver": "low",
+      "generation_strategy": "seed_table",
+      "emit_facets": false,
+      "emit_graph_entities": true,
+      "emit_graph_relations": false,
+      "emit_projections": false,
+      "notes": null
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "app_events",
+      "table_role": "event",
+      "entity_family": "app_event",
+      "primary_time_column": "event_at",
+      "volume_driver": "high",
+      "generation_strategy": "time_series",
+      "emit_facets": false,
+      "emit_graph_entities": false,
+      "emit_graph_relations": false,
+      "emit_projections": true,
+      "notes": { "parent_table": "players", "event_types": ["login", "logout", "bonus_claim", "deposit_start"] }
+    }
+  ],
+  "columns": [
+    {
+      "schema_name": "casino",
+      "table_name": "players",
+      "column_name": "id",
+      "column_role": "id",
+      "semantic_type": "identifier",
+      "facet_key": null,
+      "graph_usage": "entity_name",
+      "projection_signal": null,
+      "is_nullable": false,
+      "distribution_hint": { "format": "uuid" }
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "players",
+      "column_name": "email",
+      "column_role": "label",
+      "semantic_type": "identifier",
+      "facet_key": "player_email",
+      "graph_usage": "entity_property",
+      "projection_signal": null,
+      "is_nullable": false,
+      "distribution_hint": { "format": "email", "unique": true }
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "players",
+      "column_name": "tier",
+      "column_role": "status",
+      "semantic_type": "enum",
+      "facet_key": "player_tier",
+      "graph_usage": "entity_property",
+      "projection_signal": "priority",
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["bronze", "silver", "gold", "vip", "ultra_vip"],
+        "weights": [0.45, 0.30, 0.15, 0.08, 0.02]
+      }
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "players",
+      "column_name": "status",
+      "column_role": "status",
+      "semantic_type": "state",
+      "facet_key": "player_status",
+      "graph_usage": null,
+      "projection_signal": "alert_trigger",
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["active", "inactive", "suspended", "churned"],
+        "weights": [0.65, 0.20, 0.10, 0.05]
+      }
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "players",
+      "column_name": "lifetime_value",
+      "column_role": "amount",
+      "semantic_type": "measure",
+      "facet_key": "player_ltv",
+      "graph_usage": null,
+      "projection_signal": "rank_signal",
+      "is_nullable": true,
+      "distribution_hint": { "min": 0, "max": 250000, "distribution": "lognormal" }
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "transactions",
+      "column_name": "amount",
+      "column_role": "amount",
+      "semantic_type": "measure",
+      "facet_key": "tx_amount",
+      "graph_usage": null,
+      "projection_signal": null,
+      "is_nullable": false,
+      "distribution_hint": { "min": 1, "max": 50000, "currency": "USD", "distribution": "pareto" }
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "transactions",
+      "column_name": "type",
+      "column_role": "category",
+      "semantic_type": "enum",
+      "facet_key": "tx_type",
+      "graph_usage": null,
+      "projection_signal": null,
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["deposit", "withdrawal", "bonus", "refund"],
+        "weights": [0.50, 0.35, 0.12, 0.03]
+      }
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "game_sessions",
+      "column_name": "game_type_id",
+      "column_role": "fk",
+      "semantic_type": "identifier",
+      "facet_key": "session_game_type",
+      "graph_usage": "edge_target",
+      "projection_signal": null,
+      "is_nullable": false,
+      "distribution_hint": null
+    }
+  ],
+  "relations": [
+    {
+      "source_schema": "casino",
+      "source_table": "visits",
+      "source_column": "player_id",
+      "target_schema": "casino",
+      "target_table": "players",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": false,
+      "graph_label": "VISITED_BY",
+      "cardinality": "1:n",
+      "notes": null
+    },
+    {
+      "source_schema": "casino",
+      "source_table": "game_sessions",
+      "source_column": "visit_id",
+      "target_schema": "casino",
+      "target_table": "visits",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": false,
+      "graph_label": "PLAYED_IN",
+      "cardinality": "1:n",
+      "notes": null
+    },
+    {
+      "source_schema": "casino",
+      "source_table": "game_sessions",
+      "source_column": "game_type_id",
+      "target_schema": "casino",
+      "target_table": "game_types",
+      "target_column": "id",
+      "relation_role": "references",
+      "hierarchical": false,
+      "graph_label": "IS_TYPE",
+      "cardinality": "1:n",
+      "notes": null
+    },
+    {
+      "source_schema": "casino",
+      "source_table": "transactions",
+      "source_column": "player_id",
+      "target_schema": "casino",
+      "target_table": "players",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": false,
+      "graph_label": null,
+      "cardinality": "1:n",
+      "notes": null
+    },
+    {
+      "source_schema": "casino",
+      "source_table": "hotel_stays",
+      "source_column": "player_id",
+      "target_schema": "casino",
+      "target_table": "players",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": false,
+      "graph_label": "STAYED_BY",
+      "cardinality": "1:n",
+      "notes": null
+    },
+    {
+      "source_schema": "casino",
+      "source_table": "event_registrations",
+      "source_column": "player_id",
+      "target_schema": "casino",
+      "target_table": "players",
+      "target_column": "id",
+      "relation_role": "registered_for",
+      "hierarchical": false,
+      "graph_label": "REGISTERED_BY",
+      "cardinality": "n:n",
+      "notes": null
+    }
+  ],
+  "generation_hints": {
+    "table_order": [
+      "casino.game_types",
+      "casino.campaigns",
+      "casino.players",
+      "casino.visits",
+      "casino.hotel_stays",
+      "casino.event_registrations",
+      "casino.game_sessions",
+      "casino.transactions",
+      "casino.app_events"
+    ],
+    "estimated_total_rows": 35000,
+    "seed_multipliers": {
+      "tiny": 15,
+      "low": 50,
+      "medium": 2000,
+      "high": 10000
+    },
+    "domain_profile": "casino",
+    "time_window_days": 365
+  },
+  "validation_warnings": []
+}

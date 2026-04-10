@@ -1,0 +1,251 @@
+{
+  "table_semantics": [
+    {
+      "table_schema": "crm",
+      "table_name": "accounts",
+      "business_role": "actor",
+      "generation_strategy": "synthetic",
+      "emit_facets": true,
+      "emit_graph_entity": true,
+      "emit_graph_relation": false,
+      "table_role": "actor",
+      "entity_family": "account",
+      "volume_driver": "low",
+      "primary_time_column": "created_at",
+      "emit_projections": true
+    },
+    {
+      "table_schema": "crm",
+      "table_name": "contacts",
+      "business_role": "actor",
+      "generation_strategy": "synthetic",
+      "emit_facets": true,
+      "emit_graph_entity": true,
+      "emit_graph_relation": true,
+      "table_role": "actor",
+      "entity_family": "contact",
+      "volume_driver": "medium",
+      "primary_time_column": "created_at",
+      "emit_projections": true
+    },
+    {
+      "table_schema": "crm",
+      "table_name": "campaigns",
+      "business_role": "stateful_item",
+      "generation_strategy": "synthetic",
+      "emit_facets": true,
+      "emit_graph_entity": true,
+      "emit_graph_relation": true,
+      "table_role": "stateful_item",
+      "entity_family": "campaign",
+      "volume_driver": "low",
+      "primary_time_column": "launched_at",
+      "emit_projections": true
+    },
+    {
+      "table_schema": "crm",
+      "table_name": "campaign_enrollments",
+      "business_role": "association",
+      "generation_strategy": "synthetic",
+      "emit_facets": true,
+      "emit_graph_entity": false,
+      "emit_graph_relation": true,
+      "table_role": "association",
+      "entity_family": "campaign_enrollment",
+      "volume_driver": "medium",
+      "primary_time_column": "enrolled_at",
+      "emit_projections": true
+    },
+    {
+      "table_schema": "crm",
+      "table_name": "activities",
+      "business_role": "event",
+      "generation_strategy": "synthetic",
+      "emit_facets": true,
+      "emit_graph_entity": false,
+      "emit_graph_relation": false,
+      "table_role": "event",
+      "entity_family": "activity",
+      "volume_driver": "high",
+      "primary_time_column": "occurred_at",
+      "emit_projections": false
+    }
+  ],
+  "column_semantics": [
+    {
+      "table_schema": "crm",
+      "table_name": "accounts",
+      "column_name": "id",
+      "column_role": "id",
+      "public_column_role": "id",
+      "semantic_type": "identifier",
+      "graph_usage": "entity_name",
+      "is_nullable": false,
+      "distribution_hint": { "format": "uuid" }
+    },
+    {
+      "table_schema": "crm",
+      "table_name": "accounts",
+      "column_name": "name",
+      "column_role": "attribute",
+      "public_column_role": "label",
+      "semantic_type": "free_text",
+      "facet_key": "account_name",
+      "graph_usage": "entity_property",
+      "is_nullable": false,
+      "distribution_hint": { "format": "company_name" }
+    },
+    {
+      "table_schema": "crm",
+      "table_name": "contacts",
+      "column_name": "full_name",
+      "column_role": "attribute",
+      "public_column_role": "label",
+      "semantic_type": "free_text",
+      "facet_key": "contact_name",
+      "graph_usage": "entity_property",
+      "is_nullable": false,
+      "distribution_hint": { "format": "full_name" }
+    },
+    {
+      "table_schema": "crm",
+      "table_name": "contacts",
+      "column_name": "account_id",
+      "column_role": "fk",
+      "public_column_role": "fk",
+      "semantic_type": "identifier",
+      "graph_usage": "edge_target",
+      "is_nullable": false
+    },
+    {
+      "table_schema": "crm",
+      "table_name": "campaigns",
+      "column_name": "name",
+      "column_role": "attribute",
+      "public_column_role": "label",
+      "semantic_type": "free_text",
+      "facet_key": "campaign_name",
+      "graph_usage": "entity_property",
+      "is_nullable": false,
+      "distribution_hint": { "format": "campaign_name" }
+    },
+    {
+      "table_schema": "crm",
+      "table_name": "campaigns",
+      "column_name": "status",
+      "column_role": "status",
+      "public_column_role": "status",
+      "semantic_type": "state",
+      "facet_key": "campaign_status",
+      "graph_usage": "entity_property",
+      "projection_signal": "priority",
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["draft", "active", "paused", "completed"],
+        "weights": [0.20, 0.45, 0.15, 0.20]
+      }
+    },
+    {
+      "table_schema": "crm",
+      "table_name": "campaign_enrollments",
+      "column_name": "enrollment_status",
+      "column_role": "status",
+      "public_column_role": "status",
+      "semantic_type": "state",
+      "facet_key": "enrollment_status",
+      "projection_signal": "alert_trigger",
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["queued", "active", "replied", "bounced", "unsubscribed"],
+        "weights": [0.20, 0.45, 0.15, 0.10, 0.10]
+      }
+    },
+    {
+      "table_schema": "crm",
+      "table_name": "activities",
+      "column_name": "activity_type",
+      "column_role": "attribute",
+      "public_column_role": "category",
+      "semantic_type": "enum",
+      "facet_key": "activity_type",
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["email", "call", "linkedin", "reply"],
+        "weights": [0.50, 0.20, 0.15, 0.15]
+      }
+    },
+    {
+      "table_schema": "crm",
+      "table_name": "activities",
+      "column_name": "outcome",
+      "column_role": "status",
+      "public_column_role": "status",
+      "semantic_type": "state",
+      "facet_key": "activity_outcome",
+      "projection_signal": "alert_trigger",
+      "is_nullable": true,
+      "distribution_hint": {
+        "values": ["sent", "opened", "clicked", "replied", "failed"],
+        "weights": [0.40, 0.20, 0.10, 0.15, 0.15]
+      }
+    },
+    {
+      "table_schema": "crm",
+      "table_name": "activities",
+      "column_name": "occurred_at",
+      "column_role": "timestamp",
+      "public_column_role": "timestamp",
+      "semantic_type": "temporal",
+      "is_nullable": false
+    }
+  ],
+  "relation_semantics": [
+    {
+      "from_schema": "crm",
+      "from_table": "contacts",
+      "to_schema": "crm",
+      "to_table": "accounts",
+      "fk_column": "account_id",
+      "relation_kind": "many_to_one",
+      "relation_role": "works_at",
+      "hierarchical": false,
+      "graph_label": "WORKS_AT",
+      "target_column": "id"
+    },
+    {
+      "from_schema": "crm",
+      "from_table": "campaign_enrollments",
+      "to_schema": "crm",
+      "to_table": "campaigns",
+      "fk_column": "campaign_id",
+      "relation_kind": "many_to_one",
+      "relation_role": "targets",
+      "hierarchical": false,
+      "graph_label": "TARGETS",
+      "target_column": "id"
+    },
+    {
+      "from_schema": "crm",
+      "from_table": "campaign_enrollments",
+      "to_schema": "crm",
+      "to_table": "contacts",
+      "fk_column": "contact_id",
+      "relation_kind": "many_to_one",
+      "relation_role": "targets",
+      "hierarchical": false,
+      "graph_label": "TARGETS",
+      "target_column": "id"
+    },
+    {
+      "from_schema": "crm",
+      "from_table": "activities",
+      "to_schema": "crm",
+      "to_table": "campaign_enrollments",
+      "fk_column": "enrollment_id",
+      "relation_kind": "many_to_one",
+      "relation_role": "belongs_to",
+      "hierarchical": false,
+      "target_column": "id"
+    }
+  ]
+}

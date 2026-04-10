@@ -1,0 +1,260 @@
+{
+  "schema_version": "1.0.0",
+  "exported_at": "2026-03-31T00:00:00Z",
+  "workspace": {
+    "id": "kanban-board",
+    "label": "Kanban Board",
+    "description": "Project management kanban: boards, columns, cards, comments and team members.",
+    "domain_profile": "kanban",
+    "pg_schema": "ws_kanban_board"
+  },
+  "tables": [
+    {
+      "schema_name": "kanban",
+      "table_name": "members",
+      "table_role": "actor",
+      "entity_family": "member",
+      "primary_time_column": "joined_at",
+      "volume_driver": "low",
+      "generation_strategy": "seed_table",
+      "emit_facets": true,
+      "emit_graph_entities": true,
+      "emit_graph_relations": false,
+      "emit_projections": false,
+      "notes": null
+    },
+    {
+      "schema_name": "kanban",
+      "table_name": "boards",
+      "table_role": "stateful_item",
+      "entity_family": "board",
+      "primary_time_column": "created_at",
+      "volume_driver": "low",
+      "generation_strategy": "seed_table",
+      "emit_facets": true,
+      "emit_graph_entities": true,
+      "emit_graph_relations": false,
+      "emit_projections": false,
+      "notes": null
+    },
+    {
+      "schema_name": "kanban",
+      "table_name": "columns",
+      "table_role": "reference",
+      "entity_family": "column",
+      "primary_time_column": null,
+      "volume_driver": "low",
+      "generation_strategy": "per_parent",
+      "emit_facets": false,
+      "emit_graph_entities": false,
+      "emit_graph_relations": false,
+      "emit_projections": false,
+      "notes": { "parent_table": "boards", "avg_per_parent": 4 }
+    },
+    {
+      "schema_name": "kanban",
+      "table_name": "cards",
+      "table_role": "stateful_item",
+      "entity_family": "card",
+      "primary_time_column": "created_at",
+      "volume_driver": "medium",
+      "generation_strategy": "per_parent",
+      "emit_facets": true,
+      "emit_graph_entities": true,
+      "emit_graph_relations": true,
+      "emit_projections": true,
+      "notes": { "parent_table": "columns", "avg_per_parent": 8 }
+    },
+    {
+      "schema_name": "kanban",
+      "table_name": "comments",
+      "table_role": "event",
+      "entity_family": "comment",
+      "primary_time_column": "created_at",
+      "volume_driver": "medium",
+      "generation_strategy": "per_parent",
+      "emit_facets": false,
+      "emit_graph_entities": false,
+      "emit_graph_relations": false,
+      "emit_projections": false,
+      "notes": { "parent_table": "cards", "avg_per_parent": 3 }
+    }
+  ],
+  "columns": [
+    {
+      "schema_name": "kanban",
+      "table_name": "boards",
+      "column_name": "id",
+      "column_role": "id",
+      "semantic_type": "identifier",
+      "facet_key": null,
+      "graph_usage": "entity_name",
+      "projection_signal": null,
+      "is_nullable": false,
+      "distribution_hint": { "format": "uuid" }
+    },
+    {
+      "schema_name": "kanban",
+      "table_name": "boards",
+      "column_name": "name",
+      "column_role": "label",
+      "semantic_type": "free_text",
+      "facet_key": "board_name",
+      "graph_usage": "entity_property",
+      "projection_signal": null,
+      "is_nullable": false,
+      "distribution_hint": { "format": "project_name" }
+    },
+    {
+      "schema_name": "kanban",
+      "table_name": "cards",
+      "column_name": "id",
+      "column_role": "id",
+      "semantic_type": "identifier",
+      "facet_key": null,
+      "graph_usage": "entity_name",
+      "projection_signal": null,
+      "is_nullable": false,
+      "distribution_hint": { "format": "uuid" }
+    },
+    {
+      "schema_name": "kanban",
+      "table_name": "cards",
+      "column_name": "title",
+      "column_role": "label",
+      "semantic_type": "free_text",
+      "facet_key": "card_title",
+      "graph_usage": "entity_property",
+      "projection_signal": null,
+      "is_nullable": false,
+      "distribution_hint": { "format": "task_title" }
+    },
+    {
+      "schema_name": "kanban",
+      "table_name": "cards",
+      "column_name": "status",
+      "column_role": "status",
+      "semantic_type": "state",
+      "facet_key": "card_status",
+      "graph_usage": "entity_property",
+      "projection_signal": "alert_trigger",
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["backlog", "todo", "in_progress", "review", "done", "blocked"],
+        "weights": [0.20, 0.15, 0.30, 0.10, 0.20, 0.05]
+      }
+    },
+    {
+      "schema_name": "kanban",
+      "table_name": "cards",
+      "column_name": "priority",
+      "column_role": "score",
+      "semantic_type": "enum",
+      "facet_key": "card_priority",
+      "graph_usage": null,
+      "projection_signal": "priority",
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["low", "medium", "high", "critical"],
+        "weights": [0.30, 0.40, 0.25, 0.05]
+      }
+    },
+    {
+      "schema_name": "kanban",
+      "table_name": "cards",
+      "column_name": "assignee_id",
+      "column_role": "owner",
+      "semantic_type": "identifier",
+      "facet_key": "card_assignee",
+      "graph_usage": "edge_target",
+      "projection_signal": null,
+      "is_nullable": true,
+      "distribution_hint": null
+    },
+    {
+      "schema_name": "kanban",
+      "table_name": "members",
+      "column_name": "display_name",
+      "column_role": "label",
+      "semantic_type": "free_text",
+      "facet_key": "member_name",
+      "graph_usage": "entity_property",
+      "projection_signal": null,
+      "is_nullable": false,
+      "distribution_hint": { "format": "full_name" }
+    }
+  ],
+  "relations": [
+    {
+      "source_schema": "kanban",
+      "source_table": "columns",
+      "source_column": "board_id",
+      "target_schema": "kanban",
+      "target_table": "boards",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": true,
+      "graph_label": "CONTAINS",
+      "cardinality": "1:n",
+      "notes": null
+    },
+    {
+      "source_schema": "kanban",
+      "source_table": "cards",
+      "source_column": "column_id",
+      "target_schema": "kanban",
+      "target_table": "columns",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": true,
+      "graph_label": "CONTAINS",
+      "cardinality": "1:n",
+      "notes": null
+    },
+    {
+      "source_schema": "kanban",
+      "source_table": "cards",
+      "source_column": "assignee_id",
+      "target_schema": "kanban",
+      "target_table": "members",
+      "target_column": "id",
+      "relation_role": "assigned_to",
+      "hierarchical": false,
+      "graph_label": "ASSIGNED_TO",
+      "cardinality": "1:n",
+      "notes": null
+    },
+    {
+      "source_schema": "kanban",
+      "source_table": "comments",
+      "source_column": "card_id",
+      "target_schema": "kanban",
+      "target_table": "cards",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": false,
+      "graph_label": null,
+      "cardinality": "1:n",
+      "notes": null
+    }
+  ],
+  "generation_hints": {
+    "table_order": [
+      "kanban.members",
+      "kanban.boards",
+      "kanban.columns",
+      "kanban.cards",
+      "kanban.comments"
+    ],
+    "estimated_total_rows": 5000,
+    "seed_multipliers": {
+      "tiny": 5,
+      "low": 30,
+      "medium": 500,
+      "high": 2000
+    },
+    "domain_profile": "kanban",
+    "time_window_days": 180
+  },
+  "validation_warnings": []
+}

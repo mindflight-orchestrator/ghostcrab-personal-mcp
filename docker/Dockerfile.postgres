@@ -1,0 +1,165 @@
+# Dockerfile.postgres
+# Builds PostgreSQL 17 with pgvector, roaringbitmap, pg_facets, pg_dgraph, pg_pragma, and pg_trgm.
+# Supports multi-arch: Intel (x86_64) and Apple Silicon (arm64) via TARGETARCH.
+#
+# Build context: mfo-postgres-ext repository root.
+
+# ---------------------------
+# Stage 1: Builder Stage
+# ---------------------------
+FROM ubuntu:22.04 AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PG_MAJOR=17 \
+    ZIG_VERSION=0.15.2
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        curl \
+        ca-certificates \
+        gnupg2 \
+        git \
+        openssh-client \
+        cmake \
+        gcc \
+        libc-dev \
+        make \
+        pkg-config \
+        libssl-dev \
+        wget \
+        xz-utils && \
+    rm -rf /var/lib/apt/lists/*
+
+# Add PostgreSQL Apt repository and install PostgreSQL development packages
+RUN curl -sSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+    echo "deb http://apt.postgresql.org/pub/repos/apt/ jammy-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        postgresql-server-dev-$PG_MAJOR && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Zig (multi-arch) and lock Zig build target to GNU libc.
+# We derive runtime arch via uname -m to reduce TARGETARCH/QEMU mismatches.
+ARG TARGETARCH=amd64
+RUN MACHINE="$(uname -m)" && \
+    case "${MACHINE}" in \
+      aarch64|arm64) RUNTIME_ARCH=arm64;; \
+      x86_64|amd64) RUNTIME_ARCH=amd64;; \
+      *) RUNTIME_ARCH="${TARGETARCH}";; \
+    esac && \
+    if [ "${TARGETARCH}" != "${RUNTIME_ARCH}" ]; then \
+      echo "WARN: TARGETARCH=${TARGETARCH} differs from runtime arch ${RUNTIME_ARCH}; using runtime arch."; \
+    fi && \
+    case "${RUNTIME_ARCH}" in \
+      arm64) ZIG_ARCH=aarch64-linux; ZIG_TARGET=aarch64-linux-gnu;; \
+      *) ZIG_ARCH=x86_64-linux; ZIG_TARGET=x86_64-linux-gnu;; \
+    esac && \
+    printf '%s' "${ZIG_TARGET}" > /tmp/zig_target && \
+    cd /tmp && \
+    wget https://ziglang.org/download/${ZIG_VERSION}/zig-${ZIG_ARCH}-${ZIG_VERSION}.tar.xz && \
+    tar -xf zig-${ZIG_ARCH}-${ZIG_VERSION}.tar.xz && \
+    mv zig-${ZIG_ARCH}-${ZIG_VERSION} /usr/local/zig && \
+    ln -s /usr/local/zig/zig /usr/local/bin/zig && \
+    rm zig-${ZIG_ARCH}-${ZIG_VERSION}.tar.xz
+
+# Build and install roaringbitmap from submodule dependency.
+COPY extensions/pg_facets/deps/pg_roaringbitmap /tmp/pg_roaringbitmap
+RUN \
+    cd /tmp/pg_roaringbitmap && \
+    make clean && \
+    make && \
+    make install
+
+# Build pg_facets from source
+COPY extensions/pg_facets/src /tmp/pg_facets/src
+COPY extensions/pg_facets/sql /tmp/pg_facets/sql
+COPY extensions/pg_facets/build.zig /tmp/pg_facets/
+COPY extensions/pg_facets/pg_facets.control /tmp/pg_facets/
+COPY extensions/pg_facets/deps/pg_roaringbitmap /tmp/pg_facets/deps/pg_roaringbitmap
+RUN cd /tmp/pg_facets && \
+    ZIG_TARGET="$(tr -d '\n' </tmp/zig_target)" && \
+    zig build -Dtarget="${ZIG_TARGET}" -Doptimize=ReleaseFast && \
+    test -s zig-out/lib/libpg_facets.so && \
+    # ARM-safe guard: ensure required CRoaring symbol is present in pg_facets.
+    nm -D zig-out/lib/libpg_facets.so | grep -Eq ' [TW] croaring_hardware_support$'
+
+# Build pg_dgraph from source
+COPY extensions/pg_dgraph/src /tmp/pg_dgraph/src
+COPY extensions/pg_dgraph/sql /tmp/pg_dgraph/sql
+COPY extensions/pg_dgraph/build.zig /tmp/pg_dgraph/
+COPY extensions/pg_dgraph/pg_dgraph.control /tmp/pg_dgraph/
+COPY extensions/pg_dgraph/deps/pg_roaringbitmap /tmp/pg_dgraph/deps/pg_roaringbitmap
+RUN cd /tmp/pg_dgraph && \
+    ZIG_TARGET="$(tr -d '\n' </tmp/zig_target)" && \
+    zig build -Dtarget="${ZIG_TARGET}" -Doptimize=ReleaseFast && \
+    test -s zig-out/lib/libpg_dgraph.so
+
+# Build pg_pragma from source
+COPY extensions/pg_pragma/src /tmp/pg_pragma/src
+COPY extensions/pg_pragma/sql /tmp/pg_pragma/sql
+COPY extensions/pg_pragma/build.zig /tmp/pg_pragma/
+COPY extensions/pg_pragma/pg_pragma.control /tmp/pg_pragma/
+COPY extensions/pg_pragma/deps/pg_roaringbitmap /tmp/pg_pragma/deps/pg_roaringbitmap
+RUN cd /tmp/pg_pragma && \
+    ZIG_TARGET="$(tr -d '\n' </tmp/zig_target)" && \
+    zig build -Dtarget="${ZIG_TARGET}" -Doptimize=ReleaseFast && \
+    test -s zig-out/lib/libpg_pragma.so
+
+# ---------------------------
+# Stage 2: Final Image
+# ---------------------------
+FROM pgvector/pgvector:pg17
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PG_MAJOR=17
+
+# Install postgresql-contrib-17 for pg_trgm
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        postgresql-contrib-$PG_MAJOR && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy built roaringbitmap from builder
+COPY --from=builder /usr/lib/postgresql/$PG_MAJOR/lib/roaringbitmap.so /usr/lib/postgresql/$PG_MAJOR/lib/roaringbitmap.so
+COPY --from=builder /usr/share/postgresql/$PG_MAJOR/extension/roaringbitmap.control /usr/share/postgresql/$PG_MAJOR/extension/roaringbitmap.control
+COPY --from=builder /usr/share/postgresql/$PG_MAJOR/extension/roaringbitmap--*.sql /usr/share/postgresql/$PG_MAJOR/extension/
+
+# Copy built pg_facets from builder
+COPY --from=builder /tmp/pg_facets/zig-out/lib/libpg_facets.so /usr/lib/postgresql/$PG_MAJOR/lib/libpg_facets.so
+COPY --from=builder /tmp/pg_facets/pg_facets.control /usr/share/postgresql/$PG_MAJOR/extension/pg_facets.control
+RUN ln -sf libpg_facets.so /usr/lib/postgresql/$PG_MAJOR/lib/pg_facets.so
+COPY --from=builder /tmp/pg_facets/sql/pg_facets--*.sql /usr/share/postgresql/$PG_MAJOR/extension/
+
+# Copy built pg_dgraph from builder
+COPY --from=builder /tmp/pg_dgraph/zig-out/lib/libpg_dgraph.so /usr/lib/postgresql/$PG_MAJOR/lib/libpg_dgraph.so
+COPY --from=builder /tmp/pg_dgraph/pg_dgraph.control /usr/share/postgresql/$PG_MAJOR/extension/pg_dgraph.control
+COPY --from=builder /tmp/pg_dgraph/sql/pg_dgraph--*.sql /usr/share/postgresql/$PG_MAJOR/extension/
+RUN ln -sf libpg_dgraph.so /usr/lib/postgresql/$PG_MAJOR/lib/pg_dgraph.so
+
+# Copy built pg_pragma from builder
+COPY --from=builder /tmp/pg_pragma/zig-out/lib/libpg_pragma.so /usr/lib/postgresql/$PG_MAJOR/lib/libpg_pragma.so
+COPY --from=builder /tmp/pg_pragma/pg_pragma.control /usr/share/postgresql/$PG_MAJOR/extension/pg_pragma.control
+COPY --from=builder /tmp/pg_pragma/sql/pg_pragma--*.sql /usr/share/postgresql/$PG_MAJOR/extension/
+RUN ln -sf libpg_pragma.so /usr/lib/postgresql/$PG_MAJOR/lib/pg_pragma.so
+
+# Copy postgresql.conf to a temporary location (copied to PGDATA by entrypoint at runtime)
+COPY docker/postgresql.conf /etc/postgresql/postgresql.conf
+
+# Copy custom entrypoint script that handles config file copying
+COPY docker/docker-entrypoint.sh /usr/local/bin/custom-entrypoint.sh
+RUN chmod +x /usr/local/bin/custom-entrypoint.sh
+
+# Copy init scripts
+COPY docker/init/01-init-postgres.sql /docker-entrypoint-initdb.d/
+COPY --chmod=755 docker/init/02-init-template1.sh /docker-entrypoint-initdb.d/
+
+# Verify server readiness and that native extensions are registered (not only pg_isready).
+# Respects POSTGRES_USER / POSTGRES_DB from runtime (official postgres image env).
+HEALTHCHECK --interval=10s --timeout=5s --start-period=60s --retries=15 \
+  CMD sh -c 'pg_isready -U "${POSTGRES_USER:-postgres}" && psql -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-postgres}" -c "SELECT extname FROM pg_extension WHERE extname IN ('\''pg_facets'\'','\''pg_dgraph'\'','\''pg_pragma'\'')" | grep -q pg_facets'
+
+ENTRYPOINT ["/usr/local/bin/custom-entrypoint.sh"]
+EXPOSE 5432
+CMD ["postgres"]

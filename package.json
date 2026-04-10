@@ -1,0 +1,91 @@
+{
+  "name": "@mindflight/ghostcrab",
+  "version": "0.1.0",
+  "description": "PostgreSQL memory stack for MCP-compatible agents, part of the MFO ecosystem.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "ghostcrab": "./dist/index.js"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/webigniter/ghostcrab.git"
+  },
+  "homepage": "https://gitlab.com/webigniter/ghostcrab",
+  "bugs": {
+    "url": "https://gitlab.com/webigniter/ghostcrab/-/issues"
+  },
+  "keywords": [
+    "mcp",
+    "postgres",
+    "memory",
+    "agent",
+    "ghostcrab"
+  ],
+  "files": [
+    "dist",
+    "docs",
+    "examples",
+    "README.md",
+    ".env.example"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json && node scripts/copy-sql.mjs",
+    "clean": "rm -rf coverage dist",
+    "dev": "tsx src/index.ts",
+    "dev:bootstrap": "make dev-bootstrap",
+    "dev:db_reset": "make dev-db-reset",
+    "dev:down": "make dev-down",
+    "dev:logs": "make dev-logs",
+    "dev:migrate": "make dev-migrate",
+    "dev:ps": "make dev-ps",
+    "dev:restart": "make dev-restart",
+    "dev:up": "make dev-up",
+    "demo:load": "tsx src/cli/demo-load.ts",
+    "embeddings:backfill": "tsx src/cli/embeddings-backfill.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "migrate": "tsx src/cli/migrate.ts",
+    "smoke:mcp": "node scripts/mcp-smoke.mjs",
+    "smoke:mcp:embeddings-fake": "node scripts/mcp-smoke-embeddings-fake.mjs",
+    "smoke:mcp:embeddings-real": "node scripts/mcp-smoke-embeddings-real.mjs",
+    "smoke:mcp:incomplete-graph": "node scripts/mcp-smoke-incomplete-graph.mjs",
+    "smoke:mcp:long-running": "node scripts/mcp-smoke-long-running.mjs",
+    "smoke:mcp:memory-workflow": "node scripts/mcp-smoke-memory-workflow.mjs",
+    "smoke:example-client": "node scripts/example-client-smoke.mjs",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "typecheck": "tsc --noEmit --project tsconfig.json",
+    "verify:pack": "node scripts/verify-pack.mjs",
+    "verify:e2e": "node scripts/verify-e2e.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.5.0",
+    "@types/pg": "^8.20.0",
+    "eslint": "^10.1.0",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.1",
+    "vitest": "^4.1.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "better-sqlite3": "^12.8.0",
+    "pg": "^8.20.0",
+    "yaml": "^2.8.3",
+    "zod": "^4.3.6"
+  }
+}

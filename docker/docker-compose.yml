@@ -1,0 +1,28 @@
+services:
+  postgres:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        PGVECTOR_IMAGE: ${GHOSTCRAB_PGVECTOR_IMAGE:-pgvector/pgvector:pg17}
+        PG_MAJOR: ${GHOSTCRAB_PG_MAJOR:-17}
+    container_name: ghostcrab_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ghostcrab}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ghostcrab}
+      POSTGRES_DB: ${POSTGRES_DB:-ghostcrab}
+      MFO_NATIVE_EXTENSIONS: ${MFO_NATIVE_EXTENSIONS:-auto}
+    volumes:
+      - ghostcrab_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${PG_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  ghostcrab_postgres_data:
+    driver: local

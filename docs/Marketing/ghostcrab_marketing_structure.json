@@ -1,0 +1,196 @@
+{
+  "product": "GhostCrab",
+  "extraction_notes": "Sourced only from this repository at extraction time. Paths are repo-relative.",
+  "bloc_1_hero_section": {
+    "headline_candidates": [
+      "PostgreSQL memory stack for MCP agents",
+      "GhostCrab: facets, graph, and typed projections in Postgres",
+      "Stable ghostcrab_* tools on a SQL-first Postgres runtime"
+    ],
+    "subheadline": "MCP stdio server exposing 13 public tools over PostgreSQL, with optional native extensions (pg_facets, pg_dgraph, pg_pragma) and a documented response envelope.",
+    "problem_statement": "Agents need durable, queryable memory and graph context beyond ephemeral chat sessions; GhostCrab stores facts, nodes/edges, and typed projections behind a single MCP tool surface.",
+    "cta_primary": "Run PostgreSQL via Docker fallback, migrate, build, then start the stdio server (see README Quick Start).",
+    "source_files": [
+      "README.md",
+      "docs/architecture.md",
+      "docs/mcp_tools_contract.md"
+    ]
+  },
+  "bloc_2_value_proposition_pillars": [
+    {
+      "pillar_id": "facets",
+      "extension": "pg_facets",
+      "headline": "Faceted facts with BM25 and hybrid vector hooks",
+      "body": "Application schema stores documents in mfo_facets with JSONB facets, generated bm25_vector, and optional pgvector embeddings. The pg_facets extension adds Zig-native faceting, Roaring Bitmaps, and BM25 ranking beyond stock ts_rank_cd.",
+      "proof_point": "mfo_facets defines GIN(facets), GIN(bm25_vector), and ivfflat on embedding where present (src/db/migrations/001_facets_schema.sql). Extension README: BM25 + Roaring Bitmaps + hybrid BM25/pg_vector (extensions/pg_facets/README.md).",
+      "icon_suggestion": "filter",
+      "sources": [
+        "src/db/migrations/001_facets_schema.sql",
+        "extensions/pg_facets/README.md"
+      ]
+    },
+    {
+      "pillar_id": "graph",
+      "extension": "pg_dgraph",
+      "headline": "Entity graph in SQL, traversal-oriented extension",
+      "body": "mfo_nodes and mfo_edges model labeled nodes and weighted edges with direction-friendly indexes. The pg_dgraph extension provides Zig-backed BFS, filtered traversal, and shortest-path style operations over roaringbitmap-backed edge sets.",
+      "proof_point": "Schema: mfo_edges with idx on (source, label), (target, label) (src/db/migrations/002_dgraph_schema.sql). Extension: k_hops_filtered, bidirectional BFS, filtered traversal (extensions/pg_dgraph/README.md).",
+      "icon_suggestion": "network",
+      "sources": [
+        "src/db/migrations/002_dgraph_schema.sql",
+        "extensions/pg_dgraph/README.md"
+      ]
+    },
+    {
+      "pillar_id": "memory",
+      "extension": "pg_pragma",
+      "headline": "Proposition DSL and typed projections",
+      "body": "Runtime table mfo_projections holds proj_type in FACT, GOAL, STEP, CONSTRAINT with weight, status, and optional link to facets. Native pg_pragma documents the Proposition DSL (line-oriented records: fact, constraint, step, goal, edge) and SQL helpers such as pragma_parse_proposition_line and pragma_pack_context.",
+      "proof_point": "CHECK (proj_type IN ('FACT', 'GOAL', 'STEP', 'CONSTRAINT')) on mfo_projections (src/db/migrations/003_pragma_schema.sql). Proposition DSL record types and examples in extensions/pg_pragma/docs/DSL_RULES.md; SQL API listed in extensions/pg_pragma/README.md.",
+      "icon_suggestion": "memory",
+      "sources": [
+        "src/db/migrations/003_pragma_schema.sql",
+        "extensions/pg_pragma/README.md",
+        "extensions/pg_pragma/docs/DSL_RULES.md"
+      ]
+    }
+  ],
+  "bloc_3_agent_skills_matrix": [
+    {
+      "agent": "OpenClaw",
+      "skill_name": "[MISSING — to be written: skills/openclaw/SKILL.md not in repo]",
+      "core_capability": "[MISSING — packaged skill] Documentation in docs/SOP_start/openclaw.md describes JSONB-oriented usage patterns for agents (e.g. facet write shapes); not a shippable SKILL.md artifact here.",
+      "example_prompt": "[MISSING — to be written]",
+      "unique_differentiator": "Compared to Claude Code in-repo docs: OpenClaw is positioned as persistent multi-week memory; GhostCrab facets act as a complement to that persistent agent context (docs/SOP_start/claude-code.md, structural comparison table).",
+      "source": "docs/SOP_start/claude-code.md; docs/SOP_start/openclaw.md"
+    },
+    {
+      "agent": "Codex",
+      "skill_name": "[MISSING — to be written: skills/codex/SKILL.md not in repo]",
+      "core_capability": "Register stdio MCP server in ~/.codex/config.toml: [mcp_servers.ghostcrab] with command node, absolute path to dist/index.js, DATABASE_URL and optional GHOSTCRAB_EMBEDDINGS_MODE=fake.",
+      "example_prompt": "List available GhostCrab tools.",
+      "unique_differentiator": "Codex-specific setup: enable rmcp_client feature and use absolute args path; doc states the surface includes 13 public tools (docs/codex_integration.md).",
+      "source": "docs/codex_integration.md"
+    },
+    {
+      "agent": "Claude Code",
+      "skill_name": "[MISSING — to be written: skills/claude-code/SKILL.md not in repo]",
+      "core_capability": "In-repo guidance: add a CLAUDE.md fragment that runs ghostcrab_search at session start and stresses write-back because memory resets each session.",
+      "example_prompt": "ghostcrab_search(query=\"session start context\", filters={\"entry_type\": \"rule\", \"level\": \"foundation\"}, limit=5) — example block in docs/SOP_start/claude-code.md",
+      "unique_differentiator": "Doc states that for Claude Code, pg_facets-backed memory is the durable project memory because the client session resets (docs/SOP_start/claude-code.md).",
+      "source": "docs/SOP_start/claude-code.md"
+    }
+  ],
+  "bloc_4_how_it_works": [
+    {
+      "step": 1,
+      "title": "Connect MCP client to stdio server",
+      "description": "Client launches the Node process that runs the GhostCrab MCP server over stdio.",
+      "technical_detail": "Transport: @modelcontextprotocol/sdk stdio; entrypoint src/index.ts (docs/architecture.md).",
+      "sources": ["docs/architecture.md", "README.md"]
+    },
+    {
+      "step": 2,
+      "title": "Validate database and run bootstrap",
+      "description": "Server checks PostgreSQL reachability, applies migration discipline, seeds canonical data.",
+      "technical_detail": "Migrations under src/db/migrations; checksum recorded in mfo_schema_migrations; bootstrap in src/bootstrap/seed.ts (README.md Database Workflow; docs/architecture.md).",
+      "sources": ["README.md", "docs/architecture.md"]
+    },
+    {
+      "step": 3,
+      "title": "Execute ghostcrab_* tools",
+      "description": "Registry resolves tool name; handler runs SQL; JSON returns stable envelope with tool-specific fields.",
+      "technical_detail": "Envelope: ok, tool, surface_version, generated_at (docs/mcp_tools_contract.md; src/tools/registry.ts GHOSTCRAB_MCP_SURFACE_VERSION).",
+      "sources": ["docs/mcp_tools_contract.md", "src/tools/registry.ts"]
+    }
+  ],
+  "bloc_5_social_proof_trust_signals": {
+    "github_stars": null,
+    "contributors": null,
+    "tools_count": 13,
+    "skills_count": 0,
+    "notable_users_orgs": [],
+    "testimonials": [],
+    "source_files": [
+      "README.md",
+      "docs/codex_integration.md",
+      "src/tools/**/*.ts (ghostcrab_* registrations)",
+      "docs/Marketing/prompt-marketing.md (skills folder expectation)"
+    ],
+    "notes": "tools_count from grep of name: \"ghostcrab_\" in src/tools. github_stars/contributors not fetched (no reliable in-repo value). skills_count=0: no skills/openclaw|codex|claude-code/SKILL.md tree."
+  },
+  "bloc_6_technical_differentiators": [
+    {
+      "differentiator": "Public ghostcrab_* MCP names vs internal mfo_* tables",
+      "vs_alternative": "Exposing raw table names or ad-hoc SQL to every client.",
+      "ghostcrab_approach": "Single branded tool surface with stable JSON envelope; storage model stays mfo_* internally (docs/architecture.md).",
+      "source": "docs/architecture.md"
+    },
+    {
+      "differentiator": "SQL-first Docker fallback without native extension build",
+      "vs_alternative": "Requiring local Zig and pg_config for every developer bootstrap.",
+      "ghostcrab_approach": "Default path uses docker/Dockerfile SQL-first Postgres; native extensions remain in-repo but are not the default bootstrap (README.md; docs/architecture.md).",
+      "source": "README.md"
+    },
+    {
+      "differentiator": "Proposition DSL as named, typed memory lines",
+      "vs_alternative": "Unstructured logs or opaque blobs for agent state.",
+      "ghostcrab_approach": "Line-oriented DSL with record types fact|constraint|step|goal|edge; aligns with SQL projection types FACT, GOAL, STEP, CONSTRAINT on mfo_projections.",
+      "source": "extensions/pg_pragma/docs/DSL_RULES.md; src/db/migrations/003_pragma_schema.sql"
+    },
+    {
+      "differentiator": "Documented phase-4 limits instead of implied full semantic search",
+      "vs_alternative": "Marketing full RAG without stating vector path maturity.",
+      "ghostcrab_approach": "Known limits: semantic vector search not active yet; product graph intentionally partial; embeddings interface-ready but disabled by default (docs/known_limits.md; README.md).",
+      "source": "docs/known_limits.md; README.md"
+    }
+  ],
+  "bloc_7_faq_candidates": [
+    {
+      "question": "How many public MCP tools does GhostCrab expose?",
+      "answer": "Thirteen ghostcrab_* tools, listed in docs/mcp_tools_contract.md and registered under src/tools/.",
+      "source": "docs/mcp_tools_contract.md; src/tools/"
+    },
+    {
+      "question": "What is the stable response shape for successful tool calls?",
+      "answer": "JSON includes ok: true, tool name, surface_version (e.g. 2026-03-23), generated_at, plus tool-specific fields at the top level.",
+      "source": "docs/mcp_tools_contract.md; src/tools/registry.ts"
+    },
+    {
+      "question": "Is semantic vector search fully productized?",
+      "answer": "Not yet for phase 4; README lists semantic vector search beyond the prepared interface as deferred; known_limits states semantic vector search is not active yet.",
+      "source": "README.md; docs/known_limits.md"
+    },
+    {
+      "question": "How do I smoke-test the server locally?",
+      "answer": "PG_PORT=55432 npm run verify:e2e runs format, lint, build, tests, docker Postgres, migrations, bootstrap, and MCP scenarios (README.md).",
+      "source": "README.md"
+    },
+    {
+      "question": "What does the example Node client do?",
+      "answer": "Launches dist/index.js, lists tools, calls ghostcrab_status and ghostcrab_pack, prints one JSON object to stdout.",
+      "source": "examples/node-stdio-client/README.md"
+    }
+  ],
+  "bloc_8_metadata_and_gaps": {
+    "missing_sections": [
+      "Root CHANGELOG.md (semver history) — not present; only dependency changelogs under extensions/*/deps/pg_roaringbitmap",
+      "Root LICENSE — not present at repo root",
+      "skills/openclaw/SKILL.md, skills/codex/SKILL.md, skills/claude-code/SKILL.md — absent; BLOC 3 uses docs as partial fallback only",
+      "CONTRIBUTORS file — not inventoried in extraction",
+      "GitHub stars / contributor counts — not available from repo files",
+      "Customer testimonials / issues-sourced quotes — not extracted"
+    ],
+    "ambiguous_claims": [
+      "README links to absolute paths under /Users/francois/Documents/mars2026/ghostcrab/ for some files — may be stale vs current workspace (strata); verify before publishing",
+      "pg_pragma README refers to memory_projections table name; application migration uses mfo_projections — naming alignment is an integration detail to confirm for marketing accuracy"
+    ],
+    "recommended_additions": [
+      "Add skills/ tree with OpenClaw, Codex, Claude Code SKILL.md as described in docs/Marketing/prompt-marketing.md",
+      "Add CHANGELOG.md at repository root",
+      "Add LICENSE at repository root",
+      "Replace or fix absolute-path links in README to repo-relative links",
+      "Optional: document mfo_projections vs memory_projections naming for extension vs app schema"
+    ]
+  }
+}
