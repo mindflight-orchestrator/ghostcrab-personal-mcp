@@ -1,7 +1,9 @@
 import { z } from "zod";
 
+import { resolveGhostcrabConfig } from "../../config/env.js";
 import { callNativeOrFallback } from "../../db/dispatch.js";
 import { GRAPH_ENTITY_TYPE } from "../../db/graph.js";
+import { runStandaloneTraverse } from "../../db/standalone-mindbrain.js";
 import {
   createToolSuccessResult,
   registerTool,
@@ -57,13 +59,20 @@ export const traverseTool: ToolHandler = {
   async handler(args, context) {
     const input = TraverseInput.parse(args);
 
-    // Native neighborhood path: only for depth=1, no target (path-finding needs CTE),
-    // pg_dgraph loaded, and not sql-only mode.
-    const canUseNeighborhood =
-      context.extensions.pgDgraph &&
-      context.nativeExtensionsMode !== "sql-only" &&
-      input.depth === 1 &&
-      !input.target;
+    const parseMetadata = (value: unknown): Record<string, unknown> => {
+      if (typeof value === "object" && value !== null) {
+        return value as Record<string, unknown>;
+      }
+      if (typeof value === "string" && value.length > 0) {
+        try {
+          const parsed = JSON.parse(value);
+          if (typeof parsed === "object" && parsed !== null) {
+            return parsed as Record<string, unknown>;
+          }
+        } catch {}
+      }
+      return {};
+    };
 
     type TraversalRow = {
       depth: number;
@@ -74,6 +83,181 @@ export const traverseTool: ToolHandler = {
       path: string[];
       properties: Record<string, unknown>;
     };
+
+    const sqliteTraversalFallback = async (): Promise<TraversalRow[]> => {
+      const startRows = await context.database.query<{
+        entity_id: number;
+        name: string;
+        metadata_json: string | null;
+      }>(
+        `
+          SELECT entity_id, name, metadata_json
+          FROM graph_entity
+          WHERE entity_type = ? AND name = ?
+          LIMIT 1
+        `,
+        [GRAPH_ENTITY_TYPE, input.start]
+      );
+
+      if (startRows.length === 0) {
+        return [];
+      }
+
+      const startRow = startRows[0];
+      const startMeta = parseMetadata(startRow.metadata_json);
+      const rows: TraversalRow[] = [
+        {
+          node_id: startRow.name,
+          node_label:
+            typeof startMeta.label === "string" ? startMeta.label : startRow.name,
+          node_type:
+            typeof startMeta.node_type === "string" ? startMeta.node_type : "entity",
+          properties: startMeta,
+          edge_label: null,
+          depth: 0,
+          path: [startRow.name]
+        }
+      ];
+
+      const visited = new Set<string>([startRow.name]);
+      let frontier = [
+        {
+          entity_id: startRow.entity_id,
+          node_id: startRow.name,
+          path: [startRow.name],
+          depth: 0
+        }
+      ];
+
+      for (let hop = 0; hop < input.depth; hop += 1) {
+        const nextFrontier: Array<{
+          entity_id: number;
+          node_id: string;
+          path: string[];
+          depth: number;
+        }> = [];
+
+        for (const current of frontier) {
+          const relationRows = await context.database.query<{
+            edge_label: string;
+            entity_id: number;
+            node_id: string;
+            metadata_json: string | null;
+          }>(
+            input.direction === "outbound"
+              ? `
+                SELECT
+                  r.relation_type AS edge_label,
+                  n.entity_id AS entity_id,
+                  n.name AS node_id,
+                  n.metadata_json AS metadata_json
+                FROM graph_relation r
+                JOIN graph_entity n ON n.entity_id = r.target_id
+                WHERE r.source_id = ?
+                  ${input.edge_labels.length > 0 ? `AND r.relation_type IN (${input.edge_labels.map(() => "?").join(", ")})` : ""}
+              `
+              : `
+                SELECT
+                  r.relation_type AS edge_label,
+                  n.entity_id AS entity_id,
+                  n.name AS node_id,
+                  n.metadata_json AS metadata_json
+                FROM graph_relation r
+                JOIN graph_entity n ON n.entity_id = r.source_id
+                WHERE r.target_id = ?
+                  ${input.edge_labels.length > 0 ? `AND r.relation_type IN (${input.edge_labels.map(() => "?").join(", ")})` : ""}
+              `,
+            [current.entity_id, ...input.edge_labels]
+          );
+
+          for (const relation of relationRows) {
+            if (visited.has(relation.node_id)) {
+              continue;
+            }
+            if (current.path.includes(relation.node_id)) {
+              continue;
+            }
+
+            const meta = parseMetadata(relation.metadata_json);
+            const path = [...current.path, relation.node_id];
+            const row: TraversalRow = {
+              node_id: relation.node_id,
+              node_label:
+                typeof meta.label === "string" ? meta.label : relation.node_id,
+              node_type:
+                typeof meta.node_type === "string" ? meta.node_type : "entity",
+              properties: meta,
+              edge_label: relation.edge_label,
+              depth: current.depth + 1,
+              path
+            };
+
+            rows.push(row);
+            visited.add(relation.node_id);
+
+            if (!input.target || relation.node_id !== input.target) {
+              nextFrontier.push({
+                entity_id: relation.entity_id,
+                node_id: relation.node_id,
+                path,
+                depth: current.depth + 1
+              });
+            }
+          }
+        }
+
+        frontier = nextFrontier;
+        if (frontier.length === 0) {
+          break;
+        }
+      }
+
+      return rows;
+    };
+
+    const sqliteTraversal = async (): Promise<{
+      rows: TraversalRow[];
+      targetFound: boolean | null;
+    }> => {
+      const config = resolveGhostcrabConfig();
+
+      try {
+        const result = await runStandaloneTraverse({
+          sqlitePath: config.sqlitePath,
+          start: input.start,
+          direction: input.direction,
+          edgeLabels: input.edge_labels,
+          depth: input.depth,
+          target: input.target
+        });
+
+        return {
+          rows: result.rows.map((row) => ({
+            node_id: row.node_id,
+            node_label: row.node_label,
+            node_type: row.node_type,
+            properties: parseMetadata(row.metadata_json),
+            edge_label: row.edge_label,
+            depth: row.depth,
+            path: row.path
+          })),
+          targetFound: input.target ? result.target_found : null
+        };
+      } catch {
+        return {
+          rows: await sqliteTraversalFallback(),
+          targetFound: null
+        };
+      }
+    };
+
+    // Native neighborhood path: only for depth=1, no target (path-finding needs CTE),
+    // pg_dgraph loaded, and not sql-only mode.
+    const canUseNeighborhood =
+      context.extensions.pgDgraph &&
+      context.nativeExtensionsMode !== "sql-only" &&
+      input.depth === 1 &&
+      !input.target;
 
     const nativeNeighborhood = async (): Promise<TraversalRow[]> => {
       // Resolve entity id and metadata for the start node so the root row
@@ -283,14 +467,28 @@ export const traverseTool: ToolHandler = {
       );
     };
 
-    const { value: rows, backend } = await callNativeOrFallback({
-      useNative: canUseNeighborhood,
-      native: nativeNeighborhood,
-      fallback: sqlTraversal
-    });
+    let sqliteTargetFound: boolean | null = null;
+    const traversalResult =
+      context.database.kind === "sqlite"
+        ? await (async () => {
+            const result = await sqliteTraversal();
+            sqliteTargetFound = result.targetFound;
+            return { value: result.rows, backend: "sql" as const };
+          })()
+        : await callNativeOrFallback({
+            useNative: canUseNeighborhood,
+            native: nativeNeighborhood,
+            fallback: sqlTraversal
+          });
+
+    const { value: rows, backend } = traversalResult;
 
     const graphBackend =
-      backend === "native" ? "graph.entity_neighborhood" : "graph.entity";
+      backend === "native"
+        ? "graph.entity_neighborhood"
+        : context.database.kind === "sqlite"
+          ? "graph_entity"
+          : "graph.entity";
 
     const normalizedRows = Array.isArray(rows)
       ? rows.map((row) => ({
@@ -335,7 +533,7 @@ export const traverseTool: ToolHandler = {
       edge_labels: input.edge_labels,
       depth: input.depth,
       target: input.target ?? null,
-      target_found: input.target ? Boolean(targetRow) : null,
+      target_found: sqliteTargetFound ?? (input.target ? Boolean(targetRow) : null),
       path: selectedRows,
       node_count: selectedRows.length,
       gap_candidates: gapCandidates.map((node) => ({
