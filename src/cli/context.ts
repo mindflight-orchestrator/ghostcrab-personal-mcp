@@ -22,7 +22,7 @@ export async function initToolContext(options?: {
     throw new Error(
       config.databaseKind === "postgres"
         ? "Cannot connect to PostgreSQL. Check DATABASE_URL and run `npm run migrate`."
-        : "Cannot open SQLite database. Check GHOSTCRAB_SQLITE_PATH."
+        : `Cannot reach MindBrain at ${config.mindbrainUrl}. Check GHOSTCRAB_MINDBRAIN_URL and start the backend.`
     );
   }
 
@@ -39,7 +39,7 @@ export async function initToolContext(options?: {
 
   if (options?.verbose) {
     console.error(
-      `[ghostcrab-cli] Connected to ${config.databaseKind === "postgres" ? "PostgreSQL" : "SQLite"}`
+      `[ghostcrab-cli] Connected to ${config.databaseKind === "postgres" ? "PostgreSQL" : `MindBrain-backed SQLite at ${config.mindbrainUrl}`}`
     );
   }
 

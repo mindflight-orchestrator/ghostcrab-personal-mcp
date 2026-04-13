@@ -41,6 +41,7 @@ export interface GhostcrabConfig {
   telemetryTimeoutMs: number;
   telemetryStateDir: string;
   telemetryDebug: boolean;
+  mindbrainUrl: string;
   sqlitePath: string;
   agentHost?: TelemetryAgentHost;
   agentHostSource?: TelemetryAgentHostSource;
@@ -62,6 +63,7 @@ const DEFAULT_NODE_ENV = "development";
 const DEFAULT_POOL_MAX = 10;
 const DEFAULT_TELEMETRY_TIMEOUT_MS = 1500;
 const DEFAULT_TELEMETRY_STATE_DIR = path.join(os.homedir(), ".ghostcrab");
+const DEFAULT_MINDBRAIN_URL = "http://127.0.0.1:8091";
 
 const TELEMETRY_AGENT_HOSTS: readonly TelemetryAgentHost[] = [
   "claude-code",
@@ -253,6 +255,10 @@ export function resolveGhostcrabConfig(
     telemetryTimeoutMs,
     telemetryStateDir,
     telemetryDebug,
+    mindbrainUrl:
+      env.GHOSTCRAB_MINDBRAIN_URL ??
+      fileEnv.GHOSTCRAB_MINDBRAIN_URL ??
+      DEFAULT_MINDBRAIN_URL,
     sqlitePath:
       env.GHOSTCRAB_SQLITE_PATH ??
       fileEnv.GHOSTCRAB_SQLITE_PATH ??

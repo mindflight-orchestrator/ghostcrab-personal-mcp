@@ -1,7 +1,4 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
-import { join } from "node:path";
-import { tmpdir } from "node:os";
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
@@ -35,12 +32,10 @@ export async function withMcpStdioClient<T>(
     timeoutMs?: number;
   } = {}
 ): Promise<T> {
-  const sqlitePathFromEnv =
-    options.serverEnv?.GHOSTCRAB_SQLITE_PATH ?? process.env.GHOSTCRAB_SQLITE_PATH;
-  const sqliteDir = sqlitePathFromEnv
-    ? undefined
-    : mkdtempSync(join(tmpdir(), "ghostcrab-mcp-stdio-"));
-  const sqlitePath = sqlitePathFromEnv ?? join(sqliteDir!, "server.sqlite");
+  const mindbrainUrlFromEnv =
+    options.serverEnv?.GHOSTCRAB_MINDBRAIN_URL ??
+    process.env.GHOSTCRAB_MINDBRAIN_URL ??
+    "http://127.0.0.1:8091";
 
   const transport = new StdioClientTransport({
     command: process.execPath,
@@ -49,7 +44,7 @@ export async function withMcpStdioClient<T>(
     env: {
       ...process.env,
       GHOSTCRAB_DATABASE_KIND: "sqlite",
-      GHOSTCRAB_SQLITE_PATH: sqlitePath,
+      GHOSTCRAB_MINDBRAIN_URL: mindbrainUrlFromEnv,
       GHOSTCRAB_EMBEDDINGS_MODE: "disabled",
       MFO_NATIVE_EXTENSIONS: "sql-only",
       MCP_TELEMETRY: "0",
@@ -103,9 +98,6 @@ export async function withMcpStdioClient<T>(
   } finally {
     await client.close().catch(() => undefined);
     await transport.close().catch(() => undefined);
-    if (sqliteDir) {
-      rmSync(sqliteDir, { force: true, recursive: true });
-    }
   }
 }
 

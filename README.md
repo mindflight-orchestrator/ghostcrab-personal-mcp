@@ -10,7 +10,7 @@ Built on three custom PostgreSQL extensions:
 - `pg_dgraph` — knowledge graph, multi-hop traversal, confidence scoring
 - `pg_pragma` — working context, projections, operational snapshots
 
-Exposed as 24 MCP tools (`ghostcrab_*`) to any MCP-compatible agent
+Exposed as 25 MCP tools (`ghostcrab_*`) to any MCP-compatible agent
 (Claude Code, Cursor, Codex, OpenClaw).
 
 ## Why not a vector store or a plain memory tool?
@@ -39,8 +39,10 @@ missing flows, and propose automation opportunities.
 
 AI agents require structured state to operate beyond single-turn conversations. GhostCrab fulfills this through two primary components:
 
-- **mindBrain**: A dedicated PostgreSQL memory stack designed for MCP-compatible agents. It runs PostgreSQL alongside three custom native extensions: `pg_facets`, `pg_dgraph`, and `pg_pragma`.
-- **Ontology**: At startup, GhostCrab helps an agent define an ontology to model the target environment — organizing the domain into entities and rules, whether mapping an application's data model, specialized domain knowledge, or distinct business procedures.
+- **GhostCrab MCP server**: the MCP-facing process. It registers the `ghostcrab_*` tools, validates requests, and dispatches to the right backend path.
+- **Backend runtimes**:
+  - PostgreSQL for the native extension stack (`pg_facets`, `pg_dgraph`, `pg_pragma`)
+  - MindBrain HTTP for sqlite proxy mode, where MindBrain owns the sqlite file, schema init, and default workspace seed
 
 ## Multi-Dimensional Capabilities
 
@@ -88,6 +90,22 @@ GhostCrab integrates natively with standard agent environments without requiring
    DATABASE_URL=postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab node dist/index.js
    ```
 
+### SQLite proxy mode
+
+When `GHOSTCRAB_DATABASE_KIND=sqlite`, GhostCrab does not open SQLite directly. It proxies sqlite-backed tool calls through MindBrain, which owns the sqlite file, schema init, and default workspace seed.
+
+1. Start the MindBrain HTTP backend.
+2. Point GhostCrab at it:
+
+   ```bash
+   export GHOSTCRAB_DATABASE_KIND=sqlite
+   export GHOSTCRAB_MINDBRAIN_URL=http://127.0.0.1:8091
+   npm run build
+   node dist/index.js
+   ```
+
+The sqlite file lives behind MindBrain, not inside GhostCrab.
+
 ## Quick start
 
 ```bash
@@ -110,7 +128,7 @@ Add to your MCP client config:
 }
 ```
 
-Your agent now has access to 24 `ghostcrab_*` tools.
+Your agent now has access to 25 `ghostcrab_*` tools.
 
 ## MCP tool surface
 
@@ -120,7 +138,7 @@ Your agent now has access to 24 `ghostcrab_*` tools.
 | Graph | `ghostcrab_learn`, `ghostcrab_traverse`, `ghostcrab_marketplace`, `ghostcrab_patch`, `ghostcrab_coverage` |
 | Projections | `ghostcrab_project`, `ghostcrab_pack`, `ghostcrab_status` |
 | Schema | `ghostcrab_schema_register`, `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
-| Workspace | `ghostcrab_workspace_create`, `ghostcrab_workspace_list`, `ghostcrab_workspace_inspect`, `ghostcrab_workspace_export_model`, `ghostcrab_ddl_propose`, `ghostcrab_ddl_list_pending`, `ghostcrab_ddl_execute` |
+| Workspace | `ghostcrab_workspace_create`, `ghostcrab_workspace_list`, `ghostcrab_workspace_inspect`, `ghostcrab_workspace_export_model`, `ghostcrab_workspace_export_model_toon`, `ghostcrab_ddl_propose`, `ghostcrab_ddl_list_pending`, `ghostcrab_ddl_execute` |
 
 The stable tool contract is documented in [docs/mcp_tools_contract.md](docs/mcp_tools_contract.md).
 

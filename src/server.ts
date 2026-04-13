@@ -98,7 +98,7 @@ export async function startMcpServer(): Promise<void> {
       );
       console.error(`[ghostcrab] PG_POOL_MAX=${config.pgPoolMax}`);
     } else {
-      console.error(`[ghostcrab] GHOSTCRAB_SQLITE_PATH=${config.sqlitePath}`);
+      console.error(`[ghostcrab] GHOSTCRAB_MINDBRAIN_URL=${config.mindbrainUrl}`);
     }
     console.error(
       `[ghostcrab] GHOSTCRAB_EMBEDDINGS_MODE=${config.embeddingsMode} (${config.embeddingDimensions} dims${config.embeddingModel ? `, model=${config.embeddingModel}` : ""})`
@@ -148,7 +148,7 @@ export async function startMcpServer(): Promise<void> {
       serverState.startupError =
         config.databaseKind === "postgres"
           ? `Cannot reach PostgreSQL at ${redactDatabaseUrl(config.databaseUrl)}. Ensure the database is running and DATABASE_URL is correct, then restart the MCP server.`
-          : `Cannot open SQLite database at ${config.sqlitePath}. Ensure the path is writable, then restart the MCP server.`;
+          : `Cannot reach MindBrain at ${config.mindbrainUrl}. Ensure the MindBrain server is running, then restart the MCP server.`;
       console.error(`[ghostcrab] WARNING: ${serverState.startupError}`);
       console.error(
         `[ghostcrab] Starting in degraded mode — tools will return errors until the database is available.`
@@ -158,10 +158,10 @@ export async function startMcpServer(): Promise<void> {
     const instructions = databaseIsReachable
       ? config.databaseKind === "postgres"
         ? `GhostCrab is a PostgreSQL-backed MCP memory server. Target database: ${redactDatabaseUrl(config.databaseUrl)}. Database is reachable. ${listRegisteredTools().length} tools available.`
-        : `GhostCrab is a SQLite-backed MCP memory server. Database path: ${config.sqlitePath}. Database is reachable. ${listRegisteredTools().length} tools available.`
+        : `GhostCrab is an MCP proxy for MindBrain-backed SQLite. MindBrain URL: ${config.mindbrainUrl}. Database is reachable. ${listRegisteredTools().length} tools available.`
       : config.databaseKind === "postgres"
         ? `GhostCrab is a PostgreSQL-backed MCP memory server. Target database: ${redactDatabaseUrl(config.databaseUrl)}. WARNING: database is unreachable. Call ghostcrab_status for diagnostics. Tools will return errors until the database is available and the MCP server is restarted.`
-        : `GhostCrab is a SQLite-backed MCP memory server. Database path: ${config.sqlitePath}. WARNING: database is unreachable. Call ghostcrab_status for diagnostics. Tools will return errors until the database is available and the MCP server is restarted.`;
+        : `GhostCrab is an MCP proxy for MindBrain-backed SQLite. MindBrain URL: ${config.mindbrainUrl}. WARNING: database is unreachable. Call ghostcrab_status for diagnostics. Tools will return errors until the database is available and the MCP server is restarted.`;
 
     const server = new Server(
       {
@@ -326,7 +326,9 @@ export async function startMcpServer(): Promise<void> {
       );
     } else if (serverState.databaseReady) {
       serverState.bootstrapComplete = true;
-      console.error("[ghostcrab] SQLite mode enabled; PostgreSQL bootstrap skipped");
+      console.error(
+        "[ghostcrab] MindBrain-backed SQLite mode enabled; default workspace seed is handled by MindBrain"
+      );
     }
   } catch (error) {
     const message =

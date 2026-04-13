@@ -36,7 +36,7 @@ Vendored copies are committed for offline CI and local builds. See [`docs/setup/
 - a SQL-first fallback path that remains available for explicit portability checks
 - a stable public `ghostcrab_*` tool surface with a documented response envelope
 - a real `mfo:system` bootstrap plus canonical GhostCrab schemas and starter ontology data
-- a seeded GhostCrab product graph in `mfo_nodes` / `mfo_edges` with a stable intentional gap for coverage and traversal validation
+- a seeded GhostCrab product graph in `graph.entity` / `graph.relation` with a stable intentional gap for coverage and traversal validation
 - a seeded `agent:self` runtime state plus projections for realistic `ghostcrab_pack` and `ghostcrab_status` demos
 - an embeddings runtime with two rails: deterministic fake-first validation and opt-in real OpenRouter validation
 - product-facing schemas for GhostCrab itself such as runtime components, roadmap PRs, distribution targets, and native compatibility
@@ -84,7 +84,7 @@ The application schema is managed through lexicographically ordered SQL files in
 
 ## Seeded Product Graph
 
-Bootstrap seeds a real GhostCrab product graph directly into `mfo_nodes` and `mfo_edges`.
+Bootstrap seeds a real GhostCrab product graph into `graph.entity` and `graph.relation`.
 
 - the source of truth remains [src/bootstrap/seed.ts](../src/bootstrap/seed.ts)
 - ontology concepts reused in the graph keep the same ids as `mfo:ontology.node_id`

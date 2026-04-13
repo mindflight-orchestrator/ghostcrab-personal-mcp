@@ -1,17 +1,26 @@
-import { execFile } from "node:child_process";
-import { constants } from "node:fs";
-import { access } from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
+import { URL } from "node:url";
 
-const execFileAsync = promisify(execFile);
-const STANDALONE_TOOL_NAME = "mindbrain-standalone-tool";
+export interface MindbrainSqlResponse {
+  ok: true;
+  columns: string[];
+  rows: unknown[][];
+  changes: number;
+  last_insert_rowid?: number;
+}
 
-let ensuredToolPathPromise: Promise<string> | null = null;
+export interface MindbrainSqlSessionOpenResponse {
+  ok: true;
+  session_id: number;
+}
+
+export interface MindbrainSqlSessionCloseResponse {
+  ok: true;
+  session_id: number;
+  committed: boolean;
+}
 
 export interface StandaloneTraverseParams {
-  sqlitePath: string;
+  mindbrainUrl: string;
   start: string;
   direction: "outbound" | "inbound";
   edgeLabels: string[];
@@ -34,80 +43,143 @@ export interface StandaloneTraverseResult {
   rows: StandaloneTraverseRow[];
 }
 
+export interface StandaloneWorkspaceExportParams {
+  mindbrainUrl: string;
+  workspaceId: string;
+}
+
+export interface StandalonePackParams {
+  mindbrainUrl: string;
+  userId: string;
+  query: string;
+  scope?: string;
+  limit: number;
+}
+
+export interface StandaloneMindbrainSqlParams {
+  mindbrainUrl: string;
+  sql: string;
+  params?: readonly unknown[];
+  sessionId?: number;
+  commit?: boolean;
+}
+
 export async function runStandaloneTraverse(
   params: StandaloneTraverseParams
 ): Promise<StandaloneTraverseResult> {
-  const toolPath = await ensureStandaloneToolPath();
-  const args = [
-    "traverse",
-    "--db",
-    params.sqlitePath,
-    "--start",
-    params.start,
-    "--direction",
-    params.direction,
-    "--depth",
-    String(params.depth)
-  ];
-
-  for (const edgeLabel of params.edgeLabels) {
-    args.push("--edge-label", edgeLabel);
-  }
-
+  const url = new URL("/api/mindbrain/traverse", normalizeBaseUrl(params.mindbrainUrl));
+  url.searchParams.set("start", params.start);
+  url.searchParams.set("direction", params.direction);
+  url.searchParams.set("depth", String(params.depth));
   if (params.target) {
-    args.push("--target", params.target);
+    url.searchParams.set("target", params.target);
+  }
+  for (const edgeLabel of params.edgeLabels) {
+    url.searchParams.append("edge_label", edgeLabel);
   }
 
-  const { stdout, stderr } = await execFileAsync(toolPath, args, {
-    cwd: path.dirname(toolPath),
-    env: process.env,
-    maxBuffer: 8 * 1024 * 1024
+  return await fetchJson<StandaloneTraverseResult>(url, { method: "GET" });
+}
+
+export async function runStandaloneWorkspaceExportToon(
+  params: StandaloneWorkspaceExportParams
+): Promise<string> {
+  const url = new URL("/api/mindbrain/workspace-export", normalizeBaseUrl(params.mindbrainUrl));
+  url.searchParams.set("workspace_id", params.workspaceId);
+  return await fetchText(url, { method: "GET" });
+}
+
+export async function runStandalonePackToon(
+  params: StandalonePackParams
+): Promise<string> {
+  const url = new URL("/api/mindbrain/pack", normalizeBaseUrl(params.mindbrainUrl));
+  url.searchParams.set("user_id", params.userId);
+  url.searchParams.set("query", params.query);
+  url.searchParams.set("limit", String(params.limit));
+  if (params.scope) {
+    url.searchParams.set("scope", params.scope);
+  }
+  return await fetchText(url, { method: "GET" });
+}
+
+export async function runStandaloneMindbrainSql(
+  params: StandaloneMindbrainSqlParams
+): Promise<MindbrainSqlResponse> {
+  const path = params.sessionId === undefined
+    ? "/api/mindbrain/sql"
+    : params.commit === undefined
+      ? "/api/mindbrain/sql/session/query"
+      : "/api/mindbrain/sql/session/close";
+  const url = new URL(path, normalizeBaseUrl(params.mindbrainUrl));
+  const body =
+    params.sessionId === undefined
+      ? { sql: params.sql, params: params.params ?? [] }
+      : params.commit === undefined
+        ? { session_id: params.sessionId, sql: params.sql, params: params.params ?? [] }
+        : { session_id: params.sessionId, commit: params.commit };
+  return await fetchJson<MindbrainSqlResponse>(url, {
+    method: "POST",
+    body: JSON.stringify(body),
+    headers: {
+      "content-type": "application/json"
+    }
   });
+}
+
+export async function openStandaloneMindbrainSqlSession(
+  mindbrainUrl: string
+): Promise<number> {
+  const url = new URL("/api/mindbrain/sql/session/open", normalizeBaseUrl(mindbrainUrl));
+  const response = await fetchJson<MindbrainSqlSessionOpenResponse>(url, {
+    method: "POST",
+    body: "{}",
+    headers: {
+      "content-type": "application/json"
+    }
+  });
+  return response.session_id;
+}
+
+export async function closeStandaloneMindbrainSqlSession(
+  mindbrainUrl: string,
+  sessionId: number,
+  commit: boolean
+): Promise<void> {
+  const url = new URL("/api/mindbrain/sql/session/close", normalizeBaseUrl(mindbrainUrl));
+  await fetchJson<MindbrainSqlSessionCloseResponse>(url, {
+    method: "POST",
+    body: JSON.stringify({ session_id: sessionId, commit }),
+    headers: {
+      "content-type": "application/json"
+    }
+  });
+}
+
+async function fetchText(url: URL, init: RequestInit): Promise<string> {
+  const response = await fetch(url, init);
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error(`MindBrain request failed (${response.status} ${response.statusText}): ${text || "empty response"}`);
+  }
+  return text;
+}
+
+async function fetchJson<T>(url: URL, init: RequestInit): Promise<T> {
+  const response = await fetch(url, init);
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error(`MindBrain request failed (${response.status} ${response.statusText}): ${text || "empty response"}`);
+  }
 
   try {
-    return JSON.parse(stdout) as StandaloneTraverseResult;
+    return JSON.parse(text) as T;
   } catch (error) {
     throw new Error(
-      `Failed to parse standalone traverse output: ${
-        error instanceof Error ? error.message : String(error)
-      }${stderr ? `\n${stderr}` : ""}`
+      `Failed to parse MindBrain response from ${url.pathname}: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 }
 
-async function ensureStandaloneToolPath(): Promise<string> {
-  if (ensuredToolPathPromise) {
-    return ensuredToolPathPromise;
-  }
-
-  ensuredToolPathPromise = (async () => {
-    const repoPath = resolveMindbrainRepoPath();
-    const toolPath = path.join(repoPath, "zig-out", "bin", STANDALONE_TOOL_NAME);
-
-    try {
-      await access(toolPath, constants.X_OK);
-      return toolPath;
-    } catch {
-      await execFileAsync("zig", ["build", "standalone-tool"], {
-        cwd: repoPath,
-        env: process.env,
-        maxBuffer: 8 * 1024 * 1024
-      });
-      await access(toolPath, constants.X_OK);
-      return toolPath;
-    }
-  })();
-
-  return ensuredToolPathPromise;
-}
-
-function resolveMindbrainRepoPath(): string {
-  const configuredPath = process.env.GHOSTCRAB_MINDBRAIN_PATH;
-  if (configuredPath && configuredPath.trim().length > 0) {
-    return path.resolve(configuredPath);
-  }
-
-  const currentFilePath = fileURLToPath(import.meta.url);
-  const ghostcrabRepoRoot = path.resolve(path.dirname(currentFilePath), "../..");
-  return path.resolve(ghostcrabRepoRoot, "../mindbrain");
+function normalizeBaseUrl(baseUrl: string): string {
+  return baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
 }

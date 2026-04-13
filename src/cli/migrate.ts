@@ -23,6 +23,13 @@ async function main(): Promise<void> {
       `[ghostcrab] MFO_NATIVE_EXTENSIONS=${config.nativeExtensionsMode}`
     );
 
+    if (config.databaseKind === "sqlite") {
+      console.error(
+        `[ghostcrab] SQLite mode is backed by MindBrain at ${config.mindbrainUrl}; schema bootstrap is handled there, so migrate is a no-op.`
+      );
+      return;
+    }
+
     const summary = await runMigrations(database);
     const bootstrapSummary = await ensureBootstrapData(database);
 

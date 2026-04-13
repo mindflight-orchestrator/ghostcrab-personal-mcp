@@ -62,6 +62,8 @@ const SQLITE_TEST_DB_PATH = join(SQLITE_TEST_DIR, "integration.sqlite");
 
 function ensureSqliteTestEnv(): void {
   process.env.GHOSTCRAB_DATABASE_KIND = "sqlite";
+  process.env.GHOSTCRAB_MINDBRAIN_URL =
+    process.env.GHOSTCRAB_MINDBRAIN_URL ?? "http://127.0.0.1:8091";
   process.env.GHOSTCRAB_SQLITE_PATH = SQLITE_TEST_DB_PATH;
   process.env.GHOSTCRAB_EMBEDDINGS_MODE = "disabled";
   process.env.MFO_NATIVE_EXTENSIONS = "sql-only";
@@ -88,7 +90,7 @@ export function createIntegrationHarness() {
     if (!reachable) {
       throw new Error(
         config.databaseKind === "sqlite"
-          ? `Integration database is unreachable at ${config.sqlitePath}.`
+          ? `Integration MindBrain backend is unreachable at ${config.mindbrainUrl}.`
           : `Integration database is unreachable at ${config.databaseUrl}.`
       );
     }
@@ -195,6 +197,7 @@ export async function runCliCapture(
   const originalStdin = process.stdin;
   const originalEnv = {
     GHOSTCRAB_DATABASE_KIND: process.env.GHOSTCRAB_DATABASE_KIND,
+    GHOSTCRAB_MINDBRAIN_URL: process.env.GHOSTCRAB_MINDBRAIN_URL,
     GHOSTCRAB_SQLITE_PATH: process.env.GHOSTCRAB_SQLITE_PATH,
     GHOSTCRAB_EMBEDDINGS_MODE: process.env.GHOSTCRAB_EMBEDDINGS_MODE,
     MFO_NATIVE_EXTENSIONS: process.env.MFO_NATIVE_EXTENSIONS,

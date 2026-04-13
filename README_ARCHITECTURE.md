@@ -1,6 +1,6 @@
 # GhostCrab MCP — Architecture and native PostgreSQL extensions
 
-This document describes how the GhostCrab MCP server talks to PostgreSQL, what is **implemented today**, and how the three native extensions (**`pg_facets`**, **`pg_dgraph`**, **`pg_pragma`**) relate to **creating and querying objects** versus **read acceleration** and **graph analytics**. GhostCrab still supports a SQL-only portability path, but **boot and seed are now expected to run on the native Docker PostgreSQL stack**.
+This document describes how the GhostCrab MCP server routes work to its backends, what is **implemented today**, and how the three native extensions (**`pg_facets`**, **`pg_dgraph`**, **`pg_pragma`**) relate to **creating and querying objects** versus **read acceleration** and **graph analytics**. GhostCrab still supports a SQL-only portability path, but **boot and seed are now expected to run on the native Docker PostgreSQL stack**, while sqlite mode is proxied through MindBrain.
 
 For product setup and day-to-day usage, start with [README.md](README.md) and [README_MACOSX.md](README_MACOSX.md). For execution checklists and backlog, see [ROADMAP.md](ROADMAP.md) and [docs/ROADMAP-V2.md](docs/ROADMAP-V2.md).
 
@@ -11,6 +11,8 @@ For product setup and day-to-day usage, start with [README.md](README.md) and [R
 ## Current status
 
 GhostCrab should currently be read as a **native-first MindBrain/PostgreSQL MCP server** with a working internal release chain on a **fresh native database**.
+
+SQLite mode is now a separate proxy path: GhostCrab forwards sqlite-backed tool calls to a MindBrain HTTP backend, and MindBrain owns the sqlite file, schema init, and default workspace seed.
 
 In practice, the current status is:
 
@@ -41,9 +43,9 @@ What remains true:
 
 ---
 
-## MCP tool surface (24 tools)
+## MCP tool surface (25 tools)
 
-The server registers **24** MCP tools, all prefixed `ghostcrab_*`. Registration is centralized in [`src/tools/register-all.ts`](src/tools/register-all.ts). At build time, `ghostcrab tools list` prints the same definitions (see [`src/cli/runner.ts`](src/cli/runner.ts)). Smoke tests validate the expected public tool families and startup behavior (see [`scripts/mcp-smoke.mjs`](scripts/mcp-smoke.mjs)).
+The server registers **25** MCP tools, all prefixed `ghostcrab_*`. Registration is centralized in [`src/tools/register-all.ts`](src/tools/register-all.ts). At build time, `ghostcrab tools list` prints the same definitions (see [`src/cli/runner.ts`](src/cli/runner.ts)). Smoke tests validate the expected public tool families and startup behavior (see [`scripts/mcp-smoke.mjs`](scripts/mcp-smoke.mjs)).
 
 | Subsystem | Count | Tools |
 |-----------|------:|-------|
@@ -64,7 +66,12 @@ Workspace-scoped facet/graph reads (`workspace_id`) use the same facet and graph
 
 ## What GhostCrab is
 
-GhostCrab is a **PostgreSQL-backed memory stack** exposed as an **MCP (Model Context Protocol) stdio server** (`@mindflight/ghostcrab`). Agents call **`ghostcrab_*` tools**; the server runs **portable SQL** by default and, when extensions are installed and mode allows, **dispatches to native extension functions** with automatic fallback on error.
+GhostCrab is an **MCP (Model Context Protocol) stdio server** (`@mindflight/ghostcrab`). It is the tool-facing boundary; the runtime backend depends on mode:
+
+- PostgreSQL for the native extension stack
+- MindBrain HTTP for sqlite proxy mode
+
+Agents call **`ghostcrab_*` tools**; the server validates requests and dispatches to the appropriate backend path.
 
 Entry points:
 

@@ -223,7 +223,7 @@ export const traverseTool: ToolHandler = {
 
       try {
         const result = await runStandaloneTraverse({
-          sqlitePath: config.sqlitePath,
+          mindbrainUrl: config.mindbrainUrl,
           start: input.start,
           direction: input.direction,
           edgeLabels: input.edge_labels,

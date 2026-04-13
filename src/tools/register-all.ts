@@ -16,6 +16,7 @@ import "./pragma/status.js";
 import "./workspace/create.js";
 import "./workspace/ddl.js";
 import "./workspace/export.js";
+import "./workspace/export-toon.js";
 import "./workspace/inspect.js";
 import "./workspace/list.js";
 
