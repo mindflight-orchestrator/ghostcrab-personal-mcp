@@ -38,7 +38,7 @@ export const learnTool: ToolHandler = {
   definition: {
     name: "ghostcrab_learn",
     description:
-      "Upsert knowledge nodes and write directed graph edges representing what the agent learned.",
+      "Write. Upsert knowledge graph nodes and directed edges for durable structural relations (blockers, dependencies, conceptual links). Do not create graph structure before the user intent is clarified on the first fuzzy onboarding turn.",
     inputSchema: {
       type: "object",
       properties: {

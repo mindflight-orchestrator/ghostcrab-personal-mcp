@@ -66,26 +66,9 @@ export const workspaceCreateTool: ToolHandler = {
 
     const pgSchema = `ws_${input.id.replace(/-/g, "_")}`;
 
-    if (context.database.kind === "postgres") {
-      try {
-        await context.database.query(
-          `CREATE SCHEMA IF NOT EXISTS ${pgSchema}`
-        );
-      } catch (error) {
-        return createToolErrorResult(
-          "ghostcrab_workspace_create",
-          `Failed to create PostgreSQL schema '${pgSchema}': ${error instanceof Error ? error.message : String(error)}`,
-          "schema_creation_failed"
-        );
-      }
-    }
-
     await context.database.query(
-      context.database.kind === "sqlite"
-        ? `INSERT INTO workspaces (id, label, pg_schema, description, created_by, status, domain_profile)
-           VALUES (?, ?, ?, ?, ?, 'active', ?)`
-        : `INSERT INTO mindbrain.workspaces (id, label, pg_schema, description, created_by)
-           VALUES ($1, $2, $3, $4, $5)`,
+      `INSERT INTO workspaces (id, label, pg_schema, description, created_by, status, domain_profile)
+       VALUES (?, ?, ?, ?, ?, 'active', ?)`,
       [
         input.id,
         input.label,

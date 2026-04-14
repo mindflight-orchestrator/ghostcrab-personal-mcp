@@ -24,7 +24,7 @@ export const searchTool: ToolHandler = {
   definition: {
     name: "ghostcrab_search",
     description:
-      "Retrieve ranked documents from the persistent fact store using keywords plus exact facet filters.",
+      "Read. Retrieve ranked facts from persistent memory using keyword search and exact facet filters. Prefer explicit schema_id and exact filters before broad free-text search. One zero-result exact read does not prove the whole domain is empty. On a first-turn fuzzy GhostCrab onboarding request, do not use this tool for broad surface exploration unless the user explicitly asked about available models or schema inventory.",
     inputSchema: {
       type: "object",
       properties: {

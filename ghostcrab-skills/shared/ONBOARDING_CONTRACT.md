@@ -22,7 +22,7 @@ Apply when **all** are true: the user mentions GhostCrab; the request is still f
 **That first reply may contain only:**
 
 1. One short **intent hypothesis** in user language.
-2. **2–4 clarification questions** (prefer **3**; at least half shaped by the likely activity family).
+2. **Exactly 2–4 clarification questions** (prefer **3**; at least half shaped by the likely activity family). Each question = one question mark. Do not use sub-questions or numbered sub-points within a question.
 3. One explicit **compact-view** recommendation (product language, not setup steps).
 4. One explicit offer to help draft the **next structured GhostCrab prompt**.
 
@@ -54,7 +54,7 @@ If **every** answer is **no**, **block** for that reply: tool calls, schema/tool
 Before sending, confirm **all** are present:
 
 1. Intent hypothesis  
-2. 2–4 clarification questions  
+2. Exactly 2–4 clarification questions (one question mark each; no sub-questions bundled into one)  
 3. A line starting with `Vue probable :` (or locale equivalent)  
 4. A line offering to draft the next GhostCrab prompt (or locale equivalent)  
 

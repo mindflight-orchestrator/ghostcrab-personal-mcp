@@ -18,11 +18,8 @@ export type EmbeddingsMode =
   | "null"
   | "openrouter";
 export type GhostcrabNodeEnv = "development" | "test" | "production";
-export type DatabaseKind = "postgres" | "sqlite";
 
 export interface GhostcrabConfig {
-  databaseKind: DatabaseKind;
-  databaseUrl: string;
   embeddingApiKey?: string;
   embeddingBaseUrl?: string;
   embeddingDimensions: number;
@@ -34,7 +31,6 @@ export interface GhostcrabConfig {
   hybridVectorWeight: number;
   nativeExtensionsMode: NativeExtensionsMode;
   nodeEnv: GhostcrabNodeEnv;
-  pgPoolMax: number;
   resolvedConfigPath?: string;
   telemetryEnabled: boolean;
   telemetryEndpoint?: string;
@@ -48,7 +44,6 @@ export interface GhostcrabConfig {
   executionMode?: TelemetryExecutionMode;
 }
 
-const DEFAULT_DATABASE_URL = "postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab";
 const DEFAULT_SQLITE_PATH = path.join(process.cwd(), "ghostcrab.sqlite");
 const DEFAULT_EMBEDDING_BASE_URL = "https://openrouter.ai/api/v1";
 const DEFAULT_EMBEDDING_DIMENSIONS = 1536;
@@ -60,7 +55,6 @@ const DEFAULT_ENV_FILE_PATH = ".env";
 const DEFAULT_CONFIG_FILE_PATH = "config.yaml";
 const DEFAULT_NATIVE_EXTENSIONS_MODE = "auto";
 const DEFAULT_NODE_ENV = "development";
-const DEFAULT_POOL_MAX = 10;
 const DEFAULT_TELEMETRY_TIMEOUT_MS = 1500;
 const DEFAULT_TELEMETRY_STATE_DIR = path.join(os.homedir(), ".ghostcrab");
 const DEFAULT_MINDBRAIN_URL = "http://127.0.0.1:8091";
@@ -190,13 +184,6 @@ export function resolveGhostcrabConfig(
   );
 
   return {
-    databaseKind: parseDatabaseKind(
-      env.GHOSTCRAB_DATABASE_KIND ??
-        fileEnv.GHOSTCRAB_DATABASE_KIND ??
-        "sqlite"
-    ),
-    databaseUrl:
-      env.DATABASE_URL ?? fileEnv.DATABASE_URL ?? DEFAULT_DATABASE_URL,
     embeddingApiKey:
       env.GHOSTCRAB_EMBEDDINGS_API_KEY ??
       readInterpolatedString(embeddingsFromFile?.api_key, mergedEnv) ??
@@ -244,11 +231,6 @@ export function resolveGhostcrabConfig(
         DEFAULT_NATIVE_EXTENSIONS_MODE
     ),
     nodeEnv: parseNodeEnv(env.NODE_ENV ?? fileEnv.NODE_ENV ?? DEFAULT_NODE_ENV),
-    pgPoolMax: parsePositiveInteger(
-      env.PG_POOL_MAX ?? fileEnv.PG_POOL_MAX,
-      DEFAULT_POOL_MAX,
-      "PG_POOL_MAX"
-    ),
     resolvedConfigPath: fileConfig ? configFilePath : undefined,
     telemetryEnabled,
     telemetryEndpoint,
@@ -269,20 +251,6 @@ export function resolveGhostcrabConfig(
   };
 }
 
-export function redactDatabaseUrl(databaseUrl: string): string {
-  try {
-    const parsedUrl = new URL(databaseUrl);
-
-    if (parsedUrl.password) {
-      parsedUrl.password = "***";
-    }
-
-    return parsedUrl.toString();
-  } catch {
-    return "[invalid DATABASE_URL]";
-  }
-}
-
 function parseNodeEnv(value: string): GhostcrabNodeEnv {
   if (value === "development" || value === "test" || value === "production") {
     return value;
@@ -290,16 +258,6 @@ function parseNodeEnv(value: string): GhostcrabNodeEnv {
 
   throw new Error(
     `NODE_ENV must be one of development, test, production. Received: ${value}`
-  );
-}
-
-function parseDatabaseKind(value: string): DatabaseKind {
-  if (value === "postgres" || value === "sqlite") {
-    return value;
-  }
-
-  throw new Error(
-    `GHOSTCRAB_DATABASE_KIND must be one of: postgres, sqlite. Received: ${value}`
   );
 }
 

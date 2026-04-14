@@ -41,7 +41,7 @@ export const schemaRegisterTool: ToolHandler = {
   definition: {
     name: "ghostcrab_schema_register",
     description:
-      "Register a new facet schema, graph node type, or graph edge label in the self-describing schema store.",
+      "Write. Freeze-level action: register a facet schema, graph node type, or edge label in the self-describing schema store. Never call on a first-turn fuzzy onboarding request. Only register a canonical or custom schema after a confirmed modeling gap and explicit user confirmation.",
     inputSchema: {
       type: "object",
       required: ["definition"],

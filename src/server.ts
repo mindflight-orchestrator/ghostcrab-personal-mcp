@@ -2,25 +2,23 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
   CallToolRequestSchema,
-  ListToolsRequestSchema
+  ErrorCode,
+  ListResourcesRequestSchema,
+  ListToolsRequestSchema,
+  McpError,
+  ReadResourceRequestSchema
 } from "@modelcontextprotocol/sdk/types.js";
 import { ZodError } from "zod";
 
-import { ensureBootstrapData } from "./bootstrap/seed.js";
-import { redactDatabaseUrl, resolveGhostcrabConfig } from "./config/env.js";
+import { resolveGhostcrabConfig } from "./config/env.js";
 import { createDatabaseClient } from "./db/client.js";
-import { getFacetsEmbeddingColumnDimension } from "./db/embedding-dimension.js";
-import {
-  type ExtensionCapabilities,
-  resolveExtensionCapabilities
-} from "./db/extension-probe.js";
-import {
-  bootstrapNativeWithReport,
-  collectNativeBootstrapIssues,
-  nativeBootstrapDockerGuidance
-} from "./db/native-bootstrap.js";
 import { EmbeddingProviderError } from "./embeddings/errors.js";
 import { createEmbeddingProvider } from "./embeddings/provider.js";
+import {
+  buildMcpInstructions,
+  buildReadmeMarkdown,
+  GHOSTCRAB_README_URI
+} from "./mcp/agent-brief.js";
 import { registerAllTools } from "./tools/register-all.js";
 import {
   createToolErrorResult,
@@ -28,12 +26,12 @@ import {
   getRegisteredTool,
   listRegisteredTools
 } from "./tools/registry.js";
+import { formatZodValidationError } from "./tools/zod-errors.js";
 import { getPackageVersion } from "./version.js";
 
 interface ServerState {
   databaseReady: boolean;
   bootstrapComplete: boolean;
-  extensions: ExtensionCapabilities;
   startupError: string | null;
 }
 
@@ -68,7 +66,6 @@ export async function startMcpServer(): Promise<void> {
   const serverState: ServerState = {
     databaseReady: false,
     bootstrapComplete: false,
-    extensions: { pgFacets: false, pgDgraph: false, pgPragma: false },
     startupError: null
   };
 
@@ -91,15 +88,7 @@ export async function startMcpServer(): Promise<void> {
 
   try {
     console.error(`[ghostcrab] Starting MCP server v${version}`);
-    console.error(`[ghostcrab] GHOSTCRAB_DATABASE_KIND=${config.databaseKind}`);
-    if (config.databaseKind === "postgres") {
-      console.error(
-        `[ghostcrab] DATABASE_URL=${redactDatabaseUrl(config.databaseUrl)}`
-      );
-      console.error(`[ghostcrab] PG_POOL_MAX=${config.pgPoolMax}`);
-    } else {
-      console.error(`[ghostcrab] GHOSTCRAB_MINDBRAIN_URL=${config.mindbrainUrl}`);
-    }
+    console.error(`[ghostcrab] GHOSTCRAB_MINDBRAIN_URL=${config.mindbrainUrl}`);
     console.error(
       `[ghostcrab] GHOSTCRAB_EMBEDDINGS_MODE=${config.embeddingsMode} (${config.embeddingDimensions} dims${config.embeddingModel ? `, model=${config.embeddingModel}` : ""})`
     );
@@ -117,51 +106,21 @@ export async function startMcpServer(): Promise<void> {
     void maybeSendStartupPing(config, databaseIsReachable);
 
     if (databaseIsReachable) {
-      if (config.databaseKind === "postgres") {
-        const embeddingColumnDimension =
-          await getFacetsEmbeddingColumnDimension(database);
-
-        if (
-          embeddingColumnDimension !== null &&
-          embeddingColumnDimension !== config.embeddingDimensions
-        ) {
-          throw new Error(
-            `Embedding dimension mismatch: mfo_facets.embedding is vector(${embeddingColumnDimension}) in the database but GHOSTCRAB_EMBEDDING_DIMENSIONS=${config.embeddingDimensions}. Align them or adjust migrations.`
-          );
-        }
-
-        serverState.extensions = await resolveExtensionCapabilities(
-          database,
-          config.nativeExtensionsMode
-        );
-      } else {
-        serverState.extensions = {
-          pgFacets: false,
-          pgDgraph: false,
-          pgPragma: false,
-          pgMindbrain: false
-        };
-      }
-
       serverState.databaseReady = true;
     } else {
-      serverState.startupError =
-        config.databaseKind === "postgres"
-          ? `Cannot reach PostgreSQL at ${redactDatabaseUrl(config.databaseUrl)}. Ensure the database is running and DATABASE_URL is correct, then restart the MCP server.`
-          : `Cannot reach MindBrain at ${config.mindbrainUrl}. Ensure the MindBrain server is running, then restart the MCP server.`;
+      serverState.startupError = `Cannot reach MindBrain backend at ${config.mindbrainUrl}. Ensure the backend is running (ghostcrab-backend), then restart the MCP server.`;
       console.error(`[ghostcrab] WARNING: ${serverState.startupError}`);
       console.error(
-        `[ghostcrab] Starting in degraded mode — tools will return errors until the database is available.`
+        `[ghostcrab] Starting in degraded mode — tools will return errors until the backend is available.`
       );
     }
 
-    const instructions = databaseIsReachable
-      ? config.databaseKind === "postgres"
-        ? `GhostCrab is a PostgreSQL-backed MCP memory server. Target database: ${redactDatabaseUrl(config.databaseUrl)}. Database is reachable. ${listRegisteredTools().length} tools available.`
-        : `GhostCrab is an MCP proxy for MindBrain-backed SQLite. MindBrain URL: ${config.mindbrainUrl}. Database is reachable. ${listRegisteredTools().length} tools available.`
-      : config.databaseKind === "postgres"
-        ? `GhostCrab is a PostgreSQL-backed MCP memory server. Target database: ${redactDatabaseUrl(config.databaseUrl)}. WARNING: database is unreachable. Call ghostcrab_status for diagnostics. Tools will return errors until the database is available and the MCP server is restarted.`
-        : `GhostCrab is an MCP proxy for MindBrain-backed SQLite. MindBrain URL: ${config.mindbrainUrl}. WARNING: database is unreachable. Call ghostcrab_status for diagnostics. Tools will return errors until the database is available and the MCP server is restarted.`;
+    const toolCount = listRegisteredTools().length;
+    const instructions = buildMcpInstructions({
+      backendUrlRedacted: config.mindbrainUrl,
+      toolCount,
+      databaseReachable: databaseIsReachable
+    });
 
     const server = new Server(
       {
@@ -170,11 +129,45 @@ export async function startMcpServer(): Promise<void> {
       },
       {
         capabilities: {
-          tools: {}
+          tools: {},
+          resources: {}
         },
         instructions
       }
     );
+
+    server.setRequestHandler(ListResourcesRequestSchema, async () => {
+      return {
+        resources: [
+          {
+            uri: GHOSTCRAB_README_URI,
+            name: "readme",
+            description:
+              "GhostCrab agent brief: product role, non-goals, and first-call checklist (markdown).",
+            mimeType: "text/markdown"
+          }
+        ]
+      };
+    });
+
+    server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
+      const uri = request.params.uri;
+      if (uri !== GHOSTCRAB_README_URI) {
+        throw new McpError(
+          ErrorCode.InvalidParams,
+          `Unknown resource URI: ${uri}. Only ${GHOSTCRAB_README_URI} is available.`
+        );
+      }
+      return {
+        contents: [
+          {
+            uri: GHOSTCRAB_README_URI,
+            mimeType: "text/markdown",
+            text: buildReadmeMarkdown()
+          }
+        ]
+      };
+    });
 
     server.setRequestHandler(ListToolsRequestSchema, async () => {
       return {
@@ -183,7 +176,7 @@ export async function startMcpServer(): Promise<void> {
     });
 
     server.setRequestHandler(CallToolRequestSchema, async (request) => {
-      // Degraded mode: database is unreachable. ghostcrab_status returns a
+      // Degraded mode: backend is unreachable. ghostcrab_status returns a
       // diagnostic snapshot; all other tools return a structured error.
       if (!serverState.databaseReady) {
         if (request.params.name === "ghostcrab_status") {
@@ -195,32 +188,32 @@ export async function startMcpServer(): Promise<void> {
             snapshot_at: new Date().toISOString(),
             summary: {
               health: "RED",
-              agent_state: "DB_UNREACHABLE",
-              database_url: redactDatabaseUrl(config.databaseUrl),
-              hint: "Ensure PostgreSQL is running, then restart the MCP server."
+              agent_state: "BACKEND_UNREACHABLE",
+              backend_url: config.mindbrainUrl,
+              hint: "Ensure the ghostcrab-backend (Zig) is running, then restart the MCP server."
             },
             operational: {
               health: "RED",
-              state: "DB_UNREACHABLE"
+              state: "BACKEND_UNREACHABLE"
             },
             directives: [
               {
-                condition: "database_unreachable",
-                action: "check_database_and_restart_mcp"
+                condition: "backend_unreachable",
+                action: "check_backend_and_restart_mcp"
               }
             ],
-            next_actions: ["check_database_and_restart_mcp"]
+            next_actions: ["check_backend_and_restart_mcp"]
           });
         }
 
         return createToolErrorResult(
           request.params.name,
           serverState.startupError ??
-            `GhostCrab cannot reach PostgreSQL at ${redactDatabaseUrl(config.databaseUrl)}.`,
-          "database_unavailable",
+            `GhostCrab cannot reach the backend at ${config.mindbrainUrl}.`,
+          "backend_unavailable",
           {
-            database_url: redactDatabaseUrl(config.databaseUrl),
-            hint: "Ensure PostgreSQL is running and DATABASE_URL is correct, then restart the MCP server."
+            backend_url: config.mindbrainUrl,
+            hint: "Ensure ghostcrab-backend is running, then restart the MCP server."
           }
         );
       }
@@ -242,7 +235,12 @@ export async function startMcpServer(): Promise<void> {
         return await tool.handler(request.params.arguments ?? {}, {
           database,
           embeddings,
-          extensions: serverState.extensions,
+          extensions: {
+            pgFacets: false,
+            pgDgraph: false,
+            pgPragma: false,
+            pgMindbrain: false
+          },
           nativeExtensionsMode: config.nativeExtensionsMode,
           retrieval: {
             hybridBm25Weight: config.hybridBm25Weight,
@@ -250,16 +248,31 @@ export async function startMcpServer(): Promise<void> {
           }
         });
       } catch (error) {
-        const message =
-          error instanceof ZodError
-            ? "Invalid tool arguments. Check the tool schema."
-            : error instanceof Error
-              ? error.message
-              : "Unknown tool execution error";
-
         if (error instanceof ZodError) {
-          console.error("[ghostcrab] ZodError:", JSON.stringify(error.issues));
+          const structured = formatZodValidationError(
+            error,
+            request.params.name
+          );
+          console.error(
+            "[ghostcrab] ZodError:",
+            JSON.stringify(error.issues)
+          );
+          return createToolErrorResult(
+            request.params.name,
+            structured.message_plain,
+            "validation_error",
+            {
+              required_fields: structured.required_fields,
+              invalid_fields: structured.invalid_fields,
+              hint_call: structured.hint_call
+            }
+          );
         }
+
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Unknown tool execution error";
 
         return createToolErrorResult(
           request.params.name,
@@ -287,47 +300,18 @@ export async function startMcpServer(): Promise<void> {
 
     // Connect transport first so Cursor receives the handshake immediately.
     // Bootstrap runs after connect: the SDK buffers incoming tool calls until
-    // the event loop is free, so ensureBootstrapData completes before any
-    // tool handler is invoked.
+    // the event loop is free, so the ready state is set before any handler fires.
     await server.connect(transport);
 
     console.error(
       `[ghostcrab] MCP server connected on stdio with ${listRegisteredTools().length} registered tool(s)` +
-        (serverState.databaseReady ? "" : " [DEGRADED — database unreachable]")
+        (serverState.databaseReady ? "" : " [DEGRADED — backend unreachable]")
     );
 
-    if (serverState.databaseReady && config.databaseKind === "postgres") {
-      const bootstrapSummary = await ensureBootstrapData(database);
-      if (config.nativeExtensionsMode !== "sql-only") {
-        const nativeBootstrap = await bootstrapNativeWithReport(
-          database,
-          serverState.extensions
-        );
-        const issues = collectNativeBootstrapIssues(
-          serverState.extensions,
-          nativeBootstrap
-        );
-
-        if (issues.length > 0) {
-          const message =
-            `Bootstrap/seed requires a native PostgreSQL stack with pg_facets, pg_dgraph, and pg_pragma. ` +
-            `Issues: ${issues.join("; ")}. ${nativeBootstrapDockerGuidance()}`;
-
-          if (config.nativeExtensionsMode === "native") {
-            throw new Error(message);
-          }
-
-          console.error(`[ghostcrab] WARNING: ${message}`);
-        }
-      }
+    if (serverState.databaseReady) {
       serverState.bootstrapComplete = true;
       console.error(
-        `[ghostcrab] Bootstrap summary: system=${bootstrapSummary.insertedSystemEntries}, schemas=${bootstrapSummary.insertedSchemas}, ontologies=${bootstrapSummary.insertedOntologies}, records=${bootstrapSummary.insertedProductRecords}, graph_nodes=${bootstrapSummary.insertedGraphNodes}, graph_edges=${bootstrapSummary.insertedGraphEdges}, agent_states=${bootstrapSummary.insertedAgentStates}, projections=${bootstrapSummary.insertedProjections}, skipped=${bootstrapSummary.skipped}`
-      );
-    } else if (serverState.databaseReady) {
-      serverState.bootstrapComplete = true;
-      console.error(
-        "[ghostcrab] MindBrain-backed SQLite mode enabled; default workspace seed is handled by MindBrain"
+        "[ghostcrab] MindBrain-backed SQLite mode; schema bootstrap is handled by the backend."
       );
     }
   } catch (error) {

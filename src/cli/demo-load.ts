@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-import { redactDatabaseUrl, resolveGhostcrabConfig } from "../config/env.js";
+import { resolveGhostcrabConfig } from "../config/env.js";
 import { createDatabaseClient, type Queryable } from "../db/client.js";
 import { resolveGraphEntityId, upsertGraphEntity } from "../db/graph.js";
 
@@ -359,7 +359,7 @@ async function main(): Promise<void> {
 
   try {
     console.error(
-      `[ghostcrab] Loading demo profile ${profileId} from ${skillsRepoRoot} against ${redactDatabaseUrl(config.databaseUrl)}`
+      `[ghostcrab] Loading demo profile ${profileId} from ${skillsRepoRoot} against ${config.mindbrainUrl}`
     );
 
     const entries = readProfileFile(skillsRepoRoot, profileId);

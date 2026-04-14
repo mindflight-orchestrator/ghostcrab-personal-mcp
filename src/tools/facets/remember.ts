@@ -27,7 +27,7 @@ export const rememberTool: ToolHandler = {
   definition: {
     name: "ghostcrab_remember",
     description:
-      "Store a fact, document, or observation in persistent memory and return its UUID.",
+      "Write. Store durable facts, stable notes, or observations in persistent memory. Call ghostcrab_status first for routing and workspace guidance when not on first-turn fuzzy onboarding. Do not use on a first-turn fuzzy onboarding request. Summarize before storing; avoid using raw payloads as the durable artifact when a stable summary will do.",
     inputSchema: {
       type: "object",
       required: ["content"],

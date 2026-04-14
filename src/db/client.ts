@@ -1,5 +1,3 @@
-import { Pool, type PoolClient, type QueryResultRow } from "pg";
-
 import type { GhostcrabConfig } from "../config/env.js";
 import {
   closeStandaloneMindbrainSqlSession,
@@ -7,10 +5,7 @@ import {
   runStandaloneMindbrainSql
 } from "./standalone-mindbrain.js";
 
-const PG_IDLE_TIMEOUT_MILLISECONDS = 30_000;
-const PG_CONNECTION_TIMEOUT_MILLISECONDS = 5_000;
-
-export type DatabaseKind = "postgres" | "sqlite";
+export type DatabaseKind = "sqlite";
 
 export interface Queryable {
   kind: DatabaseKind;
@@ -27,74 +22,10 @@ export interface DatabaseClient extends Queryable {
 }
 
 export function createDatabaseClient(config: GhostcrabConfig): DatabaseClient {
-  if (config.databaseKind === "sqlite") {
-    return createSqliteDatabaseClient(config);
-  }
-
-  return createPostgresDatabaseClient(config);
+  return createMindbrainDatabaseClient(config);
 }
 
-function createPostgresDatabaseClient(config: GhostcrabConfig): DatabaseClient {
-  const pool = new Pool({
-    connectionString: config.databaseUrl,
-    max: config.pgPoolMax,
-    idleTimeoutMillis: PG_IDLE_TIMEOUT_MILLISECONDS,
-    connectionTimeoutMillis: PG_CONNECTION_TIMEOUT_MILLISECONDS
-  });
-
-  pool.on("error", (error: Error) => {
-    console.error("[ghostcrab] Unexpected PostgreSQL pool error:", error);
-  });
-
-  const poolQueryable = createPostgresQueryable(pool);
-
-  return {
-    ...poolQueryable,
-    async close(): Promise<void> {
-      await pool.end();
-    },
-    async ping(): Promise<boolean> {
-      try {
-        await pool.query("SELECT 1");
-        return true;
-      } catch {
-        return false;
-      }
-    },
-    async transaction<T>(
-      operation: (queryable: Queryable) => Promise<T>
-    ): Promise<T> {
-      const client = await pool.connect();
-
-      try {
-        await client.query("BEGIN");
-        const result = await operation(createPostgresQueryable(client));
-        await client.query("COMMIT");
-        return result;
-      } catch (error) {
-        await client.query("ROLLBACK");
-        throw error;
-      } finally {
-        client.release();
-      }
-    }
-  };
-}
-
-function createPostgresQueryable(client: Pool | PoolClient): Queryable {
-  return {
-    kind: "postgres",
-    async query<T = QueryResultRow>(
-      sql: string,
-      params: readonly unknown[] = []
-    ): Promise<T[]> {
-      const result = await client.query(sql, [...params]);
-      return result.rows as T[];
-    }
-  };
-}
-
-function createSqliteDatabaseClient(config: GhostcrabConfig): DatabaseClient {
+function createMindbrainDatabaseClient(config: GhostcrabConfig): DatabaseClient {
   const baseUrl = config.mindbrainUrl;
   const baseQueryable = createMindbrainQueryable(baseUrl);
 

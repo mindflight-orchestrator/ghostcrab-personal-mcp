@@ -10,6 +10,7 @@ import "./facets/remember.js";
 import "./facets/schema.js";
 import "./facets/search.js";
 import "./facets/upsert.js";
+import "./pragma/guidance.js";
 import "./pragma/pack.js";
 import "./pragma/project.js";
 import "./pragma/status.js";

@@ -116,7 +116,7 @@ export const packTool: ToolHandler = {
   definition: {
     name: "ghostcrab_pack",
     description:
-      "Build a compact working-memory pack from active projections plus top matching facts.",
+      "Read. Build a compact working-memory pack from active projections plus top matching facts for a query.",
     inputSchema: {
       type: "object",
       required: ["query"],
@@ -226,6 +226,7 @@ export const packTool: ToolHandler = {
       const hasBlockingConstraint = packRows.some(
         (row) => row.proj_type === "CONSTRAINT" && row.status === "blocking"
       );
+      const isEmptyPack = packRows.length === 0 && factRows.length === 0;
       const packTextLines = [
         ...packRows.map(
           (row) =>
@@ -234,11 +235,28 @@ export const packTool: ToolHandler = {
         ...factRows.map((row) => `FACT: ${row.content}`)
       ];
       const packText = packTextLines.join("\n");
-      const recommendedNextStep = hasBlockingConstraint
-        ? "resolve_constraints_first"
-        : factRows.length > 0
-          ? "reason_with_pack"
-          : "gather_more_facts";
+
+      let recommendedNextStep: string;
+      if (hasBlockingConstraint) {
+        recommendedNextStep =
+          "Resolve blocking constraints before proceeding. Review the constraint entries in the pack and address each one.";
+      } else if (isEmptyPack) {
+        recommendedNextStep =
+          "No projections or facts were found for this query. " +
+          "Call ghostcrab_status to discover your workspace and get routing guidance, " +
+          "then build a domain model (ghostcrab_schema_inspect, ghostcrab_ddl_propose) before packing.";
+        notes.push(
+          "The pack is empty — no projections or matching facts exist for this query and workspace. " +
+            "This often means the domain model has not been created yet. " +
+            "Call ghostcrab_status for onboarding guidance."
+        );
+      } else if (factRows.length > 0) {
+        recommendedNextStep = "reason_with_pack";
+      } else {
+        recommendedNextStep =
+          "No matching facts were found. Consider adding domain facts with ghostcrab_remember or ghostcrab_upsert, " +
+          "or call ghostcrab_status to verify your workspace and schema setup.";
+      }
 
       return createToolSuccessResult("ghostcrab_pack", {
         agent_id: input.agent_id,
@@ -539,6 +557,7 @@ export const packTool: ToolHandler = {
     const hasBlockingConstraint = packRows.some(
       (row) => row.proj_type === "CONSTRAINT" && row.status === "blocking"
     );
+    const isEmptyPack = packRows.length === 0 && factRows.length === 0;
 
     const packTextLines = [
       ...packRows.map(
@@ -549,11 +568,28 @@ export const packTool: ToolHandler = {
     ];
 
     const packText = packTextLines.join("\n");
-    const recommendedNextStep = hasBlockingConstraint
-      ? "resolve_constraints_first"
-      : factRows.length > 0
-        ? "reason_with_pack"
-        : "gather_more_facts";
+
+    let recommendedNextStep: string;
+    if (hasBlockingConstraint) {
+      recommendedNextStep =
+        "Resolve blocking constraints before proceeding. Review the constraint entries in the pack and address each one.";
+    } else if (isEmptyPack) {
+      recommendedNextStep =
+        "No projections or facts were found for this query. " +
+        "Call ghostcrab_status to discover your workspace and get routing guidance, " +
+        "then build a domain model (ghostcrab_schema_inspect, ghostcrab_ddl_propose) before packing.";
+      notes.push(
+        "The pack is empty — no projections or matching facts exist for this query and workspace. " +
+          "This often means the domain model has not been created yet. " +
+          "Call ghostcrab_status for onboarding guidance."
+      );
+    } else if (factRows.length > 0) {
+      recommendedNextStep = "reason_with_pack";
+    } else {
+      recommendedNextStep =
+        "No matching facts were found. Consider adding domain facts with ghostcrab_remember or ghostcrab_upsert, " +
+        "or call ghostcrab_status to verify your workspace and schema setup.";
+    }
 
     return createToolSuccessResult("ghostcrab_pack", {
       agent_id: input.agent_id,

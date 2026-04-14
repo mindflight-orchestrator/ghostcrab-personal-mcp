@@ -1,7 +1,7 @@
 import { pathToFileURL } from "node:url";
 
 import { formatPgVector } from "../embeddings/vector.js";
-import { redactDatabaseUrl, resolveGhostcrabConfig } from "../config/env.js";
+import { resolveGhostcrabConfig } from "../config/env.js";
 import { createDatabaseClient } from "../db/client.js";
 import { createEmbeddingProvider } from "../embeddings/provider.js";
 
@@ -35,7 +35,7 @@ async function main(): Promise<void> {
   }
 
   console.error(
-    `[ghostcrab] Backfilling embeddings against ${redactDatabaseUrl(config.databaseUrl)}`
+    `[ghostcrab] Backfilling embeddings against MindBrain backend at ${config.mindbrainUrl}`
   );
   console.error(
     `[ghostcrab] Runtime mode=${runtime.mode}, model=${runtime.model ?? "n/a"}, dims=${runtime.dimensions}, batch_size=${options.batchSize}, dry_run=${options.dryRun}`

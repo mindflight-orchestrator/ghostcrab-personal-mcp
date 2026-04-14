@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { computeSubsystemBackends } from "../../db/extension-probe.js";
 import { getNativeRuntimeReadiness } from "../../db/native-readiness.js";
+import { buildStatusPreamble } from "../../mcp/agent-brief.js";
 import {
   createToolSuccessResult,
   registerTool,
@@ -16,7 +17,7 @@ export const statusTool: ToolHandler = {
   definition: {
     name: "ghostcrab_status",
     description:
-      "Return an operational and epistemic snapshot with auto-executable directives.",
+      "Bootstrap — call first for normal work. On first-turn fuzzy GhostCrab onboarding, do not call unless the user explicitly asked about readiness, available surfaces, or runtime health. Returns routing, autonomy policies, activity families, and runtime diagnostics. Prefer calling only when health, autonomy, or global blockers may materially affect the answer; do not surface backend-health commentary unless it changes the user-visible answer.",
     inputSchema: {
       type: "object",
       properties: {
@@ -64,17 +65,39 @@ export const statusTool: ToolHandler = {
         metrics_json: "{}"
       };
 
+      const embeddingsStatus = embeddingRuntime.failure
+        ? embeddingRuntime.failure.recoverable
+          ? "degraded_but_retryable"
+          : "misconfigured_or_blocked"
+        : embeddingRuntime.vectorSearchReady
+          ? "ready"
+          : "bm25_only";
+
+      const embeddingsIssue =
+        embeddingsStatus === "degraded_but_retryable" ||
+        embeddingsStatus === "misconfigured_or_blocked"
+          ? embeddingsStatus
+          : null;
+
       return createToolSuccessResult("ghostcrab_status", {
+        preamble: buildStatusPreamble(),
         agent_id: input.agent_id,
         snapshot_at: new Date().toISOString(),
         summary: {
-          health: state.health,
-          agent_state: state.state,
-          database_kind: "sqlite",
-          facet_rows: Number(facetCountRow?.count ?? 0),
-          projection_rows: Number(projectionCountRow?.count ?? 0),
-          graph_entities: Number(entityCountRow?.count ?? 0),
-          graph_relations: Number(relationCountRow?.count ?? 0)
+          attention_required: {
+            health: state.health !== "GREEN" ? state.health : null,
+            embeddings_status: embeddingsIssue
+          },
+          informational: {
+            health: state.health,
+            agent_state: state.state,
+            database_kind: "sqlite",
+            embeddings_status: embeddingsStatus,
+            facet_rows: Number(facetCountRow?.count ?? 0),
+            projection_rows: Number(projectionCountRow?.count ?? 0),
+            graph_entities: Number(entityCountRow?.count ?? 0),
+            graph_relations: Number(relationCountRow?.count ?? 0)
+          }
         },
         runtime: {
           database_kind: "sqlite",
@@ -409,30 +432,45 @@ export const statusTool: ToolHandler = {
       });
     }
 
+    const pgEmbeddingsStatus = embeddingRuntime.failure
+      ? embeddingRuntime.failure.recoverable
+        ? "degraded_but_retryable"
+        : "misconfigured_or_blocked"
+      : embeddingRuntime.vectorSearchReady
+        ? "ready"
+        : "bm25_only";
+
+    const pgEmbeddingsIssue =
+      pgEmbeddingsStatus === "degraded_but_retryable" ||
+      pgEmbeddingsStatus === "misconfigured_or_blocked"
+        ? pgEmbeddingsStatus
+        : null;
+
     const summary = {
-      health: state.health,
-      agent_state: state.state,
-      embeddings_status: embeddingRuntime.failure
-        ? embeddingRuntime.failure.recoverable
-          ? "degraded_but_retryable"
-          : "misconfigured_or_blocked"
-        : embeddingRuntime.vectorSearchReady
-          ? "ready"
-          : "bm25_only",
-      autonomy_mode: canModelProvisionalDomain
-        ? requiresConfirmationForSchemaFreeze
-          ? "guided-autonomous-with-schema-confirmation"
-          : "guided-autonomous"
-        : "read-only",
-      gap_status:
-        gapRows.length > 0 ? "requires_disclosure_or_escalation" : "clear",
-      constraint_status:
-        blockingRows.length > 0 ? "blocking_constraints_present" : "clear"
+      attention_required: {
+        health: state.health !== "GREEN" ? state.health : null,
+        embeddings_status: pgEmbeddingsIssue,
+        gap_status:
+          gapRows.length > 0 ? "requires_disclosure_or_escalation" : null,
+        constraint_status:
+          blockingRows.length > 0 ? "blocking_constraints_present" : null
+      },
+      informational: {
+        health: state.health,
+        agent_state: state.state,
+        autonomy_mode: canModelProvisionalDomain
+          ? requiresConfirmationForSchemaFreeze
+            ? "guided-autonomous-with-schema-confirmation"
+            : "guided-autonomous"
+          : "read-only",
+        embeddings_status: pgEmbeddingsStatus
+      }
     };
 
     const next_actions = directives.map((directive) => directive.action);
 
     return createToolSuccessResult("ghostcrab_status", {
+      preamble: buildStatusPreamble(),
       agent_id: input.agent_id,
       snapshot_at: new Date().toISOString(),
       summary,

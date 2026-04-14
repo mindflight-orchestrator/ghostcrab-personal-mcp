@@ -64,7 +64,87 @@ GhostCrab integrates natively with standard agent environments without requiring
 - OpenClaw
 - mindBot
 
-## Quick Start
+## Model compatibility
+
+GhostCrab MCP works with any model your client exposes, but **not all models follow the same intake and modeling discipline**. The table below is about **behavioral reliability**, not API support.
+
+### Why lower-tier models are limited
+
+Smaller or faster models often struggle with the full **mindBrain** workflow: they may skip the first-turn intake contract (clarifying questions, required closing lines), stop multi-step tool chains early, omit graph or projection steps, or drift toward ad hoc schema names instead of canonical recipes. That does not break the server—it produces **weaker or inconsistent** domain data and a worse first session for the user.
+
+**Practical limits you may see outside Tier 1:**
+
+- **Tier 2** — First turn can look fine, but follow-up turns may skip durable graph links (`learn`) or working views (`project`), or rely on search/pack instead of the intended sequence.
+- **Tier 3** — Higher risk of incomplete replies (missing questions or closing lines), truncated execution in one turn, or non-canonical structures even when tools succeed.
+
+These tiers are **informational**: nothing blocks a lower-tier model from calling tools; the risk is **quality and convention adherence**, not connectivity.
+
+### Recommendation: use frontier models for onboarding
+
+For **project onboarding** (first fuzzy GhostCrab request, workspace setup, and alignment with **mindBrain** conventions—read-before-write, canonical schemas, checkpoints, projections), prefer **frontier-class models** (e.g. Sonnet 4.5+, Opus 4.5+, Composer 2 Fast, or other Tier-1 options in the table). They are far more likely to respect server instructions, tool descriptions, and skill contracts in one coherent flow, which keeps your graph and facets consistent from day one.
+
+Use lighter models for narrow, well-scoped tasks if you like; for **defining how the project lives in GhostCrab**, choose a model tier that matches the rigor you expect from the product.
+
+### Tier summary
+
+Tier classification reflects **first-turn fuzzy onboarding compliance** (intake-only discipline, closing lines, question count). All listed models can use GhostCrab MCP tools; the tier describes how reliably they follow that onboarding contract, not whether the integration is supported.
+
+| Tier | Models | Notes |
+|------|--------|--------|
+| **1 — Full** | Composer 2 Fast, Kimi 2.5, Sonnet 4.5+, Opus 4.5+ | Pass all onboarding criteria including closing template and question count. |
+| **2 — Compliant with caveats** | Haiku 4.5 | Strong first-turn compliance; later turns may omit graph edges (`learn`) and projections (`project`). |
+| **3 — Partial** | Gemini 2.5 Flash | Turn 1 often misses required closing lines and questions; turn 2 may be incomplete or use non-canonical schemas. |
+
+## Install from npm
+
+The easiest way to run GhostCrab is directly from npm — no build step required. Pre-compiled binaries for all supported platforms ship inside the package.
+
+```bash
+# one-time install (global, recommended for MCP clients)
+npm install -g @mindflight/ghostcrab
+# or
+pnpm add -g @mindflight/ghostcrab
+```
+
+Then add it to your MCP client config:
+
+```json
+{
+  "mcpServers": {
+    "ghostcrab": {
+      "command": "ghostcrab"
+    }
+  }
+}
+```
+
+Or without a global install:
+
+```json
+{
+  "mcpServers": {
+    "ghostcrab": {
+      "command": "npx",
+      "args": ["-y", "@mindflight/ghostcrab"]
+    }
+  }
+}
+```
+
+**What happens at startup:** the launcher starts the Zig backend (which creates and migrates `./data/ghostcrab.sqlite` automatically), waits for it to be healthy, then starts the MCP server on stdio. No `postinstall` hook, no network calls at runtime.
+
+**Supported platforms:** `linux-x64`, `linux-arm64`, `darwin-x64` (Intel Mac), `darwin-arm64` (Apple Silicon), `win32-x64`.
+
+**Environment variables** (all optional):
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `GHOSTCRAB_SQLITE_PATH` | `./data/ghostcrab.sqlite` | SQLite file location |
+| `GHOSTCRAB_BACKEND_ADDR` | `:8091` | Backend HTTP listen address |
+| `GHOSTCRAB_MINDBRAIN_URL` | `http://127.0.0.1:8091` | MCP server → backend URL |
+| `GHOSTCRAB_EMBEDDINGS_MODE` | `disabled` | `disabled` (BM25) or `openrouter` (hybrid) |
+
+## Quick Start (from source)
 
 1. Copy `.env.example` to `.env` and adjust values if needed.
 2. Install dependencies:

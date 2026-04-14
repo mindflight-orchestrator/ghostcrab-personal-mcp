@@ -1,12 +1,12 @@
 {
   "name": "@mindflight/ghostcrab",
   "version": "0.1.0",
-  "description": "PostgreSQL memory stack for MCP-compatible agents, part of the MFO ecosystem.",
+  "description": "SQLite-backed MCP memory server (MindBrain + Zig backend), part of the MFO ecosystem.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "ghostcrab": "./dist/index.js"
+    "ghostcrab": "./bin/ghostcrab.mjs"
   },
   "exports": {
     ".": "./dist/index.js"
@@ -21,18 +21,22 @@
   },
   "keywords": [
     "mcp",
-    "postgres",
+    "sqlite",
     "memory",
     "agent",
-    "ghostcrab"
+    "ghostcrab",
+    "mindbrain"
   ],
   "files": [
+    "bin",
     "dist",
+    "prebuilds",
     "docs",
     "examples",
     "README.md",
     ".env.example"
   ],
+  "packageManager": "pnpm@10.10.0",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -40,15 +44,13 @@
     "build": "tsc --project tsconfig.json && node scripts/copy-sql.mjs",
     "clean": "rm -rf coverage dist",
     "dev": "tsx src/index.ts",
-    "dev:bootstrap": "make dev-bootstrap",
-    "dev:db_reset": "make dev-db-reset",
-    "dev:down": "make dev-down",
-    "dev:logs": "make dev-logs",
-    "dev:migrate": "make dev-migrate",
-    "dev:ps": "make dev-ps",
-    "dev:restart": "make dev-restart",
-    "dev:up": "make dev-up",
     "demo:load": "tsx src/cli/demo-load.ts",
+    "backend:ensure-vendor": "scripts/ensure-vendor.sh",
+    "backend:sqlite3": "scripts/download-sqlite3.sh",
+    "backend:build": "cd cmd/backend && zig build -Doptimize=ReleaseFast",
+    "backend:build:debug": "cd cmd/backend && zig build",
+    "backend:dev": "GHOSTCRAB_BACKEND_ADDR=:8091 GHOSTCRAB_SQLITE_PATH=data/ghostcrab.sqlite cmd/backend/zig-out/bin/ghostcrab-backend",
+    "smoke:backend": "scripts/smoke-backend.sh",
     "embeddings:backfill": "tsx src/cli/embeddings-backfill.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -70,9 +72,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.5.0",
-    "@types/pg": "^8.20.0",
     "eslint": "^10.1.0",
     "globals": "^17.4.0",
     "prettier": "^3.8.1",
@@ -83,8 +83,6 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",
-    "better-sqlite3": "^12.8.0",
-    "pg": "^8.20.0",
     "yaml": "^2.8.3",
     "zod": "^4.3.6"
   }

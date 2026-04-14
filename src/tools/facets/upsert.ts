@@ -49,7 +49,7 @@ export const upsertTool: ToolHandler = {
   definition: {
     name: "ghostcrab_upsert",
     description:
-      "Update the current state of a fact in place using an exact record match, or create it if missing when explicitly allowed. Read before writing. Prefer a stable facet such as record_id inside match.facets for repeatable updates. When create_if_missing is true and no row matches, set_content is required. Do not use on a first-turn fuzzy GhostCrab onboarding request.",
+      "Write. Update current-state facts in place by exact match, or create if missing. Read before writing. Before replacing meaningful tracker state, preserve transition rationale when losing it would hurt recovery. Do not use on a first-turn fuzzy onboarding request. match uses match.id (row UUID) and/or match.facets; facet selectors must live under match.facets, not at the root of match (wrong: {\"match\":{\"label\":\"X\"}}; right: {\"match\":{\"facets\":{\"label\":\"X\"}}}). Prefer a stable record_id in match.facets over labels that may change. When create_if_missing is true and no row matches, set_content is required for the new row.",
     inputSchema: {
       type: "object",
       required: ["schema_id", "match"],

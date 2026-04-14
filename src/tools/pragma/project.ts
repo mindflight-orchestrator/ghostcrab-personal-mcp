@@ -29,7 +29,7 @@ export const projectTool: ToolHandler = {
   definition: {
     name: "ghostcrab_project",
     description:
-      "Create or refresh a compact provisional projection for a working scope without freezing a canonical schema.",
+      "Model. Create or refresh compact provisional projections and working scopes after the user request is clear enough to model, without freezing a schema. Do not initialize a provisional scope on the first fuzzy onboarding turn. Prefer one compact projection over many overlapping projections.",
     inputSchema: {
       type: "object",
       required: ["scope", "content"],
