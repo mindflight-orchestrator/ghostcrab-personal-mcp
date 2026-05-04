@@ -1,0 +1,114 @@
+{
+  "name": "@mindflight/ghostcrab-personal-mcp",
+  "version": "0.7.1",
+  "description": "SQLite-backed MCP memory server (MindBrain + Zig backend), part of the MindBrain ecosystem.",
+  "license": "SEE LICENSE IN Licence.md",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "gcp": "./bin/gcp.mjs",
+    "ghostcrab": "./bin/ghostcrab.mjs"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/webigniter/ghostcrab.git"
+  },
+  "homepage": "https://gitlab.com/webigniter/ghostcrab",
+  "bugs": {
+    "url": "https://gitlab.com/webigniter/ghostcrab/-/issues"
+  },
+  "keywords": [
+    "mcp",
+    "sqlite",
+    "memory",
+    "agent",
+    "ghostcrab",
+    "mindbrain"
+  ],
+  "files": [
+    "bin",
+    "dist",
+    "ghostcrab-skills",
+    "docs",
+    "examples",
+    "README.md",
+    "INSTALL.md",
+    "Licence.md",
+    "README_CLAUDE_CODE_MCP.md",
+    "README_CURSOR_MCP.md",
+    "README_CODEX_MCP.md",
+    ".env.example"
+  ],
+  "packageManager": "pnpm@10.10.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "postinstall": "node ./bin/lib/postinstall-prebuilds.mjs",
+    "build": "tsc --project tsconfig.json && node scripts/copy-sql.mjs",
+    "clean": "rm -rf coverage dist",
+    "dev": "tsx src/index.ts",
+    "demo:load": "tsx src/cli/demo-load.ts",
+    "demo:load:starterkit": "tsx src/cli/demo-load.ts --profile-file examples/starterkit-perso/starterkit-default.jsonl",
+    "backend:ensure-vendor": "scripts/ensure-vendor.sh",
+    "backend:sqlite3": "scripts/download-sqlite3.sh",
+    "backend:build": "sh scripts/backend-build-full.sh",
+    "prebuild:all": "sh scripts/prebuilds-all.sh",
+    "prebuild:local": "pnpm run prebuild:all",
+    "prebuild:stage-packages": "node scripts/stage-platform-packages.mjs",
+    "backend:build:debug": "cd cmd/backend && ZIG_LOCAL_CACHE_DIR=\"${ZIG_LOCAL_CACHE_DIR:-/tmp/ghostcrab-zig-local-cache}\" ZIG_GLOBAL_CACHE_DIR=\"${ZIG_GLOBAL_CACHE_DIR:-/tmp/ghostcrab-zig-global-cache}\" \"${ZIG:-zig}\" build",
+    "backend:dev": "GHOSTCRAB_BACKEND_ADDR=:8091 GHOSTCRAB_SQLITE_PATH=data/ghostcrab.sqlite cmd/backend/zig-out/bin/ghostcrab-backend",
+    "smoke:backend": "scripts/smoke-backend.sh",
+    "embeddings:backfill": "tsx src/cli/embeddings-backfill.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "migrate": "tsx src/cli/migrate.ts",
+    "smoke:mcp": "node scripts/mcp-smoke.mjs",
+    "smoke:mcp:embeddings-fake": "node scripts/mcp-smoke-embeddings-fake.mjs",
+    "smoke:mcp:embeddings-real": "node scripts/mcp-smoke-embeddings-real.mjs",
+    "smoke:mcp:incomplete-graph": "node scripts/mcp-smoke-incomplete-graph.mjs",
+    "smoke:mcp:long-running": "node scripts/mcp-smoke-long-running.mjs",
+    "smoke:mcp:memory-workflow": "node scripts/mcp-smoke-memory-workflow.mjs",
+    "smoke:example-client": "node scripts/example-client-smoke.mjs",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "typecheck": "tsc --noEmit --project tsconfig.json",
+    "verify:pack": "node scripts/verify-pack.mjs",
+    "verify:local-install": "node scripts/verify-local-install.mjs",
+    "pack:local": "pnpm run prebuild:all && pnpm run build && node scripts/pack-local.mjs",
+    "pack:local:reuse-prebuilds": "pnpm run build && node scripts/pack-local.mjs",
+    "beta:bundle": "node scripts/make-beta-bundle.mjs",
+    "beta:smoke": "node scripts/smoke-beta-install.mjs",
+    "verify:e2e": "node scripts/verify-e2e.mjs",
+    "publish:npm-split": "node scripts/publish-npm-split.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.5.0",
+    "eslint": "^10.1.0",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.1",
+    "vitest": "^4.1.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "yaml": "^2.8.3",
+    "zod": "^4.3.6"
+  },
+  "optionalDependencies": {
+    "@mindflight/ghostcrab-personal-mcp-darwin-arm64": "0.2.11",
+    "@mindflight/ghostcrab-personal-mcp-darwin-x64": "0.2.11",
+    "@mindflight/ghostcrab-personal-mcp-linux-arm64": "0.2.11",
+    "@mindflight/ghostcrab-personal-mcp-linux-x64": "0.2.11",
+    "@mindflight/ghostcrab-personal-mcp-win32-x64": "0.2.11"
+  }
+}

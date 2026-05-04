@@ -1,0 +1,449 @@
+openapi: 3.0.3
+info:
+  title: GhostCrab registry API
+  description: |
+    Serves **ontologies** (YAML) and **skills** (Markdown) from a file-backed `data/` tree, plus
+    file-backed **facet** search. Optional **mindbrain** routes (pg_dgraph / PostgreSQL) are only
+    available when the server is built with Go tag `mindbrain` and `GHOSTCRAB_REGISTRY_DATABASE_URL`
+    is set; they require `Authorization: Bearer` on graph search endpoints.
+  version: 1.0.0
+servers:
+  - url: "{baseUrl}"
+    description: e.g. http://127.0.0.1:8090
+    variables:
+      baseUrl:
+        default: http://127.0.0.1:8090
+
+tags:
+  - name: System
+  - name: Ontologies
+  - name: Skills
+  - name: Search
+  - name: UI
+  - name: Mindbrain
+    description: Optional; build tag and database required
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        Map tokens via `GHOSTCRAB_REGISTRY_TOKENS` (tokens.json) or `GHOSTCRAB_REGISTRY_TOKEN` env.
+        Required for `private` resources, token allowlist checks, and mindbrain graph search.
+
+  parameters:
+    Owner:
+      in: path
+      name: owner
+      required: true
+      schema: { type: string }
+    Name:
+      in: path
+      name: name
+      required: true
+      schema: { type: string }
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+      example: { "error": "not found" }
+
+    Health:
+      type: object
+      required: [status, time]
+      properties:
+        status:
+          type: string
+          example: ok
+        time:
+          type: string
+          format: date-time
+
+    ServiceRoot:
+      type: object
+      properties:
+        service:
+          type: string
+          example: ghostcrab-registry
+        ui:
+          type: string
+          example: /ui/
+        api:
+          type: array
+          items: { type: string }
+        docs_hint:
+          type: string
+
+    FacetMultiMap:
+      type: object
+      additionalProperties:
+        type: array
+        items: { type: string }
+      example:
+        domain: [ghostcrab, mcp]
+        pack: [ghostcrab-starter]
+
+    ListItem:
+      type: object
+      properties:
+        owner: { type: string }
+        name: { type: string }
+        version: { type: string }
+        access: { type: string, enum: [public, private] }
+        description: { type: string }
+        facets: { $ref: "#/components/schemas/FacetMultiMap" }
+        source_path: { type: string, description: "Provenance path in upstream bundle" }
+
+    ResourceBody:
+      type: object
+      required: [owner, name, version, access, content]
+      properties:
+        owner: { type: string }
+        name: { type: string }
+        version: { type: string }
+        access: { type: string, enum: [public, private] }
+        content: { type: string, description: "YAML (ontology) or Markdown (skill)" }
+        description: { type: string }
+        facets: { $ref: "#/components/schemas/FacetMultiMap" }
+        source_path: { type: string }
+        licensee: { type: string, description: "Present for successful private fetches" }
+
+    FacetIndex:
+      type: object
+      description: "Facet name → value string → count (public only when unauthenticated)"
+      additionalProperties:
+        type: object
+        additionalProperties: { type: integer }
+
+    ListedResource:
+      type: object
+      required: [kind, item]
+      properties:
+        kind:
+          type: string
+          enum: [ontologies, skills]
+        item:
+          $ref: "#/components/schemas/ListItem"
+
+    MindbrainStatusDefault:
+      type: object
+      description: "Default build (!mindbrain tag)"
+    MindbrainStatusEnabled:
+      type: object
+      description: "mindbrain build with database"
+
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      tags: [System]
+      summary: Liveness
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Health" }
+
+  /:
+    get:
+      operationId: getRoot
+      tags: [System]
+      summary: Service metadata and entry points
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ServiceRoot" }
+        "404":
+          description: Path is not exact `/` (e.g. trailing resource)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /ontologies:
+    get:
+      operationId: listOntologies
+      tags: [Ontologies]
+      summary: List ontology summaries
+      description: Unauthenticated users only see public entries.
+      responses:
+        "200":
+          description: List of `ListItem`
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ListItem" }
+        "500":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /ontologies/{owner}/{name}:
+    get:
+      operationId: getOntology
+      tags: [Ontologies]
+      summary: Get one ontology (YAML content)
+      parameters:
+        - $ref: "#/components/parameters/Owner"
+        - $ref: "#/components/parameters/Name"
+      security:
+        - {}
+        - bearerAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ResourceBody" }
+        "401":
+          description: Private resource, no or invalid token
+        "403":
+          description: Token not in allowlist
+        "404":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "500":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /skills:
+    get:
+      operationId: listSkills
+      tags: [Skills]
+      summary: List skill summaries
+      description: Unauthenticated users only see public entries.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ListItem" }
+        "500":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /skills/{owner}/{name}:
+    get:
+      operationId: getSkill
+      tags: [Skills]
+      summary: Get one skill (Markdown content)
+      parameters:
+        - $ref: "#/components/parameters/Owner"
+        - $ref: "#/components/parameters/Name"
+      security:
+        - {}
+        - bearerAuth: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ResourceBody" }
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /api/facets:
+    get:
+      operationId: getFacetIndex
+      tags: [Search]
+      summary: Facet value counts
+      description: Unauthenticated users only count public resources.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FacetIndex" }
+
+  /api/search:
+    get:
+      operationId: searchResources
+      tags: [Search]
+      summary: Filter by facet (AND of parameters)
+      description: |
+        - `kind`: omit, `all`, `both` → array of `ListedResource`; or `ontologies` / `skills` →
+          array of `ListItem`.
+        - Any other query key is a facet name; its first value is required for that key.
+        - `f=domain:ghostcrab` is shorthand for a facet `domain` with value `ghostcrab`.
+      parameters:
+        - name: kind
+          in: query
+          schema:
+            type: string
+        - name: f
+          in: query
+          description: "name:value (repeat for multiple, AND logic)"
+          schema: { type: string }
+        - name: pack
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: Array of ListedResource (kind=both) or ListItem
+        "400":
+          description: Bad request (e.g. invalid `kind`)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /ui/:
+    get:
+      operationId: getUi
+      tags: [UI]
+      summary: Facet browser static files
+      description: Serves HTML/JS under `/ui/`; not part of the JSON contract.
+
+  /api/mindbrain/status:
+    get:
+      operationId: getMindbrainStatus
+      tags: [Mindbrain]
+      summary: mindbrain / pg_dgraph availability
+      description: |
+        Response shape depends on build (`!mindbrain` vs `mindbrain` tag) and env.
+        See server logs for the exact build.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        "503":
+          description: When database connection failed (some builds)
+
+  /api/mindbrain/graph/marketplace-search:
+    get:
+      operationId: mindbrainMarketplaceSearch
+      tags: [Mindbrain]
+      summary: Hybrid graph + FTS search
+      x-available-when: "build tag `mindbrain` and GHOSTCRAB_REGISTRY_DATABASE_URL"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+        - name: domain
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer }
+        - name: max_hops
+          in: query
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Array of marketplace search result rows
+        "400":
+          description: Missing `q` or other validation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401":
+          description: No Bearer token
+        "500":
+          description: graph.search failed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /api/mindbrain/graph/entity-search:
+    get:
+      operationId: mindbrainEntitySearch
+      tags: [Mindbrain]
+      x-available-when: "build tag `mindbrain` and GHOSTCRAB_REGISTRY_DATABASE_URL"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+        - name: domain
+          in: query
+        - name: type
+          in: query
+          description: repeat for multiple
+        - name: limit
+          in: query
+      responses:
+        "200":
+          description: Array of entity_fts rows
+        "400":
+        "401":
+        "500":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /api/mindbrain/graph/entity/{id}/neighborhood:
+    get:
+      operationId: mindbrainNeighborhood
+      tags: [Mindbrain]
+      x-available-when: "build tag `mindbrain` and GHOSTCRAB_REGISTRY_DATABASE_URL"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: max_out
+          in: query
+        - name: max_in
+          in: query
+      responses:
+        "200":
+          description: Neighborhood graph JSON
+        "400":
+        "401":
+        "500":
+
+  /api/mindbrain/facets/counts:
+    get:
+      operationId: mindbrainFacetCounts
+      tags: [Mindbrain]
+      description: "Native facet counts when GHOSTCRAB_FACET_SCHEMA and GHOSTCRAB_FACET_TABLE are set"
+      x-available-when: "build tag `mindbrain` and facet env vars"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: f
+          in: query
+        - name: facet_name
+          in: query
+        - name: top_n
+          in: query
+      responses:
+        "200":
+          description: Native facet count rows
+        "401":
+        "500":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }

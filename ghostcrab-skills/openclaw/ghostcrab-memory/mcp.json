@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "ghostcrab": {
+      "command": "gcp",
+      "args": ["brain", "up", "--workspace", "my-project"]
+    }
+  }
+}

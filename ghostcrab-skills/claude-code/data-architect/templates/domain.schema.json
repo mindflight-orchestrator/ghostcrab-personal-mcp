@@ -1,0 +1,19 @@
+{
+  "schema_id": "project:example:entity",
+  "description": "Replace with the durable entity this schema represents.",
+  "required_facets": {
+    "domain": "example",
+    "entity_type": "entity",
+    "status": "active"
+  },
+  "optional_facets": {
+    "owner": "team-name",
+    "priority": "normal",
+    "scope": "default"
+  },
+  "retrieval_patterns": [
+    "search by domain + entity_type",
+    "count by status",
+    "pack by scope"
+  ]
+}

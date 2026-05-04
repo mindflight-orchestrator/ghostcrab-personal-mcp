@@ -1,0 +1,19 @@
+{
+  "name": "@mindflight/ghostcrab-personal-mcp-linux-x64",
+  "version": "0.7.1",
+  "description": "Platform binary for @mindflight/ghostcrab-personal-mcp (linux-x64).",
+  "license": "SEE LICENSE IN Licence.md",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "files": [
+    "bin",
+    "Licence.md"
+  ],
+  "scripts": {
+    "prepack": "node ../../scripts/stage-platform-packages.mjs --platform linux-x64"
+  }
+}

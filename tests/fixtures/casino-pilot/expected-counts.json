@@ -1,0 +1,46 @@
+{
+  "_comment": "Expected row counts after running synth-gen-casino-pilot.ts with default multipliers (players=100). These are minimums — actual counts depend on random generation. Layer 2 counts are lower bounds.",
+  "generation_config": {
+    "players": 100,
+    "game_types": 8,
+    "campaigns": 10,
+    "visits_per_player": 5,
+    "hotel_stay_coverage_pct": 0.3,
+    "event_reg_coverage_pct": 0.2,
+    "transactions_per_player": 10,
+    "game_sessions_per_visit": 3,
+    "app_events_per_player": 20
+  },
+  "layer1": {
+    "casino.game_types":          { "min": 8,    "max": 8,    "exact": true },
+    "casino.campaigns":           { "min": 10,   "max": 10,   "exact": true },
+    "casino.players":             { "min": 100,  "max": 100,  "exact": true },
+    "casino.visits":              { "min": 400,  "max": 600,  "exact": false },
+    "casino.hotel_stays":         { "min": 20,   "max": 50,   "exact": false },
+    "casino.event_registrations": { "min": 10,   "max": 30,   "exact": false },
+    "casino.transactions":        { "min": 800,  "max": 1200, "exact": false },
+    "casino.game_sessions":       { "min": 1200, "max": 2000, "exact": false },
+    "casino.app_events":          { "min": 1500, "max": 2500, "exact": false }
+  },
+  "layer2": {
+    "facets": {
+      "_comment": "Sum of rows from emit_facets=true tables: players + visits + transactions + game_sessions + hotel_stays",
+      "min": 2500,
+      "max": 5000
+    },
+    "graph_entity": {
+      "_comment": "From emit_graph_entities=true tables: players + game_types + campaigns",
+      "min": 110,
+      "max": 130
+    },
+    "graph_relation": {
+      "_comment": "From emit_graph_relations=true tables: visits(player->player) + hotel_stays + event_registrations + game_sessions(game_type edge)",
+      "min": 500,
+      "max": 2000
+    }
+  },
+  "searchability": {
+    "_comment": "After generation, ghostcrab_search should return results for these terms",
+    "terms": ["bronze", "vip", "deposit", "withdrawal", "slots", "poker"]
+  }
+}

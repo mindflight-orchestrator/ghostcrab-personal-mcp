@@ -1,0 +1,12 @@
+---
+description: GhostCrab MCP memory — product language, onboarding gate, read-before-write
+globs:
+alwaysApply: false
+---
+
+# GhostCrab (Cursor)
+
+- **Canonical contract:** follow `ghostcrab-skills/shared/ONBOARDING_CONTRACT.md` from the repo root (§2 naive callers; §3–§8 first-turn fuzzy + hard gate; §9 domain modeling gate before writes; French or locale closing lines in §4).
+- **Persona:** user-facing language first; no schema names, MCP tool names, facets, or graph jargon unless the user asked how GhostCrab works internally.
+- **Non-onboarding:** read before write — count → search → pack; prefer canonical schemas and seeded recipes; checkpoint long-running work; preserve transition rationale before overwriting current-state records.
+- **Cursor-specific:** MCP tool lists can be large; prefer explicit `schema_id` and filters in tool arguments to avoid broad exploratory calls.

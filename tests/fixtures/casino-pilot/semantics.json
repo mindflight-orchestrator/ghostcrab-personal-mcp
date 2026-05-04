@@ -1,0 +1,175 @@
+{
+  "_comment": "Semantic annotations for the casino-pilot workspace. This is what would be stored in mindbrain.table_semantics, mindbrain.column_semantics and mindbrain.relation_semantics after PR-2 is implemented. Used by the E2E test as input to ghostcrab_ddl_propose.",
+  "workspace_id": "casino-pilot",
+  "tables": [
+    {
+      "schema_name": "casino",
+      "table_name": "game_types",
+      "table_role": "reference",
+      "entity_family": "game_type",
+      "primary_time_column": null,
+      "volume_driver": "tiny",
+      "generation_strategy": "static_ref",
+      "emit_facets": false,
+      "emit_graph_entities": true,
+      "emit_graph_relations": false,
+      "emit_projections": false
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "campaigns",
+      "table_role": "reference",
+      "entity_family": "campaign",
+      "primary_time_column": "start_date",
+      "volume_driver": "low",
+      "generation_strategy": "seed_table",
+      "emit_facets": false,
+      "emit_graph_entities": true,
+      "emit_graph_relations": false,
+      "emit_projections": false
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "players",
+      "table_role": "actor",
+      "entity_family": "player",
+      "primary_time_column": "created_at",
+      "volume_driver": "medium",
+      "generation_strategy": "seed_table",
+      "emit_facets": true,
+      "emit_graph_entities": true,
+      "emit_graph_relations": false,
+      "emit_projections": true
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "visits",
+      "table_role": "event",
+      "entity_family": "visit",
+      "primary_time_column": "visit_at",
+      "volume_driver": "high",
+      "generation_strategy": "per_parent",
+      "emit_facets": true,
+      "emit_graph_entities": false,
+      "emit_graph_relations": true,
+      "emit_projections": true
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "hotel_stays",
+      "table_role": "stateful_item",
+      "entity_family": "hotel_stay",
+      "primary_time_column": "check_in_at",
+      "volume_driver": "medium",
+      "generation_strategy": "sparse_events",
+      "emit_facets": true,
+      "emit_graph_entities": false,
+      "emit_graph_relations": true,
+      "emit_projections": true
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "event_registrations",
+      "table_role": "association",
+      "entity_family": "event_registration",
+      "primary_time_column": "registered_at",
+      "volume_driver": "medium",
+      "generation_strategy": "sparse_events",
+      "emit_facets": false,
+      "emit_graph_entities": false,
+      "emit_graph_relations": true,
+      "emit_projections": false
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "transactions",
+      "table_role": "transaction",
+      "entity_family": "transaction",
+      "primary_time_column": "occurred_at",
+      "volume_driver": "high",
+      "generation_strategy": "per_parent",
+      "emit_facets": true,
+      "emit_graph_entities": false,
+      "emit_graph_relations": false,
+      "emit_projections": true
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "game_sessions",
+      "table_role": "event",
+      "entity_family": "game_session",
+      "primary_time_column": "started_at",
+      "volume_driver": "high",
+      "generation_strategy": "per_parent",
+      "emit_facets": true,
+      "emit_graph_entities": false,
+      "emit_graph_relations": true,
+      "emit_projections": false
+    },
+    {
+      "schema_name": "casino",
+      "table_name": "app_events",
+      "table_role": "event",
+      "entity_family": "app_event",
+      "primary_time_column": "event_at",
+      "volume_driver": "high",
+      "generation_strategy": "time_series",
+      "emit_facets": false,
+      "emit_graph_entities": false,
+      "emit_graph_relations": false,
+      "emit_projections": true
+    }
+  ],
+  "sync_specs": {
+    "casino.players": {
+      "source_table": "casino.players",
+      "source_ref_column": "id",
+      "schema_id": "casino-player-profile",
+      "content_columns": ["display_name", "email"],
+      "facet_columns": [
+        { "column_name": "tier",   "facet_key": "player_tier",   "index_in_bm25": false, "facet_type": "term" },
+        { "column_name": "status", "facet_key": "player_status", "index_in_bm25": false, "facet_type": "term" },
+        { "column_name": "country_code", "facet_key": "player_country", "index_in_bm25": false, "facet_type": "term" }
+      ]
+    },
+    "casino.visits": {
+      "source_table": "casino.visits",
+      "source_ref_column": "id",
+      "schema_id": "casino-visit-summary",
+      "content_columns": ["channel"],
+      "facet_columns": [
+        { "column_name": "channel",    "facet_key": "visit_channel",  "index_in_bm25": false, "facet_type": "term" },
+        { "column_name": "ip_country", "facet_key": "visit_country",  "index_in_bm25": false, "facet_type": "term" }
+      ]
+    },
+    "casino.transactions": {
+      "source_table": "casino.transactions",
+      "source_ref_column": "id",
+      "schema_id": "casino-transaction",
+      "content_columns": ["reference"],
+      "facet_columns": [
+        { "column_name": "type",   "facet_key": "tx_type",    "index_in_bm25": false, "facet_type": "term" },
+        { "column_name": "status", "facet_key": "tx_status",  "index_in_bm25": false, "facet_type": "term" }
+      ]
+    },
+    "casino.game_sessions": {
+      "source_table": "casino.game_sessions",
+      "source_ref_column": "id",
+      "schema_id": "casino-game-session",
+      "content_columns": ["game_type_id"],
+      "facet_columns": [
+        { "column_name": "result", "facet_key": "session_result", "index_in_bm25": false, "facet_type": "term" }
+      ]
+    },
+    "casino.hotel_stays": {
+      "source_table": "casino.hotel_stays",
+      "source_ref_column": "id",
+      "schema_id": "casino-hotel-stay",
+      "content_columns": ["room_type"],
+      "facet_columns": [
+        { "column_name": "room_type", "facet_key": "stay_room_type", "index_in_bm25": false, "facet_type": "term" },
+        { "column_name": "status",    "facet_key": "stay_status",    "index_in_bm25": false, "facet_type": "term" }
+      ]
+    }
+  }
+}

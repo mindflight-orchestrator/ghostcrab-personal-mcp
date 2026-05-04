@@ -1,0 +1,3 @@
+[submodule "mindbrain"]
+	path = vendor/mindbrain
+	url = https://github.com/mindflight-orchestrator/mindbrain.git

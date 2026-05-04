@@ -1,0 +1,19 @@
+{
+  "name": "@mindflight/ghostcrab-personal-mcp-win32-x64",
+  "version": "0.7.1",
+  "description": "Platform binary for @mindflight/ghostcrab-personal-mcp (win32-x64).",
+  "license": "SEE LICENSE IN Licence.md",
+  "os": [
+    "win32"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "files": [
+    "bin",
+    "Licence.md"
+  ],
+  "scripts": {
+    "prepack": "node ../../scripts/stage-platform-packages.mjs --platform win32-x64"
+  }
+}

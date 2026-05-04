@@ -1,0 +1,61 @@
+{
+  "generated_at": "2026-03-30T14:31:58.716Z",
+  "scenarios": [
+    {
+      "scenario_id": "ops_runtime_status",
+      "dataset": "empty_runtime",
+      "prompt": "Dis-moi quelles extensions sont détectées et quelles capacités natives sont réellement prêtes.",
+      "expected_tools": [
+        "ghostcrab_status"
+      ]
+    },
+    {
+      "scenario_id": "facets_task_count",
+      "dataset": "active_project",
+      "prompt": "Compte les tâches par statut dans project:apollo.",
+      "expected_tools": [
+        "ghostcrab_count"
+      ]
+    },
+    {
+      "scenario_id": "facets_bm25_blocker",
+      "dataset": "active_project",
+      "prompt": "Trouve les tâches bloquées par missing API token.",
+      "expected_tools": [
+        "ghostcrab_search"
+      ]
+    },
+    {
+      "scenario_id": "graph_gap_neighbors",
+      "dataset": "edge_cases",
+      "prompt": "Parcours le voisinage immédiat du concept demo task.",
+      "expected_tools": [
+        "ghostcrab_traverse"
+      ]
+    },
+    {
+      "scenario_id": "pragma_context_pack",
+      "dataset": "active_project",
+      "prompt": "Construit un pack de contexte sur le blocker missing token.",
+      "expected_tools": [
+        "ghostcrab_pack"
+      ]
+    },
+    {
+      "scenario_id": "workspace_create",
+      "dataset": "empty_runtime",
+      "prompt": "Crée un workspace de validation MCP.",
+      "expected_tools": [
+        "ghostcrab_workspace_create"
+      ]
+    },
+    {
+      "scenario_id": "workspace_ddl_propose",
+      "dataset": "empty_runtime",
+      "prompt": "Propose une petite migration DDL dans le workspace default.",
+      "expected_tools": [
+        "ghostcrab_ddl_propose"
+      ]
+    }
+  ]
+}

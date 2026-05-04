@@ -1,0 +1,84 @@
+{
+  "generated_at": "2026-03-30T13:44:06.078Z",
+  "runtime_mode": "auto",
+  "scenarios": [
+    {
+      "scenario_id": "facets_bm25_blocker",
+      "agent": "baseline-mcp",
+      "dataset": "active_project",
+      "runtime_mode": "auto",
+      "prompt": "Trouve les tâches bloquées par missing API token.",
+      "expected_tools": [
+        "ghostcrab_search"
+      ],
+      "tools_called": [
+        "ghostcrab_search"
+      ],
+      "trace": [
+        {
+          "kind": "call_tool",
+          "name": "ghostcrab_search",
+          "ok": true,
+          "request": {
+            "query": "missing API token",
+            "schema_id": "demo:test:task",
+            "mode": "bm25"
+          },
+          "response": {
+            "ok": true,
+            "tool": "ghostcrab_search",
+            "backend": "native",
+            "returned": 2,
+            "results_preview": [
+              {
+                "id": "15f7573b-1641-4cca-be4c-a3fae08c5569",
+                "schema_id": "demo:test:task",
+                "content": "Customer onboarding task is blocked by missing API token",
+                "facets": {
+                  "team": "ops",
+                  "scope": "project:apollo",
+                  "domain": "delivery",
+                  "status": "todo",
+                  "record_id": "task:duplicate-content"
+                },
+                "created_at": "2026-03-30T13:44:02.307Z",
+                "version": 1,
+                "score": 30.42798131713597
+              },
+              {
+                "id": "b79544c0-8665-4809-878e-636062494ea2",
+                "schema_id": "demo:test:task",
+                "content": "Customer onboarding task is blocked by missing API token",
+                "facets": {
+                  "team": "ops",
+                  "owner": "agent:self",
+                  "scope": "project:apollo",
+                  "domain": "delivery",
+                  "status": "blocked",
+                  "record_id": "task:active-1"
+                },
+                "created_at": "2026-03-30T13:44:02.292Z",
+                "version": 2,
+                "score": 30.42798131713597
+              }
+            ]
+          },
+          "duration_ms": 17
+        }
+      ],
+      "observed_backend": [
+        "native"
+      ],
+      "final_answer_summary": "{\"ok\":true,\"tool\":\"ghostcrab_search\",\"backend\":\"native\",\"returned\":2,\"results_preview\":[{\"id\":\"15f7573b-1641-4cca-be4c-a3fae08c5569\",\"schema_id\":\"demo:test:task\",\"content\":\"Customer onboarding task is blocked by missing API token\",\"facets\":{\"team\":\"ops\",\"scope\":\"project:apollo\",\"domain\":\"delivery\",\"status\":\"todo\",\"record_id\":\"task:duplicate-content\"},\"created_at\":\"2026-03-30T13:44:02.307Z\",\"version\":1,\"score\":30.42798131713597},{\"id\":\"b79544c0-8665-4809-878e-636062494ea2\",\"schema_id\":\"demo:test:task\",\"content\":\"Customer onboarding task is blocked by missing API token\",\"facets\":{\"team\":\"ops\",\"owner\":\"agent:self\",\"scope\":\"project:apollo\",\"domain\":\"delivery\",\"status\":\"blocked\",\"record_id\":\"task:active-1\"},\"created_at\":\"2026-03-30T13:44:02.292Z\",\"version\":2,\"score\":30.42798131713597}]}",
+      "scorecard": {
+        "tool_choice": "pass",
+        "runtime_awareness": "pass",
+        "native_awareness": "pass",
+        "result_quality": "pass",
+        "recovery": "pass"
+      },
+      "verdict": "pass",
+      "notes": []
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+-- ghostcrab-baseline-vendor
+-- Canonical SQLite DDL: vendor/mindbrain/sql/sqlite_mindbrain--1.0.0.sql.
+-- Generated from vendor/mindbrain/src/standalone/sqlite_schema.zig; edit upstream, do not duplicate migration bodies here.

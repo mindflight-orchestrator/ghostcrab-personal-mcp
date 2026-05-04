@@ -1,0 +1,59 @@
+# Build GhostCrab native Postgres image (no registry push).
+# Validates Dockerfile.postgres + extension install; single-platform --load for smoke.
+name: Docker Native Postgres
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths:
+      - "docker/**"
+      - "extensions/**"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "docker/**"
+      - "extensions/**"
+
+jobs:
+  build-amd64-smoke:
+    name: Build amd64 + container smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image (linux/amd64, load)
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            -f docker/Dockerfile.postgres \
+            -t mindflight/ghostcrab-postgres:ci \
+            . \
+            --load
+
+      - name: Run container and wait for healthy
+        run: |
+          docker run -d --name pgtest \
+            -e POSTGRES_PASSWORD=test \
+            mindflight/ghostcrab-postgres:ci
+          for i in $(seq 1 90); do
+            status=$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' pgtest 2>/dev/null || echo starting)
+            if [ "$status" = "healthy" ]; then
+              echo "Container healthy after ${i} attempts"
+              break
+            fi
+            if [ "$i" -eq 90 ]; then
+              docker logs pgtest 2>&1 | tail -200
+              docker inspect pgtest
+              exit 1
+            fi
+            sleep 2
+          done
+          docker exec pgtest psql -U postgres -d postgres -v ON_ERROR_STOP=1 -c \
+            "SELECT extname FROM pg_extension WHERE extname IN ('pg_facets','pg_dgraph','pg_pragma')"
+          docker rm -f pgtest
+
+      # Multi-arch (linux/arm64) is supported by Dockerfile (TARGETARCH); full arm64
+      # image build is slow under QEMU on GHA — run locally: docker buildx build --platform linux/arm64 ...

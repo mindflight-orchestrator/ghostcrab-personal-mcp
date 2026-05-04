@@ -1,0 +1,153 @@
+# Legacy native extension workflow.
+# The public Ghostcrab phase 0 path uses the Node scaffold CI plus the SQL-first Docker fallback.
+# Keep this workflow scoped to native assets until version pins and native build guarantees are aligned.
+
+name: Legacy Native Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths:
+      - ".github/workflows/build-test.yml"
+      - ".gitmodules"
+      - "Makefile"
+      - "docker/Dockerfile.postgres"
+      - "docker/docker-entrypoint.sh"
+      - "docker/init/01-init-postgres.sql"
+      - "docker/init/02-init-template1.sh"
+      - "docker/postgresql.conf"
+      - "extensions/**"
+      - "run_all_tests_docker.sh"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - ".github/workflows/build-test.yml"
+      - ".gitmodules"
+      - "Makefile"
+      - "docker/Dockerfile.postgres"
+      - "docker/docker-entrypoint.sh"
+      - "docker/init/01-init-postgres.sql"
+      - "docker/init/02-init-template1.sh"
+      - "docker/postgresql.conf"
+      - "extensions/**"
+      - "run_all_tests_docker.sh"
+
+jobs:
+  linux:
+    name: Linux (x86_64)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Zig
+        run: |
+          ZIG_VERSION=0.15.2
+          wget -q https://ziglang.org/download/${ZIG_VERSION}/zig-x86_64-linux-${ZIG_VERSION}.tar.xz
+          tar -xf zig-x86_64-linux-${ZIG_VERSION}.tar.xz
+          sudo mv zig-x86_64-linux-${ZIG_VERSION} /usr/local/zig
+          sudo ln -sf /usr/local/zig/zig /usr/local/bin/zig
+          zig version
+
+      - name: Install PostgreSQL 17
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-server-dev-17
+
+      - name: Build pg_roaringbitmap (pg_facets)
+        run: |
+          cd extensions/pg_facets/deps/pg_roaringbitmap
+          make && sudo make install
+
+      - name: Build pg_roaringbitmap (pg_dgraph)
+        run: |
+          cd extensions/pg_dgraph/deps/pg_roaringbitmap
+          make && sudo make install
+
+      - name: Build pg_facets
+        run: |
+          cd extensions/pg_facets
+          zig build -Doptimize=ReleaseFast
+
+      - name: Build pg_dgraph
+        run: |
+          cd extensions/pg_dgraph
+          zig build -Doptimize=ReleaseFast
+
+      - name: Build pg_pragma
+        run: |
+          cd extensions/pg_pragma
+          zig build -Doptimize=ReleaseFast
+
+      - name: Verify artifacts
+        run: |
+          file extensions/pg_facets/zig-out/lib/libpg_facets.so
+          file extensions/pg_dgraph/zig-out/lib/libpg_dgraph.so
+          file extensions/pg_pragma/zig-out/lib/libpg_pragma.so
+
+      - name: Smoke CREATE EXTENSION (pg_facets, pg_dgraph, pg_pragma)
+        run: |
+          chmod +x scripts/smoke-create-extension.sh
+          sudo -E bash scripts/smoke-create-extension.sh pg_facets
+          sudo -E bash scripts/smoke-create-extension.sh pg_dgraph
+          sudo -E bash scripts/smoke-create-extension.sh pg_pragma
+
+  macos:
+    name: macOS (Apple Silicon)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Zig
+        run: |
+          brew install zig
+          zig version
+
+      - name: Install PostgreSQL 17
+        run: |
+          brew install postgresql@17
+          echo "$(brew --prefix postgresql@17)/bin" >> $GITHUB_PATH
+          echo "$(brew --prefix postgresql@17)/lib" >> $GITHUB_PATH
+          echo "PKG_CONFIG_PATH=$(brew --prefix postgresql@17)/lib/pkgconfig" >> $GITHUB_ENV
+
+      - name: Build pg_roaringbitmap (pg_facets)
+        run: |
+          cd extensions/pg_facets/deps/pg_roaringbitmap
+          make && make install
+
+      - name: Build pg_roaringbitmap (pg_dgraph)
+        run: |
+          cd extensions/pg_dgraph/deps/pg_roaringbitmap
+          make && make install
+
+      - name: Build pg_facets
+        run: |
+          cd extensions/pg_facets
+          zig build -Doptimize=ReleaseFast
+
+      - name: Build pg_dgraph
+        run: |
+          cd extensions/pg_dgraph
+          zig build -Doptimize=ReleaseFast
+
+      - name: Build pg_pragma
+        run: |
+          cd extensions/pg_pragma
+          zig build -Doptimize=ReleaseFast
+
+      - name: Verify artifacts
+        run: |
+          for f in extensions/pg_facets/zig-out/lib/libpg_facets.*; do [ -f "$f" ] && file "$f"; done
+          for f in extensions/pg_dgraph/zig-out/lib/libpg_dgraph.*; do [ -f "$f" ] && file "$f"; done
+          for f in extensions/pg_pragma/zig-out/lib/libpg_pragma.*; do [ -f "$f" ] && file "$f"; done
+
+      - name: Smoke CREATE EXTENSION (pg_facets, pg_dgraph, pg_pragma)
+        run: |
+          chmod +x scripts/smoke-create-extension.sh
+          sudo -E bash scripts/smoke-create-extension.sh pg_facets
+          sudo -E bash scripts/smoke-create-extension.sh pg_dgraph
+          sudo -E bash scripts/smoke-create-extension.sh pg_pragma

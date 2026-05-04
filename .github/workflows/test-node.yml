@@ -1,0 +1,130 @@
+name: Node Tests
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "package.json"
+      - "tsconfig.json"
+      - "vitest.config.ts"
+      - ".github/workflows/test-node.yml"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "package.json"
+      - "tsconfig.json"
+      - "vitest.config.ts"
+      - ".github/workflows/test-node.yml"
+
+jobs:
+  unit-tests:
+    name: Unit tests (mocked, no DB)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Run unit tests
+        run: npx vitest run tests/unit/
+        env:
+          MindBrain_NATIVE_EXTENSIONS: sql-only
+
+  tool-tests:
+    name: Tool integration tests (real Postgres, sql-only mode)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: ghostcrab
+          POSTGRES_PASSWORD: ghostcrab
+          POSTGRES_DB: ghostcrab
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Run tool + integration tests (sql-only)
+        run: npx vitest run tests/tools/ tests/integration/
+        env:
+          DATABASE_URL: postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab
+          MindBrain_NATIVE_EXTENSIONS: sql-only
+          # Extensions are not installed in vanilla postgres:17 — auto mode behaves like sql-only.
+          # This proves sql-only parity for all tool tests. Native parity requires the
+          # GhostCrab Docker image with pg_facets/pg_dgraph/pg_pragma installed.
+
+  native-tests:
+    name: Integration tests (auto mode, vanilla Postgres)
+    needs: [unit-tests]
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: ghostcrab
+          POSTGRES_PASSWORD: ghostcrab
+          POSTGRES_DB: ghostcrab
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Run integration tests (auto)
+        run: npx vitest run tests/integration/
+        env:
+          DATABASE_URL: postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab
+          MindBrain_NATIVE_EXTENSIONS: auto
+
+  # When mindflight/ghostcrab-postgres is published, replace service image and set DATABASE_URL.
+  # native-tests:
+  #   services:
+  #     postgres:
+  #       image: mindflight/ghostcrab-postgres:latest

@@ -1,0 +1,9 @@
+.cursor
+coverage
+dist
+docs
+extensions
+README_MACOSX.md
+docker/Docker_postgres_stack.md
+node_modules
+package-lock.json

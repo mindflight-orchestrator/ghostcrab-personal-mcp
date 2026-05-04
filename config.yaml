@@ -1,0 +1,69 @@
+llm:
+  # Options de provider disponibles:
+  #   - "moonshot": Kimi direct (api_key: "${KIMI_API_KEY}", model: "kimi-k2-5")
+  #   - "openrouter": Kimi via OpenRouter (api_key: "${OPENROUTER_API_KEY}", model: "moonshotai/kimi-k2.5")
+  #   - "solar": Solar Pro 3 via OpenRouter (api_key: "${OPENROUTER_API_KEY}", model: "upstage/solar-pro-3:free")
+  # Note: OpenRouter et Solar utilisent le cache automatique (pas de cache_id explicite)
+  provider: openrouter
+  model: moonshotai/kimi-k2.5
+  api_key: "${OPENROUTER_API_KEY}"
+  temperature: 0.7
+  max_tokens: 4096
+  timeout_ms: 120000 # Timeout LLM: 120s — margin for Kimi K2.5 / OpenRouter long responses
+  # Optional: provider_overrides (id = llm.providers entry) for timeout_ms, tool_loop_timeout_ms, max_concurrency per provider
+  # Example: [ { id: kimi, max_concurrency: 5 }, { id: solar, max_concurrency: 10 } ]
+  # L4 — adaptive timeouts: set to true to enable p95-based dynamic timeout resolution.
+  # When enabled, perProviderTimeout uses the sliding-window p95 × 1.5 from runtime metrics
+  # instead of the static timeout_ms / tool_loop_timeout_ms values above.
+  # Requires at least 10 observed calls per provider to activate; falls back to static otherwise.
+  adaptive_timeouts: false
+  # L3 — routing (optional): route by agent or task complexity. Implemented in internal/llm/provider_selection_policy.go.
+  # routing:
+  #   default_provider: openrouter
+  #   by_agent:          { reviewer: gemini, planner: kimi }   # agent_id -> provider
+  #   by_task_complexity: { simple: solar, complex: openrouter }  # complexity -> provider
+  cache_enabled: false # OpenRouter uses automatic prompt caching, no explicit cache_id needed
+  cache_ttl: 86400 # 24h initial TTL (reduced miss rate for sporadic usage)
+  cache_reset_ttl: 3600 # 1h reset on each hit (keeps active caches warm)
+  mode_selection: auto # "auto" (classifier decides) or force a mode
+  default_mode: thinking # Fallback mode
+  modes:
+    instant:
+      enabled: true
+    thinking:
+      enabled: true
+    agent:
+      enabled: true
+      max_tool_calls: 20 # Safety limit for agent mode
+    swarm:
+      enabled: false # Disabled by default for safety
+      max_agents: 10 # Safety limit
+      max_tool_calls: 50 # Safety limit
+      require_confirmation: true # Require user confirmation before execution
+      cost_warning: true # Show cost estimate before execution
+
+embeddings:
+  # Provider d'embeddings séparé du provider LLM.
+  # Ici on garde Kimi pour la génération, et OpenRouter pour les vecteurs.
+  #
+  # Options de provider disponibles:
+  #   - "disabled": désactive la génération d'embeddings
+  #   - "openrouter": provider réel via OpenRouter
+  #
+  # Modèles recommandés via OpenRouter:
+  #   - "openai/text-embedding-3-small"  -> 1536 dimensions, compatible avec facets.embedding
+  #   - "openai/text-embedding-3-large"  -> nécessite de revoir la dimension en base
+  provider: openrouter
+  model: openai/text-embedding-3-small
+  api_key: "${OPENROUTER_API_KEY}"
+  base_url: "https://openrouter.ai/api/v1"
+  dimensions: 1536
+  enabled: true
+  timeout_ms: 30000
+
+retrieval:
+  # Ces poids pilotent le score hybride quand BM25 et vectoriel sont tous deux disponibles.
+  # verify:e2e force volontairement GHOSTCRAB_EMBEDDINGS_MODE=disabled, donc ce tuning
+  # n'affecte pas la CI standard tant que le rail réel n'est pas appelé explicitement.
+  hybrid_bm25_weight: 0.6
+  hybrid_vector_weight: 0.4

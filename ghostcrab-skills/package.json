@@ -1,0 +1,16 @@
+{
+  "name": "@mindflight/ghostcrab-skills",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Client integration assets for GhostCrab.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build:seed": "node scripts/build-bootstrap-seed.mjs",
+    "demo:choose": "node scripts/choose-demo.mjs",
+    "validate": "node scripts/validate-skills.mjs",
+    "validate:strict": "node scripts/validate-skills.mjs --strict"
+  }
+}

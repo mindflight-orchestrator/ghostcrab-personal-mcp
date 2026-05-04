@@ -1,0 +1,424 @@
+{
+  "generated_at": "2026-03-30T14:39:36.100Z",
+  "runtime_mode": "auto",
+  "scenarios": [
+    {
+      "scenario_id": "ops_runtime_status",
+      "agent": "codex",
+      "dataset": "empty_runtime",
+      "runtime_mode": "auto",
+      "prompt": "Dis-moi quelles extensions sont détectées et quelles capacités natives sont réellement prêtes.",
+      "expected_tools": [
+        "ghostcrab_status"
+      ],
+      "tools_called": [
+        "ghostcrab_status"
+      ],
+      "trace": [
+        {
+          "kind": "call_tool",
+          "name": "ghostcrab_status",
+          "ok": true,
+          "request": {
+            "agent_id": "agent:self"
+          },
+          "response": {
+            "ok": true,
+            "tool": "ghostcrab_status",
+            "runtime": {
+              "embeddings": {
+                "available": false,
+                "dimensions": 1536,
+                "mode": "disabled",
+                "note": "Embeddings are disabled. BM25 remains the active ranking path until vectors are produced and queried end-to-end.",
+                "vectorSearchReady": false,
+                "writeEmbeddingsEnabled": false
+              },
+              "retrieval": {
+                "hybrid_bm25_weight": 0.6,
+                "hybrid_vector_weight": 0.4
+              },
+              "native_extensions_mode": "auto",
+              "extensions_detected": {
+                "pg_facets": true,
+                "pg_dgraph": true,
+                "pg_pragma": true
+              },
+              "backends": {
+                "facets": "sql",
+                "graph": "sql",
+                "pragma": "conditional"
+              },
+              "native_readiness": {
+                "facets": {
+                  "registered": true,
+                  "count": true,
+                  "hierarchy": true,
+                  "bm25": true,
+                  "deltaMerge": true
+                },
+                "dgraph": {
+                  "marketplace": true,
+                  "patch": true,
+                  "confidenceDecay": true,
+                  "entityNeighborhood": true,
+                  "entityDegree": true
+                },
+                "pragma": {
+                  "pack": true
+                }
+              },
+              "capabilities": {
+                "facets_native_count": true,
+                "facets_native_bm25": true,
+                "graph_native_traversal": true,
+                "graph_marketplace_search": true,
+                "graph_confidence_decay": true,
+                "pragma_native_pack": true
+              },
+              "facets_delta_status": [
+                {
+                  "table_name": "public.facets",
+                  "delta_count": "374",
+                  "delta_size_mb": "0.29",
+                  "recommendation": "Low - merge when convenient"
+                }
+              ]
+            }
+          },
+          "duration_ms": 41
+        }
+      ],
+      "observed_backend": [],
+      "final_answer_summary": "{\"ok\":true,\"tool\":\"ghostcrab_status\",\"runtime\":{\"embeddings\":{\"available\":false,\"dimensions\":1536,\"mode\":\"disabled\",\"note\":\"Embeddings are disabled. BM25 remains the active ranking path until vectors are produced and queried end-to-end.\",\"vectorSearchReady\":false,\"writeEmbeddingsEnabled\":false},\"retrieval\":{\"hybrid_bm25_weight\":0.6,\"hybrid_vector_weight\":0.4},\"native_extensions_mode\":\"auto\",\"extensions_detected\":{\"pg_facets\":true,\"pg_dgraph\":true,\"pg_pragma\":true},\"backends\":{\"facets\":\"sql\",\"graph\":\"sql\",\"pragma\":\"conditional\"},\"native_readiness\":{\"facets\":{\"registered\":true,\"count\":true,\"hierarchy\":true,\"bm25\":true,\"deltaMerge\":true},\"dgraph\":{\"marketplace\":true,\"patch\":true,\"confidenceDecay\":true,\"entityNeighborhood\":true,\"entityDegree\":true},\"pragma\":{\"pack\":true}},\"capabilities\":{\"facets_native_count\":true,\"facets_native_bm25\":true,\"graph_native_traversal\":true,\"graph_marketplace_search\":true,\"graph_confidence_decay\":true,\"pragma_native_pack\":true},\"facets_delta_status\":[{\"table_name\":\"public.facets\",\"delta_count\":\"374\",\"delta_size_mb\":\"0.29\",\"recommendation\":\"Low - merge when convenient\"}]}}",
+      "scorecard": {
+        "tool_choice": "pass",
+        "runtime_awareness": "pass",
+        "native_awareness": "pass",
+        "result_quality": "pass",
+        "recovery": "pass"
+      },
+      "verdict": "pass",
+      "notes": []
+    },
+    {
+      "scenario_id": "facets_task_count",
+      "agent": "codex",
+      "dataset": "active_project",
+      "runtime_mode": "auto",
+      "prompt": "Compte les tâches par statut dans project:apollo.",
+      "expected_tools": [
+        "ghostcrab_count"
+      ],
+      "tools_called": [
+        "ghostcrab_count"
+      ],
+      "trace": [
+        {
+          "kind": "call_tool",
+          "name": "ghostcrab_count",
+          "ok": true,
+          "request": {
+            "schema_id": "demo:test:task",
+            "group_by": [
+              "status"
+            ],
+            "filters": {
+              "scope": "project:apollo"
+            }
+          },
+          "response": {
+            "ok": true,
+            "tool": "ghostcrab_count",
+            "backend": "sql",
+            "counts": {
+              "status": {
+                "blocked": 1,
+                "todo": 1
+              }
+            }
+          },
+          "duration_ms": 56
+        }
+      ],
+      "observed_backend": [
+        "sql"
+      ],
+      "final_answer_summary": "{\"ok\":true,\"tool\":\"ghostcrab_count\",\"backend\":\"sql\",\"counts\":{\"status\":{\"blocked\":1,\"todo\":1}}}",
+      "scorecard": {
+        "tool_choice": "pass",
+        "runtime_awareness": "pass",
+        "native_awareness": "pass",
+        "result_quality": "pass",
+        "recovery": "pass"
+      },
+      "verdict": "pass",
+      "notes": []
+    },
+    {
+      "scenario_id": "facets_bm25_blocker",
+      "agent": "codex",
+      "dataset": "active_project",
+      "runtime_mode": "auto",
+      "prompt": "Trouve les tâches bloquées par missing API token.",
+      "expected_tools": [
+        "ghostcrab_search"
+      ],
+      "tools_called": [
+        "ghostcrab_search"
+      ],
+      "trace": [
+        {
+          "kind": "call_tool",
+          "name": "ghostcrab_search",
+          "ok": true,
+          "request": {
+            "query": "missing API token",
+            "schema_id": "demo:test:task",
+            "mode": "bm25"
+          },
+          "response": {
+            "ok": true,
+            "tool": "ghostcrab_search",
+            "backend": "native",
+            "returned": 2,
+            "results_preview": [
+              {
+                "id": "ca6ba2f4-75a5-49cf-9121-057008ad62d3",
+                "schema_id": "demo:test:task",
+                "content": "Customer onboarding task is blocked by missing API token",
+                "facets": {
+                  "team": "ops",
+                  "scope": "project:apollo",
+                  "domain": "delivery",
+                  "status": "todo",
+                  "record_id": "task:duplicate-content"
+                },
+                "created_at": "2026-03-30T14:38:59.235Z",
+                "version": 1,
+                "score": 31.335594086439954
+              },
+              {
+                "id": "3294504d-06f1-4e83-ad30-58a0b391369e",
+                "schema_id": "demo:test:task",
+                "content": "Customer onboarding task is blocked by missing API token",
+                "facets": {
+                  "team": "ops",
+                  "owner": "agent:self",
+                  "scope": "project:apollo",
+                  "domain": "delivery",
+                  "status": "blocked",
+                  "record_id": "task:active-1"
+                },
+                "created_at": "2026-03-30T14:38:59.223Z",
+                "version": 2,
+                "score": 31.335594086439954
+              }
+            ]
+          },
+          "duration_ms": 35
+        }
+      ],
+      "observed_backend": [
+        "native"
+      ],
+      "final_answer_summary": "{\"ok\":true,\"tool\":\"ghostcrab_search\",\"backend\":\"native\",\"returned\":2,\"results_preview\":[{\"id\":\"ca6ba2f4-75a5-49cf-9121-057008ad62d3\",\"schema_id\":\"demo:test:task\",\"content\":\"Customer onboarding task is blocked by missing API token\",\"facets\":{\"team\":\"ops\",\"scope\":\"project:apollo\",\"domain\":\"delivery\",\"status\":\"todo\",\"record_id\":\"task:duplicate-content\"},\"created_at\":\"2026-03-30T14:38:59.235Z\",\"version\":1,\"score\":31.335594086439954},{\"id\":\"3294504d-06f1-4e83-ad30-58a0b391369e\",\"schema_id\":\"demo:test:task\",\"content\":\"Customer onboarding task is blocked by missing API token\",\"facets\":{\"team\":\"ops\",\"owner\":\"agent:self\",\"scope\":\"project:apollo\",\"domain\":\"delivery\",\"status\":\"blocked\",\"record_id\":\"task:active-1\"},\"created_at\":\"2026-03-30T14:38:59.223Z\",\"version\":2,\"score\":31.335594086439954}]}",
+      "scorecard": {
+        "tool_choice": "pass",
+        "runtime_awareness": "pass",
+        "native_awareness": "pass",
+        "result_quality": "pass",
+        "recovery": "pass"
+      },
+      "verdict": "pass",
+      "notes": []
+    },
+    {
+      "scenario_id": "graph_gap_neighbors",
+      "agent": "codex",
+      "dataset": "edge_cases",
+      "runtime_mode": "auto",
+      "prompt": "Parcours le voisinage immédiat du concept demo task.",
+      "expected_tools": [
+        "ghostcrab_traverse"
+      ],
+      "tools_called": [
+        "ghostcrab_traverse"
+      ],
+      "trace": [
+        {
+          "kind": "call_tool",
+          "name": "ghostcrab_traverse",
+          "ok": true,
+          "request": {
+            "start": "concept:demo:task",
+            "depth": 1,
+            "direction": "outbound"
+          },
+          "response": {
+            "ok": true,
+            "tool": "ghostcrab_traverse",
+            "backend": "native",
+            "path_preview": [
+              {
+                "node_id": "concept:demo:task",
+                "node_label": "concept:demo:task",
+                "node_type": "unknown",
+                "properties": {
+                  "label": "concept:demo:task",
+                  "domain": "demo-domain",
+                  "mastery": 1,
+                  "node_type": "unknown",
+                  "schema_id": null
+                },
+                "edge_label": null,
+                "depth": 0,
+                "path": [
+                  "concept:demo:task"
+                ]
+              }
+            ]
+          },
+          "duration_ms": 32
+        }
+      ],
+      "observed_backend": [
+        "native"
+      ],
+      "final_answer_summary": "{\"ok\":true,\"tool\":\"ghostcrab_traverse\",\"backend\":\"native\",\"path_preview\":[{\"node_id\":\"concept:demo:task\",\"node_label\":\"concept:demo:task\",\"node_type\":\"unknown\",\"properties\":{\"label\":\"concept:demo:task\",\"domain\":\"demo-domain\",\"mastery\":1,\"node_type\":\"unknown\",\"schema_id\":null},\"edge_label\":null,\"depth\":0,\"path\":[\"concept:demo:task\"]}]}",
+      "scorecard": {
+        "tool_choice": "pass",
+        "runtime_awareness": "pass",
+        "native_awareness": "pass",
+        "result_quality": "pass",
+        "recovery": "pass"
+      },
+      "verdict": "pass",
+      "notes": []
+    },
+    {
+      "scenario_id": "pragma_context_pack",
+      "agent": "codex",
+      "dataset": "active_project",
+      "runtime_mode": "auto",
+      "prompt": "Construit un pack de contexte sur le blocker missing token.",
+      "expected_tools": [
+        "ghostcrab_pack"
+      ],
+      "tools_called": [
+        "ghostcrab_pack"
+      ],
+      "trace": [
+        {
+          "kind": "call_tool",
+          "name": "ghostcrab_pack",
+          "ok": true,
+          "request": {
+            "query": "missing token blocker project apollo"
+          },
+          "response": {
+            "ok": true,
+            "tool": "ghostcrab_pack",
+            "backend": "native"
+          },
+          "duration_ms": 133
+        }
+      ],
+      "observed_backend": [
+        "native"
+      ],
+      "final_answer_summary": "{\"ok\":true,\"tool\":\"ghostcrab_pack\",\"backend\":\"native\"}",
+      "scorecard": {
+        "tool_choice": "pass",
+        "runtime_awareness": "pass",
+        "native_awareness": "pass",
+        "result_quality": "pass",
+        "recovery": "pass"
+      },
+      "verdict": "pass",
+      "notes": []
+    },
+    {
+      "scenario_id": "workspace_create",
+      "agent": "codex",
+      "dataset": "empty_runtime",
+      "runtime_mode": "auto",
+      "prompt": "Crée un workspace de validation MCP.",
+      "expected_tools": [
+        "ghostcrab_workspace_create"
+      ],
+      "tools_called": [
+        "ghostcrab_workspace_create"
+      ],
+      "trace": [
+        {
+          "kind": "call_tool",
+          "name": "ghostcrab_workspace_create",
+          "ok": true,
+          "request": {
+            "id": "mcp-v3-workspace-create",
+            "label": "MCP Validation Workspace",
+            "created_by": "baseline-mcp"
+          },
+          "response": {
+            "ok": true,
+            "tool": "ghostcrab_workspace_create"
+          },
+          "duration_ms": 11
+        }
+      ],
+      "observed_backend": [],
+      "final_answer_summary": "{\"ok\":true,\"tool\":\"ghostcrab_workspace_create\"}",
+      "scorecard": {
+        "tool_choice": "pass",
+        "runtime_awareness": "pass",
+        "native_awareness": "pass",
+        "result_quality": "pass",
+        "recovery": "pass"
+      },
+      "verdict": "pass",
+      "notes": []
+    },
+    {
+      "scenario_id": "workspace_ddl_propose",
+      "agent": "codex",
+      "dataset": "empty_runtime",
+      "runtime_mode": "auto",
+      "prompt": "Propose une petite migration DDL dans le workspace default.",
+      "expected_tools": [
+        "ghostcrab_ddl_propose"
+      ],
+      "tools_called": [
+        "ghostcrab_ddl_propose"
+      ],
+      "trace": [
+        {
+          "kind": "call_tool",
+          "name": "ghostcrab_ddl_propose",
+          "ok": true,
+          "request": {
+            "workspace_id": "default",
+            "sql": "CREATE TABLE IF NOT EXISTS mcp_validation_probe (id SERIAL PRIMARY KEY, label TEXT)",
+            "rationale": "Validation baseline DDL propose path"
+          },
+          "response": {
+            "ok": true,
+            "tool": "ghostcrab_ddl_propose"
+          },
+          "duration_ms": 10
+        }
+      ],
+      "observed_backend": [],
+      "final_answer_summary": "{\"ok\":true,\"tool\":\"ghostcrab_ddl_propose\"}",
+      "scorecard": {
+        "tool_choice": "pass",
+        "runtime_awareness": "pass",
+        "native_awareness": "pass",
+        "result_quality": "pass",
+        "recovery": "pass"
+      },
+      "verdict": "pass",
+      "notes": []
+    }
+  ]
+}

@@ -1,0 +1,200 @@
+import { z } from "zod";
+import { randomUUID } from "node:crypto";
+
+import { callNativeOrFallback } from "../../db/dispatch.js";
+import { mergeFacetDeltasIfNeeded } from "../../db/maintenance.js";
+import { formatPgVector } from "../../embeddings/vector.js";
+import {
+  createToolSuccessResult,
+  registerTool,
+  type ToolHandler
+} from "../registry.js";
+
+export const RememberInput = z.object({
+  content: z.string().trim().min(1).max(100_000),
+  facets: z.record(z.string(), z.unknown()).default({}),
+  schema_id: z.string().min(1).default("agent:observation"),
+  workspace_id: z.string().min(1).optional(),
+  created_by: z.string().min(1).optional(),
+  valid_until: z
+    .string()
+    .regex(
+      /^\d{4}-\d{2}-\d{2}$/,
+      "valid_until must be an ISO date in YYYY-MM-DD format."
+    )
+    .optional()
+});
+
+export const rememberTool: ToolHandler = {
+  definition: {
+    name: "ghostcrab_remember",
+    description:
+      "Write. Store durable facts, stable notes, or observations in persistent memory. Call ghostcrab_status first for routing and workspace guidance when not on first-turn fuzzy onboarding. Do not use on a first-turn fuzzy onboarding request. Summarize before storing; avoid using raw payloads as the durable artifact when a stable summary will do.",
+    inputSchema: {
+      type: "object",
+      required: ["content"],
+      properties: {
+        content: {
+          type: "string",
+          description: "Content to store in pg_facets."
+        },
+        facets: {
+          type: "object",
+          description: "Facet metadata for later filtering.",
+          additionalProperties: true
+        },
+        schema_id: {
+          type: "string",
+          default: "agent:observation"
+        },
+        workspace_id: {
+          type: "string",
+          description: "Target workspace id. Overrides session context for this call only."
+        },
+        created_by: {
+          type: "string"
+        },
+        valid_until: {
+          type: "string",
+          description: "Optional expiry date in YYYY-MM-DD format."
+        }
+      }
+    }
+  },
+  async handler(args, context) {
+    const input = RememberInput.parse(args);
+    const effectiveWorkspaceId = input.workspace_id ?? context.session.workspace_id;
+    const useNative =
+      (context.extensions.pgMindbrain ?? false) &&
+      effectiveWorkspaceId === context.session.workspace_id;
+    let embeddingRuntime = context.embeddings.getStatus();
+    const notes: string[] = [];
+    let embeddingStored = false;
+    let embeddingValue: string | null = null;
+
+    if (embeddingRuntime.writeEmbeddingsEnabled) {
+      try {
+        const [embedding] = await context.embeddings.embedMany([input.content]);
+
+        if (embedding.length > 0) {
+          embeddingValue = formatPgVector(embedding);
+          embeddingStored = true;
+        }
+      } catch (error) {
+        embeddingRuntime = context.embeddings.getStatus();
+        notes.push(
+          `Embeddings write skipped: ${error instanceof Error ? error.message : "Unknown embeddings error"}`
+        );
+      }
+    }
+
+    if (input.workspace_id && effectiveWorkspaceId !== context.session.workspace_id) {
+      notes.push(
+        "Using SQL fallback because explicit workspace_id override cannot yet be passed through mb_ontology.ingest_knowledge_chunk."
+      );
+    }
+
+    const { value: row, backend } = await callNativeOrFallback<{
+      id: string;
+      created_at: string;
+    }>({
+      useNative,
+      native: async () => {
+        const [nativeRow] = await context.database.query<{
+          id: string;
+          created_at: string;
+        }>(
+          `SELECT * FROM mb_ontology.ingest_knowledge_chunk(
+            $1::text, $2::text, $3::jsonb, $4::jsonb,
+            $5::vector, $6::text, $7::date
+          )`,
+          [
+            input.content,
+            input.schema_id,
+            JSON.stringify(input.facets),
+            null,
+            embeddingValue,
+            input.created_by ?? null,
+            input.valid_until ?? null
+          ]
+        );
+        if (!nativeRow?.id) {
+          throw new Error(
+            "ingest_knowledge_chunk returned no row — possible constraint violation"
+          );
+        }
+        return nativeRow;
+      },
+      fallback: async () => {
+        const nowUnix = Math.floor(Date.now() / 1000);
+        const id = randomUUID();
+        const [docIdRow] = await context.database.query<{ next_doc_id: number }>(
+          `SELECT COALESCE(MAX(doc_id), 0) + 1 AS next_doc_id FROM facets`
+        );
+        const docId = docIdRow?.next_doc_id ?? 1;
+        const validUntilUnix = input.valid_until
+          ? Math.floor(Date.parse(`${input.valid_until}T00:00:00Z`) / 1000)
+          : null;
+
+        await context.database.query(
+          `
+            INSERT INTO facets (
+              id,
+              schema_id,
+              content,
+              facets_json,
+              embedding_blob,
+              created_by,
+              created_at_unix,
+              updated_at_unix,
+              valid_until_unix,
+              doc_id,
+              workspace_id
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `,
+          [
+            id,
+            input.schema_id,
+            input.content,
+            JSON.stringify(input.facets),
+            embeddingValue,
+            input.created_by ?? null,
+            nowUnix,
+            nowUnix,
+            validUntilUnix,
+            docId,
+            effectiveWorkspaceId
+          ]
+        );
+
+        await mergeFacetDeltasIfNeeded(context.database, context.extensions);
+
+        return {
+          id,
+          created_at: new Date(nowUnix * 1000).toISOString()
+        };
+      }
+    });
+
+    if (!row?.id) {
+      throw new Error(
+        "INSERT returned no row — possible constraint violation"
+      );
+    }
+
+    return createToolSuccessResult("ghostcrab_remember", {
+      stored: true,
+      id: row.id,
+      created_at: row.created_at,
+      schema_id: input.schema_id,
+      backend,
+      workspace_id: effectiveWorkspaceId,
+      embedding_runtime: embeddingRuntime,
+      embedding_stored: embeddingStored,
+      notes
+    });
+  }
+};
+
+registerTool(rememberTool);
