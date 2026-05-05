@@ -1,0 +1,496 @@
+openapi: 3.0.3
+info:
+  title: GhostCrab Telemetry Collector
+  version: 1.1.0
+  description: |
+    HTTPS webhook plus bearer-protected internal analytics.
+
+    **Emitter rollout:** Existing clients MAY continue sending **schema_version `1.1`**
+    (`product` must be `ghostcrab`; `edition` is stored as `unknown`). New emitters SHOULD use **`1.2`**:
+    set `product` to distinguish GhostCrab vs Mindbot vs mindflight-orchestration, and use optional `edition`
+    (`personal` | `pro` | `unknown`) for GhostCrab tier segmentation.
+
+servers:
+  - url: https://telemetry.ghostcrab.be
+    description: Production (reverse proxy — see deploy/nginx example in repo)
+  - url: http://localhost:3000
+    description: Local Docker / development
+
+paths:
+  /:
+    get:
+      summary: Bilingual telemetry usage and privacy notice (HTML)
+      operationId: telemetryNoticeHome
+      responses:
+        '200':
+          description: Static informational page (English and French); no authentication.
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /health:
+    get:
+      summary: Liveness
+      operationId: health
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, uptime_ms]
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  uptime_ms:
+                    type: integer
+                    format: int64
+
+  /v1/ping:
+    post:
+      summary: Ingest telemetry ping (schema v1.1 or v1.2)
+      operationId: ingestPing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/PingV11Request'
+                - $ref: '#/components/schemas/PingV12Request'
+              discriminator:
+                propertyName: schema_version
+                mapping:
+                  '1.1': '#/components/schemas/PingV11Request'
+                  '1.2': '#/components/schemas/PingV12Request'
+      responses:
+        '202':
+          description: Accepted (empty body)
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '413':
+          description: Payload too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayloadTooLarge'
+        '429':
+          description: Rate limited
+        '500':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalError'
+
+  /internal/metrics:
+    get:
+      summary: Metrics snapshot (protected)
+      operationId: internalMetrics
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Aggregated telemetry metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsSnapshot'
+        '401':
+          description: Missing or invalid bearer token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '503':
+          description: INTERNAL_METRICS_TOKEN not configured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalDisabled'
+
+  /internal/graph/{entityName}:
+    get:
+      summary: Entity neighborhood graph JSON (protected)
+      operationId: internalGraph
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: entityName
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-zA-Z0-9._-]+$'
+      responses:
+        '200':
+          description: Neighborhood payload or extension error stub
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphNeighborhoodResponse'
+        '400':
+          description: Invalid entity name
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: invalid_entity_name
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '503':
+          description: Internal routes disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalDisabled'
+
+  /internal/context/pack:
+    get:
+      summary: Compact context pack for agents (protected)
+      operationId: internalContextPack
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: query
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ''
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 15
+      responses:
+        '200':
+          description: Wrapped pack — shape depends on pg_pragma availability
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelemetryContextPackResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '503':
+          description: Internal routes disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalDisabled'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    PingV11Request:
+      type: object
+      additionalProperties: false
+      required:
+        - schema_version
+        - telemetry_id
+        - event_type
+        - product
+        - product_version
+        - os
+        - db_configured
+        - sent_at
+      properties:
+        schema_version:
+          type: string
+          enum: ['1.1']
+        telemetry_id:
+          type: string
+          format: uuid
+        event_type:
+          type: string
+          enum: [server_start]
+        product:
+          type: string
+          enum: [ghostcrab]
+        product_version:
+          type: string
+          minLength: 1
+          maxLength: 64
+        os:
+          type: string
+          minLength: 1
+          maxLength: 64
+        os_arch:
+          type: string
+          minLength: 1
+          maxLength: 64
+        runtime:
+          type: string
+          enum: [node, unknown]
+        runtime_version:
+          type: string
+          minLength: 1
+          maxLength: 64
+        db_configured:
+          type: boolean
+        execution_mode:
+          type: string
+          enum: [standalone, docker, k8s, systemd, unknown]
+        agent_host:
+          type: string
+          enum: [claude-code, cursor, openclaw, codex, crewai, other, unknown]
+        agent_host_source:
+          type: string
+          enum: [explicit_env, explicit_config, heuristic, unknown]
+        first_installed_at:
+          type: string
+          description: ISO-8601; if omitted, server uses sent_at after validation
+        sent_at:
+          type: string
+          description: ISO-8601 (normalized to UTC on ingest)
+
+    PingV12Request:
+      type: object
+      additionalProperties: false
+      required:
+        - schema_version
+        - telemetry_id
+        - event_type
+        - product
+        - product_version
+        - os
+        - db_configured
+        - sent_at
+      properties:
+        schema_version:
+          type: string
+          enum: ['1.2']
+        telemetry_id:
+          type: string
+          format: uuid
+        event_type:
+          type: string
+          enum: [server_start]
+        product:
+          type: string
+          enum: [ghostcrab, mindbot, mindflight_orchestration]
+          description: Which Mindflight surface emitted the ping
+        edition:
+          type: string
+          enum: [personal, pro, unknown]
+          description: GhostCrab tier; omit or `unknown` for non-GhostCrab products
+        product_version:
+          type: string
+          minLength: 1
+          maxLength: 64
+        os:
+          type: string
+          minLength: 1
+          maxLength: 64
+        os_arch:
+          type: string
+          minLength: 1
+          maxLength: 64
+        runtime:
+          type: string
+          enum: [node, unknown]
+        runtime_version:
+          type: string
+          minLength: 1
+          maxLength: 64
+        db_configured:
+          type: boolean
+        execution_mode:
+          type: string
+          enum: [standalone, docker, k8s, systemd, unknown]
+        agent_host:
+          type: string
+          enum: [claude-code, cursor, openclaw, codex, crewai, other, unknown]
+        agent_host_source:
+          type: string
+          enum: [explicit_env, explicit_config, heuristic, unknown]
+        first_installed_at:
+          type: string
+          description: ISO-8601; if omitted, server uses sent_at after validation
+        sent_at:
+          type: string
+          description: ISO-8601 (normalized to UTC on ingest)
+
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: validation_error
+        requestId:
+          type: string
+        details:
+          type: object
+
+    PayloadTooLarge:
+      type: object
+      properties:
+        error:
+          type: string
+          example: payload_too_large
+        requestId:
+          type: string
+
+    InternalError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: internal_error
+        requestId:
+          type: string
+
+    Unauthorized:
+      type: object
+      properties:
+        error:
+          type: string
+          example: unauthorized
+
+    InternalDisabled:
+      type: object
+      properties:
+        error:
+          type: string
+          example: internal_routes_disabled
+
+    MetricsSnapshot:
+      type: object
+      description: Matches MetricsSnapshot in src/analytics/metrics.ts
+      required:
+        - cumulative_installations
+        - active_installations_7d
+        - active_installations_30d
+        - version_distribution
+        - product_distribution
+        - edition_distribution
+        - os_distribution
+        - agent_host_distribution
+        - daily_pings
+        - db_configured_ratio
+        - avg_installation_age_seconds
+      properties:
+        cumulative_installations:
+          type: integer
+        active_installations_7d:
+          type: integer
+        active_installations_30d:
+          type: integer
+        version_distribution:
+          type: array
+          items:
+            type: object
+            properties:
+              product_version:
+                type: string
+              cnt:
+                type: string
+        product_distribution:
+          type: array
+          items:
+            type: object
+            properties:
+              product:
+                type: string
+              cnt:
+                type: string
+        edition_distribution:
+          type: array
+          items:
+            type: object
+            properties:
+              product:
+                type: string
+              edition:
+                type: string
+              cnt:
+                type: string
+        os_distribution:
+          type: array
+          items:
+            type: object
+            properties:
+              os:
+                type: string
+              cnt:
+                type: string
+        agent_host_distribution:
+          type: array
+          items:
+            type: object
+            properties:
+              agent_host:
+                type: string
+              cnt:
+                type: string
+        daily_pings:
+          type: array
+          items:
+            type: object
+            properties:
+              day:
+                type: string
+              cnt:
+                type: string
+        db_configured_ratio:
+          nullable: true
+          type: object
+          properties:
+            ratio_true:
+              type: number
+              nullable: true
+            total_pings:
+              type: string
+        avg_installation_age_seconds:
+          type: number
+          nullable: true
+
+    GraphNeighborhoodResponse:
+      oneOf:
+        - type: object
+          description: Extension missing or entity lookup failed (see implementation)
+          properties:
+            error:
+              type: string
+              enum:
+                - pg_dgraph_not_installed
+                - entity_not_found
+        - type: object
+          description: Successful pg_dgraph neighborhood graph (opaque JSON)
+          additionalProperties: true
+
+    TelemetryContextPackResponse:
+      type: object
+      required: [pack]
+      properties:
+        pack:
+          nullable: true
+          description: >
+            When pg_pragma is installed, result of pragma_pack_context(user_id='telemetry', query, limit).
+            When pg_pragma is missing, an object `{ error: pg_pragma_not_installed, query }`.
+            May be null if no row returned.

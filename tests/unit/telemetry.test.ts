@@ -24,6 +24,16 @@ describe("isTelemetryActive", () => {
     expect(isTelemetryActive(config)).toBe(false);
   });
 
+  it("uses the production endpoint by default", () => {
+    const config = resolveGhostcrabConfig({ NODE_ENV: "test" });
+
+    expect(config.telemetryEnabled).toBe(true);
+    expect(config.telemetryEndpoint).toBe(
+      "https://telemetry.ghostcrab.be/v1/ping"
+    );
+    expect(isTelemetryActive(config)).toBe(true);
+  });
+
   it("returns false when endpoint is empty", () => {
     const config = resolveGhostcrabConfig({
       MCP_TELEMETRY: "1",
@@ -116,10 +126,7 @@ describe("telemetry identity", () => {
       /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
     );
 
-    const raw = readFileSync(
-      path.join(tempDir, "telemetry-meta.json"),
-      "utf8"
-    );
+    const raw = readFileSync(path.join(tempDir, "telemetry-meta.json"), "utf8");
     const parsed = JSON.parse(raw) as { first_installed_at: string };
 
     expect(parsed.first_installed_at).toBe(meta.first_installed_at);
@@ -154,7 +161,7 @@ describe("telemetry identity", () => {
 });
 
 describe("buildPingPayload", () => {
-  it("produces a v1.1 payload with required fields", async () => {
+  it("produces a v1.2 payload with required fields", async () => {
     const config = resolveGhostcrabConfig({ NODE_ENV: "test" });
     const meta = { first_installed_at: "2026-03-28T09:42:00.000Z" };
 
@@ -165,10 +172,11 @@ describe("buildPingPayload", () => {
       true
     );
 
-    expect(payload.schema_version).toBe("1.1");
+    expect(payload.schema_version).toBe("1.2");
     expect(payload.telemetry_id).toBe("a3f8c2e1-b4d5-4f6a-9c7e-1234567890ab");
     expect(payload.event_type).toBe("server_start");
     expect(payload.product).toBe("ghostcrab");
+    expect(payload.edition).toBe("personal");
     expect(typeof payload.product_version).toBe("string");
     expect(payload.os).toBe(process.platform);
     expect(payload.os_arch).toBe(process.arch);
@@ -233,10 +241,11 @@ describe("buildPingPayload", () => {
 
 describe("sendTelemetryPing", () => {
   const samplePayload = {
-    schema_version: "1.1" as const,
+    schema_version: "1.2" as const,
     telemetry_id: "a3f8c2e1-b4d5-4f6a-9c7e-1234567890ab",
     event_type: "server_start" as const,
     product: "ghostcrab" as const,
+    edition: "personal" as const,
     product_version: "0.1.0",
     os: "darwin",
     os_arch: "arm64",
@@ -320,24 +329,50 @@ describe("maybeSendStartupPing", () => {
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);
 
-    const config = resolveGhostcrabConfig({ NODE_ENV: "test" });
+    const config = resolveGhostcrabConfig({
+      NODE_ENV: "test",
+      MCP_TELEMETRY: "0"
+    });
 
     await maybeSendStartupPing(config, true);
 
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it("passes the DB reachability signal through to the payload", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (_url: string, init?: RequestInit) => {
-        const body = JSON.parse(String(init?.body)) as { db_configured: boolean };
+  it("returns without waiting for a hung telemetry request", async () => {
+    const fetchSpy = vi.fn(() => new Promise<Response>(() => undefined));
+    vi.stubGlobal("fetch", fetchSpy);
 
-        expect(body.db_configured).toBe(false);
+    const tempDir = mkdtempSync(path.join(os.tmpdir(), "ghostcrab-telemetry-"));
+    const config = resolveGhostcrabConfig({
+      NODE_ENV: "test",
+      GHOSTCRAB_TELEMETRY_STATE_DIR: tempDir,
+      GHOSTCRAB_TELEMETRY_TIMEOUT_MS: "10000"
+    });
 
-        return new Response(null, { status: 202 });
+    const result = await Promise.race([
+      maybeSendStartupPing(config, true).then(() => "done"),
+      new Promise<string>((resolve) => {
+        setTimeout(() => resolve("timeout"), 50);
       })
-    );
+    ]);
+
+    expect(result).toBe("done");
+    await vi.waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledOnce();
+    });
+  });
+
+  it("passes the DB reachability signal through to the payload", async () => {
+    const fetchSpy = vi.fn(async (_url: string, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body)) as { db_configured: boolean };
+
+      expect(body.db_configured).toBe(false);
+
+      return new Response(null, { status: 202 });
+    });
+
+    vi.stubGlobal("fetch", fetchSpy);
 
     const tempDir = mkdtempSync(path.join(os.tmpdir(), "ghostcrab-telemetry-"));
     const config = resolveGhostcrabConfig({
@@ -348,6 +383,9 @@ describe("maybeSendStartupPing", () => {
     });
 
     await expect(maybeSendStartupPing(config, false)).resolves.toBeUndefined();
+    await vi.waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledOnce();
+    });
   });
 });
 

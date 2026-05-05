@@ -1,8 +1,10 @@
-export type TelemetrySchemaVersion = "1.1";
+export type TelemetrySchemaVersion = "1.2";
 
 export type TelemetryEventType = "server_start";
 
 export type TelemetryProduct = "ghostcrab";
+
+export type TelemetryEdition = "personal" | "pro" | "unknown";
 
 export type TelemetryRuntime = "node" | "unknown";
 
@@ -37,6 +39,7 @@ export interface TelemetryPingPayload {
   telemetry_id: string;
   event_type: TelemetryEventType;
   product: TelemetryProduct;
+  edition: TelemetryEdition;
   product_version: string;
   os: string;
   os_arch: string;

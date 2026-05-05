@@ -158,7 +158,7 @@ Tests / pack smoke: `npm run test`, `npm run verify:pack`. Maintainer integratio
 
 ## Telemetry
 
-Opt-in, off by default. Enable with `MCP_TELEMETRY=1` and `GHOSTCRAB_TELEMETRY_ENDPOINT` (`https://` only). Anonymous metadata only — no prompts or DB payloads. **`--no-telemetry`** disables for one process.
+Enabled by default to `https://telemetry.ghostcrab.be/v1/ping` (`https://` only). Anonymous metadata only — no prompts or DB payloads. **`--no-telemetry`** or `MCP_TELEMETRY=0` disables for one process.
 
 - Policy: [https://telemetry.ghostcrab.be](https://telemetry.ghostcrab.be)  
 - Fields / implementation: [docs/dev/INTERNALS.md](docs/dev/INTERNALS.md#telemetry)

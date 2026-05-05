@@ -1,6 +1,6 @@
 {
   "name": "@mindflight/ghostcrab-personal-mcp",
-  "version": "0.7.1",
+  "version": "0.2.12",
   "description": "SQLite-backed MCP memory server (MindBrain + Zig backend), part of the MindBrain ecosystem.",
   "license": "SEE LICENSE IN Licence.md",
   "type": "module",
@@ -15,11 +15,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/webigniter/ghostcrab.git"
+    "url": "git+https://github.com/mindflight-orchestrator/ghostcrab-personal-mcp.git"
   },
-  "homepage": "https://gitlab.com/webigniter/ghostcrab",
+  "homepage": "https://github.com/mindflight-orchestrator/ghostcrab-personal-mcp#readme",
   "bugs": {
-    "url": "https://gitlab.com/webigniter/ghostcrab/-/issues"
+    "url": "https://github.com/mindflight-orchestrator/ghostcrab-personal-mcp/issues"
   },
   "keywords": [
     "mcp",
@@ -105,10 +105,10 @@
     "zod": "^4.3.6"
   },
   "optionalDependencies": {
-    "@mindflight/ghostcrab-personal-mcp-darwin-arm64": "0.2.11",
-    "@mindflight/ghostcrab-personal-mcp-darwin-x64": "0.2.11",
-    "@mindflight/ghostcrab-personal-mcp-linux-arm64": "0.2.11",
-    "@mindflight/ghostcrab-personal-mcp-linux-x64": "0.2.11",
-    "@mindflight/ghostcrab-personal-mcp-win32-x64": "0.2.11"
+    "@mindflight/ghostcrab-personal-mcp-darwin-arm64": "0.2.12",
+    "@mindflight/ghostcrab-personal-mcp-darwin-x64": "0.2.12",
+    "@mindflight/ghostcrab-personal-mcp-linux-arm64": "0.2.12",
+    "@mindflight/ghostcrab-personal-mcp-linux-x64": "0.2.12",
+    "@mindflight/ghostcrab-personal-mcp-win32-x64": "0.2.12"
   }
 }

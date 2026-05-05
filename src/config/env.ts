@@ -55,6 +55,7 @@ const DEFAULT_ENV_FILE_PATH = ".env";
 const DEFAULT_CONFIG_FILE_PATH = "config.yaml";
 const DEFAULT_NATIVE_EXTENSIONS_MODE = "auto";
 const DEFAULT_NODE_ENV = "development";
+const DEFAULT_TELEMETRY_ENDPOINT = "https://telemetry.ghostcrab.be/v1/ping";
 const DEFAULT_TELEMETRY_TIMEOUT_MS = 1500;
 const DEFAULT_TELEMETRY_STATE_DIR = path.join(os.homedir(), ".ghostcrab");
 const DEFAULT_MINDBRAIN_URL = "http://127.0.0.1:8091";
@@ -155,12 +156,14 @@ export function resolveGhostcrabConfig(
   );
   assertPositiveWeightSum(hybridBm25Weight, hybridVectorWeight);
 
-  const telemetryEnabled = mergedEnv.MCP_TELEMETRY === "1";
+  const telemetryEnabled = mergedEnv.MCP_TELEMETRY !== "0";
   const telemetryEndpointRaw = mergedEnv.GHOSTCRAB_TELEMETRY_ENDPOINT;
   const telemetryEndpoint =
-    telemetryEndpointRaw === undefined || telemetryEndpointRaw === ""
-      ? undefined
-      : telemetryEndpointRaw;
+    telemetryEndpointRaw === undefined
+      ? DEFAULT_TELEMETRY_ENDPOINT
+      : telemetryEndpointRaw === ""
+        ? undefined
+        : telemetryEndpointRaw;
   const telemetryTimeoutMs = parsePositiveInteger(
     mergedEnv.GHOSTCRAB_TELEMETRY_TIMEOUT_MS,
     DEFAULT_TELEMETRY_TIMEOUT_MS,
@@ -172,7 +175,9 @@ export function resolveGhostcrabConfig(
       ? DEFAULT_TELEMETRY_STATE_DIR
       : telemetryStateDirRaw;
   const telemetryDebug = mergedEnv.GHOSTCRAB_TELEMETRY_DEBUG === "1";
-  const agentHost = parseOptionalTelemetryAgentHost(mergedEnv.GHOSTCRAB_AGENT_HOST);
+  const agentHost = parseOptionalTelemetryAgentHost(
+    mergedEnv.GHOSTCRAB_AGENT_HOST
+  );
   const agentHostSourceFromEnv = parseOptionalTelemetryAgentHostSource(
     mergedEnv.GHOSTCRAB_AGENT_HOST_SOURCE
   );
@@ -310,7 +315,9 @@ function parseOptionalTelemetryAgentHostSource(
     return undefined;
   }
 
-  return TELEMETRY_AGENT_HOST_SOURCES.includes(value as TelemetryAgentHostSource)
+  return TELEMETRY_AGENT_HOST_SOURCES.includes(
+    value as TelemetryAgentHostSource
+  )
     ? (value as TelemetryAgentHostSource)
     : undefined;
 }

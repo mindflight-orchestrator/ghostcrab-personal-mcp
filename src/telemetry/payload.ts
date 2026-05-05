@@ -12,7 +12,9 @@ function resolveAgentHost(config: GhostcrabConfig): TelemetryAgentHost {
   return config.agentHost ?? "unknown";
 }
 
-function resolveAgentHostSource(config: GhostcrabConfig): TelemetryAgentHostSource {
+function resolveAgentHostSource(
+  config: GhostcrabConfig
+): TelemetryAgentHostSource {
   return config.agentHostSource ?? "unknown";
 }
 
@@ -29,10 +31,11 @@ export async function buildPingPayload(
   const productVersion = await getPackageVersion();
 
   return {
-    schema_version: "1.1",
+    schema_version: "1.2",
     telemetry_id: telemetryId,
     event_type: "server_start",
     product: "ghostcrab",
+    edition: "personal",
     product_version: productVersion,
     os: process.platform,
     os_arch: process.arch,
