@@ -33,6 +33,7 @@
     "bin",
     "dist",
     "ghostcrab-skills",
+    "installations",
     "docs",
     "examples",
     "README.md",

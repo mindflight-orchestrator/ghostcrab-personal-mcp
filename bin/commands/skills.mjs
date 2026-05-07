@@ -1,6 +1,7 @@
 /**
  * gcp skills list [--remote]
  * gcp skills pull <owner/name> [--token <tok>] [--registry <url>]
+ * gcp skills install --dir <path> [--id owner/name]
  * gcp skills remove <owner/name>
  * gcp skills show <owner/name>
  */
@@ -11,6 +12,9 @@ import {
   listRegistryResources,
   applyWatermark,
 } from "../lib/registry.mjs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { join as pathJoin, resolve } from "node:path";
+
 import {
   listLocal,
   saveLocal,
@@ -31,6 +35,8 @@ export async function cmdSkills(args) {
       return skillsList(rest);
     case "pull":
       return skillsPull(rest);
+    case "install":
+      return skillsInstall(rest);
     case "remove":
     case "rm":
       return skillsRemove(rest);
@@ -152,6 +158,146 @@ async function skillsPull(args) {
   console.log(`  Location: ${typeDir(TYPE)}/${owner}/${name}/`);
 }
 
+// ── install (local directory → same layout as registry pull) ───────────────────
+
+/**
+ * @param {string[]} args
+ */
+function skillsInstall(args) {
+  let dirRaw = null;
+  let idRaw = null;
+
+  for (let i = 0; i < args.length; i += 1) {
+    const a = args[i];
+    if ((a === "--dir" || a === "-d") && args[i + 1]) {
+      dirRaw = args[i + 1];
+      i += 1;
+      continue;
+    }
+    if ((a === "--id" || a === "-i") && args[i + 1]) {
+      idRaw = args[i + 1];
+      i += 1;
+      continue;
+    }
+    if (a === "--help" || a === "-h") {
+      console.log(`
+Usage: gcp agent skills install --dir <path> [--id owner/name]
+
+  Copy a vendored skill folder into the local GhostCrab skill store (same on-disk
+  layout as  gcp agent skills pull ). Content file resolution order:
+
+    1. content.md
+    2. SKILL.md
+    3. first *.md in the directory (sorted)
+
+  Optional manifest.json in the folder may include:
+    { "owner", "name", "version", "access" }
+
+  When owner/name are not in manifest.json, pass  --id owner/name .
+
+Examples:
+  gcp agent skills install --dir ./vendor/mindflight/my-skill
+  gcp agent skills install --dir ./vendor/mindflight/my-skill --id mindflight/my-skill
+`.trim());
+      return;
+    }
+  }
+
+  if (!dirRaw) {
+    console.error(
+      'gcp skills install: missing --dir <path>  (see: gcp agent skills install --help)'
+    );
+    process.exit(1);
+  }
+
+  const dirAbs = resolve(process.cwd(), dirRaw);
+  if (!existsSync(dirAbs)) {
+    console.error(`gcp skills install: directory not found: ${dirAbs}`);
+    process.exit(1);
+  }
+
+  /** @type {{ owner?: string, name?: string, version?: string, access?: string } | null} */
+  let fileManifest = null;
+  const manifestPath = pathJoin(dirAbs, "manifest.json");
+  if (existsSync(manifestPath)) {
+    try {
+      fileManifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+    } catch (err) {
+      console.error(
+        `gcp skills install: invalid JSON in ${manifestPath}: ${err instanceof Error ? err.message : String(err)}`
+      );
+      process.exit(1);
+    }
+  }
+
+  let owner = idRaw ? null : fileManifest?.owner ?? null;
+  let name = idRaw ? null : fileManifest?.name ?? null;
+
+  if (idRaw) {
+    try {
+      ({ owner, name } = parseResourceId(idRaw));
+    } catch (err) {
+      console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
+      process.exit(1);
+    }
+  }
+
+  if (!owner || !name) {
+    console.error(
+      `gcp skills install: need owner/name — add them to manifest.json in\n  ${dirAbs}\n` +
+        "  or pass: --id owner/name"
+    );
+    process.exit(1);
+  }
+
+  let contentPath = null;
+  for (const candidate of ["content.md", "SKILL.md"]) {
+    const p = pathJoin(dirAbs, candidate);
+    if (existsSync(p)) {
+      contentPath = p;
+      break;
+    }
+  }
+  if (!contentPath) {
+    const md = readdirSync(dirAbs)
+      .filter((f) => f.toLowerCase().endsWith(".md"))
+      .sort();
+    if (md.length > 0) {
+      contentPath = pathJoin(dirAbs, md[0]);
+    }
+  }
+
+  if (!contentPath) {
+    console.error(
+      `gcp skills install: no content.md, SKILL.md, or other .md in\n  ${dirAbs}`
+    );
+    process.exit(1);
+  }
+
+  const content = readFileSync(contentPath, "utf8");
+  const version = fileManifest?.version ?? "0.0.0";
+  const access = fileManifest?.access ?? "public";
+  const pulledAt = new Date().toISOString();
+
+  saveLocal(TYPE, {
+    owner,
+    name,
+    content,
+    manifest: {
+      version,
+      access,
+      licensee: null,
+      pulledAt,
+      sourceDir: dirAbs,
+      installedVia: "local-dir",
+    },
+  });
+
+  console.log(`✓ Installed ${owner}/${name} v${version} [${access}] (local dir)`);
+  console.log(`  Source : ${dirAbs}`);
+  console.log(`  Store  : ${typeDir(TYPE)}/${owner}/${name}/`);
+}
+
 // ── remove ───────────────────────────────────────────────────────────────────
 
 async function skillsRemove(args) {
@@ -227,8 +373,12 @@ Usage: gcp agent skills <subcommand>   (recommended — “equip agents”)
 Subcommands:
   list [--remote]              List local (or remote) skills
   pull <owner/name> [flags]    Download a skill from the registry
+  install --dir <path> [flags] Copy a vendored folder into the local skill store
   remove <owner/name>          Remove a locally installed skill
   show <owner/name>            Print skill content to stdout
+
+Install flags:
+  --id <owner/name>   When manifest.json in the folder omits owner/name
 
 Pull flags:
   --token <tok>     Override registry.token from config
@@ -239,6 +389,7 @@ Examples:
   gcp skills list --remote
   gcp skills pull mindflight/coding-assistant
   gcp skills pull company/internal --token sk_live_xyz
+  gcp agent skills install --dir ./vendor/demo/hello-world
   gcp skills remove mindflight/coding-assistant
 `.trim());
 }

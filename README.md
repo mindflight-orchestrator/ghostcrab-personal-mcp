@@ -47,13 +47,13 @@ Other GhostCrab distributions may use different database stacks; match the packa
 
    The generator auto-selects the most reliable launch form: **absolute `node` + `bin/gcp.mjs`** when the package is locally installed, global `gcp` absolute path when available, or `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up` as fallback. No PATH dependency. The legacy `ghostcrab` entry is auto-removed.
 
-   These register the MCP entry and install client-specific rules/skills stubs. Exact `mcp.json` / env flags: [README_CURSOR_MCP.md](README_CURSOR_MCP.md), [README_CODEX_MCP.md](README_CODEX_MCP.md), [README_CLAUDE_CODE_MCP.md](README_CLAUDE_CODE_MCP.md).
+   These register the MCP entry and install client-specific rules/skills stubs. Exact `mcp.json` / env flags: [README_CURSOR_MCP.md](README_CURSOR_MCP.md), [README_CODEX_MCP.md](README_CODEX_MCP.md), [README_CLAUDE_CODE_MCP.md](README_CLAUDE_CODE_MCP.md). Other agent setups and templates live in [installations/](installations/README.md).
 
 6. **Optional `.env` tweaks:** A starter `.env` may already exist after step 2. For hybrid embeddings or overrides, edit it or copy [.env.example](.env.example) — copy paths for local vs global install are in [INSTALL.md](INSTALL.md).
 
 7. **Runtime:** MCP clients should start **`gcp brain up`** (or legacy **`gcp serve`**): that launches MindBrain, creates **`./data/ghostcrab.sqlite`** by default (cwd-dependent), and keeps **stdio** for MCP.
 
-**More install channels** (beta zip, Git, document import, `gcp brain document …`): [INSTALL.md](INSTALL.md). CLI reference: [docs/GCP_CLIENT_SETUP.md](docs/GCP_CLIENT_SETUP.md).
+**More install channels** (beta zip, Git, document import, `gcp brain document …`): [INSTALL.md](INSTALL.md). CLI reference: [docs/GCP_CLIENT_SETUP.md](docs/GCP_CLIENT_SETUP.md). Agent installation hub: [installations/](installations/README.md).
 
 ---
 
@@ -95,6 +95,7 @@ Environment reference: [.env.example](.env.example).
 - [README_CLAUDE_CODE_MCP.md](README_CLAUDE_CODE_MCP.md) — Claude Code  
 - [README_CODEX_MCP.md](README_CODEX_MCP.md) — Codex  
 - [README_CURSOR_MCP.md](README_CURSOR_MCP.md) — Cursor  
+- [installations/](installations/README.md) — OpenClaw, Gemini CLI, Nous-Hermes-style, OpenFang-style, and custom agent setups
 - OpenClaw, mindBot (see skills / product docs)
 
 ## Model compatibility

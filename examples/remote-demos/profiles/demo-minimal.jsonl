@@ -1,0 +1,3 @@
+{"kind":"profile","profile_id":"remote-demos-minimal","title":"Remote demos — minimal seed","description":"Tiny profile for the remote-demos example repo: one fact, one concept node. Load while MindBrain is reachable (gcp brain up).","recommended_entrypoints":["README.md"],"tags":["demo","minimal"]}
+{"kind":"remember","profile_id":"remote-demos-minimal","schema_id":"demo:remote-demos:note","content":"Hello from the remote-demos scaffold: this row was loaded via gcp load after clone.","facets":{"workspace_id":"remote-demos","source":"examples/remote-demos"}}
+{"kind":"learn_node","profile_id":"remote-demos-minimal","node":{"id":"concept:remote-demos:hello","node_type":"concept","label":"Remote demos setup","mastery":1,"properties":{"workspace_id":"remote-demos"}}}

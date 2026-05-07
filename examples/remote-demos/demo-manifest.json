@@ -1,0 +1,6 @@
+{
+  "schemas": ["mindflight/mindbrain"],
+  "skills": [],
+  "local_skills": ["vendor/demo/hello-world"],
+  "profiles": ["profiles/demo-minimal.jsonl"]
+}

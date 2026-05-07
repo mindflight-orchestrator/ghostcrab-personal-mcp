@@ -37,5 +37,6 @@ Legacy (still supported):
 
 ## See also
 
+- [skillset-demo-import.md](./skillset-demo-import.md) — bundle manifests, schema/skill pulls, vendored `skills install`, JSONL loads
 - [GCP_CLIENT_SETUP.md](./GCP_CLIENT_SETUP.md) — IDE integration and env vars
 - Root `README_CURSOR_MCP.md`, `README_CODEX_MCP.md`, `README_CLAUDE_CODE_MCP.md` — per-IDE MCP wiring

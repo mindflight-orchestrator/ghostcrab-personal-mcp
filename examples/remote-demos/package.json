@@ -1,0 +1,17 @@
+{
+  "name": "@mindflight/ghostcrab-remote-demos",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Example remote-style demo bundle: JSONL profiles + manifest-driven gcp setup (clone, install, setup).",
+  "type": "module",
+  "scripts": {
+    "setup": "node ./scripts/setup.mjs",
+    "load": "node ./scripts/setup.mjs --profiles-only"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@mindflight/ghostcrab-personal-mcp": "file:../.."
+  }
+}

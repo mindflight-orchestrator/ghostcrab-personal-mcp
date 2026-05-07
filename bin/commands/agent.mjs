@@ -48,12 +48,13 @@ Usage: gcp agent <subcommand>
 Equip agents (skills = executable guidance / prompts for MCP), distinct from brain schema.
 
 Subcommands:
-  skills <list|pull|remove|show>   Manage registry-backed skills
+  skills <list|pull|install|remove|show>   Manage skills (registry + local dir install)
   equip <owner/name>               Shortcut for: gcp agent skills pull <owner/name>
 
 Examples:
   gcp agent skills list --remote
   gcp agent skills pull mindflight/coding-assistant
+  gcp agent skills install --dir ./vendor/mindflight/my-skill
   gcp agent equip mindflight/coding-assistant
 
 Legacy:  gcp skills …  (same as gcp agent skills …)
