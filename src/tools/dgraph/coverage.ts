@@ -251,6 +251,14 @@ export const coverageTool: ToolHandler = {
         backend: "native"
       });
     } catch (error) {
+      if (isCoverageNotFound(error)) {
+        return buildResponse({
+          coverageScore: null,
+          message: `No ontology registered for domain: ${input.domain}.`,
+          backend: "native"
+        });
+      }
+
       return createToolErrorResult(
         "ghostcrab_coverage",
         error instanceof Error ? error.message : "coverage backend unavailable",
@@ -261,3 +269,12 @@ export const coverageTool: ToolHandler = {
 };
 
 registerTool(coverageTool);
+
+function isCoverageNotFound(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const cause = error.cause as { status?: unknown } | undefined;
+  return cause?.status === 404 || error.message.includes("(404 Not Found)");
+}

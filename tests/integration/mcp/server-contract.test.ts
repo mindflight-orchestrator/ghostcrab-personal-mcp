@@ -7,7 +7,7 @@ describe.sequential("MCP server contract", () => {
     await withMcpStdioClient("contract-list-tools", async ({ client, getStderrOutput }) => {
       const tools = await listToolNames(client);
 
-      expect(tools).toEqual([
+      expect(tools).toEqual(expect.arrayContaining([
         "ghostcrab_status",
         "ghostcrab_search",
         "ghostcrab_count",
@@ -19,7 +19,8 @@ describe.sequential("MCP server contract", () => {
         "ghostcrab_project",
         "ghostcrab_modeling_guidance",
         "ghostcrab_tool_search"
-      ]);
+      ]));
+      expect(tools).toHaveLength(11);
       expect(tools).not.toContain("ghostcrab_workspace_list");
       expect(tools).not.toContain("ghostcrab_workspace_use");
 

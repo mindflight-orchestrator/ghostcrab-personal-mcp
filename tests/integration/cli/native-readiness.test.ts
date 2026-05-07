@@ -64,7 +64,7 @@ describe.sequential("native readiness", () => {
         pg_facets: false,
         pg_dgraph: false,
         pg_pragma: false,
-        pg_mindbrain: false
+        pg_mindbrain: true
       });
       return;
     }

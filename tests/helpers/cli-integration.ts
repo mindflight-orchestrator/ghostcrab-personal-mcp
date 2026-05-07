@@ -264,6 +264,12 @@ export async function runCliCapture(
 export async function seedBootstrapDomainMinimal(
   database: DatabaseClient
 ): Promise<void> {
+  await database.query(
+    `UPDATE workspaces
+     SET domain_profile = $1, domain_profile_json = $2
+     WHERE id = 'default'`,
+    ["demo-domain", JSON.stringify({ domain: "demo-domain" })]
+  );
   await executeHandler(
     "ghostcrab_schema_register",
     {
