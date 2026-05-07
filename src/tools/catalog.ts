@@ -235,6 +235,7 @@ function classifySubsystem(name: string): ToolSubsystem {
   if (
     name.startsWith("ghostcrab_status") ||
     name.startsWith("ghostcrab_pack") ||
+    name.startsWith("ghostcrab_projection") ||
     name.startsWith("ghostcrab_project") ||
     name.startsWith("ghostcrab_modeling_guidance")
   ) {

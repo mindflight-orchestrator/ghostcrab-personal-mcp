@@ -79,6 +79,53 @@ export interface StandaloneGhostcrabPackRow {
   status: string;
 }
 
+export interface StandaloneGhostcrabProjectionGetParams {
+  mindbrainUrl: string;
+  workspaceId: string;
+  collectionId?: string;
+  projectionId: string;
+  includeEvidence: boolean;
+  includeDeltas: boolean;
+}
+
+export interface StandaloneGhostcrabProjectionEntityRow {
+  entity_id: number;
+  entity_type: string;
+  name: string;
+  confidence: number;
+  metadata_json: string;
+}
+
+export interface StandaloneGhostcrabProjectionEvidenceRow {
+  relation_id: number;
+  relation_type: string;
+  source_id: number;
+  target_id: number;
+  relation_metadata_json: string;
+  evidence_entity_id: number;
+  evidence_entity_type: string;
+  evidence_name: string;
+  evidence_confidence: number;
+  evidence_metadata_json: string;
+}
+
+export interface StandaloneGhostcrabProjectionGetResponse {
+  workspace_id: string;
+  projection_id: string;
+  projection_results: StandaloneGhostcrabProjectionEntityRow[];
+  linked_evidence: StandaloneGhostcrabProjectionEvidenceRow[];
+  deltas: StandaloneGhostcrabProjectionEntityRow[];
+  report: {
+    workspace_id: string;
+    collection_id?: string | null;
+    projection_id: string;
+    projection_result_count: number;
+    linked_evidence_count: number;
+    delta_count: number;
+    has_projection: boolean;
+  };
+}
+
 export interface StandaloneMindbrainSqlParams {
   mindbrainUrl: string;
   sql: string;
@@ -166,6 +213,26 @@ export async function runStandaloneGhostcrabPack(
     rows?: StandaloneGhostcrabPackRow[];
   }>(url, { method: "GET" });
   return Array.isArray(response.rows) ? response.rows : [];
+}
+
+export async function runStandaloneGhostcrabProjectionGet(
+  params: StandaloneGhostcrabProjectionGetParams
+): Promise<StandaloneGhostcrabProjectionGetResponse> {
+  const url = new URL(
+    "/api/mindbrain/ghostcrab/projection-get",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  url.searchParams.set("workspace_id", params.workspaceId);
+  if (params.collectionId) {
+    url.searchParams.set("collection_id", params.collectionId);
+  }
+  url.searchParams.set("projection_id", params.projectionId);
+  url.searchParams.set("include_evidence", String(params.includeEvidence));
+  url.searchParams.set("include_deltas", String(params.includeDeltas));
+
+  return await fetchJson<StandaloneGhostcrabProjectionGetResponse>(url, {
+    method: "GET"
+  });
 }
 
 export async function runStandaloneMindbrainSql(
@@ -298,7 +365,8 @@ async function fetchJson<T>(url: URL, init: RequestInit): Promise<T> {
     return JSON.parse(text) as T;
   } catch (error) {
     throw new Error(
-      `Failed to parse MindBrain response from ${url.pathname}: ${error instanceof Error ? error.message : String(error)}`
+      `Failed to parse MindBrain response from ${url.pathname}: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error }
     );
   }
 }

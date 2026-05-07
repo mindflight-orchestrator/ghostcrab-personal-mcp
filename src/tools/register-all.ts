@@ -14,6 +14,7 @@ import "./facets/search.js";
 import "./facets/upsert.js";
 import "./pragma/guidance.js";
 import "./pragma/pack.js";
+import "./pragma/projection-get.js";
 import "./pragma/project.js";
 import "./pragma/status.js";
 import "./workspace/create.js";

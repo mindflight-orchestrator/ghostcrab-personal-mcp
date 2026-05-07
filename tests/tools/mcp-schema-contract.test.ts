@@ -40,6 +40,10 @@ import {
   projectTool,
   ProjectInput
 } from "../../src/tools/pragma/project.js";
+import {
+  projectionGetTool,
+  ProjectionGetInput
+} from "../../src/tools/pragma/projection-get.js";
 import { statusTool, StatusInput } from "../../src/tools/pragma/status.js";
 import {
   toolSearchTool,
@@ -440,6 +444,38 @@ describe("MCP inputSchema contract (drift guard)", () => {
       expect(PackInput.safeParse({ query: "  " }).success).toBe(false);
       expect(
         PackInput.safeParse({ query: "sprint status", limit: 10 }).success
+      ).toBe(true);
+    });
+  });
+
+  describe("ghostcrab_projection_get", () => {
+    const schema = projectionGetTool.definition.inputSchema as {
+      required?: string[];
+      properties: {
+        collection_id: { type?: string | string[] };
+        include_evidence: { default?: boolean };
+        include_deltas: { default?: boolean };
+      };
+    };
+
+    it("requires projection_id and defaults graph expansions on", () => {
+      expect(schema.required).toEqual(
+        expect.arrayContaining(["projection_id"])
+      );
+      expect(schema.properties.collection_id.type).toEqual(["string", "null"]);
+      expect(schema.properties.include_evidence.default).toBe(true);
+      expect(schema.properties.include_deltas.default).toBe(true);
+    });
+
+    it("Zod rejects blank projection_id", () => {
+      expect(ProjectionGetInput.safeParse({ projection_id: "  " }).success).toBe(
+        false
+      );
+      expect(
+        ProjectionGetInput.safeParse({
+          collection_id: null,
+          projection_id: "proj_keyword_opportunities"
+        }).success
       ).toBe(true);
     });
   });
