@@ -10,7 +10,7 @@
 
 # Usage:  make                        (auto-detect platform, full setup)
 #         make PLATFORM=darwin-arm64  (force a specific platform binary)
-#         make VERSION=0.2.12        (match tarball filenames)
+#         make VERSION=0.2.13        (match tarball filenames)
 #         make BUNDLE_DIR=.          (default: tarballs in cwd — e.g. flat unzip)
 #         make BUNDLE_DIR=subdir     (tarballs under subdir/)
 #         make install               (npm packages only)
@@ -25,7 +25,7 @@
 #   linux-x64      Linux x64 (incl. WSL2 on Intel/AMD)
 #   win32-x64      Windows x64 (prebuild in bundle)
 
-VERSION    ?= 0.2.12
+VERSION    ?= 0.2.13
 BUNDLE_DIR ?= .
 NODE       := $(shell command -v node 2>/dev/null)
 GCP_MJS    := ./node_modules/@mindflight/ghostcrab-personal-mcp/bin/gcp.mjs

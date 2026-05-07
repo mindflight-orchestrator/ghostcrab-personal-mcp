@@ -1,6 +1,6 @@
 {
   "name": "@mindflight/ghostcrab-personal-mcp-darwin-arm64",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "description": "Platform binary for @mindflight/ghostcrab-personal-mcp (darwin-arm64).",
   "license": "SEE LICENSE IN Licence.md",
   "os": [
