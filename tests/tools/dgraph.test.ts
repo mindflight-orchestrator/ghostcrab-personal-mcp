@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { DatabaseClient, Queryable } from "../../src/db/client.js";
 import { createToolContext } from "../helpers/tool-context.js";
 import { coverageTool } from "../../src/tools/dgraph/coverage.js";
+import { graphSearchTool } from "../../src/tools/dgraph/graph-search.js";
 import { learnTool } from "../../src/tools/dgraph/learn.js";
 import { marketplaceTool } from "../../src/tools/dgraph/marketplace.js";
 import { patchTool } from "../../src/tools/dgraph/patch.js";
@@ -66,6 +67,31 @@ function mockCoverageFetch(responseText: string): void {
           "content-type": "text/plain; charset=utf-8"
         }
       });
+    })
+  );
+}
+
+function mockGraphSearchFetch(rows: Array<Record<string, unknown>>): void {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => {
+      return new Response(
+        JSON.stringify({
+          workspace_id: "mindbrain-seo-audit",
+          collection_id: "seo",
+          query: "SEOIssue",
+          entity_types: ["SEOIssue"],
+          returned: rows.length,
+          searched_layers: ["graph_entity"],
+          rows
+        }),
+        {
+          status: 200,
+          headers: {
+            "content-type": "application/json"
+          }
+        }
+      );
     })
   );
 }
@@ -235,6 +261,108 @@ describe("dgraph tools", () => {
     expect(
       (result.structuredContent as Record<string, unknown>)?.error
     ).toMatchObject({ code: "extension_not_loaded" });
+  });
+
+  it("ghostcrab_graph_search returns graph entities from MindBrain", async () => {
+    mockGraphSearchFetch([
+      {
+        entity_id: 7,
+        entity_type: "SEOIssue",
+        name: "Missing title tag",
+        confidence: 0.91,
+        metadata_json: '{"collection_id":"seo","severity":"high"}',
+        score: 4
+      }
+    ]);
+    const database = createMockDatabase(vi.fn());
+
+    const result = await graphSearchTool.handler(
+      {
+        workspace_id: "mindbrain-seo-audit",
+        collection_id: "seo",
+        query: "SEOIssue",
+        entity_types: ["SEOIssue"],
+        include_relations: false
+      },
+      createToolContext(database)
+    );
+
+    expect(readStructured(result)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_graph_search",
+      backend: "native",
+      searched_layers: ["graph_entity"],
+      excluded_layers: ["facets", "projections", "memory_projections"],
+      returned: 1,
+      results: [
+        expect.objectContaining({
+          entity_type: "SEOIssue",
+          name: "Missing title tag",
+          metadata: expect.objectContaining({ severity: "high" })
+        })
+      ]
+    });
+  });
+
+  it("ghostcrab_graph_search falls back to local SQL and can include relations", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new Error("backend offline");
+      })
+    );
+    const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
+      if (sql.includes("FROM graph_entity")) {
+        return [
+          {
+            entity_id: 7,
+            entity_type: "SEOIssue",
+            name: "Missing title tag",
+            confidence: 0.91,
+            metadata_json: '{"collection_id":"seo","severity":"high"}',
+            score: 4
+          }
+        ];
+      }
+
+      if (sql.includes("FROM graph_relation")) {
+        return [
+          {
+            relation_id: 11,
+            relation_type: "OBSERVED_IN",
+            source_id: 7,
+            target_id: 8,
+            metadata_json: '{"phase":"a1_phase1"}'
+          }
+        ];
+      }
+
+      return [];
+    });
+
+    const result = await graphSearchTool.handler(
+      {
+        workspace_id: "mindbrain-seo-audit",
+        collection_id: null,
+        query: "SEOIssue",
+        entity_types: ["SEOIssue"],
+        metadata_filters: { severity: "high" },
+        include_relations: true
+      },
+      createToolContext(createMockDatabase(query))
+    );
+
+    expect(readStructured(result)).toMatchObject({
+      backend: "sql",
+      collection_id: null,
+      returned: 1,
+      relations: [
+        expect.objectContaining({
+          relation_type: "OBSERVED_IN",
+          metadata: expect.objectContaining({ phase: "a1_phase1" })
+        })
+      ]
+    });
   });
 
   it("ghostcrab_marketplace returns results from graph.marketplace_search", async () => {

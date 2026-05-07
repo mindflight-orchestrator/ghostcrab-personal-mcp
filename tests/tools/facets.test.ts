@@ -226,7 +226,10 @@ describe("facet tools", () => {
       exact_structured_read: false,
       mode_requested: "semantic",
       mode_applied: "bm25",
-      semantic_available: false
+      semantic_available: false,
+      searched_layers: ["facets"],
+      excluded_layers: ["graph_entity", "graph_relation", "projection_result"],
+      suggested_tools: ["ghostcrab_graph_search", "ghostcrab_projection_get"]
     });
   });
 

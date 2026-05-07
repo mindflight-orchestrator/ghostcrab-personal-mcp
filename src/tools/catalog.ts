@@ -224,6 +224,7 @@ function classifySubsystem(name: string): ToolSubsystem {
 
   if (
     name.startsWith("ghostcrab_traverse") ||
+    name.startsWith("ghostcrab_graph") ||
     name.startsWith("ghostcrab_coverage") ||
     name.startsWith("ghostcrab_learn") ||
     name.startsWith("ghostcrab_patch") ||

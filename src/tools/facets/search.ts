@@ -185,6 +185,9 @@ export const searchTool: ToolHandler = {
         semantic_available: false,
         embedding_runtime: embeddingRuntime,
         backend: "sql",
+        searched_layers: ["facets"],
+        excluded_layers: ["graph_entity", "graph_relation", "projection_result"],
+        suggested_tools: ["ghostcrab_graph_search", "ghostcrab_projection_get"],
         notes,
         results: rows.map((row) => ({
           id: row.id,
@@ -505,6 +508,9 @@ export const searchTool: ToolHandler = {
       semantic_available: semanticReady,
       embedding_runtime: embeddingRuntime,
       backend,
+      searched_layers: ["facets"],
+      excluded_layers: ["graph_entity", "graph_relation", "projection_result"],
+      suggested_tools: ["ghostcrab_graph_search", "ghostcrab_projection_get"],
       notes,
       results: rows
     });

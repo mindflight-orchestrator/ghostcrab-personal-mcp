@@ -126,6 +126,35 @@ export interface StandaloneGhostcrabProjectionGetResponse {
   };
 }
 
+export interface StandaloneGhostcrabGraphSearchParams {
+  mindbrainUrl: string;
+  workspaceId: string;
+  collectionId?: string;
+  query: string;
+  entityTypes: string[];
+  metadataFilters: Record<string, unknown>;
+  limit: number;
+}
+
+export interface StandaloneGhostcrabGraphSearchRow {
+  entity_id: number;
+  entity_type: string;
+  name: string;
+  confidence: number;
+  metadata_json: string;
+  score: number;
+}
+
+export interface StandaloneGhostcrabGraphSearchResponse {
+  workspace_id: string;
+  collection_id?: string | null;
+  query: string;
+  entity_types: string[];
+  returned: number;
+  searched_layers: string[];
+  rows: StandaloneGhostcrabGraphSearchRow[];
+}
+
 export interface StandaloneMindbrainSqlParams {
   mindbrainUrl: string;
   sql: string;
@@ -231,6 +260,34 @@ export async function runStandaloneGhostcrabProjectionGet(
   url.searchParams.set("include_deltas", String(params.includeDeltas));
 
   return await fetchJson<StandaloneGhostcrabProjectionGetResponse>(url, {
+    method: "GET"
+  });
+}
+
+export async function runStandaloneGhostcrabGraphSearch(
+  params: StandaloneGhostcrabGraphSearchParams
+): Promise<StandaloneGhostcrabGraphSearchResponse> {
+  const url = new URL(
+    "/api/mindbrain/ghostcrab/graph-search",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  url.searchParams.set("workspace_id", params.workspaceId);
+  url.searchParams.set("query", params.query);
+  url.searchParams.set("limit", String(params.limit));
+  if (params.collectionId) {
+    url.searchParams.set("collection_id", params.collectionId);
+  }
+  for (const entityType of params.entityTypes) {
+    url.searchParams.append("entity_type", entityType);
+  }
+  if (Object.keys(params.metadataFilters).length > 0) {
+    url.searchParams.set(
+      "metadata_filters",
+      JSON.stringify(params.metadataFilters)
+    );
+  }
+
+  return await fetchJson<StandaloneGhostcrabGraphSearchResponse>(url, {
     method: "GET"
   });
 }

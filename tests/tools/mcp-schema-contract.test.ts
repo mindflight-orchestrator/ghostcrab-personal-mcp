@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { coverageTool, CoverageInput } from "../../src/tools/dgraph/coverage.js";
+import {
+  graphSearchTool,
+  GraphSearchInput
+} from "../../src/tools/dgraph/graph-search.js";
 import { learnTool, LearnInput } from "../../src/tools/dgraph/learn.js";
 import {
   marketplaceTool,
@@ -334,6 +338,41 @@ describe("MCP inputSchema contract (drift guard)", () => {
           filters: { status: "open" }
         }).success
       ).toBe(true);
+    });
+  });
+
+  describe("ghostcrab_graph_search", () => {
+    const schema = graphSearchTool.definition.inputSchema as {
+      properties: {
+        collection_id: { type?: string | string[] };
+        entity_types: { default?: unknown[]; items?: { type?: string } };
+        include_relations: { default?: boolean };
+        limit: { minimum?: number; maximum?: number };
+        metadata_filters: { additionalProperties?: boolean };
+      };
+    };
+
+    it("documents graph filters and relation expansion", () => {
+      expect(schema.properties.collection_id.type).toEqual(["string", "null"]);
+      expect(schema.properties.entity_types.default).toEqual([]);
+      expect(schema.properties.entity_types.items?.type).toBe("string");
+      expect(schema.properties.metadata_filters.additionalProperties).toBe(true);
+      expect(schema.properties.include_relations.default).toBe(false);
+      expect(schema.properties.limit.minimum).toBe(1);
+      expect(schema.properties.limit.maximum).toBe(100);
+    });
+
+    it("Zod accepts nil-like collection scope and filter-only graph reads", () => {
+      const parsed = GraphSearchInput.safeParse({
+        collection_id: "nil",
+        entity_types: ["SEOIssue"],
+        metadata_filters: { severity: "high" },
+        include_relations: true
+      });
+      expect(parsed.success).toBe(true);
+      if (parsed.success) {
+        expect(parsed.data.collection_id).toBeUndefined();
+      }
     });
   });
 

@@ -1,4 +1,5 @@
 import "./dgraph/coverage.js";
+import "./dgraph/graph-search.js";
 import "./dgraph/learn.js";
 import "./dgraph/marketplace.js";
 import "./dgraph/patch.js";
