@@ -1,4 +1,6 @@
 import "./dgraph/coverage.js";
+import "./dgraph/entity-chunks.js";
+import "./dgraph/graph-reindex.js";
 import "./dgraph/graph-search.js";
 import "./dgraph/learn.js";
 import "./dgraph/marketplace.js";

@@ -3,6 +3,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { DatabaseClient, Queryable } from "../../src/db/client.js";
 import { createToolContext } from "../helpers/tool-context.js";
 import { coverageTool } from "../../src/tools/dgraph/coverage.js";
+import { entityChunksTool } from "../../src/tools/dgraph/entity-chunks.js";
+import { graphReindexTool } from "../../src/tools/dgraph/graph-reindex.js";
 import { graphSearchTool } from "../../src/tools/dgraph/graph-search.js";
 import { learnTool } from "../../src/tools/dgraph/learn.js";
 import { marketplaceTool } from "../../src/tools/dgraph/marketplace.js";
@@ -361,6 +363,122 @@ describe("dgraph tools", () => {
           relation_type: "OBSERVED_IN",
           metadata: expect.objectContaining({ phase: "a1_phase1" })
         })
+      ]
+    });
+  });
+
+  it("ghostcrab_graph_reindex projects raw graph grounding tables", async () => {
+    const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
+      if (sql.includes("FROM entities_raw") && sql.includes("COUNT(*)")) {
+        return [{ count: 2 }];
+      }
+      if (sql.includes("FROM entity_aliases_raw") && sql.includes("COUNT(*)")) {
+        return [{ count: 1 }];
+      }
+      if (sql.includes("FROM relations_raw") && sql.includes("COUNT(*)")) {
+        return [{ count: 1 }];
+      }
+      if (
+        sql.includes("FROM entity_documents_raw") &&
+        sql.includes("COUNT(*)")
+      ) {
+        return [{ count: 1 }];
+      }
+      if (sql.includes("FROM entity_chunks_raw") && sql.includes("COUNT(*)")) {
+        return [{ count: 1 }];
+      }
+      return [];
+    });
+
+    const result = await graphReindexTool.handler(
+      {
+        workspace_id: "mindbrain-seo-audit",
+        document_table_id: 42
+      },
+      createToolContext(createMockDatabase(query))
+    );
+
+    expect(readStructured(result)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_graph_reindex",
+      backend: "sql",
+      workspace_id: "mindbrain-seo-audit",
+      document_table_id: 42,
+      entity_count: 2,
+      alias_count: 1,
+      relation_count: 1,
+      document_link_count: 1,
+      chunk_link_count: 1,
+      projected_count: 6
+    });
+    expect(
+      query.mock.calls.some(([sql]) => sql.includes("graph_entity_chunk"))
+    ).toBe(true);
+  });
+
+  it("ghostcrab_entity_chunks returns chunk grounding for graph entities", async () => {
+    const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
+      expect(sql).toContain("FROM graph_entity_chunk c");
+      return [
+        {
+          entity_id: 7,
+          entity_type: "SEOIssue",
+          entity_name: "Missing title tag",
+          entity_metadata_json: '{"severity":"high"}',
+          collection_id: "seo",
+          doc_id: 3,
+          chunk_index: 0,
+          role: "evidence",
+          confidence: 0.88,
+          metadata_json: "{}",
+          chunk_content: "The page is missing a title tag.",
+          language: "english",
+          token_count: 8,
+          chunk_metadata_json: '{"section":"head"}',
+          doc_nanoid: "doc_3",
+          source_ref: "https://example.test/page",
+          summary: "audit row"
+        }
+      ];
+    });
+
+    const result = await entityChunksTool.handler(
+      {
+        workspace_id: "mindbrain-seo-audit",
+        entity_name: "Missing title tag",
+        collection_id: "seo"
+      },
+      createToolContext(createMockDatabase(query))
+    );
+
+    expect(readStructured(result)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_entity_chunks",
+      backend: "sql",
+      returned: 1,
+      results: [
+        {
+          entity: {
+            entity_id: 7,
+            entity_type: "SEOIssue",
+            name: "Missing title tag",
+            metadata: { severity: "high" }
+          },
+          chunk: {
+            collection_id: "seo",
+            doc_id: 3,
+            chunk_index: 0,
+            role: "evidence",
+            confidence: 0.88,
+            content: "The page is missing a title tag.",
+            chunk_metadata: { section: "head" }
+          },
+          document: {
+            doc_nanoid: "doc_3",
+            source_ref: "https://example.test/page",
+            summary: "audit row"
+          }
+        }
       ]
     });
   });
