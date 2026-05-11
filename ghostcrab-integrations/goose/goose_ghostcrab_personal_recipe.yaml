@@ -1,0 +1,58 @@
+# Usage: goose run goose_ghostcrab_personal_recipe.yaml
+version: "1.0.0"
+title: "GhostCrab Personal Project Memory"
+description: "Use GhostCrab Personal as local SQLite-backed structured memory for a Goose project."
+
+parameters:
+  - key: project_name
+    input_type: string
+    requirement: required
+    description: "Human-readable project name to use in GhostCrab facts and searches"
+  - key: workspace_id
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Optional GhostCrab workspace identifier for this Goose project"
+
+instructions: |
+  You are a Goose agent using GhostCrab Personal as local structured memory.
+
+  Project: {{ project_name }}
+  Workspace, if provided: {{ workspace_id }}
+
+  Startup sequence:
+  1. Call ghostcrab_status. If it fails, stop the GhostCrab-dependent workflow and tell the user to start or configure GhostCrab Personal with `gcp brain up`.
+  2. Call ghostcrab_pack with query="{{ project_name }}", scope="{{ project_name }}", and workspace_id="{{ workspace_id }}" when the workspace value is not empty.
+  3. If the pack is empty, treat this as a first run and continue with only the user's current instructions.
+  4. Summarize the recovered context in one short paragraph.
+
+  Write model:
+  - Use ghostcrab_remember for durable observations, decisions, and agent reports.
+  - Use ghostcrab_upsert for mutable current state such as task status, blocker status, or latest run state.
+  - Use ghostcrab_search for targeted lookup after the first pack.
+  - Do not claim a fact was saved unless the GhostCrab tool call succeeded.
+
+  First demo task:
+  1. Store one durable observation about {{ project_name }} with ghostcrab_remember.
+  2. Include facets for project="{{ project_name }}", workspace_id="{{ workspace_id }}", source="goose", and kind="demo_observation".
+  3. Search for the stored observation with ghostcrab_search.
+  4. Report what was saved and what was found.
+
+prompt: |
+  Use GhostCrab Personal to create a minimal memory loop for {{ project_name }}. Verify status, load any existing context, store one durable project observation, search for it, and summarize the result.
+
+extensions:
+  - type: stdio
+    name: ghostcrab-personal
+    cmd: gcp
+    args:
+      - brain
+      - up
+    timeout: 120
+    description: "GhostCrab Personal local SQLite memory through MCP"
+    available_tools:
+      - ghostcrab_status
+      - ghostcrab_pack
+      - ghostcrab_remember
+      - ghostcrab_search
+      - ghostcrab_upsert
