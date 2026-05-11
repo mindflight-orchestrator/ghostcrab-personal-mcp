@@ -1,0 +1,17 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ghostcrab-crewai"
+version = "0.1.0"
+description = "CrewAI helpers for connecting agents to GhostCrab Personal over MCP stdio."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["mcp"]
+
+[project.optional-dependencies]
+crewai = ["crewai>=0.51.0", "crewai-tools>=0.42.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
