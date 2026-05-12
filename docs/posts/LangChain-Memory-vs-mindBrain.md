@@ -286,6 +286,51 @@ The practical result: your data model becomes something an AI agent can navigate
 
 ***
 
+## Concrete MindBrain Workflow
+
+The operational proof is not "add an ontology" and stop there. A LangChain app that wants mindBrain underneath it needs four steps:
+
+```text
+1. Model the domain
+   -> ghostcrab_modeling_guidance or a loadout suggests entity types,
+      lifecycle states, facets, and relations.
+
+2. Verify the model
+   -> ghostcrab_schema_list / ghostcrab_schema_inspect check registered
+      schemas.
+   -> ghostcrab_workspace_export_model exports the workspace semantics
+      when another generator or integration needs a contract.
+
+3. Qualify and import data
+   -> MindBrain Studio or a documented import path maps source records,
+      chunks, entities, relations, facets, and projection signals into
+      the workspace model.
+
+4. Query after import
+   -> ghostcrab_count shapes the domain before content reads.
+   -> ghostcrab_search reads facet-indexed records with exact filters.
+   -> ghostcrab_facet_tree exposes taxonomy-like navigation.
+   -> ghostcrab_traverse follows blockers, dependencies, and evidence links.
+   -> ghostcrab_coverage checks whether the modeled domain has gaps.
+   -> ghostcrab_pack returns compact FACT / GOAL / STEP / CONSTRAINT context.
+```
+
+The repository's architecture inventory describes these as separate tool families: Facets for search, count, and facet trees; Graph for traverse, marketplace search, patching, and coverage; Workspace for inspecting and exporting semantics. [GhostCrab architecture inventory](../../README_ARCHITECTURE.md)
+
+That separation matters for LangChain users. A LangGraph node can still orchestrate the workflow, but the memory substrate no longer has to be a loose store of JSON facts. Studio or the import path qualifies raw records into a model first; then the agent queries facets, graph edges, coverage, and projection packs through the MCP surface.
+
+***
+
+## Taxonomy Cost / Expected Gain
+
+mindBrain's cost is real: someone has to name the entities, statuses, owners, relations, and valid projection surfaces. That is more work than adding a LangGraph Store namespace and an embedding index.
+
+The cost pays back when the imported data becomes a reusable operating surface: filtered, counted, joined through typed relations, checked for gaps, and packed into compact agent context. It is worth it when the same domain will be queried repeatedly, when lifecycle state drives action, when owners and blockers matter, or when several domains need to remain distinct while still answering cross-domain questions.
+
+It is probably not worth it when the task is a one-off question, a small corpus, or a conversational assistant that only needs user preferences and recent history. In that case, LangChain Memory is the lighter first move: keep the memory policy inside the graph, store what the app needs, and avoid taxonomy work until the domain starts behaving like an operating system.
+
+***
+
 ## Why Try MindBrain First
 
 LangChain gives developers the parts to assemble memory behavior. mindBrain is worth testing first when the missing piece is not another memory component, but a shared semantic workspace. A LangGraph state, a vector store, a SQL database, and a tool registry can all exist in a LangChain app, but the developer still has to define how CRM records, project tasks, HR ownership, legal constraints, and knowledge notes relate.
@@ -333,10 +378,11 @@ Which examples should I retrieve for this prompt?
 mindBrain-style domain questions:
 
 ```text
-Which onboarding cases are blocked in Belgium?
-Which release tasks depend on legal review?
-What facts, goals, steps, and constraints should the agent see for this deal?
-Which requirements are missing before this procedure can move forward?
+ghostcrab_count: how many onboarding cases are blocked in Belgium, by owner?
+ghostcrab_search: which blocked cases match status=blocked and country=BE?
+ghostcrab_traverse: which release tasks depend on legal review?
+ghostcrab_coverage: which requirements are missing before this procedure can move forward?
+ghostcrab_pack: what facts, goals, steps, and constraints should the agent see for this deal?
 ```
 
 The first set is about recall. The second set is about state, dependencies, and next action.

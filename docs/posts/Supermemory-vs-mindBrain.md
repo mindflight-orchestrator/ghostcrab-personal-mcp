@@ -223,6 +223,59 @@ The practical result: your data model becomes something an AI agent can navigate
 
 ***
 
+## Concrete MindBrain Workflow After Import
+
+The MindBrain version of "add everything, search later" is more selective. It treats import as qualification:
+
+```text
+1. Model the workspace
+   ghostcrab_modeling_guidance or a loadout suggestion
+     -> domains, entity types, relation types, facets, lifecycle states
+
+2. Inspect or register the contract
+   ghostcrab_schema_list / ghostcrab_schema_inspect
+   ghostcrab_workspace_export_model
+     -> what imported records are allowed to mean
+
+3. Qualify incoming data
+   MindBrain Studio or an import path maps connector output into:
+     records
+     chunks
+     entities
+     relations
+     facets
+     projection signals
+
+4. Query after import
+   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree
+     -> typed slices, counts, and facet navigation
+
+   ghostcrab_traverse / graph entity tools
+     -> dependencies, blockers, evidence links, prerequisites
+
+   ghostcrab_coverage
+     -> missing coverage before the agent acts
+
+   ghostcrab_projection_get / ghostcrab_pack
+     -> compact task context for the current agent turn
+```
+
+For a Supermemory-style source, this means connector data is not only stored as memories and chunks. A Google Drive document, Notion page, CRM export, or support transcript can be qualified into a workspace model: `Account`, `Commitment`, `Policy`, `Issue`, `Owner`, `Evidence`, `BLOCKS`, `VALIDATES`, `risk`, `stage`, `region`, `status`. The source chunk remains useful as evidence, but the agent can also ask structured questions over the imported state.
+
+The important boundary is that `ghostcrab_search` is the facet-backed record search surface, not a magic graph query. Graph questions use traversal or entity-link surfaces. Projection questions use `ghostcrab_projection_get` or `ghostcrab_pack`. That separation is the operational gain: after import, the agent chooses the right surface instead of treating every question as hybrid text search.
+
+***
+
+## Taxonomy Cost / Expected Gain
+
+Supermemory minimizes the cost of getting memory into an application. MindBrain adds modeling cost up front. The user has to name entities, facets, relations, and states; the import path has to map records into that model; and the team has to maintain the taxonomy as the domain changes.
+
+That cost is worth paying when context becomes operational state. Repeated workflows, compliance review, CRM pipelines, incident response, software delivery, legal obligations, project ownership, or multi-team work queues all benefit from deterministic retrieval and explicit dependencies. The payoff is that imported data can be filtered, counted, traversed, checked for gaps, and packed into compact context without asking the model to infer the same structure repeatedly.
+
+The cost is probably too high when the product only needs fast user memory, personalization, or document recall. If the question is "what did this user say before?" or "which snippet from this document is relevant?", Supermemory's lighter API is the more direct first choice. MindBrain is strongest once the application needs the memory to drive valid actions across a modeled domain.
+
+***
+
 ## Why Try MindBrain First
 
 Supermemory is attractive when the immediate need is "give my app memory quickly." mindBrain is the better first test when the application has several domains that must stay distinct but query together. A customer, an invoice, an email, a policy, a meeting, a project phase, and an API endpoint should not all be reduced to context snippets.

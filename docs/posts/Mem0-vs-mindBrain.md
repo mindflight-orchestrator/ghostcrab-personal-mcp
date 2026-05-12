@@ -130,9 +130,10 @@ That path is excellent when the question is: "what should this agent remember ab
 
 MindBrain retrieval starts from structured intent:
 
-1. Facets narrow the candidate set by status, owner, phase, role, system, country, risk, endpoint type, or any modeled dimension.
-2. Graph traversal follows typed relations such as `BLOCKS`, `REQUIRES`, `VALIDATES`, `DEPENDS_ON`, or `CONTRADICTS`.
-3. Projections return the compact working context the agent needs now.
+1. `ghostcrab_count` or `ghostcrab_facet_tree` shows the shape of the imported data before the agent reads content.
+2. `ghostcrab_search` narrows facet-indexed records by status, owner, phase, role, system, country, risk, endpoint type, or any modeled dimension.
+3. `ghostcrab_traverse` follows typed relations such as `BLOCKS`, `REQUIRES`, `VALIDATES`, `DEPENDS_ON`, or `CONTRADICTS`.
+4. `ghostcrab_coverage`, `ghostcrab_projection_get`, or `ghostcrab_pack` checks whether the model is complete enough and returns compact working context.
 
 That path is stronger when the question is: "which structured objects are in scope, how are they connected, and what can the agent safely do next?"
 
@@ -165,6 +166,37 @@ MindBrain is a structured agentic database exposed through GhostCrab MCP. Its co
 MindBrain can hold multiple ontologies in the same workspace. A team can model CRM, ERP, PM, HR, legal, finance, email, API endpoints, and knowledge notes as different ontologies without flattening them into one vague memory schema. Meta-ontologies then connect those domains.
 
 That is where MindBrain becomes qualitatively different from a memory layer. It does not only recall context. It makes cross-silo state queryable.
+
+***
+
+## MindBrain Workflow Proof
+
+A concrete MindBrain workflow has four parts. The point is not to ask the agent to "be structured" in prose; the point is to make the structure inspectable, importable, and queryable through GhostCrab MCP. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
+
+```text
+1. Model the domain
+   ghostcrab_modeling_guidance
+   -> candidate entity types, relations, facets, lifecycle states
+
+2. Register or verify the model
+   ghostcrab_schema_list / ghostcrab_schema_inspect
+   ghostcrab_ddl_propose when table-backed structures are needed
+   ghostcrab_workspace_export_model to inspect workspace semantics
+
+3. Import or qualify data
+   MindBrain Studio or an import path maps source records into the model:
+   records, chunks, entities, relations, facets, evidence, and projection signals.
+
+4. Query after import
+   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree for facet-indexed records
+   ghostcrab_traverse for typed dependencies and blockers
+   ghostcrab_coverage for missing model coverage
+   ghostcrab_projection_get / ghostcrab_pack for agent-ready context
+```
+
+For a Mem0-style personalization use case, this is usually too much. A memory record with `user_id` and hybrid ranking is enough for "remember Alex likes basketball." For an operational domain, the import step changes the nature of the data. A support ticket is no longer only a remembered sentence; it can become a typed `Ticket` with `status`, `owner`, `account`, `contract`, `blocking_clause`, source evidence, and a relation to the next required action.
+
+The Studio/import path is the qualification layer. It decides whether source material is a record, a chunk, an entity, a relation, a facet value, evidence for a claim, or a projection signal. After that, agents query the resulting operating surface instead of repeatedly reinterpreting a pile of memories.
 
 ***
 
@@ -208,6 +240,18 @@ This is where ontologies go beyond schemas. A SQL table can't express that two c
 | AI agents see raw data, not meaning | Agents traverse a graph of typed, named, meaningful nodes |
 
 The practical result: your data model becomes something an AI agent can navigate, query, and reason over — not just a flat surface it has to be told how to interpret every time.
+
+***
+
+## The Cost and Payoff of Taxonomy
+
+The taxonomy cost is real. A team has to name the entities, relation labels, lifecycle states, ownership dimensions, evidence rules, and projections that matter. That is slower than calling `memory.add()` and letting retrieval do the first pass.
+
+The payoff appears when imported data becomes a reusable operating surface: filtered, joined, checked for gaps, projected into agent context, and used repeatedly across workflows. Facets give deterministic narrowing. Graph edges preserve dependency semantics. Projections compress the current task surface without asking the model to reread the whole corpus.
+
+Taxonomy work is worth it when the domain will be queried repeatedly, the data must drive action, owners and blockers matter, compliance or audit evidence matters, or dashboards and agent work queues should come from the same model.
+
+Taxonomy work is probably not worth it when the task is a one-off question over a small corpus, fuzzy semantic recall is enough, or the user does not yet know the stable entities and states. In that case, Mem0 is the more natural first move: add memory, search memory, ship the feature.
 
 ***
 

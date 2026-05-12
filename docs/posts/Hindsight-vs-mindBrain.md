@@ -284,6 +284,59 @@ The practical result: your data model becomes something an AI agent can navigate
 
 ***
 
+## Concrete MindBrain Workflow After Import
+
+Because public Hindsight implementation detail is still limited, the safest comparison is at the contract level. Hindsight exposes retain, recall, and reflect over memory banks. The MindBrain path is a modeled workspace where import qualifies data before agents query it:
+
+```text
+1. Model the domain
+   ghostcrab_modeling_guidance or loadout suggestion
+     -> entities, relation types, facet dimensions, lifecycle states
+
+2. Verify the contract
+   ghostcrab_schema_list / ghostcrab_schema_inspect
+   ghostcrab_workspace_export_model
+     -> the workspace semantics the import must satisfy
+
+3. Qualify imported data
+   MindBrain Studio or an import path maps source material into:
+     source records
+     chunks and evidence
+     typed entities
+     directed relations
+     facet values
+     projection signals
+
+4. Query the qualified workspace
+   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree
+     -> facet-indexed records and typed navigation
+
+   ghostcrab_traverse / graph entity tools
+     -> dependencies, blockers, prerequisites, evidence paths
+
+   ghostcrab_coverage
+     -> ontology gaps before autonomous action
+
+   ghostcrab_projection_get / ghostcrab_pack
+     -> compact working context for the agent
+```
+
+If Hindsight data is exported or mirrored into MindBrain, the import should not flatten it into one generic memory table. World facts, experience facts, observations, and mental models would need to be mapped into the target workspace only where the semantics are clear: a fact can become evidence, an observed dependency can become a typed edge, a mission directive can become a constraint, and a recurring action pattern can become a projection signal. Where the mapping is unclear, the honest answer is to preserve the source as evidence rather than overstate structure.
+
+That is also the boundary between the two systems. Hindsight's `recall` and `reflect` surfaces are built for learning from memory banks. MindBrain's GhostCrab surfaces are built for querying qualified domain state: `ghostcrab_search` for facet-backed records, graph traversal for explicit dependencies, `ghostcrab_coverage` for missing model coverage, and projections or packs for compact working context. The public evidence supports comparing those contracts; it does not support claiming that Hindsight's hidden internals are weaker or stronger than MindBrain's storage internals.
+
+***
+
+## Taxonomy Cost / Expected Gain
+
+MindBrain asks for more modeling discipline than a learning memory layer. The team has to name the domain objects, choose relation labels, define facet dimensions, and decide which states are valid. That work is overhead if the goal is only to remember preferences, summarize past interactions, or let an agent reflect over accumulated experience.
+
+The cost pays back when the agent must act inside a repeatable operating domain. If obligations, project phases, owners, blockers, approvals, incident states, evidence links, or valid transitions matter, taxonomy turns memory into a queryable contract. The expected gain is deterministic retrieval, explicit graph paths, coverage checks before action, and projection packs that compress the current task into `FACT`, `GOAL`, `STEP`, and `CONSTRAINT` instead of re-reading a long memory bank.
+
+The cost does not pay back when the task is exploratory, personal, or mostly adaptive. If the primary question is "what has this agent learned about the user?" Hindsight is the more natural first test. If the question is "which state transition is valid, which dependency blocks it, and what evidence supports the next step?" MindBrain is the more natural test.
+
+***
+
 ## Why Try MindBrain First
 
 Hindsight is interesting because it treats memory as something an agent can retain, recall, and reflect on. mindBrain should be tested first when the use case is less about introspective memory and more about operational truth across silos. Laws, policies, emails, SEC filings, project plans, model notes, CRM records, and infrastructure inventories need different semantic shapes; they should not all be flattened into one memory bank.

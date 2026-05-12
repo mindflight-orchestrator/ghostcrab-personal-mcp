@@ -238,6 +238,45 @@ The practical result: your data model becomes something an AI agent can navigate
 
 ***
 
+## Concrete MindBrain / GhostCrab Workflow
+
+The clean comparison is not "Protégé cannot model domains." It can. The comparison is that Protégé produces and governs formal ontology artifacts, while MindBrain turns an operational model into a queryable agent runtime.
+
+```text
+1. Model the operational domain
+   ghostcrab_modeling_guidance or ghostcrab_loadout_suggest
+   -> entity types, relation types, facets, lifecycle states, projections
+
+2. Register or verify the model
+   ghostcrab_schema_list / ghostcrab_schema_inspect,
+   ontology registration tools, ghostcrab_ddl_propose,
+   ghostcrab_workspace_export_model
+   -> the runtime knows which states, edges, and facets are legal
+
+3. Qualify imported data
+   MindBrain Studio or an import path maps source records, OWL-derived
+   concepts, documents, issues, tasks, policies, and evidence into records,
+   chunks, entities, relations, facets, and projection signals
+
+4. Query after import
+   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree for facets
+   ghostcrab_marketplace / ghostcrab_traverse for graph relationships
+   ghostcrab_coverage for model gaps before autonomous action
+   ghostcrab_projection_get / ghostcrab_pack for agent-ready context
+```
+
+That qualification step is where MindBrain differs from a pure ontology editor. A class hierarchy alone does not tell an agent which onboarding task is blocked today, which evidence record validates it, or which owner can unblock it. After import, the data is split into the surfaces agents need: facet-indexed records for narrowing, graph relations for dependencies and evidence, coverage checks for missing structure, and projections for small working briefs. [GhostCrab](https://www.ghostcrab.be/architecture.html)
+
+***
+
+## Taxonomy Cost and Expected Gain
+
+MindBrain's taxonomy work pays back when ontology terms must become live operational state. The expected gain is deterministic retrieval, reusable facets, explicit owners and blockers, graph traversal over evidence, and compact context packs that agents can use without reconstructing the domain from prose.
+
+That cost is not always justified. If the work is formal OWL research, consistency checking, class modeling, ontology publication, or collaborative review of an ontology artifact, Protégé remains the more natural tool. If the work is a one-off question over a small corpus, a lighter search or memory layer is also a better first move. MindBrain is strongest when the same modeled domain will be queried and acted on repeatedly.
+
+***
+
 ## Why Try MindBrain First
 
 Protégé is the right first test when the central problem is formal ontology engineering. MindBrain is the better first test when the ontology must become an operational surface for agents. The difference is practical: an OWL model may define concepts beautifully, but an agent also needs to know current state, blockers, owners, valid transitions, evidence, and the next action.

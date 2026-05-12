@@ -269,6 +269,53 @@ The practical result: your data model becomes something an AI agent can navigate
 
 ***
 
+## Concrete MindBrain Workflow
+
+Because public Hermes memory documentation is still limited around typed graph memory, the mindBrain side should be stated operationally rather than by implication. A Hermes-like agent can call GhostCrab after the data has been qualified into a workspace:
+
+```text
+1. Model the domain
+   -> ghostcrab_modeling_guidance or a loadout proposes entity types,
+      relations, facets, statuses, and projection shapes for the work.
+
+2. Verify the model
+   -> ghostcrab_schema_list / ghostcrab_schema_inspect check the registered
+      model.
+   -> ghostcrab_workspace_export_model exports the workspace semantics when
+      another importer or integration needs a stable contract.
+
+3. Qualify and import data
+   -> MindBrain Studio or a documented import path maps sessions, notes,
+      documents, tasks, entities, relations, facets, evidence, and projection
+      signals into the workspace model.
+
+4. Query after import
+   -> ghostcrab_count narrows the shape of the domain before content reads.
+   -> ghostcrab_search reads facet-indexed records with exact filters.
+   -> ghostcrab_facet_tree shows the available taxonomy dimensions.
+   -> ghostcrab_traverse follows blockers, dependencies, approvals, and
+      evidence edges.
+   -> ghostcrab_coverage reports missing or weakly covered model areas.
+   -> ghostcrab_pack gives the agent compact FACT / GOAL / STEP / CONSTRAINT
+      context for the current turn.
+```
+
+The local architecture inventory describes those as distinct Facets, Graph, and Workspace capabilities, including search, count, facet trees, traverse, coverage, and workspace model export. [GhostCrab architecture inventory](../../README_ARCHITECTURE.md)
+
+This keeps the public limit explicit. Hermes session search can help the agent remember that a deployment discussion happened. A qualified mindBrain import can turn that discussion into `task`, `approval`, `release`, `owner`, and `blocker` records that the agent can filter and traverse later.
+
+***
+
+## Taxonomy Cost / Expected Gain
+
+mindBrain asks for more up-front structure than Hermes memory. The team has to decide which things are entities, which fields are facets, which relations are meaningful, and which projection packs should drive action. That is not free, and it is not always justified.
+
+The gain appears when the agent must work repeatedly inside the same domain. Imported data becomes a reusable operating surface: blocked tasks can be counted by owner, approvals can be traversed from release gates, coverage gaps can be checked before autonomous action, and compact packs can feed a Hermes turn without replaying full session history.
+
+Hermes memory is the better first choice when the job is personal continuity, preference recall, past-session search, skill improvement, or lightweight assistant behavior. mindBrain becomes worth the taxonomy cost when remembered conversations are no longer enough and the agent needs durable operational state across CRM, project delivery, legal, HR, product, or compliance domains.
+
+***
+
 ## Why Try MindBrain First
 
 Hermes-style memory is valuable when the agent needs continuity across sessions. mindBrain should come first when the agent is expected to act inside a domain that has shared state, multiple systems of record, and repeatable procedures. The question is no longer "what did this agent learn?" It becomes "where is the work, what is blocked, which system owns the fact, and what must happen next?"
@@ -313,10 +360,11 @@ Find the previous session where the agent handled this setup.
 mindBrain-style structured-state questions:
 
 ```text
-Which release blockers depend on legal approval?
-Which compliance obligations are missing validation evidence?
-Which CRM opportunities share the same stakeholder risk?
-What projection pack should the agent see for this workspace right now?
+ghostcrab_count: how many release blockers depend on legal approval, by owner?
+ghostcrab_search: which compliance obligations have status=gap?
+ghostcrab_traverse: which CRM opportunities share the same stakeholder risk?
+ghostcrab_coverage: which required evidence or ontology areas are missing?
+ghostcrab_pack: what projection pack should the agent see for this workspace right now?
 ```
 
 Hermes recall can help the agent remember the story. mindBrain gives the agent the map.

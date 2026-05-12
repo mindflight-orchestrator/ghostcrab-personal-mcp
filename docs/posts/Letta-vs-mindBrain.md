@@ -155,10 +155,12 @@ Letta retrieval is agent-context retrieval. The agent has a context window, memo
 MindBrain retrieval is domain-state retrieval:
 
 ```text
-1. Use facets to find the relevant subset.
-2. Use graph edges to follow dependencies and blockers.
-3. Use projections to return the smallest useful working context.
-4. Keep evidence and state outside the model's private memory.
+1. Use ghostcrab_count or ghostcrab_facet_tree to inspect the workspace shape.
+2. Use ghostcrab_search to find the relevant facet-indexed subset.
+3. Use ghostcrab_traverse to follow dependencies, blockers, and validation edges.
+4. Use ghostcrab_coverage to check whether the model is complete enough.
+5. Use ghostcrab_projection_get or ghostcrab_pack for the smallest useful working context.
+6. Keep evidence and state outside the model's private memory.
 ```
 
 This distinction becomes important in operational systems. Letta can remember that a user likes concise updates. MindBrain can determine that a deployment cannot proceed because a required approval edge is missing, the release checklist is in `blocking` state, and the compliance projection has an unresolved constraint.
@@ -206,6 +208,40 @@ Those questions are awkward if everything is an editable memory block. They beco
 
 ***
 
+## MindBrain Workflow Proof
+
+MindBrain is not just a policy that tells agents to be careful. The workflow moves structure out of the agent's private memory and into an inspectable model. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
+
+```text
+1. Model the domain
+   ghostcrab_modeling_guidance or ghostcrab_loadout_suggest
+   -> entity types, relation labels, facets, lifecycle states, projection needs
+
+2. Register or verify the model
+   ghostcrab_schema_list / ghostcrab_schema_inspect
+   ontology registration for stable entities and relations
+   ghostcrab_ddl_propose where table-backed structures are needed
+   ghostcrab_workspace_export_model to inspect workspace semantics
+
+3. Import or qualify data
+   MindBrain Studio or an import path maps project notes, tickets,
+   tool catalogs, emails, documents, or runtime events into typed records,
+   chunks, entities, relations, facets, evidence, and projection signals.
+
+4. Query after import
+   ghostcrab_count / ghostcrab_facet_tree for shape-of-data questions
+   ghostcrab_search for facet-indexed records
+   ghostcrab_traverse for blockers, dependencies, and validation paths
+   ghostcrab_coverage for missing domain coverage
+   ghostcrab_projection_get / ghostcrab_pack for agent-ready context
+```
+
+A Letta agent can remember a project note because the runtime gives it durable state. A MindBrain-backed agent can import that note as evidence, attach it to a typed project, mark the relevant requirement as `blocking`, link it to the missing approval, and expose a projection that tells any compatible agent what to do next.
+
+This is why the two systems can complement each other. Letta can own the agent's memory, persona, and long-running behavior. MindBrain can own the external operating surface: the shared project state that should be queryable even if the acting agent changes.
+
+***
+
 ## Why Ontologies Beat Flat Data Models
 
 Traditional databases store data in tables — rows and columns with fixed types. That works well for transactional data, but it breaks down fast when your domain is complex, evolving, or needs to be understood by an AI agent. Tables answer *"what is stored here?"* but not *"what does this mean?"*
@@ -246,6 +282,18 @@ This is where ontologies go beyond schemas. A SQL table can't express that two c
 | AI agents see raw data, not meaning | Agents traverse a graph of typed, named, meaningful nodes |
 
 The practical result: your data model becomes something an AI agent can navigate, query, and reason over — not just a flat surface it has to be told how to interpret every time.
+
+***
+
+## The Cost and Payoff of Taxonomy
+
+MindBrain asks for more up-front modeling than Letta memory blocks. A team has to decide the stable nouns and verbs of the domain: entities, lifecycle states, relation labels, facet dimensions, ownership rules, evidence rules, and projection shapes.
+
+That work pays back when the same state must be shared by multiple agents, audited, filtered, traversed, and projected into dashboards or work queues. The database can say "this release is blocked by an unapproved compliance requirement" without depending on one agent's private memory summary.
+
+Taxonomy work is worth it when the domain will be queried repeatedly, the agent must act rather than merely recall, valid transitions matter, evidence and owners matter, or coverage checks are needed before autonomous work.
+
+It is probably not worth it when the product is mainly a persistent assistant, researcher, or operator whose job is to manage its own context. In that case, Letta's agent-controlled memory is the more direct abstraction.
 
 ***
 

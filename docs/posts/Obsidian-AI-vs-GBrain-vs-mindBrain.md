@@ -238,6 +238,45 @@ The practical result: your data model becomes something an AI agent can navigate
 
 ***
 
+## Concrete MindBrain / GhostCrab Workflow
+
+For an Obsidian user, the important test is whether notes can become operational state without losing provenance. The MindBrain route is a four-step workflow:
+
+```text
+1. Model the workspace
+   ghostcrab_modeling_guidance or ghostcrab_loadout_suggest
+   -> note, project, person, decision, source, task, and blocker types
+
+2. Verify the model
+   ghostcrab_schema_list / ghostcrab_schema_inspect,
+   ontology registration tools, ghostcrab_ddl_propose,
+   ghostcrab_workspace_export_model
+   -> facets, relations, and lifecycle states are explicit before import
+
+3. Qualify the vault or source exports
+   MindBrain Studio or an import path maps Markdown notes, YAML properties,
+   links, attachments, and extracted references into records, chunks,
+   entities, relations, facets, and projection signals
+
+4. Query after import
+   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree for faceted records
+   ghostcrab_marketplace / ghostcrab_traverse for graph paths and evidence
+   ghostcrab_coverage for missing model coverage
+   ghostcrab_projection_get / ghostcrab_pack for compact agent context
+```
+
+This is different from asking an AI plugin to chat over a vault. The plugin can retrieve relevant notes, but the vault still inherits the user's link and property discipline. MindBrain treats import as qualification: after Studio or an import pipeline maps source material into a workspace ontology, the agent can ask for counts, slices, blockers, coverage gaps, and projection packs without rereading the vault as a pile of prose. [GhostCrab](https://www.ghostcrab.be/architecture.html)
+
+***
+
+## Taxonomy Cost and Expected Gain
+
+Taxonomy work is worth doing when notes have become operational inputs: decisions need owners, tasks have valid states, evidence must support a claim, or a project dashboard should be generated from the same material the agent queries. The gain is deterministic retrieval and better reuse of imported data because records, chunks, entities, relations, facets, and projections are separated.
+
+It is not the right first move for every vault. If the goal is free-form writing, private sensemaking, or a few semantic questions over a small note set, Obsidian plus a lighter AI/search plugin is simpler. MindBrain pays back when the vault becomes part of a repeated workflow: research operations, compliance review, CRM follow-up, project delivery, or agent work queues.
+
+***
+
 ## Why Try MindBrain First
 
 Obsidian is a superb human workspace, and GBrain is a strong personal graph pattern. MindBrain should be tested first when the goal is not only to remember or write notes, but to make teams of AI agents operate across structured domains. Notes, emails, posts, legal texts, financial filings, project boards, and API catalogs can all be meaningful at the same time, but not in the same way.
