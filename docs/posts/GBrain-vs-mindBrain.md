@@ -293,6 +293,18 @@ GhostCrab MCP tool call
 GhostCrab is open-source and free. It requires no new agent interface — it extends Claude Code, Cursor, OpenClaw, Codex, or any MCP-compatible agent already in use. [ghostcrab](https://www.ghostcrab.be)
 
 ***
+## Why Try MindBrain First
+The strongest reason to test MindBrain before a personal memory graph is that many agent problems are not memory problems. They are cross-domain structure problems. A CRM contact, an ERP invoice, a project task, an HR owner, a legal clause, a GitHub PR, an email, and a SEC filing should not all collapse into one remembered note. They belong to different ontologies with different states, dimensions, and relations.
+
+MindBrain can keep those ontologies in one workspace and connect them through meta-ontologies. That makes it possible to ask questions that are usually impossible across application silos: which warm customer is tied to a blocked implementation project, an overdue invoice, an unresolved legal constraint, and a pending engineering PR? The point is not only better retrieval. It is access to relationships that standard app APIs, vector stores, and personal graphs rarely expose as one deterministic query.
+
+MindBrain DDL means **Domain Definition Language**. SQL DDL defines physical storage: tables, columns, and types. MindBrain DDL defines what things mean and how they relate: entity types, facet dimensions, lifecycle states, graph edges, and projections that drive `pg_facets`, `pg_dgraph`, and the rest of the MindBrain stack.
+
+That semantic blueprint can be projected into concrete operating surfaces. A model for SEO audit, financial credit scoring, web delivery, software development, compliance review, or incident response can become an instance used by teams of AI agents. The same projection can feed a dashboard, a kanban board, a graph view, or a compact work queue: Project A is at phase B, task C is attached to PR 123, and Project B is blocked at phase D.
+
+The performance case is equally important. Facet dimensions let MindBrain sort large information spaces in milliseconds. If 10,000 endpoints are registered across 20 MCP servers, the agent should find the four endpoints needed to send an email and schedule a meeting without spending tens of thousands of tokens reading a tool catalog. In the Professional tier, the bitmap architecture is designed for roughly 4.3 billion addressable objects per table. [ghostcrab](https://www.ghostcrab.be/architecture.html)
+
+***
 ## Head-to-Head: MindBrain vs GBrain
 | Dimension | GBrain | MindBrain |
 |---|---|---|

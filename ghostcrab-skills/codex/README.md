@@ -100,7 +100,7 @@ You should see **`ghostcrab`** (or the server name you chose) listed.
 
 ## Part 2 — Install the Codex skill mirrors
 
-This directory contains four skills:
+This directory contains five skills:
 
 | Folder | Role |
 |--------|------|
@@ -108,6 +108,7 @@ This directory contains four skills:
 | [ghostcrab-prompt-guide/](ghostcrab-prompt-guide/) | Prompt and workflow guidance aligned with GhostCrab |
 | [ghostcrab-data-architect/](ghostcrab-data-architect/) | Structured domain modeling patterns |
 | [ghostcrab-integration-sop-editor/](ghostcrab-integration-sop-editor/) | Cleanup and introduction rewrites for GhostCrab/MindBrain integration SOP exports |
+| [mindbrain-comparison-writer/](mindbrain-comparison-writer/) | Editorial workflow for MindBrain comparison articles |
 
 Each skill’s `SKILL.md` links to shared contracts under **`../shared/`** (for example [ONBOARDING_CONTRACT.md](../shared/ONBOARDING_CONTRACT.md)). Those paths assume this layout:
 
