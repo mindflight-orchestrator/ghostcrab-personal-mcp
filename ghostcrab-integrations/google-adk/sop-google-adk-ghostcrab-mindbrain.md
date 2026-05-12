@@ -1,10 +1,23 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
+# Integrating mindBrain with Google ADK
 
-The most effective pitch for every framework is not to sell MindBrain as an "alternative database" but as a **shared context layer across agents**: today each framework keeps memory in silos; MindBrain/GhostCrab provides a structured, queryable, persistent ontology registry. That argument lands regardless of target framework.
+## About Google ADK
 
-task: target Google ADK — explain how integration should be implemented with this framework.
+Google Agent Development Kit (ADK) is an open-source, code-first framework for building, evaluating, and deploying AI agents with explicit control over sessions, tools, memory, artifacts, callbacks, and runners. Its Python implementation is published as [google/adk-python](https://github.com/google/adk-python), and the broader ADK documentation positions the framework for production-grade agent development across local and cloud deployments. ADK is useful when teams want a modular agent runtime that can wire long-lived memory, MCP tools, and deployment targets without hiding the application architecture.
 
-Solid technical base below for a precise answer on MindBrain/GhostCrab integration with Google ADK.
+## MindBrain
+
+MindBrain is a structured agentic database that makes any domain navigable in real time — its intelligence lives in schema enforcement, typed ontologies, and pre-computed projections that cost zero inference at query time.
+
+## Why integrate mindBrain with Google ADK
+
+ADK already has the right slot for mindBrain: `BaseMemoryService`. Instead of treating long-term memory as keyword search, vector recall, or a cloud-specific memory bank, a `MindBrainMemoryService` can turn ADK sessions and events into typed entities, faceted records, graph links, and reusable project projections that every agent can query through the normal ADK memory flow.
+
+The integration also fits ADK's MCP and callback model. GhostCrab can expose mindBrain as local or hosted tools, while ADK callbacks capture session endings, tool outputs, and agent decisions into a shared ontology that remains queryable across runs without spending inference just to reconstruct project state.
+
+## SKILLS available in this repo
+
+- [`ghostcrab-architect-adk`](skill_ghostcrab-architect-adk.md) helps Claude Code or Codex initialize a GhostCrab Personal workspace and shape a lightweight ADK memory model before agents start writing durable state.
+- [`ghostcrab-runtime-adk`](skill_ghostcrab-runtime-adk.md) guides Claude Code or Codex through the runtime pattern for ADK agents that share project memory through GhostCrab MCP over local stdio.
 
 ## MindBrain/GhostCrab integration with Google ADK
 

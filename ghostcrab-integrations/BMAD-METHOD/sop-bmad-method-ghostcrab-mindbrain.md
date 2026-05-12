@@ -1,14 +1,24 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
+# Integrating mindBrain with BMAD-METHOD
 
-# https://github.com/bmad-code-org/BMAD-METHOD
+## About BMAD-METHOD
 
-The strongest angle for any framework is not to sell MindBrain as an "alternative database" but as a **shared context layer across agents**: where each framework today keeps memory in silos, MindBrain/GhostCrab offers a structured, queryable, persistent ontology registry. That argument lands regardless of target framework.
+[BMAD-METHOD](https://github.com/bmad-code-org/BMAD-METHOD) is an agentic software delivery method for AI-assisted development. It structures work around specialized roles such as Analyst, PM, Architect, Scrum Master, Dev, and QA, and it uses project artifacts and story files to move context from planning into implementation. Its official repository positions BMAD as a practical method and toolchain for making AI-driven delivery more repeatable across IDE agents such as Claude Code, Codex, Cursor, and related environments.
 
-**Task:** target the BMAD framework — explain how integration should be implemented with this framework.
+## MindBrain
 
-There is enough on BMAD architecture to produce a solid analysis. Below is the integration analysis.
+MindBrain is a structured agentic database that makes any domain navigable in real time — its intelligence lives in schema enforcement, typed ontologies, and pre-computed projections that cost zero inference at query time.
 
-***
+## Why integrate mindBrain with BMAD-METHOD
+
+BMAD already treats context handoff as a first-class workflow problem: every role depends on PRDs, architecture notes, ADRs, epics, and story files being complete enough for the next agent. mindBrain turns those handoffs into a live, typed context layer, so BMAD agents can register decisions, dependencies, blockers, and story state as structured records instead of rebuilding the same Markdown context by hand.
+
+The integration keeps BMAD's existing artifacts intact while giving Claude Code, Codex, or another MCP-capable agent a shared memory surface through GhostCrab tools. Story files can still be the human-readable contract, but their context can be generated from ontology-backed project state and zero-inference projections.
+
+## SKILLS available in this repo
+
+- [`SKILL_BMAD_ghostcrab-architect.md`](SKILL_BMAD_ghostcrab-architect.md) helps Claude Code or Codex bootstrap a local GhostCrab Personal workspace for a BMAD project and seed it from existing artifacts.
+- [`SKILL_BMAD_ghostcrab-runtime.md`](SKILL_BMAD_ghostcrab-runtime.md) guides Claude Code or Codex through runtime coordination, including handoffs, blockers, phase gates, and recovery packs.
+- [`SKILL_BMAD_mindbrain_orchestrator.md`](SKILL_BMAD_mindbrain_orchestrator.md) is a compatibility pointer for older BMAD expansion pack users and redirects new work to the runtime skill.
 
 ## BMAD-METHOD: architecture and integration hooks
 
@@ -791,4 +801,3 @@ Closing **OB-VALIDATE** emits `MB-STATUS` — the entry chord for the previously
 [^6_1]: https://docs.bmad-method.org/reference/commands/
 
 [^6_2]: https://bmad-builder-docs.bmad-method.org/explanation/what-are-skills/
-

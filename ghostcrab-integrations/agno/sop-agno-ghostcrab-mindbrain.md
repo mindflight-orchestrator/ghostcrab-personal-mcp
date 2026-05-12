@@ -1,10 +1,24 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
+# Integrating mindBrain with Agno
 
-The most effective pitch for every framework is not to sell MindBrain as an "alternative database" but as a **shared context layer across agents**: today each framework keeps memory in silos; MindBrain/GhostCrab provides a structured, queryable, persistent ontology registry. That argument lands regardless of target framework.
+## About Agno
 
-task: target Agno (Phidata): explain how integration should be implemented with this framework.
+[Agno](https://github.com/agno-agi/agno) is an open-source Python framework for building, running, and managing agent platforms. It supports agents, teams, workflows, memory, knowledge, tools, and AgentOS runtime surfaces, which makes it a practical base for multi-agent applications that need both local development ergonomics and deployable agent infrastructure. Agno was formerly known as Phidata, so some existing projects and references still use that name.
 
-Full integration strategy for MindBrain/GhostCrab with Agno below.
+## MindBrain
+
+MindBrain is a structured agentic database that makes any domain navigable in real time — its intelligence lives in schema enforcement, typed ontologies, and pre-computed projections that cost zero inference at query time.
+
+## Why integrate mindBrain with Agno
+
+Agno already gives developers clean Python primitives for agents, teams, memory, tools, and runtime APIs. mindBrain adds a shared, typed memory substrate behind those primitives, so separate Agno agents can coordinate around durable project facts, entity relationships, task state, and recovery context instead of leaving knowledge scattered across session storage or per-agent memory tables.
+
+The lightest integration path is MCPTools: Agno agents can call GhostCrab tools without changing the framework core. Deeper integrations can map Agno memory events into mindBrain so the same ontology-backed state is available to Codex, Claude Code, and other MCP-capable agent environments.
+
+## SKILLS available in this repo
+
+- [`skill_ghostcrab_agno.md`](skill_ghostcrab_agno.md) helps an Agno agent, Codex, or Claude Code bootstrap and populate a MindBrain ontology through GhostCrab MCP.
+- [`skill_ghostcrab_personal_agno.md`](skill_ghostcrab_personal_agno.md) gives Agno developers a first-contact GhostCrab Personal demo with local SQLite-backed shared memory.
+- [`skill_ghostcrab_personal_agno_runtime.md`](skill_ghostcrab_personal_agno_runtime.md) describes practical runtime patterns for Agno teams, including task state, dependency graphs, recovery packs, and orchestrator heartbeats.
 
 ## Agno memory architecture: silos to replace
 
@@ -343,4 +357,3 @@ class MindBrainMemoryDb(MemoryDb):
             rows = cur.fetchall()
         return [UserMemory(memory=r[0]) for r in rows]
 ```
-
