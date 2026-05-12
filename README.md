@@ -53,7 +53,7 @@ Other GhostCrab distributions may use different database stacks; match the packa
 
 7. **Runtime:** MCP clients should start **`gcp brain up`** (or legacy **`gcp serve`**): that launches MindBrain, creates **`./data/ghostcrab.sqlite`** by default (cwd-dependent), and keeps **stdio** for MCP.
 
-**More install channels** (beta zip, Git, document import, `gcp brain document …`): [INSTALL.md](INSTALL.md). CLI reference: [docs/GCP_CLIENT_SETUP.md](docs/GCP_CLIENT_SETUP.md). Agent installation hub: [installations/](installations/README.md).
+**More install channels** (beta zip, Git, document import, `gcp brain document …`): [INSTALL.md](INSTALL.md). CLI reference: [docs/setup/gcp-client-setup.md](docs/setup/gcp-client-setup.md). Documentation index: [docs/index.md](docs/index.md). Agent installation hub: [installations/](installations/README.md).
 
 ---
 

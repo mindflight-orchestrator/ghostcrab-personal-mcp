@@ -12,7 +12,7 @@
 
 \*If auto-detect ever fails on Windows, run: `make PLATFORM=win32-x64`.
 
-For the full guide (three install paths, npm, `.env`, IDE), see **[INSTALL.md](../../INSTALL.md)** in the repository root (also shipped in the beta zip).
+For the full guide (three install paths, npm, `.env`, IDE), see **[INSTALL.md](../../../INSTALL.md)** in the repository root (also shipped in the beta zip).
 
 ## Bundle layout
 
@@ -56,7 +56,7 @@ npx gcp brain setup codex
 npx gcp brain setup claude
 ```
 
-See [README_CURSOR_MCP.md](../../README_CURSOR_MCP.md), [README_CODEX_MCP.md](../../README_CODEX_MCP.md), [README_CLAUDE_CODE_MCP.md](../../README_CLAUDE_CODE_MCP.md).
+See [README_CURSOR_MCP.md](../../../README_CURSOR_MCP.md), [README_CODEX_MCP.md](../../../README_CODEX_MCP.md), [README_CLAUDE_CODE_MCP.md](../../../README_CLAUDE_CODE_MCP.md).
 
 ## Troubleshooting
 

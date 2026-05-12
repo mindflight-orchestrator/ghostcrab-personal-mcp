@@ -12,7 +12,7 @@ GhostCrab exposes a single CLI entry point, `gcp`. Commands are grouped by **job
 | **Load demo profile** | `gcp brain load …` | JSONL profile into the DB. Legacy: `gcp load …`. |
 | **Corpus import / profiling** | `gcp brain document …` | Normalize, profile, enqueue/worker, ingest (stop MCP first). See `gcp brain document --help`. |
 | **Native binary permissions** | `gcp authorize` | `chmod` / macOS quarantine (also runs on `postinstall`). |
-| **User-global MCP in IDE** | `gcp brain setup <cursor, codex, or claude> […]` | Registers the GhostCrab stdio server in the **user** scope: merges `~/.cursor/mcp.json` for Cursor, runs `codex mcp add` (or prints a TOML fragment) for Codex, or runs `claude mcp add` for Claude Code. Aliases: `gcp brain setup_cursor` / `setup_codex` / `setup_claude` / `setup_claudecode`. See [GCP_CLIENT_SETUP.md](./GCP_CLIENT_SETUP.md) and the root `README_*_MCP.md` files. |
+| **User-global MCP in IDE** | `gcp brain setup <cursor, codex, or claude> […]` | Registers the GhostCrab stdio server in the **user** scope: merges `~/.cursor/mcp.json` for Cursor, runs `codex mcp add` (or prints a TOML fragment) for Codex, or runs `claude mcp add` for Claude Code. Aliases: `gcp brain setup_cursor` / `setup_codex` / `setup_claude` / `setup_claudecode`. See [gcp-client-setup.md](../setup/gcp-client-setup.md) and the root `README_*_MCP.md` files. |
 
 ## Why “brain” vs “agent”
 
@@ -37,6 +37,7 @@ Legacy (still supported):
 
 ## See also
 
-- [skillset-demo-import.md](./skillset-demo-import.md) — bundle manifests, schema/skill pulls, vendored `skills install`, JSONL loads
-- [GCP_CLIENT_SETUP.md](./GCP_CLIENT_SETUP.md) — IDE integration and env vars
+- [gcp-client-setup.md](../setup/gcp-client-setup.md) — IDE integration and env vars
+- [skillset-demo-import.md](../setup/skillset-demo-import.md) — bundle manifests, schema/skill pulls, vendored `skills install`, JSONL loads
+- [docs index](../index.md) — documentation entry point
 - Root `README_CURSOR_MCP.md`, `README_CODEX_MCP.md`, `README_CLAUDE_CODE_MCP.md` — per-IDE MCP wiring

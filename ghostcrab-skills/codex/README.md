@@ -2,14 +2,14 @@
 
 This guide is the dedicated entry point for running **GhostCrab** with **OpenAI Codex**: MCP server wiring, optional environment, and how to install the skill mirrors in this folder.
 
-For how `ghostcrab-skills` relates to the product repo, see [GHOSTCRAB_INTEGRATION.md](../GHOSTCRAB_INTEGRATION.md). For launcher details (`gcp`, `ghostcrab`) and other clients, see the product doc [GCP_CLIENT_SETUP.md](../../docs/GCP_CLIENT_SETUP.md).
+For how `ghostcrab-skills` relates to the product repo, see [GHOSTCRAB_INTEGRATION.md](../GHOSTCRAB_INTEGRATION.md). For launcher details (`gcp`, `ghostcrab`) and other clients, see the product doc [gcp-client-setup.md](../../docs/setup/gcp-client-setup.md).
 
 ## Prerequisites
 
 - **Node.js** 20+ and a package runner (`pnpm` or `npm`).
 - **GhostCrab MCP** available as a global CLI **or** via `pnpm dlx` / `npx` (no global install).
 
-Published package: `@mindflight/ghostcrab-mcp` (binaries: `gcp`, `ghostcrab`). MCP clients should invoke **`gcp brain up`** or **`gcp up`** (legacy: **`gcp serve`**), optionally with `--workspace <name>`. See the product [GCP_COMMANDS.md](../../docs/GCP_COMMANDS.md).
+Published package: `@mindflight/ghostcrab-mcp` (binaries: `gcp`, `ghostcrab`). MCP clients should invoke **`gcp brain up`** or **`gcp up`** (legacy: **`gcp serve`**), optionally with `--workspace <name>`. See the product [gcp-commands.md](../../docs/reference/gcp-commands.md).
 
 Initialize a workspace once if you use a named workspace:
 
@@ -135,6 +135,6 @@ If your Codex version documents a single skills root directory, point it at the 
 ## See also
 
 - [GHOSTCRAB_INTEGRATION.md](../GHOSTCRAB_INTEGRATION.md) — repo split, validation, versioning
-- [GCP_CLIENT_SETUP.md](../../docs/GCP_CLIENT_SETUP.md) — `gcp` commands, Cursor, Claude Code, local packs
+- [gcp-client-setup.md](../../docs/setup/gcp-client-setup.md) — `gcp` commands, Cursor, Claude Code, local packs
 - [openclaw/README.md](../openclaw/README.md) — same integration pattern for OpenClaw
 - [ghostcrab-skills README.md](../README.md) — full layout and validation commands

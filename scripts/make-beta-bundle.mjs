@@ -20,11 +20,12 @@ const betaReadme = join(repoRoot, "docs", "dev", "beta_testers_readme.md");
 const installScriptSrc = join(repoRoot, "scripts", "beta-bundle-install.mjs");
 const installMdSrc = join(repoRoot, "INSTALL.md");
 const licenceSrc = join(repoRoot, "Licence.md");
-const makefileSrc = join(repoRoot, "docs", "installer-question", "Makefile");
+const makefileSrc = join(repoRoot, "docs", "installers", "beta-bundle", "Makefile");
 const makefileReadmeSrc = join(
   repoRoot,
   "docs",
-  "installer-question",
+  "installers",
+  "beta-bundle",
   "README.md"
 );
 

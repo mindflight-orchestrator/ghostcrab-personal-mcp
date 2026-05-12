@@ -2,7 +2,7 @@
 
 This folder is a **template** for a small Git repository you can publish elsewhere: it versions **JSONL profiles**, optionally **vendored skills**, and a **manifest** that runs `gcp` after clone.
 
-Conceptual overview (skillset + demo import): see [docs/skillset-demo-import.md](../../docs/skillset-demo-import.md).
+Conceptual overview (skillset + demo import): see [docs/setup/skillset-demo-import.md](../../docs/setup/skillset-demo-import.md).
 
 ## Prereqs
 

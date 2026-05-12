@@ -140,7 +140,7 @@ If you cannot upgrade, hand-edit `~/.cursor/mcp.json`:
 
 ## Remote / HTTP (not the default for this package)
 
-If you self-host a GhostCrab-compatible endpoint over **HTTP** or **SSE** later, the shape in `mcp.json` is the `url` + optional `headers` / `auth` form described in the [Cursor MCP guide](https://cursor.com/docs/mcp). The default distribution of this repository is **local stdio** via `gcp brain up` / `gcp up` (legacy: `gcp serve`). See [docs/GCP_COMMANDS.md](docs/GCP_COMMANDS.md).
+If you self-host a GhostCrab-compatible endpoint over **HTTP** or **SSE** later, the shape in `mcp.json` is the `url` + optional `headers` / `auth` form described in the [Cursor MCP guide](https://cursor.com/docs/mcp). The default distribution of this repository is **local stdio** via `gcp brain up` / `gcp up` (legacy: `gcp serve`). See [docs/reference/gcp-commands.md](docs/reference/gcp-commands.md).
 
 ## Check that it works
 

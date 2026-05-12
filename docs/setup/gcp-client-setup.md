@@ -6,7 +6,7 @@ This document covers the **`gcp` / `ghostcrab` launchers** shipped with **`@mind
 
 - **npm package:** `@mindflight/ghostcrab-mcp`
 - **Binaries:**
-  - **`gcp`** — full CLI (see [GCP_COMMANDS.md](./GCP_COMMANDS.md))
+  - **`gcp`** — full CLI (see [gcp-commands.md](../reference/gcp-commands.md))
   - **`ghostcrab`** — backward-compatible shim that runs the same path as **`gcp brain up`** / **`gcp serve`** (stdio MCP), so older client configs that invoke `ghostcrab` keep working.
 
 Install globally (example):
@@ -24,7 +24,7 @@ pnpm add file:/absolute/path/to/dist-pack/mindflight-ghostcrab-mcp-<version>.tgz
 
 ## `gcp` commands (summary)
 
-Full JTBD-oriented reference: **[GCP_COMMANDS.md](./GCP_COMMANDS.md)**.
+Full JTBD-oriented reference: **[gcp-commands.md](../reference/gcp-commands.md)**.
 
 | Job | Preferred command | Legacy (alias) |
 |-----|-------------------|----------------|
@@ -71,7 +71,7 @@ Messages on **`gcp brain up`** / **`gcp serve`** go to **stderr** (one or two li
 
 ### Environment variables (common)
 
-See the root [README.md](../README.md) for the full table. Typical SQLite defaults:
+See the root [README.md](../../README.md) for the full table. Typical SQLite defaults:
 
 - `GHOSTCRAB_SQLITE_PATH` — SQLite file (default: `./data/ghostcrab.sqlite` in the current working directory unless overridden).
 - `GHOSTCRAB_BACKEND_ADDR` / `GHOSTCRAB_MINDBRAIN_URL` — backend HTTP address (defaults documented in README).
@@ -118,7 +118,7 @@ Server name `ghostcrab` is conventional; keep it if you copy snippets from **`gh
 ### Cursor
 
 1. Add the MCP server using the JSON above (Cursor’s MCP UI or project/global MCP config, depending on your version).
-2. For **agent rules**, follow [ghostcrab-skills/cursor/README.md](../ghostcrab-skills/cursor/README.md): copy or symlink `ghostcrab-skills/cursor/rules/ghostcrab-memory.mdc` into your project `.cursor/rules/` (or merge into an existing rule).
+2. For **agent rules**, follow [ghostcrab-skills/cursor/README.md](../../ghostcrab-skills/cursor/README.md): copy or symlink `ghostcrab-skills/cursor/rules/ghostcrab-memory.mdc` into your project `.cursor/rules/` (or merge into an existing rule).
 
 ### Claude Code
 
@@ -131,13 +131,13 @@ Server name `ghostcrab` is conventional; keep it if you copy snippets from **`gh
 
 Codex consumes **skills** from its own skill directories. Use the mirrors under **`ghostcrab-skills/codex/`** (`ghostcrab-memory`, `ghostcrab-prompt-guide`, `ghostcrab-data-architect`) as templates to install or sync into your Codex skill path. MCP wiring is the same JSON as above; place it where your Codex / IDE integration expects MCP servers.
 
-**Dedicated guide:** [ghostcrab-skills/codex/README.md](../ghostcrab-skills/codex/README.md).
+**Dedicated guide:** [ghostcrab-skills/codex/README.md](../../ghostcrab-skills/codex/README.md).
 
 ### OpenClaw
 
 OpenClaw uses the same **`mcpServers`** JSON shape; merge the block from **`ghostcrab-skills/openclaw/ghostcrab-memory/mcp.json`** (or the examples above) into the MCP config your OpenClaw build expects. Install **`ghostcrab-memory`** and optionally **`ghostcrab-epistemic-agent`** per OpenClaw’s skill/agent layout; use **`openclaw/scenarios/`** for rehearsal prompts.
 
-**Dedicated guide:** [ghostcrab-skills/openclaw/README.md](../ghostcrab-skills/openclaw/README.md).
+**Dedicated guide:** [ghostcrab-skills/openclaw/README.md](../../ghostcrab-skills/openclaw/README.md).
 
 ---
 
@@ -185,8 +185,8 @@ The commands **`gcp agent skills` / `gcp skills`** and **`gcp brain schema` / `g
 
 ## See also
 
-- [GCP_COMMANDS.md](./GCP_COMMANDS.md) — full JTBD command table
-- Root [README.md](../README.md) — install, env vars, SQLite vs PostgreSQL notes.
-- [ghostcrab-skills/README.md](../ghostcrab-skills/README.md) — integration layout and quick start.
-- [ghostcrab-skills/GHOSTCRAB_INTEGRATION.md](../ghostcrab-skills/GHOSTCRAB_INTEGRATION.md) — contract between product and skills repo.
+- [gcp-commands.md](../reference/gcp-commands.md) — full JTBD command table
+- Root [README.md](../../README.md) — install, env vars, SQLite vs PostgreSQL notes.
+- [ghostcrab-skills/README.md](../../ghostcrab-skills/README.md) — integration layout and quick start.
+- [ghostcrab-skills/GHOSTCRAB_INTEGRATION.md](../../ghostcrab-skills/GHOSTCRAB_INTEGRATION.md) — contract between product and skills repo.
 - Local pack / install smoke: `pnpm run pack:local`, `pnpm run verify:local-install` (and Makefile targets `local-pack`, `verify-local-install`).

@@ -22,7 +22,7 @@ Les **autres voies** (zip bêta, dépôt Git, optional manquant) suivent dans **
 
 - **Node.js 20+** et `npm` (ou `pnpm`).
 - **Accès Internet** pour les dépendances JS du paquet principal.
-- **`make` (optionnel)** : macOS et Linux — oui. Windows — plutôt **WSL**, **Git Bash + GNU Make**, ou utilisez uniquement **`node install-beta.mjs`** (recommandé sous Windows sans outils Unix). Détails : [docs/installer-question/README.md](docs/installer-question/README.md).
+- **`make` (optionnel)** : macOS et Linux — oui. Windows — plutôt **WSL**, **Git Bash + GNU Make**, ou utilisez uniquement **`node install-beta.mjs`** (recommandé sous Windows sans outils Unix). Détails : [docs/installers/beta-bundle/README.md](docs/installers/beta-bundle/README.md).
 - Voie **dépôt Git** : voir le [Makefile](Makefile) (`make help`) — Zig 0.16, `pnpm`, etc. selon ce que vous construisez.
 
 ### Trois façons d’installer
@@ -36,7 +36,7 @@ node install-beta.mjs
 
 Cela installe le paquet **principal** et le **binaire natif** pour votre OS (Linux x64/ARM64, macOS Intel/Apple Silicon, Windows x64). Sans la plateforme, le backend Zig n’est pas présent — le MCP ne pourra pas démarrer le serveur HTTP MindBrain.
 
-Dans le **zip bêta**, un `Makefile` et `README_MAKE.md` sont fournis à côté des `.tgz` (`make` puis `make mcp`). Dans le dépôt : [docs/installer-question/](docs/installer-question/README.md).
+Dans le **zip bêta**, un `Makefile` et `README_MAKE.md` sont fournis à côté des `.tgz` (`make` puis `make mcp`). Dans le dépôt : [docs/installers/beta-bundle/](docs/installers/beta-bundle/README.md).
 
 **2 — npm (npmjs)**  
 Si les paquets **plateforme** sont publiés pour votre version, npm peut les tirer comme `optionalDependencies` :
@@ -122,7 +122,7 @@ Guides détaillés : [README_CURSOR_MCP.md](README_CURSOR_MCP.md), [README_CODEX
 
 - **Node.js 20+** and `npm` (or `pnpm`).
 - **Internet** for the main package’s JS dependency tree.
-- **`make` (optional):** macOS and Linux — fine. Windows — use **WSL**, **Git Bash + GNU Make**, or skip `make` and use **`node install-beta.mjs`** (simplest on Windows without Unix tools). See [docs/installer-question/README.md](docs/installer-question/README.md).
+- **`make` (optional):** macOS and Linux — fine. Windows — use **WSL**, **Git Bash + GNU Make**, or skip `make` and use **`node install-beta.mjs`** (simplest on Windows without Unix tools). See [docs/installers/beta-bundle/README.md](docs/installers/beta-bundle/README.md).
 - **Git / dev path:** see the repo [Makefile](Makefile) (`make help`) for Zig, `pnpm`, etc.
 
 ### Three installation paths
@@ -136,7 +136,7 @@ node install-beta.mjs
 
 This installs the **main** package and the **native binary** for your OS. Without the platform package, the Zig backend is missing and MindBrain cannot start.
 
-The **beta zip** includes a `Makefile` and `README_MAKE.md` next to the `.tgz` files (`make`, then `make mcp`). In the repo: [docs/installer-question/](docs/installer-question/README.md).
+The **beta zip** includes a `Makefile` and `README_MAKE.md` next to the `.tgz` files (`make`, then `make mcp`). In the repo: [docs/installers/beta-bundle/](docs/installers/beta-bundle/README.md).
 
 **2 — npm (npmjs)**  
 When platform packages are published for your release, npm may install them as `optionalDependencies`:
