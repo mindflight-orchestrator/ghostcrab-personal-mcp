@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { beforeAll, vi } from "vitest";
+import { beforeAll } from "vitest";
 
 import { resolveGhostcrabConfig } from "../../src/config/env.js";
 import {
@@ -9,9 +9,7 @@ import {
   createDatabaseClient
 } from "../../src/db/client.js";
 import { createToolContext } from "./tool-context.js";
-import {
-  countTool
-} from "../../src/tools/facets/count.js";
+import { countTool } from "../../src/tools/facets/count.js";
 import { rememberTool } from "../../src/tools/facets/remember.js";
 import {
   schemaInspectTool,
@@ -53,6 +51,8 @@ const SQLITE_TEST_DB_PATH = join(SQLITE_TEST_DIR, "integration.sqlite");
 function ensureSqliteTestEnv(): void {
   process.env.GHOSTCRAB_MINDBRAIN_URL =
     process.env.GHOSTCRAB_MINDBRAIN_URL ?? "http://127.0.0.1:8091";
+  process.env.GHOSTCRAB_MINDBRAIN_HTTP_TIMEOUT_MS =
+    process.env.GHOSTCRAB_MINDBRAIN_HTTP_TIMEOUT_MS ?? "30000";
   process.env.GHOSTCRAB_SQLITE_PATH = SQLITE_TEST_DB_PATH;
   process.env.GHOSTCRAB_EMBEDDINGS_MODE = "disabled";
 }
@@ -87,7 +87,9 @@ export function createIntegrationHarness() {
   };
 }
 
-export async function cleanupTestDatabase(database: DatabaseClient): Promise<void> {
+export async function cleanupTestDatabase(
+  database: DatabaseClient
+): Promise<void> {
   await database.query("DELETE FROM graph_relation");
   await database.query("DELETE FROM graph_entity_alias");
   await database.query("DELETE FROM graph_entity");
@@ -130,83 +132,6 @@ export async function executeHandler(
   );
 
   return readStructured(result);
-}
-
-export async function runCliCapture(
-  argv: string[],
-  options?: {
-    stdinText?: string;
-  }
-): Promise<{
-  exitCode: number | undefined;
-  stderr: string[];
-  stdout: string[];
-}> {
-  const stdout: string[] = [];
-  const stderr: string[] = [];
-  const originalStdin = process.stdin;
-  const originalEnv = {
-    GHOSTCRAB_MINDBRAIN_URL: process.env.GHOSTCRAB_MINDBRAIN_URL,
-    GHOSTCRAB_SQLITE_PATH: process.env.GHOSTCRAB_SQLITE_PATH,
-    GHOSTCRAB_EMBEDDINGS_MODE: process.env.GHOSTCRAB_EMBEDDINGS_MODE
-  };
-
-  ensureSqliteTestEnv();
-
-  const stdoutSpy = vi
-    .spyOn(process.stdout, "write")
-    .mockImplementation(((chunk: string | Uint8Array) => {
-      stdout.push(String(chunk));
-      return true;
-    }) as never);
-  const stderrSpy = vi
-    .spyOn(console, "error")
-    .mockImplementation((message?: unknown) => {
-      stderr.push(String(message));
-    });
-  const exitSpy = vi
-    .spyOn(process, "exit")
-    .mockImplementation((() => undefined) as never);
-
-  if (options?.stdinText !== undefined) {
-    const stdinText = options.stdinText;
-    Object.defineProperty(process, "stdin", {
-      configurable: true,
-      value: {
-        async *[Symbol.asyncIterator]() {
-          yield Buffer.from(stdinText);
-        }
-      }
-    });
-  }
-
-  let exitCode: number | undefined;
-  try {
-    const { runCli } = await import("../../src/cli/runner.js");
-    await runCli(argv);
-  } finally {
-    exitCode = exitSpy.mock.calls.at(-1)?.[0] as number | undefined;
-    stdoutSpy.mockRestore();
-    stderrSpy.mockRestore();
-    exitSpy.mockRestore();
-    Object.defineProperty(process, "stdin", {
-      configurable: true,
-      value: originalStdin
-    });
-    for (const [key, value] of Object.entries(originalEnv)) {
-      if (value === undefined) {
-        delete process.env[key];
-      } else {
-        process.env[key] = value;
-      }
-    }
-  }
-
-  return {
-    exitCode,
-    stderr,
-    stdout
-  };
 }
 
 export async function seedBootstrapDomainMinimal(

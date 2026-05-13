@@ -26,7 +26,8 @@ function createMindbrainDatabaseClient(
   config: GhostcrabConfig
 ): DatabaseClient {
   const baseUrl = config.mindbrainUrl;
-  const baseQueryable = createMindbrainQueryable(baseUrl);
+  const timeoutMs = config.mindbrainHttpTimeoutMs;
+  const baseQueryable = createMindbrainQueryable(baseUrl, timeoutMs);
 
   return {
     ...baseQueryable,
@@ -36,7 +37,10 @@ function createMindbrainDatabaseClient(
     async ping(): Promise<boolean> {
       try {
         const response = await fetch(
-          new URL("/health", normalizeBaseUrl(baseUrl))
+          new URL("/health", normalizeBaseUrl(baseUrl)),
+          {
+            signal: AbortSignal.timeout(timeoutMs)
+          }
         );
         if (!response.ok) {
           return false;
@@ -49,18 +53,27 @@ function createMindbrainDatabaseClient(
     async transaction<T>(
       operation: (queryable: Queryable) => Promise<T>
     ): Promise<T> {
-      const sessionId = await openStandaloneMindbrainSqlSession(baseUrl);
+      const sessionId = await openStandaloneMindbrainSqlSession(
+        baseUrl,
+        timeoutMs
+      );
       try {
         const result = await operation(
-          createMindbrainQueryable(baseUrl, sessionId)
+          createMindbrainQueryable(baseUrl, timeoutMs, sessionId)
         );
-        await closeStandaloneMindbrainSqlSession(baseUrl, sessionId, true);
+        await closeStandaloneMindbrainSqlSession(
+          baseUrl,
+          sessionId,
+          true,
+          timeoutMs
+        );
         return result;
       } catch (error) {
         await closeStandaloneMindbrainSqlSession(
           baseUrl,
           sessionId,
-          false
+          false,
+          timeoutMs
         ).catch(() => {
           return;
         });
@@ -72,6 +85,7 @@ function createMindbrainDatabaseClient(
 
 function createMindbrainQueryable(
   baseUrl: string,
+  timeoutMs: number,
   sessionId?: number
 ): Queryable {
   return {
@@ -84,6 +98,7 @@ function createMindbrainQueryable(
         mindbrainUrl: baseUrl,
         sql: transformed.sql,
         params: transformed.params,
+        timeoutMs,
         sessionId
       });
       return mapMindbrainRows<T>(response.columns, response.rows);

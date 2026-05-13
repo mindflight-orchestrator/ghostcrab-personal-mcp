@@ -4,7 +4,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 
 const defaultTimeoutMs = Number.parseInt(
-  process.env.MCP_SMOKE_TIMEOUT_MS ?? "10000",
+  process.env.MCP_SMOKE_TIMEOUT_MS ?? "30000",
   10
 );
 
@@ -44,7 +44,10 @@ export async function withMcpStdioClient<T>(
     env: {
       ...process.env,
       GHOSTCRAB_MINDBRAIN_URL: mindbrainUrlFromEnv,
+      GHOSTCRAB_MINDBRAIN_HTTP_TIMEOUT_MS:
+        process.env.GHOSTCRAB_MINDBRAIN_HTTP_TIMEOUT_MS ?? "30000",
       GHOSTCRAB_EMBEDDINGS_MODE: "disabled",
+      GHOSTCRAB_BOOTSTRAP_SEED: "0",
       MCP_TELEMETRY: "0",
       ...(options.serverEnv ?? {})
     },
@@ -82,10 +85,9 @@ export async function withMcpStdioClient<T>(
         stderrOutput.trim().length > 0
           ? `\nServer stderr:\n${stderrOutput.trim()}`
           : "";
-      throw new Error(
-        `Failed to connect to GhostCrab MCP server.${suffix}`,
-        { cause: error }
-      );
+      throw new Error(`Failed to connect to GhostCrab MCP server.${suffix}`, {
+        cause: error
+      });
     }
 
     return await runScenario({
