@@ -27,7 +27,29 @@ MindBrain is a **structured agentic database**: its intelligence lives in schema
 
 The core product is not an AI memory system. It is an extensible writing and linking environment. Obsidian's official core plugins include Backlinks, Graph view, Search, Properties view, Canvas, Bases, Sync, Publish, and other note-workflow features. [Obsidian](https://help.obsidian.md/plugins)
 
-The "AI Obsidian" layer usually comes from community plugins or adjacent tools. Smart Connections positions itself as a third-party local-first AI workflow layer for Obsidian that surfaces related notes, builds context, and adds Smart Chat around a vault. [Smart Connections](https://smartconnections.app/) Copilot for Obsidian describes itself as an AI assistant inside Obsidian with context-aware actions and model integrations. [Obsidian Copilot](https://github.com/logancyang/obsidian-copilot) Text Generator focuses on generating, transforming, and templating text inside notes using AI providers. [Text Generator](https://text-gen.com/)
+The "AI Obsidian" layer usually comes from community plugins or adjacent tools. Smart Connections positions itself as a third-party local-first AI workflow layer for Obsidian that surfaces related notes, builds context, and adds Smart Chat around a vault.
+## The AI Layer: Plugins and Agents
+
+## Karpathy's LLM Wiki Pattern
+
+In April 2026, Andrej Karpathy published a [GitHub Gist](https://x.com/karpathy/status/2039805659525644595) that immediately circulated through AI communities: a blueprint for building a persistent LLM-maintained knowledge base with no vector database and no complex RAG pipeline — just interconnected Markdown files, an LLM, and Obsidian as the viewer. The workflow is:[x](https://x.com/karpathy/status/2039805659525644595)
+
+1. Index source documents (articles, papers, repos, images) into a `raw/` directory
+    
+2. Use an LLM to incrementally "compile" a wiki — a collection of `.md` files in a directory structure — with cross-references and structured summaries
+    
+3. Open that directory as an Obsidian vault to browse, search, and visualize the graph of compiled knowledge[x](https://x.com/karpathy/status/2039805659525644595)
+    
+
+The key insight is that the LLM builds knowledge _up front_ rather than retrieving raw chunks at query time. This enables multi-hop reasoning and a knowledge base that compounds with every new source added — Karpathy reports managing wikis of over 100 articles without any vector indexing.[anthemcreation](https://anthemcreation.com/intelligence-artificielle/llm-wiki-karpathy-base-connaissance-claude-obsidian/)
+
+## Claude Code and Codex as Vault Operators
+
+Claude Code and OpenAI Codex take this a step further by operating directly on the vault's file system. Because Obsidian is, at its core, a Markdown reader pointed at a local folder, any file an agent writes or rewrites is immediately visible and navigable in the UI without glue code, APIs, or sync layers. In practice, the split behaves like a conventional app architecture: Claude Code acts as the backend — generating, restructuring, and maintaining content — while Obsidian acts as the human-facing frontend. Practitioners use a `CLAUDE.md` file at the vault root to give the agent its behavioral instructions (scope, naming conventions, linking rules), and then direct it in plain language to update metadata across hundreds of notes, spin up sub-agents for web research, or reorganize a taxonomy.[youtube](https://www.youtube.com/watch?v=a1FDaoF8Jog)[gsarigiannidis](https://www.gsarigiannidis.gr/claude-code-obsidian-ai/)
+
+## Why This Matters
+
+This pattern is meaningful for a specific reason: **the artifact stays human-readable and human-editable at all times**. Unlike a vector store or an opaque database, every note an agent produces can be read, corrected, or extended directly in a text editor or in Obsidian. The vault becomes a living, auditable knowledge artifact — one that an AI can grow autonomously but that a human always controls and can verify. That combination — agentic construction, human oversight, local file system, no proprietary lock-in — is what distinguishes this approach from conventional RAG or chat-with-documents workflows.[gsarigiannidis](https://www.gsarigiannidis.gr/claude-code-obsidian-ai/)
 
 That makes Obsidian plus AI plugins a strong human knowledge workspace with optional AI assistance, not a database-enforced runtime for agents.
 
