@@ -14,7 +14,10 @@ Supermemory is a **universal memory and context API**: its intelligence lives in
 
 mindBrain is a **structured agentic database**: its intelligence lives in schema enforcement, typed ontologies, directed relations, facets, and pre-computed projections that make a modeled domain navigable at query time. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
 
-***
+![[supermemory-vs-mindbrain.png]]
+
+---
+
 
 ## What Supermemory Is
 

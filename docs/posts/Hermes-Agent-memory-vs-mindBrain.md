@@ -14,6 +14,9 @@ Hermes Agent memory is **agent-native cross-session recall**: its intelligence l
 
 mindBrain is **cross-ontology structured state**: its intelligence lives in typed domain models, facets, directed relations, and pre-computed projections exposed through GhostCrab MCP. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
 
+
+![[hermes-agent-memory-vs-mindbrain.png]]
+
 ***
 
 ## What Hermes Agent Memory Is

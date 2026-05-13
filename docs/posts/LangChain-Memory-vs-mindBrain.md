@@ -14,6 +14,8 @@ LangChain Memory is a **composable memory toolkit** for agent applications: its 
 
 mindBrain is a **structured agentic database**: its intelligence lives in schema enforcement, typed ontologies, directed relations, and pre-computed projections exposed through GhostCrab MCP. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
 
+![[langchain-memory-vs-mindbrain.png]]
+
 ***
 
 ## What LangChain Memory Is

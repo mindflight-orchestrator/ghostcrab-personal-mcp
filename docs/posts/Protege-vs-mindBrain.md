@@ -15,6 +15,7 @@ Protégé is a **research-grade OWL ontology engineering environment**: its inte
 
 MindBrain is a **practitioner-grade agentic ontology runtime**: its intelligence lives in typed domain state, faceted retrieval, directed dependencies, and compact projections that agents can use during operational work. [GhostCrab](https://www.ghostcrab.be/architecture.html)
 
+![[protege-vs-mindbrain.png]]
 ***
 
 ## What Protégé Is

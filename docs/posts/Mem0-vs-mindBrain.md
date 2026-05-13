@@ -14,6 +14,8 @@ Mem0 is an **agent memory infrastructure layer**: its intelligence lives in extr
 
 MindBrain is a **structured agentic database**: its intelligence lives in schema enforcement, typed ontologies, deterministic facets, directed graph relations, and pre-computed projections that cost zero inference at query time. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
 
+![[mem0-vs-mindbrain.png]]
+
 ***
 
 ## What Mem0 Is

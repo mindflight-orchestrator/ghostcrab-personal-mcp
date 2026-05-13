@@ -17,6 +17,8 @@ GBrain is a **self-wiring personal knowledge graph**: its intelligence lives in 
 
 MindBrain is a **structured agentic database**: its intelligence lives in schema enforcement, typed ontologies, directed relations, faceted retrieval, and precomputed working-context projections exposed through GhostCrab MCP. [GhostCrab](https://www.ghostcrab.be/architecture.html)
 
+![[obsidian-gbrain-vs-mindbrain.png]]
+
 ***
 
 ## What Obsidian Plus AI Is

@@ -15,6 +15,8 @@ LlamaIndex is a **document and query framework** for getting the right context i
 
 mindBrain is a **domain state model** for agents: its intelligence lives in typed entities, facets, directed relations, and compact projections served through GhostCrab MCP. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
 
+
+![[llama-vs-mindbrain.png]]
 ***
 
 ## What LlamaIndex Is

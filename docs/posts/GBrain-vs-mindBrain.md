@@ -10,6 +10,10 @@ tags:
 GBrain is a **self-wiring personal knowledge graph** that gets smarter as you sleep — its intelligence lives in accumulated ingest, entity propagation, and nightly repair cycles. 
 
 MindBrain is a **structured agentic database** that makes any domain navigable in real time — its intelligence lives in schema enforcement, typed ontologies, and pre-computed projections that cost zero inference at query time. [ghostcrab](https://www.ghostcrab.be/architecture.html)
+
+
+![[gbrain-crm-vs-mindbrain.png]]
+
 ***
 
 ## What GBrain Is

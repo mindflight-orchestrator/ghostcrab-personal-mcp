@@ -15,6 +15,8 @@ Letta is an agent operating system for stateful agents: its intelligence lives i
 
 MindBrain is a database-enforced structure for agents: its intelligence lives in typed ontologies, facets, directed graph relations, and projections that constrain what an agent can see and do. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
 
+![[letta-vs-mindbrain.png]]
+
 ***
 
 ## What Letta Is
