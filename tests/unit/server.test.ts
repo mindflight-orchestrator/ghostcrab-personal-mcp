@@ -64,7 +64,6 @@ vi.mock("../../src/config/env.js", () => ({
     embeddingsMode: "disabled",
     hybridBm25Weight: 0.6,
     hybridVectorWeight: 0.4,
-    nativeExtensionsMode: "auto",
     nodeEnv: "test",
     pgPoolMax: 10,
     resolvedConfigPath: undefined,
@@ -87,21 +86,13 @@ vi.mock("../../src/db/client.js", () => ({
     ping: pingMock,
     query: vi.fn(async () => []),
     transaction: vi.fn(async (operation: (queryable: unknown) => Promise<unknown>) =>
-      operation({ kind: "sqlite", query: vi.fn(async () => []) })
+      operation({ query: vi.fn(async () => []) })
     )
   }))
 }));
 
 vi.mock("../../src/db/embedding-dimension.js", () => ({
   getFacetsEmbeddingColumnDimension: vi.fn(async () => null)
-}));
-
-vi.mock("../../src/db/extension-probe.js", () => ({
-  resolveExtensionCapabilities: vi.fn(async () => ({
-    pgFacets: false,
-    pgDgraph: false,
-    pgPragma: false
-  }))
 }));
 
 vi.mock("../../src/embeddings/provider.js", () => ({

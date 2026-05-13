@@ -197,9 +197,7 @@ describe("dgraph tools", () => {
 
     const result = await coverageTool.handler(
       { domain: "ghostcrab-product" },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     const payload = readStructured(result);
@@ -623,9 +621,7 @@ describe("dgraph tools", () => {
 
     const result = await traverseTool.handler(
       { start: "task:start", depth: 1 },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     expect(readStructured(result)).toMatchObject({
@@ -670,9 +666,7 @@ describe("dgraph tools", () => {
 
     const result = await traverseTool.handler(
       { start: "task:origin", depth: 1, edge_labels: ["REQUIRES"] },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     // Only REQUIRES should remain after post-filter, plus the start node = 2 total
@@ -713,9 +707,7 @@ describe("dgraph tools", () => {
 
     const result = await traverseTool.handler(
       { start: "task:start", depth: 1 },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     expect(readStructured(result)).toMatchObject({
@@ -733,9 +725,7 @@ describe("dgraph tools", () => {
 
     const result = await traverseTool.handler(
       { start: "task:nonexistent", depth: 1 },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     expect(readStructured(result)).toMatchObject({
@@ -762,9 +752,7 @@ describe("dgraph tools", () => {
 
     const result = await traverseTool.handler(
       { start: "task:start", depth: 1, target: "concept:gap" },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     expect(readStructured(result)).toMatchObject({
@@ -790,9 +778,7 @@ describe("dgraph tools", () => {
 
     const result = await traverseTool.handler(
       { start: "task:start", depth: 3 },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     expect(readStructured(result)).toMatchObject({

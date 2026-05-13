@@ -21,7 +21,6 @@ describe("resolveGhostcrabConfig", () => {
       hybridBm25Weight: 0.6,
       hybridVectorWeight: 0.4,
       mindbrainUrl: "http://127.0.0.1:8091",
-      nativeExtensionsMode: "auto",
       nodeEnv: "development",
       resolvedConfigPath: undefined,
       sqlitePath: path.join(process.cwd(), "ghostcrab.sqlite"),
@@ -40,7 +39,6 @@ describe("resolveGhostcrabConfig", () => {
     const config = resolveGhostcrabConfig({
       GHOSTCRAB_MINDBRAIN_URL: "http://mindbrain.internal:8091",
       GHOSTCRAB_SQLITE_PATH: "/tmp/ghostcrab.sqlite",
-      MINDBRAIN_NATIVE_EXTENSIONS: "sql-only",
       NODE_ENV: "test",
       GHOSTCRAB_EMBEDDINGS_FIXTURE_PATH: "/tmp/fixtures.json",
       GHOSTCRAB_EMBEDDING_DIMENSIONS: "768",
@@ -58,7 +56,6 @@ describe("resolveGhostcrabConfig", () => {
       hybridBm25Weight: 0.6,
       hybridVectorWeight: 0.4,
       mindbrainUrl: "http://mindbrain.internal:8091",
-      nativeExtensionsMode: "sql-only",
       nodeEnv: "test",
       resolvedConfigPath: undefined,
       sqlitePath: "/tmp/ghostcrab.sqlite",

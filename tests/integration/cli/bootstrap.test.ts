@@ -26,11 +26,7 @@ describe.sequential("CLI bootstrap flows", () => {
     const payload = JSON.parse(result.stdout.join("").trim()) as {
       schemas: Array<Record<string, unknown>>;
     };
-    if (harness.database.kind === "sqlite") {
-      expect(Array.isArray(payload.schemas)).toBe(true);
-    } else {
-      expect(payload.schemas.length).toBeGreaterThan(0);
-    }
+    expect(Array.isArray(payload.schemas)).toBe(true);
   });
 
   it("registers and inspects a new schema", async () => {

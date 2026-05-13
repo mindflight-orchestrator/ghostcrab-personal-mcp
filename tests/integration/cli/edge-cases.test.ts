@@ -78,19 +78,12 @@ describe.sequential("CLI edge cases", () => {
       '{"status":"done"}'
     ]);
     const count = await harness.database.query<{ count: number }>(
-      harness.database.kind === "sqlite"
-        ? `
-            SELECT COUNT(*) AS count
-            FROM facets
-            WHERE schema_id = 'demo:test:task'
-              AND json_extract(facets_json, '$.record_id') = 'task:active-1'
-          `
-        : `
-            SELECT COUNT(*)::integer AS count
-            FROM facets
-            WHERE schema_id = 'demo:test:task'
-              AND facets @> '{"record_id":"task:active-1"}'::jsonb
-          `
+      `
+        SELECT COUNT(*) AS count
+        FROM facets
+        WHERE schema_id = 'demo:test:task'
+          AND json_extract(facets_json, '$.record_id') = 'task:active-1'
+      `
     );
 
     expect(first.exitCode).toBe(0);
@@ -110,27 +103,16 @@ describe.sequential("CLI edge cases", () => {
       '{"source":"concept:demo:task","target":"concept:demo:missing-capability","label":"HAS_GAP","weight":0.9}'
     ]);
     const count = await harness.database.query<{ count: number }>(
-      harness.database.kind === "sqlite"
-        ? `
-            SELECT COUNT(*) AS count
-            FROM graph_relation r
-            JOIN graph_entity s ON s.entity_id = r.source_id AND s.entity_type = 'entity'
-            JOIN graph_entity t ON t.entity_id = r.target_id AND t.entity_type = 'entity'
-            WHERE s.name = 'concept:demo:task'
-              AND t.name = 'concept:demo:missing-capability'
-              AND r.relation_type = 'HAS_GAP'
-              AND r.valid_to_unix IS NULL
-          `
-        : `
-            SELECT COUNT(*)::integer AS count
-            FROM graph.relation r
-            JOIN graph.entity s ON s.id = r.source_id AND s.type = 'entity'
-            JOIN graph.entity t ON t.id = r.target_id AND t.type = 'entity'
-            WHERE s.name = 'concept:demo:task'
-              AND t.name = 'concept:demo:missing-capability'
-              AND r.type = 'HAS_GAP'
-              AND r.deprecated_at IS NULL
-          `
+      `
+        SELECT COUNT(*) AS count
+        FROM graph_relation r
+        JOIN graph_entity s ON s.entity_id = r.source_id AND s.entity_type = 'entity'
+        JOIN graph_entity t ON t.entity_id = r.target_id AND t.entity_type = 'entity'
+        WHERE s.name = 'concept:demo:task'
+          AND t.name = 'concept:demo:missing-capability'
+          AND r.relation_type = 'HAS_GAP'
+          AND r.valid_to_unix IS NULL
+      `
     );
 
     expect(first.exitCode).toBe(0);

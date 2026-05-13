@@ -34,35 +34,30 @@ function readStructured<T extends { structuredContent?: unknown }>(
 }
 
 describe("facet vocabulary tools", () => {
-  it("lists declared facets and native registration state", async () => {
+  it("lists declared facets and (no longer-native) registration state", async () => {
     const query = vi
       .fn<DatabaseClient["query"]>()
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([
-        { facet_name: "schema_id" },
-        { facet_name: "record_id" }
-      ]);
+      .mockResolvedValueOnce([]);
     const database = createMockDatabase(query);
 
     const result = await facetCatalogTool.handler(
       {},
-      createToolContext(database, {
-        extensions: { pgFacets: true, pgDgraph: false, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     expect(readStructured(result)).toMatchObject({
       ok: true,
       tool: "ghostcrab_facet_catalog",
       schema_id: "mindbrain:facet-definition",
-      total: expect.any(Number)
+      total: expect.any(Number),
+      native_registration_supported: false
     });
     const catalog = readStructured(result).catalog as Array<Record<string, unknown>>;
     expect(catalog.some((entry) => entry.facet_name === "schema_id")).toBe(true);
     expect(
       catalog.find((entry) => entry.facet_name === "schema_id")
     ).toMatchObject({
-      native_registered: true
+      native_registered: false
     });
   });
 

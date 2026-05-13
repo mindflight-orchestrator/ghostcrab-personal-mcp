@@ -46,7 +46,6 @@ export async function withMcpStdioClient<T>(
       GHOSTCRAB_DATABASE_KIND: "sqlite",
       GHOSTCRAB_MINDBRAIN_URL: mindbrainUrlFromEnv,
       GHOSTCRAB_EMBEDDINGS_MODE: "disabled",
-      MINDBRAIN_NATIVE_EXTENSIONS: "sql-only",
       MCP_TELEMETRY: "0",
       ...(options.serverEnv ?? {})
     },

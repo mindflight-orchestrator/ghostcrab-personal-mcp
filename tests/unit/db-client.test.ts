@@ -21,7 +21,6 @@ const testConfig: GhostcrabConfig = {
   embeddingsMode: "disabled",
   hybridBm25Weight: 0.6,
   hybridVectorWeight: 0.4,
-  nativeExtensionsMode: "auto",
   nodeEnv: "test",
   telemetryEnabled: false,
   telemetryTimeoutMs: 1500,

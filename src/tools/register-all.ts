@@ -6,8 +6,6 @@ import "./dgraph/learn.js";
 import "./dgraph/traverse.js";
 import "./facets/count.js";
 import "./facets/catalog.js";
-import "./facets/geo.js";
-import "./facets/hierarchy.js";
 import "./facets/remember.js";
 import "./facets/schema.js";
 import "./facets/search.js";

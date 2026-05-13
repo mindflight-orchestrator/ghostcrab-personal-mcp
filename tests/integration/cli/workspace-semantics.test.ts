@@ -43,9 +43,7 @@ describe.sequential("Workspace semantics — migration 012 + DDL persist", () =>
   });
 
   it("DDL execute persists inferred semantics to mindbrain.table_semantics", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
     const tableName = `wssem_${RUN_ID.replace(/-/g, "_")}`;
 
     const propose = await ddlProposeTool.handler(

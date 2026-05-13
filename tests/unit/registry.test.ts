@@ -66,17 +66,11 @@ describe("tool registry", () => {
         {
           database: createMockDatabase(),
           embeddings: createMockEmbeddings(),
-          extensions: {
-            pgFacets: false,
-            pgDgraph: false,
-            pgPragma: false
-          },
-          nativeExtensionsMode: "auto",
           retrieval: {
             hybridBm25Weight: 0.6,
             hybridVectorWeight: 0.4
           }
-        }
+        } as unknown as Parameters<NonNullable<typeof tool>["handler"]>[1]
       )
     ).resolves.toEqual(createJsonToolResult({ ok: true }));
   });

@@ -10,7 +10,6 @@ import type {
   TelemetryExecutionMode
 } from "../telemetry/types.js";
 
-export type NativeExtensionsMode = "auto" | "native" | "sql-only";
 export type EmbeddingsMode =
   | "disabled"
   | "fake"
@@ -29,7 +28,6 @@ export interface GhostcrabConfig {
   embeddingsMode: EmbeddingsMode;
   hybridBm25Weight: number;
   hybridVectorWeight: number;
-  nativeExtensionsMode: NativeExtensionsMode;
   nodeEnv: GhostcrabNodeEnv;
   resolvedConfigPath?: string;
   telemetryEnabled: boolean;
@@ -53,7 +51,6 @@ const DEFAULT_HYBRID_BM25_WEIGHT = 0.6;
 const DEFAULT_HYBRID_VECTOR_WEIGHT = 0.4;
 const DEFAULT_ENV_FILE_PATH = ".env";
 const DEFAULT_CONFIG_FILE_PATH = "config.yaml";
-const DEFAULT_NATIVE_EXTENSIONS_MODE = "auto";
 const DEFAULT_NODE_ENV = "development";
 const DEFAULT_TELEMETRY_ENDPOINT = "https://telemetry.ghostcrab.be/v1/ping";
 const DEFAULT_TELEMETRY_TIMEOUT_MS = 1500;
@@ -230,11 +227,6 @@ export function resolveGhostcrabConfig(
     ),
     hybridBm25Weight,
     hybridVectorWeight,
-    nativeExtensionsMode: parseNativeExtensionsMode(
-      env.MINDBRAIN_NATIVE_EXTENSIONS ??
-        fileEnv.MINDBRAIN_NATIVE_EXTENSIONS ??
-        DEFAULT_NATIVE_EXTENSIONS_MODE
-    ),
     nodeEnv: parseNodeEnv(env.NODE_ENV ?? fileEnv.NODE_ENV ?? DEFAULT_NODE_ENV),
     resolvedConfigPath: fileConfig ? configFilePath : undefined,
     telemetryEnabled,
@@ -283,16 +275,6 @@ function parseEmbeddingsMode(value: string): EmbeddingsMode {
 
   throw new Error(
     "GHOSTCRAB_EMBEDDINGS_MODE must be one of disabled, null, fake, fixture, openrouter."
-  );
-}
-
-function parseNativeExtensionsMode(value: string): NativeExtensionsMode {
-  if (value === "auto" || value === "native" || value === "sql-only") {
-    return value;
-  }
-
-  throw new Error(
-    "MINDBRAIN_NATIVE_EXTENSIONS must be one of auto, native, sql-only."
   );
 }
 

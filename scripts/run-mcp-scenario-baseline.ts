@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import { ensureBootstrapData } from "../src/bootstrap/seed.ts";
-import { resolveGhostcrabConfig, type NativeExtensionsMode } from "../src/config/env.ts";
+import { resolveGhostcrabConfig } from "../src/config/env.ts";
 import { createDatabaseClient } from "../src/db/client.ts";
 import { runMigrations } from "../src/db/migrate.ts";
 import {
@@ -11,19 +11,12 @@ import {
   type McpScenarioId
 } from "../tests/helpers/mcp-scenarios.ts";
 
-const requestedMode = (process.argv[2] as NativeExtensionsMode | undefined) ?? "auto";
-const requestedScenario = process.argv[3] as McpScenarioId | undefined;
+const requestedScenario = process.argv[2] as McpScenarioId | undefined;
 const outputPath = resolve(
   process.cwd(),
-  process.argv[4] ??
-    `artifacts/mcp-agent-validation/baseline-${requestedMode}${requestedScenario ? `-${requestedScenario}` : ""}.json`
+  process.argv[3] ??
+    `artifacts/mcp-agent-validation/baseline${requestedScenario ? `-${requestedScenario}` : ""}.json`
 );
-
-if (!["sql-only", "auto", "native"].includes(requestedMode)) {
-  throw new Error(
-    `Invalid runtime mode ${requestedMode}. Expected one of sql-only, auto, native.`
-  );
-}
 
 if (requestedScenario && !MCP_SCENARIO_IDS.includes(requestedScenario)) {
   throw new Error(`Unknown scenario ${requestedScenario}.`);
@@ -45,7 +38,7 @@ try {
   const artifacts = [];
   for (const scenarioId of scenarioIds) {
     artifacts.push(
-      await executeScenario(database, scenarioId, requestedMode, `baseline-${scenarioId}`)
+      await executeScenario(database, scenarioId, `baseline-${scenarioId}`)
     );
   }
 
@@ -55,7 +48,6 @@ try {
     JSON.stringify(
       {
         generated_at: new Date().toISOString(),
-        runtime_mode: requestedMode,
         scenarios: artifacts
       },
       null,

@@ -72,10 +72,8 @@ function makeContext(queryImpl: LegacyImpl): ToolExecutionContext {
       transaction: vi.fn()
     } as unknown as ToolExecutionContext["database"],
     embeddings: {} as ToolExecutionContext["embeddings"],
-    extensions: { pgFacets: false, pgDgraph: false, pgPragma: false },
-    nativeExtensionsMode: "sql-only",
     retrieval: { hybridBm25Weight: 0.5, hybridVectorWeight: 0.5 }
-  };
+  } as unknown as ToolExecutionContext;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

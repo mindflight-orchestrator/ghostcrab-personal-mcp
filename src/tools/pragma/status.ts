@@ -176,17 +176,10 @@ export const statusTool: ToolHandler = {
       runtime: {
         database_kind: "sqlite",
         sqlite_backing_store: true,
-        native_extensions_mode: context.nativeExtensionsMode,
         embeddings: embeddingRuntime,
         retrieval: {
           hybrid_bm25_weight: context.retrieval.hybridBm25Weight,
           hybrid_vector_weight: context.retrieval.hybridVectorWeight
-        },
-        extensions_detected: {
-          pg_facets: false,
-          pg_dgraph: false,
-          pg_pragma: false,
-          pg_mindbrain: true
         },
         native_readiness: sqliteNativeReadiness,
         capabilities: sqliteCapabilities,

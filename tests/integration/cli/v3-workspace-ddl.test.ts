@@ -202,9 +202,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   // ─────────────────────────────────────────────────────────────────────────
 
   it("ghostcrab_workspace_create: creates a new workspace", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
     const wsName = wsId("wc");
     const result = await workspaceCreateTool.handler(
       { id: wsName, label: "V3 Integration Test WS", created_by: "test" },
@@ -224,9 +222,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   });
 
   it("ghostcrab_workspace_create: idempotent on re-creation", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
     const wsName = wsId("wi");
     await workspaceCreateTool.handler(
       { id: wsName, label: "Idempotent test" },
@@ -243,9 +239,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   });
 
   it("ghostcrab_workspace_list: lists workspace with stats", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
     const result = await workspaceListTool.handler({ status: "active" }, ctx);
     const data = result.structuredContent as Record<string, unknown>;
     expect(data.ok).toBe(true);
@@ -261,9 +255,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   // ─────────────────────────────────────────────────────────────────────────
 
   it("ghostcrab_ddl_propose: stores a safe migration as pending", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
     const result = await ddlProposeTool.handler(
       {
         workspace_id: "default",
@@ -291,9 +283,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   });
 
   it("ghostcrab_ddl_propose: rejects DROP TABLE", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
     const result = await ddlProposeTool.handler(
       {
         workspace_id: "default",
@@ -307,9 +297,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   });
 
   it("full DDL chain: propose → CLI approve → execute → table exists", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
     const tableName = `v3_chain_${RUN_ID.replace(/-/g, "_")}`;
 
     // 1. Propose
@@ -377,9 +365,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   });
 
   it("DDL lifecycle with sync_spec: generates trigger preview in proposal", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
     const tableName = `v3_trigger_${RUN_ID.replace(/-/g, "_")}`;
 
     const proposeResult = await ddlProposeTool.handler(
@@ -417,9 +403,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   });
 
   it("CLI ddl-approve then ddl-execute via runCliCapture", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
     const tableName = `v3_cli_${RUN_ID.replace(/-/g, "_")}`;
 
     // 1. Propose via tool
@@ -476,30 +460,4 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
     );
   });
 
-  it("ghostcrab_query_geo: returns structured error (PostGIS optional) on vanilla postgres", async () => {
-    if (harness.database.kind === "sqlite") {
-      return;
-    }
-
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
-    const { geoQueryTool } = await import("../../../src/tools/facets/geo.js");
-    const result = await geoQueryTool.handler(
-      { mode: "distance", lat: 48.8566, lon: 2.3522, radius_m: 1000 },
-      ctx
-    );
-
-    // geo_entities does not exist in vanilla postgres:17 (no PostGIS)
-    // If it does exist (e.g. PostGIS is installed), the query may succeed — that's fine too.
-    if (result.isError) {
-      const data = result.structuredContent as Record<string, unknown>;
-      const err = data.error as Record<string, unknown>;
-      expect(err.code).toBe("geo_feature_not_available");
-      expect(String(err.message)).toContain("PostGIS");
-    } else {
-      // PostGIS is available in this env — graceful pass
-      expect((result.structuredContent as Record<string, unknown>).ok).toBe(true);
-    }
-  });
 });

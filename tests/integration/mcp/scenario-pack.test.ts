@@ -56,7 +56,7 @@ describe.sequential("MCP scenario pack baseline", () => {
     ] as const;
 
     for (const scenarioId of scenarios) {
-      const artifact = await executeScenario(database, scenarioId, "auto");
+      const artifact = await executeScenario(database, scenarioId);
 
       expect(artifact.scenario_id).toBe(scenarioId);
       expect(artifact.agent).toBe("baseline-mcp");

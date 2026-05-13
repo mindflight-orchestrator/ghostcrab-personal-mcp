@@ -17,10 +17,6 @@ import {
   facetRegisterTool,
   facetValidateTool
 } from "../../src/tools/facets/catalog.js";
-import {
-  hierarchyTool,
-  HierarchyInput
-} from "../../src/tools/facets/hierarchy.js";
 import { rememberTool, RememberInput } from "../../src/tools/facets/remember.js";
 import { searchTool, SearchInput } from "../../src/tools/facets/search.js";
 import {
@@ -669,27 +665,6 @@ describe("MCP inputSchema contract (drift guard)", () => {
       expect(ONBOARDING_SCHEMA_IDS).toContain("ghostcrab:projection-recipe");
       expect(ONBOARDING_SCHEMA_IDS).toContain("ghostcrab:signal-pattern");
       expect(ONBOARDING_SCHEMA_IDS).toHaveLength(4);
-    });
-  });
-
-  describe("ghostcrab_facet_tree", () => {
-    const schema = hierarchyTool.definition.inputSchema as {
-      properties: {
-        top_n: { minimum?: number; maximum?: number };
-        facet_names: { type?: string };
-      };
-    };
-
-    it("documents top_n bounds", () => {
-      expect(schema.properties.top_n.minimum).toBe(1);
-      expect(schema.properties.top_n.maximum).toBe(50);
-      expect(schema.properties.facet_names.type).toBe("array");
-    });
-
-    it("Zod applies default top_n", () => {
-      const parsed = HierarchyInput.safeParse({});
-      expect(parsed.success).toBe(true);
-      expect(parsed.success ? parsed.data.top_n : 0).toBe(5);
     });
   });
 
