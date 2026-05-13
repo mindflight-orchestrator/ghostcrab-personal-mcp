@@ -30,7 +30,7 @@ export const statusTool: ToolHandler = {
     const input = StatusInput.parse(args);
     const embeddingRuntime = context.embeddings.getStatus();
 
-    const sqliteNativeReadiness = {
+    const sqliteReadiness = {
       facets: {
         registered: false,
         count: false,
@@ -71,38 +71,38 @@ export const statusTool: ToolHandler = {
       }
     } as const;
     const sqliteCapabilities = {
-      facets_native_count: sqliteNativeReadiness.facets.count,
-      facets_native_bm25: sqliteNativeReadiness.facets.bm25,
-      graph_native_traversal: sqliteNativeReadiness.dgraph.entityNeighborhood,
-      graph_marketplace_search: sqliteNativeReadiness.dgraph.marketplace,
-      graph_confidence_decay: sqliteNativeReadiness.dgraph.confidenceDecay,
-      pragma_native_pack: sqliteNativeReadiness.pragma.pack,
-      mb_ontology_available: sqliteNativeReadiness.ontology.available,
+      facets_count: sqliteReadiness.facets.count,
+      facets_bm25: sqliteReadiness.facets.bm25,
+      graph_traversal: sqliteReadiness.dgraph.entityNeighborhood,
+      graph_marketplace_search: sqliteReadiness.dgraph.marketplace,
+      graph_confidence_decay: sqliteReadiness.dgraph.confidenceDecay,
+      pragma_pack: sqliteReadiness.pragma.pack,
+      mb_ontology_available: sqliteReadiness.ontology.available,
       mb_ontology: {
-        resolve_workspace: sqliteNativeReadiness.ontology.resolveWorkspace,
-        coverage_by_domain: sqliteNativeReadiness.ontology.coverageByDomain,
+        resolve_workspace: sqliteReadiness.ontology.resolveWorkspace,
+        coverage_by_domain: sqliteReadiness.ontology.coverageByDomain,
         marketplace_by_domain:
-          sqliteNativeReadiness.ontology.marketplaceByDomain,
-        export_workspace_model: sqliteNativeReadiness.ontology.exportModel,
-        validate_ddl_proposal: sqliteNativeReadiness.ontology.validateDdl,
-        register_entity_type: sqliteNativeReadiness.ontology.registerEntityType,
+          sqliteReadiness.ontology.marketplaceByDomain,
+        export_workspace_model: sqliteReadiness.ontology.exportModel,
+        validate_ddl_proposal: sqliteReadiness.ontology.validateDdl,
+        register_entity_type: sqliteReadiness.ontology.registerEntityType,
         register_relation_type:
-          sqliteNativeReadiness.ontology.registerRelationType,
-        compare_workspaces: sqliteNativeReadiness.ontology.compareWorkspaces,
-        bridge_workspaces: sqliteNativeReadiness.ontology.bridgeWorkspaces,
-        find_entity_bridges: sqliteNativeReadiness.ontology.findEntityBridges,
-        detect_conflicts: sqliteNativeReadiness.ontology.detectConflicts,
-        federated_search: sqliteNativeReadiness.ontology.federatedSearch,
+          sqliteReadiness.ontology.registerRelationType,
+        compare_workspaces: sqliteReadiness.ontology.compareWorkspaces,
+        bridge_workspaces: sqliteReadiness.ontology.bridgeWorkspaces,
+        find_entity_bridges: sqliteReadiness.ontology.findEntityBridges,
+        detect_conflicts: sqliteReadiness.ontology.detectConflicts,
+        federated_search: sqliteReadiness.ontology.federatedSearch,
         ontology_coverage_ref:
-          sqliteNativeReadiness.ontology.computeOntologyCoverage,
+          sqliteReadiness.ontology.computeOntologyCoverage,
         ingest_knowledge_chunk:
-          sqliteNativeReadiness.ontology.ingestKnowledgeChunk,
+          sqliteReadiness.ontology.ingestKnowledgeChunk,
         ingest_knowledge_batch:
-          sqliteNativeReadiness.ontology.ingestKnowledgeBatch,
+          sqliteReadiness.ontology.ingestKnowledgeBatch,
         create_project_template:
-          sqliteNativeReadiness.ontology.createProjectTemplate,
-        instantiate_project: sqliteNativeReadiness.ontology.instantiateProject,
-        checkpoint_project: sqliteNativeReadiness.ontology.checkpointProject
+          sqliteReadiness.ontology.createProjectTemplate,
+        instantiate_project: sqliteReadiness.ontology.instantiateProject,
+        checkpoint_project: sqliteReadiness.ontology.checkpointProject
       }
     } as const;
     const [stateRow] = await context.database.query<{
@@ -181,12 +181,12 @@ export const statusTool: ToolHandler = {
           hybrid_bm25_weight: context.retrieval.hybridBm25Weight,
           hybrid_vector_weight: context.retrieval.hybridVectorWeight
         },
-        native_readiness: sqliteNativeReadiness,
+        sqlite_readiness: sqliteReadiness,
         capabilities: sqliteCapabilities,
         backends: {
           facets: "sql",
-          graph: "native",
-          pragma: "native"
+          graph: "mindbrain",
+          pragma: "mindbrain"
         }
       },
       directives: [],

@@ -58,10 +58,12 @@ describe.sequential("MCP server contract", () => {
       expect(payload.tool).toBe("ghostcrab_status");
       expect(typeof payload.surface_version).toBe("string");
       expect(payload.runtime).toMatchObject({
-        native_extensions_mode: expect.any(String),
-        extensions_detected: expect.any(Object),
+        database_kind: "sqlite",
+        sqlite_backing_store: true,
         capabilities: expect.any(Object)
       });
+      expect(payload.runtime).not.toHaveProperty("native_extensions_mode");
+      expect(payload.runtime).not.toHaveProperty("extensions_detected");
     });
   });
 

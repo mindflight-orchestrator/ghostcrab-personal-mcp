@@ -9,12 +9,7 @@ import {
 } from "../registry.js";
 import { WorkspaceIdSchema } from "../../types/workspace.js";
 import { SyncFieldSpecSchema } from "../../types/facets.js";
-import {
-  type GeneratedTriggerSQL,
-  generateSyncTrigger,
-  validateGeneratedSyncTriggerSql,
-  validateProposedSql
-} from "../../db/trigger-generator.js";
+import { validateProposedSql } from "../../db/trigger-generator.js";
 import {
   inferBasicSemantics,
   SemanticProposalSchema,
@@ -151,7 +146,7 @@ export const ddlProposeTool: ToolHandler = {
   definition: {
     name: "ghostcrab_ddl_propose",
     description:
-      "Propose a DDL migration for human review. The SQL is stored in pending_migrations with status='pending'. DROP and TRUNCATE statements are rejected. Provide sync_spec to auto-generate a trigger preview.",
+      "Propose a DDL migration for human review. The SQL is stored in pending_migrations with status='pending'. DROP and TRUNCATE statements are rejected.",
     inputSchema: {
       type: "object",
       required: ["workspace_id", "sql"],
@@ -176,7 +171,7 @@ export const ddlProposeTool: ToolHandler = {
         sync_spec: {
           type: "object",
           description:
-            "Optional Layer1→Layer2 sync spec. If provided, a trigger SQL preview is generated and stored for review.",
+            "Unsupported in SQLite-only GhostCrab. Kept in the schema only to return a clear compatibility error for old callers.",
           required: ["source_table", "fields"],
           properties: {
             source_table: { type: "string" },
@@ -237,30 +232,15 @@ export const ddlProposeTool: ToolHandler = {
       );
     }
 
-    let previewTrigger: string | null = null;
-    let triggerSummary: string | null = null;
-    let syncSpecJson: Record<string, unknown> | null = null;
+    const previewTrigger: string | null = null;
+    const triggerSummary: string | null = null;
 
     if (input.sync_spec) {
-      const generated: GeneratedTriggerSQL = generateSyncTrigger({
-        sourceTable: input.sync_spec.source_table,
-        workspaceId: input.workspace_id,
-        fields: input.sync_spec.fields
-      });
-      const triggerViolation = validateGeneratedSyncTriggerSql(generated.sql);
-      if (triggerViolation) {
-        return createToolErrorResult(
-          "ghostcrab_ddl_propose",
-          `Generated trigger blocked: ${triggerViolation}`,
-          "blocked_ddl_pattern"
-        );
-      }
-      previewTrigger = generated.sql;
-      triggerSummary = generated.summary;
-      syncSpecJson = {
-        source_table: input.sync_spec.source_table,
-        fields: input.sync_spec.fields
-      };
+      return createToolErrorResult(
+        "ghostcrab_ddl_propose",
+        "sync_spec trigger previews are not supported in SQLite-only GhostCrab. Propose the table DDL without sync_spec and map data through the MindBrain import path.",
+        "sync_spec_not_supported"
+      );
     }
 
     const hasUserSemantics =
@@ -276,12 +256,7 @@ export const ddlProposeTool: ToolHandler = {
         })
       : inferBasicSemantics(
           input.sql,
-          input.sync_spec
-            ? {
-                source_table: input.sync_spec.source_table,
-                fields: input.sync_spec.fields
-              }
-            : null
+          null
         );
 
     const semanticSpecJson = JSON.stringify(semanticProposal);
@@ -296,7 +271,7 @@ export const ddlProposeTool: ToolHandler = {
         migrationId,
         input.workspace_id,
         input.sql,
-        syncSpecJson ? JSON.stringify(syncSpecJson) : null,
+        null,
         input.rationale ?? null,
         previewTrigger,
         input.proposed_by ?? null,
@@ -407,7 +382,7 @@ export const ddlExecuteTool: ToolHandler = {
   definition: {
     name: "ghostcrab_ddl_execute",
     description:
-      "Execute an approved DDL migration. The migration must have status='approved' (set via CLI ddl-approve). Executes the DDL + trigger preview atomically in a transaction.",
+      "Execute an approved DDL migration. The migration must have status='approved' (set via CLI ddl-approve). Executes the DDL atomically in a transaction.",
     inputSchema: {
       type: "object",
       required: ["migration_id"],
@@ -426,11 +401,10 @@ export const ddlExecuteTool: ToolHandler = {
       id: string;
       workspace_id: string;
       sql: string;
-      preview_trigger: string | null;
       status: string;
       semantic_spec: unknown | null;
     }>(
-      `SELECT id, workspace_id, sql, preview_trigger, status, semantic_spec
+      `SELECT id, workspace_id, sql, status, semantic_spec
        FROM pending_migrations
        WHERE id = ?`,
       [input.migration_id]
@@ -456,19 +430,11 @@ export const ddlExecuteTool: ToolHandler = {
     let semanticsApplied: Record<string, number> | undefined;
     let semanticsError: string | undefined;
 
-    let triggerApplied = false;
+    const triggerApplied = false;
 
     try {
       await context.database.transaction(async (tx) => {
         await tx.query(migration.sql);
-
-        if (
-          migration.preview_trigger &&
-          isExecutableSqlitePreview(migration.preview_trigger)
-        ) {
-          await tx.query(migration.preview_trigger);
-          triggerApplied = true;
-        }
 
         await tx.query(
           `UPDATE pending_migrations
@@ -519,10 +485,6 @@ export const ddlExecuteTool: ToolHandler = {
 registerTool(ddlProposeTool);
 registerTool(ddlListPendingTool);
 registerTool(ddlExecuteTool);
-
-function isExecutableSqlitePreview(sql: string): boolean {
-  return !/\bLANGUAGE\s+plpgsql\b/i.test(sql);
-}
 
 function parseSemanticSpec(value: unknown): unknown {
   if (typeof value !== "string") {

@@ -4,7 +4,7 @@
  *
  * Loads a portable demo profile (JSONL: profile / remember / learn_node /
  * learn_edge / projection lines) into the database reached via env
- * (MindBrain / DATABASE_URL). Uses the same pipeline as `pnpm run demo:load`.
+ * (MindBrain backend). Uses the same pipeline as `pnpm run demo:load`.
  */
 
 import { existsSync } from "node:fs";

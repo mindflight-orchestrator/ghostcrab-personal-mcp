@@ -3,8 +3,6 @@ import assert from "node:assert/strict";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 
-const databaseUrl =
-  process.env.DATABASE_URL ?? "postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab";
 const defaultTimeoutMs = Number.parseInt(
   process.env.MCP_SMOKE_TIMEOUT_MS ?? "10000",
   10
@@ -17,7 +15,8 @@ export async function withSmokeClient(clientName, runScenario, options = {}) {
     cwd: process.cwd(),
     env: {
       ...process.env,
-      DATABASE_URL: databaseUrl,
+      GHOSTCRAB_EMBEDDINGS_MODE:
+        process.env.GHOSTCRAB_EMBEDDINGS_MODE ?? "disabled",
       ...(options.serverEnv ?? {})
     },
     stderr: "pipe"

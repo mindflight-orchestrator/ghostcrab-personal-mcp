@@ -4,7 +4,6 @@ import { dirname, resolve } from "node:path";
 import { ensureBootstrapData } from "../src/bootstrap/seed.ts";
 import { resolveGhostcrabConfig } from "../src/config/env.ts";
 import { createDatabaseClient } from "../src/db/client.ts";
-import { runMigrations } from "../src/db/migrate.ts";
 import {
   MCP_SCENARIO_IDS,
   executeScenario,
@@ -28,10 +27,9 @@ const database = createDatabaseClient(config);
 try {
   const reachable = await database.ping();
   if (!reachable) {
-    throw new Error(`Integration database is unreachable at ${config.databaseUrl}.`);
+    throw new Error(`Integration MindBrain backend is unreachable at ${config.mindbrainUrl}.`);
   }
 
-  await runMigrations(database);
   await ensureBootstrapData(database);
 
   const scenarioIds = requestedScenario ? [requestedScenario] : [...MCP_SCENARIO_IDS];

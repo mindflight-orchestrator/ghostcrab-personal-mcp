@@ -51,10 +51,7 @@ vi.mock("../../src/bootstrap/seed.js", () => ({
 }));
 
 vi.mock("../../src/config/env.js", () => ({
-  redactDatabaseUrl: vi.fn(() => "postgres://ghostcrab:***@localhost:5432/ghostcrab"),
   resolveGhostcrabConfig: vi.fn(() => ({
-    databaseKind: "sqlite",
-    databaseUrl: "postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab",
     embeddingApiKey: undefined,
     embeddingBaseUrl: undefined,
     embeddingDimensions: 1536,
@@ -64,8 +61,8 @@ vi.mock("../../src/config/env.js", () => ({
     embeddingsMode: "disabled",
     hybridBm25Weight: 0.6,
     hybridVectorWeight: 0.4,
+    mindbrainUrl: "http://127.0.0.1:8091",
     nodeEnv: "test",
-    pgPoolMax: 10,
     resolvedConfigPath: undefined,
     sqlitePath: "/tmp/ghostcrab-test.sqlite",
     telemetryEnabled: true,

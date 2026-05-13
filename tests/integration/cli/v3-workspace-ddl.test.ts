@@ -7,10 +7,10 @@
  *   ghostcrab_workspace_list  → workspace visible with stats
  *   ghostcrab_ddl_propose     → migration stored as pending
  *   CLI ddl-approve           → migration transitions to approved
- *   ghostcrab_ddl_execute     → migration executed (CREATE TABLE + trigger)
+ *   ghostcrab_ddl_execute     → migration executed (CREATE TABLE)
  *   source_ref contract       → partial unique index accepts/rejects correctly
  *
- * These tests require a real PostgreSQL database (DATABASE_URL env var).
+ * These tests require a reachable MindBrain backend (GHOSTCRAB_MINDBRAIN_URL env var).
  * They run in the same job as other integration tests (tests/integration/).
  */
 
@@ -34,7 +34,6 @@ import {
   ddlListPendingTool
 } from "../../../src/tools/workspace/ddl.js";
 import { createToolContext } from "../../helpers/tool-context.js";
-import { resolveGhostcrabConfig } from "../../../src/config/env.js";
 
 const harness = createIntegrationHarness();
 
@@ -74,8 +73,6 @@ async function cleanupV3(db: typeof harness.database): Promise<void> {
 }
 
 describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () => {
-  const config = resolveGhostcrabConfig(process.env);
-
   beforeAll(async () => {
     await cleanupV3(harness.database);
   });
@@ -364,7 +361,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
     );
   });
 
-  it("DDL lifecycle with sync_spec: generates trigger preview in proposal", async () => {
+  it("DDL lifecycle with sync_spec: rejects trigger preview generation", async () => {
     const ctx = createToolContext(harness.database);
     const tableName = `v3_trigger_${RUN_ID.replace(/-/g, "_")}`;
 
@@ -374,7 +371,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
         sql: `CREATE TABLE IF NOT EXISTS ${tableName} (id INTEGER PRIMARY KEY, title TEXT)`,
         rationale: "V3 trigger preview test",
         sync_spec: {
-          source_table: `public.${tableName}`,
+          source_table: tableName,
           fields: [
             { column_name: "title", facet_key: "title", index_in_bm25: true, facet_type: "term" }
           ]
@@ -382,23 +379,10 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
       },
       ctx
     );
-    expect(proposeResult.isError).toBeFalsy();
+    expect(proposeResult.isError).toBe(true);
     const data = proposeResult.structuredContent as Record<string, unknown>;
-    expect(data.has_trigger_preview).toBe(true);
-    expect(typeof data.trigger_summary).toBe("string");
-    expect(String(data.trigger_summary)).toContain(tableName);
-
-    // Verify preview_trigger is stored in DB
-    const rows = await harness.database.query<{ preview_trigger: string | null }>(
-      `SELECT preview_trigger FROM pending_migrations WHERE id = $1`,
-      [data.migration_id]
-    );
-    expect(rows[0]?.preview_trigger).not.toBeNull();
-    expect(rows[0]?.preview_trigger).toContain("mindbrain_sync");
-
-    await harness.database.query(
-      `DELETE FROM pending_migrations WHERE id = $1`,
-      [data.migration_id]
+    expect((data.error as Record<string, unknown>).code).toBe(
+      "sync_spec_not_supported"
     );
   });
 

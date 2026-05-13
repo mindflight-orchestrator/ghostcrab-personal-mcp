@@ -43,7 +43,6 @@ export async function withMcpStdioClient<T>(
     cwd: options.cwd ?? process.cwd(),
     env: {
       ...process.env,
-      GHOSTCRAB_DATABASE_KIND: "sqlite",
       GHOSTCRAB_MINDBRAIN_URL: mindbrainUrlFromEnv,
       GHOSTCRAB_EMBEDDINGS_MODE: "disabled",
       MCP_TELEMETRY: "0",

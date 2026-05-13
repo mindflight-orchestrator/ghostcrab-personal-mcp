@@ -1,6 +1,6 @@
 /**
  * Workspace semantics (migration 012): mindbrain semantic tables + DDL persist + export.
- * Requires DATABASE_URL and migrations through 012.
+ * Requires a reachable MindBrain backend and SQLite schema through 012.
  */
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -13,14 +13,11 @@ import {
 import { ddlExecuteTool, ddlProposeTool } from "../../../src/tools/workspace/ddl.js";
 import { workspaceExportModelTool } from "../../../src/tools/workspace/export.js";
 import { createToolContext } from "../../helpers/tool-context.js";
-import { resolveGhostcrabConfig } from "../../../src/config/env.js";
 
 const harness = createIntegrationHarness();
 const RUN_ID = randomUUID().slice(0, 8);
 
 describe.sequential("Workspace semantics — migration 012 + DDL persist", () => {
-  const config = resolveGhostcrabConfig(process.env);
-
   beforeAll(async () => {
     /* harness runs migrations */
   });
