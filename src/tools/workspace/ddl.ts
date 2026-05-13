@@ -29,6 +29,7 @@ import { persistSemanticProposal } from "./semantic-persist.js";
 const TableSemanticInput = z
   .object({
     table_schema: z.string().min(1).default("public"),
+    schema_name: z.string().min(1).optional(),
     table_name: z.string().min(1),
     business_role: z.string().optional(),
     generation_strategy: z.string().optional().default("unknown"),
@@ -48,6 +49,8 @@ const TableSemanticInput = z
   .strict()
   .transform((value) => ({
     ...value,
+    table_schema: value.schema_name ?? value.table_schema,
+    schema_name: undefined,
     entity_family: value.entity_family ?? undefined,
     volume_driver: value.volume_driver ?? undefined,
     primary_time_column: value.primary_time_column ?? undefined,
@@ -254,10 +257,7 @@ export const ddlProposeTool: ToolHandler = {
           column_semantics: input.column_semantics ?? [],
           relation_semantics: input.relation_semantics ?? []
         })
-      : inferBasicSemantics(
-          input.sql,
-          null
-        );
+      : inferBasicSemantics(input.sql, null);
 
     const semanticSpecJson = JSON.stringify(semanticProposal);
 
@@ -382,7 +382,7 @@ export const ddlExecuteTool: ToolHandler = {
   definition: {
     name: "ghostcrab_ddl_execute",
     description:
-      "Execute an approved DDL migration. The migration must have status='approved' (set via CLI ddl-approve). Executes the DDL atomically in a transaction.",
+      "Execute an approved DDL migration. The migration must have status='approved' (set via CLI ddl-approve).",
     inputSchema: {
       type: "object",
       required: ["migration_id"],
@@ -427,46 +427,44 @@ export const ddlExecuteTool: ToolHandler = {
       );
     }
 
+    const triggerApplied = false;
     let semanticsApplied: Record<string, number> | undefined;
     let semanticsError: string | undefined;
-
-    const triggerApplied = false;
 
     try {
       await context.database.transaction(async (tx) => {
         await tx.query(migration.sql);
-
         await tx.query(
           `UPDATE pending_migrations
            SET status = 'executed', executed_at = CURRENT_TIMESTAMP
            WHERE id = ?`,
           [input.migration_id]
         );
+
+        if (migration.semantic_spec != null) {
+          const persist = await persistSemanticProposal(
+            tx,
+            migration.workspace_id,
+            parseSemanticSpec(migration.semantic_spec)
+          );
+          if (persist.applied && persist.counts) {
+            semanticsApplied = persist.counts;
+          } else if (persist.error) {
+            semanticsError = persist.error;
+            throw new Error(`semantic persistence failed: ${persist.error}`);
+          }
+        }
       });
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      semanticsError = message.startsWith("semantic persistence failed:")
+        ? message.replace(/^semantic persistence failed:\s*/, "")
+        : semanticsError;
       return createToolErrorResult(
         "ghostcrab_ddl_execute",
-        `DDL execution failed: ${error instanceof Error ? error.message : String(error)}`,
+        `DDL execution failed: ${message}`,
         "ddl_execution_failed"
       );
-    }
-
-    if (migration.semantic_spec != null) {
-      try {
-        const persist = await persistSemanticProposal(
-          context.database,
-          migration.workspace_id,
-          parseSemanticSpec(migration.semantic_spec)
-        );
-        if (persist.applied && persist.counts) {
-          semanticsApplied = persist.counts;
-        } else if (persist.error) {
-          semanticsError = persist.error;
-        }
-      } catch (semErr) {
-        semanticsError =
-          semErr instanceof Error ? semErr.message : String(semErr);
-      }
     }
 
     return createToolSuccessResult("ghostcrab_ddl_execute", {

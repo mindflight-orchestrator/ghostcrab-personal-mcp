@@ -19,6 +19,7 @@ export type EmbeddingsMode =
 export type GhostcrabNodeEnv = "development" | "test" | "production";
 
 export interface GhostcrabConfig {
+  bootstrapSeedEnabled: boolean;
   embeddingApiKey?: string;
   embeddingBaseUrl?: string;
   embeddingDimensions: number;
@@ -35,6 +36,7 @@ export interface GhostcrabConfig {
   telemetryTimeoutMs: number;
   telemetryStateDir: string;
   telemetryDebug: boolean;
+  mindbrainHttpTimeoutMs: number;
   mindbrainUrl: string;
   sqlitePath: string;
   agentHost?: TelemetryAgentHost;
@@ -56,6 +58,8 @@ const DEFAULT_TELEMETRY_ENDPOINT = "https://telemetry.ghostcrab.be/v1/ping";
 const DEFAULT_TELEMETRY_TIMEOUT_MS = 1500;
 const DEFAULT_TELEMETRY_STATE_DIR = path.join(os.homedir(), ".ghostcrab");
 const DEFAULT_MINDBRAIN_URL = "http://127.0.0.1:8091";
+const DEFAULT_MINDBRAIN_HTTP_TIMEOUT_MS = 30_000;
+const DEFAULT_BOOTSTRAP_SEED_ENABLED = true;
 
 const TELEMETRY_AGENT_HOSTS: readonly TelemetryAgentHost[] = [
   "claude-code",
@@ -186,6 +190,11 @@ export function resolveGhostcrabConfig(
   );
 
   return {
+    bootstrapSeedEnabled: parseBooleanFlag(
+      mergedEnv.GHOSTCRAB_BOOTSTRAP_SEED,
+      DEFAULT_BOOTSTRAP_SEED_ENABLED,
+      "GHOSTCRAB_BOOTSTRAP_SEED"
+    ),
     embeddingApiKey:
       env.GHOSTCRAB_EMBEDDINGS_API_KEY ??
       readInterpolatedString(embeddingsFromFile?.api_key, mergedEnv) ??
@@ -234,6 +243,12 @@ export function resolveGhostcrabConfig(
     telemetryTimeoutMs,
     telemetryStateDir,
     telemetryDebug,
+    mindbrainHttpTimeoutMs: parsePositiveInteger(
+      env.GHOSTCRAB_MINDBRAIN_HTTP_TIMEOUT_MS ??
+        fileEnv.GHOSTCRAB_MINDBRAIN_HTTP_TIMEOUT_MS,
+      DEFAULT_MINDBRAIN_HTTP_TIMEOUT_MS,
+      "GHOSTCRAB_MINDBRAIN_HTTP_TIMEOUT_MS"
+    ),
     mindbrainUrl:
       env.GHOSTCRAB_MINDBRAIN_URL ??
       fileEnv.GHOSTCRAB_MINDBRAIN_URL ??
@@ -246,6 +261,28 @@ export function resolveGhostcrabConfig(
     agentHostSource,
     executionMode
   };
+}
+
+function parseBooleanFlag(
+  value: string | undefined,
+  defaultValue: boolean,
+  name: string
+): boolean {
+  if (value === undefined || value === "") {
+    return defaultValue;
+  }
+
+  if (value === "1" || value === "true" || value === "yes" || value === "on") {
+    return true;
+  }
+
+  if (value === "0" || value === "false" || value === "no" || value === "off") {
+    return false;
+  }
+
+  throw new Error(
+    `${name} must be a boolean flag: 1/0, true/false, yes/no, or on/off.`
+  );
 }
 
 function parseNodeEnv(value: string): GhostcrabNodeEnv {

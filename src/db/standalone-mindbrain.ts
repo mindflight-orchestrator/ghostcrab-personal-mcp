@@ -21,6 +21,7 @@ export interface MindbrainSqlSessionCloseResponse {
 
 export interface StandaloneTraverseParams {
   mindbrainUrl: string;
+  timeoutMs?: number;
   start: string;
   direction: "outbound" | "inbound";
   edgeLabels: string[];
@@ -45,17 +46,20 @@ export interface StandaloneTraverseResult {
 
 export interface StandaloneWorkspaceExportParams {
   mindbrainUrl: string;
+  timeoutMs?: number;
   workspaceId: string;
 }
 
 export interface StandaloneCoverageParams {
   mindbrainUrl: string;
+  timeoutMs?: number;
   domainOrWorkspace: string;
   entityTypes?: string[];
 }
 
 export interface StandalonePackParams {
   mindbrainUrl: string;
+  timeoutMs?: number;
   userId: string;
   query: string;
   scope?: string;
@@ -64,6 +68,7 @@ export interface StandalonePackParams {
 
 export interface StandaloneGhostcrabPackParams {
   mindbrainUrl: string;
+  timeoutMs?: number;
   agentId: string;
   query: string;
   scope?: string;
@@ -81,6 +86,7 @@ export interface StandaloneGhostcrabPackRow {
 
 export interface StandaloneGhostcrabProjectionGetParams {
   mindbrainUrl: string;
+  timeoutMs?: number;
   workspaceId: string;
   collectionId?: string;
   projectionId: string;
@@ -128,6 +134,7 @@ export interface StandaloneGhostcrabProjectionGetResponse {
 
 export interface StandaloneGhostcrabGraphSearchParams {
   mindbrainUrl: string;
+  timeoutMs?: number;
   workspaceId: string;
   collectionId?: string;
   query: string;
@@ -157,6 +164,7 @@ export interface StandaloneGhostcrabGraphSearchResponse {
 
 export interface StandaloneMindbrainSqlParams {
   mindbrainUrl: string;
+  timeoutMs?: number;
   sql: string;
   params?: readonly unknown[];
   sessionId?: number;
@@ -180,7 +188,11 @@ export async function runStandaloneTraverse(
     url.searchParams.append("edge_label", edgeLabel);
   }
 
-  return await fetchJson<StandaloneTraverseResult>(url, { method: "GET" });
+  return await fetchJson<StandaloneTraverseResult>(
+    url,
+    { method: "GET" },
+    params.timeoutMs
+  );
 }
 
 export async function runStandaloneWorkspaceExportToon(
@@ -191,7 +203,7 @@ export async function runStandaloneWorkspaceExportToon(
     normalizeBaseUrl(params.mindbrainUrl)
   );
   url.searchParams.set("workspace_id", params.workspaceId);
-  return await fetchText(url, { method: "GET" });
+  return await fetchText(url, { method: "GET" }, params.timeoutMs);
 }
 
 export async function runStandaloneCoverageReportToon(
@@ -205,7 +217,7 @@ export async function runStandaloneCoverageReportToon(
   for (const entityType of params.entityTypes ?? []) {
     url.searchParams.append("entity_type", entityType);
   }
-  return await fetchText(url, { method: "GET" });
+  return await fetchText(url, { method: "GET" }, params.timeoutMs);
 }
 
 export async function runStandalonePackToon(
@@ -221,7 +233,7 @@ export async function runStandalonePackToon(
   if (params.scope) {
     url.searchParams.set("scope", params.scope);
   }
-  return await fetchText(url, { method: "GET" });
+  return await fetchText(url, { method: "GET" }, params.timeoutMs);
 }
 
 export async function runStandaloneGhostcrabPack(
@@ -240,7 +252,7 @@ export async function runStandaloneGhostcrabPack(
 
   const response = await fetchJson<{
     rows?: StandaloneGhostcrabPackRow[];
-  }>(url, { method: "GET" });
+  }>(url, { method: "GET" }, params.timeoutMs);
   return Array.isArray(response.rows) ? response.rows : [];
 }
 
@@ -259,9 +271,13 @@ export async function runStandaloneGhostcrabProjectionGet(
   url.searchParams.set("include_evidence", String(params.includeEvidence));
   url.searchParams.set("include_deltas", String(params.includeDeltas));
 
-  return await fetchJson<StandaloneGhostcrabProjectionGetResponse>(url, {
-    method: "GET"
-  });
+  return await fetchJson<StandaloneGhostcrabProjectionGetResponse>(
+    url,
+    {
+      method: "GET"
+    },
+    params.timeoutMs
+  );
 }
 
 export async function runStandaloneGhostcrabGraphSearch(
@@ -287,9 +303,13 @@ export async function runStandaloneGhostcrabGraphSearch(
     );
   }
 
-  return await fetchJson<StandaloneGhostcrabGraphSearchResponse>(url, {
-    method: "GET"
-  });
+  return await fetchJson<StandaloneGhostcrabGraphSearchResponse>(
+    url,
+    {
+      method: "GET"
+    },
+    params.timeoutMs
+  );
 }
 
 export async function runStandaloneMindbrainSql(
@@ -312,48 +332,62 @@ export async function runStandaloneMindbrainSql(
             params: params.params ?? []
           }
         : { session_id: params.sessionId, commit: params.commit };
-  return await fetchJson<MindbrainSqlResponse>(url, {
-    method: "POST",
-    body: JSON.stringify(body),
-    headers: {
-      "content-type": "application/json"
-    }
-  });
+  return await fetchJson<MindbrainSqlResponse>(
+    url,
+    {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: {
+        "content-type": "application/json"
+      }
+    },
+    params.timeoutMs
+  );
 }
 
 export async function openStandaloneMindbrainSqlSession(
-  mindbrainUrl: string
+  mindbrainUrl: string,
+  timeoutMs?: number
 ): Promise<number> {
   const url = new URL(
     "/api/mindbrain/sql/session/open",
     normalizeBaseUrl(mindbrainUrl)
   );
-  const response = await fetchJson<MindbrainSqlSessionOpenResponse>(url, {
-    method: "POST",
-    body: "{}",
-    headers: {
-      "content-type": "application/json"
-    }
-  });
+  const response = await fetchJson<MindbrainSqlSessionOpenResponse>(
+    url,
+    {
+      method: "POST",
+      body: "{}",
+      headers: {
+        "content-type": "application/json"
+      }
+    },
+    timeoutMs
+  );
   return response.session_id;
 }
 
 export async function closeStandaloneMindbrainSqlSession(
   mindbrainUrl: string,
   sessionId: number,
-  commit: boolean
+  commit: boolean,
+  timeoutMs?: number
 ): Promise<void> {
   const url = new URL(
     "/api/mindbrain/sql/session/close",
     normalizeBaseUrl(mindbrainUrl)
   );
-  await fetchJson<MindbrainSqlSessionCloseResponse>(url, {
-    method: "POST",
-    body: JSON.stringify({ session_id: sessionId, commit }),
-    headers: {
-      "content-type": "application/json"
-    }
-  });
+  await fetchJson<MindbrainSqlSessionCloseResponse>(
+    url,
+    {
+      method: "POST",
+      body: JSON.stringify({ session_id: sessionId, commit }),
+      headers: {
+        "content-type": "application/json"
+      }
+    },
+    timeoutMs
+  );
 }
 
 function formatMindBrainHttpError(
@@ -402,8 +436,12 @@ function mindBrainHttpError(
   });
 }
 
-async function fetchText(url: URL, init: RequestInit): Promise<string> {
-  const response = await fetch(url, init);
+async function fetchText(
+  url: URL,
+  init: RequestInit,
+  timeoutMs?: number
+): Promise<string> {
+  const response = await fetch(url, withTimeout(init, timeoutMs));
   const text = await response.text();
   if (!response.ok) {
     throw mindBrainHttpError(url, response, text);
@@ -411,8 +449,12 @@ async function fetchText(url: URL, init: RequestInit): Promise<string> {
   return text;
 }
 
-async function fetchJson<T>(url: URL, init: RequestInit): Promise<T> {
-  const response = await fetch(url, init);
+async function fetchJson<T>(
+  url: URL,
+  init: RequestInit,
+  timeoutMs?: number
+): Promise<T> {
+  const response = await fetch(url, withTimeout(init, timeoutMs));
   const text = await response.text();
   if (!response.ok) {
     throw mindBrainHttpError(url, response, text);
@@ -426,6 +468,20 @@ async function fetchJson<T>(url: URL, init: RequestInit): Promise<T> {
       { cause: error }
     );
   }
+}
+
+function withTimeout(
+  init: RequestInit,
+  timeoutMs: number | undefined
+): RequestInit {
+  if (timeoutMs === undefined || init.signal !== undefined) {
+    return init;
+  }
+
+  return {
+    ...init,
+    signal: AbortSignal.timeout(timeoutMs)
+  };
 }
 
 function normalizeBaseUrl(baseUrl: string): string {

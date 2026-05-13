@@ -11,6 +11,7 @@ describe("resolveGhostcrabConfig", () => {
     const config = resolveGhostcrabConfig({});
 
     expect(config).toEqual({
+      bootstrapSeedEnabled: true,
       embeddingApiKey: undefined,
       embeddingBaseUrl: "https://openrouter.ai/api/v1",
       embeddingDimensions: 1536,
@@ -20,6 +21,7 @@ describe("resolveGhostcrabConfig", () => {
       embeddingsMode: "disabled",
       hybridBm25Weight: 0.6,
       hybridVectorWeight: 0.4,
+      mindbrainHttpTimeoutMs: 30000,
       mindbrainUrl: "http://127.0.0.1:8091",
       nodeEnv: "development",
       resolvedConfigPath: undefined,
@@ -38,6 +40,7 @@ describe("resolveGhostcrabConfig", () => {
   it("parses explicit overrides", () => {
     const config = resolveGhostcrabConfig({
       GHOSTCRAB_MINDBRAIN_URL: "http://mindbrain.internal:8091",
+      GHOSTCRAB_MINDBRAIN_HTTP_TIMEOUT_MS: "45000",
       GHOSTCRAB_SQLITE_PATH: "/tmp/ghostcrab.sqlite",
       NODE_ENV: "test",
       GHOSTCRAB_EMBEDDINGS_FIXTURE_PATH: "/tmp/fixtures.json",
@@ -46,6 +49,7 @@ describe("resolveGhostcrabConfig", () => {
     });
 
     expect(config).toEqual({
+      bootstrapSeedEnabled: true,
       embeddingApiKey: undefined,
       embeddingBaseUrl: "https://openrouter.ai/api/v1",
       embeddingDimensions: 768,
@@ -55,6 +59,7 @@ describe("resolveGhostcrabConfig", () => {
       embeddingsMode: "fake",
       hybridBm25Weight: 0.6,
       hybridVectorWeight: 0.4,
+      mindbrainHttpTimeoutMs: 45000,
       mindbrainUrl: "http://mindbrain.internal:8091",
       nodeEnv: "test",
       resolvedConfigPath: undefined,
@@ -129,5 +134,19 @@ describe("resolveGhostcrabConfig", () => {
     });
 
     expect(config.embeddingsMode).toBe("fake");
+  });
+
+  it("parses the bootstrap seed switch", () => {
+    expect(
+      resolveGhostcrabConfig({
+        GHOSTCRAB_BOOTSTRAP_SEED: "0"
+      }).bootstrapSeedEnabled
+    ).toBe(false);
+
+    expect(
+      resolveGhostcrabConfig({
+        GHOSTCRAB_BOOTSTRAP_SEED: "yes"
+      }).bootstrapSeedEnabled
+    ).toBe(true);
   });
 });

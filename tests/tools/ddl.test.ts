@@ -1,11 +1,16 @@
 import { describe, it, expect, vi } from "vitest";
 
-import { ddlProposeTool, ddlListPendingTool, ddlExecuteTool } from "../../src/tools/workspace/ddl.js";
+import {
+  ddlProposeTool,
+  ddlListPendingTool,
+  ddlExecuteTool
+} from "../../src/tools/workspace/ddl.js";
 import type { ToolExecutionContext } from "../../src/tools/registry.js";
 
 function makeContext(rowSets: unknown[][]): ToolExecutionContext {
   let callIndex = 0;
-  return {
+  const txQuery = vi.fn().mockResolvedValue([]);
+  const context = {
     database: {
       kind: "sqlite",
       query: vi.fn().mockImplementation(() => {
@@ -13,19 +18,24 @@ function makeContext(rowSets: unknown[][]): ToolExecutionContext {
         callIndex += 1;
         return Promise.resolve(result);
       }),
-      transaction: vi.fn().mockImplementation(async (fn: (tx: unknown) => Promise<void>) => {
-        const tx = {
-          kind: "sqlite",
-          query: vi.fn().mockResolvedValue([])
-        };
-        await fn(tx);
-      }),
+      transaction: vi
+        .fn()
+        .mockImplementation(async (fn: (tx: unknown) => Promise<void>) => {
+          const tx = {
+            kind: "sqlite",
+            query: txQuery
+          };
+          await fn(tx);
+        }),
       close: vi.fn(),
       ping: vi.fn()
     } as unknown as ToolExecutionContext["database"],
     embeddings: {} as ToolExecutionContext["embeddings"],
     retrieval: { hybridBm25Weight: 0.5, hybridVectorWeight: 0.5 }
   } as unknown as ToolExecutionContext;
+  (context as ToolExecutionContext & { txQuery: typeof txQuery }).txQuery =
+    txQuery;
+  return context;
 }
 
 describe("ghostcrab_ddl_propose", () => {
@@ -36,7 +46,9 @@ describe("ghostcrab_ddl_propose", () => {
       ctx
     );
     expect(result.isError).toBe(true);
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     const err = data.error as Record<string, unknown>;
     expect(err.code).toBe("blocked_ddl_pattern");
   });
@@ -51,22 +63,25 @@ describe("ghostcrab_ddl_propose", () => {
   });
 
   it("rejects missing workspace", async () => {
-    const ctx = makeContext([[/* workspace lookup returns empty */]]);
+    const ctx = makeContext([
+      [
+        /* workspace lookup returns empty */
+      ]
+    ]);
     const result = await ddlProposeTool.handler(
       { workspace_id: "nonexistent", sql: "CREATE TABLE foo (id INT)" },
       ctx
     );
     expect(result.isError).toBe(true);
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     const err = data.error as Record<string, unknown>;
     expect(err.code).toBe("workspace_not_found");
   });
 
   it("stores migration and returns migration_id", async () => {
-    const ctx = makeContext([
-      [{ id: "default" }],
-      []
-    ]);
+    const ctx = makeContext([[{ id: "default" }], []]);
     const result = await ddlProposeTool.handler(
       {
         workspace_id: "default",
@@ -76,16 +91,16 @@ describe("ghostcrab_ddl_propose", () => {
       ctx
     );
     expect(result.isError).toBeFalsy();
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(data.ok).toBe(true);
     expect(typeof data.migration_id).toBe("string");
     expect(data.status).toBe("pending");
   });
 
   it("rejects sync_spec trigger previews in SQLite-only mode", async () => {
-    const ctx = makeContext([
-      [{ id: "default" }]
-    ]);
+    const ctx = makeContext([[{ id: "default" }]]);
     const result = await ddlProposeTool.handler(
       {
         workspace_id: "default",
@@ -93,15 +108,24 @@ describe("ghostcrab_ddl_propose", () => {
         sync_spec: {
           source_table: "articles",
           fields: [
-            { column_name: "title", facet_key: "title", index_in_bm25: true, facet_type: "term" }
+            {
+              column_name: "title",
+              facet_key: "title",
+              index_in_bm25: true,
+              facet_type: "term"
+            }
           ]
         }
       },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(result.isError).toBe(true);
-    expect((data.error as Record<string, unknown>).code).toBe("sync_spec_not_supported");
+    expect((data.error as Record<string, unknown>).code).toBe(
+      "sync_spec_not_supported"
+    );
   });
 
   it("stores semantic_proposal (inferred) on propose", async () => {
@@ -116,12 +140,42 @@ describe("ghostcrab_ddl_propose", () => {
       },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(data.semantic_proposal).toBeDefined();
     const sem = data.semantic_proposal as { table_semantics?: unknown[] };
     expect(Array.isArray(sem.table_semantics)).toBe(true);
   });
 
+  it("accepts public export table semantics with schema_name alias", async () => {
+    const ctx = makeContext([[{ id: "default" }], []]);
+    const result = await ddlProposeTool.handler(
+      {
+        workspace_id: "default",
+        sql: "CREATE TABLE IF NOT EXISTS players (id INT PRIMARY KEY);",
+        table_semantics: [
+          {
+            schema_name: "main",
+            table_name: "players",
+            table_role: "actor",
+            emit_graph_entities: true
+          }
+        ]
+      },
+      ctx
+    );
+
+    expect(result.isError).toBeFalsy();
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
+    const sem = data.semantic_proposal as {
+      table_semantics?: Array<Record<string, unknown>>;
+    };
+    expect(sem.table_semantics?.[0]?.table_schema).toBe("main");
+    expect(sem.table_semantics?.[0]?.emit_graph_entity).toBe(true);
+  });
 });
 
 describe("ghostcrab_ddl_list_pending", () => {
@@ -142,7 +196,9 @@ describe("ghostcrab_ddl_list_pending", () => {
   it("lists migrations", async () => {
     const ctx = makeContext([[fakeMigration]]);
     const result = await ddlListPendingTool.handler({}, ctx);
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(data.ok).toBe(true);
     expect((data.migrations as unknown[]).length).toBe(1);
     expect(data.total).toBe(1);
@@ -151,79 +207,118 @@ describe("ghostcrab_ddl_list_pending", () => {
   it("filters by workspace_id", async () => {
     const ctx = makeContext([[fakeMigration]]);
     await ddlListPendingTool.handler({ workspace_id: "default" }, ctx);
-    const dbQuery = (ctx.database.query as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+    const dbQuery = (ctx.database.query as ReturnType<typeof vi.fn>).mock
+      .calls[0][0] as string;
     expect(dbQuery).toContain("workspace_id = ?");
   });
 
   it("filters by status", async () => {
     const ctx = makeContext([[]]);
     await ddlListPendingTool.handler({ status: "approved" }, ctx);
-    const dbQuery = (ctx.database.query as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+    const dbQuery = (ctx.database.query as ReturnType<typeof vi.fn>).mock
+      .calls[0][0] as string;
     expect(dbQuery).toContain("status = ?");
   });
 });
 
 describe("ghostcrab_ddl_execute", () => {
   it("rejects non-existent migration", async () => {
-    const ctx = makeContext([[/* empty: migration not found */]]);
+    const ctx = makeContext([
+      [
+        /* empty: migration not found */
+      ]
+    ]);
     const result = await ddlExecuteTool.handler(
       { migration_id: "550e8400-e29b-41d4-a716-446655440000" },
       ctx
     );
     expect(result.isError).toBe(true);
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
-    expect((data.error as Record<string, unknown>).code).toBe("migration_not_found");
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
+    expect((data.error as Record<string, unknown>).code).toBe(
+      "migration_not_found"
+    );
   });
 
   it("rejects migration with status != approved", async () => {
-    const ctx = makeContext([[{
-      id: "550e8400-e29b-41d4-a716-446655440000",
-      workspace_id: "default",
-      sql: "CREATE TABLE foo (id INT)",
-      preview_trigger: null,
-      status: "pending"
-    }]]);
+    const ctx = makeContext([
+      [
+        {
+          id: "550e8400-e29b-41d4-a716-446655440000",
+          workspace_id: "default",
+          sql: "CREATE TABLE foo (id INT)",
+          preview_trigger: null,
+          status: "pending"
+        }
+      ]
+    ]);
     const result = await ddlExecuteTool.handler(
       { migration_id: "550e8400-e29b-41d4-a716-446655440000" },
       ctx
     );
     expect(result.isError).toBe(true);
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
-    expect((data.error as Record<string, unknown>).code).toBe("migration_not_approved");
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
+    expect((data.error as Record<string, unknown>).code).toBe(
+      "migration_not_approved"
+    );
   });
 
   it("executes approved migration", async () => {
-    const ctx = makeContext([[{
-      id: "550e8400-e29b-41d4-a716-446655440000",
-      workspace_id: "default",
-      sql: "CREATE TABLE foo (id INT)",
-      preview_trigger: null,
-      status: "approved"
-    }]]);
+    const ctx = makeContext([
+      [
+        {
+          id: "550e8400-e29b-41d4-a716-446655440000",
+          workspace_id: "default",
+          sql: "CREATE TABLE foo (id INT)",
+          preview_trigger: null,
+          status: "approved"
+        }
+      ]
+    ]);
     const result = await ddlExecuteTool.handler(
       { migration_id: "550e8400-e29b-41d4-a716-446655440000" },
       ctx
     );
     expect(result.isError).toBeFalsy();
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(data.ok).toBe(true);
     expect(data.status).toBe("executed");
-    expect(ctx.database.transaction).toHaveBeenCalled();
+    const txQuery = (
+      ctx as ToolExecutionContext & { txQuery: ReturnType<typeof vi.fn> }
+    ).txQuery;
+    expect(ctx.database.transaction).toHaveBeenCalledOnce();
+    expect(txQuery).toHaveBeenCalledWith("CREATE TABLE foo (id INT)");
+    expect(txQuery).toHaveBeenCalledWith(
+      expect.stringContaining("UPDATE pending_migrations"),
+      ["550e8400-e29b-41d4-a716-446655440000"]
+    );
   });
 
   it("skips legacy trigger previews", async () => {
-    const ctx = makeContext([[{
-      id: "550e8400-e29b-41d4-a716-446655440000",
-      workspace_id: "default",
-      sql: "CREATE TABLE foo (id INT)",
-      preview_trigger: "CREATE TRIGGER trg_test AFTER INSERT ON foo BEGIN SELECT 1; END",
-      status: "approved"
-    }]]);
+    const ctx = makeContext([
+      [
+        {
+          id: "550e8400-e29b-41d4-a716-446655440000",
+          workspace_id: "default",
+          sql: "CREATE TABLE foo (id INT)",
+          preview_trigger:
+            "CREATE TRIGGER trg_test AFTER INSERT ON foo BEGIN SELECT 1; END",
+          status: "approved"
+        }
+      ]
+    ]);
     const result = await ddlExecuteTool.handler(
       { migration_id: "550e8400-e29b-41d4-a716-446655440000" },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(data.trigger_applied).toBe(false);
   });
 
