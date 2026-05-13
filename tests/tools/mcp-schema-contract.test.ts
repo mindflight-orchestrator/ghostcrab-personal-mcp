@@ -7,10 +7,6 @@ import {
 } from "../../src/tools/dgraph/graph-search.js";
 import { learnTool, LearnInput } from "../../src/tools/dgraph/learn.js";
 import {
-  marketplaceTool,
-  MarketplaceInput
-} from "../../src/tools/dgraph/marketplace.js";
-import {
   traverseTool,
   TraverseInput
 } from "../../src/tools/dgraph/traverse.js";
@@ -26,7 +22,6 @@ import {
   HierarchyInput
 } from "../../src/tools/facets/hierarchy.js";
 import { rememberTool, RememberInput } from "../../src/tools/facets/remember.js";
-import { facetReconcileTool } from "../../src/tools/facets/reconcile.js";
 import { searchTool, SearchInput } from "../../src/tools/facets/search.js";
 import {
   schemaInspectTool,
@@ -202,16 +197,6 @@ describe("MCP inputSchema contract (drift guard)", () => {
     it("requires a definition object", () => {
       expect(schema.required).toEqual(expect.arrayContaining(["definition"]));
       expect(schema.properties.definition).toBeDefined();
-    });
-  });
-
-  describe("ghostcrab_facet_reconcile", () => {
-    const schema = facetReconcileTool.definition.inputSchema as {
-      properties: { apply: { default?: boolean } };
-    };
-
-    it("documents optional apply mode", () => {
-      expect(schema.properties.apply.default).toBe(false);
     });
   });
 
@@ -684,38 +669,6 @@ describe("MCP inputSchema contract (drift guard)", () => {
       expect(ONBOARDING_SCHEMA_IDS).toContain("ghostcrab:projection-recipe");
       expect(ONBOARDING_SCHEMA_IDS).toContain("ghostcrab:signal-pattern");
       expect(ONBOARDING_SCHEMA_IDS).toHaveLength(4);
-    });
-  });
-
-  describe("ghostcrab_marketplace", () => {
-    const schema = marketplaceTool.definition.inputSchema as {
-      required?: string[];
-      properties: {
-        min_confidence: { minimum?: number; maximum?: number };
-        max_hops: { minimum?: number; maximum?: number };
-        limit: { minimum?: number; maximum?: number };
-      };
-    };
-
-    it("requires query and documents bounds", () => {
-      expect(schema.required).toEqual(expect.arrayContaining(["query"]));
-      expect(schema.properties.min_confidence.minimum).toBe(0);
-      expect(schema.properties.min_confidence.maximum).toBe(1);
-      expect(schema.properties.max_hops.minimum).toBe(1);
-      expect(schema.properties.max_hops.maximum).toBe(5);
-      expect(schema.properties.limit.minimum).toBe(1);
-      expect(schema.properties.limit.maximum).toBe(100);
-    });
-
-    it("Zod applies defaults and rejects empty query", () => {
-      expect(MarketplaceInput.safeParse({ query: "  " }).success).toBe(false);
-      const parsed = MarketplaceInput.safeParse({ query: "ghostcrab" });
-      expect(parsed.success).toBe(true);
-      if (parsed.success) {
-        expect(parsed.data.min_confidence).toBe(0.5);
-        expect(parsed.data.max_hops).toBe(2);
-        expect(parsed.data.limit).toBe(20);
-      }
     });
   });
 

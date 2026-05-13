@@ -3,15 +3,12 @@ import "./dgraph/entity-chunks.js";
 import "./dgraph/graph-reindex.js";
 import "./dgraph/graph-search.js";
 import "./dgraph/learn.js";
-import "./dgraph/marketplace.js";
-import "./dgraph/patch.js";
 import "./dgraph/traverse.js";
 import "./facets/count.js";
 import "./facets/catalog.js";
 import "./facets/geo.js";
 import "./facets/hierarchy.js";
 import "./facets/remember.js";
-import "./facets/reconcile.js";
 import "./facets/schema.js";
 import "./facets/search.js";
 import "./facets/upsert.js";
@@ -29,13 +26,6 @@ import "./workspace/list.js";
 import "./workspace/loadout-seed.js";
 import "./workspace/loadouts.js";
 import "./tool-search.js";
-import "./ontology/register.js";
-import "./ontology/compare.js";
-import "./ontology/bridge.js";
-import "./ontology/conflicts.js";
-import "./ontology/federated.js";
-import "./ontology/coverage-ref.js";
-import "./ontology/batch.js";
 
 /**
  * Ensures all MCP tool modules are loaded so their `registerTool` side effects run.

@@ -83,61 +83,6 @@ function makeContext(queryImpl: LegacyImpl): ToolExecutionContext {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("ghostcrab_workspace_export_model", () => {
-  it("uses mb_ontology.export_workspace_model when available", async () => {
-    const ctx = makeContext(async (sql: string) => {
-      if (sql.includes("mb_ontology.export_workspace_model")) {
-        return [{
-          payload: {
-            schema_version: "1.0.0",
-            exported_at: "2026-04-08T00:00:00.000Z",
-            workspace: {
-              id: "casino-test",
-              label: "Casino Test",
-              description: null,
-              domain_profile: "casino",
-              pg_schema: "casino"
-            },
-            tables: [{
-              schema_name: "casino",
-              table_name: "players",
-              table_role: "actor"
-            }],
-            columns: [{
-              schema_name: "casino",
-              table_name: "players",
-              column_name: "id",
-              column_role: "id"
-            }],
-            relations: [{
-              source_schema: "casino",
-              source_table: "visits",
-              target_schema: "casino",
-              target_table: "players"
-            }],
-            generation_hints: { table_order: ["casino.players"] },
-            validation_warnings: []
-          }
-        }];
-      }
-      return [];
-    });
-    ctx.extensions = { pgFacets: true, pgDgraph: true, pgPragma: true };
-
-    const result = await workspaceExportModelTool.handler(
-      { workspace_id: "casino-test", depth: "tables_and_columns" },
-      ctx
-    );
-
-    expect(result.isError).toBeFalsy();
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
-    expect(data.workspace).toMatchObject({ id: "casino-test", pg_schema: "casino" });
-    expect(data.columns).toBeDefined();
-    expect(data.relations).toBeUndefined();
-    expect((ctx.database.query as ReturnType<typeof vi.fn>).mock.calls[0]?.[0]).toContain(
-      "mb_ontology.export_workspace_model"
-    );
-  });
-
   it("returns workspace_not_found when workspace missing", async () => {
     const ctx = makeContext(async () => []);
     const result = await workspaceExportModelTool.handler(

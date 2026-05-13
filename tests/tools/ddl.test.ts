@@ -124,47 +124,6 @@ describe("ghostcrab_ddl_propose", () => {
     expect(Array.isArray(sem.table_semantics)).toBe(true);
   });
 
-  it("uses mb_ontology validation and generated trigger SQL when available", async () => {
-    const ctx = makeContext([
-      [{ id: "default" }],
-      [{
-        sql: "CREATE OR REPLACE FUNCTION mindbrain_sync_public_articles() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RETURN NEW; END; $$;"
-      }],
-      [{
-        payload: {
-          valid: true,
-          warnings: [],
-          generated_triggers: "CREATE OR REPLACE FUNCTION mindbrain_sync_public_articles() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RETURN NEW; END; $$;"
-        }
-      }],
-      [{ id: "550e8400-e29b-41d4-a716-446655440000" }]
-    ]);
-    ctx.extensions = { pgFacets: true, pgDgraph: true, pgPragma: true, pgMindbrain: true };
-
-    const result = await ddlProposeTool.handler(
-      {
-        workspace_id: "default",
-        sql: "CREATE TABLE articles (id SERIAL PRIMARY KEY, title TEXT)",
-        sync_spec: {
-          source_table: "public.articles",
-          fields: [
-            { column_name: "title", facet_key: "title", index_in_bm25: true, facet_type: "term" }
-          ]
-        }
-      },
-      ctx
-    );
-
-    expect(result.isError).toBeFalsy();
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
-    expect(data.has_trigger_preview).toBe(true);
-    expect((ctx.database.query as ReturnType<typeof vi.fn>).mock.calls[1]?.[0]).toContain(
-      "mb_ontology.generate_triggers"
-    );
-    expect((ctx.database.query as ReturnType<typeof vi.fn>).mock.calls[2]?.[0]).toContain(
-      "mb_ontology.validate_ddl_proposal"
-    );
-  });
 });
 
 describe("ghostcrab_ddl_list_pending", () => {

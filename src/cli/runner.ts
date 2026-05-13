@@ -88,10 +88,7 @@ function printGlobalHelp(): void {
     "  serve              Start MCP server on stdio (default)",
     "  tools list         List available tools and their schemas",
     "  maintenance ddl-approve         Approve a pending DDL migration",
-    "  maintenance ddl-execute         Execute an approved DDL migration",
-    "  maintenance refresh-entity-degree  Refresh graph.entity_degree (requires pg_dgraph)",
-    "  maintenance register-pg-facets     Register facets with pg_facets (requires pg_facets + migration 008)",
-    "  maintenance merge-facet-deltas     Apply pg_facets merge_deltas on facets (requires pg_facets)"
+    "  maintenance ddl-execute         Execute an approved DDL migration"
   ];
 
   for (const cmd of CLI_COMMANDS) {
@@ -331,84 +328,6 @@ export async function runCli(argv: string[]): Promise<void> {
       );
       await cleanup();
       process.exit(exitCode);
-    } catch (error) {
-      await cleanup();
-      console.error(
-        `Fatal: ${error instanceof Error ? error.message : String(error)}`
-      );
-      process.exit(1);
-    }
-    return;
-  }
-
-  if (firstArg === "maintenance" && argv[1] === "refresh-entity-degree") {
-    registerAllTools();
-    const { initToolContext } = await import("./context.js");
-    const { refreshEntityDegreeWithReport } =
-      await import("../db/maintenance.js");
-    const { toolContext, cleanup } = await initToolContext({
-      verbose: argv.includes("--verbose") || argv.includes("-v")
-    });
-    try {
-      const report = await refreshEntityDegreeWithReport(
-        toolContext.database,
-        toolContext.extensions
-      );
-      process.stdout.write(`${JSON.stringify(report)}\n`);
-      await cleanup();
-      process.exit(report.ok ? 0 : 1);
-    } catch (error) {
-      await cleanup();
-      console.error(
-        `Fatal: ${error instanceof Error ? error.message : String(error)}`
-      );
-      process.exit(1);
-    }
-    return;
-  }
-
-  if (firstArg === "maintenance" && argv[1] === "register-pg-facets") {
-    registerAllTools();
-    const { initToolContext } = await import("./context.js");
-    const { registerPgFacetsWithReport } =
-      await import("../db/facets-registration.js");
-    const { toolContext, cleanup } = await initToolContext({
-      verbose: argv.includes("--verbose") || argv.includes("-v")
-    });
-    try {
-      const report = await registerPgFacetsWithReport(
-        toolContext.database,
-        toolContext.extensions
-      );
-      process.stdout.write(`${JSON.stringify(report)}\n`);
-      await cleanup();
-      process.exit(report.ok ? 0 : 1);
-    } catch (error) {
-      await cleanup();
-      console.error(
-        `Fatal: ${error instanceof Error ? error.message : String(error)}`
-      );
-      process.exit(1);
-    }
-    return;
-  }
-
-  if (firstArg === "maintenance" && argv[1] === "merge-facet-deltas") {
-    registerAllTools();
-    const { initToolContext } = await import("./context.js");
-    const { mergeFacetDeltasWithReport } =
-      await import("../db/facets-maintenance.js");
-    const { toolContext, cleanup } = await initToolContext({
-      verbose: argv.includes("--verbose") || argv.includes("-v")
-    });
-    try {
-      const report = await mergeFacetDeltasWithReport(
-        toolContext.database,
-        toolContext.extensions
-      );
-      process.stdout.write(`${JSON.stringify(report)}\n`);
-      await cleanup();
-      process.exit(report.ok ? 0 : 1);
     } catch (error) {
       await cleanup();
       console.error(

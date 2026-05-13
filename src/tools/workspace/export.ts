@@ -6,7 +6,6 @@ import {
   registerTool,
   type ToolHandler
 } from "../registry.js";
-import { callNativeOrFallback } from "../../db/dispatch.js";
 import { WorkspaceIdSchema } from "../../types/workspace.js";
 import {
   ExportDepthSchema,
@@ -421,222 +420,177 @@ export const workspaceExportModelTool: ToolHandler = {
   async handler(args, context) {
     const input = WorkspaceExportInput.parse(args);
 
-    const { value: result } = await callNativeOrFallback({
-      useNative:
-        context.extensions.pgFacets ||
-        context.extensions.pgDgraph ||
-        context.extensions.pgPragma,
-      native: async () => {
-        const rows = await context.database.query<{
-          payload: Record<string, unknown>;
-        }>(`SELECT mb_ontology.export_workspace_model($1::text) AS payload`, [
-          input.workspace_id
-        ]);
-
-        const payload = rows[0]?.payload;
-        const workspace = payload?.workspace as
-          | Record<string, unknown>
-          | null
-          | undefined;
-        if (!payload || !workspace || !workspace.id) {
-          return createToolErrorResult(
-            "ghostcrab_workspace_export_model",
-            `Workspace '${input.workspace_id}' does not exist.`,
-            "workspace_not_found"
-          );
-        }
-
-        if (input.depth === "tables_only") {
-          delete payload.columns;
-          delete payload.relations;
-        } else if (input.depth === "tables_and_columns") {
-          delete payload.relations;
-        }
-
-        return createToolSuccessResult(
-          "ghostcrab_workspace_export_model",
-          payload
-        );
-      },
-      fallback: async () => {
-        const wsRows = await context.database.query<{
-          id: string;
-          label: string;
-          description: string | null;
-          pg_schema: string;
-          domain_profile: string | null;
-        }>(
-          `SELECT id, label, description, pg_schema, domain_profile
+    const wsRows = await context.database.query<{
+      id: string;
+      label: string;
+      description: string | null;
+      pg_schema: string;
+      domain_profile: string | null;
+    }>(
+      `SELECT id, label, description, pg_schema, domain_profile
            FROM workspaces
            WHERE id = ?`,
-          [input.workspace_id]
-        );
+      [input.workspace_id]
+    );
 
-        if (wsRows.length === 0) {
-          return createToolErrorResult(
-            "ghostcrab_workspace_export_model",
-            `Workspace '${input.workspace_id}' does not exist.`,
-            "workspace_not_found"
-          );
-        }
+    if (wsRows.length === 0) {
+      return createToolErrorResult(
+        "ghostcrab_workspace_export_model",
+        `Workspace '${input.workspace_id}' does not exist.`,
+        "workspace_not_found"
+      );
+    }
 
-        const wsRow = wsRows[0];
-        const depth: ExportDepth = input.depth;
+    const wsRow = wsRows[0];
+    const depth: ExportDepth = input.depth;
 
-        const tableRows = await context.database.query<Record<string, unknown>>(
-          `SELECT table_schema, table_name, business_role, generation_strategy,
+    const tableRows = await context.database.query<Record<string, unknown>>(
+      `SELECT table_schema, table_name, business_role, generation_strategy,
                   emit_facets, emit_graph_entity, emit_graph_relation, notes
            FROM table_semantics
            WHERE workspace_id = ?
            ORDER BY table_schema, table_name`,
-          [input.workspace_id]
-        );
+      [input.workspace_id]
+    );
 
-        const columnRows =
-          depth === "tables_and_columns" || depth === "full"
-            ? await context.database.query<Record<string, unknown>>(
-                `SELECT table_schema, table_name, column_name, column_role, rich_meta
+    const columnRows =
+      depth === "tables_and_columns" || depth === "full"
+        ? await context.database.query<Record<string, unknown>>(
+            `SELECT table_schema, table_name, column_name, column_role, rich_meta
                  FROM column_semantics
                  WHERE workspace_id = ?
                  ORDER BY table_schema, table_name, column_name`,
-                [input.workspace_id]
-              )
-            : [];
+            [input.workspace_id]
+          )
+        : [];
 
-        const relationRows =
-          depth === "full"
-            ? await context.database.query<Record<string, unknown>>(
-                `SELECT from_schema, from_table, to_schema, to_table, fk_column, relation_kind, rich_meta
+    const relationRows =
+      depth === "full"
+        ? await context.database.query<Record<string, unknown>>(
+            `SELECT from_schema, from_table, to_schema, to_table, fk_column, relation_kind, rich_meta
                  FROM relation_semantics
                  WHERE workspace_id = ?
                  ORDER BY from_schema, from_table, to_schema, to_table`,
-                [input.workspace_id]
-              )
-            : [];
+            [input.workspace_id]
+          )
+        : [];
 
-        const internalTables = tableRows.map(rowToTableSemantic);
-        const internalColumns = columnRows.map(rowToColumnSemantic);
-        const internalRelations = relationRows.map(rowToRelationSemantic);
+    const internalTables = tableRows.map(rowToTableSemantic);
+    const internalColumns = columnRows.map(rowToColumnSemantic);
+    const internalRelations = relationRows.map(rowToRelationSemantic);
 
-        const catalogTables = await listSqliteTables(context.database);
-        const catalogColumns = await listSqliteColumns(
-          context.database,
-          catalogTables
-        );
-        const tableNames = new Set(
-          catalogTables.map((tableName) => tableName.toLowerCase())
-        );
-        const existingTables = new Set<string>();
-        const existingColumns = new Set<string>();
-        const nullableLookup = new Map<string, boolean>();
-        const pkLookup = new Map<string, string>();
+    const catalogTables = await listSqliteTables(context.database);
+    const catalogColumns = await listSqliteColumns(
+      context.database,
+      catalogTables
+    );
+    const tableNames = new Set(
+      catalogTables.map((tableName) => tableName.toLowerCase())
+    );
+    const existingTables = new Set<string>();
+    const existingColumns = new Set<string>();
+    const nullableLookup = new Map<string, boolean>();
+    const pkLookup = new Map<string, string>();
 
-        for (const table of internalTables) {
-          if (!tableNames.has(table.table_name.toLowerCase())) {
-            continue;
-          }
-
-          const key = `${table.table_schema}.${table.table_name}`.toLowerCase();
-          existingTables.add(key);
-
-          for (const column of catalogColumns) {
-            if (
-              column.table_name.toLowerCase() !== table.table_name.toLowerCase()
-            ) {
-              continue;
-            }
-
-            const columnKey =
-              `${table.table_schema}.${table.table_name}.${column.column_name}`.toLowerCase();
-            existingColumns.add(columnKey);
-            nullableLookup.set(columnKey, column.is_nullable);
-
-            if (column.pk && !pkLookup.has(key)) {
-              pkLookup.set(key, column.column_name);
-            }
-          }
-        }
-
-        const validationWarnings = validateSemanticsAgainstCatalog({
-          existingTables,
-          existingColumns,
-          tableSemantics: internalTables,
-          columnSemantics: internalColumns
-        });
-
-        const publicTables: TableExport[] = internalTables.map((table) =>
-          toPublicTable(table, internalColumns, internalRelations)
-        );
-        const publicColumns: ColumnExport[] = internalColumns.map((column) => {
-          const key =
-            `${column.table_schema}.${column.table_name}.${column.column_name}`.toLowerCase();
-          return toPublicColumn(column, nullableLookup.get(key));
-        });
-        const publicRelations: RelationExport[] = internalRelations.map(
-          (relation) => toPublicRelation(relation, pkLookup)
-        );
-
-        const domainProfile =
-          wsRow.domain_profile ?? wsRow.id.split("-")[0] ?? null;
-        const relationEdges = internalRelations.map((relation) => ({
-          from_schema: relation.from_schema,
-          from_table: relation.from_table,
-          to_schema: relation.to_schema,
-          to_table: relation.to_table
-        }));
-        const baseHints = buildGenerationHints({
-          domainProfile,
-          tables: publicTables.map((table) => ({
-            schema_name: table.schema_name,
-            table_name: table.table_name
-          })),
-          edges: relationEdges
-        });
-        const multipliers = baseHints.seed_multipliers ?? {
-          tiny: 20,
-          low: 200,
-          medium: 2000,
-          high: 10000
-        };
-        const estimatedTotalRows = publicTables.reduce((sum, table) => {
-          const driver = table.volume_driver;
-          return sum + (driver ? (multipliers[driver] ?? 0) : 0);
-        }, 0);
-
-        const payload: Record<string, unknown> = {
-          schema_version: WORKSPACE_MODEL_SCHEMA_VERSION,
-          exported_at: new Date().toISOString(),
-          workspace: {
-            id: wsRow.id,
-            label: wsRow.label,
-            description: wsRow.description ?? null,
-            domain_profile: domainProfile,
-            pg_schema: wsRow.pg_schema
-          },
-          tables: publicTables,
-          generation_hints: {
-            ...baseHints,
-            estimated_total_rows:
-              estimatedTotalRows > 0 ? estimatedTotalRows : undefined
-          },
-          validation_warnings: validationWarnings
-        };
-
-        if (depth !== "tables_only") {
-          payload.columns = publicColumns;
-        }
-        if (depth === "full") {
-          payload.relations = publicRelations;
-        }
-
-        return createToolSuccessResult(
-          "ghostcrab_workspace_export_model",
-          payload
-        );
+    for (const table of internalTables) {
+      if (!tableNames.has(table.table_name.toLowerCase())) {
+        continue;
       }
+
+      const key = `${table.table_schema}.${table.table_name}`.toLowerCase();
+      existingTables.add(key);
+
+      for (const column of catalogColumns) {
+        if (
+          column.table_name.toLowerCase() !== table.table_name.toLowerCase()
+        ) {
+          continue;
+        }
+
+        const columnKey =
+          `${table.table_schema}.${table.table_name}.${column.column_name}`.toLowerCase();
+        existingColumns.add(columnKey);
+        nullableLookup.set(columnKey, column.is_nullable);
+
+        if (column.pk && !pkLookup.has(key)) {
+          pkLookup.set(key, column.column_name);
+        }
+      }
+    }
+
+    const validationWarnings = validateSemanticsAgainstCatalog({
+      existingTables,
+      existingColumns,
+      tableSemantics: internalTables,
+      columnSemantics: internalColumns
     });
 
-    return result;
+    const publicTables: TableExport[] = internalTables.map((table) =>
+      toPublicTable(table, internalColumns, internalRelations)
+    );
+    const publicColumns: ColumnExport[] = internalColumns.map((column) => {
+      const key =
+        `${column.table_schema}.${column.table_name}.${column.column_name}`.toLowerCase();
+      return toPublicColumn(column, nullableLookup.get(key));
+    });
+    const publicRelations: RelationExport[] = internalRelations.map(
+      (relation) => toPublicRelation(relation, pkLookup)
+    );
+
+    const domainProfile =
+      wsRow.domain_profile ?? wsRow.id.split("-")[0] ?? null;
+    const relationEdges = internalRelations.map((relation) => ({
+      from_schema: relation.from_schema,
+      from_table: relation.from_table,
+      to_schema: relation.to_schema,
+      to_table: relation.to_table
+    }));
+    const baseHints = buildGenerationHints({
+      domainProfile,
+      tables: publicTables.map((table) => ({
+        schema_name: table.schema_name,
+        table_name: table.table_name
+      })),
+      edges: relationEdges
+    });
+    const multipliers = baseHints.seed_multipliers ?? {
+      tiny: 20,
+      low: 200,
+      medium: 2000,
+      high: 10000
+    };
+    const estimatedTotalRows = publicTables.reduce((sum, table) => {
+      const driver = table.volume_driver;
+      return sum + (driver ? (multipliers[driver] ?? 0) : 0);
+    }, 0);
+
+    const payload: Record<string, unknown> = {
+      schema_version: WORKSPACE_MODEL_SCHEMA_VERSION,
+      exported_at: new Date().toISOString(),
+      workspace: {
+        id: wsRow.id,
+        label: wsRow.label,
+        description: wsRow.description ?? null,
+        domain_profile: domainProfile,
+        pg_schema: wsRow.pg_schema
+      },
+      tables: publicTables,
+      generation_hints: {
+        ...baseHints,
+        estimated_total_rows:
+          estimatedTotalRows > 0 ? estimatedTotalRows : undefined
+      },
+      validation_warnings: validationWarnings
+    };
+
+    if (depth !== "tables_only") {
+      payload.columns = publicColumns;
+    }
+    if (depth === "full") {
+      payload.relations = publicRelations;
+    }
+
+    return createToolSuccessResult("ghostcrab_workspace_export_model", payload);
   }
 };
 

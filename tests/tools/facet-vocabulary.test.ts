@@ -7,20 +7,17 @@ import {
   facetRegisterTool,
   facetValidateTool
 } from "../../src/tools/facets/catalog.js";
-import { facetReconcileTool } from "../../src/tools/facets/reconcile.js";
 import { createToolContext } from "../helpers/tool-context.js";
 
 function createMockDatabase(
   queryImpl: DatabaseClient["query"]
 ): DatabaseClient {
   return {
-    kind: "sqlite",
     query: queryImpl,
     ping: async () => true,
     close: async () => undefined,
     transaction: async (operation) => {
       const queryable: Queryable = {
-        kind: "sqlite",
         query: queryImpl
       };
 
@@ -153,45 +150,4 @@ describe("facet vocabulary tools", () => {
     });
   });
 
-  it("reports blocked native registration when columns are missing", async () => {
-    const query = vi
-      .fn<DatabaseClient["query"]>()
-      .mockResolvedValueOnce([
-        {
-          id: "facet-def-1",
-          content: JSON.stringify({
-            facet_name: "custom_native",
-            label: "Custom Native",
-            description: "Native facet without a real column",
-            native: true,
-            native_column: "facet_custom_native",
-            native_kind: "plain"
-          }),
-          facets: JSON.stringify({ facet_name: "custom_native", native: true }),
-          created_at_unix: 1_742_732_800
-        }
-      ])
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([{ name: "id" }, { name: "schema_id" }]);
-    const database = createMockDatabase(query);
-
-    const result = await facetReconcileTool.handler(
-      {},
-      createToolContext(database)
-    );
-
-    expect(readStructured(result)).toMatchObject({
-      ok: false,
-      tool: "ghostcrab_facet_reconcile",
-      skipped: true,
-      reason: "native_registration_blocked"
-    });
-    expect(
-      readStructured(result).blocked_native_facets as Array<Record<string, unknown>>
-    ).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ facet_name: "custom_native" })
-      ])
-    );
-  });
 });
