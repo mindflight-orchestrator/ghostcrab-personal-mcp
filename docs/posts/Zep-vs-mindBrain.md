@@ -158,10 +158,11 @@ Zep retrieval is time-aware memory retrieval. The agent asks for context, and th
 MindBrain retrieval is deterministic domain navigation:
 
 ```text
-1. Filter with facets.
-2. Traverse typed directed edges.
-3. Pack a projection for the current task.
-4. Return compact context with provenance.
+1. Count or facet-tree the imported workspace shape.
+2. Search facet-indexed records by status, owner, phase, jurisdiction, or risk.
+3. Traverse typed directed edges such as BLOCKS, REQUIRES, OWNS, or VALIDATES.
+4. Check coverage and pack a projection for the current task.
+5. Return compact context with provenance.
 ```
 
 The reasoning path is therefore different. Zep improves recall by making memory historically aware. MindBrain improves action by making the work surface structurally explicit.
@@ -214,6 +215,97 @@ Facets let agents filter large domains quickly by structured dimensions. Graphs 
 
 This makes MindBrain especially suited to workflow tracking, project delivery, software delivery, CRM state, compliance procedures, incident response, and knowledge-base operations. In these settings, "what changed?" matters, but "what is allowed, blocked, required, or next?" matters just as much.
 
+***
+
+## MindBrain Workflow Proof
+
+A fair comparison to Zep has to show what happens after data is imported, not only that MindBrain is "schema-first." The MindBrain path is model, qualify, query. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
+
+```text
+1. Model the domain
+   ghostcrab_modeling_guidance or ghostcrab_loadout_suggest
+   -> entity types, relation labels, facets, lifecycle states, coverage questions
+
+2. Register or verify the model
+   ghostcrab_schema_list / ghostcrab_schema_inspect
+   ontology registration where needed
+   ghostcrab_ddl_propose for table-backed workspace structures
+   ghostcrab_workspace_export_model to inspect the semantic contract
+
+3. Import or qualify data
+   MindBrain Studio or an import path maps episodes, documents, tickets,
+   messages, or API records into typed records, chunks, entities,
+   relations, facet values, evidence links, and projection signals.
+
+4. Query after import
+   ghostcrab_count / ghostcrab_facet_tree to understand the dataset shape
+   ghostcrab_search for facet-indexed records
+   ghostcrab_traverse for typed dependencies and evidence paths
+   ghostcrab_coverage for missing ontology coverage
+   ghostcrab_projection_get / ghostcrab_pack for agent working context
+```
+
+Zep's ingestion path is strongest when incoming episodes change the graph of what is currently true. MindBrain's import path is strongest when source data must be qualified into an operating model before an agent acts: a document becomes evidence for a requirement, a customer event changes a lifecycle state, a conversation creates a blocker, and an imported edge says exactly which procedure validates the next step.
+
+That distinction matters after import. In Zep, the agent asks memory for temporally relevant facts. In MindBrain, the agent can first ask for the count of active blocked accounts, then search only that facet slice, then traverse from an account to its missing evidence, then request a projection containing the next unblocked step.
+
+***
+
+## Why Ontologies Beat Flat Data Models
+
+Traditional databases store data in tables — rows and columns with fixed types. That works well for transactional data, but it breaks down fast when your domain is complex, evolving, or needs to be understood by an AI agent. Tables answer *"what is stored here?"* but not *"what does this mean?"*
+
+An ontology answers both.
+
+***
+
+### The Three Building Blocks
+
+**Concepts** are the things that exist in your domain — a `Person`, a `Project`, a `Decision`. Not a table row: a meaningful entity with an identity and a type in a shared vocabulary.
+
+**Semantic Relations** connect concepts with named, directional meaning — `Person` *manages* `Project`, `Decision` *depends_on* `Constraint`. Unlike a foreign key, a relation carries intent: an agent reading the graph knows *why* two things are linked, not just *that* they are.
+
+**Properties** describe the attributes of a concept — a `Person` has a `name`, a `role`, an `expertise_level`. Unlike a column, a property can be typed, optional, multivalued, or inherited from a parent concept.
+
+***
+
+### Axioms — The Rules Layer
+
+Axioms are constraints that make the model self-enforcing:
+- A `Decision` *must* have at least one `rationale`
+- A `Person` *cannot* manage more than one `active Project` at a time
+- A `Skill` *is a subtype of* `Capability`
+
+This is where ontologies go beyond schemas. A SQL table can't express that two concepts are *subtypes* of a shared abstraction, or that a relation is *transitive*. An ontology can — and an AI agent can reason over those rules without being told explicitly.
+
+***
+
+### What This Solves for Developers
+
+| Problem with tables | Ontology solution |
+|---|---|
+| Schema changes break existing queries | Concepts extend without breaking existing relations |
+| Foreign keys carry no semantic meaning | Named relations express *why* things connect |
+| No native support for inheritance | Concept hierarchies are first-class |
+| Business rules live in application code | Axioms are declared in the model itself |
+| AI agents see raw data, not meaning | Agents traverse a graph of typed, named, meaningful nodes |
+
+The practical result: your data model becomes something an AI agent can navigate, query, and reason over — not just a flat surface it has to be told how to interpret every time.
+
+***
+
+## The Cost and Payoff of Taxonomy
+
+MindBrain's taxonomic work has a cost: someone must decide which entity types, relation labels, lifecycle states, facet dimensions, and projection rules are stable enough to model. That is heavier than adding episodes to a temporal graph and letting extraction create candidate facts.
+
+The payoff is deterministic reuse. Once imported data is qualified, the same model can drive dashboards, kanban boards, compliance checks, project queues, and agent context packs. The agent no longer has to infer whether a relation is a blocker, a dependency, evidence, ownership, or merely semantic proximity.
+
+Taxonomy pays back when the domain is queried repeatedly, the data must drive action, states and owners matter, coverage gaps must be checked before autonomous work, or several domains need to stay distinct while still answering cross-domain questions.
+
+It may not pay back when the job is only temporal recall: "what did the customer say before?", "which preference changed?", or "what was true last month?" For that class of memory, Zep's temporal graph is the cleaner first test.
+
+***
+
 ## Why Try MindBrain First
 
 Zep is compelling when temporal memory is the central requirement: facts change, and the agent needs to retrieve the right version. MindBrain should be tested first when the bigger requirement is cross-domain operation. The question is not only "what did we know then?" but "which ontology owns this fact, what does it block, what system does it connect to, and what projection should the agent use now?"
@@ -257,10 +349,20 @@ What did we know about this customer before the escalation?
 MindBrain-style questions:
 
 ```text
-Which active onboarding accounts are blocked by missing documents?
-Which procedure validates this compliance requirement?
-What is the next unblocked step for this incident?
-Which project milestones depend on this unresolved constraint?
+ghostcrab_count:
+  How many active onboarding accounts are blocked by missing documents?
+
+ghostcrab_search:
+  Which high-priority incidents are active, owned by platform, and missing evidence?
+
+ghostcrab_traverse:
+  Which procedure validates this compliance requirement?
+
+ghostcrab_coverage:
+  Is the incident-response ontology complete enough for autonomous escalation?
+
+ghostcrab_projection_get / ghostcrab_pack:
+  What is the next unblocked step for this incident?
 ```
 
 The first set is temporal memory. The second set is typed operations.

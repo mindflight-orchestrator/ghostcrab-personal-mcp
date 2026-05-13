@@ -15,6 +15,8 @@ LlamaIndex is a **document and query framework** for getting the right context i
 
 mindBrain is a **domain state model** for agents: its intelligence lives in typed entities, facets, directed relations, and compact projections served through GhostCrab MCP. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
 
+
+![[llama-vs-mindbrain.png]]
 ***
 
 ## What LlamaIndex Is
@@ -262,6 +264,97 @@ The architecture page describes mindBrain Personal as SQLite-backed and mindBrai
 
 In LlamaIndex terms, mindBrain is not another retriever. It is the modeled state the retriever's evidence can feed.
 
+***
+
+## Why Ontologies Beat Flat Data Models
+
+Traditional databases store data in tables — rows and columns with fixed types. That works well for transactional data, but it breaks down fast when your domain is complex, evolving, or needs to be understood by an AI agent. Tables answer *"what is stored here?"* but not *"what does this mean?"*
+
+An ontology answers both.
+
+***
+
+### The Three Building Blocks
+
+**Concepts** are the things that exist in your domain — a `Person`, a `Project`, a `Decision`. Not a table row: a meaningful entity with an identity and a type in a shared vocabulary.
+
+**Semantic Relations** connect concepts with named, directional meaning — `Person` *manages* `Project`, `Decision` *depends_on* `Constraint`. Unlike a foreign key, a relation carries intent: an agent reading the graph knows *why* two things are linked, not just *that* they are.
+
+**Properties** describe the attributes of a concept — a `Person` has a `name`, a `role`, an `expertise_level`. Unlike a column, a property can be typed, optional, multivalued, or inherited from a parent concept.
+
+***
+
+### Axioms — The Rules Layer
+
+Axioms are constraints that make the model self-enforcing:
+- A `Decision` *must* have at least one `rationale`
+- A `Person` *cannot* manage more than one `active Project` at a time
+- A `Skill` *is a subtype of* `Capability`
+
+This is where ontologies go beyond schemas. A SQL table can't express that two concepts are *subtypes* of a shared abstraction, or that a relation is *transitive*. An ontology can — and an AI agent can reason over those rules without being told explicitly.
+
+***
+
+### What This Solves for Developers
+
+| Problem with tables | Ontology solution |
+|---|---|
+| Schema changes break existing queries | Concepts extend without breaking existing relations |
+| Foreign keys carry no semantic meaning | Named relations express *why* things connect |
+| No native support for inheritance | Concept hierarchies are first-class |
+| Business rules live in application code | Axioms are declared in the model itself |
+| AI agents see raw data, not meaning | Agents traverse a graph of typed, named, meaningful nodes |
+
+The practical result: your data model becomes something an AI agent can navigate, query, and reason over — not just a flat surface it has to be told how to interpret every time.
+
+***
+
+## Concrete MindBrain Workflow
+
+For a LlamaIndex audience, the important question is what happens after retrieval. mindBrain does not replace the document pipeline. It gives the retrieved evidence a structured destination.
+
+```text
+1. Model the domain
+   -> ghostcrab_modeling_guidance or a domain loadout proposes entities
+      such as obligation, document, task, owner, approval, and risk.
+
+2. Verify the model
+   -> ghostcrab_schema_list / ghostcrab_schema_inspect check the registered
+      schema surface.
+   -> ghostcrab_workspace_export_model exports the semantic contract for
+      importers, generators, or tests.
+
+3. Qualify and import data
+   -> MindBrain Studio or a documented import path maps source documents,
+      chunks, extracted entities, citations, relations, facets, and
+      projection signals into the workspace model.
+
+4. Query after import
+   -> ghostcrab_search reads facet-indexed records such as obligation
+      status, owner, jurisdiction, and workflow phase.
+   -> ghostcrab_count answers shape-of-domain questions before synthesis.
+   -> ghostcrab_facet_tree exposes the taxonomy of imported dimensions.
+   -> ghostcrab_traverse follows document-validates-obligation or
+      task-depends-on-approval edges.
+   -> ghostcrab_coverage checks where the ontology or evidence graph is thin.
+   -> ghostcrab_pack compresses the current task into FACT / GOAL / STEP /
+      CONSTRAINT context.
+```
+
+This is why the import step is a qualification step, not just ingestion. A PDF chunk can remain evidence in LlamaIndex, while its extracted obligation, owner, approval gate, and citation link become queryable domain state in mindBrain. The local GhostCrab inventory lists separate Facets, Graph, and Workspace tool families, including search, count, facet trees, traverse, coverage, and workspace model export. [GhostCrab architecture inventory](../../README_ARCHITECTURE.md)
+
+***
+
+## Taxonomy Cost / Expected Gain
+
+The cost of mindBrain is that a team must decide what the domain means before agents rely on it. A document corpus can be indexed quickly; a domain model needs entity types, relations, statuses, owners, lifecycle phases, evidence links, and projection rules.
+
+That cost pays back when the same imported corpus drives repeated action. A compliance team does not only ask "what does the policy say?" It asks which obligations are uncovered, which documents validate them, who owns each remediation task, what is blocked, and what context the agent should see before drafting the next action. Facets make the narrowing deterministic, graph edges preserve dependencies, coverage exposes gaps, and projection packs keep the agent's context compact.
+
+The cost does not pay back for simple corpus QA, exploratory reading, or a one-time synthesis over a small folder. In those cases, LlamaIndex is the lighter and often better first choice: index the documents, retrieve the chunks, cite the evidence, and avoid modeling work until the workflow starts needing state.
+
+***
+
 ## Why Try MindBrain First
 
 LlamaIndex is often the right first test when the question is "how do I retrieve the right document context?" mindBrain should be tested first when the question is "how do agents act on several kinds of structured meaning at once?" Documents can supply evidence, but projects, customers, obligations, endpoints, tasks, filings, and concepts need typed state and relations.
@@ -307,10 +400,11 @@ Retrieve similar past messages from memory.
 mindBrain-style questions:
 
 ```text
-Which obligations are blocking submission?
-Which documents validate this workflow step?
-Which tasks depend on the missing approval?
-What compact facts, goals, steps, and constraints should the agent see now?
+ghostcrab_search: which obligations have status=blocked and jurisdiction=EU?
+ghostcrab_count: how many obligations lack evidence, grouped by owner?
+ghostcrab_traverse: which documents validate this workflow step?
+ghostcrab_coverage: which ontology nodes or required evidence links are missing?
+ghostcrab_pack: what compact facts, goals, steps, and constraints should the agent see now?
 ```
 
 The first set retrieves knowledge. The second set navigates state.

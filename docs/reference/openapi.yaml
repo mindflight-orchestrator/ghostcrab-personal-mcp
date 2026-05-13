@@ -182,7 +182,7 @@ paths:
             default: 15
       responses:
         '200':
-          description: Wrapped MindBrain context pack
+          description: Wrapped pack — shape depends on pg_pragma availability
           content:
             application/json:
               schema:
@@ -473,15 +473,15 @@ components:
     GraphNeighborhoodResponse:
       oneOf:
         - type: object
-          description: Backend unavailable or entity lookup failed (see implementation)
+          description: Extension missing or entity lookup failed (see implementation)
           properties:
             error:
               type: string
               enum:
-                - mindbrain_backend_unavailable
+                - pg_dgraph_not_installed
                 - entity_not_found
         - type: object
-          description: Successful MindBrain neighborhood graph (opaque JSON)
+          description: Successful pg_dgraph neighborhood graph (opaque JSON)
           additionalProperties: true
 
     TelemetryContextPackResponse:
@@ -491,5 +491,6 @@ components:
         pack:
           nullable: true
           description: >
-            MindBrain context pack for telemetry/user-facing API consumers.
+            When pg_pragma is installed, result of pragma_pack_context(user_id='telemetry', query, limit).
+            When pg_pragma is missing, an object `{ error: pg_pragma_not_installed, query }`.
             May be null if no row returned.

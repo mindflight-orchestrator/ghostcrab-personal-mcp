@@ -14,6 +14,8 @@ LangChain Memory is a **composable memory toolkit** for agent applications: its 
 
 mindBrain is a **structured agentic database**: its intelligence lives in schema enforcement, typed ontologies, directed relations, and pre-computed projections exposed through GhostCrab MCP. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
 
+![[langchain-memory-vs-mindbrain.png]]
+
 ***
 
 ## What LangChain Memory Is
@@ -241,6 +243,96 @@ The GhostCrab architecture page describes mindBrain Personal as SQLite-backed an
 
 In short: LangChain Memory helps an agent remember. mindBrain helps an agent operate inside a structured world.
 
+***
+
+## Why Ontologies Beat Flat Data Models
+
+Traditional databases store data in tables — rows and columns with fixed types. That works well for transactional data, but it breaks down fast when your domain is complex, evolving, or needs to be understood by an AI agent. Tables answer *"what is stored here?"* but not *"what does this mean?"*
+
+An ontology answers both.
+
+***
+
+### The Three Building Blocks
+
+**Concepts** are the things that exist in your domain — a `Person`, a `Project`, a `Decision`. Not a table row: a meaningful entity with an identity and a type in a shared vocabulary.
+
+**Semantic Relations** connect concepts with named, directional meaning — `Person` *manages* `Project`, `Decision` *depends_on* `Constraint`. Unlike a foreign key, a relation carries intent: an agent reading the graph knows *why* two things are linked, not just *that* they are.
+
+**Properties** describe the attributes of a concept — a `Person` has a `name`, a `role`, an `expertise_level`. Unlike a column, a property can be typed, optional, multivalued, or inherited from a parent concept.
+
+***
+
+### Axioms — The Rules Layer
+
+Axioms are constraints that make the model self-enforcing:
+- A `Decision` *must* have at least one `rationale`
+- A `Person` *cannot* manage more than one `active Project` at a time
+- A `Skill` *is a subtype of* `Capability`
+
+This is where ontologies go beyond schemas. A SQL table can't express that two concepts are *subtypes* of a shared abstraction, or that a relation is *transitive*. An ontology can — and an AI agent can reason over those rules without being told explicitly.
+
+***
+
+### What This Solves for Developers
+
+| Problem with tables | Ontology solution |
+|---|---|
+| Schema changes break existing queries | Concepts extend without breaking existing relations |
+| Foreign keys carry no semantic meaning | Named relations express *why* things connect |
+| No native support for inheritance | Concept hierarchies are first-class |
+| Business rules live in application code | Axioms are declared in the model itself |
+| AI agents see raw data, not meaning | Agents traverse a graph of typed, named, meaningful nodes |
+
+The practical result: your data model becomes something an AI agent can navigate, query, and reason over — not just a flat surface it has to be told how to interpret every time.
+
+***
+
+## Concrete MindBrain Workflow
+
+The operational proof is not "add an ontology" and stop there. A LangChain app that wants mindBrain underneath it needs four steps:
+
+```text
+1. Model the domain
+   -> ghostcrab_modeling_guidance or a loadout suggests entity types,
+      lifecycle states, facets, and relations.
+
+2. Verify the model
+   -> ghostcrab_schema_list / ghostcrab_schema_inspect check registered
+      schemas.
+   -> ghostcrab_workspace_export_model exports the workspace semantics
+      when another generator or integration needs a contract.
+
+3. Qualify and import data
+   -> MindBrain Studio or a documented import path maps source records,
+      chunks, entities, relations, facets, and projection signals into
+      the workspace model.
+
+4. Query after import
+   -> ghostcrab_count shapes the domain before content reads.
+   -> ghostcrab_search reads facet-indexed records with exact filters.
+   -> ghostcrab_facet_tree exposes taxonomy-like navigation.
+   -> ghostcrab_traverse follows blockers, dependencies, and evidence links.
+   -> ghostcrab_coverage checks whether the modeled domain has gaps.
+   -> ghostcrab_pack returns compact FACT / GOAL / STEP / CONSTRAINT context.
+```
+
+The repository's architecture inventory describes these as separate tool families: Facets for search, count, and facet trees; Graph for traverse, marketplace search, patching, and coverage; Workspace for inspecting and exporting semantics. [GhostCrab architecture inventory](../../README_ARCHITECTURE.md)
+
+That separation matters for LangChain users. A LangGraph node can still orchestrate the workflow, but the memory substrate no longer has to be a loose store of JSON facts. Studio or the import path qualifies raw records into a model first; then the agent queries facets, graph edges, coverage, and projection packs through the MCP surface.
+
+***
+
+## Taxonomy Cost / Expected Gain
+
+mindBrain's cost is real: someone has to name the entities, statuses, owners, relations, and valid projection surfaces. That is more work than adding a LangGraph Store namespace and an embedding index.
+
+The cost pays back when the imported data becomes a reusable operating surface: filtered, counted, joined through typed relations, checked for gaps, and packed into compact agent context. It is worth it when the same domain will be queried repeatedly, when lifecycle state drives action, when owners and blockers matter, or when several domains need to remain distinct while still answering cross-domain questions.
+
+It is probably not worth it when the task is a one-off question, a small corpus, or a conversational assistant that only needs user preferences and recent history. In that case, LangChain Memory is the lighter first move: keep the memory policy inside the graph, store what the app needs, and avoid taxonomy work until the domain starts behaving like an operating system.
+
+***
+
 ## Why Try MindBrain First
 
 LangChain gives developers the parts to assemble memory behavior. mindBrain is worth testing first when the missing piece is not another memory component, but a shared semantic workspace. A LangGraph state, a vector store, a SQL database, and a tool registry can all exist in a LangChain app, but the developer still has to define how CRM records, project tasks, HR ownership, legal constraints, and knowledge notes relate.
@@ -288,10 +380,11 @@ Which examples should I retrieve for this prompt?
 mindBrain-style domain questions:
 
 ```text
-Which onboarding cases are blocked in Belgium?
-Which release tasks depend on legal review?
-What facts, goals, steps, and constraints should the agent see for this deal?
-Which requirements are missing before this procedure can move forward?
+ghostcrab_count: how many onboarding cases are blocked in Belgium, by owner?
+ghostcrab_search: which blocked cases match status=blocked and country=BE?
+ghostcrab_traverse: which release tasks depend on legal review?
+ghostcrab_coverage: which requirements are missing before this procedure can move forward?
+ghostcrab_pack: what facts, goals, steps, and constraints should the agent see for this deal?
 ```
 
 The first set is about recall. The second set is about state, dependencies, and next action.

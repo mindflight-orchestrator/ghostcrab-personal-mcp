@@ -14,7 +14,10 @@ Supermemory is a **universal memory and context API**: its intelligence lives in
 
 mindBrain is a **structured agentic database**: its intelligence lives in schema enforcement, typed ontologies, directed relations, facets, and pre-computed projections that make a modeled domain navigable at query time. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
 
-***
+![[supermemory-vs-mindbrain.png]]
+
+---
+
 
 ## What Supermemory Is
 
@@ -177,6 +180,104 @@ mindBrain's bet is the inverse: once an agent is responsible for real work, **re
 mindBrain is the structured storage layer underneath GhostCrab. It is available as mindBrain Personal on SQLite and mindBrain Professional on PostgreSQL, with GhostCrab exposing the agent-facing MCP layer. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
 
 Its core abstraction is not a memory item. It is a navigable domain: entities, facets, directed graph relations, schemas, ontologies, and projections. The agent still reasons and converses, but GhostCrab gives it a structured world to operate in. [GhostCrab home](https://www.ghostcrab.be/)
+
+***
+
+## Why Ontologies Beat Flat Data Models
+
+Traditional databases store data in tables — rows and columns with fixed types. That works well for transactional data, but it breaks down fast when your domain is complex, evolving, or needs to be understood by an AI agent. Tables answer *"what is stored here?"* but not *"what does this mean?"*
+
+An ontology answers both.
+
+***
+
+### The Three Building Blocks
+
+**Concepts** are the things that exist in your domain — a `Person`, a `Project`, a `Decision`. Not a table row: a meaningful entity with an identity and a type in a shared vocabulary.
+
+**Semantic Relations** connect concepts with named, directional meaning — `Person` *manages* `Project`, `Decision` *depends_on* `Constraint`. Unlike a foreign key, a relation carries intent: an agent reading the graph knows *why* two things are linked, not just *that* they are.
+
+**Properties** describe the attributes of a concept — a `Person` has a `name`, a `role`, an `expertise_level`. Unlike a column, a property can be typed, optional, multivalued, or inherited from a parent concept.
+
+***
+
+### Axioms — The Rules Layer
+
+Axioms are constraints that make the model self-enforcing:
+- A `Decision` *must* have at least one `rationale`
+- A `Person` *cannot* manage more than one `active Project` at a time
+- A `Skill` *is a subtype of* `Capability`
+
+This is where ontologies go beyond schemas. A SQL table can't express that two concepts are *subtypes* of a shared abstraction, or that a relation is *transitive*. An ontology can — and an AI agent can reason over those rules without being told explicitly.
+
+***
+
+### What This Solves for Developers
+
+| Problem with tables | Ontology solution |
+|---|---|
+| Schema changes break existing queries | Concepts extend without breaking existing relations |
+| Foreign keys carry no semantic meaning | Named relations express *why* things connect |
+| No native support for inheritance | Concept hierarchies are first-class |
+| Business rules live in application code | Axioms are declared in the model itself |
+| AI agents see raw data, not meaning | Agents traverse a graph of typed, named, meaningful nodes |
+
+The practical result: your data model becomes something an AI agent can navigate, query, and reason over — not just a flat surface it has to be told how to interpret every time.
+
+***
+
+## Concrete MindBrain Workflow After Import
+
+The MindBrain version of "add everything, search later" is more selective. It treats import as qualification:
+
+```text
+1. Model the workspace
+   ghostcrab_modeling_guidance or a loadout suggestion
+     -> domains, entity types, relation types, facets, lifecycle states
+
+2. Inspect or register the contract
+   ghostcrab_schema_list / ghostcrab_schema_inspect
+   ghostcrab_workspace_export_model
+     -> what imported records are allowed to mean
+
+3. Qualify incoming data
+   MindBrain Studio or an import path maps connector output into:
+     records
+     chunks
+     entities
+     relations
+     facets
+     projection signals
+
+4. Query after import
+   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree
+     -> typed slices, counts, and facet navigation
+
+   ghostcrab_traverse / graph entity tools
+     -> dependencies, blockers, evidence links, prerequisites
+
+   ghostcrab_coverage
+     -> missing coverage before the agent acts
+
+   ghostcrab_projection_get / ghostcrab_pack
+     -> compact task context for the current agent turn
+```
+
+For a Supermemory-style source, this means connector data is not only stored as memories and chunks. A Google Drive document, Notion page, CRM export, or support transcript can be qualified into a workspace model: `Account`, `Commitment`, `Policy`, `Issue`, `Owner`, `Evidence`, `BLOCKS`, `VALIDATES`, `risk`, `stage`, `region`, `status`. The source chunk remains useful as evidence, but the agent can also ask structured questions over the imported state.
+
+The important boundary is that `ghostcrab_search` is the facet-backed record search surface, not a magic graph query. Graph questions use traversal or entity-link surfaces. Projection questions use `ghostcrab_projection_get` or `ghostcrab_pack`. That separation is the operational gain: after import, the agent chooses the right surface instead of treating every question as hybrid text search.
+
+***
+
+## Taxonomy Cost / Expected Gain
+
+Supermemory minimizes the cost of getting memory into an application. MindBrain adds modeling cost up front. The user has to name entities, facets, relations, and states; the import path has to map records into that model; and the team has to maintain the taxonomy as the domain changes.
+
+That cost is worth paying when context becomes operational state. Repeated workflows, compliance review, CRM pipelines, incident response, software delivery, legal obligations, project ownership, or multi-team work queues all benefit from deterministic retrieval and explicit dependencies. The payoff is that imported data can be filtered, counted, traversed, checked for gaps, and packed into compact context without asking the model to infer the same structure repeatedly.
+
+The cost is probably too high when the product only needs fast user memory, personalization, or document recall. If the question is "what did this user say before?" or "which snippet from this document is relevant?", Supermemory's lighter API is the more direct first choice. MindBrain is strongest once the application needs the memory to drive valid actions across a modeled domain.
+
+***
 
 ## Why Try MindBrain First
 

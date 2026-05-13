@@ -14,6 +14,8 @@ Hindsight is a **learning-oriented agent memory system**: its intelligence lives
 
 mindBrain is a **structured agentic database**: its intelligence lives in typed domain state, facets, directed graph relations, and projections that make an operational world navigable without reconstructing it from memories each turn. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
 
+![[hindsight-vs-mindbrain.png]]
+
 ***
 
 ## Evidence Limits
@@ -238,6 +240,104 @@ Given the evidence limits, the cautious conclusion is: Hindsight looks strongest
 mindBrain is the durable structured storage layer behind GhostCrab. GhostCrab describes itself as an MCP-friendly server layer that lets an existing agent work with structured project state on mindBrain Personal, backed by SQLite, or mindBrain Professional, backed by PostgreSQL. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
 
 Its recurring primitives are facets, graphs, and projections. Facets find the relevant domain slice. Graphs represent directed dependencies and blockers. Projections pack compact working context for the current task. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
+
+***
+
+## Why Ontologies Beat Flat Data Models
+
+Traditional databases store data in tables — rows and columns with fixed types. That works well for transactional data, but it breaks down fast when your domain is complex, evolving, or needs to be understood by an AI agent. Tables answer *"what is stored here?"* but not *"what does this mean?"*
+
+An ontology answers both.
+
+***
+
+### The Three Building Blocks
+
+**Concepts** are the things that exist in your domain — a `Person`, a `Project`, a `Decision`. Not a table row: a meaningful entity with an identity and a type in a shared vocabulary.
+
+**Semantic Relations** connect concepts with named, directional meaning — `Person` *manages* `Project`, `Decision` *depends_on* `Constraint`. Unlike a foreign key, a relation carries intent: an agent reading the graph knows *why* two things are linked, not just *that* they are.
+
+**Properties** describe the attributes of a concept — a `Person` has a `name`, a `role`, an `expertise_level`. Unlike a column, a property can be typed, optional, multivalued, or inherited from a parent concept.
+
+***
+
+### Axioms — The Rules Layer
+
+Axioms are constraints that make the model self-enforcing:
+- A `Decision` *must* have at least one `rationale`
+- A `Person` *cannot* manage more than one `active Project` at a time
+- A `Skill` *is a subtype of* `Capability`
+
+This is where ontologies go beyond schemas. A SQL table can't express that two concepts are *subtypes* of a shared abstraction, or that a relation is *transitive*. An ontology can — and an AI agent can reason over those rules without being told explicitly.
+
+***
+
+### What This Solves for Developers
+
+| Problem with tables | Ontology solution |
+|---|---|
+| Schema changes break existing queries | Concepts extend without breaking existing relations |
+| Foreign keys carry no semantic meaning | Named relations express *why* things connect |
+| No native support for inheritance | Concept hierarchies are first-class |
+| Business rules live in application code | Axioms are declared in the model itself |
+| AI agents see raw data, not meaning | Agents traverse a graph of typed, named, meaningful nodes |
+
+The practical result: your data model becomes something an AI agent can navigate, query, and reason over — not just a flat surface it has to be told how to interpret every time.
+
+***
+
+## Concrete MindBrain Workflow After Import
+
+Because public Hindsight implementation detail is still limited, the safest comparison is at the contract level. Hindsight exposes retain, recall, and reflect over memory banks. The MindBrain path is a modeled workspace where import qualifies data before agents query it:
+
+```text
+1. Model the domain
+   ghostcrab_modeling_guidance or loadout suggestion
+     -> entities, relation types, facet dimensions, lifecycle states
+
+2. Verify the contract
+   ghostcrab_schema_list / ghostcrab_schema_inspect
+   ghostcrab_workspace_export_model
+     -> the workspace semantics the import must satisfy
+
+3. Qualify imported data
+   MindBrain Studio or an import path maps source material into:
+     source records
+     chunks and evidence
+     typed entities
+     directed relations
+     facet values
+     projection signals
+
+4. Query the qualified workspace
+   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree
+     -> facet-indexed records and typed navigation
+
+   ghostcrab_traverse / graph entity tools
+     -> dependencies, blockers, prerequisites, evidence paths
+
+   ghostcrab_coverage
+     -> ontology gaps before autonomous action
+
+   ghostcrab_projection_get / ghostcrab_pack
+     -> compact working context for the agent
+```
+
+If Hindsight data is exported or mirrored into MindBrain, the import should not flatten it into one generic memory table. World facts, experience facts, observations, and mental models would need to be mapped into the target workspace only where the semantics are clear: a fact can become evidence, an observed dependency can become a typed edge, a mission directive can become a constraint, and a recurring action pattern can become a projection signal. Where the mapping is unclear, the honest answer is to preserve the source as evidence rather than overstate structure.
+
+That is also the boundary between the two systems. Hindsight's `recall` and `reflect` surfaces are built for learning from memory banks. MindBrain's GhostCrab surfaces are built for querying qualified domain state: `ghostcrab_search` for facet-backed records, graph traversal for explicit dependencies, `ghostcrab_coverage` for missing model coverage, and projections or packs for compact working context. The public evidence supports comparing those contracts; it does not support claiming that Hindsight's hidden internals are weaker or stronger than MindBrain's storage internals.
+
+***
+
+## Taxonomy Cost / Expected Gain
+
+MindBrain asks for more modeling discipline than a learning memory layer. The team has to name the domain objects, choose relation labels, define facet dimensions, and decide which states are valid. That work is overhead if the goal is only to remember preferences, summarize past interactions, or let an agent reflect over accumulated experience.
+
+The cost pays back when the agent must act inside a repeatable operating domain. If obligations, project phases, owners, blockers, approvals, incident states, evidence links, or valid transitions matter, taxonomy turns memory into a queryable contract. The expected gain is deterministic retrieval, explicit graph paths, coverage checks before action, and projection packs that compress the current task into `FACT`, `GOAL`, `STEP`, and `CONSTRAINT` instead of re-reading a long memory bank.
+
+The cost does not pay back when the task is exploratory, personal, or mostly adaptive. If the primary question is "what has this agent learned about the user?" Hindsight is the more natural first test. If the question is "which state transition is valid, which dependency blocks it, and what evidence supports the next step?" MindBrain is the more natural test.
+
+***
 
 ## Why Try MindBrain First
 
