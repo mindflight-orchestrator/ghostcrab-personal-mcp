@@ -1,9 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 
-const databaseUrl =
-  process.env.DATABASE_URL ?? "postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab";
-
 const result = spawnSync(
   process.execPath,
   ["examples/node-stdio-client/index.mjs"],
@@ -11,7 +8,8 @@ const result = spawnSync(
     cwd: process.cwd(),
     env: {
       ...process.env,
-      DATABASE_URL: databaseUrl
+      GHOSTCRAB_EMBEDDINGS_MODE:
+        process.env.GHOSTCRAB_EMBEDDINGS_MODE ?? "disabled"
     },
     encoding: "utf8"
   }

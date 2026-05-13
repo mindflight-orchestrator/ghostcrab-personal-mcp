@@ -18,7 +18,7 @@
  *
  * WHAT THIS TEST DOES WHEN PR-1 TO PR-4 ARE MERGED:
  *   - The "requires PR-3" describe blocks (currently skipped) will be activated
- *   - They will run against a live MCP server with DATABASE_URL
+ *   - They will run against a live MCP server with GHOSTCRAB_MINDBRAIN_URL
  *
  * @group e2e
  * @slow
@@ -448,13 +448,13 @@ describe("all domain examples consistency", () => {
 });
 
 // ---------------------------------------------------------------------------
-// 6. Live MCP E2E (requires DATABASE_URL + built dist/index.js)
-//    Guard: tests only run when DATABASE_URL is set in the environment.
+// 6. Live MCP E2E (requires GHOSTCRAB_MINDBRAIN_URL + built dist/index.js)
+//    Guard: tests only run when GHOSTCRAB_MINDBRAIN_URL is set in the environment.
 // ---------------------------------------------------------------------------
 
-const HAS_DB = Boolean(process.env.DATABASE_URL);
+const HAS_DB = Boolean(process.env.GHOSTCRAB_MINDBRAIN_URL);
 
-describe(HAS_DB ? "live MCP E2E" : "live MCP E2E [skipped — no DATABASE_URL]", () => {
+describe(HAS_DB ? "live MCP E2E" : "live MCP E2E [skipped - no GHOSTCRAB_MINDBRAIN_URL]", () => {
   const WORKSPACE_ID = "casino-pilot-e2e";
   const DDL_CONTENT = readFileSync(DDL_PATH, "utf-8");
   const SEMANTICS = JSON.parse(readFileSync(SEMANTICS_PATH, "utf-8")) as {

@@ -11,12 +11,10 @@ import { executeScenario, listScenarioPack } from "../../helpers/mcp-scenarios.j
 const SQLITE_TEST_DIR = mkdtempSync(join(tmpdir(), "ghostcrab-scenario-pack-"));
 const SQLITE_TEST_DB_PATH = join(SQLITE_TEST_DIR, "scenario-pack.sqlite");
 
-process.env.GHOSTCRAB_DATABASE_KIND = "sqlite";
 process.env.GHOSTCRAB_MINDBRAIN_URL =
   process.env.GHOSTCRAB_MINDBRAIN_URL ?? "http://127.0.0.1:8091";
 process.env.GHOSTCRAB_SQLITE_PATH = SQLITE_TEST_DB_PATH;
 process.env.GHOSTCRAB_EMBEDDINGS_MODE = "disabled";
-delete process.env.DATABASE_URL;
 
 const config = resolveGhostcrabConfig(process.env);
 const database = createDatabaseClient(config);

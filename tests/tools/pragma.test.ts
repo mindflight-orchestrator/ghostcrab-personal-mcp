@@ -320,16 +320,16 @@ describe("pragma tools", () => {
       },
       backends: {
         facets: "sql",
-        graph: "native",
-        pragma: "native"
+        graph: "mindbrain",
+        pragma: "mindbrain"
       },
       capabilities: {
-        facets_native_count: false,
-        facets_native_bm25: false,
-        graph_native_traversal: true,
+        facets_count: false,
+        facets_bm25: false,
+        graph_traversal: true,
         graph_marketplace_search: false,
         graph_confidence_decay: false,
-        pragma_native_pack: true,
+        pragma_pack: true,
         mb_ontology_available: true
       }
     });
@@ -429,16 +429,16 @@ describe("pragma tools", () => {
       },
       backends: {
         facets: "sql",
-        graph: "native",
-        pragma: "native"
+        graph: "mindbrain",
+        pragma: "mindbrain"
       },
       capabilities: {
-        facets_native_count: false,
-        facets_native_bm25: false,
-        graph_native_traversal: true,
+        facets_count: false,
+        facets_bm25: false,
+        graph_traversal: true,
         graph_marketplace_search: false,
         graph_confidence_decay: false,
-        pragma_native_pack: true,
+        pragma_pack: true,
         mb_ontology_available: true
       }
     });
@@ -484,18 +484,18 @@ describe("pragma tools", () => {
     expect(payload.runtime).toMatchObject({
       backends: {
         facets: "sql",
-        graph: "native",
-        pragma: "native"
+        graph: "mindbrain",
+        pragma: "mindbrain"
       },
       capabilities: {
-        facets_native_count: false,
-        facets_native_bm25: false,
-        graph_native_traversal: true,
+        facets_count: false,
+        facets_bm25: false,
+        graph_traversal: true,
         graph_marketplace_search: false,
         graph_confidence_decay: false,
-        pragma_native_pack: true
+        pragma_pack: true
       },
-      native_readiness: {
+      sqlite_readiness: {
         pragma: {
           pack: true
         }
@@ -598,7 +598,7 @@ describe("pragma tools", () => {
     expect(payload.runtime).toMatchObject({
       database_kind: "sqlite",
       sqlite_backing_store: true,
-      native_readiness: {
+      sqlite_readiness: {
         facets: {
           count: false,
           bm25: false
@@ -620,18 +620,18 @@ describe("pragma tools", () => {
         }
       },
       capabilities: {
-        facets_native_count: false,
-        facets_native_bm25: false,
-        graph_native_traversal: true,
+        facets_count: false,
+        facets_bm25: false,
+        graph_traversal: true,
         graph_marketplace_search: false,
         graph_confidence_decay: false,
-        pragma_native_pack: true,
+        pragma_pack: true,
         mb_ontology_available: true
       },
       backends: {
         facets: "sql",
-        graph: "native",
-        pragma: "native"
+        graph: "mindbrain",
+        pragma: "mindbrain"
       }
     });
   });

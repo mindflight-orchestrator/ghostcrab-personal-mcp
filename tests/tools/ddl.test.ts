@@ -70,7 +70,7 @@ describe("ghostcrab_ddl_propose", () => {
     const result = await ddlProposeTool.handler(
       {
         workspace_id: "default",
-        sql: "CREATE TABLE foo (id SERIAL PRIMARY KEY)",
+        sql: "CREATE TABLE foo (id INTEGER PRIMARY KEY)",
         rationale: "Need this table"
       },
       ctx
@@ -82,17 +82,16 @@ describe("ghostcrab_ddl_propose", () => {
     expect(data.status).toBe("pending");
   });
 
-  it("generates trigger preview when sync_spec provided", async () => {
+  it("rejects sync_spec trigger previews in SQLite-only mode", async () => {
     const ctx = makeContext([
-      [{ id: "default" }],
-      [{ id: "abc-123" }]
+      [{ id: "default" }]
     ]);
     const result = await ddlProposeTool.handler(
       {
         workspace_id: "default",
-        sql: "CREATE TABLE articles (id SERIAL PRIMARY KEY, title TEXT)",
+        sql: "CREATE TABLE articles (id INTEGER PRIMARY KEY, title TEXT)",
         sync_spec: {
-          source_table: "public.articles",
+          source_table: "articles",
           fields: [
             { column_name: "title", facet_key: "title", index_in_bm25: true, facet_type: "term" }
           ]
@@ -101,7 +100,8 @@ describe("ghostcrab_ddl_propose", () => {
       ctx
     );
     const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
-    expect(data.has_trigger_preview).toBe(true);
+    expect(result.isError).toBe(true);
+    expect((data.error as Record<string, unknown>).code).toBe("sync_spec_not_supported");
   });
 
   it("stores semantic_proposal (inferred) on propose", async () => {
@@ -211,12 +211,12 @@ describe("ghostcrab_ddl_execute", () => {
     expect(ctx.database.transaction).toHaveBeenCalled();
   });
 
-  it("applies trigger when preview_trigger is set", async () => {
+  it("skips legacy trigger previews", async () => {
     const ctx = makeContext([[{
       id: "550e8400-e29b-41d4-a716-446655440000",
       workspace_id: "default",
       sql: "CREATE TABLE foo (id INT)",
-      preview_trigger: "CREATE OR REPLACE FUNCTION trg_test() ...",
+      preview_trigger: "CREATE TRIGGER trg_test AFTER INSERT ON foo BEGIN SELECT 1; END",
       status: "approved"
     }]]);
     const result = await ddlExecuteTool.handler(
@@ -224,7 +224,7 @@ describe("ghostcrab_ddl_execute", () => {
       ctx
     );
     const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
-    expect(data.trigger_applied).toBe(true);
+    expect(data.trigger_applied).toBe(false);
   });
 
   it("rejects invalid UUID format", async () => {
