@@ -125,7 +125,7 @@ Server name `ghostcrab` is conventional; keep it if you copy snippets from **`gh
 1. Merge an **`mcpServers`** block like the examples above into your project **`.mcp.json`** (or the path Claude Code expects in your layout).
 2. Optional: copy hooks / fragments from **`ghostcrab-skills/claude-code/`** (e.g. `self-memory/`, `data-architect/`) — see each folder’s `README.md`.
 
-**Note:** Some checked-in **`ghostcrab-skills/claude-code/**/.mcp.json`** examples still reference older package names or removed database env variables. This **SQLite** product uses **`gcp brain up`** (or legacy **`gcp serve`**) and the **`GHOSTCRAB_*`** variables from the root README; adjust env to match how you run MindBrain.
+**Note:** Some checked-in **`ghostcrab-skills/claude-code/**/.mcp.json`** examples still reference older package names or PostgreSQL `DATABASE_URL`. This **SQLite** product uses **`gcp brain up`** (or legacy **`gcp serve`**) and the **`GHOSTCRAB_*`** variables from the root README; adjust env to match how you run MindBrain.
 
 ### Codex
 
@@ -159,7 +159,7 @@ It is **client integration**: rules, prompts, demo profiles, and copies of Codex
 
 ### Optional **demo profile** data in the DB
 
-To load **scenario JSONL** into the MindBrain SQLite backend GhostCrab uses, run the demo loader from a **checkout** of this repo (with dev deps):
+To load **scenario JSONL** into the MindBrain/PostgreSQL database GhostCrab uses, run the demo loader from a **checkout** of this repo (with dev deps):
 
 ```bash
 # Profile id under ghostcrab-skills/shared/demo-profiles/<id>.jsonl
@@ -186,7 +186,7 @@ The commands **`gcp agent skills` / `gcp skills`** and **`gcp brain schema` / `g
 ## See also
 
 - [gcp-commands.md](../reference/gcp-commands.md) — full JTBD command table
-- Root [README.md](../../README.md) — install, env vars, and SQLite backend notes.
+- Root [README.md](../../README.md) — install, env vars, SQLite vs PostgreSQL notes.
 - [ghostcrab-skills/README.md](../../ghostcrab-skills/README.md) — integration layout and quick start.
 - [ghostcrab-skills/GHOSTCRAB_INTEGRATION.md](../../ghostcrab-skills/GHOSTCRAB_INTEGRATION.md) — contract between product and skills repo.
 - Local pack / install smoke: `pnpm run pack:local`, `pnpm run verify:local-install` (and Makefile targets `local-pack`, `verify-local-install`).

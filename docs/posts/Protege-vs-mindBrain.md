@@ -15,6 +15,7 @@ Protégé is a **research-grade OWL ontology engineering environment**: its inte
 
 MindBrain is a **practitioner-grade agentic ontology runtime**: its intelligence lives in typed domain state, faceted retrieval, directed dependencies, and compact projections that agents can use during operational work. [GhostCrab](https://www.ghostcrab.be/architecture.html)
 
+![[protege-vs-mindbrain.png]]
 ***
 
 ## What Protégé Is
@@ -192,6 +193,90 @@ The sharp tradeoff is: Protégé is schema as a formal artifact; MindBrain is sc
 MindBrain is a structured agentic database that makes any domain navigable in real time; its intelligence lives in schema enforcement, typed ontologies, and pre-computed projections that cost zero inference at query time.
 
 GhostCrab exposes that structure through three roles: `pg_facets` to find the right subset, `pg_dgraph` to follow relations and blockers, and `pg_pragma` to pack compact context for the task at hand. [GhostCrab](https://www.ghostcrab.be/architecture.html)
+
+***
+
+## Why Ontologies Beat Flat Data Models
+
+Traditional databases store data in tables — rows and columns with fixed types. That works well for transactional data, but it breaks down fast when your domain is complex, evolving, or needs to be understood by an AI agent. Tables answer *"what is stored here?"* but not *"what does this mean?"*
+
+An ontology answers both.
+
+***
+
+### The Three Building Blocks
+
+**Concepts** are the things that exist in your domain — a `Person`, a `Project`, a `Decision`. Not a table row: a meaningful entity with an identity and a type in a shared vocabulary.
+
+**Semantic Relations** connect concepts with named, directional meaning — `Person` *manages* `Project`, `Decision` *depends_on* `Constraint`. Unlike a foreign key, a relation carries intent: an agent reading the graph knows *why* two things are linked, not just *that* they are.
+
+**Properties** describe the attributes of a concept — a `Person` has a `name`, a `role`, an `expertise_level`. Unlike a column, a property can be typed, optional, multivalued, or inherited from a parent concept.
+
+***
+
+### Axioms — The Rules Layer
+
+Axioms are constraints that make the model self-enforcing:
+- A `Decision` *must* have at least one `rationale`
+- A `Person` *cannot* manage more than one `active Project` at a time
+- A `Skill` *is a subtype of* `Capability`
+
+This is where ontologies go beyond schemas. A SQL table can't express that two concepts are *subtypes* of a shared abstraction, or that a relation is *transitive*. An ontology can — and an AI agent can reason over those rules without being told explicitly.
+
+***
+
+### What This Solves for Developers
+
+| Problem with tables | Ontology solution |
+|---|---|
+| Schema changes break existing queries | Concepts extend without breaking existing relations |
+| Foreign keys carry no semantic meaning | Named relations express *why* things connect |
+| No native support for inheritance | Concept hierarchies are first-class |
+| Business rules live in application code | Axioms are declared in the model itself |
+| AI agents see raw data, not meaning | Agents traverse a graph of typed, named, meaningful nodes |
+
+The practical result: your data model becomes something an AI agent can navigate, query, and reason over — not just a flat surface it has to be told how to interpret every time.
+
+***
+
+## Concrete MindBrain / GhostCrab Workflow
+
+The clean comparison is not "Protégé cannot model domains." It can. The comparison is that Protégé produces and governs formal ontology artifacts, while MindBrain turns an operational model into a queryable agent runtime.
+
+```text
+1. Model the operational domain
+   ghostcrab_modeling_guidance or ghostcrab_loadout_suggest
+   -> entity types, relation types, facets, lifecycle states, projections
+
+2. Register or verify the model
+   ghostcrab_schema_list / ghostcrab_schema_inspect,
+   ontology registration tools, ghostcrab_ddl_propose,
+   ghostcrab_workspace_export_model
+   -> the runtime knows which states, edges, and facets are legal
+
+3. Qualify imported data
+   MindBrain Studio or an import path maps source records, OWL-derived
+   concepts, documents, issues, tasks, policies, and evidence into records,
+   chunks, entities, relations, facets, and projection signals
+
+4. Query after import
+   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree for facets
+   ghostcrab_marketplace / ghostcrab_traverse for graph relationships
+   ghostcrab_coverage for model gaps before autonomous action
+   ghostcrab_projection_get / ghostcrab_pack for agent-ready context
+```
+
+That qualification step is where MindBrain differs from a pure ontology editor. A class hierarchy alone does not tell an agent which onboarding task is blocked today, which evidence record validates it, or which owner can unblock it. After import, the data is split into the surfaces agents need: facet-indexed records for narrowing, graph relations for dependencies and evidence, coverage checks for missing structure, and projections for small working briefs. [GhostCrab](https://www.ghostcrab.be/architecture.html)
+
+***
+
+## Taxonomy Cost and Expected Gain
+
+MindBrain's taxonomy work pays back when ontology terms must become live operational state. The expected gain is deterministic retrieval, reusable facets, explicit owners and blockers, graph traversal over evidence, and compact context packs that agents can use without reconstructing the domain from prose.
+
+That cost is not always justified. If the work is formal OWL research, consistency checking, class modeling, ontology publication, or collaborative review of an ontology artifact, Protégé remains the more natural tool. If the work is a one-off question over a small corpus, a lighter search or memory layer is also a better first move. MindBrain is strongest when the same modeled domain will be queried and acted on repeatedly.
+
+***
 
 ## Why Try MindBrain First
 

@@ -213,9 +213,93 @@ MindBrain is a structured agentic database that makes any domain navigable in re
 
 GhostCrab exposes that model as an MCP working layer over PostgreSQL. Its three capabilities are find the right slice, follow what connects, and pack the right working surface. [GhostCrab](https://www.ghostcrab.be/architecture.html)
 
+***
+
+## Why Ontologies Beat Flat Data Models
+
+Traditional databases store data in tables — rows and columns with fixed types. That works well for transactional data, but it breaks down fast when your domain is complex, evolving, or needs to be understood by an AI agent. Tables answer *"what is stored here?"* but not *"what does this mean?"*
+
+An ontology answers both.
+
+***
+
+### The Three Building Blocks
+
+**Concepts** are the things that exist in your domain — a `Person`, a `Project`, a `Decision`. Not a table row: a meaningful entity with an identity and a type in a shared vocabulary.
+
+**Semantic Relations** connect concepts with named, directional meaning — `Person` *manages* `Project`, `Decision` *depends_on* `Constraint`. Unlike a foreign key, a relation carries intent: an agent reading the graph knows *why* two things are linked, not just *that* they are.
+
+**Properties** describe the attributes of a concept — a `Person` has a `name`, a `role`, an `expertise_level`. Unlike a column, a property can be typed, optional, multivalued, or inherited from a parent concept.
+
+***
+
+### Axioms — The Rules Layer
+
+Axioms are constraints that make the model self-enforcing:
+- A `Decision` *must* have at least one `rationale`
+- A `Person` *cannot* manage more than one `active Project` at a time
+- A `Skill` *is a subtype of* `Capability`
+
+This is where ontologies go beyond schemas. A SQL table can't express that two concepts are *subtypes* of a shared abstraction, or that a relation is *transitive*. An ontology can — and an AI agent can reason over those rules without being told explicitly.
+
+***
+
+### What This Solves for Developers
+
+| Problem with tables | Ontology solution |
+|---|---|
+| Schema changes break existing queries | Concepts extend without breaking existing relations |
+| Foreign keys carry no semantic meaning | Named relations express *why* things connect |
+| No native support for inheritance | Concept hierarchies are first-class |
+| Business rules live in application code | Axioms are declared in the model itself |
+| AI agents see raw data, not meaning | Agents traverse a graph of typed, named, meaningful nodes |
+
+The practical result: your data model becomes something an AI agent can navigate, query, and reason over — not just a flat surface it has to be told how to interpret every time.
+
+***
+
+## Concrete MindBrain / GhostCrab Workflow
+
+TopBraid governs enterprise semantic assets. MindBrain has a narrower runtime question: once a team has a domain model, how does an agent use imported operational data safely and quickly?
+
+```text
+1. Model the runtime domain
+   ghostcrab_modeling_guidance or ghostcrab_loadout_suggest
+   -> asset, policy, task, owner, obligation, incident, evidence, and blocker types
+
+2. Register or verify the model
+   ghostcrab_schema_list / ghostcrab_schema_inspect,
+   ontology registration tools, ghostcrab_ddl_propose,
+   ghostcrab_workspace_export_model
+   -> facets, graph edges, lifecycle states, and projections are explicit
+
+3. Qualify imported data
+   MindBrain Studio or an import path maps governed assets, glossaries,
+   policies, tickets, documents, ownership records, and source chunks into
+   records, entities, relations, facets, evidence links, and projection signals
+
+4. Query after import
+   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree for facets
+   ghostcrab_marketplace / ghostcrab_traverse for dependency and evidence paths
+   ghostcrab_coverage for missing ontology coverage
+   ghostcrab_projection_get / ghostcrab_pack for compact working context
+```
+
+This does not replace enterprise governance. It describes the handoff from governed meaning to agent work. Once Studio or an import pipeline qualifies the data into a MindBrain workspace, the agent can ask deterministic questions such as which policy obligation blocks a project, which owner controls the next action, which evidence is missing, and which projection should feed a dashboard or work queue. [GhostCrab](https://www.ghostcrab.be/architecture.html)
+
+***
+
+## Taxonomy Cost and Expected Gain
+
+The taxonomy cost is justified when semantic governance needs to become operational execution: repeated workflows, evidence trails, owners, approvals, blockers, lifecycle states, cross-domain joins, and dashboards that agents will query more than once. The gain is not "more ontology." The gain is that imported data becomes a reusable operating surface: counted, filtered, traversed, checked for gaps, and packed into task context.
+
+It is not justified for every semantic project. If the priority is enterprise glossary governance, approval workflows, lineage, standards publication, or broad data-steward collaboration, TopBraid remains the stronger center of gravity. If the job is only a small one-off search over documents, a lighter memory/search tool will be faster. MindBrain fits when governed meaning must drive real-time agent action.
+
+***
+
 ## Why Try MindBrain First
 
-TopBraid is a serious enterprise governance platform. MindBrain should be tested first when the question is not "how do we govern semantic assets?" but "how do AI agents use semantic structure while doing work?" Governance defines the map; mindBrain turns maps into deterministic operating surfaces.
+TopBraid is a serious enterprise governance platform. MindBrain should be tested first when the question is not "how do we govern semantic assets?" but "how do AI agents use semantic structure while doing work?" Governance defines the map; MindBrain turns maps into deterministic operating surfaces.
 
 The key difference is multi-ontology execution inside one workspace. MindBrain can keep ERP, CRM, HR, project, legal, finance, and knowledge ontologies distinct, then connect them through meta-ontologies. That creates access paths across application silos that are usually invisible to a single tool: an invoice status can meet a CRM warmth score, a project blocker, a policy constraint, and the owner who can resolve it.
 

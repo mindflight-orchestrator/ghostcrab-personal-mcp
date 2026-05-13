@@ -210,6 +210,103 @@ mindBrain is a structured agentic database exposed through GhostCrab MCP. GhostC
 
 The domain is not hidden inside embeddings. It is navigable as entities, stages, relationships, procedures, constraints, dependencies, and project state. [GhostCrab home](https://www.ghostcrab.be/)
 
+***
+
+## Why Ontologies Beat Flat Data Models
+
+Traditional databases store data in tables — rows and columns with fixed types. That works well for transactional data, but it breaks down fast when your domain is complex, evolving, or needs to be understood by an AI agent. Tables answer *"what is stored here?"* but not *"what does this mean?"*
+
+An ontology answers both.
+
+***
+
+### The Three Building Blocks
+
+**Concepts** are the things that exist in your domain — a `Person`, a `Project`, a `Decision`. Not a table row: a meaningful entity with an identity and a type in a shared vocabulary.
+
+**Semantic Relations** connect concepts with named, directional meaning — `Person` *manages* `Project`, `Decision` *depends_on* `Constraint`. Unlike a foreign key, a relation carries intent: an agent reading the graph knows *why* two things are linked, not just *that* they are.
+
+**Properties** describe the attributes of a concept — a `Person` has a `name`, a `role`, an `expertise_level`. Unlike a column, a property can be typed, optional, multivalued, or inherited from a parent concept.
+
+***
+
+### Axioms — The Rules Layer
+
+Axioms are constraints that make the model self-enforcing:
+- A `Decision` *must* have at least one `rationale`
+- A `Person` *cannot* manage more than one `active Project` at a time
+- A `Skill` *is a subtype of* `Capability`
+
+This is where ontologies go beyond schemas. A SQL table can't express that two concepts are *subtypes* of a shared abstraction, or that a relation is *transitive*. An ontology can — and an AI agent can reason over those rules without being told explicitly.
+
+***
+
+### What This Solves for Developers
+
+| Problem with tables | Ontology solution |
+|---|---|
+| Schema changes break existing queries | Concepts extend without breaking existing relations |
+| Foreign keys carry no semantic meaning | Named relations express *why* things connect |
+| No native support for inheritance | Concept hierarchies are first-class |
+| Business rules live in application code | Axioms are declared in the model itself |
+| AI agents see raw data, not meaning | Agents traverse a graph of typed, named, meaningful nodes |
+
+The practical result: your data model becomes something an AI agent can navigate, query, and reason over — not just a flat surface it has to be told how to interpret every time.
+
+***
+
+## Concrete MindBrain Workflow After Import
+
+The MindBrain equivalent of Cognee's ingestion pipeline is not "put documents in a graph and hope retrieval finds the right shape." It is a qualification workflow:
+
+```text
+1. Model the domain
+   ghostcrab_modeling_guidance / loadout suggestion
+     -> entity types, relation types, facet dimensions, lifecycle states
+
+2. Verify the model
+   ghostcrab_schema_list / ghostcrab_schema_inspect
+   ghostcrab_workspace_export_model
+     -> the workspace contract the import must satisfy
+
+3. Qualify the data
+   MindBrain Studio or an import path maps source records into:
+     source chunks
+     typed entities
+     directed relations
+     facet values
+     projection signals
+
+4. Query the imported domain
+   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree
+     -> facet-indexed records and dashboard slices
+
+   ghostcrab_traverse / graph entity tools
+     -> blockers, prerequisites, evidence paths, entity grounding
+
+   ghostcrab_coverage
+     -> missing model coverage before autonomous action
+
+   ghostcrab_projection_get / ghostcrab_pack
+     -> compact FACT, GOAL, STEP, CONSTRAINT context
+```
+
+This is where the comparison with Cognee becomes practical. Cognee's pipeline can infer a graph from a messy corpus. MindBrain's import path has a different job: qualify each imported item against the workspace model. A support ticket can become a `Case`, a clause can become an `Obligation`, a document span can remain source evidence, a relation such as `VALIDATES` or `BLOCKS` can be explicit, and facets such as `owner`, `status`, `phase`, `country`, and `risk` become deterministic query dimensions.
+
+Studio is not the agent query surface in that flow. It is the qualification surface that turns source material into typed workspace state. After that, agents query through GhostCrab surfaces: `ghostcrab_search` for facet-backed records, graph traversal for typed dependencies and evidence paths, coverage checks for model gaps, and projections or packs for working context. That distinction matters because the agent no longer has to rediscover the corpus shape on every question.
+
+***
+
+## Taxonomy Cost / Expected Gain
+
+MindBrain's cost is real: someone must decide the entity types, relation names, facet dimensions, and lifecycle states before the system becomes highly deterministic. That is heavier than sending documents through Cognee's pipeline and letting the graph emerge.
+
+The cost pays back when the imported data becomes a reusable operating surface. If the same domain will be queried repeatedly, if records drive action rather than recall, if owners, evidence, blockers, permissions, valid transitions, or coverage gaps matter, then taxonomy work gives the agent a stable contract. The gain is not only cleaner retrieval. It is deterministic narrowing, typed graph traversal, coverage checks before action, and projection packs that can feed dashboards, kanban boards, work queues, or agent teams.
+
+The cost probably does not pay back for a one-off question over a small corpus, an exploratory research pile, or a domain whose stable entities and relations are still unknown. In those cases Cognee's graph-emergent workflow can be the better first move because it lets the data reveal candidate structure before the team commits to an ontology.
+
+***
+
 ## Why Try MindBrain First
 
 If the goal is to discover a graph from a corpus, Cognee is the natural first test. If the goal is to make agents operate across several business domains, mindBrain deserves to be tested first because it can hold multiple ontologies in one workspace and connect them through meta-ontologies. A CRM ontology, a project ontology, a compliance ontology, and a knowledge ontology do not have to collapse into one vague graph. They can remain distinct while still supporting joins across facets and typed edges.

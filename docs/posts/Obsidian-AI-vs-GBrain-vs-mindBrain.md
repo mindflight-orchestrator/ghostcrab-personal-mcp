@@ -17,6 +17,8 @@ GBrain is a **self-wiring personal knowledge graph**: its intelligence lives in 
 
 MindBrain is a **structured agentic database**: its intelligence lives in schema enforcement, typed ontologies, directed relations, faceted retrieval, and precomputed working-context projections exposed through GhostCrab MCP. [GhostCrab](https://www.ghostcrab.be/architecture.html)
 
+![[obsidian-gbrain-vs-mindbrain.png]]
+
 ***
 
 ## What Obsidian Plus AI Is
@@ -25,7 +27,29 @@ MindBrain is a **structured agentic database**: its intelligence lives in schema
 
 The core product is not an AI memory system. It is an extensible writing and linking environment. Obsidian's official core plugins include Backlinks, Graph view, Search, Properties view, Canvas, Bases, Sync, Publish, and other note-workflow features. [Obsidian](https://help.obsidian.md/plugins)
 
-The "AI Obsidian" layer usually comes from community plugins or adjacent tools. Smart Connections positions itself as a third-party local-first AI workflow layer for Obsidian that surfaces related notes, builds context, and adds Smart Chat around a vault. [Smart Connections](https://smartconnections.app/) Copilot for Obsidian describes itself as an AI assistant inside Obsidian with context-aware actions and model integrations. [Obsidian Copilot](https://github.com/logancyang/obsidian-copilot) Text Generator focuses on generating, transforming, and templating text inside notes using AI providers. [Text Generator](https://text-gen.com/)
+The "AI Obsidian" layer usually comes from community plugins or adjacent tools. Smart Connections positions itself as a third-party local-first AI workflow layer for Obsidian that surfaces related notes, builds context, and adds Smart Chat around a vault.
+## The AI Layer: Plugins and Agents
+
+## Karpathy's LLM Wiki Pattern
+
+In April 2026, Andrej Karpathy published a [GitHub Gist](https://x.com/karpathy/status/2039805659525644595) that immediately circulated through AI communities: a blueprint for building a persistent LLM-maintained knowledge base with no vector database and no complex RAG pipeline — just interconnected Markdown files, an LLM, and Obsidian as the viewer. The workflow is:[x](https://x.com/karpathy/status/2039805659525644595)
+
+1. Index source documents (articles, papers, repos, images) into a `raw/` directory
+
+2. Use an LLM to incrementally "compile" a wiki — a collection of `.md` files in a directory structure — with cross-references and structured summaries
+
+3. Open that directory as an Obsidian vault to browse, search, and visualize the graph of compiled knowledge[x](https://x.com/karpathy/status/2039805659525644595)
+
+
+The key insight is that the LLM builds knowledge _up front_ rather than retrieving raw chunks at query time. This enables multi-hop reasoning and a knowledge base that compounds with every new source added — Karpathy reports managing wikis of over 100 articles without any vector indexing.[anthemcreation](https://anthemcreation.com/intelligence-artificielle/llm-wiki-karpathy-base-connaissance-claude-obsidian/)
+
+## Claude Code and Codex as Vault Operators
+
+Claude Code and OpenAI Codex take this a step further by operating directly on the vault's file system. Because Obsidian is, at its core, a Markdown reader pointed at a local folder, any file an agent writes or rewrites is immediately visible and navigable in the UI without glue code, APIs, or sync layers. In practice, the split behaves like a conventional app architecture: Claude Code acts as the backend — generating, restructuring, and maintaining content — while Obsidian acts as the human-facing frontend. Practitioners use a `CLAUDE.md` file at the vault root to give the agent its behavioral instructions (scope, naming conventions, linking rules), and then direct it in plain language to update metadata across hundreds of notes, spin up sub-agents for web research, or reorganize a taxonomy.[youtube](https://www.youtube.com/watch?v=a1FDaoF8Jog)[gsarigiannidis](https://www.gsarigiannidis.gr/claude-code-obsidian-ai/)
+
+## Why This Matters
+
+This pattern is meaningful for a specific reason: **the artifact stays human-readable and human-editable at all times**. Unlike a vector store or an opaque database, every note an agent produces can be read, corrected, or extended directly in a text editor or in Obsidian. The vault becomes a living, auditable knowledge artifact — one that an AI can grow autonomously but that a human always controls and can verify. That combination — agentic construction, human oversight, local file system, no proprietary lock-in — is what distinguishes this approach from conventional RAG or chat-with-documents workflows.[gsarigiannidis](https://www.gsarigiannidis.gr/claude-code-obsidian-ai/)
 
 That makes Obsidian plus AI plugins a strong human knowledge workspace with optional AI assistance, not a database-enforced runtime for agents.
 
@@ -192,6 +216,90 @@ MindBrain is **domain-agent state**. It assumes the agent should not infer the o
 MindBrain is a structured agentic database that makes any domain navigable in real time; its intelligence lives in schema enforcement, typed ontologies, and pre-computed projections that cost zero inference at query time.
 
 GhostCrab is the MCP server layer that exposes that structure to agents. It sits between the agent and PostgreSQL, giving the agent three practical capabilities: find the right subset, follow relationships and blockers, and pack a compact working context for the current task. [GhostCrab](https://www.ghostcrab.be/architecture.html)
+
+***
+
+## Why Ontologies Beat Flat Data Models
+
+Traditional databases store data in tables — rows and columns with fixed types. That works well for transactional data, but it breaks down fast when your domain is complex, evolving, or needs to be understood by an AI agent. Tables answer *"what is stored here?"* but not *"what does this mean?"*
+
+An ontology answers both.
+
+***
+
+### The Three Building Blocks
+
+**Concepts** are the things that exist in your domain — a `Person`, a `Project`, a `Decision`. Not a table row: a meaningful entity with an identity and a type in a shared vocabulary.
+
+**Semantic Relations** connect concepts with named, directional meaning — `Person` *manages* `Project`, `Decision` *depends_on* `Constraint`. Unlike a foreign key, a relation carries intent: an agent reading the graph knows *why* two things are linked, not just *that* they are.
+
+**Properties** describe the attributes of a concept — a `Person` has a `name`, a `role`, an `expertise_level`. Unlike a column, a property can be typed, optional, multivalued, or inherited from a parent concept.
+
+***
+
+### Axioms — The Rules Layer
+
+Axioms are constraints that make the model self-enforcing:
+- A `Decision` *must* have at least one `rationale`
+- A `Person` *cannot* manage more than one `active Project` at a time
+- A `Skill` *is a subtype of* `Capability`
+
+This is where ontologies go beyond schemas. A SQL table can't express that two concepts are *subtypes* of a shared abstraction, or that a relation is *transitive*. An ontology can — and an AI agent can reason over those rules without being told explicitly.
+
+***
+
+### What This Solves for Developers
+
+| Problem with tables | Ontology solution |
+|---|---|
+| Schema changes break existing queries | Concepts extend without breaking existing relations |
+| Foreign keys carry no semantic meaning | Named relations express *why* things connect |
+| No native support for inheritance | Concept hierarchies are first-class |
+| Business rules live in application code | Axioms are declared in the model itself |
+| AI agents see raw data, not meaning | Agents traverse a graph of typed, named, meaningful nodes |
+
+The practical result: your data model becomes something an AI agent can navigate, query, and reason over — not just a flat surface it has to be told how to interpret every time.
+
+***
+
+## Concrete MindBrain / GhostCrab Workflow
+
+For an Obsidian user, the important test is whether notes can become operational state without losing provenance. The MindBrain route is a four-step workflow:
+
+```text
+1. Model the workspace
+   ghostcrab_modeling_guidance or ghostcrab_loadout_suggest
+   -> note, project, person, decision, source, task, and blocker types
+
+2. Verify the model
+   ghostcrab_schema_list / ghostcrab_schema_inspect,
+   ontology registration tools, ghostcrab_ddl_propose,
+   ghostcrab_workspace_export_model
+   -> facets, relations, and lifecycle states are explicit before import
+
+3. Qualify the vault or source exports
+   MindBrain Studio or an import path maps Markdown notes, YAML properties,
+   links, attachments, and extracted references into records, chunks,
+   entities, relations, facets, and projection signals
+
+4. Query after import
+   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree for faceted records
+   ghostcrab_marketplace / ghostcrab_traverse for graph paths and evidence
+   ghostcrab_coverage for missing model coverage
+   ghostcrab_projection_get / ghostcrab_pack for compact agent context
+```
+
+This is different from asking an AI plugin to chat over a vault. The plugin can retrieve relevant notes, but the vault still inherits the user's link and property discipline. MindBrain treats import as qualification: after Studio or an import pipeline maps source material into a workspace ontology, the agent can ask for counts, slices, blockers, coverage gaps, and projection packs without rereading the vault as a pile of prose. [GhostCrab](https://www.ghostcrab.be/architecture.html)
+
+***
+
+## Taxonomy Cost and Expected Gain
+
+Taxonomy work is worth doing when notes have become operational inputs: decisions need owners, tasks have valid states, evidence must support a claim, or a project dashboard should be generated from the same material the agent queries. The gain is deterministic retrieval and better reuse of imported data because records, chunks, entities, relations, facets, and projections are separated.
+
+It is not the right first move for every vault. If the goal is free-form writing, private sensemaking, or a few semantic questions over a small note set, Obsidian plus a lighter AI/search plugin is simpler. MindBrain pays back when the vault becomes part of a repeated workflow: research operations, compliance review, CRM follow-up, project delivery, or agent work queues.
+
+***
 
 ## Why Try MindBrain First
 

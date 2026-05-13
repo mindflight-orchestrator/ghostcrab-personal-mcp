@@ -10,6 +10,10 @@ tags:
 GBrain is a **self-wiring personal knowledge graph** that gets smarter as you sleep — its intelligence lives in accumulated ingest, entity propagation, and nightly repair cycles. 
 
 MindBrain is a **structured agentic database** that makes any domain navigable in real time — its intelligence lives in schema enforcement, typed ontologies, and pre-computed projections that cost zero inference at query time. [ghostcrab](https://www.ghostcrab.be/architecture.html)
+
+
+![[gbrain-crm-vs-mindbrain.png]]
+
 ***
 
 ## What GBrain Is
@@ -30,14 +34,14 @@ GBrain runs on **PGLite**, an embedded PostgreSQL instance that starts in under 
 
 ```
 ┌─────────────────────────────┐
-│ AI Agent (OpenClaw/Hermes) │
+│ AI Agent (OpenClaw/Hermes)  │
 ├─────────────────────────────┤
-│  MCP Tools (30+ exposed)   │
+│  MCP Tools (30+ exposed)    │
 ├─────────────────────────────┤
-│     Hybrid Search Engine   │
-│  ├── Vector (embeddings)   │
-│  ├── BM25 (keyword)        │
-│  └── Graph (entity links)  │
+│     Hybrid Search Engine    │
+│  ├── Vector (embeddings)    │
+│  ├── BM25 (keyword)         │
+│  └── Graph (entity links)   │
 ├─────────────────────────────┤
 │  PGLite (embedded Postgres) │
 └─────────────────────────────┘
@@ -204,6 +208,51 @@ Where GBrain centers on personal knowledge accumulation — a self-wiring graph 
 ## The Core Problem It Solves
 Most agent failures come from the same structural pattern: too much raw context, too little structure, no explicit dependencies, no separation between source data and working context, and no durable project state the agent can navigate. Chat history preserves words — it does not preserve structure. A real project contains entities, states, rules, blockers, and evolving context. If all of that lives only in prose, the agent has to reconstruct the project on every turn — wasteful, brittle, and easy to break. [ghostcrab](https://www.ghostcrab.be/architecture.html)
 
+
+***
+
+## Why Ontologies Beat Flat Data Models
+
+Traditional databases store data in tables — rows and columns with fixed types. That works well for transactional data, but it breaks down fast when your domain is complex, evolving, or needs to be understood by an AI agent. Tables answer *"what is stored here?"* but not *"what does this mean?"*
+
+An ontology answers both.
+
+***
+
+### The Three Building Blocks
+
+**Concepts** are the things that exist in your domain — a `Person`, a `Project`, a `Decision`. Not a table row: a meaningful entity with an identity and a type in a shared vocabulary.
+
+**Semantic Relations** connect concepts with named, directional meaning — `Person` *manages* `Project`, `Decision` *depends_on* `Constraint`. Unlike a foreign key, a relation carries intent: an agent reading the graph knows *why* two things are linked, not just *that* they are.
+
+**Properties** describe the attributes of a concept — a `Person` has a `name`, a `role`, an `expertise_level`. Unlike a column, a property can be typed, optional, multivalued, or inherited from a parent concept.
+
+***
+
+### Axioms — The Rules Layer
+
+Axioms are constraints that make the model self-enforcing:
+- A `Decision` *must* have at least one `rationale`
+- A `Person` *cannot* manage more than one `active Project` at a time
+- A `Skill` *is a subtype of* `Capability`
+
+This is where ontologies go beyond schemas. A SQL table can't express that two concepts are *subtypes* of a shared abstraction, or that a relation is *transitive*. An ontology can — and an AI agent can reason over those rules without being told explicitly.
+
+***
+
+### What This Solves for Developers
+
+| Problem with tables | Ontology solution |
+|---|---|
+| Schema changes break existing queries | Concepts extend without breaking existing relations |
+| Foreign keys carry no semantic meaning | Named relations express *why* things connect |
+| No native support for inheritance | Concept hierarchies are first-class |
+| Business rules live in application code | Axioms are declared in the model itself |
+| AI agents see raw data, not meaning | Agents traverse a graph of typed, named, meaningful nodes |
+
+The practical result: your data model becomes something an AI agent can navigate, query, and reason over — not just a flat surface it has to be told how to interpret every time.
+
+
 ***
 ## Architecture
 MindBrain exposes **three capabilities** through a single coherent stack: [ghostcrab](https://www.ghostcrab.be)
@@ -291,6 +340,42 @@ GhostCrab MCP tool call
 ```
 
 GhostCrab is open-source and free. It requires no new agent interface — it extends Claude Code, Cursor, OpenClaw, Codex, or any MCP-compatible agent already in use. [ghostcrab](https://www.ghostcrab.be)
+
+***
+## Concrete MindBrain / GhostCrab Workflow
+
+The MindBrain path is not "put everything in a graph and hope retrieval works." It is a qualification workflow: model the domain, register or verify the model, import data into that model, then expose deterministic query surfaces to the agent.
+
+```text
+1. Model the domain
+   ghostcrab_modeling_guidance or ghostcrab_loadout_suggest
+   -> entity types, relations, facet dimensions, lifecycle states
+
+2. Verify the model
+   ghostcrab_schema_list / ghostcrab_schema_inspect,
+   ontology registration tools, ghostcrab_ddl_propose,
+   and ghostcrab_workspace_export_model
+   -> the agent can see what the workspace means before acting
+
+3. Qualify imported data
+   MindBrain Studio or an import path maps source material into records,
+   chunks, entities, relations, facets, and projection signals
+
+4. Query after import
+   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree narrow records
+   ghostcrab_marketplace / ghostcrab_traverse follow graph structure
+   ghostcrab_coverage checks model gaps
+   ghostcrab_projection_get / ghostcrab_pack returns compact task context
+```
+
+That import step is the concrete difference from a personal brain that compounds from lived experience. GBrain's discipline is entity propagation over time. MindBrain's discipline is data qualification: a meeting note, CRM export, GitHub issue, policy PDF, or endpoint catalog becomes useful only after it is mapped into the workspace ontology with provenance, facets, and graph edges. Once that qualification has happened, the agent does not need to rediscover the shape of the data from prose. It can count, filter, traverse, check coverage, and ask for a projection. [ghostcrab](https://www.ghostcrab.be/architecture.html)
+
+***
+## Taxonomy Cost and Expected Gain
+
+The taxonomy cost pays off when imported data becomes a reusable operating surface: filtered, joined, checked for gaps, projected into agent context, and used repeatedly across workflows. It is worth the effort when the domain has durable entities, owners, states, blockers, permissions, valid transitions, or dashboards that need to come from the same source of truth.
+
+It is probably not worth it for a one-off question over a small corpus, or when fuzzy semantic recall is enough. If the user only wants to ask three questions over a folder of documents, a lighter memory or search tool will be faster to set up. MindBrain becomes more attractive when the same imported data must drive repeated action: CRM follow-up, deal review, compliance evidence, incident response, software delivery, legal obligations, or cross-domain agent work.
 
 ***
 ## Why Try MindBrain First
@@ -696,8 +781,8 @@ The comparison between GBrain and MindBrain ultimately converges on a practical 
 
 For GBrain, the answer is: install the tool, then spend months building disciplined habits — one entity at a time, one meeting at a time, one dream cycle at a time. The intelligence accumulates gradually and personally. That is its strength and its constraint.
 
-For MindBrain, the answer is direct. Modeling a domain as a set of typed ontologies — CRM, DealFlow, Knowledge, Compliance, or any custom domain — does not require writing schema from scratch or reverse-engineering the right structure by trial and error. GhostCrab MCP ships with a dedicated service called **`ghostcrab-architect`**: an AI agent specialized in helping other agents design the right ontology structure for a given domain. You describe your domain, your entities, your relationships, your reporting needs — and `ghostcrab-architect` produces the ontology definitions, edge type catalog, FSM state maps, and projection DDL ready to load into MindBrain.
+For MindBrain, the answer is more explicit. Modeling a domain as a set of typed ontologies — CRM, DealFlow, Knowledge, Compliance, or any custom domain — should not require writing schema from scratch or reverse-engineering the right structure by trial and error. GhostCrab gives the agent modeling and inspection surfaces: `ghostcrab_modeling_guidance`, `ghostcrab_loadout_suggest`, `ghostcrab_schema_inspect`, `ghostcrab_ddl_propose`, and `ghostcrab_workspace_export_model`. You describe the domain, entities, relationships, reporting needs, and import sources; the workflow turns that into ontology definitions, edge catalogs, facet dimensions, lifecycle states, and projection definitions ready to qualify data into MindBrain.
 
 The implication is straightforward. The hard part of structured agentic databases has never been the database — it has been the ontology design: knowing which entity types to define, which facet dimensions matter, which graph edges are worth modeling, which projections to precompute. GhostCrab turns that design process into a collaborative agent conversation rather than a blank-page architecture exercise.
 
-GBrain gives you a brain that wires itself from lived experience. MindBrain gives you a brain that is structured from day one — and `ghostcrab-architect` makes sure the structure is the right one for the job.
+GBrain gives you a brain that wires itself from lived experience. MindBrain gives you a brain that is structured from day one, then made useful through Studio or import qualification and queried through GhostCrab's facet, graph, coverage, and projection surfaces.
