@@ -169,11 +169,12 @@ export async function runCliCapture(
     .mockImplementation((() => undefined) as never);
 
   if (options?.stdinText !== undefined) {
+    const stdinText = options.stdinText;
     Object.defineProperty(process, "stdin", {
       configurable: true,
       value: {
         async *[Symbol.asyncIterator]() {
-          yield Buffer.from(options.stdinText);
+          yield Buffer.from(stdinText);
         }
       }
     });
