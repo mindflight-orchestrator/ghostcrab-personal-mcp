@@ -5,7 +5,10 @@ import { CLI_COMMANDS, resolveCommand, type CliCommand } from "./commands.js";
 import { initToolContext } from "./context.js";
 import { executeTool, EXIT_ERROR, EXIT_UNKNOWN_TOOL } from "./execute.js";
 import { HelpRequested, parseCliInput } from "./parse-input.js";
-import { buildToolCatalog, listBasicRegisteredTools } from "../tools/catalog.js";
+import {
+  buildToolCatalog,
+  listBasicRegisteredTools
+} from "../tools/catalog.js";
 import { registerAllTools } from "../tools/register-all.js";
 import { listRegisteredTools } from "../tools/registry.js";
 
@@ -50,7 +53,11 @@ async function resolveArgs(
     }
 
     const parsed = JSON.parse(text) as unknown;
-    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      Array.isArray(parsed)
+    ) {
       throw new Error("--stdin-json must contain a JSON object payload.");
     }
 
@@ -133,19 +140,23 @@ function printCommandHelp(command: CliCommand): void {
 }
 
 function printMaintenanceDdlApproveHelp(): void {
-  console.log([
-    "Usage: ghostcrab maintenance ddl-approve --id <uuid> --by <name>",
-    "",
-    "Approve a pending DDL migration so it can be executed later."
-  ].join("\n"));
+  console.log(
+    [
+      "Usage: ghostcrab maintenance ddl-approve --id <uuid> --by <name>",
+      "",
+      "Approve a pending DDL migration so it can be executed later."
+    ].join("\n")
+  );
 }
 
 function printMaintenanceDdlExecuteHelp(): void {
-  console.log([
-    "Usage: ghostcrab maintenance ddl-execute --id <uuid>",
-    "",
-    "Execute an approved DDL migration."
-  ].join("\n"));
+  console.log(
+    [
+      "Usage: ghostcrab maintenance ddl-execute --id <uuid>",
+      "",
+      "Execute an approved DDL migration."
+    ].join("\n")
+  );
 }
 
 export async function runCli(argv: string[]): Promise<void> {
@@ -183,96 +194,26 @@ export async function runCli(argv: string[]): Promise<void> {
     });
 
     try {
-      if (toolContext.database.kind === "sqlite") {
-        const pendingRows = await toolContext.database.query<{
-          id: string;
-          status: string;
-          workspace_id: string;
-          approved_by: string | null;
-          approved_at: string | null;
-        }>(
-          `SELECT id, status, workspace_id, approved_by, approved_at
-           FROM pending_migrations
-           WHERE id = ? AND status = 'pending'`,
-          [migrationId]
+      const pendingRows = await toolContext.database.query<{
+        id: string;
+        status: string;
+        workspace_id: string;
+        approved_by: string | null;
+        approved_at: string | null;
+      }>(
+        `SELECT id, status, workspace_id, approved_by, approved_at
+         FROM pending_migrations
+         WHERE id = ? AND status = 'pending'`,
+        [migrationId]
+      );
+
+      if (pendingRows.length > 0) {
+        await toolContext.database.query(
+          `UPDATE pending_migrations
+           SET status = 'approved', approved_by = ?, approved_at = CURRENT_TIMESTAMP
+           WHERE id = ?`,
+          [approvedBy, migrationId]
         );
-
-        if (pendingRows.length > 0) {
-          await toolContext.database.query(
-            `UPDATE pending_migrations
-             SET status = 'approved', approved_by = ?, approved_at = CURRENT_TIMESTAMP
-             WHERE id = ?`,
-            [approvedBy, migrationId]
-          );
-        }
-
-        const rows = await toolContext.database.query<{
-          id: string;
-          status: string;
-          workspace_id: string;
-          approved_by: string | null;
-          approved_at: string | null;
-        }>(
-          `SELECT id, status, workspace_id, approved_by, approved_at
-           FROM pending_migrations
-           WHERE id = ? AND status = 'approved'`,
-          [migrationId]
-        );
-
-        if (rows.length === 0) {
-          const existing = await toolContext.database.query<{
-            id: string;
-            status: string;
-          }>(
-            `SELECT id, status
-             FROM pending_migrations
-             WHERE id = ?`,
-            [migrationId]
-          );
-
-          if (existing.length === 0) {
-            process.stdout.write(
-              `${JSON.stringify({
-                ok: false,
-                error: {
-                  code: "migration_not_found",
-                  message: `Migration '${migrationId}' not found.`
-                }
-              })}\n`
-            );
-            await cleanup();
-            process.exit(EXIT_ERROR);
-            return;
-          }
-
-          process.stdout.write(
-            `${JSON.stringify({
-              ok: false,
-              error: {
-                code: "migration_not_pending",
-                message: `Migration '${migrationId}' has status '${existing[0].status}'. Only 'pending' migrations can be approved.`,
-                details: { current_status: existing[0].status }
-              }
-            })}\n`
-          );
-          await cleanup();
-          process.exit(EXIT_ERROR);
-          return;
-        }
-
-        process.stdout.write(
-          `${JSON.stringify({
-            ok: true,
-            migration_id: rows[0].id,
-            workspace_id: rows[0].workspace_id,
-            status: rows[0].status,
-            approved_by: rows[0].approved_by,
-            approved_at: rows[0].approved_at
-          })}\n`
-        );
-        await cleanup();
-        process.exit(0);
-        return;
       }
 
       const rows = await toolContext.database.query<{
@@ -282,11 +223,10 @@ export async function runCli(argv: string[]): Promise<void> {
         approved_by: string | null;
         approved_at: string | null;
       }>(
-        `UPDATE mindbrain.pending_migrations
-         SET status = 'approved', approved_by = $2, approved_at = now()
-         WHERE id = $1 AND status = 'pending'
-         RETURNING id, status, workspace_id, approved_by, approved_at`,
-        [migrationId, approvedBy]
+        `SELECT id, status, workspace_id, approved_by, approved_at
+         FROM pending_migrations
+         WHERE id = ? AND status = 'approved'`,
+        [migrationId]
       );
 
       if (rows.length === 0) {
@@ -295,8 +235,8 @@ export async function runCli(argv: string[]): Promise<void> {
           status: string;
         }>(
           `SELECT id, status
-           FROM mindbrain.pending_migrations
-           WHERE id = $1`,
+           FROM pending_migrations
+           WHERE id = ?`,
           [migrationId]
         );
 
@@ -386,7 +326,9 @@ export async function runCli(argv: string[]): Promise<void> {
         { migration_id: migrationId },
         toolContext
       );
-      process.stdout.write(`${JSON.stringify(extractStructuredJson(result))}\n`);
+      process.stdout.write(
+        `${JSON.stringify(extractStructuredJson(result))}\n`
+      );
       await cleanup();
       process.exit(exitCode);
     } catch (error) {
@@ -402,9 +344,8 @@ export async function runCli(argv: string[]): Promise<void> {
   if (firstArg === "maintenance" && argv[1] === "refresh-entity-degree") {
     registerAllTools();
     const { initToolContext } = await import("./context.js");
-    const { refreshEntityDegreeWithReport } = await import(
-      "../db/maintenance.js"
-    );
+    const { refreshEntityDegreeWithReport } =
+      await import("../db/maintenance.js");
     const { toolContext, cleanup } = await initToolContext({
       verbose: argv.includes("--verbose") || argv.includes("-v")
     });
@@ -429,9 +370,8 @@ export async function runCli(argv: string[]): Promise<void> {
   if (firstArg === "maintenance" && argv[1] === "register-pg-facets") {
     registerAllTools();
     const { initToolContext } = await import("./context.js");
-    const { registerPgFacetsWithReport } = await import(
-      "../db/facets-registration.js"
-    );
+    const { registerPgFacetsWithReport } =
+      await import("../db/facets-registration.js");
     const { toolContext, cleanup } = await initToolContext({
       verbose: argv.includes("--verbose") || argv.includes("-v")
     });
@@ -456,9 +396,8 @@ export async function runCli(argv: string[]): Promise<void> {
   if (firstArg === "maintenance" && argv[1] === "merge-facet-deltas") {
     registerAllTools();
     const { initToolContext } = await import("./context.js");
-    const { mergeFacetDeltasWithReport } = await import(
-      "../db/facets-maintenance.js"
-    );
+    const { mergeFacetDeltasWithReport } =
+      await import("../db/facets-maintenance.js");
     const { toolContext, cleanup } = await initToolContext({
       verbose: argv.includes("--verbose") || argv.includes("-v")
     });

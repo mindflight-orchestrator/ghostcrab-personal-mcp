@@ -937,23 +937,26 @@ describe("dgraph tools", () => {
 
   it("upserts nodes and updates an existing edge inside one transaction", async () => {
     const query = vi.fn(async (sql: string) => {
-      if (sql.includes("INSERT INTO graph.entity")) {
-        return [{ id: "1" }];
-      }
-
-      if (sql.includes("INSERT INTO graph.entity_alias")) {
+      if (sql.includes("INSERT INTO graph_entity")) {
         return [];
       }
 
-      if (sql.includes("FROM graph.entity") && sql.includes("WHERE type =")) {
-        return [{ id: "1" }];
+      if (sql.includes("INSERT OR IGNORE INTO graph_entity_alias")) {
+        return [];
       }
 
-      if (sql.includes("FROM graph.relation") && sql.includes("LIMIT 1")) {
-        return [{ id: "edge-1" }];
+      if (
+        sql.includes("FROM graph_entity") &&
+        sql.includes("WHERE entity_type =")
+      ) {
+        return [{ entity_id: 1 }];
       }
 
-      if (sql.includes("UPDATE graph.relation")) {
+      if (sql.includes("FROM graph_relation") && sql.includes("LIMIT 1")) {
+        return [{ relation_id: 1 }];
+      }
+
+      if (sql.includes("UPDATE graph_relation")) {
         return [];
       }
 
@@ -982,7 +985,7 @@ describe("dgraph tools", () => {
       ok: true,
       tool: "ghostcrab_learn",
       node: { learned: true, id: "task:start" },
-      edge: { learned: true, id: "1:1:HAS_GAP" }
+      edge: { learned: true, id: "1", label: "HAS_GAP", updated: true }
     });
   });
 });

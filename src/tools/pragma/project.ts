@@ -12,11 +12,11 @@ export const ProjectInput = z.object({
   agent_id: z.string().trim().min(1).default("agent:self"),
   content: z.string().trim().min(1),
   provisional: z.boolean().default(true),
-  proj_type: z
-    .enum(["FACT", "GOAL", "STEP", "CONSTRAINT"])
-    .default("STEP"),
+  proj_type: z.enum(["FACT", "GOAL", "STEP", "CONSTRAINT"]).default("STEP"),
   scope: z.string().trim().min(1),
-  status: z.enum(["active", "resolved", "expired", "blocking"]).default("active"),
+  status: z
+    .enum(["active", "resolved", "expired", "blocking"])
+    .default("active"),
   weight: z.coerce.number().min(0).max(1).default(0.7)
 });
 
@@ -69,86 +69,14 @@ export const projectTool: ToolHandler = {
     const sourceType = buildSourceType(input);
 
     const payload = await context.database.transaction(async (database) => {
-      if (database.kind === "sqlite") {
-        const [existing] = await database.query<{ id: string }>(
-          `
-            SELECT id
-            FROM mb_pragma.projections
-            WHERE agent_id = ?
-              AND scope = ?
-              AND proj_type = ?
-              AND content = ?
-            LIMIT 1
-          `,
-          [input.agent_id, input.scope, input.proj_type, input.content]
-        );
-
-        if (existing) {
-          await database.query(
-            `
-              UPDATE mb_pragma.projections
-              SET weight = ?,
-                  status = ?,
-                  source_type = ?,
-                  expires_at_unix = NULL
-              WHERE id = ?
-            `,
-            [input.weight, input.status, sourceType, existing.id]
-          );
-
-          return {
-            created: false,
-            id: existing.id,
-            updated: true
-          };
-        }
-
-        const id = randomUUID();
-        await database.query(
-          `
-            INSERT INTO mb_pragma.projections (
-              id,
-              agent_id,
-              scope,
-              proj_type,
-              content,
-              weight,
-              source_type,
-              status,
-              created_at_unix
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-          `,
-          [
-            id,
-            input.agent_id,
-            input.scope,
-            input.proj_type,
-            input.content,
-            input.weight,
-            sourceType,
-            input.status,
-            Math.floor(Date.now() / 1000)
-          ]
-        );
-
-        return {
-          created: true,
-          id,
-          updated: false
-        };
-      }
-
-      const [existing] = await database.query<{
-        id: string;
-      }>(
+      const [existing] = await database.query<{ id: string }>(
         `
           SELECT id
           FROM mb_pragma.projections
-          WHERE agent_id = $1
-            AND scope = $2
-            AND proj_type = $3
-            AND content = $4
+          WHERE agent_id = ?
+            AND scope = ?
+            AND proj_type = ?
+            AND content = ?
           LIMIT 1
         `,
         [input.agent_id, input.scope, input.proj_type, input.content]
@@ -158,13 +86,13 @@ export const projectTool: ToolHandler = {
         await database.query(
           `
             UPDATE mb_pragma.projections
-            SET weight = $2,
-                status = $3,
-                source_type = $4,
-                expires_at = NULL
-            WHERE id = $1
+            SET weight = ?,
+                status = ?,
+                source_type = ?,
+                expires_at_unix = NULL
+            WHERE id = ?
           `,
-          [existing.id, input.weight, input.status, sourceType]
+          [input.weight, input.status, sourceType, existing.id]
         );
 
         return {
@@ -174,40 +102,38 @@ export const projectTool: ToolHandler = {
         };
       }
 
-      const [created] = await database.query<{ id: string }>(
+      const id = randomUUID();
+      await database.query(
         `
           INSERT INTO mb_pragma.projections (
+            id,
             agent_id,
             scope,
             proj_type,
             content,
             weight,
             source_type,
-            status
+            status,
+            created_at_unix
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
-          RETURNING id
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
         [
+          id,
           input.agent_id,
           input.scope,
           input.proj_type,
           input.content,
           input.weight,
           sourceType,
-          input.status
+          input.status,
+          Math.floor(Date.now() / 1000)
         ]
       );
 
-      if (!created?.id) {
-        throw new Error(
-          "INSERT returned no row — possible constraint violation"
-        );
-      }
-
       return {
         created: true,
-        id: created.id,
+        id,
         updated: false
       };
     });

@@ -40,7 +40,8 @@ export const workspaceCreateTool: ToolHandler = {
         },
         created_by: {
           type: "string",
-          description: "Identity of the requester (agent name, user email, etc.)."
+          description:
+            "Identity of the requester (agent name, user email, etc.)."
         }
       }
     }
@@ -49,9 +50,7 @@ export const workspaceCreateTool: ToolHandler = {
     const input = CreateWorkspaceInput.parse(args);
 
     const existing = await context.database.query<{ id: string }>(
-      context.database.kind === "sqlite"
-        ? `SELECT id FROM workspaces WHERE id = ?`
-        : `SELECT id FROM mindbrain.workspaces WHERE id = $1`,
+      `SELECT id FROM workspaces WHERE id = ?`,
       [input.id]
     );
 

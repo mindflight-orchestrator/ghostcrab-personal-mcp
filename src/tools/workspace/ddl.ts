@@ -62,40 +62,44 @@ const TableSemanticInput = z
       value.emit_graph_relation ?? value.emit_graph_relations ?? false
   }));
 
-const ColumnSemanticInput = z.object({
-  table_schema: z.string().min(1).default("public"),
-  table_name: z.string().min(1),
-  column_name: z.string().min(1),
-  column_role: z
-    .enum(["id", "fk", "timestamp", "status", "attribute", "unknown"])
-    .optional()
-    .default("unknown"),
-  // Rich public-contract fields
-  public_column_role: ColumnRoleSchema.optional(),
-  semantic_type: SemanticTypeSchema.optional(),
-  facet_key: z.string().optional(),
-  graph_usage: GraphUsageSchema.optional(),
-  projection_signal: z.string().optional(),
-  is_nullable: z.boolean().optional(),
-  distribution_hint: z.record(z.string(), z.unknown()).optional()
-}).strict();
+const ColumnSemanticInput = z
+  .object({
+    table_schema: z.string().min(1).default("public"),
+    table_name: z.string().min(1),
+    column_name: z.string().min(1),
+    column_role: z
+      .enum(["id", "fk", "timestamp", "status", "attribute", "unknown"])
+      .optional()
+      .default("unknown"),
+    // Rich public-contract fields
+    public_column_role: ColumnRoleSchema.optional(),
+    semantic_type: SemanticTypeSchema.optional(),
+    facet_key: z.string().optional(),
+    graph_usage: GraphUsageSchema.optional(),
+    projection_signal: z.string().optional(),
+    is_nullable: z.boolean().optional(),
+    distribution_hint: z.record(z.string(), z.unknown()).optional()
+  })
+  .strict();
 
-const RelationSemanticInput = z.object({
-  from_schema: z.string().min(1).default("public"),
-  from_table: z.string().min(1),
-  to_schema: z.string().min(1).default("public"),
-  to_table: z.string().min(1),
-  fk_column: z.string().optional(),
-  relation_kind: z
-    .enum(["many_to_one", "one_to_many", "unknown"])
-    .optional()
-    .default("unknown"),
-  // Rich public-contract fields
-  relation_role: RelationRoleSchema.optional(),
-  hierarchical: z.boolean().optional(),
-  graph_label: z.string().optional(),
-  target_column: z.string().optional()
-}).strict();
+const RelationSemanticInput = z
+  .object({
+    from_schema: z.string().min(1).default("public"),
+    from_table: z.string().min(1),
+    to_schema: z.string().min(1).default("public"),
+    to_table: z.string().min(1),
+    fk_column: z.string().optional(),
+    relation_kind: z
+      .enum(["many_to_one", "one_to_many", "unknown"])
+      .optional()
+      .default("unknown"),
+    // Rich public-contract fields
+    relation_role: RelationRoleSchema.optional(),
+    hierarchical: z.boolean().optional(),
+    graph_label: z.string().optional(),
+    target_column: z.string().optional()
+  })
+  .strict();
 
 /**
  * Tables that must never be used as a trigger source — they are internal
@@ -112,35 +116,36 @@ const PROTECTED_TABLES = new Set([
   "public.projections"
 ]);
 
-const SOURCE_TABLE_REGEX =
-  /^[a-z_][a-z0-9_]{0,62}(\.[a-z_][a-z0-9_]{0,62})?$/;
+const SOURCE_TABLE_REGEX = /^[a-z_][a-z0-9_]{0,62}(\.[a-z_][a-z0-9_]{0,62})?$/;
 
-const DdlProposeInput = z.object({
-  workspace_id: WorkspaceIdSchema,
-  sql: z.string().min(1).max(65_536),
-  rationale: z.string().max(2_048).optional(),
-  proposed_by: z.string().optional(),
-  sync_spec: z
-    .object({
-      source_table: z
-        .string()
-        .min(1)
-        .regex(
-          SOURCE_TABLE_REGEX,
-          "source_table: schema.table lowercase only (a-z, 0-9, _)"
-        )
-        .refine(
-          (t) => !PROTECTED_TABLES.has(t),
-          "source_table: protected system table cannot be used as a sync source"
-        ),
-      fields: z.array(SyncFieldSpecSchema).min(1)
-    })
-    .strict()
-    .optional(),
-  table_semantics: z.array(TableSemanticInput).optional(),
-  column_semantics: z.array(ColumnSemanticInput).optional(),
-  relation_semantics: z.array(RelationSemanticInput).optional()
-}).strict();
+const DdlProposeInput = z
+  .object({
+    workspace_id: WorkspaceIdSchema,
+    sql: z.string().min(1).max(65_536),
+    rationale: z.string().max(2_048).optional(),
+    proposed_by: z.string().optional(),
+    sync_spec: z
+      .object({
+        source_table: z
+          .string()
+          .min(1)
+          .regex(
+            SOURCE_TABLE_REGEX,
+            "source_table: schema.table lowercase only (a-z, 0-9, _)"
+          )
+          .refine(
+            (t) => !PROTECTED_TABLES.has(t),
+            "source_table: protected system table cannot be used as a sync source"
+          ),
+        fields: z.array(SyncFieldSpecSchema).min(1)
+      })
+      .strict()
+      .optional(),
+    table_semantics: z.array(TableSemanticInput).optional(),
+    column_semantics: z.array(ColumnSemanticInput).optional(),
+    relation_semantics: z.array(RelationSemanticInput).optional()
+  })
+  .strict();
 
 export const ddlProposeTool: ToolHandler = {
   definition: {
@@ -198,7 +203,8 @@ export const ddlProposeTool: ToolHandler = {
         },
         column_semantics: {
           type: "array",
-          description: "Optional per-column roles. Used together with or without table_semantics."
+          description:
+            "Optional per-column roles. Used together with or without table_semantics."
         },
         relation_semantics: {
           type: "array",
@@ -220,9 +226,7 @@ export const ddlProposeTool: ToolHandler = {
     }
 
     const workspace = await context.database.query<{ id: string }>(
-      context.database.kind === "sqlite"
-        ? `SELECT id FROM workspaces WHERE id = ?`
-        : `SELECT id FROM mindbrain.workspaces WHERE id = $1`,
+      `SELECT id FROM workspaces WHERE id = ?`,
       [input.workspace_id]
     );
     if (workspace.length === 0) {
@@ -241,9 +245,9 @@ export const ddlProposeTool: ToolHandler = {
       const generated: GeneratedTriggerSQL = await triggerPreviewFromNative(
         context.database,
         {
-        sourceTable: input.sync_spec.source_table,
-        workspaceId: input.workspace_id,
-        fields: input.sync_spec.fields
+          sourceTable: input.sync_spec.source_table,
+          workspaceId: input.workspace_id,
+          fields: input.sync_spec.fields
         },
         context.extensions.pgMindbrain ?? false
       );
@@ -286,8 +290,7 @@ export const ddlProposeTool: ToolHandler = {
 
     const semanticSpecJson = JSON.stringify(semanticProposal);
 
-    const shouldTryOntologyValidation =
-      context.extensions.pgMindbrain ?? false;
+    const shouldTryOntologyValidation = context.extensions.pgMindbrain ?? false;
 
     if (shouldTryOntologyValidation) {
       try {
@@ -356,39 +359,21 @@ export const ddlProposeTool: ToolHandler = {
 
     const migrationId = randomUUID();
 
-    if (context.database.kind === "sqlite") {
-      await context.database.query(
-        `INSERT INTO pending_migrations
-           (id, workspace_id, sql, sync_spec, rationale, preview_trigger, proposed_by, status, semantic_spec)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)`,
-        [
-          migrationId,
-          input.workspace_id,
-          input.sql,
-          syncSpecJson ? JSON.stringify(syncSpecJson) : null,
-          input.rationale ?? null,
-          previewTrigger,
-          input.proposed_by ?? null,
-          semanticSpecJson
-        ]
-      );
-    } else {
-      await context.database.query(
-        `INSERT INTO mindbrain.pending_migrations
-           (id, workspace_id, sql, sync_spec, rationale, preview_trigger, proposed_by, status, semantic_spec)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8::jsonb)`,
-        [
-          migrationId,
-          input.workspace_id,
-          input.sql,
-          syncSpecJson ? JSON.stringify(syncSpecJson) : null,
-          input.rationale ?? null,
-          previewTrigger,
-          input.proposed_by ?? null,
-          semanticSpecJson
-        ]
-      );
-    }
+    await context.database.query(
+      `INSERT INTO pending_migrations
+         (id, workspace_id, sql, sync_spec, rationale, preview_trigger, proposed_by, status, semantic_spec)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)`,
+      [
+        migrationId,
+        input.workspace_id,
+        input.sql,
+        syncSpecJson ? JSON.stringify(syncSpecJson) : null,
+        input.rationale ?? null,
+        previewTrigger,
+        input.proposed_by ?? null,
+        semanticSpecJson
+      ]
+    );
 
     return createToolSuccessResult("ghostcrab_ddl_propose", {
       migration_id: migrationId,
@@ -397,8 +382,7 @@ export const ddlProposeTool: ToolHandler = {
       has_trigger_preview: previewTrigger !== null,
       trigger_summary: triggerSummary,
       semantic_proposal: semanticProposal,
-      next_step:
-        `A human must approve this migration before it can be executed:\n  ghostcrab maintenance ddl-approve --id ${migrationId} --by <your-name>\nThen execute it with:\n  ghostcrab maintenance ddl-execute --id ${migrationId}`
+      next_step: `A human must approve this migration before it can be executed:\n  ghostcrab maintenance ddl-approve --id ${migrationId} --by <your-name>\nThen execute it with:\n  ghostcrab maintenance ddl-execute --id ${migrationId}`
     });
   }
 };
@@ -439,19 +423,11 @@ export const ddlListPendingTool: ToolHandler = {
     const params: unknown[] = [];
 
     if (input.workspace_id) {
-      whereClauses.push(
-        context.database.kind === "sqlite"
-          ? `workspace_id = ?`
-          : `workspace_id = $${params.length + 1}`
-      );
+      whereClauses.push(`workspace_id = ?`);
       params.push(input.workspace_id);
     }
     if (input.status) {
-      whereClauses.push(
-        context.database.kind === "sqlite"
-          ? `status = ?`
-          : `status = $${params.length + 1}`
-      );
+      whereClauses.push(`status = ?`);
       params.push(input.status);
     }
 
@@ -471,17 +447,11 @@ export const ddlListPendingTool: ToolHandler = {
       approved_at: string | null;
       executed_at: string | null;
     }>(
-      context.database.kind === "sqlite"
-        ? `SELECT id, workspace_id, sql, rationale, preview_trigger,
-                  status, proposed_by, approved_by, proposed_at, approved_at, executed_at
-           FROM pending_migrations
-           ${whereClause}
-           ORDER BY proposed_at DESC`
-        : `SELECT id, workspace_id, sql, rationale, preview_trigger,
-                  status, proposed_by, approved_by, proposed_at, approved_at, executed_at
-           FROM mindbrain.pending_migrations
-           ${whereClause}
-           ORDER BY proposed_at DESC`,
+      `SELECT id, workspace_id, sql, rationale, preview_trigger,
+              status, proposed_by, approved_by, proposed_at, approved_at, executed_at
+       FROM pending_migrations
+       ${whereClause}
+       ORDER BY proposed_at DESC`,
       params
     );
 
@@ -531,13 +501,9 @@ export const ddlExecuteTool: ToolHandler = {
       status: string;
       semantic_spec: unknown | null;
     }>(
-      context.database.kind === "sqlite"
-        ? `SELECT id, workspace_id, sql, preview_trigger, status, semantic_spec
-           FROM pending_migrations
-           WHERE id = ?`
-        : `SELECT id, workspace_id, sql, preview_trigger, status, semantic_spec
-           FROM mindbrain.pending_migrations
-           WHERE id = $1`,
+      `SELECT id, workspace_id, sql, preview_trigger, status, semantic_spec
+       FROM pending_migrations
+       WHERE id = ?`,
       [input.migration_id]
     );
 
@@ -569,21 +535,16 @@ export const ddlExecuteTool: ToolHandler = {
 
         if (
           migration.preview_trigger &&
-          (context.database.kind !== "sqlite" ||
-            isExecutableSqlitePreview(migration.preview_trigger))
+          isExecutableSqlitePreview(migration.preview_trigger)
         ) {
           await tx.query(migration.preview_trigger);
           triggerApplied = true;
         }
 
         await tx.query(
-          context.database.kind === "sqlite"
-            ? `UPDATE pending_migrations
-               SET status = 'executed', executed_at = CURRENT_TIMESTAMP
-               WHERE id = ?`
-            : `UPDATE mindbrain.pending_migrations
-               SET status = 'executed', executed_at = now()
-               WHERE id = $1`,
+          `UPDATE pending_migrations
+           SET status = 'executed', executed_at = CURRENT_TIMESTAMP
+           WHERE id = ?`,
           [input.migration_id]
         );
       });
@@ -618,7 +579,8 @@ export const ddlExecuteTool: ToolHandler = {
       workspace_id: migration.workspace_id,
       status: "executed",
       trigger_applied: triggerApplied,
-      applied_sql_preview: migration.sql.slice(0, 500) + (migration.sql.length > 500 ? "…" : ""),
+      applied_sql_preview:
+        migration.sql.slice(0, 500) + (migration.sql.length > 500 ? "…" : ""),
       semantics_applied: semanticsApplied,
       semantics_error: semanticsError
     });

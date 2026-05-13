@@ -5,10 +5,7 @@ import {
   runStandaloneMindbrainSql
 } from "./standalone-mindbrain.js";
 
-export type DatabaseKind = "sqlite";
-
 export interface Queryable {
-  kind: DatabaseKind;
   query<T = Record<string, unknown>>(
     sql: string,
     params?: readonly unknown[]
@@ -25,7 +22,9 @@ export function createDatabaseClient(config: GhostcrabConfig): DatabaseClient {
   return createMindbrainDatabaseClient(config);
 }
 
-function createMindbrainDatabaseClient(config: GhostcrabConfig): DatabaseClient {
+function createMindbrainDatabaseClient(
+  config: GhostcrabConfig
+): DatabaseClient {
   const baseUrl = config.mindbrainUrl;
   const baseQueryable = createMindbrainQueryable(baseUrl);
 
@@ -36,7 +35,9 @@ function createMindbrainDatabaseClient(config: GhostcrabConfig): DatabaseClient 
     },
     async ping(): Promise<boolean> {
       try {
-        const response = await fetch(new URL("/health", normalizeBaseUrl(baseUrl)));
+        const response = await fetch(
+          new URL("/health", normalizeBaseUrl(baseUrl))
+        );
         if (!response.ok) {
           return false;
         }
@@ -50,11 +51,17 @@ function createMindbrainDatabaseClient(config: GhostcrabConfig): DatabaseClient 
     ): Promise<T> {
       const sessionId = await openStandaloneMindbrainSqlSession(baseUrl);
       try {
-        const result = await operation(createMindbrainQueryable(baseUrl, sessionId));
+        const result = await operation(
+          createMindbrainQueryable(baseUrl, sessionId)
+        );
         await closeStandaloneMindbrainSqlSession(baseUrl, sessionId, true);
         return result;
       } catch (error) {
-        await closeStandaloneMindbrainSqlSession(baseUrl, sessionId, false).catch(() => {
+        await closeStandaloneMindbrainSqlSession(
+          baseUrl,
+          sessionId,
+          false
+        ).catch(() => {
           return;
         });
         throw error;
@@ -63,9 +70,11 @@ function createMindbrainDatabaseClient(config: GhostcrabConfig): DatabaseClient 
   };
 }
 
-function createMindbrainQueryable(baseUrl: string, sessionId?: number): Queryable {
+function createMindbrainQueryable(
+  baseUrl: string,
+  sessionId?: number
+): Queryable {
   return {
-    kind: "sqlite",
     async query<T = Record<string, unknown>>(
       sql: string,
       params: readonly unknown[] = []

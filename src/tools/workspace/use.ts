@@ -1,6 +1,9 @@
 import { z } from "zod";
 
-import { getSessionContext, setSessionContext } from "../../mcp/session-context.js";
+import {
+  getSessionContext,
+  setSessionContext
+} from "../../mcp/session-context.js";
 import {
   createToolErrorResult,
   createToolSuccessResult,
@@ -48,11 +51,12 @@ export const workspaceUseTool: ToolHandler = {
     const current = getSessionContext();
 
     // Verify workspace_id exists in the DB when switching
-    if (input.workspace_id !== undefined && input.workspace_id !== current.workspace_id) {
+    if (
+      input.workspace_id !== undefined &&
+      input.workspace_id !== current.workspace_id
+    ) {
       const [ws] = await context.database.query<{ id: string }>(
-        context.database.kind === "sqlite"
-          ? `SELECT id FROM workspaces WHERE id = ?`
-          : `SELECT id FROM mindbrain.workspaces WHERE id = $1`,
+        `SELECT id FROM workspaces WHERE id = ?`,
         [input.workspace_id]
       );
 

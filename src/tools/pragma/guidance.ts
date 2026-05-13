@@ -919,7 +919,7 @@ export const guidanceTool: ToolHandler = {
           facets_json->'keywords' AS keywords
         FROM mb_pragma.facets
         WHERE schema_id = 'ghostcrab:activity-family'
-          AND (valid_until IS NULL OR valid_until > CURRENT_DATE)
+          AND (valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))
       `
     );
 
@@ -952,7 +952,7 @@ export const guidanceTool: ToolHandler = {
           facets_json->'candidate_activity_families' AS candidate_activity_families
         FROM mb_pragma.facets
         WHERE schema_id = 'ghostcrab:signal-pattern'
-          AND (valid_until IS NULL OR valid_until > CURRENT_DATE)
+          AND (valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))
       `
     );
 
@@ -1040,7 +1040,7 @@ export const guidanceTool: ToolHandler = {
           FROM mb_pragma.facets
           WHERE schema_id = 'ghostcrab:modeling-recipe'
             AND facets_json->>'activity_family' = $1
-            AND (valid_until IS NULL OR valid_until > CURRENT_DATE)
+            AND (valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))
           LIMIT 1
         `,
         [topFamily]
