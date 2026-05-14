@@ -147,7 +147,7 @@ OpenClaw uses the same **`mcpServers`** JSON shape; merge the block from **`ghos
 
 ### What the **npm tarball** contains
 
-The published package **`files`** list includes **`bin/`**, **`dist/`**, **`prebuilds/`**, **`ghostcrab-skills/`**, **`docs/`**, **`examples/`**, etc. Override the skills tree with **`GHOSTCRAB_SKILLS_ROOT`**, or skip copying with **`GHOSTCRAB_SKIP_IDE_SKILLS=1`** or **`gcp brain up --no-skills`**.
+The published package **`files`** list includes **`bin/`**, **`dist/`**, **`ghostcrab-skills/`**, operational **`docs/`** subsets, **`examples/`**, etc. It intentionally excludes generated blog-image resources and platform binaries from the root installer package. Override the skills tree with **`GHOSTCRAB_SKILLS_ROOT`**, or skip copying with **`GHOSTCRAB_SKIP_IDE_SKILLS=1`** or **`gcp brain up --no-skills`**.
 
 ### What **SQLite initialisation** loads
 
