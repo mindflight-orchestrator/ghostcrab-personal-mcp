@@ -1,10 +1,22 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
+# Integrating mindBrain with n8n
 
-# GhostCrab MCP integration — Personal (SQLite) in an n8n node
+## About n8n
 
-Technical summary for integrating GhostCrab MCP (`Perso` mode with SQLite) into an n8n node.
+[n8n](https://n8n.io/) is a workflow automation platform for connecting apps, APIs, data sources, and AI tools through visual workflows. It is used by technical teams and operations builders who need repeatable automation with enough flexibility to run custom code, call external services, and orchestrate agentic workflows. In AI workflows, n8n can connect triggers, LLM nodes, tools, and MCP-compatible services into a single operational pipeline.
 
-***
+## MindBrain
+
+MindBrain is a structured agentic database that makes any domain navigable in real time — its intelligence lives in schema enforcement, typed ontologies, and pre-computed projections that cost zero inference at query time.
+
+## Why integrate mindBrain with n8n
+
+n8n is strong at orchestration, but workflow state can become scattered across node outputs, external databases, and ad hoc memory patterns. mindBrain gives n8n workflows a structured context backend that AI Agent nodes can query, update, and reuse through MCP without turning every workflow into a custom persistence project.
+
+For GhostCrab Personal in SQLite mode, the integration lets a local or self-hosted n8n instance read durable project facts, update current state, and traverse typed relationships while keeping n8n focused on workflow execution. The result is a no-code automation layer with a queryable ontology underneath it, including zero-inference projections for fast context loading.
+
+## SKILLS available in this repo
+
+This n8n folder does not currently include standalone `SKILL.md` files. The closest local artifacts are [`N8N_GHOSTCRAB_PERSONAL_RECIPE.md`](N8N_GHOSTCRAB_PERSONAL_RECIPE.md), which can guide Claude Code, Codex, or another agent through the local Personal integration flow, and [`n8n_COMMUNITY_RELEVANCE_REVIEW.md`](n8n_COMMUNITY_RELEVANCE_REVIEW.md), which reviews how the integration should be positioned for the n8n community.
 
 ## Two integration modes in n8n
 
@@ -117,4 +129,3 @@ Official n8n template **"Build your own SQLite MCP server"** [^1_6] exposes SQLi
 [^1_14]: https://www.npmjs.com/package/n8n-nodes-mcp
 
 [^1_15]: https://www.youtube.com/watch?v=7rUAk6aIarQ
-

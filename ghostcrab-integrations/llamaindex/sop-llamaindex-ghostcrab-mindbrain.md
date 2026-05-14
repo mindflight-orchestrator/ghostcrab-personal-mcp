@@ -1,12 +1,23 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
+# Integrating mindBrain with LlamaIndex
 
-The most effective pitch for every framework is not to sell MindBrain as an "alternative database" but as a **shared context layer across agents**: today each framework keeps memory in silos; MindBrain/GhostCrab provides a structured, queryable, persistent ontology registry. That argument lands regardless of target framework.
+## About LlamaIndex
 
-task: target LlamaIndex — explain how integration should be implemented so it resonates under the LlamaIndex tag.
+LlamaIndex is an open-source data framework for building LLM applications that connect agents, workflows, indexes, retrievers, query engines, and structured or unstructured data sources. The main project lives at [run-llama/llama_index](https://github.com/run-llama/llama_index), with documentation and examples focused on production RAG, agentic workflows, and data-aware application development. It is commonly used when teams need a programmable bridge between language models and private knowledge, not just a standalone chatbot layer.
 
-Full technical positioning for LlamaIndex using the shared-context argument.
+## MindBrain
 
-***
+MindBrain is a structured agentic database that makes any domain navigable in real time — its intelligence lives in schema enforcement, typed ontologies, and pre-computed projections that cost zero inference at query time.
+
+## Why integrate mindBrain with LlamaIndex
+
+LlamaIndex is strong at indexing, retrieval, and workflow composition, but operational memory can still fragment across agent memory, workflow context, graph stores, and document storage. mindBrain complements LlamaIndex by giving agents a shared ontology-backed memory layer for task state, decisions, blockers, relationships, and project facts that should survive beyond one workflow run.
+
+The integration works best as a boundary-preserving pairing: LlamaIndex keeps handling documents and RAG, while GhostCrab exposes mindBrain as MCP tools or custom memory components for durable operational context. That gives LlamaIndex workflows faceted search, typed relations, and precomputed projections without forcing document indexes to become a project management database.
+
+## SKILLS available in this repo
+
+- [`llamaindex-ghostcrab`](SKILL_llamaindex_ghostcrab.md) helps Claude Code, Codex, or a LlamaIndex developer connect a Python workflow to GhostCrab Personal as a local MCP sidecar for durable operational memory.
+- [`ghostcrab-runtime`](SKILL_ghostcrab_runtime.md) describes the runtime pattern for using GhostCrab Personal to store shared workflow state while LlamaIndex continues to own retrieval, indexing, and orchestration.
 
 ## Structural problem inside LlamaIndex
 
@@ -439,4 +450,3 @@ class GhostCrabOrchestrator:
         )
         return facts[0]["object"]
 ```
-

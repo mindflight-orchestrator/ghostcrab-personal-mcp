@@ -12,7 +12,6 @@ export const FACET_TYPES = [
   "ltree",
   "temporal",
   "temporal_range",
-  "geo",
   "jsonpath",
   "computed",
   "embedding"

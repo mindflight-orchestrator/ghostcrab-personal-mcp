@@ -1,5 +1,6 @@
 export const SQLITE_FACT_STORE_TABLE = "facets";
 export const SQLITE_FACTS_COLUMN = "facets_json";
+export const SQLITE_NEXT_FACT_DOC_ID_EXPR = `(SELECT COALESCE(MAX(doc_id), 0) + 1 FROM ${SQLITE_FACT_STORE_TABLE})`;
 
 export function sqliteFacetJsonExtractClause(facetKey: string): string {
   return `json_extract(${SQLITE_FACTS_COLUMN}, '$.${facetKey}')`;

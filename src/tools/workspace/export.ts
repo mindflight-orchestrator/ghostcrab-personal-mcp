@@ -6,7 +6,6 @@ import {
   registerTool,
   type ToolHandler
 } from "../registry.js";
-import { callNativeOrFallback } from "../../db/dispatch.js";
 import { WorkspaceIdSchema } from "../../types/workspace.js";
 import {
   ExportDepthSchema,
@@ -44,9 +43,15 @@ function rowToTableSemantic(r: Record<string, unknown>): TableSemantic {
     table_schema: String(r.table_schema ?? "public"),
     table_name: String(r.table_name ?? ""),
     business_role: (r.business_role as string | null | undefined) ?? undefined,
-    generation_strategy: (r.generation_strategy as string | null) === "unknown" ||
-      r.generation_strategy == null ? "unknown" :
-      (r.generation_strategy as "synthetic" | "replay" | "hybrid" | "unknown"),
+    generation_strategy:
+      (r.generation_strategy as string | null) === "unknown" ||
+      r.generation_strategy == null
+        ? "unknown"
+        : (r.generation_strategy as
+            | "synthetic"
+            | "replay"
+            | "hybrid"
+            | "unknown"),
     emit_facets: Boolean(r.emit_facets ?? true),
     emit_graph_entity: Boolean(r.emit_graph_entity ?? false),
     emit_graph_relation: Boolean(r.emit_graph_relation ?? false),
@@ -79,13 +84,18 @@ function rowToColumnSemantic(r: Record<string, unknown>): ColumnSemantic {
     column_name: String(r.column_name ?? ""),
     column_role: (r.column_role as ColumnSemantic["column_role"]) ?? "unknown",
     // Rich fields from rich_meta JSONB
-    public_column_role: (richMeta?.public_column_role as ColumnRole | undefined) ?? undefined,
-    semantic_type: (richMeta?.semantic_type as SemanticType | undefined) ?? undefined,
+    public_column_role:
+      (richMeta?.public_column_role as ColumnRole | undefined) ?? undefined,
+    semantic_type:
+      (richMeta?.semantic_type as SemanticType | undefined) ?? undefined,
     facet_key: (richMeta?.facet_key as string | undefined) ?? undefined,
     graph_usage: (richMeta?.graph_usage as GraphUsage | undefined) ?? undefined,
-    projection_signal: (richMeta?.projection_signal as string | undefined) ?? undefined,
+    projection_signal:
+      (richMeta?.projection_signal as string | undefined) ?? undefined,
     is_nullable: (richMeta?.is_nullable as boolean | undefined) ?? undefined,
-    distribution_hint: (richMeta?.distribution_hint as Record<string, unknown> | undefined) ?? undefined
+    distribution_hint:
+      (richMeta?.distribution_hint as Record<string, unknown> | undefined) ??
+      undefined
   };
 }
 
@@ -96,10 +106,15 @@ function rowToRelationSemantic(r: Record<string, unknown>): RelationSemantic {
     from_table: String(r.from_table ?? ""),
     to_schema: String(r.to_schema ?? "public"),
     to_table: String(r.to_table ?? ""),
-    fk_column: (r.fk_column as string) === "" ? undefined : (r.fk_column as string | undefined),
-    relation_kind: (r.relation_kind as RelationSemantic["relation_kind"]) ?? "unknown",
+    fk_column:
+      (r.fk_column as string) === ""
+        ? undefined
+        : (r.fk_column as string | undefined),
+    relation_kind:
+      (r.relation_kind as RelationSemantic["relation_kind"]) ?? "unknown",
     // Rich fields from rich_meta JSONB
-    relation_role: (richMeta?.relation_role as RelationRole | undefined) ?? undefined,
+    relation_role:
+      (richMeta?.relation_role as RelationRole | undefined) ?? undefined,
     hierarchical: (richMeta?.hierarchical as boolean | undefined) ?? undefined,
     graph_label: (richMeta?.graph_label as string | undefined) ?? undefined,
     target_column: (richMeta?.target_column as string | undefined) ?? undefined
@@ -146,9 +161,7 @@ function mapBusinessRoleToTableRole(
   if (!role) {
     return null;
   }
-  return PUBLIC_TABLE_ROLES.has(role as TableRole)
-    ? (role as TableRole)
-    : null;
+  return PUBLIC_TABLE_ROLES.has(role as TableRole) ? (role as TableRole) : null;
 }
 
 function mapDbGenerationStrategyToPublic(
@@ -289,16 +302,19 @@ function toPublicTable(
 
   const volumeDriver: VolumeDriver | null =
     t.volume_driver ??
-    (typeof notes?.volume_driver === "string" ? notes.volume_driver as VolumeDriver : null);
+    (typeof notes?.volume_driver === "string"
+      ? (notes.volume_driver as VolumeDriver)
+      : null);
 
   const primaryTimeColumn: string | null =
     t.primary_time_column ??
-    (typeof notes?.primary_time_column === "string" ? notes.primary_time_column : null) ??
+    (typeof notes?.primary_time_column === "string"
+      ? notes.primary_time_column
+      : null) ??
     inferPrimaryTimeColumn(t, columns);
 
   const emitProjections: boolean =
-    t.emit_projections ??
-    Boolean(notes?.emit_projections ?? false);
+    t.emit_projections ?? Boolean(notes?.emit_projections ?? false);
 
   return {
     schema_name: t.table_schema,
@@ -320,7 +336,10 @@ function toPublicTable(
   };
 }
 
-function toPublicColumn(c: ColumnSemantic, catalogNullable?: boolean): ColumnExport {
+function toPublicColumn(
+  c: ColumnSemantic,
+  catalogNullable?: boolean
+): ColumnExport {
   // Precedence: explicit rich field > catalog > heuristic > null/default
   const columnRole = c.public_column_role ?? mapDbColumnRole(c.column_role);
   const semanticType = c.semantic_type ?? inferSemanticType(c);
@@ -347,8 +366,12 @@ function toPublicRelation(
 ): RelationExport {
   // Cardinality from the source (FK-holder) perspective.
   // Both many_to_one and one_to_many map to "1:n" — the parent has 1, child has n.
-  const cardinality = r.relation_kind === "many_to_one" ? "1:n" :
-    r.relation_kind === "one_to_many" ? "1:n" : null;
+  const cardinality =
+    r.relation_kind === "many_to_one"
+      ? "1:n"
+      : r.relation_kind === "one_to_many"
+        ? "1:n"
+        : null;
 
   const targetKey = `${r.to_schema}.${r.to_table}`.toLowerCase();
   // Precedence: explicit rich field > catalog PK lookup > fallback "id"
@@ -397,462 +420,187 @@ export const workspaceExportModelTool: ToolHandler = {
   async handler(args, context) {
     const input = WorkspaceExportInput.parse(args);
 
-    const { value: result } = await callNativeOrFallback({
-      useNative:
-        context.extensions.pgFacets ||
-        context.extensions.pgDgraph ||
-        context.extensions.pgPragma,
-      native: async () => {
-        const rows = await context.database.query<{ payload: Record<string, unknown> }>(
-          `SELECT mb_ontology.export_workspace_model($1::text) AS payload`,
-          [input.workspace_id]
-        );
+    const wsRows = await context.database.query<{
+      id: string;
+      label: string;
+      description: string | null;
+      pg_schema: string;
+      domain_profile: string | null;
+    }>(
+      `SELECT id, label, description, pg_schema, domain_profile
+           FROM workspaces
+           WHERE id = ?`,
+      [input.workspace_id]
+    );
 
-        const payload = rows[0]?.payload;
-        const workspace = payload?.workspace as Record<string, unknown> | null | undefined;
-        if (!payload || !workspace || !workspace.id) {
-          return createToolErrorResult(
-            "ghostcrab_workspace_export_model",
-            `Workspace '${input.workspace_id}' does not exist.`,
-            "workspace_not_found"
-          );
-        }
+    if (wsRows.length === 0) {
+      return createToolErrorResult(
+        "ghostcrab_workspace_export_model",
+        `Workspace '${input.workspace_id}' does not exist.`,
+        "workspace_not_found"
+      );
+    }
 
-        if (input.depth === "tables_only") {
-          delete payload.columns;
-          delete payload.relations;
-        } else if (input.depth === "tables_and_columns") {
-          delete payload.relations;
-        }
+    const wsRow = wsRows[0];
+    const depth: ExportDepth = input.depth;
 
-        return createToolSuccessResult("ghostcrab_workspace_export_model", payload);
-      },
-      fallback: async () => {
-        if (context.database.kind === "sqlite") {
-          const wsRows = await context.database.query<{
-            id: string;
-            label: string;
-            description: string | null;
-            pg_schema: string;
-            domain_profile: string | null;
-          }>(
-            `SELECT id, label, description, pg_schema, domain_profile
-             FROM workspaces
-             WHERE id = ?`,
-            [input.workspace_id]
-          );
-
-          if (wsRows.length === 0) {
-            return createToolErrorResult(
-              "ghostcrab_workspace_export_model",
-              `Workspace '${input.workspace_id}' does not exist.`,
-              "workspace_not_found"
-            );
-          }
-
-          const wsRow = wsRows[0];
-          const depth: ExportDepth = input.depth;
-
-          const tableRows = await context.database.query<Record<string, unknown>>(
-            `SELECT table_schema, table_name, business_role, generation_strategy,
-                    emit_facets, emit_graph_entity, emit_graph_relation, notes
-             FROM table_semantics
-             WHERE workspace_id = ?
-             ORDER BY table_schema, table_name`,
-            [input.workspace_id]
-          );
-
-          const columnRows =
-            depth === "tables_and_columns" || depth === "full"
-              ? await context.database.query<Record<string, unknown>>(
-                  `SELECT table_schema, table_name, column_name, column_role, rich_meta
-                   FROM column_semantics
-                   WHERE workspace_id = ?
-                   ORDER BY table_schema, table_name, column_name`,
-                  [input.workspace_id]
-                )
-              : [];
-
-          const relationRows =
-            depth === "full"
-              ? await context.database.query<Record<string, unknown>>(
-                  `SELECT from_schema, from_table, to_schema, to_table, fk_column, relation_kind, rich_meta
-                   FROM relation_semantics
-                   WHERE workspace_id = ?
-                   ORDER BY from_schema, from_table, to_schema, to_table`,
-                  [input.workspace_id]
-                )
-              : [];
-
-          const internalTables = tableRows.map(rowToTableSemantic);
-          const internalColumns = columnRows.map(rowToColumnSemantic);
-          const internalRelations = relationRows.map(rowToRelationSemantic);
-
-          const catalogTables = await listSqliteTables(context.database);
-          const catalogColumns = await listSqliteColumns(context.database, catalogTables);
-          const tableNames = new Set(catalogTables.map((tableName) => tableName.toLowerCase()));
-          const existingTables = new Set<string>();
-          const existingColumns = new Set<string>();
-          const nullableLookup = new Map<string, boolean>();
-          const pkLookup = new Map<string, string>();
-
-          for (const table of internalTables) {
-            if (!tableNames.has(table.table_name.toLowerCase())) {
-              continue;
-            }
-
-            const key = `${table.table_schema}.${table.table_name}`.toLowerCase();
-            existingTables.add(key);
-
-            for (const column of catalogColumns) {
-              if (column.table_name.toLowerCase() !== table.table_name.toLowerCase()) {
-                continue;
-              }
-
-              const columnKey =
-                `${table.table_schema}.${table.table_name}.${column.column_name}`.toLowerCase();
-              existingColumns.add(columnKey);
-              nullableLookup.set(columnKey, column.is_nullable);
-
-              if (column.pk && !pkLookup.has(key)) {
-                pkLookup.set(key, column.column_name);
-              }
-            }
-          }
-
-          const validationWarnings = validateSemanticsAgainstCatalog({
-            existingTables,
-            existingColumns,
-            tableSemantics: internalTables,
-            columnSemantics: internalColumns
-          });
-
-          const publicTables: TableExport[] = internalTables.map((table) =>
-            toPublicTable(table, internalColumns, internalRelations)
-          );
-          const publicColumns: ColumnExport[] = internalColumns.map((column) => {
-            const key =
-              `${column.table_schema}.${column.table_name}.${column.column_name}`.toLowerCase();
-            return toPublicColumn(column, nullableLookup.get(key));
-          });
-          const publicRelations: RelationExport[] = internalRelations.map((relation) =>
-            toPublicRelation(relation, pkLookup)
-          );
-
-          const domainProfile =
-            wsRow.domain_profile ?? wsRow.id.split("-")[0] ?? null;
-          const relationEdges = internalRelations.map((relation) => ({
-            from_schema: relation.from_schema,
-            from_table: relation.from_table,
-            to_schema: relation.to_schema,
-            to_table: relation.to_table
-          }));
-          const baseHints = buildGenerationHints({
-            domainProfile,
-            tables: publicTables.map((table) => ({
-              schema_name: table.schema_name,
-              table_name: table.table_name
-            })),
-            edges: relationEdges
-          });
-          const multipliers = baseHints.seed_multipliers ?? {
-            tiny: 20,
-            low: 200,
-            medium: 2000,
-            high: 10000
-          };
-          const estimatedTotalRows = publicTables.reduce((sum, table) => {
-            const driver = table.volume_driver;
-            return sum + (driver ? (multipliers[driver] ?? 0) : 0);
-          }, 0);
-
-          const payload: Record<string, unknown> = {
-            schema_version: WORKSPACE_MODEL_SCHEMA_VERSION,
-            exported_at: new Date().toISOString(),
-            workspace: {
-              id: wsRow.id,
-              label: wsRow.label,
-              description: wsRow.description ?? null,
-              domain_profile: domainProfile,
-              pg_schema: wsRow.pg_schema
-            },
-            tables: publicTables,
-            generation_hints: {
-              ...baseHints,
-              estimated_total_rows:
-                estimatedTotalRows > 0 ? estimatedTotalRows : undefined
-            },
-            validation_warnings: validationWarnings
-          };
-
-          if (depth !== "tables_only") {
-            payload.columns = publicColumns;
-          }
-          if (depth === "full") {
-            payload.relations = publicRelations;
-          }
-
-          return createToolSuccessResult("ghostcrab_workspace_export_model", payload);
-        }
-
-        // Try to read domain_profile (added by migration 013); fall back gracefully if not yet migrated.
-        let wsRows: Array<{
-          id: string;
-          label: string;
-          description: string | null;
-          pg_schema: string;
-          domain_profile?: string | null;
-        }>;
-        try {
-          wsRows = await context.database.query(
-            `SELECT id, label, description, pg_schema, domain_profile
-             FROM mindbrain.workspaces WHERE id = $1`,
-            [input.workspace_id]
-          );
-        } catch (err) {
-          console.debug(
-            "[ghostcrab:export] domain_profile column query failed, falling back:",
-            err instanceof Error ? err.message : err
-          );
-          wsRows = await context.database.query(
-            `SELECT id, label, description, pg_schema
-             FROM mindbrain.workspaces WHERE id = $1`,
-            [input.workspace_id]
-          );
-        }
-
-        if (wsRows.length === 0) {
-          return createToolErrorResult(
-            "ghostcrab_workspace_export_model",
-            `Workspace '${input.workspace_id}' does not exist.`,
-            "workspace_not_found"
-          );
-        }
-
-        const wsRow = wsRows[0];
-        const pgSchema = wsRow.pg_schema;
-        const depth: ExportDepth = input.depth;
-
-    // ── Layer 1: table semantics ─────────────────────────────────────────────
-        const tableRows = await context.database.query<Record<string, unknown>>(
-          `SELECT table_schema, table_name, business_role, generation_strategy,
+    const tableRows = await context.database.query<Record<string, unknown>>(
+      `SELECT table_schema, table_name, business_role, generation_strategy,
                   emit_facets, emit_graph_entity, emit_graph_relation, notes
-           FROM mindbrain.table_semantics
-           WHERE workspace_id = $1
+           FROM table_semantics
+           WHERE workspace_id = ?
            ORDER BY table_schema, table_name`,
-          [input.workspace_id]
-        );
+      [input.workspace_id]
+    );
 
-    // ── Layer 2: column / relation semantics ─────────────────────────────────
-        let columnRows: Record<string, unknown>[] = [];
-        let relationRows: Record<string, unknown>[] = [];
+    const columnRows =
+      depth === "tables_and_columns" || depth === "full"
+        ? await context.database.query<Record<string, unknown>>(
+            `SELECT table_schema, table_name, column_name, column_role, rich_meta
+                 FROM column_semantics
+                 WHERE workspace_id = ?
+                 ORDER BY table_schema, table_name, column_name`,
+            [input.workspace_id]
+          )
+        : [];
 
-        if (depth === "tables_and_columns" || depth === "full") {
-      // Try to read rich_meta if migration 013 has run; fall back gracefully.
-      try {
-        columnRows = await context.database.query<Record<string, unknown>>(
-          `SELECT table_schema, table_name, column_name, column_role, rich_meta
-           FROM mindbrain.column_semantics
-           WHERE workspace_id = $1
-           ORDER BY table_schema, table_name, column_name`,
-          [input.workspace_id]
-        );
-      } catch (err) {
-        console.debug(
-          "[ghostcrab:export] rich_meta column query failed, falling back:",
-          err instanceof Error ? err.message : err
-        );
-        columnRows = await context.database.query<Record<string, unknown>>(
-          `SELECT table_schema, table_name, column_name, column_role
-           FROM mindbrain.column_semantics
-           WHERE workspace_id = $1
-           ORDER BY table_schema, table_name, column_name`,
-          [input.workspace_id]
-        );
+    const relationRows =
+      depth === "full"
+        ? await context.database.query<Record<string, unknown>>(
+            `SELECT from_schema, from_table, to_schema, to_table, fk_column, relation_kind, rich_meta
+                 FROM relation_semantics
+                 WHERE workspace_id = ?
+                 ORDER BY from_schema, from_table, to_schema, to_table`,
+            [input.workspace_id]
+          )
+        : [];
+
+    const internalTables = tableRows.map(rowToTableSemantic);
+    const internalColumns = columnRows.map(rowToColumnSemantic);
+    const internalRelations = relationRows.map(rowToRelationSemantic);
+
+    const catalogTables = await listSqliteTables(context.database);
+    const catalogColumns = await listSqliteColumns(
+      context.database,
+      catalogTables
+    );
+    const tableNames = new Set(
+      catalogTables.map((tableName) => tableName.toLowerCase())
+    );
+    const existingTables = new Set<string>();
+    const existingColumns = new Set<string>();
+    const nullableLookup = new Map<string, boolean>();
+    const pkLookup = new Map<string, string>();
+
+    for (const table of internalTables) {
+      if (!tableNames.has(table.table_name.toLowerCase())) {
+        continue;
+      }
+
+      const key = `${table.table_schema}.${table.table_name}`.toLowerCase();
+      existingTables.add(key);
+
+      for (const column of catalogColumns) {
+        if (
+          column.table_name.toLowerCase() !== table.table_name.toLowerCase()
+        ) {
+          continue;
+        }
+
+        const columnKey =
+          `${table.table_schema}.${table.table_name}.${column.column_name}`.toLowerCase();
+        existingColumns.add(columnKey);
+        nullableLookup.set(columnKey, column.is_nullable);
+
+        if (column.pk && !pkLookup.has(key)) {
+          pkLookup.set(key, column.column_name);
+        }
       }
     }
 
-        if (depth === "full") {
-      try {
-        relationRows = await context.database.query<Record<string, unknown>>(
-          `SELECT from_schema, from_table, to_schema, to_table, fk_column, relation_kind, rich_meta
-           FROM mindbrain.relation_semantics
-           WHERE workspace_id = $1
-           ORDER BY from_schema, from_table, to_schema, to_table`,
-          [input.workspace_id]
-        );
-      } catch (err) {
-        console.debug(
-          "[ghostcrab:export] relation rich_meta query failed, falling back:",
-          err instanceof Error ? err.message : err
-        );
-        relationRows = await context.database.query<Record<string, unknown>>(
-          `SELECT from_schema, from_table, to_schema, to_table, fk_column, relation_kind
-           FROM mindbrain.relation_semantics
-           WHERE workspace_id = $1
-           ORDER BY from_schema, from_table, to_schema, to_table`,
-          [input.workspace_id]
-        );
-      }
-    }
-
-    // ── Catalog validation ───────────────────────────────────────────────────
-        const catalogTables = await context.database.query<{
-      table_schema: string;
-      table_name: string;
-    }>(
-      `SELECT table_schema, table_name
-       FROM information_schema.tables
-       WHERE table_schema = $1 AND table_type = 'BASE TABLE'`,
-      [pgSchema]
-    );
-
-        const catalogColumns = await context.database.query<{
-      table_schema: string;
-      table_name: string;
-      column_name: string;
-      is_nullable?: string;
-    }>(
-      `SELECT table_schema, table_name, column_name, is_nullable
-       FROM information_schema.columns
-       WHERE table_schema = $1`,
-      [pgSchema]
-    );
-
-        const existingTables = new Set(
-      catalogTables.map((t) =>
-        `${t.table_schema}.${t.table_name}`.toLowerCase()
-      )
-    );
-        const existingColumns = new Set(
-      catalogColumns.map(
-        (c) =>
-          `${c.table_schema}.${c.table_name}.${c.column_name}`.toLowerCase()
-      )
-    );
-
-    // Build nullable lookup: "schema.table.column" → boolean
-        const nullableLookup = new Map<string, boolean>(
-      catalogColumns.map((c) => [
-        `${c.table_schema}.${c.table_name}.${c.column_name}`.toLowerCase(),
-        c.is_nullable === "YES"
-      ])
-    );
-
-    // ── Map to internal types ────────────────────────────────────────────────
-        const internalTables = tableRows.map(rowToTableSemantic);
-        const internalColumns = columnRows.map(rowToColumnSemantic);
-        const internalRelations = relationRows.map(rowToRelationSemantic);
-
-    // ── Validation warnings ──────────────────────────────────────────────────
-        const validationWarnings = validateSemanticsAgainstCatalog({
-          existingTables,
-          existingColumns,
-          tableSemantics: internalTables,
-          columnSemantics: internalColumns
-        });
-
-    // ── PK lookup for target_column resolution ───────────────────────────────
-        const pkRows = await context.database.query<{
-      table_schema: string;
-      table_name: string;
-      column_name: string;
-    }>(
-      `SELECT kcu.table_schema, kcu.table_name, kcu.column_name
-       FROM information_schema.table_constraints tc
-       JOIN information_schema.key_column_usage kcu
-         ON kcu.constraint_name = tc.constraint_name
-        AND kcu.table_schema = tc.table_schema
-        AND kcu.table_name = tc.table_name
-       WHERE tc.constraint_type = 'PRIMARY KEY'
-         AND kcu.ordinal_position = 1`,
-      []
-    );
-        const pkLookup = new Map<string, string>(
-          pkRows.map((r) => [`${r.table_schema}.${r.table_name}`.toLowerCase(), r.column_name])
-        );
-
-    // ── Map to public contract 1.0.0 shapes ─────────────────────────────────
-        const publicTables: TableExport[] = internalTables.map((table) =>
-          toPublicTable(table, internalColumns, internalRelations)
-        );
-        const publicColumns: ColumnExport[] = internalColumns.map((c) => {
-          const colKey = `${c.table_schema}.${c.table_name}.${c.column_name}`.toLowerCase();
-          const catalogNullable = nullableLookup.get(colKey);
-          return toPublicColumn(c, catalogNullable);
-        });
-        const publicRelations: RelationExport[] = internalRelations.map((r) =>
-          toPublicRelation(r, pkLookup)
-        );
-
-    // ── generation_hints ─────────────────────────────────────────────────────
-    // domain_profile: explicit DB column (migration 013) > id prefix fallback.
-        const domainProfile =
-          (wsRow as { domain_profile?: string | null }).domain_profile ??
-          wsRow.id.split("-")[0] ??
-          null;
-
-        const relationEdges = internalRelations.map(r => ({
-          from_schema: r.from_schema,
-          from_table: r.from_table,
-          to_schema: r.to_schema,
-          to_table: r.to_table
-        }));
-
-        const baseHints = buildGenerationHints({
-          domainProfile,
-          tables: publicTables.map(t => ({ schema_name: t.schema_name, table_name: t.table_name })),
-          edges: relationEdges
-        });
-
-    // Compute estimated_total_rows from volume_driver × seed_multipliers per table.
-        const multipliers = baseHints.seed_multipliers ?? { tiny: 20, low: 200, medium: 2000, high: 10000 };
-        const estimatedTotalRows = publicTables.reduce((sum, t) => {
-          const driver = t.volume_driver;
-          const count = driver ? (multipliers[driver] ?? 0) : 0;
-          return sum + count;
-        }, 0);
-
-        const generationHints = {
-          ...baseHints,
-          estimated_total_rows: estimatedTotalRows > 0 ? estimatedTotalRows : undefined
-        };
-
-    // ── Assemble public payload ──────────────────────────────────────────────
-        const payload: Record<string, unknown> = {
-          schema_version: WORKSPACE_MODEL_SCHEMA_VERSION,
-          exported_at: new Date().toISOString(),
-          workspace: {
-            id: wsRow.id,
-            label: wsRow.label,
-            description: wsRow.description ?? null,
-            domain_profile: domainProfile,
-            pg_schema: pgSchema
-          },
-          tables: publicTables,
-          generation_hints: generationHints,
-          validation_warnings: validationWarnings
-        };
-
-        if (depth !== "tables_only") {
-          payload.columns = publicColumns;
-        }
-        if (depth === "full") {
-          payload.relations = publicRelations;
-        }
-
-        return createToolSuccessResult("ghostcrab_workspace_export_model", payload);
-      }
+    const validationWarnings = validateSemanticsAgainstCatalog({
+      existingTables,
+      existingColumns,
+      tableSemantics: internalTables,
+      columnSemantics: internalColumns
     });
 
-    return result;
+    const publicTables: TableExport[] = internalTables.map((table) =>
+      toPublicTable(table, internalColumns, internalRelations)
+    );
+    const publicColumns: ColumnExport[] = internalColumns.map((column) => {
+      const key =
+        `${column.table_schema}.${column.table_name}.${column.column_name}`.toLowerCase();
+      return toPublicColumn(column, nullableLookup.get(key));
+    });
+    const publicRelations: RelationExport[] = internalRelations.map(
+      (relation) => toPublicRelation(relation, pkLookup)
+    );
+
+    const domainProfile =
+      wsRow.domain_profile ?? wsRow.id.split("-")[0] ?? null;
+    const relationEdges = internalRelations.map((relation) => ({
+      from_schema: relation.from_schema,
+      from_table: relation.from_table,
+      to_schema: relation.to_schema,
+      to_table: relation.to_table
+    }));
+    const baseHints = buildGenerationHints({
+      domainProfile,
+      tables: publicTables.map((table) => ({
+        schema_name: table.schema_name,
+        table_name: table.table_name
+      })),
+      edges: relationEdges
+    });
+    const multipliers = baseHints.seed_multipliers ?? {
+      tiny: 20,
+      low: 200,
+      medium: 2000,
+      high: 10000
+    };
+    const estimatedTotalRows = publicTables.reduce((sum, table) => {
+      const driver = table.volume_driver;
+      return sum + (driver ? (multipliers[driver] ?? 0) : 0);
+    }, 0);
+
+    const payload: Record<string, unknown> = {
+      schema_version: WORKSPACE_MODEL_SCHEMA_VERSION,
+      exported_at: new Date().toISOString(),
+      workspace: {
+        id: wsRow.id,
+        label: wsRow.label,
+        description: wsRow.description ?? null,
+        domain_profile: domainProfile,
+        pg_schema: wsRow.pg_schema
+      },
+      tables: publicTables,
+      generation_hints: {
+        ...baseHints,
+        estimated_total_rows:
+          estimatedTotalRows > 0 ? estimatedTotalRows : undefined
+      },
+      validation_warnings: validationWarnings
+    };
+
+    if (depth !== "tables_only") {
+      payload.columns = publicColumns;
+    }
+    if (depth === "full") {
+      payload.relations = publicRelations;
+    }
+
+    return createToolSuccessResult("ghostcrab_workspace_export_model", payload);
   }
 };
 
 registerTool(workspaceExportModelTool);
 
 async function listSqliteTables(database: {
-  query<T = Record<string, unknown>>(sql: string, params?: readonly unknown[]): Promise<T[]>;
+  query<T = Record<string, unknown>>(
+    sql: string,
+    params?: readonly unknown[]
+  ): Promise<T[]>;
 }): Promise<string[]> {
   const rows = await database.query<{ name: string }>(
     `SELECT name
@@ -863,15 +611,34 @@ async function listSqliteTables(database: {
 
   return rows
     .map((row) => row.name)
-    .filter((name) => !["workspaces", "pending_migrations", "table_semantics", "column_semantics", "relation_semantics"].includes(name));
+    .filter(
+      (name) =>
+        ![
+          "workspaces",
+          "pending_migrations",
+          "table_semantics",
+          "column_semantics",
+          "relation_semantics"
+        ].includes(name)
+    );
 }
 
 async function listSqliteColumns(
   database: {
-    query<T = Record<string, unknown>>(sql: string, params?: readonly unknown[]): Promise<T[]>;
+    query<T = Record<string, unknown>>(
+      sql: string,
+      params?: readonly unknown[]
+    ): Promise<T[]>;
   },
   tables: string[]
-): Promise<Array<{ table_name: string; column_name: string; is_nullable: boolean; pk: boolean }>> {
+): Promise<
+  Array<{
+    table_name: string;
+    column_name: string;
+    is_nullable: boolean;
+    pk: boolean;
+  }>
+> {
   const columns: Array<{
     table_name: string;
     column_name: string;

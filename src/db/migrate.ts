@@ -5,15 +5,13 @@ import { fileURLToPath } from "node:url";
 
 import type { DatabaseClient } from "./client.js";
 
-const MIGRATIONS_TABLE_NAME = "mindbrain_schema_migrations";
-const MIGRATIONS_LOCK_NAME = "mindbrain_schema_migrations";
 const NO_TRANSACTION_DIRECTIVE = "-- @no-transaction";
 const BASELINE_VENDOR_MARKER = "-- ghostcrab-baseline-vendor";
 const BASELINE_VENDOR_REL = join(
   "vendor",
   "mindbrain",
   "sql",
-  "pg_layer2_mindbrain_baseline.sql"
+  "sqlite_mindbrain--1.0.0.sql"
 );
 
 export interface MigrationFile {
@@ -27,11 +25,6 @@ export interface MigrationRunSummary {
   applied: string[];
   discovered: string[];
   skipped: string[];
-}
-
-interface AppliedMigrationRow {
-  checksum: string;
-  filename: string;
 }
 
 export async function loadMigrationFiles(
@@ -73,90 +66,21 @@ export async function loadMigrationFiles(
 }
 
 export async function runMigrations(
-  database: DatabaseClient,
+  _database: DatabaseClient,
   migrationDirectory = getDefaultMigrationDirectory()
 ): Promise<MigrationRunSummary> {
-  await ensureMigrationsTable(database);
-  await database.query("SELECT pg_advisory_lock(hashtext($1))", [
-    MIGRATIONS_LOCK_NAME
-  ]);
+  const migrationFiles = await loadMigrationFiles(migrationDirectory);
+  const discovered = migrationFiles.map((file) => file.filename);
 
-  try {
-    const migrationFiles = await loadMigrationFiles(migrationDirectory);
-    const appliedMigrations = await getAppliedMigrations(database);
-    const summary: MigrationRunSummary = {
-      applied: [],
-      discovered: migrationFiles.map((file) => file.filename),
-      skipped: []
-    };
-
-    for (const migrationFile of migrationFiles) {
-      const existingChecksum = appliedMigrations.get(migrationFile.filename);
-
-      if (existingChecksum) {
-        if (existingChecksum !== migrationFile.checksum) {
-          throw new Error(
-            `Migration checksum mismatch for ${migrationFile.filename}. The file was already applied with different contents.`
-          );
-        }
-
-        summary.skipped.push(migrationFile.filename);
-        continue;
-      }
-
-      await applyMigration(database, migrationFile);
-      summary.applied.push(migrationFile.filename);
-    }
-
-    return summary;
-  } finally {
-    await database.query("SELECT pg_advisory_unlock(hashtext($1))", [
-      MIGRATIONS_LOCK_NAME
-    ]);
-  }
+  return {
+    applied: [],
+    discovered,
+    skipped: discovered
+  };
 }
 
 export function getDefaultMigrationDirectory(): URL {
   return new URL("./migrations/", import.meta.url);
-}
-
-async function applyMigration(
-  database: DatabaseClient,
-  migrationFile: MigrationFile
-): Promise<void> {
-  if (migrationFile.useTransaction) {
-    await database.transaction(async (queryable) => {
-      await queryable.query(migrationFile.sql);
-      await queryable.query(
-        `
-          INSERT INTO mindbrain_schema_migrations (filename, checksum)
-          VALUES ($1, $2)
-        `,
-        [migrationFile.filename, migrationFile.checksum]
-      );
-    });
-
-    return;
-  }
-
-  await database.query(migrationFile.sql);
-  await database.query(
-    `
-      INSERT INTO mindbrain_schema_migrations (filename, checksum)
-      VALUES ($1, $2)
-    `,
-    [migrationFile.filename, migrationFile.checksum]
-  );
-}
-
-async function ensureMigrationsTable(database: DatabaseClient): Promise<void> {
-  await database.query(`
-    CREATE TABLE IF NOT EXISTS ${MIGRATIONS_TABLE_NAME} (
-      filename TEXT PRIMARY KEY,
-      checksum TEXT NOT NULL,
-      applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
-    )
-  `);
 }
 
 async function findPackageRoot(fromDirectory: string): Promise<string> {
@@ -196,16 +120,4 @@ async function resolveMindbrainBaselineSql(
   const vendorPath = join(packageRoot, BASELINE_VENDOR_REL);
 
   return readFile(vendorPath, "utf8");
-}
-
-async function getAppliedMigrations(
-  database: DatabaseClient
-): Promise<Map<string, string>> {
-  const rows = await database.query<AppliedMigrationRow>(`
-    SELECT filename, checksum
-    FROM ${MIGRATIONS_TABLE_NAME}
-    ORDER BY filename
-  `);
-
-  return new Map(rows.map((row) => [row.filename, row.checksum]));
 }

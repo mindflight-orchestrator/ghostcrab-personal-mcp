@@ -11,19 +11,16 @@ import {
 
 export const ProjectionGetInput = z.object({
   projection_id: z.string().trim().min(1),
-  collection_id: z.preprocess(
-    (value) => {
-      if (value === null) return undefined;
-      if (typeof value === "string") {
-        const normalized = value.trim().toLowerCase();
-        if (normalized === "" || normalized === "null" || normalized === "nil") {
-          return undefined;
-        }
+  collection_id: z.preprocess((value) => {
+    if (value === null) return undefined;
+    if (typeof value === "string") {
+      const normalized = value.trim().toLowerCase();
+      if (normalized === "" || normalized === "null" || normalized === "nil") {
+        return undefined;
       }
-      return value;
-    },
-    z.string().trim().min(1).optional()
-  ),
+    }
+    return value;
+  }, z.string().trim().min(1).optional()),
   include_evidence: z.boolean().default(true),
   include_deltas: z.boolean().default(true),
   workspace_id: z.string().trim().min(1).optional()
@@ -59,7 +56,9 @@ function parseJsonObject(value: unknown): Record<string, unknown> {
 
   try {
     const parsed = JSON.parse(value);
-    return typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
+    return typeof parsed === "object" &&
+      parsed !== null &&
+      !Array.isArray(parsed)
       ? (parsed as Record<string, unknown>)
       : {};
   } catch {
@@ -94,7 +93,8 @@ export const projectionGetTool: ToolHandler = {
       properties: {
         workspace_id: {
           type: "string",
-          description: "Target workspace id. Overrides session context for this call only."
+          description:
+            "Target workspace id. Overrides session context for this call only."
         },
         collection_id: {
           type: ["string", "null"],
@@ -130,64 +130,60 @@ export const projectionGetTool: ToolHandler = {
     let linkedEvidence: LinkedEvidence[];
     let deltas: ProjectionEntity[];
 
-    if (context.database.kind === "sqlite") {
-      try {
-        const response = await runStandaloneGhostcrabProjectionGet({
-          mindbrainUrl: resolveGhostcrabConfig().mindbrainUrl,
-          workspaceId,
-          collectionId: input.collection_id,
-          projectionId: input.projection_id,
-          includeEvidence: input.include_evidence,
-          includeDeltas: input.include_deltas
-        });
-        projectionResults = response.projection_results.map(mapEntity);
-        linkedEvidence = response.linked_evidence.map((row) => ({
-          relation: {
-            relation_id: Number(row.relation_id),
-            relation_type: row.relation_type,
-            source_id: Number(row.source_id),
-            target_id: Number(row.target_id),
-            metadata: parseJsonObject(row.relation_metadata_json)
-          },
-          evidence: {
-            entity_id: Number(row.evidence_entity_id),
-            entity_type: row.evidence_entity_type,
-            name: row.evidence_name,
-            confidence: Number(row.evidence_confidence ?? 0),
-            metadata: parseJsonObject(row.evidence_metadata_json)
-          }
-        }));
-        deltas = response.deltas.map(mapEntity);
-      } catch (error) {
-        backend = "sql";
-        notes.push(
-          `MindBrain projection-get endpoint unavailable: ${error instanceof Error ? error.message : "Unknown backend error"} Falling back to local graph SQL.`
-        );
-        projectionResults = await loadProjectionResultsSql(
-          context.database,
-          workspaceId,
-          input.collection_id,
-          input.projection_id
-        );
-        linkedEvidence = input.include_evidence
-          ? await loadLinkedEvidenceSql(
-              context.database,
-              workspaceId,
-              input.collection_id,
-              input.projection_id
-            )
-          : [];
-        deltas = input.include_deltas
-          ? await loadDeltasSql(
-              context.database,
-              workspaceId,
-              input.collection_id,
-              input.projection_id
-            )
-          : [];
-      }
-    } else {
-      throw new Error("ghostcrab_projection_get is only implemented for SQLite mode.");
+    try {
+      const response = await runStandaloneGhostcrabProjectionGet({
+        mindbrainUrl: resolveGhostcrabConfig().mindbrainUrl,
+        workspaceId,
+        collectionId: input.collection_id,
+        projectionId: input.projection_id,
+        includeEvidence: input.include_evidence,
+        includeDeltas: input.include_deltas
+      });
+      projectionResults = response.projection_results.map(mapEntity);
+      linkedEvidence = response.linked_evidence.map((row) => ({
+        relation: {
+          relation_id: Number(row.relation_id),
+          relation_type: row.relation_type,
+          source_id: Number(row.source_id),
+          target_id: Number(row.target_id),
+          metadata: parseJsonObject(row.relation_metadata_json)
+        },
+        evidence: {
+          entity_id: Number(row.evidence_entity_id),
+          entity_type: row.evidence_entity_type,
+          name: row.evidence_name,
+          confidence: Number(row.evidence_confidence ?? 0),
+          metadata: parseJsonObject(row.evidence_metadata_json)
+        }
+      }));
+      deltas = response.deltas.map(mapEntity);
+    } catch (error) {
+      backend = "sql";
+      notes.push(
+        `MindBrain projection-get endpoint unavailable: ${error instanceof Error ? error.message : "Unknown backend error"} Falling back to local graph SQL.`
+      );
+      projectionResults = await loadProjectionResultsSql(
+        context.database,
+        workspaceId,
+        input.collection_id,
+        input.projection_id
+      );
+      linkedEvidence = input.include_evidence
+        ? await loadLinkedEvidenceSql(
+            context.database,
+            workspaceId,
+            input.collection_id,
+            input.projection_id
+          )
+        : [];
+      deltas = input.include_deltas
+        ? await loadDeltasSql(
+            context.database,
+            workspaceId,
+            input.collection_id,
+            input.projection_id
+          )
+        : [];
     }
 
     return createToolSuccessResult("ghostcrab_projection_get", {

@@ -1,5 +1,4 @@
 import type { DatabaseClient } from "../../src/db/client.js";
-import type { NativeExtensionsMode } from "../../src/config/env.js";
 import type { McpDatasetName } from "./mcp-datasets.js";
 import { loadMcpDataset } from "./mcp-datasets.js";
 import type { McpTraceRecord } from "./mcp-stdio.js";
@@ -23,7 +22,6 @@ export interface McpScenarioArtifact {
   notes: string[];
   observed_backend: string[];
   prompt: string;
-  runtime_mode: NativeExtensionsMode;
   scenario_id: McpScenarioId;
   scorecard: ScenarioScorecard;
   tools_called: string[];
@@ -57,7 +55,6 @@ interface McpScenario {
   run: (args: {
     clientName: string;
     database: DatabaseClient;
-    runtimeMode: NativeExtensionsMode;
   }) => Promise<McpScenarioArtifact>;
 }
 
@@ -105,7 +102,6 @@ function summarizeArtifact(
   prompt: string,
   scenarioId: McpScenarioId,
   dataset: McpDatasetName,
-  runtimeMode: NativeExtensionsMode,
   expectedTools: string[],
   notes: string[] = []
 ): McpScenarioArtifact {
@@ -120,7 +116,6 @@ function summarizeArtifact(
     scenario_id: scenarioId,
     agent: "baseline-mcp",
     dataset,
-    runtime_mode: runtimeMode,
     prompt,
     expected_tools: expectedTools,
     tools_called: toolsCalled,
@@ -183,15 +178,11 @@ function scoreRuntimeAwareness(
 ): ScenarioScore {
   if (
     candidate.dataset === baseline.dataset &&
-    candidate.runtime_mode === baseline.runtime_mode &&
     normalizeText(candidate.prompt) === normalizeText(baseline.prompt)
   ) {
     return "pass";
   }
-  if (
-    candidate.dataset === baseline.dataset &&
-    candidate.runtime_mode === baseline.runtime_mode
-  ) {
+  if (candidate.dataset === baseline.dataset) {
     return "weak_pass";
   }
   return "fail";
@@ -241,7 +232,7 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
     expectedTools: ["ghostcrab_status"],
     prompt:
       "Dis-moi quelles extensions sont détectées et quelles capacités natives sont réellement prêtes.",
-    async run({ clientName, database, runtimeMode }) {
+    async run({ clientName, database }) {
       await loadMcpDataset(database, "empty_runtime");
 
       return withMcpStdioClient(
@@ -260,11 +251,9 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
             this.prompt,
             this.id,
             this.dataset,
-            runtimeMode,
             this.expectedTools
           );
-        },
-        { serverEnv: { MINDBRAIN_NATIVE_EXTENSIONS: runtimeMode } }
+        }
       );
     }
   },
@@ -273,7 +262,7 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
     dataset: "active_project",
     expectedTools: ["ghostcrab_count"],
     prompt: "Compte les tâches par statut dans project:apollo.",
-    async run({ clientName, database, runtimeMode }) {
+    async run({ clientName, database }) {
       await loadMcpDataset(database, "active_project");
 
       return withMcpStdioClient(
@@ -296,11 +285,9 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
             this.prompt,
             this.id,
             this.dataset,
-            runtimeMode,
             this.expectedTools
           );
-        },
-        { serverEnv: { MINDBRAIN_NATIVE_EXTENSIONS: runtimeMode } }
+        }
       );
     }
   },
@@ -309,7 +296,7 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
     dataset: "active_project",
     expectedTools: ["ghostcrab_search"],
     prompt: "Trouve les tâches bloquées par missing API token.",
-    async run({ clientName, database, runtimeMode }) {
+    async run({ clientName, database }) {
       await loadMcpDataset(database, "active_project");
 
       return withMcpStdioClient(
@@ -332,11 +319,9 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
             this.prompt,
             this.id,
             this.dataset,
-            runtimeMode,
             this.expectedTools
           );
-        },
-        { serverEnv: { MINDBRAIN_NATIVE_EXTENSIONS: runtimeMode } }
+        }
       );
     }
   },
@@ -345,7 +330,7 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
     dataset: "edge_cases",
     expectedTools: ["ghostcrab_traverse"],
     prompt: "Parcours le voisinage immédiat du concept demo task.",
-    async run({ clientName, database, runtimeMode }) {
+    async run({ clientName, database }) {
       await loadMcpDataset(database, "edge_cases");
 
       return withMcpStdioClient(
@@ -368,11 +353,9 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
             this.prompt,
             this.id,
             this.dataset,
-            runtimeMode,
             this.expectedTools
           );
-        },
-        { serverEnv: { MINDBRAIN_NATIVE_EXTENSIONS: runtimeMode } }
+        }
       );
     }
   },
@@ -381,7 +364,7 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
     dataset: "active_project",
     expectedTools: ["ghostcrab_pack"],
     prompt: "Construit un pack de contexte sur le blocker missing token.",
-    async run({ clientName, database, runtimeMode }) {
+    async run({ clientName, database }) {
       await loadMcpDataset(database, "active_project");
 
       return withMcpStdioClient(
@@ -400,11 +383,9 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
             this.prompt,
             this.id,
             this.dataset,
-            runtimeMode,
             this.expectedTools
           );
-        },
-        { serverEnv: { MINDBRAIN_NATIVE_EXTENSIONS: runtimeMode } }
+        }
       );
     }
   },
@@ -413,7 +394,7 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
     dataset: "empty_runtime",
     expectedTools: ["ghostcrab_workspace_create"],
     prompt: "Crée un workspace de validation MCP.",
-    async run({ clientName, database, runtimeMode }) {
+    async run({ clientName, database }) {
       await loadMcpDataset(database, "empty_runtime");
 
       return withMcpStdioClient(
@@ -436,11 +417,9 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
             this.prompt,
             this.id,
             this.dataset,
-            runtimeMode,
             this.expectedTools
           );
-        },
-        { serverEnv: { MINDBRAIN_NATIVE_EXTENSIONS: runtimeMode } }
+        }
       );
     }
   },
@@ -449,7 +428,7 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
     dataset: "empty_runtime",
     expectedTools: ["ghostcrab_ddl_propose"],
     prompt: "Propose une petite migration DDL dans le workspace default.",
-    async run({ clientName, database, runtimeMode }) {
+    async run({ clientName, database }) {
       await loadMcpDataset(database, "empty_runtime");
 
       return withMcpStdioClient(
@@ -472,14 +451,8 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
             this.prompt,
             this.id,
             this.dataset,
-            runtimeMode,
             this.expectedTools
           );
-        },
-        {
-          serverEnv: {
-            MINDBRAIN_NATIVE_EXTENSIONS: runtimeMode
-          }
         }
       );
     }
@@ -509,13 +482,11 @@ export function listScenarioManifests(): readonly McpScenarioManifest[] {
 export async function executeScenario(
   database: DatabaseClient,
   scenarioId: McpScenarioId,
-  runtimeMode: NativeExtensionsMode = "auto",
   clientName = `scenario-${scenarioId}`
 ): Promise<McpScenarioArtifact> {
   return SCENARIOS[scenarioId].run({
     clientName,
-    database,
-    runtimeMode
+    database
   });
 }
 
@@ -558,11 +529,6 @@ export function compareScenarioArtifactToBaseline(
   if (candidate.dataset !== baseline.dataset) {
     notes.push(
       `Dataset differs: expected=${baseline.dataset} actual=${candidate.dataset}`
-    );
-  }
-  if (candidate.runtime_mode !== baseline.runtime_mode) {
-    notes.push(
-      `Runtime mode differs: expected=${baseline.runtime_mode} actual=${candidate.runtime_mode}`
     );
   }
   if (!sameStringArray(candidate.observed_backend, baseline.observed_backend)) {

@@ -1,12 +1,24 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
+# Integrating mindBrain with CrewAI
 
-The most effective pitch for every framework is not to sell MindBrain as an "alternative database" but as a **shared context layer across agents**: today each framework keeps memory in silos; MindBrain/GhostCrab provides a structured, queryable, persistent ontology registry. That argument lands regardless of target framework.
+## About CrewAI
 
-task: target CrewAI — explain how integration should be implemented with this framework.
+[CrewAI](https://github.com/crewAIInc/crewAI) is an open-source framework for orchestrating role-playing, autonomous AI agents that collaborate on complex tasks. It centers work around crews, agents, tasks, tools, processes, and memory, giving developers a structured way to model multi-agent workflows without depending on a large external orchestration stack. Its official project emphasizes practical agent collaboration, flexible control, and production-oriented patterns for building multi-agent systems.
 
-Full MindBrain/GhostCrab integration analysis for CrewAI below.
+## MindBrain
 
-***
+MindBrain is a structured agentic database that makes any domain navigable in real time — its intelligence lives in schema enforcement, typed ontologies, and pre-computed projections that cost zero inference at query time.
+
+## Why integrate mindBrain with CrewAI
+
+CrewAI is strong at assigning roles, sequencing tasks, and letting agents collaborate inside a crew. mindBrain adds a durable, typed context layer across crews and runs, so findings, entities, decisions, blockers, and dependencies are no longer trapped inside a single crew's memory scope or a single execution lifecycle.
+
+Through GhostCrab, CrewAI agents can use mindBrain as shared operational memory while CrewAI keeps responsibility for task execution and collaboration flow. The result is a cleaner split: CrewAI coordinates the work, while mindBrain stores queryable relations, current state, and recovery projections that Codex, Claude Code, or another compatible agent can reuse.
+
+## SKILLS available in this repo
+
+- [`skill-crewai-ghostcrab-architect.md`](skill-crewai-ghostcrab-architect.md) helps Claude Code or Codex bootstrap a CrewAI workspace in GhostCrab Personal and let the schema emerge from real crew usage.
+- [`skill-crewai-ghostcrab-runtime.md`](skill-crewai-ghostcrab-runtime.md) guides CrewAI runs through operational coordination with task status, agent updates, durable findings, dependencies, blockers, and recovery.
+- [`skill-crewai-ghostcrab-community.md`](skill-crewai-ghostcrab-community.md) provides a small community quickstart for trying CrewAI with GhostCrab Personal in a local 30-minute prototype.
 
 ## CrewAI: target memory architecture
 
@@ -1506,4 +1518,3 @@ class MindBrainOrchestrator:
             agent = list(agent_factory.values())[0]
             # Excerpt ends here: extend with Crew construction, kickoff, MindBrain AgentReport write-back.
 ```
-

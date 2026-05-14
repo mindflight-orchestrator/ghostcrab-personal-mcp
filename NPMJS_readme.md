@@ -134,7 +134,7 @@ When `gcp brain up` / `gcp up` (or legacy `gcp serve`) is called by an MCP clien
 
 ## Part 2 — `gcp` CLI command reference
 
-Commands are grouped by **job to be done** (MindBrain “brain” vs agent “agent” vs `env` for config). Full table: `docs/GCP_COMMANDS.md` in the repo. **Legacy one-word commands** (`serve`, `init`, `config`, `ontologies`, `skills`) stay as aliases.
+Commands are grouped by **job to be done** (MindBrain “brain” vs agent “agent” vs `env` for config). Full table: `docs/reference/gcp-commands.md` in the repo. **Legacy one-word commands** (`serve`, `init`, `config`, `ontologies`, `skills`) stay as aliases.
 
 Install globally:
 

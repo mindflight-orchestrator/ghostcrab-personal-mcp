@@ -31,12 +31,6 @@ function createMockDatabase(): DatabaseClient {
 function createMockContext(): ToolExecutionContext {
   return {
     database: createMockDatabase(),
-    extensions: {
-      pgFacets: false,
-      pgDgraph: false,
-      pgPragma: false
-    },
-    nativeExtensionsMode: "auto",
     embeddings: createEmbeddingProvider({
       embeddingApiKey: undefined,
       embeddingBaseUrl: undefined,

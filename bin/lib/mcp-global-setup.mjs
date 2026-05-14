@@ -52,7 +52,6 @@ export const EX_OK = 0;
 export const EX_ERR = 1;
 
 const DEFAULT_MCP_ENV = {
-  GHOSTCRAB_DATABASE_KIND: "sqlite",
   GHOSTCRAB_EMBEDDINGS_MODE: "disabled",
 };
 

@@ -1,16 +1,24 @@
-# Goose + GhostCrab Personal SOP
+# Integrating mindBrain with Goose
 
-This SOP explains how to connect Goose to GhostCrab Personal so Goose agents can use a local SQLite-backed knowledge graph through MCP tools.
+## About Goose
 
-The community path is local-first:
+[Goose](https://github.com/aaif-goose/goose) is a local-first, open source AI agent that runs from the CLI, desktop app, or API to install, execute, edit, and test code or workflows with the user's chosen LLM. Its extension model is built around MCP and reusable recipes, which makes it natural to connect Goose to external tools without changing the core runtime. In this repo, the integration targets the community local-first path: Goose loads GhostCrab Personal as a `stdio` MCP extension, then its agents use local SQLite-backed memory through the public `ghostcrab_*` tools.
 
-- Package: `@mindflight/ghostcrab-personal-mcp`
-- Startup command: `gcp brain up`
-- Storage: SQLite managed by GhostCrab Personal
-- Transport: local MCP `stdio`
-- Public tools: `ghostcrab_*`
+## MindBrain
 
-Do not require PostgreSQL, Docker, migrations, or a remote MCP endpoint for the first trial.
+MindBrain is a structured agentic database that makes any domain navigable in real time — its intelligence lives in schema enforcement, typed ontologies, and pre-computed projections that cost zero inference at query time.
+
+## Why integrate mindBrain with Goose
+
+Goose can orchestrate sessions, recipes, and sub-agents, but project context still needs a durable place to survive between runs. mindBrain, exposed to Goose through GhostCrab Personal, becomes that structured memory layer: agents can check workspace readiness, load a compact context pack, record decisions, update current task state, and link dependencies without rereading the full conversation or repository history.
+
+The integration stays aligned with Goose's local model: no PostgreSQL, Docker, initial migration, or mandatory remote server for a first trial. The recommended path starts with the `@mindflight/ghostcrab-personal-mcp` package, the `gcp brain up` command, SQLite storage managed by GhostCrab Personal, `stdio` MCP transport, and a public `ghostcrab_*` tool surface.
+
+## SKILLS available in this repo
+
+- [`Goose GhostCrab Architect - Claude Code`](SKILL-Goose-GhostCrab-Architect-Claude.md) helps Claude Code prepare a GhostCrab Personal workspace that Goose agents can later use through an MCP extension.
+- [`Goose GhostCrab Architect - Codex`](SKILL-Goose-GhostCrab-Architect-Codex.md) guides Codex through checking GhostCrab Personal, understanding the Goose project, creating or recovering the workspace, and defining the shared memory contract.
+- [`Goose GhostCrab Runtime`](SKILL-Goose-Ghostcrab-Runtime.md) is used to generate or operate an autonomous Goose recipe that reads, writes, and projects shared state through GhostCrab Personal.
 
 ## Target Fit
 

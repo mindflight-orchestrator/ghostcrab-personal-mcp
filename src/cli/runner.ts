@@ -5,9 +5,26 @@ import { CLI_COMMANDS, resolveCommand, type CliCommand } from "./commands.js";
 import { initToolContext } from "./context.js";
 import { executeTool, EXIT_ERROR, EXIT_UNKNOWN_TOOL } from "./execute.js";
 import { HelpRequested, parseCliInput } from "./parse-input.js";
-import { buildToolCatalog, listBasicRegisteredTools } from "../tools/catalog.js";
+import {
+  buildToolCatalog,
+  listBasicRegisteredTools
+} from "../tools/catalog.js";
 import { registerAllTools } from "../tools/register-all.js";
 import { listRegisteredTools } from "../tools/registry.js";
+import { getPackageVersion } from "../version.js";
+
+const MCP_ONLY_CLI_COMMANDS = new Set([
+  "search",
+  "remember",
+  "count",
+  "upsert",
+  "schema",
+  "coverage",
+  "traverse",
+  "learn",
+  "pack",
+  "project"
+]);
 
 function cliLabelForMcpTool(mcpToolName: string): string | null {
   const entry = CLI_COMMANDS.find((c) => c.mcpToolName === mcpToolName);
@@ -50,7 +67,11 @@ async function resolveArgs(
     }
 
     const parsed = JSON.parse(text) as unknown;
-    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      Array.isArray(parsed)
+    ) {
       throw new Error("--stdin-json must contain a JSON object payload.");
     }
 
@@ -60,31 +81,20 @@ async function resolveArgs(
   return parseCliInput(command, argv);
 }
 
-function printSchemaGroupHelp(): void {
-  const lines = [
-    "Usage: ghostcrab schema <subcommand> [options]",
-    "",
-    "Schema commands:",
-    "  schema list        List registered schemas",
-    "  schema inspect     Inspect a schema by ID",
-    "  schema register    Register a new schema"
-  ];
-
-  console.log(lines.join("\n"));
-}
-
 function printGlobalHelp(): void {
   const lines = [
     "Usage: ghostcrab <command> [options]",
     "",
     "Commands:",
     "  serve              Start MCP server on stdio (default)",
-    "  tools list         List available tools and their schemas",
+    "  smoke              Verify local config, backend reachability, and tool registration",
+    "  status             Return a read-only operational snapshot",
+    "  tools list         List available MCP tools and schemas",
     "  maintenance ddl-approve         Approve a pending DDL migration",
     "  maintenance ddl-execute         Execute an approved DDL migration",
-    "  maintenance refresh-entity-degree  Refresh graph.entity_degree (requires pg_dgraph)",
-    "  maintenance register-pg-facets     Register facets with pg_facets (requires pg_facets + migration 008)",
-    "  maintenance merge-facet-deltas     Apply pg_facets merge_deltas on facets (requires pg_facets)"
+    "",
+    "MCP is the canonical product surface. Commands such as search, remember,",
+    "upsert, schema, learn, project, and pack are MCP tools, not CLI commands."
   ];
 
   for (const cmd of CLI_COMMANDS) {
@@ -103,6 +113,17 @@ function printGlobalHelp(): void {
   lines.push("  --verbose, -v      Show connection/bootstrap logs on stderr");
   lines.push("  --help, -h         Show help");
   console.log(lines.join("\n"));
+}
+
+function printSmokeHelp(): void {
+  console.log(
+    [
+      "Usage: ghostcrab smoke [--verbose]",
+      "",
+      "Run a read-only local health check: package version, backend reachability,",
+      "registered tool count, default-listed tools, and ghostcrab_status."
+    ].join("\n")
+  );
 }
 
 function printCommandHelp(command: CliCommand): void {
@@ -133,23 +154,90 @@ function printCommandHelp(command: CliCommand): void {
 }
 
 function printMaintenanceDdlApproveHelp(): void {
-  console.log([
-    "Usage: ghostcrab maintenance ddl-approve --id <uuid> --by <name>",
-    "",
-    "Approve a pending DDL migration so it can be executed later."
-  ].join("\n"));
+  console.log(
+    [
+      "Usage: ghostcrab maintenance ddl-approve --id <uuid> --by <name>",
+      "",
+      "Approve a pending DDL migration so it can be executed later."
+    ].join("\n")
+  );
 }
 
 function printMaintenanceDdlExecuteHelp(): void {
-  console.log([
-    "Usage: ghostcrab maintenance ddl-execute --id <uuid>",
-    "",
-    "Execute an approved DDL migration."
-  ].join("\n"));
+  console.log(
+    [
+      "Usage: ghostcrab maintenance ddl-execute --id <uuid>",
+      "",
+      "Execute an approved DDL migration."
+    ].join("\n")
+  );
+}
+
+async function runSmoke(argv: string[]): Promise<void> {
+  if (argv.includes("--help") || argv.includes("-h")) {
+    printSmokeHelp();
+    process.exit(0);
+    return;
+  }
+
+  const verbose = argv.includes("--verbose") || argv.includes("-v");
+  registerAllTools();
+  const tools = listRegisteredTools();
+  const basicTools = listBasicRegisteredTools(tools);
+  const version = await getPackageVersion();
+
+  let cleanup: (() => Promise<void>) | undefined;
+  try {
+    const context = await initToolContext({ verbose });
+    cleanup = context.cleanup;
+    const { result, exitCode } = await executeTool(
+      "ghostcrab_status",
+      { agent_id: "ghostcrab:cli-smoke" },
+      context.toolContext
+    );
+    const status = extractStructuredJson(result);
+
+    process.stdout.write(
+      `${JSON.stringify({
+        ok: exitCode === 0,
+        version,
+        backend_reachable: true,
+        registered_tools: tools.length,
+        listed_by_default: basicTools.map((tool) => tool.name),
+        status_ok: exitCode === 0,
+        status_tool: status.tool ?? null
+      })}\n`
+    );
+    await cleanup();
+    process.exit(exitCode);
+  } catch (error) {
+    if (cleanup) {
+      await cleanup();
+    }
+    process.stdout.write(
+      `${JSON.stringify({
+        ok: false,
+        version,
+        backend_reachable: false,
+        registered_tools: tools.length,
+        listed_by_default: basicTools.map((tool) => tool.name),
+        error: {
+          code: "smoke_failed",
+          message: error instanceof Error ? error.message : String(error)
+        }
+      })}\n`
+    );
+    process.exit(EXIT_ERROR);
+  }
 }
 
 export async function runCli(argv: string[]): Promise<void> {
   const [firstArg] = argv;
+
+  if (firstArg === "smoke") {
+    await runSmoke(argv);
+    return;
+  }
 
   if (firstArg === "maintenance" && argv[1] === "ddl-approve") {
     registerAllTools();
@@ -183,96 +271,26 @@ export async function runCli(argv: string[]): Promise<void> {
     });
 
     try {
-      if (toolContext.database.kind === "sqlite") {
-        const pendingRows = await toolContext.database.query<{
-          id: string;
-          status: string;
-          workspace_id: string;
-          approved_by: string | null;
-          approved_at: string | null;
-        }>(
-          `SELECT id, status, workspace_id, approved_by, approved_at
-           FROM pending_migrations
-           WHERE id = ? AND status = 'pending'`,
-          [migrationId]
+      const pendingRows = await toolContext.database.query<{
+        id: string;
+        status: string;
+        workspace_id: string;
+        approved_by: string | null;
+        approved_at: string | null;
+      }>(
+        `SELECT id, status, workspace_id, approved_by, approved_at
+         FROM pending_migrations
+         WHERE id = ? AND status = 'pending'`,
+        [migrationId]
+      );
+
+      if (pendingRows.length > 0) {
+        await toolContext.database.query(
+          `UPDATE pending_migrations
+           SET status = 'approved', approved_by = ?, approved_at = CURRENT_TIMESTAMP
+           WHERE id = ?`,
+          [approvedBy, migrationId]
         );
-
-        if (pendingRows.length > 0) {
-          await toolContext.database.query(
-            `UPDATE pending_migrations
-             SET status = 'approved', approved_by = ?, approved_at = CURRENT_TIMESTAMP
-             WHERE id = ?`,
-            [approvedBy, migrationId]
-          );
-        }
-
-        const rows = await toolContext.database.query<{
-          id: string;
-          status: string;
-          workspace_id: string;
-          approved_by: string | null;
-          approved_at: string | null;
-        }>(
-          `SELECT id, status, workspace_id, approved_by, approved_at
-           FROM pending_migrations
-           WHERE id = ? AND status = 'approved'`,
-          [migrationId]
-        );
-
-        if (rows.length === 0) {
-          const existing = await toolContext.database.query<{
-            id: string;
-            status: string;
-          }>(
-            `SELECT id, status
-             FROM pending_migrations
-             WHERE id = ?`,
-            [migrationId]
-          );
-
-          if (existing.length === 0) {
-            process.stdout.write(
-              `${JSON.stringify({
-                ok: false,
-                error: {
-                  code: "migration_not_found",
-                  message: `Migration '${migrationId}' not found.`
-                }
-              })}\n`
-            );
-            await cleanup();
-            process.exit(EXIT_ERROR);
-            return;
-          }
-
-          process.stdout.write(
-            `${JSON.stringify({
-              ok: false,
-              error: {
-                code: "migration_not_pending",
-                message: `Migration '${migrationId}' has status '${existing[0].status}'. Only 'pending' migrations can be approved.`,
-                details: { current_status: existing[0].status }
-              }
-            })}\n`
-          );
-          await cleanup();
-          process.exit(EXIT_ERROR);
-          return;
-        }
-
-        process.stdout.write(
-          `${JSON.stringify({
-            ok: true,
-            migration_id: rows[0].id,
-            workspace_id: rows[0].workspace_id,
-            status: rows[0].status,
-            approved_by: rows[0].approved_by,
-            approved_at: rows[0].approved_at
-          })}\n`
-        );
-        await cleanup();
-        process.exit(0);
-        return;
       }
 
       const rows = await toolContext.database.query<{
@@ -282,11 +300,10 @@ export async function runCli(argv: string[]): Promise<void> {
         approved_by: string | null;
         approved_at: string | null;
       }>(
-        `UPDATE mindbrain.pending_migrations
-         SET status = 'approved', approved_by = $2, approved_at = now()
-         WHERE id = $1 AND status = 'pending'
-         RETURNING id, status, workspace_id, approved_by, approved_at`,
-        [migrationId, approvedBy]
+        `SELECT id, status, workspace_id, approved_by, approved_at
+         FROM pending_migrations
+         WHERE id = ? AND status = 'approved'`,
+        [migrationId]
       );
 
       if (rows.length === 0) {
@@ -295,8 +312,8 @@ export async function runCli(argv: string[]): Promise<void> {
           status: string;
         }>(
           `SELECT id, status
-           FROM mindbrain.pending_migrations
-           WHERE id = $1`,
+           FROM pending_migrations
+           WHERE id = ?`,
           [migrationId]
         );
 
@@ -386,90 +403,11 @@ export async function runCli(argv: string[]): Promise<void> {
         { migration_id: migrationId },
         toolContext
       );
-      process.stdout.write(`${JSON.stringify(extractStructuredJson(result))}\n`);
+      process.stdout.write(
+        `${JSON.stringify(extractStructuredJson(result))}\n`
+      );
       await cleanup();
       process.exit(exitCode);
-    } catch (error) {
-      await cleanup();
-      console.error(
-        `Fatal: ${error instanceof Error ? error.message : String(error)}`
-      );
-      process.exit(1);
-    }
-    return;
-  }
-
-  if (firstArg === "maintenance" && argv[1] === "refresh-entity-degree") {
-    registerAllTools();
-    const { initToolContext } = await import("./context.js");
-    const { refreshEntityDegreeWithReport } = await import(
-      "../db/maintenance.js"
-    );
-    const { toolContext, cleanup } = await initToolContext({
-      verbose: argv.includes("--verbose") || argv.includes("-v")
-    });
-    try {
-      const report = await refreshEntityDegreeWithReport(
-        toolContext.database,
-        toolContext.extensions
-      );
-      process.stdout.write(`${JSON.stringify(report)}\n`);
-      await cleanup();
-      process.exit(report.ok ? 0 : 1);
-    } catch (error) {
-      await cleanup();
-      console.error(
-        `Fatal: ${error instanceof Error ? error.message : String(error)}`
-      );
-      process.exit(1);
-    }
-    return;
-  }
-
-  if (firstArg === "maintenance" && argv[1] === "register-pg-facets") {
-    registerAllTools();
-    const { initToolContext } = await import("./context.js");
-    const { registerPgFacetsWithReport } = await import(
-      "../db/facets-registration.js"
-    );
-    const { toolContext, cleanup } = await initToolContext({
-      verbose: argv.includes("--verbose") || argv.includes("-v")
-    });
-    try {
-      const report = await registerPgFacetsWithReport(
-        toolContext.database,
-        toolContext.extensions
-      );
-      process.stdout.write(`${JSON.stringify(report)}\n`);
-      await cleanup();
-      process.exit(report.ok ? 0 : 1);
-    } catch (error) {
-      await cleanup();
-      console.error(
-        `Fatal: ${error instanceof Error ? error.message : String(error)}`
-      );
-      process.exit(1);
-    }
-    return;
-  }
-
-  if (firstArg === "maintenance" && argv[1] === "merge-facet-deltas") {
-    registerAllTools();
-    const { initToolContext } = await import("./context.js");
-    const { mergeFacetDeltasWithReport } = await import(
-      "../db/facets-maintenance.js"
-    );
-    const { toolContext, cleanup } = await initToolContext({
-      verbose: argv.includes("--verbose") || argv.includes("-v")
-    });
-    try {
-      const report = await mergeFacetDeltasWithReport(
-        toolContext.database,
-        toolContext.extensions
-      );
-      process.stdout.write(`${JSON.stringify(report)}\n`);
-      await cleanup();
-      process.exit(report.ok ? 0 : 1);
     } catch (error) {
       await cleanup();
       console.error(
@@ -514,17 +452,11 @@ export async function runCli(argv: string[]): Promise<void> {
     return;
   }
 
-  if (firstArg === "schema" && (argv[1] === "--help" || argv[1] === "-h")) {
-    printSchemaGroupHelp();
-    process.exit(0);
-    return;
-  }
-
   const command = resolveCommand(argv);
   if (!command) {
-    if (firstArg === "schema") {
+    if (firstArg && MCP_ONLY_CLI_COMMANDS.has(firstArg)) {
       console.error(
-        "Unknown schema subcommand. Run ghostcrab schema --help for usage."
+        `Command '${firstArg}' is MCP-only. Start GhostCrab with 'ghostcrab serve' and call the corresponding ghostcrab_* MCP tool instead.`
       );
       process.exit(EXIT_UNKNOWN_TOOL);
       return;

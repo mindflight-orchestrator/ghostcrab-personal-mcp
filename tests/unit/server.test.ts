@@ -19,6 +19,30 @@ const bootstrapMock = vi.fn(async () => ({
   insertedProjections: 0,
   skipped: 0
 }));
+const configMock = {
+  bootstrapSeedEnabled: true,
+  embeddingApiKey: undefined,
+  embeddingBaseUrl: undefined,
+  embeddingDimensions: 1536,
+  embeddingFixturePath: undefined,
+  embeddingModel: undefined,
+  embeddingTimeoutMs: 30000,
+  embeddingsMode: "disabled",
+  hybridBm25Weight: 0.6,
+  hybridVectorWeight: 0.4,
+  mindbrainUrl: "http://127.0.0.1:8091",
+  nodeEnv: "test",
+  resolvedConfigPath: undefined,
+  sqlitePath: "/tmp/ghostcrab-test.sqlite",
+  telemetryEnabled: true,
+  telemetryEndpoint: "https://telemetry.example.com/v1/ping",
+  telemetryTimeoutMs: 1500,
+  telemetryStateDir: "/tmp/ghostcrab-telemetry-test",
+  telemetryDebug: false,
+  agentHost: undefined,
+  agentHostSource: undefined,
+  executionMode: undefined
+};
 
 // Captures Server constructor args so tests can inspect instructions.
 const capturedServerArgs: unknown[][] = [];
@@ -51,33 +75,7 @@ vi.mock("../../src/bootstrap/seed.js", () => ({
 }));
 
 vi.mock("../../src/config/env.js", () => ({
-  redactDatabaseUrl: vi.fn(() => "postgres://ghostcrab:***@localhost:5432/ghostcrab"),
-  resolveGhostcrabConfig: vi.fn(() => ({
-    databaseKind: "sqlite",
-    databaseUrl: "postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab",
-    embeddingApiKey: undefined,
-    embeddingBaseUrl: undefined,
-    embeddingDimensions: 1536,
-    embeddingFixturePath: undefined,
-    embeddingModel: undefined,
-    embeddingTimeoutMs: 30000,
-    embeddingsMode: "disabled",
-    hybridBm25Weight: 0.6,
-    hybridVectorWeight: 0.4,
-    nativeExtensionsMode: "auto",
-    nodeEnv: "test",
-    pgPoolMax: 10,
-    resolvedConfigPath: undefined,
-    sqlitePath: "/tmp/ghostcrab-test.sqlite",
-    telemetryEnabled: true,
-    telemetryEndpoint: "https://telemetry.example.com/v1/ping",
-    telemetryTimeoutMs: 1500,
-    telemetryStateDir: "/tmp/ghostcrab-telemetry-test",
-    telemetryDebug: false,
-    agentHost: undefined,
-    agentHostSource: undefined,
-    executionMode: undefined
-  }))
+  resolveGhostcrabConfig: vi.fn(() => ({ ...configMock }))
 }));
 
 vi.mock("../../src/db/client.js", () => ({
@@ -87,21 +85,13 @@ vi.mock("../../src/db/client.js", () => ({
     ping: pingMock,
     query: vi.fn(async () => []),
     transaction: vi.fn(async (operation: (queryable: unknown) => Promise<unknown>) =>
-      operation({ kind: "sqlite", query: vi.fn(async () => []) })
+      operation({ query: vi.fn(async () => []) })
     )
   }))
 }));
 
 vi.mock("../../src/db/embedding-dimension.js", () => ({
   getFacetsEmbeddingColumnDimension: vi.fn(async () => null)
-}));
-
-vi.mock("../../src/db/extension-probe.js", () => ({
-  resolveExtensionCapabilities: vi.fn(async () => ({
-    pgFacets: false,
-    pgDgraph: false,
-    pgPragma: false
-  }))
 }));
 
 vi.mock("../../src/embeddings/provider.js", () => ({
@@ -145,6 +135,7 @@ describe("startMcpServer", () => {
       insertedProjections: 0,
       skipped: 0
     });
+    configMock.bootstrapSeedEnabled = true;
     capturedServerArgs.length = 0;
     vi.spyOn(console, "error").mockImplementation(() => undefined);
   });
@@ -197,6 +188,16 @@ describe("startMcpServer", () => {
     await startMcpServer();
 
     expect(callOrder).toEqual(["connect", "bootstrap"]);
+  });
+
+  it("can skip SQLite bootstrap when integration fixtures own the database state", async () => {
+    configMock.bootstrapSeedEnabled = false;
+
+    const { startMcpServer } = await import("../../src/server.js");
+    await startMcpServer();
+
+    expect(connectSpy).toHaveBeenCalledOnce();
+    expect(bootstrapMock).not.toHaveBeenCalled();
   });
 
   it("starts in degraded mode without crashing when database is unreachable", async () => {

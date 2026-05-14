@@ -318,25 +318,18 @@ describe("pragma tools", () => {
         hybrid_bm25_weight: 0.6,
         hybrid_vector_weight: 0.4
       },
-      native_extensions_mode: "auto",
-      extensions_detected: {
-        pg_facets: false,
-        pg_dgraph: false,
-        pg_pragma: false,
-        pg_mindbrain: true
-      },
       backends: {
         facets: "sql",
-        graph: "native",
-        pragma: "native"
+        graph: "mindbrain",
+        pragma: "mindbrain"
       },
       capabilities: {
-        facets_native_count: false,
-        facets_native_bm25: false,
-        graph_native_traversal: true,
+        facets_count: false,
+        facets_bm25: false,
+        graph_traversal: true,
         graph_marketplace_search: false,
         graph_confidence_decay: false,
-        pragma_native_pack: true,
+        pragma_pack: true,
         mb_ontology_available: true
       }
     });
@@ -387,11 +380,6 @@ describe("pragma tools", () => {
       { agent_id: "agent:self" },
       {
         database,
-        extensions: {
-          pgFacets: false,
-          pgDgraph: false,
-          pgPragma: false
-        },
         embeddings: {
           async embedMany() {
             return [];
@@ -418,7 +406,6 @@ describe("pragma tools", () => {
           hybridBm25Weight: 0.7,
           hybridVectorWeight: 0.3
         },
-        nativeExtensionsMode: "auto",
         session: {
           workspace_id: "default",
           schema_id: null
@@ -440,25 +427,18 @@ describe("pragma tools", () => {
         hybrid_bm25_weight: 0.7,
         hybrid_vector_weight: 0.3
       },
-      native_extensions_mode: "auto",
-      extensions_detected: {
-        pg_facets: false,
-        pg_dgraph: false,
-        pg_pragma: false,
-        pg_mindbrain: true
-      },
       backends: {
         facets: "sql",
-        graph: "native",
-        pragma: "native"
+        graph: "mindbrain",
+        pragma: "mindbrain"
       },
       capabilities: {
-        facets_native_count: false,
-        facets_native_bm25: false,
-        graph_native_traversal: true,
+        facets_count: false,
+        facets_bm25: false,
+        graph_traversal: true,
         graph_marketplace_search: false,
         graph_confidence_decay: false,
-        pragma_native_pack: true,
+        pragma_pack: true,
         mb_ontology_available: true
       }
     });
@@ -497,37 +477,25 @@ describe("pragma tools", () => {
 
     const result = await statusTool.handler(
       { agent_id: "agent:self" },
-      createToolContext(database, {
-        extensions: {
-          pgFacets: false,
-          pgDgraph: false,
-          pgPragma: true
-        }
-      })
+      createToolContext(database)
     );
     const payload = readStructured(result);
 
     expect(payload.runtime).toMatchObject({
-      extensions_detected: {
-        pg_facets: false,
-        pg_dgraph: false,
-        pg_pragma: false,
-        pg_mindbrain: true
-      },
       backends: {
         facets: "sql",
-        graph: "native",
-        pragma: "native"
+        graph: "mindbrain",
+        pragma: "mindbrain"
       },
       capabilities: {
-        facets_native_count: false,
-        facets_native_bm25: false,
-        graph_native_traversal: true,
+        facets_count: false,
+        facets_bm25: false,
+        graph_traversal: true,
         graph_marketplace_search: false,
         graph_confidence_decay: false,
-        pragma_native_pack: true
+        pragma_pack: true
       },
-      native_readiness: {
+      sqlite_readiness: {
         pragma: {
           pack: true
         }
@@ -630,13 +598,7 @@ describe("pragma tools", () => {
     expect(payload.runtime).toMatchObject({
       database_kind: "sqlite",
       sqlite_backing_store: true,
-      extensions_detected: {
-        pg_facets: false,
-        pg_dgraph: false,
-        pg_pragma: false,
-        pg_mindbrain: true
-      },
-      native_readiness: {
+      sqlite_readiness: {
         facets: {
           count: false,
           bm25: false
@@ -658,18 +620,18 @@ describe("pragma tools", () => {
         }
       },
       capabilities: {
-        facets_native_count: false,
-        facets_native_bm25: false,
-        graph_native_traversal: true,
+        facets_count: false,
+        facets_bm25: false,
+        graph_traversal: true,
         graph_marketplace_search: false,
         graph_confidence_decay: false,
-        pragma_native_pack: true,
+        pragma_pack: true,
         mb_ontology_available: true
       },
       backends: {
         facets: "sql",
-        graph: "native",
-        pragma: "native"
+        graph: "mindbrain",
+        pragma: "mindbrain"
       }
     });
   });

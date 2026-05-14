@@ -61,24 +61,6 @@ async function getPersistedFacetNames(
   );
 }
 
-async function getRegisteredNativeFacetNames(
-  context: Pick<ToolExecutionContext, "database" | "extensions">
-): Promise<Set<string>> {
-  if (!context.extensions.pgFacets) {
-    return new Set();
-  }
-
-  try {
-    const rows = await context.database.query<{ facet_name: string }>(
-      `SELECT facet_name
-       FROM facets.list_table_facets_simple('public.facets'::regclass)`
-    );
-    return new Set(rows.map((row) => row.facet_name));
-  } catch {
-    return new Set();
-  }
-}
-
 export const facetCatalogTool: ToolHandler = {
   definition: {
     name: "ghostcrab_facet_catalog",
@@ -91,9 +73,6 @@ export const facetCatalogTool: ToolHandler = {
   },
   async handler(_args, context) {
     const persistedFacetNames = await getPersistedFacetNames(context);
-    const registeredNativeFacetNames = await getRegisteredNativeFacetNames(
-      context
-    );
 
     const catalog = getFacetCatalogSnapshot().map((entry) => ({
       facet_name: entry.facetName,
@@ -103,7 +82,7 @@ export const facetCatalogTool: ToolHandler = {
       native_kind: entry.native_kind,
       declared: true,
       persisted_definition: persistedFacetNames.has(entry.facetName),
-      native_registered: registeredNativeFacetNames.has(entry.facetName)
+      native_registered: false
     }));
 
     const persistedOnly = [...persistedFacetNames]
@@ -119,7 +98,7 @@ export const facetCatalogTool: ToolHandler = {
       catalog,
       persisted_only: persistedOnly,
       persisted_only_definitions: persistedOnlyDefinitions,
-      native_registration_supported: Boolean(context.extensions.pgFacets)
+      native_registration_supported: false
     });
   }
 };
@@ -150,9 +129,6 @@ export const facetInspectTool: ToolHandler = {
       context.database,
       input.facet_name
     );
-    const registeredNativeFacetNames = await getRegisteredNativeFacetNames(
-      context
-    );
 
     if (!catalogEntry && !persisted) {
       return createToolErrorResult(
@@ -168,9 +144,7 @@ export const facetInspectTool: ToolHandler = {
       native: Boolean(catalogEntry?.native),
       native_column: catalogEntry?.native?.column ?? null,
       native_kind: catalogEntry?.native?.kind ?? null,
-      native_registered:
-        Boolean(catalogEntry?.native) &&
-        registeredNativeFacetNames.has(input.facet_name),
+      native_registered: false,
       persisted_definition: persisted
         ? {
             id: persisted.id,

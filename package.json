@@ -1,6 +1,6 @@
 {
   "name": "@mindflight/ghostcrab-personal-mcp",
-  "version": "0.2.16",
+  "version": "0.2.18",
   "description": "SQLite-backed MCP memory server (MindBrain + Zig backend), part of the MindBrain ecosystem.",
   "license": "SEE LICENSE IN Licence.md",
   "type": "module",
@@ -34,7 +34,13 @@
     "dist",
     "ghostcrab-skills",
     "installations",
-    "docs",
+    "docs/index.md",
+    "docs/architecture",
+    "docs/dev",
+    "docs/installers",
+    "docs/posts/*.md",
+    "docs/reference",
+    "docs/setup",
     "examples",
     "README.md",
     "INSTALL.md",
@@ -86,6 +92,7 @@
     "pack:local:reuse-prebuilds": "pnpm run build && node scripts/pack-local.mjs",
     "beta:bundle": "node scripts/make-beta-bundle.mjs",
     "beta:smoke": "node scripts/smoke-beta-install.mjs",
+    "beta:smoke:ide": "node scripts/smoke-beta-ide-install.mjs",
     "verify:e2e": "node scripts/verify-e2e.mjs",
     "publish:npm-split": "node scripts/publish-npm-split.mjs"
   },
@@ -106,10 +113,10 @@
     "zod": "^4.3.6"
   },
   "optionalDependencies": {
-    "@mindflight/ghostcrab-personal-mcp-darwin-arm64": "0.2.16",
-    "@mindflight/ghostcrab-personal-mcp-darwin-x64": "0.2.16",
-    "@mindflight/ghostcrab-personal-mcp-linux-arm64": "0.2.16",
-    "@mindflight/ghostcrab-personal-mcp-linux-x64": "0.2.16",
-    "@mindflight/ghostcrab-personal-mcp-win32-x64": "0.2.16"
+    "@mindflight/ghostcrab-personal-mcp-darwin-arm64": "0.2.18",
+    "@mindflight/ghostcrab-personal-mcp-darwin-x64": "0.2.18",
+    "@mindflight/ghostcrab-personal-mcp-linux-arm64": "0.2.18",
+    "@mindflight/ghostcrab-personal-mcp-linux-x64": "0.2.18",
+    "@mindflight/ghostcrab-personal-mcp-win32-x64": "0.2.18"
   }
 }

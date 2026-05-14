@@ -1,14 +1,24 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
+# Integrating mindBrain with OpenClaw
 
-# https://www.ghostcrab.be/
+## About OpenClaw
 
-GhostCrab MCP integration. Personal (SQLite) in the OpenClaw framework.
+[OpenClaw](https://github.com/openclaw/openclaw) is an open-source AI agent framework organized around agents, skills, memory, and MCP server configuration. Its ecosystem uses Skills and ClawHub to package reusable capabilities that agents can install and invoke. For third-party integrations, that means the natural distribution path is a framework-specific Skill rather than a direct change to the core runtime.
 
-Do not explain what GhostCrab is (I build it, so I already know).
+## MindBrain
 
-Explain the steps to integrate it officially with OpenClaw so it can be announced as a GitHub PR.
+MindBrain is a structured agentic database that makes any domain navigable in real time — its intelligence lives in schema enforcement, typed ontologies, and pre-computed projections that cost zero inference at query time.
 
-Here is the necessary information. Full procedure below.
+## Why integrate mindBrain with OpenClaw
+
+OpenClaw already has a skill-oriented extension model, so mindBrain fits as a reusable memory and runtime-state capability exposed through GhostCrab MCP. Instead of storing project context as isolated notes or one-off skill outputs, OpenClaw agents can query typed entities, update durable state, and recover linked project knowledge across skill invocations.
+
+The integration is especially useful for local-first OpenClaw workflows because GhostCrab Personal can keep SQLite-backed memory beside the agent runtime. OpenClaw remains responsible for agent execution and skill invocation, while mindBrain supplies the structured context layer, typed ontology, and zero-inference projections needed for fast recovery and coordination.
+
+## SKILLS available in this repo
+
+- [`SKILL_openclaw_ghostcrab_mindbrain.md`](SKILL_openclaw_ghostcrab_mindbrain.md) gives OpenClaw agents a local GhostCrab Personal memory skill that can be adapted for Claude Code, Codex, or OpenClaw-compatible agent environments.
+- [`SKILL_openclaw_ghostcrab-runtime.md`](SKILL_openclaw_ghostcrab-runtime.md) describes how OpenClaw agents should use GhostCrab Personal for task status, findings, dependencies, and handoffs during runtime.
+- [`SKILL_openclaw_ghostcrab-architect.md`](SKILL_openclaw_ghostcrab-architect.md) helps Claude Code, Codex, or an OpenClaw agent shape provisional usage into a more deliberate mindBrain workspace model.
 
 ## Integrating GhostCrab MCP with OpenClaw: procedure for an official PR
 
@@ -448,4 +458,3 @@ Unlike the earlier `ghostcrab-memory` Skill, `ghostcrab-runtime` **does not** di
 [^5_2]: https://docs.openclaw.ai/fr/concepts/memory-builtin
 
 [^5_3]: https://docs.openclaw.ai/fr/concepts/memory
-

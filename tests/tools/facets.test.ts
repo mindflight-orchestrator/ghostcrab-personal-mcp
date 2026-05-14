@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 import type { DatabaseClient, Queryable } from "../../src/db/client.js";
 import { createToolContext } from "../helpers/tool-context.js";
 import { countTool } from "../../src/tools/facets/count.js";
-import { hierarchyTool } from "../../src/tools/facets/hierarchy.js";
 import { rememberTool } from "../../src/tools/facets/remember.js";
 import {
   schemaInspectTool,
@@ -128,9 +127,6 @@ describe("facet tools", () => {
     const query = vi
       .fn<DatabaseClient["query"]>()
       .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([
-        { next_doc_id: 1 }
-      ])
       .mockResolvedValueOnce([]);
     const database = createMockDatabase(query);
 
@@ -270,9 +266,9 @@ describe("facet tools", () => {
       createToolContext(database, { embeddingsMode: "fake" })
     );
 
-    expect(query).toHaveBeenCalledTimes(2);
-    expect(query.mock.calls[1]?.[0]).toContain("embedding_blob");
-    expect(query.mock.calls[1]?.[1]?.[4]).toContain("[");
+    expect(query).toHaveBeenCalledTimes(1);
+    expect(query.mock.calls[0]?.[0]).toContain("embedding_blob");
+    expect(query.mock.calls[0]?.[1]?.[4]).toContain("[");
     expect(readStructured(result)).toMatchObject({
       embedding_runtime: expect.objectContaining({
         mode: "fake"
@@ -385,12 +381,6 @@ describe("facet tools", () => {
       },
       {
         database,
-        extensions: {
-          pgFacets: false,
-          pgDgraph: false,
-          pgPragma: false
-        },
-        nativeExtensionsMode: "auto",
         embeddings: {
           async embedMany() {
             hasFailed = true;
@@ -463,9 +453,7 @@ describe("facet tools", () => {
         mode: "bm25",
         limit: 10
       },
-      createToolContext(database, {
-        extensions: { pgFacets: true, pgDgraph: false, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     expect(query).toHaveBeenCalledOnce();
@@ -502,9 +490,7 @@ describe("facet tools", () => {
         mode: "bm25",
         limit: 5
       },
-      createToolContext(database, {
-        extensions: { pgFacets: true, pgDgraph: false, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     expect(query).toHaveBeenCalledOnce();
@@ -522,7 +508,7 @@ describe("facet tools", () => {
     });
   });
 
-  it("falls back to SQL when nativeExtensionsMode is sql-only even with pgFacets loaded (search)", async () => {
+  it("uses SQL bm25 path for search", async () => {
     const query = vi.fn(async () => [
       {
         id: "facet-sql-1",
@@ -542,10 +528,7 @@ describe("facet tools", () => {
         mode: "bm25",
         limit: 5
       },
-      createToolContext(database, {
-        extensions: { pgFacets: true, pgDgraph: false, pgPragma: false },
-        nativeExtensionsMode: "sql-only"
-      })
+      createToolContext(database)
     );
 
     expect(query).toHaveBeenCalledOnce();
@@ -558,7 +541,7 @@ describe("facet tools", () => {
     });
   });
 
-  it("falls back to SQL when nativeExtensionsMode is sql-only even with pgFacets loaded (count)", async () => {
+  it("uses SQL JSONB GROUP BY path for count", async () => {
     const query = vi
       .fn<DatabaseClient["query"]>()
       .mockResolvedValueOnce([
@@ -568,14 +551,10 @@ describe("facet tools", () => {
 
     const result = await countTool.handler(
       { group_by: ["schema_id"] },
-      createToolContext(database, {
-        extensions: { pgFacets: true, pgDgraph: false, pgPragma: false },
-        nativeExtensionsMode: "sql-only"
-      })
+      createToolContext(database)
     );
 
     expect(query).toHaveBeenCalledOnce();
-    // sql-only forces the JSONB GROUP BY path, not get_facet_counts
     expect(query.mock.calls[0]?.[0]).not.toContain("facets.get_facet_counts");
     expect(readStructured(result)).toMatchObject({
       ok: true,
@@ -627,9 +606,7 @@ describe("facet tools", () => {
 
     const result = await countTool.handler(
       { group_by: ["schema_id"] },
-      createToolContext(database, {
-        extensions: { pgFacets: true, pgDgraph: false, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     expect(query).toHaveBeenCalledTimes(1);
@@ -651,9 +628,7 @@ describe("facet tools", () => {
 
     const result = await countTool.handler(
       { group_by: ["record_id"], schema_id: "agent:observation" },
-      createToolContext(database, {
-        extensions: { pgFacets: true, pgDgraph: false, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     expect(query).toHaveBeenCalledTimes(1);
@@ -667,152 +642,10 @@ describe("facet tools", () => {
     });
   });
 
-  it("ghostcrab_facet_tree returns error when pg_facets is not loaded", async () => {
-    const database = createMockDatabase(async () => []);
-
-    const result = await hierarchyTool.handler(
-      { top_n: 5 },
-      createToolContext(database)
-    );
-
-    expect(readStructured(result)).toMatchObject({
-      ok: false,
-      tool: "ghostcrab_facet_tree",
-      error: { code: "extension_not_loaded" }
-    });
-  });
-
-  it("ghostcrab_facet_tree returns hierarchical tree when pg_facets is loaded", async () => {
-    const fakeTree = { facets: [{ name: "schema_id", values: [] }] };
-    const query = vi
-      .fn<DatabaseClient["query"]>()
-      // OID resolution
-      .mockResolvedValueOnce([{ oid: "12345" }])
-      // No schema_id bitmap (not provided)
-      // No facet_names (not provided)
-      // hierarchical_facets result
-      .mockResolvedValueOnce([{ tree: fakeTree }]);
-    const database = createMockDatabase(query);
-
-    const result = await hierarchyTool.handler(
-      { top_n: 3 },
-      createToolContext(database, {
-        extensions: { pgFacets: true, pgDgraph: false, pgPragma: false }
-      })
-    );
-
-    expect(query).toHaveBeenCalledTimes(2);
-    expect(query.mock.calls[1]?.[0]).toContain("facets.hierarchical_facets");
-    expect(readStructured(result)).toMatchObject({
-      ok: true,
-      tool: "ghostcrab_facet_tree",
-      top_n: 3,
-      backend: "native",
-      tree: fakeTree
-    });
-  });
-
-  it("ghostcrab_facet_tree builds bitmap filter when schema_id is provided", async () => {
-    const fakeTree = { facets: [{ name: "domain", values: [{ value: "product", count: 2 }] }] };
-    const query = vi
-      .fn<DatabaseClient["query"]>()
-      // OID resolution
-      .mockResolvedValueOnce([{ oid: "12345" }])
-      // build_filter_bitmap_native for schema_id
-      .mockResolvedValueOnce([{ bitmap: "<bitmap_opaque>" }])
-      // hierarchical_facets result
-      .mockResolvedValueOnce([{ tree: fakeTree }]);
-    const database = createMockDatabase(query);
-
-    const result = await hierarchyTool.handler(
-      { top_n: 5, schema_id: "agent:observation" },
-      createToolContext(database, {
-        extensions: { pgFacets: true, pgDgraph: false, pgPragma: false }
-      })
-    );
-
-    expect(query).toHaveBeenCalledTimes(3);
-    // Second call: bitmap build for schema_id
-    expect(query.mock.calls[1]?.[0]).toContain("build_filter_bitmap_native");
-    // Verify composite type cast is scalar (not ARRAY[$2])
-    expect(query.mock.calls[1]?.[0]).toContain("ROW('schema_id', $2)::facets.facet_filter");
-    expect(query.mock.calls[1]?.[1]).toEqual(["12345", "agent:observation"]);
-    expect(readStructured(result)).toMatchObject({
-      ok: true,
-      tool: "ghostcrab_facet_tree",
-      schema_id: "agent:observation",
-      backend: "native",
-      tree: fakeTree
-    });
-  });
-
-  it("ghostcrab_facet_tree returns empty tree when schema_id bitmap is null (no matching docs)", async () => {
-    const query = vi
-      .fn<DatabaseClient["query"]>()
-      // OID resolution
-      .mockResolvedValueOnce([{ oid: "12345" }])
-      // build_filter_bitmap_native returns no row (no docs match)
-      .mockResolvedValueOnce([]);
-    const database = createMockDatabase(query);
-
-    const result = await hierarchyTool.handler(
-      { top_n: 5, schema_id: "agent:nonexistent" },
-      createToolContext(database, {
-        extensions: { pgFacets: true, pgDgraph: false, pgPragma: false }
-      })
-    );
-
-    expect(query).toHaveBeenCalledTimes(2);
-    // hierarchical_facets must NOT be called when bitmap is null
-    expect(query.mock.calls[1]?.[0]).toContain("build_filter_bitmap_native");
-    expect(readStructured(result)).toMatchObject({
-      ok: true,
-      tool: "ghostcrab_facet_tree",
-      schema_id: "agent:nonexistent",
-      tree: null,
-      backend: "native"
-    });
-  });
-
-  it("ghostcrab_facet_tree resolves facet_ids from facet_names", async () => {
-    const fakeTree = { facets: [] };
-    const query = vi
-      .fn<DatabaseClient["query"]>()
-      // OID resolution
-      .mockResolvedValueOnce([{ oid: "12345" }])
-      // No schema_id (not provided)
-      // list_table_facets for facet_names resolution
-      .mockResolvedValueOnce([{ facet_id: 3 }, { facet_id: 7 }])
-      // hierarchical_facets result
-      .mockResolvedValueOnce([{ tree: fakeTree }]);
-    const database = createMockDatabase(query);
-
-    const result = await hierarchyTool.handler(
-      { top_n: 5, facet_names: ["domain", "status"] },
-      createToolContext(database, {
-        extensions: { pgFacets: true, pgDgraph: false, pgPragma: false }
-      })
-    );
-
-    expect(query).toHaveBeenCalledTimes(3);
-    // Second call: list_table_facets to resolve facet_ids
-    expect(query.mock.calls[1]?.[0]).toContain("facets.list_table_facets");
-    // Third call: hierarchical_facets receives resolved facet_ids
-    expect(query.mock.calls[2]?.[0]).toContain("facets.hierarchical_facets");
-    expect(readStructured(result)).toMatchObject({
-      ok: true,
-      tool: "ghostcrab_facet_tree",
-      facet_names: ["domain", "status"],
-      backend: "native",
-      tree: fakeTree
-    });
-  });
-
   it("handles schema registration, listing, and inspect flows", async () => {
     const query = vi
       .fn<DatabaseClient["query"]>()
       .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([{ next_doc_id: 1 }])
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([
         {

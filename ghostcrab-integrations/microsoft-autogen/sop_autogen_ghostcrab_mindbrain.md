@@ -1,12 +1,24 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
+# Integrating mindBrain with Microsoft AutoGen
 
-The most effective pitch for every framework is not to sell MindBrain as an "alternative database" but as a **shared context layer across agents**: today each framework keeps memory in silos; MindBrain/GhostCrab provides a structured, queryable, persistent ontology registry. That argument lands regardless of target framework.
+## About Microsoft AutoGen
 
-task: target Microsoft AutoGen — explain how integration should be implemented with this framework.
+Microsoft AutoGen is an open-source programming framework for building agentic AI systems with composable agents, team patterns, tool use, model clients, memory, and extension packages. The official project is [microsoft/autogen](https://github.com/microsoft/autogen), with documentation for AgentChat, Core, Studio, and extensions such as MCP integrations. AutoGen is especially useful when teams want explicit multi-agent coordination patterns such as group chats, selectors, planners, executors, and reviewers.
 
-Here is the necessary material. AutoGen’s documentation is clear on its weak spots: per-agent siloed memory (`ListMemory`, ChromaDB, Redis), with no cross-agent shared registry or structured semantic model. GhostCrab/MindBrain integration targets exactly that gap.
+## MindBrain
 
-***
+MindBrain is a structured agentic database that makes any domain navigable in real time — its intelligence lives in schema enforcement, typed ontologies, and pre-computed projections that cost zero inference at query time.
+
+## Why integrate mindBrain with Microsoft AutoGen
+
+AutoGen gives agents memory and MCP workbench access, but project context can still become fragmented across individual agents, tools, and runs. mindBrain gives an AutoGen team a shared structured state store where planner decisions, executor progress, reviewer findings, blockers, dependencies, and evidence links can be written once and queried by every agent through GhostCrab tools.
+
+The benefit is architectural rather than cosmetic: AutoGen remains responsible for turn selection, group chat behavior, model calls, and team orchestration, while mindBrain supplies durable typed context and zero-inference projections for recovery, progress checks, and cross-agent handoffs. That keeps the agent framework clean while making team state explicit and inspectable.
+
+## SKILLS available in this repo
+
+- [`ghostcrab-architect-autogen`](SKILL_ghostcrab-architect_autogen.md) helps Claude Code or Codex model an AutoGen workspace gradually in GhostCrab Personal before hardening schemas or relationships.
+- [`autogen-ghostcrab-runtime`](SKILL_autogen_ghostcrab-runtime_.md) maps AutoGen runtime concepts to GhostCrab MCP tools so agents can share task state without turning GhostCrab into a scheduler.
+- [`autogen-ghostcrab-mindbrain`](SKILLS_autogen_ghostcrab_mindbrain.md) provides a general Claude Code and Codex reference for connecting AutoGen teams to GhostCrab Personal as a local MCP state store.
 
 ## Integrating MindBrain/GhostCrab with Microsoft AutoGen
 

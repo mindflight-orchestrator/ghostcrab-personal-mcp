@@ -98,9 +98,6 @@ export async function startMcpServer(): Promise<void> {
     console.error(
       `[ghostcrab] GHOSTCRAB_HYBRID_WEIGHTS=bm25:${config.hybridBm25Weight}, vector:${config.hybridVectorWeight}`
     );
-    console.error(
-      `[ghostcrab] MINDBRAIN_NATIVE_EXTENSIONS=${config.nativeExtensionsMode}`
-    );
 
     const databaseIsReachable = await database.ping();
     const { maybeSendStartupPing } = await import("./telemetry/index.js");
@@ -240,13 +237,6 @@ export async function startMcpServer(): Promise<void> {
         return await tool.handler(request.params.arguments ?? {}, {
           database,
           embeddings,
-          extensions: {
-            pgFacets: false,
-            pgDgraph: false,
-            pgPragma: false,
-            pgMindbrain: true
-          },
-          nativeExtensionsMode: config.nativeExtensionsMode,
           retrieval: {
             hybridBm25Weight: config.hybridBm25Weight,
             hybridVectorWeight: config.hybridVectorWeight
@@ -314,7 +304,7 @@ export async function startMcpServer(): Promise<void> {
         (serverState.databaseReady ? "" : " [DEGRADED — backend unreachable]")
     );
 
-    if (serverState.databaseReady) {
+    if (serverState.databaseReady && config.bootstrapSeedEnabled) {
       try {
         const seedSummary = await ensureBootstrapData(database);
         serverState.bootstrapComplete = true;
@@ -354,6 +344,9 @@ export async function startMcpServer(): Promise<void> {
         );
         serverState.bootstrapComplete = true;
       }
+    } else if (serverState.databaseReady) {
+      serverState.bootstrapComplete = true;
+      console.error("[ghostcrab] bootstrap seed skipped by GHOSTCRAB_BOOTSTRAP_SEED=0");
     }
   } catch (error) {
     const message =

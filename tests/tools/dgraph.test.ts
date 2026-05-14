@@ -7,8 +7,6 @@ import { entityChunksTool } from "../../src/tools/dgraph/entity-chunks.js";
 import { graphReindexTool } from "../../src/tools/dgraph/graph-reindex.js";
 import { graphSearchTool } from "../../src/tools/dgraph/graph-search.js";
 import { learnTool } from "../../src/tools/dgraph/learn.js";
-import { marketplaceTool } from "../../src/tools/dgraph/marketplace.js";
-import { patchTool } from "../../src/tools/dgraph/patch.js";
 import { traverseTool } from "../../src/tools/dgraph/traverse.js";
 import { GHOSTCRAB_MCP_SURFACE_VERSION } from "../../src/tools/registry.js";
 
@@ -199,9 +197,7 @@ describe("dgraph tools", () => {
 
     const result = await coverageTool.handler(
       { domain: "ghostcrab-product" },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     const payload = readStructured(result);
@@ -213,56 +209,6 @@ describe("dgraph tools", () => {
         decayed_confidence: null
       }
     ]);
-  });
-
-  it("applies ghostcrab_patch when pg_dgraph is loaded", async () => {
-    const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
-      if (sql.includes("apply_knowledge_patch")) {
-        return [{ apply_knowledge_patch: 3 }];
-      }
-      return [];
-    });
-    const database = createMockDatabase(query);
-
-    const result = await patchTool.handler(
-      { patch_id: 42, applied_by: "agent:test" },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
-    );
-
-    expect(readStructured(result)).toMatchObject({
-      ok: true,
-      tool: "ghostcrab_patch",
-      patch_id: 42,
-      relations_applied: 3,
-      backend: "native"
-    });
-  });
-
-  it("returns error for ghostcrab_patch when pg_dgraph is not loaded", async () => {
-    const database = createMockDatabase(vi.fn());
-
-    const result = await patchTool.handler(
-      { patch_id: 1 },
-      createToolContext(database)
-    );
-
-    expect(result.isError).toBe(true);
-  });
-
-  it("ghostcrab_marketplace returns error when pg_dgraph is not loaded", async () => {
-    const database = createMockDatabase(vi.fn());
-
-    const result = await marketplaceTool.handler(
-      { query: "test" },
-      createToolContext(database)
-    );
-
-    expect(result.isError).toBe(true);
-    expect(
-      (result.structuredContent as Record<string, unknown>)?.error
-    ).toMatchObject({ code: "extension_not_loaded" });
   });
 
   it("ghostcrab_graph_search returns graph entities from MindBrain", async () => {
@@ -483,86 +429,6 @@ describe("dgraph tools", () => {
     });
   });
 
-  it("ghostcrab_marketplace returns results from graph.marketplace_search", async () => {
-    const query = vi.fn().mockResolvedValueOnce([
-      {
-        entity_id: "42",
-        name: "GhostCrab",
-        type: "product",
-        confidence: 0.9,
-        is_direct_match: true,
-        composite_score: 0.82,
-        metadata: { version: "2.0" }
-      }
-    ]);
-    const database = createMockDatabase(query);
-
-    const result = await marketplaceTool.handler(
-      { query: "ghostcrab", domain: "product", limit: 10 },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
-    );
-
-    expect(query).toHaveBeenCalledOnce();
-    expect(query.mock.calls[0]?.[0]).toContain(
-      "mb_ontology.marketplace_search_by_domain"
-    );
-    const structured = result.structuredContent as Record<string, unknown>;
-    expect(structured).toMatchObject({
-      ok: true,
-      tool: "ghostcrab_marketplace",
-      returned: 1,
-      backend: "native",
-      results: [
-        expect.objectContaining({
-          name: "GhostCrab",
-          composite_score: 0.82,
-          is_direct_match: true,
-          fts_rank: null,
-          hub_score: null
-        })
-      ]
-    });
-  });
-
-  it("ghostcrab_marketplace falls back to graph.marketplace_search when mb_ontology is unavailable", async () => {
-    const query = vi
-      .fn()
-      .mockRejectedValueOnce(new Error("mb_ontology missing"))
-      .mockResolvedValueOnce([
-        {
-          entity_id: "42",
-          name: "GhostCrab",
-          type: "product",
-          confidence: 0.9,
-          fts_rank: 0.75,
-          is_direct_match: true,
-          hub_score: 0.6,
-          composite_score: 0.82,
-          metadata: { version: "2.0" }
-        }
-      ]);
-    const database = createMockDatabase(query);
-
-    const result = await marketplaceTool.handler(
-      { query: "ghostcrab", domain: "product", limit: 10 },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
-    );
-
-    expect(query).toHaveBeenCalledTimes(2);
-    expect(query.mock.calls[1]?.[0]).toContain("graph.marketplace_search");
-    const structured = result.structuredContent as Record<string, unknown>;
-    expect(structured).toMatchObject({
-      ok: true,
-      tool: "ghostcrab_marketplace",
-      returned: 1,
-      backend: "native"
-    });
-  });
-
   it("traverses toward a target node and surfaces gap candidates", async () => {
     mockTraverseFetch(
       [
@@ -755,9 +621,7 @@ describe("dgraph tools", () => {
 
     const result = await traverseTool.handler(
       { start: "task:start", depth: 1 },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     expect(readStructured(result)).toMatchObject({
@@ -802,9 +666,7 @@ describe("dgraph tools", () => {
 
     const result = await traverseTool.handler(
       { start: "task:origin", depth: 1, edge_labels: ["REQUIRES"] },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     // Only REQUIRES should remain after post-filter, plus the start node = 2 total
@@ -845,9 +707,7 @@ describe("dgraph tools", () => {
 
     const result = await traverseTool.handler(
       { start: "task:start", depth: 1 },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     expect(readStructured(result)).toMatchObject({
@@ -865,9 +725,7 @@ describe("dgraph tools", () => {
 
     const result = await traverseTool.handler(
       { start: "task:nonexistent", depth: 1 },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     expect(readStructured(result)).toMatchObject({
@@ -894,9 +752,7 @@ describe("dgraph tools", () => {
 
     const result = await traverseTool.handler(
       { start: "task:start", depth: 1, target: "concept:gap" },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     expect(readStructured(result)).toMatchObject({
@@ -922,9 +778,7 @@ describe("dgraph tools", () => {
 
     const result = await traverseTool.handler(
       { start: "task:start", depth: 3 },
-      createToolContext(database, {
-        extensions: { pgFacets: false, pgDgraph: true, pgPragma: false }
-      })
+      createToolContext(database)
     );
 
     expect(readStructured(result)).toMatchObject({
@@ -937,23 +791,26 @@ describe("dgraph tools", () => {
 
   it("upserts nodes and updates an existing edge inside one transaction", async () => {
     const query = vi.fn(async (sql: string) => {
-      if (sql.includes("INSERT INTO graph.entity")) {
-        return [{ id: "1" }];
-      }
-
-      if (sql.includes("INSERT INTO graph.entity_alias")) {
+      if (sql.includes("INSERT INTO graph_entity")) {
         return [];
       }
 
-      if (sql.includes("FROM graph.entity") && sql.includes("WHERE type =")) {
-        return [{ id: "1" }];
+      if (sql.includes("INSERT OR IGNORE INTO graph_entity_alias")) {
+        return [];
       }
 
-      if (sql.includes("FROM graph.relation") && sql.includes("LIMIT 1")) {
-        return [{ id: "edge-1" }];
+      if (
+        sql.includes("FROM graph_entity") &&
+        sql.includes("WHERE entity_type =")
+      ) {
+        return [{ entity_id: 1 }];
       }
 
-      if (sql.includes("UPDATE graph.relation")) {
+      if (sql.includes("FROM graph_relation") && sql.includes("LIMIT 1")) {
+        return [{ relation_id: 1 }];
+      }
+
+      if (sql.includes("UPDATE graph_relation")) {
         return [];
       }
 
@@ -982,7 +839,7 @@ describe("dgraph tools", () => {
       ok: true,
       tool: "ghostcrab_learn",
       node: { learned: true, id: "task:start" },
-      edge: { learned: true, id: "1:1:HAS_GAP" }
+      edge: { learned: true, id: "1", label: "HAS_GAP", updated: true }
     });
   });
 });

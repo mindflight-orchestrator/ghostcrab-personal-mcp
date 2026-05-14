@@ -6,11 +6,10 @@
  *   ghostcrab_workspace_create → workspace row visible in mindbrain.workspaces
  *   ghostcrab_workspace_list  → workspace visible with stats
  *   ghostcrab_ddl_propose     → migration stored as pending
- *   CLI ddl-approve           → migration transitions to approved
- *   ghostcrab_ddl_execute     → migration executed (CREATE TABLE + trigger)
+ *   ghostcrab_ddl_execute     → migration executed (CREATE TABLE)
  *   source_ref contract       → partial unique index accepts/rejects correctly
  *
- * These tests require a real PostgreSQL database (DATABASE_URL env var).
+ * These tests require a reachable MindBrain backend (GHOSTCRAB_MINDBRAIN_URL env var).
  * They run in the same job as other integration tests (tests/integration/).
  */
 
@@ -19,8 +18,7 @@ import { randomUUID } from "node:crypto";
 
 import {
   closeIntegrationDatabase,
-  createIntegrationHarness,
-  runCliCapture
+  createIntegrationHarness
 } from "../../helpers/cli-integration.js";
 import {
   workspaceCreateTool
@@ -34,7 +32,6 @@ import {
   ddlListPendingTool
 } from "../../../src/tools/workspace/ddl.js";
 import { createToolContext } from "../../helpers/tool-context.js";
-import { resolveGhostcrabConfig } from "../../../src/config/env.js";
 
 const harness = createIntegrationHarness();
 
@@ -74,8 +71,6 @@ async function cleanupV3(db: typeof harness.database): Promise<void> {
 }
 
 describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () => {
-  const config = resolveGhostcrabConfig(process.env);
-
   beforeAll(async () => {
     await cleanupV3(harness.database);
   });
@@ -202,9 +197,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   // ─────────────────────────────────────────────────────────────────────────
 
   it("ghostcrab_workspace_create: creates a new workspace", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
     const wsName = wsId("wc");
     const result = await workspaceCreateTool.handler(
       { id: wsName, label: "V3 Integration Test WS", created_by: "test" },
@@ -224,9 +217,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   });
 
   it("ghostcrab_workspace_create: idempotent on re-creation", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
     const wsName = wsId("wi");
     await workspaceCreateTool.handler(
       { id: wsName, label: "Idempotent test" },
@@ -243,9 +234,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   });
 
   it("ghostcrab_workspace_list: lists workspace with stats", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
     const result = await workspaceListTool.handler({ status: "active" }, ctx);
     const data = result.structuredContent as Record<string, unknown>;
     expect(data.ok).toBe(true);
@@ -261,9 +250,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   // ─────────────────────────────────────────────────────────────────────────
 
   it("ghostcrab_ddl_propose: stores a safe migration as pending", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
     const result = await ddlProposeTool.handler(
       {
         workspace_id: "default",
@@ -291,9 +278,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   });
 
   it("ghostcrab_ddl_propose: rejects DROP TABLE", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
     const result = await ddlProposeTool.handler(
       {
         workspace_id: "default",
@@ -307,9 +292,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   });
 
   it("full DDL chain: propose → CLI approve → execute → table exists", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
     const tableName = `v3_chain_${RUN_ID.replace(/-/g, "_")}`;
 
     // 1. Propose
@@ -376,10 +359,8 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
     );
   });
 
-  it("DDL lifecycle with sync_spec: generates trigger preview in proposal", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+  it("DDL lifecycle with sync_spec: rejects trigger preview generation", async () => {
+    const ctx = createToolContext(harness.database);
     const tableName = `v3_trigger_${RUN_ID.replace(/-/g, "_")}`;
 
     const proposeResult = await ddlProposeTool.handler(
@@ -388,7 +369,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
         sql: `CREATE TABLE IF NOT EXISTS ${tableName} (id INTEGER PRIMARY KEY, title TEXT)`,
         rationale: "V3 trigger preview test",
         sync_spec: {
-          source_table: `public.${tableName}`,
+          source_table: tableName,
           fields: [
             { column_name: "title", facet_key: "title", index_in_bm25: true, facet_type: "term" }
           ]
@@ -396,110 +377,11 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
       },
       ctx
     );
-    expect(proposeResult.isError).toBeFalsy();
+    expect(proposeResult.isError).toBe(true);
     const data = proposeResult.structuredContent as Record<string, unknown>;
-    expect(data.has_trigger_preview).toBe(true);
-    expect(typeof data.trigger_summary).toBe("string");
-    expect(String(data.trigger_summary)).toContain(tableName);
-
-    // Verify preview_trigger is stored in DB
-    const rows = await harness.database.query<{ preview_trigger: string | null }>(
-      `SELECT preview_trigger FROM pending_migrations WHERE id = $1`,
-      [data.migration_id]
-    );
-    expect(rows[0]?.preview_trigger).not.toBeNull();
-    expect(rows[0]?.preview_trigger).toContain("mindbrain_sync");
-
-    await harness.database.query(
-      `DELETE FROM pending_migrations WHERE id = $1`,
-      [data.migration_id]
+    expect((data.error as Record<string, unknown>).code).toBe(
+      "sync_spec_not_supported"
     );
   });
 
-  it("CLI ddl-approve then ddl-execute via runCliCapture", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
-    const tableName = `v3_cli_${RUN_ID.replace(/-/g, "_")}`;
-
-    // 1. Propose via tool
-    const proposeResult = await ddlProposeTool.handler(
-      {
-        workspace_id: "default",
-        sql: `CREATE TABLE IF NOT EXISTS ${tableName} (id INTEGER PRIMARY KEY)`,
-        proposed_by: "cli-integration-test"
-      },
-      ctx
-    );
-    const proposeData = proposeResult.structuredContent as Record<string, unknown>;
-    const migrationId = proposeData.migration_id as string;
-
-    // 2. Approve via CLI
-    const approveResult = await runCliCapture([
-      "maintenance",
-      "ddl-approve",
-      "--id",
-      migrationId,
-      "--by",
-      "cli-test-user"
-    ]);
-    expect(approveResult.exitCode).toBe(0);
-    const approveJson = JSON.parse(approveResult.stdout.join("").trim()) as Record<string, unknown>;
-    expect(approveJson.ok).toBe(true);
-    expect(approveJson.status).toBe("approved");
-
-    // 3. Execute via CLI
-    const executeResult = await runCliCapture([
-      "maintenance",
-      "ddl-execute",
-      "--id",
-      migrationId
-    ]);
-    expect(executeResult.exitCode).toBe(0);
-    const execJson = JSON.parse(executeResult.stdout.join("").trim()) as Record<string, unknown>;
-    expect(execJson.ok).toBe(true);
-    expect(execJson.status).toBe("executed");
-
-    // 4. Table exists
-    const tableExists = await harness.database.query<{ name: string }>(
-      `SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?`,
-      [tableName]
-    );
-    expect(tableExists[0]?.name).toBe(tableName);
-
-    // Cleanup
-    await harness.database.query(`DROP TABLE IF EXISTS ${tableName}`);
-    await cleanupMindbrainSemantics(harness.database, "default", tableName);
-    await harness.database.query(
-      `DELETE FROM pending_migrations WHERE id = $1`,
-      [migrationId]
-    );
-  });
-
-  it("ghostcrab_query_geo: returns structured error (PostGIS optional) on vanilla postgres", async () => {
-    if (harness.database.kind === "sqlite") {
-      return;
-    }
-
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
-    const { geoQueryTool } = await import("../../../src/tools/facets/geo.js");
-    const result = await geoQueryTool.handler(
-      { mode: "distance", lat: 48.8566, lon: 2.3522, radius_m: 1000 },
-      ctx
-    );
-
-    // geo_entities does not exist in vanilla postgres:17 (no PostGIS)
-    // If it does exist (e.g. PostGIS is installed), the query may succeed — that's fine too.
-    if (result.isError) {
-      const data = result.structuredContent as Record<string, unknown>;
-      const err = data.error as Record<string, unknown>;
-      expect(err.code).toBe("geo_feature_not_available");
-      expect(String(err.message)).toContain("PostGIS");
-    } else {
-      // PostGIS is available in this env — graceful pass
-      expect((result.structuredContent as Record<string, unknown>).ok).toBe(true);
-    }
-  });
 });

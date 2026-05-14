@@ -29,7 +29,7 @@ describe("mcp-global-setup", () => {
 
   it("getDefaultMcpEnv returns stable defaults", () => {
     const e = getDefaultMcpEnv();
-    expect(e.GHOSTCRAB_DATABASE_KIND).toBe("sqlite");
+    expect(e).not.toHaveProperty("GHOSTCRAB_DATABASE_KIND");
     expect(e.GHOSTCRAB_EMBEDDINGS_MODE).toBe("disabled");
   });
 
@@ -158,7 +158,7 @@ describe("mcp-global-setup", () => {
       type: "stdio",
       command: "node",
       args: ["/abs/path/bin/gcp.mjs", "brain", "up"],
-      env: { GHOSTCRAB_DATABASE_KIND: "sqlite", GHOSTCRAB_EMBEDDINGS_MODE: "disabled" },
+      env: { GHOSTCRAB_EMBEDDINGS_MODE: "disabled" },
     };
     const r = mergeCursorMcpDocument(existing, entry, { force: true });
     if (!("doc" in r)) throw new Error("expected doc");
@@ -186,7 +186,7 @@ describe("mcp-global-setup", () => {
           type: "stdio",
           command: "npx",
           args: ["-y", "@mindflight/ghostcrab-personal-mcp@latest", "gcp", "brain", "up"],
-          env: { GHOSTCRAB_DATABASE_KIND: "sqlite", GHOSTCRAB_EMBEDDINGS_MODE: "disabled" },
+          env: { GHOSTCRAB_EMBEDDINGS_MODE: "disabled" },
         },
         unrelated: {
           type: "stdio",
@@ -257,7 +257,7 @@ describe("mcp-global-setup", () => {
   it("formatClaudeMcpAdd builds a multiline command with the new server key", () => {
     const s = formatClaudeMcpAdd("pnpm dlx @p@latest gcp brain up", getDefaultMcpEnv(), false);
     expect(s).toContain("claude mcp add --transport stdio");
-    expect(s).toContain("GHOSTCRAB_DATABASE_KIND=sqlite");
+    expect(s).not.toContain("GHOSTCRAB_DATABASE_KIND");
     expect(s).toContain(`${SERVER_KEY} --`);
   });
 
