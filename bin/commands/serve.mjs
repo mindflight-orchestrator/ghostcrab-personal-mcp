@@ -1,14 +1,15 @@
 /**
- * gcp brain up | gcp serve  [--workspace <name>] [--port <port>]
+ * gcp brain up | gcp serve  [--workspace <name>] [--db <path>] [--port <port>]
  *
  * Starts the Zig backend (detached, independent process) then the MCP server
  * on this process's stdio. The backend keeps running across MCP reconnections;
  * a second `gcp brain up` / `gcp serve` pointing at the same SQLite file will reuse it.
  *
  * SQLite path resolution (highest priority first):
- *   1. GHOSTCRAB_SQLITE_PATH  (bypasses workspace system entirely)
- *   2. Else: workspace from --workspace / config.defaultWorkspace → workspaces[name].sqlitePath
- *   3. Else: ./data/ghostcrab.sqlite under the current working directory
+ *   1. GHOSTCRAB_SQLITE_PATH env var (bypasses workspace system entirely)
+ *   2. --db <path> CLI flag (useful for hard-coding the path in mcp.json args)
+ *   3. Else: workspace from --workspace / config.defaultWorkspace → workspaces[name].sqlitePath
+ *   4. Else: ./data/ghostcrab.sqlite under the current working directory
  */
 
 import { createServer } from "node:net";
@@ -58,15 +59,28 @@ export async function runServe(args) {
 
   // Parse flags
   let workspaceName = null;
+  let dbPathFromCli = null;
   for (let i = 0; i < filtered.length; i++) {
     if ((filtered[i] === "--workspace" || filtered[i] === "-w") && filtered[i + 1]) {
       workspaceName = slugifyWorkspace(filtered[++i]);
+      continue;
+    }
+    if (filtered[i] === "--db") {
+      if (!filtered[i + 1]) {
+        process.stderr.write("[ghostcrab] --db requires a path argument\n");
+        process.exit(1);
+      }
+      dbPathFromCli = filtered[++i];
+      continue;
     }
     if (filtered[i] === "--help" || filtered[i] === "-h") {
       console.log(
-        `Usage: gcp brain up | gcp serve  [--workspace <name>] [--no-skills]\n\n` +
+        `Usage: gcp brain up | gcp serve  [--workspace <name>] [--db <path>] [--no-skills]\n\n` +
           `Starts the MindBrain (Zig) backend if needed, then the MCP server on stdio.\n` +
-          `  --no-skills  Skip auto-install of IDE integration files from ghostcrab-skills.`
+          `  --workspace <name>  Use this workspace's SQLite path from config\n` +
+          `  --db <path>         Explicit SQLite file path (overrides workspace/default;\n` +
+          `                      env GHOSTCRAB_SQLITE_PATH still takes precedence)\n` +
+          `  --no-skills         Skip auto-install of IDE integration files from ghostcrab-skills.`
       );
       return;
     }
@@ -104,7 +118,7 @@ export async function runServe(args) {
     sqlitePathSource,
     backendAddr: initialBackendAddr,
     portExplicit
-  } = resolveGhostcrabSqlite({ workspaceNameFromCli: workspaceName });
+  } = resolveGhostcrabSqlite({ workspaceNameFromCli: workspaceName, sqlitePathFromCli: dbPathFromCli });
   let backendAddr = initialBackendAddr;
   process.stderr.write(
     `[ghostcrab] SQLite database: ${sqlitePathResolved}\n` +

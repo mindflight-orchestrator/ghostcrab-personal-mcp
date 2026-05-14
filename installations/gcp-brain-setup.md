@@ -74,6 +74,14 @@ Those commands write the client config with the most reliable local command form
 
 Only set `GHOSTCRAB_SQLITE_PATH` when you need a stable database location. Otherwise GhostCrab uses its default data path for the process working directory.
 
+Alternatively, pass `--db <path>` directly in the `args` list of the MCP entry instead of using the environment variable:
+
+```json
+"args": ["...gcp.mjs", "brain", "up", "--db", "/absolute/path/to/ghostcrab.sqlite"]
+```
+
+When both are present, `GHOSTCRAB_SQLITE_PATH` takes precedence over `--db`.
+
 ## Verify
 
 Run the process manually first:
