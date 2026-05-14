@@ -11,7 +11,7 @@ import {
   renameSync,
   copyFileSync,
   accessSync,
-  constants,
+  constants
 } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, delimiter } from "node:path";
@@ -52,7 +52,7 @@ export const EX_OK = 0;
 export const EX_ERR = 1;
 
 const DEFAULT_MCP_ENV = {
-  GHOSTCRAB_EMBEDDINGS_MODE: "disabled",
+  GHOSTCRAB_EMBEDDINGS_MODE: "disabled"
 };
 
 /**
@@ -134,11 +134,21 @@ export function findLocalGcpMjs(cwd, packageName) {
  * @param {'gcp' | 'pnpm' | 'npx' | 'node' | 'auto'} runner
  * @param {string} packageName
  * @param {string | null} workspace
+ * @param {string | null} [dbPath]
  * @param {string} [cwd] — directory used to detect a local install. Defaults to process.cwd().
  * @returns {{ runner: 'gcp' | 'pnpm' | 'npx' | 'node', command: string, args: string[] }}
  */
-export function buildMcpLaunch({ runner, packageName, workspace, cwd }) {
-  const wsArgs = workspace ? ["--workspace", workspace] : [];
+export function buildMcpLaunch({
+  runner,
+  packageName,
+  workspace,
+  dbPath,
+  cwd
+}) {
+  const commonArgs = [
+    ...(workspace ? ["--workspace", workspace] : []),
+    ...(dbPath ? ["--db", dbPath] : [])
+  ];
   const cwdSafe = cwd ?? process.cwd();
   const localGcpMjs = findLocalGcpMjs(cwdSafe, packageName);
   const gcpPath = findOnPath("gcp");
@@ -171,7 +181,7 @@ export function buildMcpLaunch({ runner, packageName, workspace, cwd }) {
     return {
       runner: "node",
       command: process.execPath,
-      args: [target, "brain", "up", ...wsArgs],
+      args: [target, "brain", "up", ...commonArgs]
     };
   }
 
@@ -186,7 +196,7 @@ export function buildMcpLaunch({ runner, packageName, workspace, cwd }) {
       // Absolute path so MCP clients (e.g. Cursor) do not fail with `spawn gcp ENOENT`
       // when their inherited PATH does not include the npm-global bin directory.
       command: gcpPath,
-      args: workspace ? ["brain", "up", "--workspace", workspace] : ["brain", "up"],
+      args: ["brain", "up", ...commonArgs]
     };
   }
 
@@ -200,8 +210,8 @@ export function buildMcpLaunch({ runner, packageName, workspace, cwd }) {
         "gcp",
         "brain",
         "up",
-        ...wsArgs,
-      ],
+        ...commonArgs
+      ]
     };
   }
 
@@ -214,7 +224,7 @@ export function buildMcpLaunch({ runner, packageName, workspace, cwd }) {
       return {
         runner: "node",
         command: process.execPath,
-        args: [localGcpMjs, "brain", "up", ...wsArgs],
+        args: [localGcpMjs, "brain", "up", ...commonArgs]
       };
     }
     // Use --package=<scoped>@latest + bin name so npx unambiguously picks the gcp binary.
@@ -231,8 +241,8 @@ export function buildMcpLaunch({ runner, packageName, workspace, cwd }) {
         "gcp",
         "brain",
         "up",
-        ...wsArgs,
-      ],
+        ...commonArgs
+      ]
     };
   }
 
@@ -293,7 +303,7 @@ export function cursorStdioEntryFromLaunch(launch, env) {
     type: "stdio",
     command: launch.command,
     args: launch.args,
-    env: env,
+    env: env
   };
 }
 
@@ -307,7 +317,7 @@ export function writeCursorMcpFile(mcpJsonPath, newDoc, io = {}) {
     dryRun = false,
     backup = true,
     write = writeFileSync,
-    exists = existsSync,
+    exists = existsSync
   } = io;
   if (dryRun) {
     return;
@@ -324,10 +334,7 @@ export function writeCursorMcpFile(mcpJsonPath, newDoc, io = {}) {
       // ignore
     }
   }
-  const tmp = join(
-    dir,
-    `.mcp-${randomBytes(8).toString("hex")}.json.tmp`
-  );
+  const tmp = join(dir, `.mcp-${randomBytes(8).toString("hex")}.json.tmp`);
   const text = JSON.stringify(newDoc, null, 2) + "\n";
   write(tmp, text, "utf8");
   renameSync(tmp, mcpJsonPath);
@@ -339,8 +346,10 @@ export function writeCursorMcpFile(mcpJsonPath, newDoc, io = {}) {
  * @param {string} opts.packageName
  * @param {'gcp' | 'pnpm' | 'npx' | 'node' | 'auto'} opts.runner
  * @param {string | null} [opts.workspace]
+ * @param {string | null} [opts.dbPath]
  * @param {Record<string, string>} [opts.extraEnv]
  * @param {boolean} [opts.force]
+ * @param {string} [opts.serverName]
  * @param {boolean} [opts.dryRun]
  * @param {boolean} [opts.writeBackup]
  * @param {string} [opts.cursorPath]
@@ -353,7 +362,8 @@ export function runSetupCursor(opts) {
     runner: opts.runner,
     packageName: opts.packageName,
     workspace: opts.workspace ?? null,
-    cwd: opts.cwd,
+    dbPath: opts.dbPath ?? null,
+    cwd: opts.cwd
   });
   const env = mergeEnv(getDefaultMcpEnv(), opts.extraEnv ?? {});
 
@@ -366,7 +376,7 @@ export function runSetupCursor(opts) {
       return {
         ok: false,
         code: EX_ERR,
-        message: `Could not parse ${mcpPath}: ${e?.message ?? e}`,
+        message: `Could not parse ${mcpPath}: ${e?.message ?? e}`
       };
     }
   }
@@ -374,14 +384,15 @@ export function runSetupCursor(opts) {
   const entry = cursorStdioEntryFromLaunch(launch, env);
   const merged = mergeCursorMcpDocument(existing, entry, {
     force: opts.force ?? false,
+    serverName: opts.serverName ?? SERVER_KEY
   });
   if (merged.error) {
     return {
       ok: false,
       code: EX_ERR,
-      message: `Entry "${SERVER_KEY}" already exists. Use --force to replace, or --dry-run to preview.`,
+      message: `Entry "${opts.serverName ?? SERVER_KEY}" already exists. Use --force to replace, or --dry-run to preview.`,
       doc: null,
-      mcpPath,
+      mcpPath
     };
   }
   if (opts.dryRun) {
@@ -391,19 +402,19 @@ export function runSetupCursor(opts) {
       message: "Dry run — not written.",
       doc: merged.doc,
       mcpPath,
-      prunedLegacy: merged.prunedLegacy,
+      prunedLegacy: merged.prunedLegacy
     };
   }
   try {
     writeCursorMcpFile(mcpPath, merged.doc, {
       dryRun: false,
-      backup: opts.writeBackup !== false,
+      backup: opts.writeBackup !== false
     });
   } catch (e) {
     return {
       ok: false,
       code: EX_ERR,
-      message: `Write failed: ${e?.message ?? e}`,
+      message: `Write failed: ${e?.message ?? e}`
     };
   }
   return {
@@ -412,7 +423,7 @@ export function runSetupCursor(opts) {
     message: `Wrote ${mcpPath}`,
     doc: merged.doc,
     mcpPath,
-    prunedLegacy: merged.prunedLegacy,
+    prunedLegacy: merged.prunedLegacy
   };
 }
 
@@ -421,15 +432,25 @@ export function runSetupCursor(opts) {
  * @param {string} command
  * @param {string[]} args
  * @param {Record<string, string>} env
+ * @param {string} [serverName]
  */
-export function formatCodexTomlBlock(command, args, env) {
-  const lines = [`[mcp_servers.${SERVER_KEY}]`, `command = "${command}"`];
+export function formatCodexTomlBlock(
+  command,
+  args,
+  env,
+  serverName = SERVER_KEY
+) {
+  const key = formatTomlKey(serverName);
+  const lines = [
+    `[mcp_servers.${key}]`,
+    `command = ${JSON.stringify(command)}`
+  ];
   const arr = args.map((a) => JSON.stringify(a)).join(", ");
   lines.push(`args = [${arr}]`);
   const envKeys = Object.keys(env);
   if (envKeys.length > 0) {
     lines.push(``);
-    lines.push(`[mcp_servers.${SERVER_KEY}.env]`);
+    lines.push(`[mcp_servers.${key}.env]`);
     for (const k of envKeys) {
       lines.push(`${k} = ${JSON.stringify(env[k])}`);
     }
@@ -437,38 +458,106 @@ export function formatCodexTomlBlock(command, args, env) {
   return lines.join("\n");
 }
 
+function formatTomlKey(key) {
+  return /^[A-Za-z0-9_-]+$/.test(key) ? key : JSON.stringify(key);
+}
+
+function quoteShellArg(arg) {
+  return /^[A-Za-z0-9_./:=@%+-]+$/.test(arg)
+    ? arg
+    : JSON.stringify(arg).replace(/\$/g, "\\$");
+}
+
 /**
  * @param {object} opts
  * @param {string} opts.packageName
  * @param {'gcp' | 'pnpm' | 'npx' | 'node' | 'auto'} opts.runner
  * @param {string | null} [opts.workspace]
+ * @param {string | null} [opts.dbPath]
+ * @param {string} [opts.serverName]
  * @param {Record<string, string>} [opts.extraEnv]
  * @param {boolean} [opts.dryRun]
+ * @param {boolean} [opts.force]
  * @param {string} [opts.codexBin] — e.g. full path in tests
  * @param {string} [opts.cwd]
  */
 export function runSetupCodex(opts) {
   const env = mergeEnv(getDefaultMcpEnv(), opts.extraEnv ?? {});
+  const serverName = opts.serverName ?? SERVER_KEY;
   const launch = buildMcpLaunch({
     runner: opts.runner,
     packageName: opts.packageName,
     workspace: opts.workspace ?? null,
-    cwd: opts.cwd,
+    dbPath: opts.dbPath ?? null,
+    cwd: opts.cwd
   });
-  const shellParts = [launch.command, ...launch.args].map((s) =>
-    /\s/.test(s) ? `"${s}"` : s
-  );
+  const shellParts = [launch.command, ...launch.args].map(quoteShellArg);
   const mcpLine = shellParts.join(" ");
-  const toml = formatCodexTomlBlock(launch.command, launch.args, env);
-  const shell = `codex mcp add ${SERVER_KEY} -- ${mcpLine}`;
+  const envArgs = Object.keys(env)
+    .sort()
+    .flatMap((k) => ["--env", `${k}=${env[k]}`]);
+  const toml = formatCodexTomlBlock(
+    launch.command,
+    launch.args,
+    env,
+    serverName
+  );
+  const shell = [
+    "codex",
+    "mcp",
+    "add",
+    ...envArgs,
+    serverName,
+    "--",
+    launch.command,
+    ...launch.args
+  ]
+    .map(quoteShellArg)
+    .join(" ");
   if (opts.dryRun) {
-    return { ok: true, code: EX_OK, dryRun: true, mcpLine, launch, env, toml, shell };
+    return {
+      ok: true,
+      code: EX_OK,
+      dryRun: true,
+      mcpLine,
+      launch,
+      env,
+      toml,
+      shell
+    };
   }
   const bin = opts.codexBin ?? "codex";
 
+  if (opts.force) {
+    const remove = spawnSync(bin, ["mcp", "remove", serverName], {
+      stdio: "inherit",
+      env: process.env
+    });
+    if (remove.error && remove.error.code !== "ENOENT") {
+      return {
+        ok: false,
+        code: EX_ERR,
+        message: `codex mcp remove failed before replacement: ${remove.error.message}`,
+        toml,
+        shell,
+        mcpLine,
+        launch,
+        env
+      };
+    }
+  }
+
   const r = spawnSync(
     bin,
-    ["mcp", "add", SERVER_KEY, "--", launch.command, ...launch.args],
+    [
+      "mcp",
+      "add",
+      ...envArgs,
+      serverName,
+      "--",
+      launch.command,
+      ...launch.args
+    ],
     { stdio: "inherit", env: process.env }
   );
 
@@ -483,7 +572,7 @@ export function runSetupCodex(opts) {
         shell,
         mcpLine,
         launch,
-        env,
+        env
       };
     }
     return {
@@ -494,7 +583,7 @@ export function runSetupCodex(opts) {
       shell,
       mcpLine,
       launch,
-      env,
+      env
     };
   }
   if (r.status === 0) {
@@ -503,12 +592,12 @@ export function runSetupCodex(opts) {
   return {
     ok: false,
     code: EX_ERR,
-    message: `codex mcp add exited with status ${r.status}. Check whether "${SERVER_KEY}" is already registered. TOML fallback:\n`,
+    message: `codex mcp add exited with status ${r.status}. Check whether "${serverName}" is already registered. TOML fallback:\n`,
     toml,
     shell,
     mcpLine,
     launch,
-    env,
+    env
   };
 }
 
@@ -517,23 +606,28 @@ export function runSetupCodex(opts) {
  * @param {string} opts.packageName
  * @param {'gcp' | 'pnpm' | 'npx' | 'node' | 'auto'} opts.runner
  * @param {string | null} [opts.workspace]
+ * @param {string | null} [opts.dbPath]
+ * @param {string} [opts.serverName]
  * @param {Record<string, string>} [opts.extraEnv]
  * @param {boolean} [opts.dryRun]
- * @param {boolean} [opts.scopeProject] — if true, add --scope project
+ * @param {'local' | 'user' | 'project'} [opts.scope]
+ * @param {boolean} [opts.scopeProject] — compatibility: if true, add --scope project
+ * @param {boolean} [opts.force]
  * @param {string} [opts.claudeBin]
  * @param {string} [opts.cwd]
  */
 export function runSetupClaude(opts) {
   const envMap = mergeEnv(getDefaultMcpEnv(), opts.extraEnv ?? {});
+  const serverName = opts.serverName ?? SERVER_KEY;
+  const scope = opts.scope ?? (opts.scopeProject ? "project" : "user");
   const launch = buildMcpLaunch({
     runner: opts.runner,
     packageName: opts.packageName,
     workspace: opts.workspace ?? null,
-    cwd: opts.cwd,
+    dbPath: opts.dbPath ?? null,
+    cwd: opts.cwd
   });
-  const mcpLine = [launch.command, ...launch.args]
-    .map((s) => (/\s/.test(s) ? `"${s}"` : s))
-    .join(" ");
+  const mcpLine = [launch.command, ...launch.args].map(quoteShellArg).join(" ");
 
   if (opts.dryRun) {
     return {
@@ -543,7 +637,12 @@ export function runSetupClaude(opts) {
       mcpLine,
       envMap,
       launch,
-      shell: formatClaudeMcpAdd(mcpLine, envMap, Boolean(opts.scopeProject)),
+      shell: formatClaudeMcpAdd(
+        mcpLine,
+        envMap,
+        scope,
+        serverName
+      )
     };
   }
 
@@ -551,57 +650,99 @@ export function runSetupClaude(opts) {
   for (const [k, v] of Object.entries(envMap)) {
     baseArgs.push("--env", `${k}=${v}`);
   }
-  if (opts.scopeProject) {
-    baseArgs.push("--scope", "project");
-  }
-  baseArgs.push(SERVER_KEY, "--", launch.command, ...launch.args);
+  baseArgs.push("--scope", scope);
+
   const bin = opts.claudeBin ?? "claude";
+  if (opts.force) {
+    const remove = spawnSync(bin, ["mcp", "remove", "--scope", scope, serverName], {
+      stdio: "inherit",
+      env: process.env
+    });
+    if (remove.error && remove.error.code !== "ENOENT") {
+      return claudeNotFound(
+        mcpLine,
+        envMap,
+        scope,
+        `mcp remove failed before replacement: ${remove.error.message}`,
+        serverName
+      );
+    }
+  }
+  baseArgs.push(serverName, "--", launch.command, ...launch.args);
 
   const r = spawnSync(bin, baseArgs, { stdio: "inherit", env: process.env });
 
   if (r.error) {
     if (r.error.code === "ENOENT") {
-      return claudeNotFound(mcpLine, envMap, opts.scopeProject, null);
+      return claudeNotFound(
+        mcpLine,
+        envMap,
+        scope,
+        null,
+        serverName
+      );
     }
     return claudeNotFound(
       mcpLine,
       envMap,
-      opts.scopeProject,
-      r.error.message
+      scope,
+      r.error.message,
+      serverName
     );
   }
   if (r.status === 0) {
     return { ok: true, code: EX_OK, message: "claude mcp add completed." };
   }
-  return claudeNotFound(mcpLine, envMap, opts.scopeProject, r.status);
+  return claudeNotFound(
+    mcpLine,
+    envMap,
+    scope,
+    r.status,
+    serverName
+  );
 }
 
 /**
  * @param {string} mcpLine
  * @param {Record<string, string>} envMap
- * @param {boolean} scopeProject
+ * @param {'local' | 'user' | 'project' | boolean} scope
  * @returns {string}
  */
-export function formatClaudeMcpAdd(mcpLine, envMap, scopeProject) {
+export function formatClaudeMcpAdd(
+  mcpLine,
+  envMap,
+  scope,
+  serverName = SERVER_KEY
+) {
+  const scopeValue = scope === true ? "project" : scope === false ? "user" : scope;
   const body = ["claude mcp add --transport stdio"];
   for (const [k, v] of Object.entries(envMap)) {
     body[body.length - 1] += " \\";
     body.push(`  --env ${k}=${v}`);
   }
-  if (scopeProject) {
-    body[body.length - 1] += " \\";
-    body.push("  --scope project");
-  }
   body[body.length - 1] += " \\";
-  body.push(`  ${SERVER_KEY} -- ${mcpLine}`);
+  body.push(`  --scope ${scopeValue}`);
+  body[body.length - 1] += " \\";
+  body.push(`  ${quoteShellArg(serverName)} -- ${mcpLine}`);
   return body.join("\n");
 }
 
 /**
  * @param {string|number|null} detail
  */
-function claudeNotFound(mcpLine, envMap, scopeProject, detail) {
-  const cleanShell = formatClaudeMcpAdd(mcpLine, envMap, Boolean(scopeProject));
+function claudeNotFound(
+  mcpLine,
+  envMap,
+  scope,
+  detail,
+  serverName = SERVER_KEY
+) {
+  const cleanShell = formatClaudeMcpAdd(
+    mcpLine,
+    envMap,
+    scope,
+    serverName
+  );
 
   const msgBase =
     detail === null
@@ -615,6 +756,6 @@ function claudeNotFound(mcpLine, envMap, scopeProject, detail) {
     printClaude: true,
     mcpLine,
     shell: cleanShell,
-    message: msgBase + "Run the following, or see README_CLAUDE_CODE_MCP.md:\n",
+    message: msgBase + "Run the following, or see README_CLAUDE_CODE_MCP.md:\n"
   };
 }

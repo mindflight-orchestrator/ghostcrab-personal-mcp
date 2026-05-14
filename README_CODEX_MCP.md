@@ -27,15 +27,22 @@ From a directory where the package is installed locally (or where `gcp` is on yo
 ```bash
 npx gcp brain setup codex              # auto: prefers local install → node + absolute path
 npx gcp brain setup codex --runner npx # force npx --package= form
+npx gcp brain setup codex --force --name "ghostcrab-personal-mcp story2doc" \
+  --db /absolute/path/to/data/ghostcrab-story2doc-codex.sqlite
 ```
 
 When a local `node_modules/@mindflight/ghostcrab-personal-mcp/bin/gcp.mjs` is reachable from the current directory, the generator uses `node` + the absolute path to avoid any PATH dependency. Otherwise it falls back to `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up`.
 
-This runs `codex mcp add ghostcrab-personal-mcp -- <command> <args>` for you, then prints the TOML fallback if you need to paste it manually.
+This runs `codex mcp add ghostcrab-personal-mcp -- <command> <args>` for you, then prints the TOML fallback if you need to paste it manually. Use `--name` / `--server-name` when you need a distinct Codex entry per project, and `--db` when the MCP launch must pin a specific SQLite file. `--force` replaces the existing Codex MCP entry before adding the new one.
 
 ## Part 1 — Register the MCP server in Codex manually
 
-Codex can load MCP servers from the **CLI** or from **`config.toml`**. Official reference: [Model Context Protocol – Codex](https://developers.openai.com/codex/mcp) and [Configuration Reference](https://developers.openai.com/codex/config-reference).
+Codex CLI does **not** consume Cursor-style JSON `mcpServers` blocks. That JSON shape is for Cursor and other JSON-config MCP clients. For Codex CLI, use either:
+
+- `codex mcp add ...`, which writes Codex's own MCP config.
+- `~/.codex/config.toml` or a trusted project `.codex/config.toml` using `[mcp_servers.<name>]`.
+
+Official reference: [Model Context Protocol – Codex](https://developers.openai.com/codex/mcp) and [Configuration Reference](https://developers.openai.com/codex/config-reference).
 
 ### Option A — CLI
 
@@ -63,6 +70,15 @@ Note: the `--package=<scoped>@latest` form is **required** for scoped packages w
 
 ```bash
 codex mcp add ghostcrab-personal-mcp -- npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up --workspace my-project
+```
+
+**With a dedicated database and server name:**
+
+```bash
+codex mcp add --env GHOSTCRAB_EMBEDDINGS_MODE=disabled \
+  "ghostcrab-personal-mcp story2doc" -- \
+  node /path/to/node_modules/@mindflight/ghostcrab-personal-mcp/bin/gcp.mjs \
+  brain up --db /absolute/path/to/data/ghostcrab-story2doc-codex.sqlite
 ```
 
 ### Option B — `~/.codex/config.toml` or `.codex/config.toml`
@@ -125,7 +141,7 @@ Optional tuning (timeouts, enabled tools) matches Codex's documented keys: `enab
 ### Verify
 
 ```bash
-codex mcp --help
+codex mcp list
 codex
 ```
 
@@ -137,15 +153,55 @@ In the Codex TUI, run:
 
 You should see **`ghostcrab-personal-mcp`** listed.
 
+If Codex lists the MCP server but the `ghostcrab_*` tools are not available in chat, check these points:
+
+1. Restart Codex or open a new Codex session after changing MCP config. The active session does not reliably reload newly added MCP tools.
+2. Make sure the entry was added through `codex mcp add` or TOML `mcp_servers`, not Cursor JSON `mcpServers`.
+3. If you used project `.codex/config.toml`, make sure the project is trusted; otherwise Codex may ignore the project-level MCP config.
+4. Run `/mcp` in the Codex TUI and inspect the server status. A listed server can still have zero tools if the stdio process fails during startup.
+5. Prefer `--db <absolute path>` or `GHOSTCRAB_SQLITE_PATH` when Codex's working directory is not the project where `./data/ghostcrab.sqlite` should live.
+
+Cursor JSON example, **not for Codex CLI**:
+
+```json
+{
+  "mcpServers": {
+    "ghostcrab-personal-mcp story2doc": {
+      "type": "stdio",
+      "command": "/usr/bin/node",
+      "args": [
+        "/absolute/path/node_modules/@mindflight/ghostcrab-personal-mcp/bin/gcp.mjs",
+        "brain",
+        "up",
+        "--db",
+        "/absolute/path/data/ghostcrab-story2doc-codex.sqlite"
+      ],
+      "env": {
+        "GHOSTCRAB_EMBEDDINGS_MODE": "disabled"
+      }
+    }
+  }
+}
+```
+
+Equivalent Codex CLI form:
+
+```bash
+codex mcp add --env GHOSTCRAB_EMBEDDINGS_MODE=disabled \
+  "ghostcrab-personal-mcp story2doc" -- \
+  /usr/bin/node /absolute/path/node_modules/@mindflight/ghostcrab-personal-mcp/bin/gcp.mjs \
+  brain up --db /absolute/path/data/ghostcrab-story2doc-codex.sqlite
+```
+
 ## Part 2 — Install the Codex skill mirrors
 
 This directory contains three skills:
 
-| Folder | Role |
-|--------|------|
-| [ghostcrab-memory/](ghostcrab-memory/) | Durable working memory, onboarding, long-running work |
-| [ghostcrab-prompt-guide/](ghostcrab-prompt-guide/) | Prompt and workflow guidance aligned with GhostCrab |
-| [ghostcrab-data-architect/](ghostcrab-data-architect/) | Structured domain modeling patterns |
+| Folder                                                 | Role                                                  |
+| ------------------------------------------------------ | ----------------------------------------------------- |
+| [ghostcrab-memory/](ghostcrab-memory/)                 | Durable working memory, onboarding, long-running work |
+| [ghostcrab-prompt-guide/](ghostcrab-prompt-guide/)     | Prompt and workflow guidance aligned with GhostCrab   |
+| [ghostcrab-data-architect/](ghostcrab-data-architect/) | Structured domain modeling patterns                   |
 
 Each skill's `SKILL.md` links to shared contracts under **`../shared/`** (for example [ONBOARDING_CONTRACT.md](../shared/ONBOARDING_CONTRACT.md)). Those paths assume this layout:
 

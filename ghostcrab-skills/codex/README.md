@@ -7,9 +7,9 @@ For how `ghostcrab-skills` relates to the product repo, see [GHOSTCRAB_INTEGRATI
 ## Prerequisites
 
 - **Node.js** 20+ and a package runner (`pnpm` or `npm`).
-- **GhostCrab MCP** available as a global CLI **or** via `pnpm dlx` / `npx` (no global install).
+- **GhostCrab MCP** available as a local install, global CLI, or via `pnpm dlx` / `npx` (no global install).
 
-Published package: `@mindflight/ghostcrab-mcp` (binaries: `gcp`, `ghostcrab`). MCP clients should invoke **`gcp brain up`** or **`gcp up`** (legacy: **`gcp serve`**), optionally with `--workspace <name>`. See the product [gcp-commands.md](../../docs/reference/gcp-commands.md).
+Published package for this SQLite distribution: `@mindflight/ghostcrab-personal-mcp` (binaries: `gcp`, `ghostcrab`). MCP clients should invoke **`gcp brain up`** or legacy **`gcp serve`**, optionally with `--workspace <name>`. See the product [gcp-commands.md](../../docs/reference/gcp-commands.md).
 
 Initialize a workspace once if you use a named workspace:
 
@@ -20,11 +20,11 @@ gcp brain workspace create my-project
 
 ## Part 1 — Register the MCP server in Codex
 
-Codex can load MCP servers from the **CLI** or from **`config.toml`**. Official reference: [Model Context Protocol – Codex](https://developers.openai.com/codex/mcp) and [Configuration Reference](https://developers.openai.com/codex/config-reference).
+Codex CLI can load MCP servers from the **CLI** or from **`config.toml`**. It does **not** consume Cursor-style JSON `mcpServers` blocks. Official reference: [Model Context Protocol – Codex](https://developers.openai.com/codex/mcp) and [Configuration Reference](https://developers.openai.com/codex/config-reference).
 
 ### Option A — CLI
 
-With `gcp` on your `PATH` (e.g. after `pnpm add -g @mindflight/ghostcrab-mcp`):
+With `gcp` on your `PATH`:
 
 ```bash
 codex mcp add ghostcrab -- gcp brain up --workspace my-project
@@ -33,7 +33,7 @@ codex mcp add ghostcrab -- gcp brain up --workspace my-project
 Without a global install:
 
 ```bash
-codex mcp add ghostcrab -- pnpm dlx @mindflight/ghostcrab-mcp gcp brain up --workspace my-project
+codex mcp add ghostcrab -- pnpm dlx @mindflight/ghostcrab-personal-mcp@latest gcp brain up --workspace my-project
 ```
 
 ### Option B — `~/.codex/config.toml` or `.codex/config.toml`
@@ -53,7 +53,7 @@ args = ["brain", "up", "--workspace", "my-project"]
 ```toml
 [mcp_servers.ghostcrab]
 command = "pnpm"
-args = ["dlx", "@mindflight/ghostcrab-mcp", "gcp", "brain", "up", "--workspace", "my-project"]
+args = ["dlx", "@mindflight/ghostcrab-personal-mcp@latest", "gcp", "brain", "up", "--workspace", "my-project"]
 ```
 
 **Optional environment** (SQLite path, backend URL, embeddings mode, etc.):
@@ -86,7 +86,7 @@ Optional tuning (timeouts, enabled tools) matches Codex’s documented keys: `en
 ### Verify
 
 ```bash
-codex mcp --help
+codex mcp list
 codex
 ```
 
@@ -98,17 +98,19 @@ In the Codex TUI, run:
 
 You should see **`ghostcrab`** (or the server name you chose) listed.
 
+If the server is listed but no tools appear in chat, start a new Codex session and check `/mcp`. A registered server is only config; tools become available after Codex starts the MCP stdio process successfully for that session. If you used project `.codex/config.toml`, the project must be trusted.
+
 ## Part 2 — Install the Codex skill mirrors
 
 This directory contains five skills:
 
-| Folder | Role |
-|--------|------|
-| [ghostcrab-memory/](ghostcrab-memory/) | Durable working memory, onboarding, long-running work |
-| [ghostcrab-prompt-guide/](ghostcrab-prompt-guide/) | Prompt and workflow guidance aligned with GhostCrab |
-| [ghostcrab-data-architect/](ghostcrab-data-architect/) | Structured domain modeling patterns |
+| Folder                                                                 | Role                                                                              |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| [ghostcrab-memory/](ghostcrab-memory/)                                 | Durable working memory, onboarding, long-running work                             |
+| [ghostcrab-prompt-guide/](ghostcrab-prompt-guide/)                     | Prompt and workflow guidance aligned with GhostCrab                               |
+| [ghostcrab-data-architect/](ghostcrab-data-architect/)                 | Structured domain modeling patterns                                               |
 | [ghostcrab-integration-sop-editor/](ghostcrab-integration-sop-editor/) | Cleanup and introduction rewrites for GhostCrab/MindBrain integration SOP exports |
-| [mindbrain-comparison-writer/](mindbrain-comparison-writer/) | Editorial workflow for MindBrain comparison articles |
+| [mindbrain-comparison-writer/](mindbrain-comparison-writer/)           | Editorial workflow for MindBrain comparison articles                              |
 
 Each skill’s `SKILL.md` links to shared contracts under **`../shared/`** (for example [ONBOARDING_CONTRACT.md](../shared/ONBOARDING_CONTRACT.md)). Those paths assume this layout:
 

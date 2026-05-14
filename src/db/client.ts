@@ -53,10 +53,15 @@ function createMindbrainDatabaseClient(
     async transaction<T>(
       operation: (queryable: Queryable) => Promise<T>
     ): Promise<T> {
-      const sessionId = await openStandaloneMindbrainSqlSession(
-        baseUrl,
-        timeoutMs
-      );
+      let sessionId: number;
+      try {
+        sessionId = await openStandaloneMindbrainSqlSession(baseUrl, timeoutMs);
+      } catch (error) {
+        if (isSqlSessionUnsupported(error)) {
+          return await operation(baseQueryable);
+        }
+        throw error;
+      }
       try {
         const result = await operation(
           createMindbrainQueryable(baseUrl, timeoutMs, sessionId)
@@ -69,6 +74,17 @@ function createMindbrainDatabaseClient(
         );
         return result;
       } catch (error) {
+        if (isSqlSessionUnsupported(error)) {
+          await closeStandaloneMindbrainSqlSession(
+            baseUrl,
+            sessionId,
+            false,
+            timeoutMs
+          ).catch(() => {
+            return;
+          });
+          return await operation(baseQueryable);
+        }
         await closeStandaloneMindbrainSqlSession(
           baseUrl,
           sessionId,
@@ -81,6 +97,24 @@ function createMindbrainDatabaseClient(
       }
     }
   };
+}
+
+function isSqlSessionUnsupported(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const cause = error.cause;
+  if (
+    cause &&
+    typeof cause === "object" &&
+    "status" in cause &&
+    (cause as { status?: unknown }).status === 404
+  ) {
+    return true;
+  }
+
+  return /\b404\b/.test(error.message) && /\bNotFound\b/i.test(error.message);
 }
 
 function createMindbrainQueryable(

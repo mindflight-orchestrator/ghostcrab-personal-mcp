@@ -1,10 +1,10 @@
 # GhostCrab CLI (`gcp`) and MCP client setup
 
-This document covers the **`gcp` / `ghostcrab` launchers** shipped with **`@mindflight/ghostcrab-mcp`**, how to wire them into **Cursor**, **Claude Code**, and **Codex-style** setups, and how that relates to **`ghostcrab-skills`** (and similar starter kits).
+This document covers the **`gcp` / `ghostcrab` launchers** shipped with **`@mindflight/ghostcrab-personal-mcp`**, how to wire them into **Cursor**, **Claude Code**, and **Codex-style** setups, and how that relates to **`ghostcrab-skills`** (and similar starter kits).
 
 ## Package and binaries
 
-- **npm package:** `@mindflight/ghostcrab-mcp`
+- **npm package:** `@mindflight/ghostcrab-personal-mcp`
 - **Binaries:**
   - **`gcp`** — full CLI (see [gcp-commands.md](../reference/gcp-commands.md))
   - **`ghostcrab`** — backward-compatible shim that runs the same path as **`gcp brain up`** / **`gcp serve`** (stdio MCP), so older client configs that invoke `ghostcrab` keep working.
@@ -12,8 +12,8 @@ This document covers the **`gcp` / `ghostcrab` launchers** shipped with **`@mind
 Install globally (example):
 
 ```bash
-pnpm add -g @mindflight/ghostcrab-mcp
-# or: npm install -g @mindflight/ghostcrab-mcp
+pnpm add -g @mindflight/ghostcrab-personal-mcp
+# or: npm install -g @mindflight/ghostcrab-personal-mcp
 ```
 
 From a **local pack** (see `pnpm run pack:local` / `make local-pack`):
@@ -87,6 +87,8 @@ Database commands automatically receive **`--db`** matching your **`GHOSTCRAB_SQ
 
 Server name `ghostcrab` is conventional; keep it if you copy snippets from **`ghostcrab-skills`**.
 
+The JSON examples in this section are for clients that explicitly read JSON MCP config, such as Cursor and OpenClaw-style clients. **Codex CLI is different:** do not paste these `mcpServers` blocks into Codex. Use `codex mcp add ...` or Codex TOML `[mcp_servers.<name>]` instead.
+
 ### Global install: recommended shape
 
 ```json
@@ -107,7 +109,7 @@ Server name `ghostcrab` is conventional; keep it if you copy snippets from **`gh
   "mcpServers": {
     "ghostcrab": {
       "command": "pnpm",
-      "args": ["dlx", "@mindflight/ghostcrab-mcp", "gcp", "brain", "up", "--workspace", "my-project"]
+      "args": ["dlx", "@mindflight/ghostcrab-personal-mcp@latest", "gcp", "brain", "up", "--workspace", "my-project"]
     }
   }
 }
@@ -129,7 +131,30 @@ Server name `ghostcrab` is conventional; keep it if you copy snippets from **`gh
 
 ### Codex
 
-Codex consumes **skills** from its own skill directories. Use the mirrors under **`ghostcrab-skills/codex/`** (`ghostcrab-memory`, `ghostcrab-prompt-guide`, `ghostcrab-data-architect`) as templates to install or sync into your Codex skill path. MCP wiring is the same JSON as above; place it where your Codex / IDE integration expects MCP servers.
+Codex consumes **skills** from its own skill directories. Use the mirrors under **`ghostcrab-skills/codex/`** (`ghostcrab-memory`, `ghostcrab-prompt-guide`, `ghostcrab-data-architect`) as templates to install or sync into your Codex skill path.
+
+Codex MCP wiring is **not** the JSON above. Use:
+
+```bash
+gcp brain setup codex
+```
+
+or the direct Codex CLI form:
+
+```bash
+codex mcp add ghostcrab-personal-mcp -- gcp brain up --workspace my-project
+```
+
+For a dedicated SQLite file:
+
+```bash
+codex mcp add --env GHOSTCRAB_EMBEDDINGS_MODE=disabled \
+  "ghostcrab-personal-mcp story2doc" -- \
+  /usr/bin/node /absolute/path/node_modules/@mindflight/ghostcrab-personal-mcp/bin/gcp.mjs \
+  brain up --db /absolute/path/data/ghostcrab-story2doc-codex.sqlite
+```
+
+After changing Codex MCP config, start a new Codex session and check `/mcp`. Seeing the server registered with `codex mcp list` is only the config layer; tools appear in chat only after Codex starts the MCP process successfully for the active session.
 
 **Dedicated guide:** [ghostcrab-skills/codex/README.md](../../ghostcrab-skills/codex/README.md).
 

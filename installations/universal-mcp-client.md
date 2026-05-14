@@ -12,6 +12,8 @@ Use this guide for any agent client that supports local MCP servers over stdio.
 
 ## Generic JSON shape
 
+Use this JSON only for clients that document a JSON `mcpServers` object, for example Cursor-like clients. **Codex CLI does not read this JSON shape.** For Codex, use `codex mcp add ...` or `~/.codex/config.toml` with `[mcp_servers.<name>]`; see [README_CODEX_MCP.md](../README_CODEX_MCP.md).
+
 ```json
 {
   "mcpServers": {
@@ -69,7 +71,7 @@ Use the resolved path:
 | `env`         | `env`, `environment`, `env_vars`                    |
 | `cwd`         | `cwd`, `workingDirectory`, `workdir`                |
 
-If the client has an allowlist or trust flag, enable GhostCrab explicitly after adding the server.
+If the client has an allowlist, trust flag, or per-session MCP activation, enable GhostCrab explicitly after adding the server.
 
 ## Validation prompt
 
@@ -79,4 +81,4 @@ After connecting, ask the agent:
 List the available GhostCrab MCP tools and call the status or project guidance tool if available.
 ```
 
-If no tools appear, inspect the client MCP logs first. The most common causes are `PATH` mismatch, invalid `npx` scoped-package syntax, or a working directory that cannot create the SQLite data directory.
+If no tools appear, inspect the client MCP logs first. The most common causes are `PATH` mismatch, invalid `npx` scoped-package syntax, a working directory that cannot create the SQLite data directory, or a client that has registered the server but has not restarted/reloaded the MCP process for the current session.

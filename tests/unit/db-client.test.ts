@@ -113,4 +113,72 @@ describe("sqlite database client SQL rewrite", () => {
       30_000
     );
   });
+
+  it("falls back to non-session SQL when the backend has no session endpoints", async () => {
+    mocks.openStandaloneMindbrainSqlSession.mockRejectedValueOnce(
+      new Error("MindBrain request failed (404 Not Found): NotFound", {
+        cause: {
+          status: 404,
+          body: '{"error":"NotFound"}'
+        }
+      })
+    );
+
+    const { createDatabaseClient } = await import("../../src/db/client.js");
+    const database = createDatabaseClient(testConfig);
+
+    await database.transaction(async (tx) => {
+      await tx.query("SELECT 1");
+    });
+
+    expect(mocks.runStandaloneMindbrainSql).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sql: "SELECT 1",
+        sessionId: undefined,
+        timeoutMs: 30_000
+      })
+    );
+    expect(mocks.closeStandaloneMindbrainSqlSession).not.toHaveBeenCalled();
+  });
+
+  it("falls back to non-session SQL when session query is unsupported", async () => {
+    mocks.runStandaloneMindbrainSql.mockImplementationOnce(async (params) => {
+      if (params.sessionId !== undefined) {
+        throw new Error("MindBrain request failed (404 Not Found): NotFound", {
+          cause: {
+            path: "/api/mindbrain/sql/session/query",
+            status: 404,
+            body: '{"error":"NotFound"}'
+          }
+        });
+      }
+      return {
+        ok: true as const,
+        columns: [] as string[],
+        rows: [] as unknown[][],
+        changes: 0
+      };
+    });
+
+    const { createDatabaseClient } = await import("../../src/db/client.js");
+    const database = createDatabaseClient(testConfig);
+
+    await database.transaction(async (tx) => {
+      await tx.query("SELECT 1");
+    });
+
+    expect(mocks.closeStandaloneMindbrainSqlSession).toHaveBeenCalledWith(
+      "http://127.0.0.1:8091",
+      1,
+      false,
+      30_000
+    );
+    expect(mocks.runStandaloneMindbrainSql).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        sql: "SELECT 1",
+        sessionId: undefined,
+        timeoutMs: 30_000
+      })
+    );
+  });
 });
