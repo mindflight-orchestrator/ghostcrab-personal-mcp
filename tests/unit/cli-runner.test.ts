@@ -23,22 +23,22 @@ describe("runCli", () => {
     );
   });
 
-  it("prints schema group help for schema --help", async () => {
+  it("prints smoke help for smoke --help", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
     const exitSpy = vi
       .spyOn(process, "exit")
       .mockImplementation((() => undefined) as never);
     const { runCli } = await import("../../src/cli/runner.js");
 
-    await runCli(["schema", "--help"]);
+    await runCli(["smoke", "--help"]);
 
     expect(exitSpy).toHaveBeenCalledWith(0);
     expect(logSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Usage: ghostcrab schema <subcommand> [options]")
+      expect.stringContaining("Usage: ghostcrab smoke [--verbose]")
     );
   });
 
-  it("returns unknown tool exit code for bare schema command", async () => {
+  it("returns unknown tool exit code for MCP-only CLI aliases", async () => {
     const errorSpy = vi
       .spyOn(console, "error")
       .mockImplementation(() => undefined);
@@ -51,7 +51,7 @@ describe("runCli", () => {
 
     expect(exitSpy).toHaveBeenCalledWith(3);
     expect(errorSpy).toHaveBeenCalledWith(
-      "Unknown schema subcommand. Run ghostcrab schema --help for usage."
+      "Command 'schema' is MCP-only. Start GhostCrab with 'ghostcrab serve' and call the corresponding ghostcrab_* MCP tool instead."
     );
   });
 
@@ -88,7 +88,7 @@ describe("runCli", () => {
       return {
         ...actual,
         executeTool: vi.fn(async () => ({
-          result: createToolSuccessResult("ghostcrab_search", { returned: 1 }),
+          result: createToolSuccessResult("ghostcrab_status", { runtime: {} }),
           exitCode: 0
         }))
       };
@@ -102,11 +102,11 @@ describe("runCli", () => {
       .mockImplementation((() => undefined) as never);
     const { runCli } = await import("../../src/cli/runner.js");
 
-    await runCli(["search", "--query", "memory", "--json"]);
+    await runCli(["status", "--agent-id", "agent:self", "--json"]);
 
     expect(exitSpy).toHaveBeenCalledWith(0);
     expect(writeSpy).toHaveBeenCalledWith(
-      expect.stringContaining('"returned":1')
+      expect.stringContaining('"runtime":{}')
     );
   });
 
@@ -118,7 +118,7 @@ describe("runCli", () => {
       }))
     }));
     const executeTool = vi.fn(async () => ({
-      result: createToolSuccessResult("ghostcrab_search", { echoed: true }),
+      result: createToolSuccessResult("ghostcrab_status", { echoed: true }),
       exitCode: 0
     }));
     vi.doMock("../../src/cli/execute.js", async () => {
@@ -132,7 +132,7 @@ describe("runCli", () => {
       configurable: true,
       value: {
         async *[Symbol.asyncIterator]() {
-          yield Buffer.from('{"query":"from-stdin","limit":4}');
+          yield Buffer.from('{"agent_id":"from-stdin"}');
         }
       }
     });
@@ -141,12 +141,12 @@ describe("runCli", () => {
       .mockImplementation((() => undefined) as never);
     const { runCli } = await import("../../src/cli/runner.js");
 
-    await runCli(["search", "--stdin-json", "--query", "ignored"]);
+    await runCli(["status", "--stdin-json", "--agent-id", "ignored"]);
 
     expect(exitSpy).toHaveBeenCalledWith(0);
     expect(executeTool).toHaveBeenCalledWith(
-      "ghostcrab_search",
-      { query: "from-stdin", limit: 4 },
+      "ghostcrab_status",
+      { agent_id: "from-stdin" },
       expect.anything()
     );
   });
@@ -168,11 +168,88 @@ describe("runCli", () => {
       .mockImplementation((() => undefined) as never);
     const { runCli } = await import("../../src/cli/runner.js");
 
-    await runCli(["search", "--stdin-json"]);
+    await runCli(["status", "--stdin-json"]);
 
     expect(exitSpy).toHaveBeenCalledWith(1);
     expect(errorSpy).toHaveBeenCalledWith(
       "Error: --stdin-json was set but stdin was empty."
+    );
+  });
+
+  it("runs read-only smoke through ghostcrab_status", async () => {
+    vi.doMock("../../src/cli/context.js", () => ({
+      initToolContext: vi.fn(async () => ({
+        toolContext: {} as object,
+        cleanup: async () => undefined
+      }))
+    }));
+    const executeTool = vi.fn(async () => ({
+      result: createToolSuccessResult("ghostcrab_status", {
+        tool: "ghostcrab_status"
+      }),
+      exitCode: 0
+    }));
+    vi.doMock("../../src/cli/execute.js", async () => {
+      const actual = await vi.importActual("../../src/cli/execute.js");
+      return {
+        ...actual,
+        executeTool
+      };
+    });
+    vi.doMock("../../src/version.js", () => ({
+      getPackageVersion: vi.fn(async () => "9.9.9-test")
+    }));
+
+    const writeSpy = vi
+      .spyOn(process.stdout, "write")
+      .mockImplementation(() => true);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation((() => undefined) as never);
+    const { runCli } = await import("../../src/cli/runner.js");
+
+    await runCli(["smoke"]);
+
+    expect(exitSpy).toHaveBeenCalledWith(0);
+    expect(executeTool).toHaveBeenCalledWith(
+      "ghostcrab_status",
+      { agent_id: "ghostcrab:cli-smoke" },
+      expect.anything()
+    );
+    expect(writeSpy).toHaveBeenCalledWith(
+      expect.stringContaining('"backend_reachable":true')
+    );
+    expect(writeSpy).toHaveBeenCalledWith(
+      expect.stringContaining('"version":"9.9.9-test"')
+    );
+  });
+
+  it("reports structured smoke failure when backend context cannot initialize", async () => {
+    vi.doMock("../../src/cli/context.js", () => ({
+      initToolContext: vi.fn(async () => {
+        throw new Error("backend unavailable");
+      })
+    }));
+    vi.doMock("../../src/version.js", () => ({
+      getPackageVersion: vi.fn(async () => "9.9.9-test")
+    }));
+
+    const writeSpy = vi
+      .spyOn(process.stdout, "write")
+      .mockImplementation(() => true);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation((() => undefined) as never);
+    const { runCli } = await import("../../src/cli/runner.js");
+
+    await runCli(["smoke"]);
+
+    expect(exitSpy).toHaveBeenCalledWith(1);
+    expect(writeSpy).toHaveBeenCalledWith(
+      expect.stringContaining('"backend_reachable":false')
+    );
+    expect(writeSpy).toHaveBeenCalledWith(
+      expect.stringContaining("backend unavailable")
     );
   });
 });

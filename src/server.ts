@@ -304,7 +304,7 @@ export async function startMcpServer(): Promise<void> {
         (serverState.databaseReady ? "" : " [DEGRADED — backend unreachable]")
     );
 
-    if (serverState.databaseReady) {
+    if (serverState.databaseReady && config.bootstrapSeedEnabled) {
       try {
         const seedSummary = await ensureBootstrapData(database);
         serverState.bootstrapComplete = true;
@@ -344,6 +344,9 @@ export async function startMcpServer(): Promise<void> {
         );
         serverState.bootstrapComplete = true;
       }
+    } else if (serverState.databaseReady) {
+      serverState.bootstrapComplete = true;
+      console.error("[ghostcrab] bootstrap seed skipped by GHOSTCRAB_BOOTSTRAP_SEED=0");
     }
   } catch (error) {
     const message =

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { randomUUID } from "node:crypto";
 
 import { formatPgVector } from "../../embeddings/vector.js";
+import { SQLITE_NEXT_FACT_DOC_ID_EXPR } from "../../db/fact-store.js";
 import {
   createToolSuccessResult,
   registerTool,
@@ -87,10 +88,6 @@ export const rememberTool: ToolHandler = {
 
     const nowUnix = Math.floor(Date.now() / 1000);
     const id = randomUUID();
-    const [docIdRow] = await context.database.query<{ next_doc_id: number }>(
-      `SELECT COALESCE(MAX(doc_id), 0) + 1 AS next_doc_id FROM facets`
-    );
-    const docId = docIdRow?.next_doc_id ?? 1;
     const validUntilUnix = input.valid_until
       ? Math.floor(Date.parse(`${input.valid_until}T00:00:00Z`) / 1000)
       : null;
@@ -110,7 +107,7 @@ export const rememberTool: ToolHandler = {
           doc_id,
           workspace_id
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ${SQLITE_NEXT_FACT_DOC_ID_EXPR}, ?)
       `,
       [
         id,
@@ -122,7 +119,6 @@ export const rememberTool: ToolHandler = {
         nowUnix,
         nowUnix,
         validUntilUnix,
-        docId,
         effectiveWorkspaceId
       ]
     );

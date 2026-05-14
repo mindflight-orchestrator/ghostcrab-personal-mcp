@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   SQLITE_FACT_STORE_TABLE,
   SQLITE_FACTS_COLUMN,
+  SQLITE_NEXT_FACT_DOC_ID_EXPR,
   safeParseFacetJson,
   sqliteFacetJsonExtractClause
 } from "../../db/fact-store.js";
@@ -138,9 +139,6 @@ export const schemaRegisterTool: ToolHandler = {
         : 1;
     const { randomUUID } = await import("node:crypto");
     const id = randomUUID();
-    const [docIdRow] = await context.database.query<{ next_doc_id: number }>(
-      `SELECT COALESCE(MAX(doc_id), 0) + 1 AS next_doc_id FROM ${SQLITE_FACT_STORE_TABLE}`
-    );
 
     await context.database.query(
       `
@@ -154,7 +152,7 @@ export const schemaRegisterTool: ToolHandler = {
           created_at_unix,
           updated_at_unix
         )
-        VALUES (?, 'mindbrain:schema', ?, ?, ?, ?, strftime('%s','now'), strftime('%s','now'))
+        VALUES (?, 'mindbrain:schema', ?, ?, ?, ${SQLITE_NEXT_FACT_DOC_ID_EXPR}, strftime('%s','now'), strftime('%s','now'))
       `,
       [
         id,
@@ -164,8 +162,7 @@ export const schemaRegisterTool: ToolHandler = {
           target: input.target,
           version
         }),
-        effectiveWorkspaceId,
-        Number(docIdRow?.next_doc_id ?? 1)
+        effectiveWorkspaceId
       ]
     );
 

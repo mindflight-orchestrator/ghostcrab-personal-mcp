@@ -122,7 +122,6 @@ describe("facet vocabulary tools", () => {
     const query = vi
       .fn<DatabaseClient["query"]>()
       .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([{ next_doc_id: 2 }])
       .mockResolvedValueOnce([]);
     const database = createMockDatabase(query);
 

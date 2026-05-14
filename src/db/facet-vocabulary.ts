@@ -7,6 +7,7 @@ import {
 } from "./facet-catalog.js";
 import {
   SQLITE_FACT_STORE_TABLE,
+  SQLITE_NEXT_FACT_DOC_ID_EXPR,
   safeParseFacetJson,
   sqliteFacetJsonExtractClause
 } from "./fact-store.js";
@@ -416,9 +417,6 @@ export async function upsertFacetDefinitionRecord(
 
   const { randomUUID } = await import("node:crypto");
   const id = randomUUID();
-  const [docIdRow] = await database.query<{ next_doc_id: number }>(
-    `SELECT COALESCE(MAX(doc_id), 0) + 1 AS next_doc_id FROM ${SQLITE_FACT_STORE_TABLE}`
-  );
 
   await database.query(
     `
@@ -432,14 +430,13 @@ export async function upsertFacetDefinitionRecord(
         doc_id,
         workspace_id
       )
-      VALUES (?, ?, ?, ?, strftime('%s','now'), strftime('%s','now'), ?, ?)
+      VALUES (?, ?, ?, ?, strftime('%s','now'), strftime('%s','now'), ${SQLITE_NEXT_FACT_DOC_ID_EXPR}, ?)
     `,
     [
       id,
       FACET_DEFINITION_SCHEMA_ID,
       serializedContent,
       serializedFacets,
-      Number(docIdRow?.next_doc_id ?? 1),
       "default"
     ]
   );

@@ -127,9 +127,6 @@ describe("facet tools", () => {
     const query = vi
       .fn<DatabaseClient["query"]>()
       .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([
-        { next_doc_id: 1 }
-      ])
       .mockResolvedValueOnce([]);
     const database = createMockDatabase(query);
 
@@ -269,9 +266,9 @@ describe("facet tools", () => {
       createToolContext(database, { embeddingsMode: "fake" })
     );
 
-    expect(query).toHaveBeenCalledTimes(2);
-    expect(query.mock.calls[1]?.[0]).toContain("embedding_blob");
-    expect(query.mock.calls[1]?.[1]?.[4]).toContain("[");
+    expect(query).toHaveBeenCalledTimes(1);
+    expect(query.mock.calls[0]?.[0]).toContain("embedding_blob");
+    expect(query.mock.calls[0]?.[1]?.[4]).toContain("[");
     expect(readStructured(result)).toMatchObject({
       embedding_runtime: expect.objectContaining({
         mode: "fake"
@@ -649,7 +646,6 @@ describe("facet tools", () => {
     const query = vi
       .fn<DatabaseClient["query"]>()
       .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([{ next_doc_id: 1 }])
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([
         {
