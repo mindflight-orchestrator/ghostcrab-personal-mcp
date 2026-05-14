@@ -16,103 +16,75 @@ import {
 import { createToolErrorResult } from "../../src/tools/registry.js";
 
 describe("resolveCommand", () => {
-  it("resolves search to ghostcrab_search", () => {
-    const cmd = resolveCommand(["search"]);
-    expect(cmd?.mcpToolName).toBe("ghostcrab_search");
-  });
-
-  it("resolves schema list to ghostcrab_schema_list", () => {
-    const cmd = resolveCommand(["schema", "list"]);
-    expect(cmd?.mcpToolName).toBe("ghostcrab_schema_list");
-  });
-
-  it("resolves schema inspect to ghostcrab_schema_inspect", () => {
-    const cmd = resolveCommand(["schema", "inspect"]);
-    expect(cmd?.mcpToolName).toBe("ghostcrab_schema_inspect");
+  it("resolves status to ghostcrab_status", () => {
+    const cmd = resolveCommand(["status"]);
+    expect(cmd?.mcpToolName).toBe("ghostcrab_status");
   });
 
   it("returns undefined for unknown commands", () => {
     expect(resolveCommand(["unknown"])).toBeUndefined();
   });
 
-  it("returns undefined for schema without subcommand", () => {
+  it("returns undefined for MCP-only command aliases", () => {
+    expect(resolveCommand(["search"])).toBeUndefined();
     expect(resolveCommand(["schema"])).toBeUndefined();
   });
 });
 
 describe("parseCliInput", () => {
-  const searchCmd = CLI_COMMANDS.find((c) => c.cliName === "search")!;
+  const statusCmd = CLI_COMMANDS.find((c) => c.cliName === "status")!;
 
   it("maps kebab-case flags to snake_case tool args", () => {
-    const args = parseCliInput(searchCmd, [
-      "search",
-      "--schema-id",
-      "my:schema",
-      "--query",
-      "hello"
-    ]);
+    const args = parseCliInput(statusCmd, ["status", "--agent-id", "agent:1"]);
     expect(args).toEqual({
-      schema_id: "my:schema",
-      query: "hello"
+      agent_id: "agent:1"
     });
   });
 
-  it("parses JSON strings for filters", () => {
-    const args = parseCliInput(searchCmd, [
-      "search",
-      "--filters",
-      '{"team":"ops"}',
-      "--limit",
-      "5"
-    ]);
-    expect(args.filters).toEqual({ team: "ops" });
-    expect(args.limit).toBe(5);
-  });
-
   it("returns payload from --input and ignores other flags", () => {
-    const args = parseCliInput(searchCmd, [
-      "search",
+    const args = parseCliInput(statusCmd, [
+      "status",
       "--input",
-      '{"query":"test","limit":3}',
-      "--query",
+      '{"agent_id":"agent:json"}',
+      "--agent-id",
       "ignored"
     ]);
-    expect(args).toEqual({ query: "test", limit: 3 });
+    expect(args).toEqual({ agent_id: "agent:json" });
   });
 
   it("rejects scalar JSON values in --input", () => {
-    expect(() => parseCliInput(searchCmd, ["search", "--input", '"hello"'])).toThrow(
+    expect(() => parseCliInput(statusCmd, ["status", "--input", '"hello"'])).toThrow(
       /must contain a JSON object payload/
     );
   });
 
   it("throws when --input JSON is invalid", () => {
     expect(() =>
-      parseCliInput(searchCmd, ["search", "--input", '{"query"'])
+      parseCliInput(statusCmd, ["status", "--input", '{"query"'])
     ).toThrow();
   });
 
   it("throws HelpRequested when --help is passed", () => {
-    expect(() => parseCliInput(searchCmd, ["search", "--help"])).toThrow(
+    expect(() => parseCliInput(statusCmd, ["status", "--help"])).toThrow(
       HelpRequested
     );
   });
 
   it("throws when --input and --stdin-json are combined", () => {
     expect(() =>
-      parseCliInput(searchCmd, ["search", "--input", "{}", "--stdin-json"])
+      parseCliInput(statusCmd, ["status", "--input", "{}", "--stdin-json"])
     ).toThrow(/Cannot use --input and --stdin-json/);
   });
 
   it("accepts --json as a no-op global flag", () => {
-    const args = parseCliInput(searchCmd, [
-      "search",
+    const args = parseCliInput(statusCmd, [
+      "status",
       "--json",
-      "--query",
-      "test"
+      "--agent-id",
+      "agent:self"
     ]);
 
-    expect(args).toEqual({ query: "test" });
+    expect(args).toEqual({ agent_id: "agent:self" });
   });
 });
 

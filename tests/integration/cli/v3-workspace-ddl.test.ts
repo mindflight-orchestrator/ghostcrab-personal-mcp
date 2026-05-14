@@ -6,7 +6,6 @@
  *   ghostcrab_workspace_create → workspace row visible in mindbrain.workspaces
  *   ghostcrab_workspace_list  → workspace visible with stats
  *   ghostcrab_ddl_propose     → migration stored as pending
- *   CLI ddl-approve           → migration transitions to approved
  *   ghostcrab_ddl_execute     → migration executed (CREATE TABLE)
  *   source_ref contract       → partial unique index accepts/rejects correctly
  *
@@ -19,8 +18,7 @@ import { randomUUID } from "node:crypto";
 
 import {
   closeIntegrationDatabase,
-  createIntegrationHarness,
-  runCliCapture
+  createIntegrationHarness
 } from "../../helpers/cli-integration.js";
 import {
   workspaceCreateTool
@@ -383,64 +381,6 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
     const data = proposeResult.structuredContent as Record<string, unknown>;
     expect((data.error as Record<string, unknown>).code).toBe(
       "sync_spec_not_supported"
-    );
-  });
-
-  it("CLI ddl-approve then ddl-execute via runCliCapture", async () => {
-    const ctx = createToolContext(harness.database);
-    const tableName = `v3_cli_${RUN_ID.replace(/-/g, "_")}`;
-
-    // 1. Propose via tool
-    const proposeResult = await ddlProposeTool.handler(
-      {
-        workspace_id: "default",
-        sql: `CREATE TABLE IF NOT EXISTS ${tableName} (id INTEGER PRIMARY KEY)`,
-        proposed_by: "cli-integration-test"
-      },
-      ctx
-    );
-    const proposeData = proposeResult.structuredContent as Record<string, unknown>;
-    const migrationId = proposeData.migration_id as string;
-
-    // 2. Approve via CLI
-    const approveResult = await runCliCapture([
-      "maintenance",
-      "ddl-approve",
-      "--id",
-      migrationId,
-      "--by",
-      "cli-test-user"
-    ]);
-    expect(approveResult.exitCode).toBe(0);
-    const approveJson = JSON.parse(approveResult.stdout.join("").trim()) as Record<string, unknown>;
-    expect(approveJson.ok).toBe(true);
-    expect(approveJson.status).toBe("approved");
-
-    // 3. Execute via CLI
-    const executeResult = await runCliCapture([
-      "maintenance",
-      "ddl-execute",
-      "--id",
-      migrationId
-    ]);
-    expect(executeResult.exitCode).toBe(0);
-    const execJson = JSON.parse(executeResult.stdout.join("").trim()) as Record<string, unknown>;
-    expect(execJson.ok).toBe(true);
-    expect(execJson.status).toBe("executed");
-
-    // 4. Table exists
-    const tableExists = await harness.database.query<{ name: string }>(
-      `SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?`,
-      [tableName]
-    );
-    expect(tableExists[0]?.name).toBe(tableName);
-
-    // Cleanup
-    await harness.database.query(`DROP TABLE IF EXISTS ${tableName}`);
-    await cleanupMindbrainSemantics(harness.database, "default", tableName);
-    await harness.database.query(
-      `DELETE FROM pending_migrations WHERE id = $1`,
-      [migrationId]
     );
   });
 
