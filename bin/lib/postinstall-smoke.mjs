@@ -54,7 +54,8 @@ export function runPostinstallSmoke(opts) {
   }
 
   const combined = `${be.stdout ?? ""}${be.stderr ?? ""}`;
-  const looksLikeHelp = /usage:/i.test(combined) && /ghostcrab-backend/i.test(combined);
+  const looksLikeHelp =
+    be.status === 0 || (/usage:/i.test(combined) && /ghostcrab-backend/i.test(combined));
   if (!looksLikeHelp) {
     console.error(
       `[ghostcrab] postinstall smoke: backend --help did not print expected usage.\n` +

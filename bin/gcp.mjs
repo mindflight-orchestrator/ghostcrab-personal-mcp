@@ -137,8 +137,8 @@ MCP client example:
   { "command": "gcp", "args": ["up"] }   # default workspace; same as: "serve"
 
 IDE skills (Cursor / Claude Code / Codex):
-  gcp brain workspace create and gcp brain up can copy default rules from ghostcrab-skills
-  when that tree is available.  --no-skills  /  GHOSTCRAB_SKIP_IDE_SKILLS=1  to skip.
+  gcp init can copy default rules from ghostcrab-skills when that tree is available.
+  gcp brain up --install-skills does the same explicitly during server startup.
 
 Run  gcp brain --help   /   gcp agent --help   /   gcp env --help   for details.
 `.trim());

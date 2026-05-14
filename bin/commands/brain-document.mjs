@@ -125,7 +125,7 @@ async function backendLooksAlive(sqlitePathResolved) {
   const pidFile = join(dirname(sqlitePathResolved), "ghostcrab-backend.pid");
   if (existsSync(pidFile)) {
     try {
-      const [_, rawPort] = readFileSync(pidFile, "utf8").trim().split(":");
+      const [, rawPort] = readFileSync(pidFile, "utf8").trim().split(":");
       const p = parseInt(rawPort, 10);
       if (!Number.isNaN(p)) {
         bases.push(`http://127.0.0.1:${p}`);

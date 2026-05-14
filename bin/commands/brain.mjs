@@ -386,7 +386,8 @@ Usage: gcp brain <subcommand>
 MindBrain (storage + structure) — start the Zig backend, isolate memory, install schema packs.
 
 Subcommands:
-  up [--workspace <name>] [--no-skills]   Start MindBrain backend + MCP on stdio
+  up [--workspace <name>] [--install-skills]
+                                           Start MindBrain backend + MCP on stdio
   workspace create [name]                 Register a workspace & data paths
   workspace list                          List workspaces
   schema <list|pull|remove|show>           Ontologies / knowledge structure in the DB

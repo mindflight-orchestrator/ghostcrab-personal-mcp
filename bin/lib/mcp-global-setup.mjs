@@ -165,7 +165,7 @@ export function buildMcpLaunch({
       : runner;
 
   if (resolved === "node") {
-    const target = localGcpMjs ?? findLocalGcpMjs(cwdSafe, packageName);
+    const target = localGcpMjs;
     if (!target) {
       throw new Error(
         `runner node: could not find ${packageName}/bin/gcp.mjs by walking up from ${cwdSafe}. ` +
