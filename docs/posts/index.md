@@ -11,6 +11,8 @@ tags:
 
 This index summarizes the tools analyzed in the comparison series and links to the dedicated article for each existing opposition. The series now favors two-way comparisons against MindBrain rather than three-product articles.
 
+![[overview-agentic-memory-system.png]]
+
 ## Personal knowledge graphs and agent memory
 
 **GBrain** is a personal knowledge graph and MCP memory layer organized around entity pages, links, sources, and personal context accumulation. It is the closest benchmark for the "personal brain" pattern: opinionated, graph-shaped, and centered on one user's accumulated context.
