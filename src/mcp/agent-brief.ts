@@ -85,7 +85,7 @@ ${NON_GOAL_LINE}
 | Model     | \`project\` |
 | Guide     | \`modeling_guidance\` — natural-language domain goals |
 
-The MCP default list is intentionally compact. Use \`ghostcrab_tool_search\` to discover hidden specialized tools such as workspace, ontology, loadout, graph, geo, or DDL operations on demand.
+The MCP default list is intentionally compact. Use \`ghostcrab_tool_search\` to discover hidden specialized tools such as workspace, ontology, loadout, graph, or DDL operations on demand.
 
 ## First-call checklist
 

@@ -1,6 +1,4 @@
-import type { NativeExtensionsMode } from "../../src/config/env.js";
 import type { DatabaseClient } from "../../src/db/client.js";
-import type { ExtensionCapabilities } from "../../src/db/extension-probe.js";
 import { createEmbeddingProvider } from "../../src/embeddings/provider.js";
 import type { SessionContext } from "../../src/mcp/session-context.js";
 import type { ToolExecutionContext } from "../../src/tools/registry.js";
@@ -13,18 +11,10 @@ export function createToolContext(
     embeddingsMode?: "disabled" | "fake" | "fixture" | "null" | "openrouter";
     hybridBm25Weight?: number;
     hybridVectorWeight?: number;
-    extensions?: ExtensionCapabilities;
-    nativeExtensionsMode?: NativeExtensionsMode;
   }
 ): ToolExecutionContext {
   return {
     database,
-    extensions: options?.extensions ?? {
-      pgFacets: false,
-      pgDgraph: false,
-      pgPragma: false
-    },
-    nativeExtensionsMode: options?.nativeExtensionsMode ?? "auto",
     embeddings: createEmbeddingProvider({
       embeddingApiKey: undefined,
       embeddingBaseUrl: undefined,

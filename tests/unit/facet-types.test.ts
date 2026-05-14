@@ -51,6 +51,17 @@ describe("facet types and SyncFieldSpec validation", () => {
     ).toBe(false);
   });
 
+  it("SyncFieldSpecSchema rejects geo sync fields in SQLite-only mode", () => {
+    expect(
+      SyncFieldSpecSchema.safeParse({
+        column_name: "location",
+        facet_key: "location",
+        index_in_bm25: false,
+        facet_type: "geo"
+      }).success
+    ).toBe(false);
+  });
+
   it("TemporalFilterSchema rejects empty bounds and mixing relative with absolute", () => {
     expect(TemporalFilterSchema.safeParse({ facet_key: "k" }).success).toBe(
       false

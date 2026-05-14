@@ -5,10 +5,7 @@ import {
   runStandaloneMindbrainSql
 } from "./standalone-mindbrain.js";
 
-export type DatabaseKind = "sqlite";
-
 export interface Queryable {
-  kind: DatabaseKind;
   query<T = Record<string, unknown>>(
     sql: string,
     params?: readonly unknown[]
@@ -25,9 +22,12 @@ export function createDatabaseClient(config: GhostcrabConfig): DatabaseClient {
   return createMindbrainDatabaseClient(config);
 }
 
-function createMindbrainDatabaseClient(config: GhostcrabConfig): DatabaseClient {
+function createMindbrainDatabaseClient(
+  config: GhostcrabConfig
+): DatabaseClient {
   const baseUrl = config.mindbrainUrl;
-  const baseQueryable = createMindbrainQueryable(baseUrl);
+  const timeoutMs = config.mindbrainHttpTimeoutMs;
+  const baseQueryable = createMindbrainQueryable(baseUrl, timeoutMs);
 
   return {
     ...baseQueryable,
@@ -36,7 +36,12 @@ function createMindbrainDatabaseClient(config: GhostcrabConfig): DatabaseClient 
     },
     async ping(): Promise<boolean> {
       try {
-        const response = await fetch(new URL("/health", normalizeBaseUrl(baseUrl)));
+        const response = await fetch(
+          new URL("/health", normalizeBaseUrl(baseUrl)),
+          {
+            signal: AbortSignal.timeout(timeoutMs)
+          }
+        );
         if (!response.ok) {
           return false;
         }
@@ -48,13 +53,28 @@ function createMindbrainDatabaseClient(config: GhostcrabConfig): DatabaseClient 
     async transaction<T>(
       operation: (queryable: Queryable) => Promise<T>
     ): Promise<T> {
-      const sessionId = await openStandaloneMindbrainSqlSession(baseUrl);
+      const sessionId = await openStandaloneMindbrainSqlSession(
+        baseUrl,
+        timeoutMs
+      );
       try {
-        const result = await operation(createMindbrainQueryable(baseUrl, sessionId));
-        await closeStandaloneMindbrainSqlSession(baseUrl, sessionId, true);
+        const result = await operation(
+          createMindbrainQueryable(baseUrl, timeoutMs, sessionId)
+        );
+        await closeStandaloneMindbrainSqlSession(
+          baseUrl,
+          sessionId,
+          true,
+          timeoutMs
+        );
         return result;
       } catch (error) {
-        await closeStandaloneMindbrainSqlSession(baseUrl, sessionId, false).catch(() => {
+        await closeStandaloneMindbrainSqlSession(
+          baseUrl,
+          sessionId,
+          false,
+          timeoutMs
+        ).catch(() => {
           return;
         });
         throw error;
@@ -63,9 +83,12 @@ function createMindbrainDatabaseClient(config: GhostcrabConfig): DatabaseClient 
   };
 }
 
-function createMindbrainQueryable(baseUrl: string, sessionId?: number): Queryable {
+function createMindbrainQueryable(
+  baseUrl: string,
+  timeoutMs: number,
+  sessionId?: number
+): Queryable {
   return {
-    kind: "sqlite",
     async query<T = Record<string, unknown>>(
       sql: string,
       params: readonly unknown[] = []
@@ -75,6 +98,7 @@ function createMindbrainQueryable(baseUrl: string, sessionId?: number): Queryabl
         mindbrainUrl: baseUrl,
         sql: transformed.sql,
         params: transformed.params,
+        timeoutMs,
         sessionId
       });
       return mapMindbrainRows<T>(response.columns, response.rows);

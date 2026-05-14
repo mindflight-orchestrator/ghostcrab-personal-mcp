@@ -14,7 +14,6 @@ function makeArtifact(
     scenario_id: "facets_bm25_blocker",
     agent: "baseline-mcp",
     dataset: "active_project",
-    runtime_mode: "auto",
     prompt: "Trouve les tâches bloquées par missing API token.",
     expected_tools: ["ghostcrab_search"],
     tools_called: ["ghostcrab_search"],

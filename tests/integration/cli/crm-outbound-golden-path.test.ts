@@ -94,9 +94,7 @@ describe.sequential("CRM outbound golden-path — rich semantics end-to-end", ()
   });
 
   it("creates crm workspace and proposes DDL with rich semantics", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
 
     const createResult = await workspaceCreateTool.handler(
       {
@@ -190,9 +188,7 @@ describe.sequential("CRM outbound golden-path — rich semantics end-to-end", ()
   });
 
   it("exports a rich model for the mini outbound CRM", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
 
     const exportResult = await workspaceExportModelTool.handler(
       { workspace_id: WS_ID, depth: "full" },
@@ -259,9 +255,7 @@ describe.sequential("CRM outbound golden-path — rich semantics end-to-end", ()
   });
 
   it("structurally matches the outbound CRM golden export on critical semantic fields", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
 
     const exportResult = await workspaceExportModelTool.handler(
       { workspace_id: WS_ID, depth: "full" },

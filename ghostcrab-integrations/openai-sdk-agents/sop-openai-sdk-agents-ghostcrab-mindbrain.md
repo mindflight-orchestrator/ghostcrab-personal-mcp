@@ -1,18 +1,24 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
+# Integrating mindBrain with OpenAI Agents SDK
 
-The most effective pitch for every framework is not to sell MindBrain as an "alternative database" but as a **shared context layer across agents**: today each framework keeps memory in silos; MindBrain/GhostCrab provides a structured, queryable, persistent ontology registry. That argument lands regardless of target framework.
+## About OpenAI Agents SDK
 
-task: target OpenAI Agents SDK — explain how integration should be implemented with this framework.
+The [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) is an official SDK for building agentic applications with agents, tools, handoffs, guardrails, tracing, and MCP server connections. It gives developers a structured runtime for composing agents around OpenAI models while keeping tool calls and orchestration explicit in application code. Teams use it when they want production-grade agent behavior without building every execution primitive from scratch.
 
-Documentation is sufficient. Full integration breakdown below.
+## MindBrain
 
-***
+MindBrain is a structured agentic database that makes any domain navigable in real time — its intelligence lives in schema enforcement, typed ontologies, and pre-computed projections that cost zero inference at query time.
 
-## MindBrain/GhostCrab with the OpenAI Agents SDK
+## Why integrate mindBrain with OpenAI Agents SDK
 
-Pitch: Agents SDK isolates memory per run — ephemeral `RunContext`; cross-run persistence relies on sessions or hosted OpenAI state. GhostCrab MCP becomes a **shared persistent ontology registry** reachable from every agent and run.
+The Agents SDK has clear primitives for local context, model-visible context, sessions, and MCP tools, but durable shared memory across multiple agents and runs still has to be designed by the application. mindBrain fills that gap as a structured ontology registry that every SDK agent can reach through GhostCrab MCP tools.
 
-***
+With mindBrain attached through the SDK's MCP server support, agents can load compact workspace context at run start, query typed relationships on demand, and update current state without embedding persistence logic in each tool. The SDK keeps orchestrating agents and tool calls; mindBrain provides shared, queryable memory and zero-inference projections across runs.
+
+## SKILLS available in this repo
+
+- [`SKILL_ghostcrab-openai-agents-sdk.md`](SKILL_ghostcrab-openai-agents-sdk.md) helps Claude Code or Codex connect the OpenAI Agents SDK to GhostCrab Personal as a local MCP memory layer.
+- [`SKILL_ghostcrab-runtime-openai-agents-sdk.md`](SKILL_ghostcrab-runtime-openai-agents-sdk.md) guides runtime agents through reading packs, searching memory, and writing durable state during SDK runs.
+- [`SKILL_ghostcrab-architect-ontology-bootstrap.md`](SKILL_ghostcrab-architect-ontology-bootstrap.md) helps Claude Code or Codex evolve a real OpenAI Agents SDK workflow into a deliberate mindBrain workspace model.
 
 ## How the SDK manages context (and limits)
 

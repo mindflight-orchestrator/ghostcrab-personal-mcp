@@ -1,5 +1,6 @@
 /**
- * graph.* helpers (pg_dgraph-aligned). Convention: type = 'entity', name = MCP node id string.
+ * graph_* helpers for the SQLite standalone backend.
+ * Convention: entity_type = 'entity', name = MCP node id string.
  */
 
 import type { Queryable } from "./client.js";
@@ -10,31 +11,17 @@ export async function resolveGraphEntityId(
   database: Queryable,
   nodeId: string
 ): Promise<bigint | null> {
-  if (database.kind === "sqlite") {
-    const [row] = await database.query<{ entity_id: number }>(
-      `
-        SELECT entity_id
-        FROM graph_entity
-        WHERE entity_type = ? AND name = ?
-        LIMIT 1
-      `,
-      [GRAPH_ENTITY_TYPE, nodeId]
-    );
-
-    return row ? BigInt(row.entity_id) : null;
-  }
-
-  const [row] = await database.query<{ id: string }>(
+  const [row] = await database.query<{ entity_id: number }>(
     `
-      SELECT id::text
-      FROM graph.entity
-      WHERE type = $1 AND name = $2
+      SELECT entity_id
+      FROM graph_entity
+      WHERE entity_type = ? AND name = ?
       LIMIT 1
     `,
     [GRAPH_ENTITY_TYPE, nodeId]
   );
 
-  return row ? BigInt(row.id) : null;
+  return row ? BigInt(row.entity_id) : null;
 }
 
 export async function upsertGraphEntity(
@@ -54,77 +41,50 @@ export async function upsertGraphEntity(
     schema_id: params.schemaId ?? null
   };
 
-  if (database.kind === "sqlite") {
-    const existing = await resolveGraphEntityId(database, params.nodeId);
-    if (existing !== null) {
-      await database.query(
-        `
-          UPDATE graph_entity
-          SET metadata_json = ?
-          WHERE entity_id = ?
-        `,
-        [JSON.stringify(metadata), Number(existing)]
-      );
-
-      await database.query(
-        `
-          INSERT OR IGNORE INTO graph_entity_alias (term, entity_id, confidence)
-          VALUES (?, ?, 1.0)
-        `,
-        [params.nodeId, Number(existing)]
-      );
-
-      return existing;
-    }
-
+  const existing = await resolveGraphEntityId(database, params.nodeId);
+  if (existing !== null) {
     await database.query(
       `
-        INSERT INTO graph_entity (entity_type, name, metadata_json)
-        VALUES (?, ?, ?)
+        UPDATE graph_entity
+        SET metadata_json = ?
+        WHERE entity_id = ?
       `,
-      [GRAPH_ENTITY_TYPE, params.nodeId, JSON.stringify(metadata)]
+      [JSON.stringify(metadata), Number(existing)]
     );
-
-    const created = await resolveGraphEntityId(database, params.nodeId);
-    if (created === null) {
-      throw new Error("Failed to create graph entity");
-    }
 
     await database.query(
       `
         INSERT OR IGNORE INTO graph_entity_alias (term, entity_id, confidence)
         VALUES (?, ?, 1.0)
       `,
-      [params.nodeId, Number(created)]
+      [params.nodeId, Number(existing)]
     );
 
-    return created;
+    return existing;
   }
 
-  const [row] = await database.query<{ id: string }>(
+  await database.query(
     `
-      INSERT INTO graph.entity (type, name, metadata)
-      VALUES ($1, $2, $3::jsonb)
-      ON CONFLICT (type, name) DO UPDATE SET
-        metadata = graph.entity.metadata || EXCLUDED.metadata,
-        deprecated_at = NULL
-      RETURNING id::text
+      INSERT INTO graph_entity (entity_type, name, metadata_json)
+      VALUES (?, ?, ?)
     `,
     [GRAPH_ENTITY_TYPE, params.nodeId, JSON.stringify(metadata)]
   );
 
-  const entityId = BigInt(row.id);
+  const created = await resolveGraphEntityId(database, params.nodeId);
+  if (created === null) {
+    throw new Error("Failed to create graph entity");
+  }
 
   await database.query(
     `
-      INSERT INTO graph.entity_alias (term, entity_id, confidence)
-      VALUES ($1, $2, 1.0)
-      ON CONFLICT (term, entity_id) DO NOTHING
+      INSERT OR IGNORE INTO graph_entity_alias (term, entity_id, confidence)
+      VALUES (?, ?, 1.0)
     `,
-    [params.nodeId, row.id]
+    [params.nodeId, Number(created)]
   );
 
-  return entityId;
+  return created;
 }
 
 export async function setGraphEntityWorkspaceId(
@@ -145,34 +105,21 @@ export async function findGraphRelationByEndpoints(
     label: string;
   }
 ): Promise<{ id: string } | null> {
-  if (database.kind === "sqlite") {
-    const [row] = await database.query<{ relation_id: number }>(
-      `
-        SELECT r.relation_id
-        FROM graph_relation r
-        JOIN graph_entity s ON s.entity_id = r.source_id AND s.entity_type = 'entity'
-        JOIN graph_entity t ON t.entity_id = r.target_id AND t.entity_type = 'entity'
-        WHERE s.name = ?
-          AND t.name = ?
-          AND r.relation_type = ?
-        LIMIT 1
-      `,
-      [params.sourceName, params.targetName, params.label]
-    );
-
-    return row ? { id: String(row.relation_id) } : null;
-  }
-
-  const [row] = await database.query<{ id: string }>(
+  const [row] = await database.query<{ relation_id: number }>(
     `
-      SELECT id::text
-      FROM graph.find_relation_by_endpoints($1, $2, $3)
+      SELECT r.relation_id
+      FROM graph_relation r
+      JOIN graph_entity s ON s.entity_id = r.source_id AND s.entity_type = 'entity'
+      JOIN graph_entity t ON t.entity_id = r.target_id AND t.entity_type = 'entity'
+      WHERE s.name = ?
+        AND t.name = ?
+        AND r.relation_type = ?
       LIMIT 1
     `,
     [params.sourceName, params.targetName, params.label]
   );
 
-  return row ? { id: row.id } : null;
+  return row ? { id: String(row.relation_id) } : null;
 }
 
 export async function upsertGraphRelation(
@@ -187,76 +134,47 @@ export async function upsertGraphRelation(
 ): Promise<string> {
   const confidence = params.confidence ?? 1;
 
-  if (database.kind === "sqlite") {
-    const [existing] = await database.query<{ relation_id: number }>(
-      `
-        SELECT relation_id
-        FROM graph_relation
-        WHERE source_id = ?
-          AND target_id = ?
-          AND relation_type = ?
-        LIMIT 1
-      `,
-      [Number(params.sourceId), Number(params.targetId), params.label]
-    );
-    if (existing) {
-      return String(existing.relation_id);
-    }
-
-    const [nextRelationRow] = await database.query<{ next_id: number }>(
-      `SELECT COALESCE(MAX(relation_id), 0) + 1 AS next_id FROM graph_relation`
-    );
-    const relationId = nextRelationRow?.next_id ?? 1;
-
-    await database.query(
-      `
-        INSERT INTO graph_relation (
-          relation_id,
-          relation_type,
-          source_id,
-          target_id,
-          confidence,
-          metadata_json
-        )
-        VALUES (?, ?, ?, ?, ?, ?)
-      `,
-      [
-        relationId,
-        params.label,
-        Number(params.sourceId),
-        Number(params.targetId),
-        confidence,
-        JSON.stringify(params.properties)
-      ]
-    );
-
-    return String(relationId);
+  const [existing] = await database.query<{ relation_id: number }>(
+    `
+      SELECT relation_id
+      FROM graph_relation
+      WHERE source_id = ?
+        AND target_id = ?
+        AND relation_type = ?
+      LIMIT 1
+    `,
+    [Number(params.sourceId), Number(params.targetId), params.label]
+  );
+  if (existing) {
+    return String(existing.relation_id);
   }
 
-  const [row] = await database.query<{ id: string }>(
+  const [nextRelationRow] = await database.query<{ next_id: number }>(
+    `SELECT COALESCE(MAX(relation_id), 0) + 1 AS next_id FROM graph_relation`
+  );
+  const relationId = nextRelationRow?.next_id ?? 1;
+
+  await database.query(
     `
-      SELECT graph.upsert_relation(
-        $1,
-        $2::bigint,
-        $3::bigint,
-        $4::real,
-        NULL,
-        NULL,
-        $5::jsonb,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-      ) AS id
+      INSERT INTO graph_relation (
+        relation_id,
+        relation_type,
+        source_id,
+        target_id,
+        confidence,
+        metadata_json
+      )
+      VALUES (?, ?, ?, ?, ?, ?)
     `,
     [
+      relationId,
       params.label,
-      params.sourceId.toString(),
-      params.targetId.toString(),
+      Number(params.sourceId),
+      Number(params.targetId),
       confidence,
       JSON.stringify(params.properties)
     ]
   );
 
-  return row?.id ?? `${params.sourceId}:${params.targetId}:${params.label}`;
+  return String(relationId);
 }

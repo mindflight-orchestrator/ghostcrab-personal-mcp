@@ -2,38 +2,45 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { GhostcrabConfig } from "../../src/config/env.js";
 
-const runStandaloneMindbrainSqlMock = vi.fn(async () => ({
-  ok: true as const,
-  columns: [] as string[],
-  rows: [] as unknown[][],
-  changes: 0
+const mocks = vi.hoisted(() => ({
+  closeStandaloneMindbrainSqlSession: vi.fn(async () => undefined),
+  openStandaloneMindbrainSqlSession: vi.fn(async () => 1),
+  runStandaloneMindbrainSql: vi.fn(async () => ({
+    ok: true as const,
+    columns: [] as string[],
+    rows: [] as unknown[][],
+    changes: 0
+  }))
 }));
 
 vi.mock("../../src/db/standalone-mindbrain.js", () => ({
-  closeStandaloneMindbrainSqlSession: vi.fn(async () => undefined),
-  openStandaloneMindbrainSqlSession: vi.fn(async () => 1),
-  runStandaloneMindbrainSql: runStandaloneMindbrainSqlMock
+  closeStandaloneMindbrainSqlSession: mocks.closeStandaloneMindbrainSqlSession,
+  openStandaloneMindbrainSqlSession: mocks.openStandaloneMindbrainSqlSession,
+  runStandaloneMindbrainSql: mocks.runStandaloneMindbrainSql
 }));
 
 const testConfig: GhostcrabConfig = {
+  bootstrapSeedEnabled: true,
   embeddingDimensions: 1536,
   embeddingTimeoutMs: 30_000,
   embeddingsMode: "disabled",
   hybridBm25Weight: 0.6,
   hybridVectorWeight: 0.4,
-  nativeExtensionsMode: "auto",
   nodeEnv: "test",
   telemetryEnabled: false,
   telemetryTimeoutMs: 1500,
   telemetryStateDir: "/tmp/ghostcrab-tests",
   telemetryDebug: false,
+  mindbrainHttpTimeoutMs: 30_000,
   mindbrainUrl: "http://127.0.0.1:8091",
   sqlitePath: "/tmp/ghostcrab.sqlite"
 };
 
 describe("sqlite database client SQL rewrite", () => {
   beforeEach(() => {
-    runStandaloneMindbrainSqlMock.mockClear();
+    mocks.runStandaloneMindbrainSql.mockClear();
+    mocks.openStandaloneMindbrainSqlSession.mockClear();
+    mocks.closeStandaloneMindbrainSqlSession.mockClear();
   });
 
   it("keeps the facets table name when stripping the mb_pragma prefix", async () => {
@@ -42,10 +49,11 @@ describe("sqlite database client SQL rewrite", () => {
 
     await database.query("SELECT COUNT(*) AS count FROM mb_pragma.facets");
 
-    expect(runStandaloneMindbrainSqlMock).toHaveBeenCalledWith(
+    expect(mocks.runStandaloneMindbrainSql).toHaveBeenCalledWith(
       expect.objectContaining({
         sql: "SELECT COUNT(*) AS count FROM facets",
-        params: []
+        params: [],
+        timeoutMs: 30_000
       })
     );
   });
@@ -63,7 +71,7 @@ describe("sqlite database client SQL rewrite", () => {
       ['{"activity_family":"workflow-tracking"}']
     );
 
-    expect(runStandaloneMindbrainSqlMock).toHaveBeenCalledWith(
+    expect(mocks.runStandaloneMindbrainSql).toHaveBeenCalledWith(
       expect.objectContaining({
         sql: expect.stringContaining(
           "SELECT facets_json->>'activity_family' AS activity_family"
@@ -72,11 +80,37 @@ describe("sqlite database client SQL rewrite", () => {
       })
     );
 
-    const [{ sql }] = runStandaloneMindbrainSqlMock.mock.calls.at(-1) as [
+    const [{ sql }] = mocks.runStandaloneMindbrainSql.mock.calls.at(-1) as [
       { sql: string }
     ];
     expect(sql).toContain("FROM facets");
     expect(sql).not.toContain("FROM facets_json");
     expect(sql).toContain("WHERE facets_json @> ?");
+  });
+
+  it("passes the configured HTTP timeout through SQL sessions", async () => {
+    const { createDatabaseClient } = await import("../../src/db/client.js");
+    const database = createDatabaseClient(testConfig);
+
+    await database.transaction(async (tx) => {
+      await tx.query("SELECT 1");
+    });
+
+    expect(mocks.openStandaloneMindbrainSqlSession).toHaveBeenCalledWith(
+      "http://127.0.0.1:8091",
+      30_000
+    );
+    expect(mocks.runStandaloneMindbrainSql).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sessionId: 1,
+        timeoutMs: 30_000
+      })
+    );
+    expect(mocks.closeStandaloneMindbrainSqlSession).toHaveBeenCalledWith(
+      "http://127.0.0.1:8091",
+      1,
+      true,
+      30_000
+    );
   });
 });

@@ -33,13 +33,6 @@ export async function initToolContext(options?: {
     toolContext: {
       database,
       embeddings,
-      extensions: {
-        pgFacets: false,
-        pgDgraph: false,
-        pgPragma: false,
-        pgMindbrain: false
-      },
-      nativeExtensionsMode: config.nativeExtensionsMode,
       retrieval: {
         hybridBm25Weight: config.hybridBm25Weight,
         hybridVectorWeight: config.hybridVectorWeight

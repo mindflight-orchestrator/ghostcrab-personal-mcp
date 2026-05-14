@@ -385,7 +385,7 @@ async function loadDemoProfile(
   return summary;
 }
 
-/** Load a portable demo profile into the configured MindBrain/PostgreSQL database. */
+/** Load a portable demo profile into the configured MindBrain backend. */
 export async function runDemoLoad(argv: string[]): Promise<void> {
   const { profileId, skillsRepoRoot, profileFile } = parseArgs(argv);
   const config = resolveGhostcrabConfig();

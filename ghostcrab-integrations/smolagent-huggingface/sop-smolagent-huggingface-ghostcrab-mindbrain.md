@@ -1,12 +1,23 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
+# Integrating mindBrain with Hugging Face smolagents
 
-The most effective pitch for every framework is not to sell MindBrain as an "alternative database" but as a **shared context layer across agents**: today each framework keeps memory in silos; MindBrain/GhostCrab provides a structured, queryable, persistent ontology registry. That argument lands regardless of target framework.
+## About Hugging Face smolagents
 
-task: target Hugging Face smolagents — explain how integration should be implemented.
+[smolagents](https://github.com/huggingface/smolagents) is Hugging Face's lightweight agent framework for building tool-using agents, with a strong bias toward agents that write and execute Python rather than emitting rigid JSON plans. It provides primitives such as `CodeAgent`, managed agents, memory steps, callbacks, and native MCP tooling, so it is well suited to experiments where an agent needs to act, inspect results, and iterate. Its default memory is practical for a run, but it is not a typed, shared, cross-session knowledge layer.
 
-Full smolagents architecture review below — integration angles included.
+## MindBrain
 
-***
+MindBrain is a structured agentic database that makes any domain navigable in real time — its intelligence lives in schema enforcement, typed ontologies, and pre-computed projections that cost zero inference at query time.
+
+## Why integrate mindBrain with Hugging Face smolagents
+
+smolagents gives Python-generating agents a flexible execution loop, but their context tends to live in step history, callbacks, and whatever tool output fits in the run. mindBrain gives those agents a durable, typed registry for pipeline state, decisions, observations, dependencies, and reusable domain knowledge. Through GhostCrab MCP, a `CodeAgent` can retrieve compact context before a run, persist useful observations after each step, and let multiple smolagents share the same ontology instead of relying on isolated token history.
+
+The clean integration path is to expose GhostCrab as MCP tools and let smolagents consume them through `MCPClient` or `ToolCollection.from_mcp()`. That keeps the framework's Python-first execution model intact while adding structured memory, faceted retrieval, graph relationships, and zero-inference projections for orchestration and recovery.
+
+## SKILLS available in this repo
+
+- [`GhostCrab Personal + smolagents`](SKILL_mindbrain_smolagents.md) explains how to connect a smolagents `CodeAgent` to GhostCrab Personal so it can recover context, persist observations, and share local memory.
+- [`GhostCrab Runtime for smolagents`](SKILL_smolagent_ghostcrab_runtime.md) describes runtime patterns for smolagents workers and orchestrators that need shared state through GhostCrab Personal.
 
 ## smolagents architecture: anchors for MindBrain
 
@@ -437,4 +448,3 @@ def orchestrator_loop(project_id: str):
 [^3_13]: https://www.depesz.com/2025/08/04/waiting-for-postgresql-19-display-memoize-planner-estimates-in-explain/
 [^3_14]: https://github.com/ashwath007/smolagents-approach
 [^3_15]: https://stackoverflow.com/questions/33651401/postgres-trigger-procedure-seems-to-be-memoized
-

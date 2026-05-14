@@ -1,6 +1,6 @@
 /**
  * Kanban golden-path proof: full flow from rich DDL proposal to golden export.
- * Requires DATABASE_URL and migrations through 013.
+ * Requires a reachable MindBrain backend and SQLite schema through 013.
  *
  * Proves: propose (rich semantics) → approve → execute → export → matches golden fixture.
  */
@@ -19,7 +19,6 @@ import { ddlExecuteTool, ddlProposeTool } from "../../../src/tools/workspace/ddl
 import { workspaceCreateTool } from "../../../src/tools/workspace/create.js";
 import { workspaceExportModelTool } from "../../../src/tools/workspace/export.js";
 import { createToolContext } from "../../helpers/tool-context.js";
-import { resolveGhostcrabConfig } from "../../../src/config/env.js";
 import type { ExportPayload } from "../../helpers/export-diff.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -78,8 +77,6 @@ CREATE TABLE IF NOT EXISTS comments (
 `;
 
 describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
-  const config = resolveGhostcrabConfig(process.env);
-
   afterAll(async () => {
     // Cleanup workspace and kanban schema
     try {
@@ -113,9 +110,7 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
   });
 
   it("creates kanban workspace and proposes DDL with rich semantics", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
 
     // Create workspace
     const createResult = await workspaceCreateTool.handler(
@@ -212,9 +207,7 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
   });
 
   it("export returns rich non-null semantic fields matching golden fixture structure", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
 
     const exportResult = await workspaceExportModelTool.handler(
       { workspace_id: WS_ID, depth: "full" },
@@ -302,9 +295,7 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
   });
 
   it("export structurally matches golden fixture on all non-null semantic fields", async () => {
-    const ctx = createToolContext(harness.database, {
-      nativeExtensionsMode: config.nativeExtensionsMode
-    });
+    const ctx = createToolContext(harness.database);
 
     const exportResult = await workspaceExportModelTool.handler(
       { workspace_id: WS_ID, depth: "full" },

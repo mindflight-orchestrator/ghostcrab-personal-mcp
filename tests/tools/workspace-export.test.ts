@@ -5,19 +5,75 @@ import { workspaceInspectTool } from "../../src/tools/workspace/inspect.js";
 import { WORKSPACE_MODEL_SCHEMA_VERSION } from "../../src/types/workspace-model.js";
 import type { ToolExecutionContext } from "../../src/tools/registry.js";
 
-function makeContext(
-  queryImpl: (sql: string, params?: readonly unknown[]) => Promise<unknown[]>
-): ToolExecutionContext {
+type LegacyImpl = (
+  sql: string,
+  params?: readonly unknown[]
+) => Promise<unknown[]>;
+
+// Adapter so the existing PG-shaped mocks keep working against the SQLite-only
+// fallback path. Routes SQLite SQL fragments back to the legacy `mindbrain.*`
+// / `information_schema.*` sniffers and reshapes catalog rows.
+function adaptLegacyMockForSqlite(legacy: LegacyImpl): LegacyImpl {
+  return async (sql, params) => {
+    if (sql.includes("FROM workspaces")) {
+      return legacy("mindbrain.workspaces", params);
+    }
+    if (sql.includes("FROM table_semantics")) {
+      return legacy("mindbrain.table_semantics", params);
+    }
+    if (sql.includes("FROM column_semantics")) {
+      return legacy("mindbrain.column_semantics", params);
+    }
+    if (sql.includes("FROM relation_semantics")) {
+      return legacy("mindbrain.relation_semantics", params);
+    }
+    if (sql.includes("sqlite_master")) {
+      const rows = (await legacy(
+        "information_schema.tables",
+        params
+      )) as Array<Record<string, unknown>>;
+      return rows
+        .filter((row) => (row.table_schema ?? "public") !== "mindbrain")
+        .map((row) => ({ name: row.table_name }));
+    }
+    const pragmaMatch = sql.match(/PRAGMA\s+table_info\((\w+)\)/i);
+    if (pragmaMatch) {
+      const tableName = pragmaMatch[1];
+      const columns = (await legacy(
+        "information_schema.columns",
+        params
+      )) as Array<Record<string, unknown>>;
+      const pkRows = (await legacy(
+        "information_schema.table_constraints",
+        params
+      )) as Array<Record<string, unknown>>;
+      const pkSet = new Set(
+        pkRows
+          .filter((row) => row.table_name === tableName)
+          .map((row) => row.column_name as string)
+      );
+      return columns
+        .filter((column) => column.table_name === tableName)
+        .map((column) => ({
+          name: column.column_name,
+          notnull: column.is_nullable === "NO" ? 1 : 0,
+          pk: pkSet.has(column.column_name as string) ? 1 : 0
+        }));
+    }
+    return legacy(sql, params);
+  };
+}
+
+function makeContext(queryImpl: LegacyImpl): ToolExecutionContext {
+  const adapted = adaptLegacyMockForSqlite(queryImpl);
   return {
     database: {
-      query: vi.fn().mockImplementation(queryImpl),
+      query: vi.fn().mockImplementation(adapted),
       transaction: vi.fn()
     } as unknown as ToolExecutionContext["database"],
     embeddings: {} as ToolExecutionContext["embeddings"],
-    extensions: { pgFacets: false, pgDgraph: false, pgPragma: false },
-    nativeExtensionsMode: "sql-only",
     retrieval: { hybridBm25Weight: 0.5, hybridVectorWeight: 0.5 }
-  };
+  } as unknown as ToolExecutionContext;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -25,61 +81,6 @@ function makeContext(
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("ghostcrab_workspace_export_model", () => {
-  it("uses mb_ontology.export_workspace_model when available", async () => {
-    const ctx = makeContext(async (sql: string) => {
-      if (sql.includes("mb_ontology.export_workspace_model")) {
-        return [{
-          payload: {
-            schema_version: "1.0.0",
-            exported_at: "2026-04-08T00:00:00.000Z",
-            workspace: {
-              id: "casino-test",
-              label: "Casino Test",
-              description: null,
-              domain_profile: "casino",
-              pg_schema: "casino"
-            },
-            tables: [{
-              schema_name: "casino",
-              table_name: "players",
-              table_role: "actor"
-            }],
-            columns: [{
-              schema_name: "casino",
-              table_name: "players",
-              column_name: "id",
-              column_role: "id"
-            }],
-            relations: [{
-              source_schema: "casino",
-              source_table: "visits",
-              target_schema: "casino",
-              target_table: "players"
-            }],
-            generation_hints: { table_order: ["casino.players"] },
-            validation_warnings: []
-          }
-        }];
-      }
-      return [];
-    });
-    ctx.extensions = { pgFacets: true, pgDgraph: true, pgPragma: true };
-
-    const result = await workspaceExportModelTool.handler(
-      { workspace_id: "casino-test", depth: "tables_and_columns" },
-      ctx
-    );
-
-    expect(result.isError).toBeFalsy();
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
-    expect(data.workspace).toMatchObject({ id: "casino-test", pg_schema: "casino" });
-    expect(data.columns).toBeDefined();
-    expect(data.relations).toBeUndefined();
-    expect((ctx.database.query as ReturnType<typeof vi.fn>).mock.calls[0]?.[0]).toContain(
-      "mb_ontology.export_workspace_model"
-    );
-  });
-
   it("returns workspace_not_found when workspace missing", async () => {
     const ctx = makeContext(async () => []);
     const result = await workspaceExportModelTool.handler(
@@ -426,8 +427,18 @@ describe("ghostcrab_workspace_export_model", () => {
         // boards has PK "board_uuid", cards has none in this mock
         return [{ table_schema: "public", table_name: "boards", column_name: "board_uuid" }];
       }
-      if (sql.includes("information_schema.tables")) return [];
-      if (sql.includes("information_schema.columns")) return [];
+      if (sql.includes("information_schema.tables")) {
+        return [
+          { table_schema: "public", table_name: "boards" },
+          { table_schema: "public", table_name: "cards" }
+        ];
+      }
+      if (sql.includes("information_schema.columns")) {
+        return [
+          { table_schema: "public", table_name: "boards", column_name: "board_uuid", is_nullable: "NO" },
+          { table_schema: "public", table_name: "cards", column_name: "board_id", is_nullable: "YES" }
+        ];
+      }
       return [];
     });
 

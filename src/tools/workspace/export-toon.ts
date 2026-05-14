@@ -3,7 +3,6 @@ import { z } from "zod";
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import {
   createTextToolResult,
-  createToolErrorResult,
   registerTool,
   type ToolHandler
 } from "../registry.js";
@@ -30,16 +29,8 @@ export const workspaceExportToonTool: ToolHandler = {
       }
     }
   },
-  async handler(args, context) {
+  async handler(args, _context) {
     const input = WorkspaceExportToonInput.parse(args);
-
-    if (context.database.kind !== "sqlite") {
-      return createToolErrorResult(
-        "ghostcrab_workspace_export_model_toon",
-        "The TOON export tool currently requires the SQLite backend.",
-        "backend_not_supported"
-      );
-    }
 
     const config = resolveGhostcrabConfig();
     const toon = await runStandaloneWorkspaceExportToon({

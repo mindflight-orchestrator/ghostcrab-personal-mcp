@@ -11,7 +11,7 @@ For how `ghostcrab-skills` relates to the product repo, see [GHOSTCRAB_INTEGRATI
 
 The npm package for this SQLite distribution is **`@mindflight/ghostcrab-personal-mcp`**. Substitute that name in every `npx` / `pnpm dlx` / `codex mcp add` example below.
 
-MCP clients should invoke **`gcp brain up`** (or legacy **`gcp serve`**), optionally with `--workspace <name>` — not a bare `gcp` with no subcommand. See [docs/GCP_COMMANDS.md](docs/GCP_COMMANDS.md).
+MCP clients should invoke **`gcp brain up`** (or legacy **`gcp serve`**), optionally with `--workspace <name>` — not a bare `gcp` with no subcommand. See [docs/reference/gcp-commands.md](docs/reference/gcp-commands.md).
 
 Initialize a workspace once if you use a named workspace:
 

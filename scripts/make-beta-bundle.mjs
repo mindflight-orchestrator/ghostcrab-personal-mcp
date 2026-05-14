@@ -18,13 +18,15 @@ const manifestPath = join(distPackDir, "pack-manifest.json");
 const bundleDir = join(distPackDir, "beta-bundle");
 const betaReadme = join(repoRoot, "docs", "dev", "beta_testers_readme.md");
 const installScriptSrc = join(repoRoot, "scripts", "beta-bundle-install.mjs");
+const ideSmokeScriptSrc = join(repoRoot, "scripts", "smoke-beta-ide-install.mjs");
 const installMdSrc = join(repoRoot, "INSTALL.md");
 const licenceSrc = join(repoRoot, "Licence.md");
-const makefileSrc = join(repoRoot, "docs", "installer-question", "Makefile");
+const makefileSrc = join(repoRoot, "docs", "installers", "beta-bundle", "Makefile");
 const makefileReadmeSrc = join(
   repoRoot,
   "docs",
-  "installer-question",
+  "installers",
+  "beta-bundle",
   "README.md"
 );
 
@@ -65,6 +67,11 @@ if (!existsSync(installScriptSrc)) {
 }
 copyFileSync(installScriptSrc, join(bundleDir, "install-beta.mjs"));
 
+if (!existsSync(ideSmokeScriptSrc)) {
+  throw new Error(`Missing IDE smoke script: ${ideSmokeScriptSrc}`);
+}
+copyFileSync(ideSmokeScriptSrc, join(bundleDir, "smoke-ide-install.mjs"));
+
 if (!existsSync(installMdSrc)) {
   throw new Error(`Missing ${installMdSrc}`);
 }
@@ -97,6 +104,7 @@ const checksumNames = [
   "README_MAKE.md",
   "pack-manifest.json",
   "install-beta.mjs",
+  "smoke-ide-install.mjs",
   ...filesToCopy.map((entry) => basename(entry))
 ];
 const checksumLines = [];

@@ -34,6 +34,14 @@ switch (cmd) {
     await runServe(rest);
     break;
   }
+  case "smoke":
+  case "status":
+  case "tools":
+  case "maintenance": {
+    const { runCli } = await import("../dist/cli/runner.js");
+    await runCli([cmd, ...rest]);
+    break;
+  }
   case "serve": {
     const { runServe } = await import("./commands/serve.mjs");
     await runServe(rest);
@@ -93,6 +101,11 @@ Usage: gcp <command> [options]
 
 ── JTBD (recommended) ──
   brain up [--workspace <name>]     Start MindBrain (Zig) + MCP on stdio
+  smoke                            Read-only backend/tool registration check
+  status                           Read-only operational snapshot
+  tools list                       List MCP tools and schemas
+  maintenance ddl-approve|ddl-execute
+                                    Human DDL approval/execution controls
   brain workspace create [name]   Create / register a workspace
   brain workspace list            List workspaces
   brain schema <sub>              Ontologies (knowledge structure in the DB)

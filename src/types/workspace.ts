@@ -2,7 +2,7 @@ import { z } from "zod";
 
 /**
  * Workspace identifier constraints: lowercase alphanum + hyphens, 2–64 chars.
- * Must start with a letter to be a valid PostgreSQL schema name suffix.
+ * Must start with a letter to remain valid for legacy workspace schema slugs.
  */
 export const WORKSPACE_ID_REGEX = /^[a-z][a-z0-9-]{1,62}[a-z0-9]$|^[a-z][a-z0-9]$/;
 

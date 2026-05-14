@@ -46,7 +46,6 @@ export const SyncFieldSpecSchema = z.object({
       "computed",
       "array",
       "ltree",
-      "geo",
       "embedding"
     ])
     .optional(),

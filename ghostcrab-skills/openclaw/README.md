@@ -2,14 +2,14 @@
 
 This guide is the dedicated entry point for running **GhostCrab** with **OpenClaw**: MCP registration, optional environment, skills and agent profiles, and rehearsal scenarios.
 
-For how `ghostcrab-skills` relates to the product repo, see [GHOSTCRAB_INTEGRATION.md](../GHOSTCRAB_INTEGRATION.md). For launcher details (`gcp`, `ghostcrab`) shared with other clients, see [GCP_CLIENT_SETUP.md](../../docs/GCP_CLIENT_SETUP.md).
+For how `ghostcrab-skills` relates to the product repo, see [GHOSTCRAB_INTEGRATION.md](../GHOSTCRAB_INTEGRATION.md). For launcher details (`gcp`, `ghostcrab`) shared with other clients, see [gcp-client-setup.md](../../docs/setup/gcp-client-setup.md).
 
 ## Prerequisites
 
 - **Node.js** 20+ and a package runner (`pnpm` or `npm`).
 - **GhostCrab MCP** on `PATH` **or** invokable via `pnpm dlx` / `npx`.
 
-Published package: **`@mindflight/ghostcrab-mcp`** (binaries: `gcp`, `ghostcrab`). OpenClaw should start the server with **`gcp brain up`** or **`gcp up`** (legacy: **`gcp serve`**), optionally `--workspace <name>`. See [GCP_COMMANDS.md](../../docs/GCP_COMMANDS.md).
+Published package: **`@mindflight/ghostcrab-mcp`** (binaries: `gcp`, `ghostcrab`). OpenClaw should start the server with **`gcp brain up`** or **`gcp up`** (legacy: **`gcp serve`**), optionally `--workspace <name>`. See [gcp-commands.md](../../docs/reference/gcp-commands.md).
 
 Initialize a workspace once if you use a named workspace:
 
@@ -128,6 +128,6 @@ Pair scenarios with demo profiles from [shared/demo-profiles/](../shared/demo-pr
 ## See also
 
 - [GHOSTCRAB_INTEGRATION.md](../GHOSTCRAB_INTEGRATION.md) — validation, versioning, embedded workspace notes
-- [GCP_CLIENT_SETUP.md](../../docs/GCP_CLIENT_SETUP.md) — Codex, Cursor, Claude Code, local packs
+- [gcp-client-setup.md](../../docs/setup/gcp-client-setup.md) — Codex, Cursor, Claude Code, local packs
 - [codex/README.md](../codex/README.md) — same integration pattern for OpenAI Codex
 - [ghostcrab-skills README.md](../README.md) — full tree layout and `npm run validate`

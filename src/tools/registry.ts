@@ -1,8 +1,6 @@
 import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types.js";
 
-import type { NativeExtensionsMode } from "../config/env.js";
 import type { DatabaseClient } from "../db/client.js";
-import type { ExtensionCapabilities } from "../db/extension-probe.js";
 import type { EmbeddingProvider } from "../embeddings/provider.js";
 import type { SessionContext } from "../mcp/session-context.js";
 
@@ -11,9 +9,6 @@ export const GHOSTCRAB_MCP_SURFACE_VERSION = "2026-03-23";
 export interface ToolExecutionContext {
   database: DatabaseClient;
   embeddings: EmbeddingProvider;
-  extensions: ExtensionCapabilities;
-  /** Configured `MINDBRAIN_NATIVE_EXTENSIONS` value (effective gating for probe + tools). */
-  nativeExtensionsMode: NativeExtensionsMode;
   retrieval: {
     hybridBm25Weight: number;
     hybridVectorWeight: number;

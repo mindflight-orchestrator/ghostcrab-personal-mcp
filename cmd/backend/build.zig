@@ -93,6 +93,11 @@ fn configureSqlite3(module: *std.Build.Module) void {
             "-DSQLITE_DQS=0",
             "-DSQLITE_DEFAULT_MEMSTATUS=0",
             "-DSQLITE_OMIT_DEPRECATED",
+            // Required by the standalone schema (search_fts virtual table)
+            // and by the BM25 path that replaced RoaringBitmap on 2026-05-08.
+            // Without this, `CREATE VIRTUAL TABLE ... USING fts5(...)` fails
+            // with `no such module: fts5` and the backend exits at init.
+            "-DSQLITE_ENABLE_FTS5",
         },
     });
 }
