@@ -15,6 +15,7 @@ import {
   rmSync,
   mkdirSync,
   existsSync,
+  statSync,
 } from "node:fs";
 import { join } from "node:path";
 import { getDataDir } from "./data-dir.mjs";
@@ -31,7 +32,18 @@ export function listLocal(type) {
   const results = [];
   for (const owner of readdirSync(base)) {
     const ownerDir = join(base, owner);
+    try {
+      if (!statSync(ownerDir).isDirectory()) continue;
+    } catch {
+      continue;
+    }
     for (const name of readdirSync(ownerDir)) {
+      const nameDir = join(ownerDir, name);
+      try {
+        if (!statSync(nameDir).isDirectory()) continue;
+      } catch {
+        continue;
+      }
       const manifestPath = join(ownerDir, name, "manifest.json");
       if (!existsSync(manifestPath)) continue;
       try {

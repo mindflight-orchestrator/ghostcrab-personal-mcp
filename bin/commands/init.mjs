@@ -118,7 +118,7 @@ function printMcpSnippet(workspaceName) {
       : ["brain", "up", "--workspace", workspaceName];
 
   const snippet = {
-    ghostcrab: {
+    "ghostcrab-personal-mcp": {
       command: "gcp",
       args,
     },

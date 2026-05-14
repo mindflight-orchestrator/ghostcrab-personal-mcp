@@ -41,12 +41,12 @@ Full JTBD-oriented reference: **[gcp-commands.md](../reference/gcp-commands.md)*
 
 ### IDE integration (Cursor, Claude Code, Codex)
 
-On **`gcp brain workspace create`** (alias **`gcp init`**) and **`gcp brain up`** (alias **`gcp serve`**), GhostCrab can **copy default files** from a **`ghostcrab-skills`** checkout into the current project when it can resolve that tree:
+On **`gcp brain workspace create`** (alias **`gcp init`**) and explicit **`gcp brain up --install-skills`** (alias **`gcp serve --install-skills`**), GhostCrab can **copy default files** from a **`ghostcrab-skills`** checkout into the current project when it can resolve that tree:
 
 | Resolution | |
 |------------|--|
 | **`GHOSTCRAB_SKILLS_ROOT`** | Absolute path to the folder that contains `cursor/`, `claude-code/`, `codex/`, and `shared/` |
-| **Beside the npm package** | `<install-dir>/ghostcrab-skills` (typical in a monorepo; not shipped in the published tarball by default) |
+| **Beside the npm package** | `<install-dir>/ghostcrab-skills` (shipped in the published root package) |
 
 **Detection** (unless you override):
 
@@ -61,13 +61,14 @@ On **`gcp brain workspace create`** (alias **`gcp init`**) and **`gcp brain up`*
 | **Claude Code** | `claude-code/self-memory/CLAUDE.md` → `.ghostcrab/claude-self-memory.md` (merge into your `CLAUDE.md` if needed) |
 | **Codex** | `codex/ghostcrab-memory/` → `.codex/skills/ghostcrab-memory/`, `shared/` → `.codex/skills/ghostcrab-shared/`, with `SKILL.md` links rewritten to `../ghostcrab-shared/` |
 
-**Opt out / refresh**
+**Install / refresh**
 
-- **`--no-skills`** on `init` / `brain workspace create` or on `serve` / `brain up` — skip installation
+- **`gcp init`** / **`gcp brain workspace create`** — install matching IDE stubs when an IDE is detected
+- **`gcp brain up --install-skills`** / **`gcp serve --install-skills`** — explicitly install matching IDE stubs during server startup
 - **`GHOSTCRAB_SKIP_IDE_SKILLS=1`** — same globally
 - **`gcp init … --force-skills`** — overwrite existing stubs (`brain up` / `serve` do not take `--force-skills`; use `init` or delete files first)
 
-Messages on **`gcp brain up`** / **`gcp serve`** go to **stderr** (one or two lines) so stdio MCP stays clean.
+Messages from **`gcp brain up --install-skills`** / **`gcp serve --install-skills`** go to **stderr** (one or two lines) so stdio MCP stays clean.
 
 ### Environment variables (common)
 
@@ -168,11 +169,11 @@ OpenClaw uses the same **`mcpServers`** JSON shape; merge the block from **`ghos
 
 ## Are `ghostcrab-skills` (or a personal starter kit) inside the `.tgz` or the SQLite DB by default?
 
-**Short answer:** the **npm tarball ships `ghostcrab-skills/`** so **`gcp brain up`** / **`gcp serve`** can install IDE stubs (Cursor / Claude Code / Codex) **by default**. That is separate from what gets loaded into the **SQLite database** (see below).
+**Short answer:** the **npm tarball ships `ghostcrab-skills/`** so **`gcp init`**, **`gcp brain workspace create`**, or explicit **`gcp brain up --install-skills`** / **`gcp serve --install-skills`** can install IDE stubs (Cursor / Claude Code / Codex). That is separate from what gets loaded into the **SQLite database** (see below).
 
 ### What the **npm tarball** contains
 
-The published package **`files`** list includes **`bin/`**, **`dist/`**, **`ghostcrab-skills/`**, operational **`docs/`** subsets, **`examples/`**, etc. It intentionally excludes generated blog-image resources and platform binaries from the root installer package. Override the skills tree with **`GHOSTCRAB_SKILLS_ROOT`**, or skip copying with **`GHOSTCRAB_SKIP_IDE_SKILLS=1`** or **`gcp brain up --no-skills`**.
+The published package **`files`** list includes **`bin/`**, **`dist/`**, **`ghostcrab-skills/`**, operational **`docs/`** subsets, **`examples/`**, etc. It intentionally excludes generated blog-image resources and platform binaries from the root installer package. Override the skills tree with **`GHOSTCRAB_SKILLS_ROOT`**, or skip copying from init/workspace commands with **`GHOSTCRAB_SKIP_IDE_SKILLS=1`**.
 
 ### What **SQLite initialisation** loads
 

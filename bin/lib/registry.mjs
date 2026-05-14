@@ -107,6 +107,30 @@ export async function listRegistryResources({ registryUrl, token, type }) {
   return await res.json();
 }
 
+// ── CLI arg helpers ───────────────────────────────────────────────────────────
+
+/**
+ * @param {string[]} args
+ * @param {object} config
+ * @returns {string | null}
+ */
+export function resolveRegistryToken(args, config) {
+  const idx = args.findIndex((a) => a === "--token" || a === "-t");
+  if (idx !== -1 && args[idx + 1]) return args[idx + 1];
+  return config.registry?.token ?? null;
+}
+
+/**
+ * @param {string[]} args
+ * @param {object} config
+ * @returns {string}
+ */
+export function resolveRegistryUrl(args, config) {
+  const idx = args.findIndex((a) => a === "--registry" || a === "-r");
+  if (idx !== -1 && args[idx + 1]) return args[idx + 1];
+  return config.registry?.url ?? DEFAULT_REGISTRY_URL;
+}
+
 // ── Watermarking ──────────────────────────────────────────────────────────────
 
 /**

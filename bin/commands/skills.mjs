@@ -11,6 +11,8 @@ import {
   fetchResource,
   listRegistryResources,
   applyWatermark,
+  resolveRegistryToken,
+  resolveRegistryUrl,
 } from "../lib/registry.mjs";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join as pathJoin, resolve } from "node:path";
@@ -62,7 +64,7 @@ async function skillsList(args) {
 
   if (remote) {
     const config = readConfig();
-    const token = resolveToken(args, config);
+    const token = resolveRegistryToken(args, config);
     const registryUrl = resolveRegistryUrl(args, config);
     console.log(`Fetching from ${registryUrl} …\n`);
     try {
@@ -123,7 +125,7 @@ async function skillsPull(args) {
   }
 
   const config = readConfig();
-  const token = resolveToken(args, config);
+  const token = resolveRegistryToken(args, config);
   const registryUrl = resolveRegistryUrl(args, config);
 
   console.log(`Pulling ${owner}/${name} from ${registryUrl} …`);
@@ -352,18 +354,6 @@ async function skillsShow(args) {
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────
-
-function resolveToken(args, config) {
-  const idx = args.findIndex((a) => a === "--token" || a === "-t");
-  if (idx !== -1 && args[idx + 1]) return args[idx + 1];
-  return config.registry?.token ?? null;
-}
-
-function resolveRegistryUrl(args, config) {
-  const idx = args.findIndex((a) => a === "--registry" || a === "-r");
-  if (idx !== -1 && args[idx + 1]) return args[idx + 1];
-  return config.registry?.url ?? "https://registry.ghostcrab.io";
-}
 
 function printHelp() {
   console.log(`

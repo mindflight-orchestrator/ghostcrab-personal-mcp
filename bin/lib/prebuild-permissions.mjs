@@ -232,7 +232,7 @@ export function resolveDocumentEnginePath(pkgRoot) {
       path: devCmd,
       platformKey: bundled.platformKey,
       binaryName: bundled.binaryName,
-      source: "bundled-prebuild",
+      source: "vendor-dev",
       packageName: bundled.packageName
     };
   }

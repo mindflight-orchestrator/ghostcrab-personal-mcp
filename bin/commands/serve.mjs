@@ -1,5 +1,5 @@
 /**
- * gcp brain up | gcp serve  [--workspace <name>] [--db <path>] [--port <port>]
+ * gcp brain up | gcp serve  [--workspace <name>] [--db <path>] [--install-skills]
  *
  * Starts the Zig backend (detached, independent process) then the MCP server
  * on this process's stdio. The backend keeps running across MCP reconnections;
@@ -14,7 +14,7 @@
 
 import { createServer } from "node:net";
 import { spawn } from "node:child_process";
-import { constants, existsSync, mkdirSync, openSync, readFileSync, unlinkSync } from "node:fs";
+import { constants, existsSync, mkdirSync, openSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -54,8 +54,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(__dirname, "..", "..");
 
 export async function runServe(args) {
-  const skipIdeSkills = args.includes("--no-skills");
-  const filtered = args.filter((a) => a !== "--no-skills");
+  const installIdeSkills = args.includes("--install-skills") && !args.includes("--no-skills");
+  const filtered = args.filter((a) => a !== "--install-skills" && a !== "--no-skills");
 
   // Parse flags
   let workspaceName = null;
@@ -75,24 +75,27 @@ export async function runServe(args) {
     }
     if (filtered[i] === "--help" || filtered[i] === "-h") {
       console.log(
-        `Usage: gcp brain up | gcp serve  [--workspace <name>] [--db <path>] [--no-skills]\n\n` +
+        `Usage: gcp brain up | gcp serve  [--workspace <name>] [--db <path>] [--install-skills]\n\n` +
           `Starts the MindBrain (Zig) backend if needed, then the MCP server on stdio.\n` +
           `  --workspace <name>  Use this workspace's SQLite path from config\n` +
           `  --db <path>         Explicit SQLite file path (overrides workspace/default;\n` +
           `                      env GHOSTCRAB_SQLITE_PATH still takes precedence)\n` +
-          `  --no-skills         Skip auto-install of IDE integration files from ghostcrab-skills.`
+          `  --install-skills    Copy default IDE integration files from ghostcrab-skills into cwd.\n` +
+          `  --no-skills         Skip IDE skill installation (negates --install-skills).`
       );
       return;
     }
   }
 
-  maybeInstallIdeSkills({
-    cwd: process.cwd(),
-    pkgRoot,
-    skip: skipIdeSkills,
-    force: false,
-    context: "serve",
-  });
+  if (installIdeSkills) {
+    maybeInstallIdeSkills({
+      cwd: process.cwd(),
+      pkgRoot,
+      skip: false,
+      force: false,
+      context: "serve",
+    });
+  }
 
   // ── Resolve backend binary ────────────────────────────────────────────────
   const backend = resolveNativeBackendPath(pkgRoot);
@@ -264,7 +267,6 @@ export async function runServe(args) {
           if (res.ok) {
             // Write pid:port so the next gcp serve can reuse this backend
             try {
-              const { writeFileSync } = await import("node:fs");
               writeFileSync(pidFile, `${backendProcess.pid}:${resolvedPort}\n`, "utf8");
             } catch {}
             return;
@@ -279,7 +281,7 @@ export async function runServe(args) {
         `  health URL: ${healthUrl}\n` +
         `  log: ${logFile}\n`
       );
-      backend.kill();
+      backendProcess.kill();
       process.exit(1);
     })();
   }
