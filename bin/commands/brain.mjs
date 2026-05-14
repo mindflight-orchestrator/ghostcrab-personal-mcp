@@ -54,10 +54,9 @@ export async function cmdBrain(args) {
         setup_cursor: "cursor",
         setup_codex: "codex",
         setup_claude: "claude",
-        setup_claudecode: "claude",
+        setup_claudecode: "claude"
       };
-      const r =
-        sub === "setup" ? rest : [aliasFirst[sub], ...rest];
+      const r = sub === "setup" ? rest : [aliasFirst[sub], ...rest];
       await cmdBrainSetup(r);
       break;
     }
@@ -89,7 +88,7 @@ async function cmdBrainSetup(args) {
     runSetupCodex,
     runSetupClaude,
     EX_ERR,
-    PKG_ROOT,
+    PKG_ROOT
   } = await import("../lib/mcp-global-setup.mjs");
 
   let packageName = p.package;
@@ -109,20 +108,26 @@ async function cmdBrainSetup(args) {
     packageName,
     runner: p.runner,
     workspace: p.workspace,
+    dbPath: p.dbPath,
+    serverName: p.serverName,
     extraEnv: p.extraEnv,
     dryRun: p.dryRun,
-    cwd: process.cwd(),
+    cwd: process.cwd()
   };
 
   if (p.target === "cursor") {
     const out = runSetupCursor({
       ...base,
-      force: p.force,
+      force: p.force
     });
     if (out.message) {
       (out.ok ? console.log : console.error)(out.message);
     }
-    if (out.ok && Array.isArray(out.prunedLegacy) && out.prunedLegacy.length > 0) {
+    if (
+      out.ok &&
+      Array.isArray(out.prunedLegacy) &&
+      out.prunedLegacy.length > 0
+    ) {
       console.log(
         `  Removed legacy MCP entries that pre-0.2.10 setup wrote (they were the source of\n` +
           `  "spawn gcp ENOENT" / "could not determine executable to run" in Cursor):\n` +
@@ -137,7 +142,7 @@ async function cmdBrainSetup(args) {
   }
 
   if (p.target === "codex") {
-    const out = runSetupCodex({ ...base });
+    const out = runSetupCodex({ ...base, force: p.force });
     if (out.message) {
       (out.ok ? console.log : console.error)(out.message);
     }
@@ -158,7 +163,8 @@ async function cmdBrainSetup(args) {
   if (p.target === "claude") {
     const out = runSetupClaude({
       ...base,
-      scopeProject: p.scopeProject,
+      scope: p.scope,
+      force: p.force
     });
     if (out.message) {
       (out.ok ? console.log : console.error)(out.message);
@@ -181,7 +187,7 @@ async function cmdBrainSetup(args) {
 
 /**
  * @param {string[]} args
- * @returns {"help" | { error: string } | { target: string, runner: string, package: string | null, workspace: string | null, dryRun: boolean, force: boolean, extraEnv: Record<string, string>, scopeProject: boolean } }
+ * @returns {"help" | { error: string } | { target: string, runner: string, package: string | null, workspace: string | null, dbPath: string | null, serverName: string | null, dryRun: boolean, force: boolean, extraEnv: Record<string, string>, scope: "local" | "user" | "project" } }
  */
 function parseSetupArgs(args) {
   if (args[0] === "--help" || args[0] === "-h") {
@@ -198,7 +204,7 @@ function parseSetupArgs(args) {
       : null;
   if (!target) {
     return {
-      error: `gcp brain setup: invalid target "${targetRaw}". Use: cursor, codex, or claude.`,
+      error: `gcp brain setup: invalid target "${targetRaw}". Use: cursor, codex, or claude.`
     };
   }
 
@@ -208,10 +214,12 @@ function parseSetupArgs(args) {
     runner: "auto",
     package: null,
     workspace: null,
+    dbPath: null,
+    serverName: null,
     dryRun: false,
     force: false,
     extraEnv: /** @type {Record<string, string>} */ ({}),
-    scopeProject: false,
+    scope: /** @type {"local" | "user" | "project"} */ ("user")
   };
 
   for (let i = 0; i < rest.length; i++) {
@@ -221,6 +229,14 @@ function parseSetupArgs(args) {
     }
     if (a === "--workspace" && rest[i + 1]) {
       out.workspace = rest[++i];
+      continue;
+    }
+    if (a === "--db" && rest[i + 1]) {
+      out.dbPath = rest[++i];
+      continue;
+    }
+    if ((a === "--name" || a === "--server-name") && rest[i + 1]) {
+      out.serverName = rest[++i];
       continue;
     }
     if (a === "--runner" && rest[i + 1]) {
@@ -243,14 +259,21 @@ function parseSetupArgs(args) {
       const s = rest[++i];
       const eq = s.indexOf("=");
       if (eq < 1) {
-        return { error: `gcp brain setup: --env expects KEY=value, got "${s}"` };
+        return {
+          error: `gcp brain setup: --env expects KEY=value, got "${s}"`
+        };
       }
       out.extraEnv[s.slice(0, eq).trim()] = s.slice(eq + 1);
       continue;
     }
-    if (a === "--scope" && rest[i + 1] === "project") {
-      i += 1;
-      out.scopeProject = true;
+    if (a === "--scope" && rest[i + 1]) {
+      const scope = rest[++i];
+      if (scope !== "local" && scope !== "user" && scope !== "project") {
+        return {
+          error: `gcp brain setup: --scope must be local, user, or project (got ${scope})`
+        };
+      }
+      out.scope = scope;
       continue;
     }
     return { error: `gcp brain setup: unexpected argument "${a}"` };
@@ -258,12 +281,12 @@ function parseSetupArgs(args) {
 
   if (!["gcp", "pnpm", "npx", "node", "auto"].includes(out.runner)) {
     return {
-      error: `gcp brain setup: --runner must be auto, gcp, pnpm, npx, or node (got ${out.runner})`,
+      error: `gcp brain setup: --runner must be auto, gcp, pnpm, npx, or node (got ${out.runner})`
     };
   }
 
-  if (out.scopeProject && out.target !== "claude") {
-    return { error: "gcp brain setup: --scope project is only for claude" };
+  if (out.scope !== "user" && out.target !== "claude") {
+    return { error: "gcp brain setup: --scope is only for claude" };
   }
 
   return out;
@@ -284,10 +307,12 @@ Usage: gcp brain setup <cursor|codex|claude> [options]
                                   - npx -y --package=<pkg>@latest gcp brain up
   --package <npm-name>          default: this package (see package.json "name")
   --workspace <name>            optional gcp --workspace
+  --db <path>                   add gcp brain up --db <path> to the MCP launch
+  --name, --server-name <name>  MCP server key (default: ghostcrab-personal-mcp)
   --env KEY=value              repeat for extra MCP process env
   --dry-run                    do not run CLIs or write files; print the result
-  --force, --replace           (cursor only) replace existing mcpServers.ghostcrab
-  --scope project              (claude only) claude mcp add --scope project
+  --force, --replace           replace existing entry where supported
+  --scope local|user|project   (claude only; default: user)
 
 Aliases:  gcp brain setup_cursor | setup_codex | setup_claude | setup_claudecode
 
@@ -301,7 +326,8 @@ async function cmdBrainWorkspace(args) {
   const rest = args.slice(1);
 
   if (!sub || sub === "--help" || sub === "-h") {
-    console.log(`
+    console.log(
+      `
 Usage: gcp brain workspace <subcommand>
 
 Subcommands:
@@ -310,7 +336,8 @@ Subcommands:
   list                List registered workspaces and SQLite paths
 
 Aliases:  gcp init [name]  →  gcp brain workspace create [name]
-`.trim());
+`.trim()
+    );
     return;
   }
 
@@ -352,7 +379,8 @@ function cmdWorkspaceList() {
 }
 
 function printBrainHelp() {
-  console.log(`
+  console.log(
+    `
 Usage: gcp brain <subcommand>
 
 MindBrain (storage + structure) — start the Zig backend, isolate memory, install schema packs.
@@ -378,5 +406,6 @@ Examples:
 
 Shorthand:  gcp up   and   gcp start   mean the same as   gcp brain up
 Legacy:     gcp serve  (same as gcp brain up)
-`.trim());
+`.trim()
+  );
 }

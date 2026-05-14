@@ -62,6 +62,14 @@ npx gcp brain setup codex
 
 Those commands write the client config with the most reliable local command form available from the current directory. If a specific client is not supported yet, use [universal-mcp-client.md](universal-mcp-client.md) and add a new adapter guide.
 
+Codex is not a JSON `mcpServers` client. `gcp brain setup codex` calls `codex mcp add` and the manual fallback is TOML `[mcp_servers.<name>]`, not Cursor-style JSON. If you need a dedicated Codex entry and database file, use:
+
+```bash
+npx gcp brain setup codex --force \
+  --name "ghostcrab-personal-mcp story2doc" \
+  --db /absolute/path/data/ghostcrab-story2doc-codex.sqlite
+```
+
 ## Common environment
 
 ```json
@@ -93,3 +101,5 @@ npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up
 The command is expected to stay running because it is an MCP stdio server. Stop it with `Ctrl+C` after confirming it starts without immediate errors.
 
 Then open the target client and check its MCP server/tool list. The server name should be `ghostcrab` or `ghostcrab-personal-mcp`, depending on the config you used.
+
+For Codex specifically, `codex mcp list` only proves the server is registered. Start a new Codex session and run `/mcp`; tools appear only after Codex starts the MCP stdio process successfully for that active session.
