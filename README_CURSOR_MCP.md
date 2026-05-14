@@ -87,8 +87,44 @@ The `--package=<scoped>@latest` form is **required** for scoped packages whose n
 ### Optional: workspace, SQLite path, env file
 
 - **Named workspace** — append to `args` after `up` (or `brain`, `up`), e.g. `"brain", "up", "--workspace", "my-project"`. Legacy: `"serve", "--workspace", "…"`.
-- **Fixed SQLite file** — set `GHOSTCRAB_SQLITE_PATH` in `env` to an absolute path, or use interpolation (see below).
+- **Fixed SQLite file (via `args`)** — append `"--db", "/absolute/path/to/ghostcrab.sqlite"` to `args`. This is the simplest way to hard-code the database file directly in `mcp.json` without touching `env`. See precedence rules below.
+- **Fixed SQLite file (via `env`)** — set `GHOSTCRAB_SQLITE_PATH` in `env` to an absolute path, or use interpolation (see below). The env variable takes precedence over `--db` when both are set.
 - **Extra variables from a file** — for stdio servers, Cursor supports `envFile` (for example `".env"` or `"${workspaceFolder}/.env"`). See [Cursor docs — STDIO server configuration](https://cursor.com/docs/mcp).
+
+#### SQLite path precedence
+
+When GhostCrab starts it resolves the database file in this order (highest priority first):
+
+1. `GHOSTCRAB_SQLITE_PATH` environment variable
+2. `--db <path>` CLI flag in `args`
+3. `--workspace` name → `sqlitePath` from GhostCrab CLI config
+4. `data/ghostcrab.sqlite` relative to the process working directory (fallback)
+
+#### Example: `--db` in `args`
+
+```json
+{
+  "mcpServers": {
+    "ghostcrab-personal-mcp": {
+      "type": "stdio",
+      "command": "/absolute/path/to/your/node",
+      "args": [
+        "/absolute/path/to/node_modules/@mindflight/ghostcrab-personal-mcp/bin/gcp.mjs",
+        "brain",
+        "up",
+        "--db",
+        "/absolute/path/to/ghostcrab.sqlite"
+      ],
+      "env": {
+        "GHOSTCRAB_DATABASE_KIND": "sqlite",
+        "GHOSTCRAB_EMBEDDINGS_MODE": "disabled"
+      }
+    }
+  }
+}
+```
+
+Note: `${workspaceFolder}` interpolation applies to both `args` and `env` fields in Cursor, so you can also write `"${workspaceFolder}/.ghostcrab/ghostcrab.sqlite"` as the `--db` value.
 
 Example with `workspaceFolder` and an optional sqlite path under the project:
 

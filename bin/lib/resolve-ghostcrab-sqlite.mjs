@@ -7,8 +7,13 @@ import { resolve, join } from "node:path";
 import { readConfig } from "./cli-config.mjs";
 
 /**
- * @param {{ workspaceNameFromCli?: string | null }} opts
+ * @param {{
+ *   workspaceNameFromCli?: string | null;
+ *   sqlitePathFromCli?: string | null;
+ * }} opts
  *   workspaceNameFromCli — only the `--workspace` / `-w` value when provided; not read from config here.
+ *   sqlitePathFromCli    — path supplied via `--db <path>` on the command line; wins over workspace /
+ *                          cwd fallback but loses to `GHOSTCRAB_SQLITE_PATH` env var.
  * @returns {{
  *   sqlitePath: string;
  *   sqlitePathResolved: string;
@@ -18,7 +23,7 @@ import { readConfig } from "./cli-config.mjs";
  * }}
  */
 export function resolveGhostcrabSqlite(opts) {
-  const { workspaceNameFromCli = null } = opts;
+  const { workspaceNameFromCli = null, sqlitePathFromCli = null } = opts;
   const config = readConfig();
 
   let sqlitePath;
@@ -30,6 +35,13 @@ export function resolveGhostcrabSqlite(opts) {
   if (process.env.GHOSTCRAB_SQLITE_PATH) {
     sqlitePath = process.env.GHOSTCRAB_SQLITE_PATH;
     sqlitePathSource = "GHOSTCRAB_SQLITE_PATH";
+    if (process.env.GHOSTCRAB_BACKEND_ADDR) {
+      backendAddr = process.env.GHOSTCRAB_BACKEND_ADDR;
+      portExplicit = true;
+    }
+  } else if (sqlitePathFromCli) {
+    sqlitePath = resolve(sqlitePathFromCli);
+    sqlitePathSource = "CLI --db";
     if (process.env.GHOSTCRAB_BACKEND_ADDR) {
       backendAddr = process.env.GHOSTCRAB_BACKEND_ADDR;
       portExplicit = true;
