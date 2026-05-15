@@ -53,6 +53,10 @@ async function findFreePort(base, range = PORT_RANGE) {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(__dirname, "..", "..");
 
+const PKG_VERSION = JSON.parse(
+  readFileSync(join(pkgRoot, "package.json"), "utf8")
+).version;
+
 export async function runServe(args) {
   const installIdeSkills = args.includes("--install-skills") && !args.includes("--no-skills");
   const filtered = args.filter((a) => a !== "--install-skills" && a !== "--no-skills");
@@ -139,16 +143,19 @@ export async function runServe(args) {
   }
 
   // ── Check if a backend is already running (before port resolution) ─────────
-  // PID file format: "<pid>:<port>\n"
+  // PID file format: "<pid>:<port>:<version>\n"
+  // The version field was added in 0.2.23; files written by older versions have
+  // only two fields and are treated as "unknown" version → upgrade path triggers.
   let backendAlreadyRunning = false;
   let resolvedPort;
   let mindbrainUrl = process.env.GHOSTCRAB_MINDBRAIN_URL ?? null;
 
   if (!mindbrainUrl && existsSync(pidFile)) {
     try {
-      const [rawPid, rawPort] = readFileSync(pidFile, "utf8").trim().split(":");
-      const existingPid = parseInt(rawPid, 10);
-      const existingPort = parseInt(rawPort, 10);
+      const parts = readFileSync(pidFile, "utf8").trim().split(":");
+      const existingPid = parseInt(parts[0], 10);
+      const existingPort = parseInt(parts[1], 10);
+      const storedVersion = parts[2] ?? "unknown";
       if (!isNaN(existingPid) && !isNaN(existingPort)) {
         try {
           process.kill(existingPid, 0); // signal 0 = liveness probe
@@ -157,14 +164,28 @@ export async function runServe(args) {
             signal: AbortSignal.timeout(1000),
           }).catch(() => null);
           if (healthCheck?.ok) {
-            process.stderr.write(
-              `[ghostcrab] reusing backend pid ${existingPid} on port ${existingPort}\n` +
-                `[ghostcrab] native backend log: ${logFile} (check here for sqlite log.err if seed fails; ` +
-                `stop this pid and run again to use a newly installed binary)\n`
-            );
-            resolvedPort = String(existingPort);
-            mindbrainUrl = url;
-            backendAlreadyRunning = true;
+            if (storedVersion !== PKG_VERSION) {
+              // Version mismatch — kill the old backend and start fresh.
+              process.stderr.write(
+                `[ghostcrab] upgrade: old backend v${storedVersion} (pid ${existingPid}, port ${existingPort}) is still running\n` +
+                `[ghostcrab] upgrade: sqlite dir → ${dataDir}\n` +
+                `[ghostcrab] upgrade: stopping old backend and starting v${PKG_VERSION}…\n`
+              );
+              try {
+                process.kill(existingPid, "SIGTERM");
+              } catch {}
+              try { unlinkSync(pidFile); } catch {}
+              // backendAlreadyRunning stays false → fall through to spawn path
+            } else {
+              process.stderr.write(
+                `[ghostcrab] reusing backend pid ${existingPid} on port ${existingPort}\n` +
+                  `[ghostcrab] native backend log: ${logFile} (check here for sqlite log.err if seed fails; ` +
+                  `stop this pid and run again to use a newly installed binary)\n`
+              );
+              resolvedPort = String(existingPort);
+              mindbrainUrl = url;
+              backendAlreadyRunning = true;
+            }
           }
         } catch {
           // PID gone — stale file, will be replaced below
@@ -265,9 +286,9 @@ export async function runServe(args) {
         try {
           const res = await fetch(healthUrl, { signal: AbortSignal.timeout(1000) });
           if (res.ok) {
-            // Write pid:port so the next gcp serve can reuse this backend
+            // Write pid:port:version so the next gcp serve can detect upgrades
             try {
-              writeFileSync(pidFile, `${backendProcess.pid}:${resolvedPort}\n`, "utf8");
+              writeFileSync(pidFile, `${backendProcess.pid}:${resolvedPort}:${PKG_VERSION}\n`, "utf8");
             } catch {}
             return;
           }
