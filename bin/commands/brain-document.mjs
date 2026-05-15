@@ -172,7 +172,7 @@ Usage: gcp brain document [--workspace <name>] [--force] <subcommand> [...args]
 
   gcp brain document document-normalize --input ./paper.pdf --output-dir ./out
   gcp brain document document-profile --content-file ./out/doc.md \\
-    --base-url https://api.openai.com/v1 --model gpt-4.1-mini --api-key "\$OPENAI_API_KEY"
+    --base-url https://api.openai.com/v1 --model gpt-4.1-mini --api-key "$OPENAI_API_KEY"
   gcp brain document document-profile-enqueue --content-dir ./out --include-ext md,txt \\
     --workspace-id my_ws --collection-id my_ws::docs --doc-id-start 1
   gcp brain document document-profile-worker \\

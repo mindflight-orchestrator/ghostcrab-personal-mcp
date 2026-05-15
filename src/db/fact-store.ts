@@ -2,6 +2,19 @@ export const SQLITE_FACT_STORE_TABLE = "facets";
 export const SQLITE_FACTS_COLUMN = "facets_json";
 export const SQLITE_NEXT_FACT_DOC_ID_EXPR = `(SELECT COALESCE(MAX(doc_id), 0) + 1 FROM ${SQLITE_FACT_STORE_TABLE})`;
 
+/**
+ * Canonical MindBrain `bm25_sync_triggers.table_id` for the GhostCrab `facets`
+ * table. Stable across versions; used as the namespace key for `search_fts_docs`,
+ * `search_documents`, and `search_embeddings`.
+ *
+ * Document profile import (vendor/mindbrain/src/standalone/import_pipeline.zig)
+ * picks table ids per-collection at runtime, so collisions are not possible
+ * for fresh GhostCrab installs. If a future MindBrain release changes the
+ * default table-id allocation strategy, bump this constant in a major release
+ * and re-run the FTS-sync bootstrap.
+ */
+export const FACETS_SEARCH_TABLE_ID = 1;
+
 export function sqliteFacetJsonExtractClause(facetKey: string): string {
   return `json_extract(${SQLITE_FACTS_COLUMN}, '$.${facetKey}')`;
 }

@@ -2,11 +2,23 @@ import { z } from "zod";
 
 import { runStandaloneGhostcrabPack } from "../../db/standalone-mindbrain.js";
 import { resolveGhostcrabConfig } from "../../config/env.js";
+import { FACETS_SEARCH_TABLE_ID } from "../../db/fact-store.js";
+import {
+  buildFtsMatchExpression,
+  ensureSearchFtsCaughtUp
+} from "../../db/facets-fts-search.js";
+import { isFactsFtsReady } from "../../runtime/facets-fts-state.js";
 import {
   createToolSuccessResult,
   registerTool,
   type ToolHandler
 } from "../registry.js";
+
+interface FactRow {
+  content: string;
+  id: string;
+  score: number;
+}
 
 export const PackInput = z.object({
   query: z.string().trim().min(1).max(4_096),
@@ -121,31 +133,11 @@ export const packTool: ToolHandler = {
       );
     }
 
-    const factTerms = input.query.split(/\s+/).filter(Boolean);
-    const factWhereClause =
-      factTerms.length > 0
-        ? `(${factTerms.map(() => "instr(lower(content), lower(?)) > 0").join(" OR ")})`
-        : "1 = 0";
-    const factScoreSql =
-      factTerms.length > 0
-        ? factTerms
-            .map(
-              () => `
-                (
-                  CAST(
-                    length(lower(content)) - length(replace(lower(content), lower(?), ''))
-                    AS REAL
-                  ) / NULLIF(length(?), 0)
-                )
-              `
-            )
-            .join(" + ")
-        : "0.0";
-    const factScoreParams: unknown[] = [];
-    for (const term of factTerms) {
-      factScoreParams.push(term, term);
-    }
-
+    // Phase 2: prefer the genuine FTS5 BM25 path when available; fall back to
+    // local keyword (substring) scoring otherwise. The mode label
+    // (`facts_mode_applied`) is set in the response builder below to match
+    // whichever path actually ran.
+    const ftsExpression = buildFtsMatchExpression(input.query);
     const factWorkspaceClauses: string[] = [
       "workspace_id = ?",
       "(valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))"
@@ -155,24 +147,91 @@ export const packTool: ToolHandler = {
       factWorkspaceClauses.push("schema_id = ?");
       factWorkspaceParams.push(effectiveSchemaId);
     }
-    const factRows = await context.database.query<{
-      content: string;
-      id: string;
-      score: number;
-    }>(
-      `
-        SELECT
-          id,
-          content,
-          ${factScoreSql} AS score
-        FROM mb_pragma.facets
-        WHERE ${factWhereClause.replace("1 = 0", "1 = 0 AND 1 = 1")}
-          AND ${factWorkspaceClauses.join(" AND ")}
-        ORDER BY score DESC, created_at_unix DESC
-        LIMIT 5
-      `,
-      [...factScoreParams, ...factTerms, ...factWorkspaceParams]
-    );
+
+    let factRows: FactRow[] = [];
+    let factsModeApplied: "bm25" | "keyword_sql" = "keyword_sql";
+
+    if (ftsExpression !== null && isFactsFtsReady()) {
+      try {
+        await ensureSearchFtsCaughtUp(context.database);
+        const ftsClauses = factWorkspaceClauses.map((clause) =>
+          clause === "workspace_id = ?"
+            ? "f.workspace_id = ?"
+            : clause === "schema_id = ?"
+              ? "f.schema_id = ?"
+              : clause.replace(/\bvalid_until_unix\b/g, "f.valid_until_unix")
+        );
+        factRows = await context.database.query<FactRow>(
+          `
+            SELECT
+              f.id,
+              f.content,
+              bm25(search_fts) AS score
+            FROM mb_pragma.facets AS f
+            JOIN search_fts_docs AS sd
+              ON sd.table_id = ? AND sd.doc_id = f.doc_id
+            JOIN search_fts AS sf
+              ON sf.rowid = sd.fts_rowid
+            WHERE search_fts MATCH ?
+              AND ${ftsClauses.join(" AND ")}
+            ORDER BY score
+            LIMIT 5
+          `,
+          [
+            FACETS_SEARCH_TABLE_ID,
+            ftsExpression,
+            ...factWorkspaceParams
+          ]
+        );
+        factsModeApplied = "bm25";
+      } catch (error) {
+        notes.push(
+          `Pack facts: FTS5 BM25 path failed (${error instanceof Error ? error.message : "unknown error"}); falling back to keyword_sql.`
+        );
+      }
+    }
+
+    if (factsModeApplied !== "bm25") {
+      const factTerms = input.query.split(/\s+/).filter(Boolean);
+      const factWhereClause =
+        factTerms.length > 0
+          ? `(${factTerms.map(() => "instr(lower(content), lower(?)) > 0").join(" OR ")})`
+          : "1 = 0";
+      const factScoreSql =
+        factTerms.length > 0
+          ? factTerms
+              .map(
+                () => `
+                  (
+                    CAST(
+                      length(lower(content)) - length(replace(lower(content), lower(?), ''))
+                      AS REAL
+                    ) / NULLIF(length(?), 0)
+                  )
+                `
+              )
+              .join(" + ")
+          : "0.0";
+      const factScoreParams: unknown[] = [];
+      for (const term of factTerms) {
+        factScoreParams.push(term, term);
+      }
+
+      factRows = await context.database.query<FactRow>(
+        `
+          SELECT
+            id,
+            content,
+            ${factScoreSql} AS score
+          FROM mb_pragma.facets
+          WHERE ${factWhereClause.replace("1 = 0", "1 = 0 AND 1 = 1")}
+            AND ${factWorkspaceClauses.join(" AND ")}
+          ORDER BY score DESC, created_at_unix DESC
+          LIMIT 5
+        `,
+        [...factScoreParams, ...factTerms, ...factWorkspaceParams]
+      );
+    }
 
     const hasBlockingConstraint = packRows.some(
       (row) => row.proj_type === "CONSTRAINT" && row.status === "blocking"
@@ -227,7 +286,7 @@ export const packTool: ToolHandler = {
       projection_recipe_used: null,
       kpi_patterns_used: [],
       kpi_snapshots: [],
-      facts_mode_applied: "bm25",
+      facts_mode_applied: factsModeApplied,
       hybrid_weights: {
         bm25: context.retrieval.hybridBm25Weight,
         vector: context.retrieval.hybridVectorWeight

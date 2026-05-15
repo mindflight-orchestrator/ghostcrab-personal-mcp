@@ -173,8 +173,8 @@ export async function runServe(args) {
               );
               try {
                 process.kill(existingPid, "SIGTERM");
-              } catch {}
-              try { unlinkSync(pidFile); } catch {}
+              } catch { /* SIGTERM may fail if the process is already gone */ }
+              try { unlinkSync(pidFile); } catch { /* stale file may already be gone */ }
               // backendAlreadyRunning stays false → fall through to spawn path
             } else {
               process.stderr.write(
@@ -187,13 +187,11 @@ export async function runServe(args) {
               backendAlreadyRunning = true;
             }
           }
-        } catch {
-          // PID gone — stale file, will be replaced below
-          try { unlinkSync(pidFile); } catch {}
+        } catch { /* PID gone — stale file, will be replaced below */
+          try { unlinkSync(pidFile); } catch { /* ignore — best effort */ }
         }
       }
-    } catch {
-      // unreadable PID file, ignore
+    } catch { /* unreadable PID file, ignore */
     }
   }
 
@@ -276,7 +274,7 @@ export async function runServe(args) {
           try {
             const raw = readFileSync(logFile);
             tail = raw.slice(Math.max(0, raw.length - 4096)).toString("utf8");
-          } catch {}
+          } catch { /* log file unreadable — report what we have */ }
           process.stderr.write(
             `[ghostcrab] backend exited early (code ${earlyCode ?? "?"})\n` +
             `[ghostcrab] last lines from ${logFile}:\n${tail}\n`
@@ -289,11 +287,10 @@ export async function runServe(args) {
             // Write pid:port:version so the next gcp serve can detect upgrades
             try {
               writeFileSync(pidFile, `${backendProcess.pid}:${resolvedPort}:${PKG_VERSION}\n`, "utf8");
-            } catch {}
+            } catch { /* non-fatal: pid file is best-effort */ }
             return;
           }
-        } catch {
-          // not ready yet
+        } catch { /* not ready yet */
         }
         await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
       }

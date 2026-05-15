@@ -10,7 +10,6 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, describe, expect, it } from "vitest";
 
-import { resolveGhostcrabConfig } from "../../../src/config/env.js";
 import { workspaceCreateTool } from "../../../src/tools/workspace/create.js";
 import { ddlExecuteTool, ddlProposeTool } from "../../../src/tools/workspace/ddl.js";
 import { workspaceExportModelTool } from "../../../src/tools/workspace/export.js";
@@ -77,7 +76,6 @@ CREATE TABLE IF NOT EXISTS activities (
 `;
 
 describe.sequential("CRM outbound golden-path — rich semantics end-to-end", () => {
-  const config = resolveGhostcrabConfig(process.env);
 
   afterAll(async () => {
     try {

@@ -73,7 +73,7 @@ export const traverseTool: ToolHandler = {
           if (typeof parsed === "object" && parsed !== null) {
             return parsed as Record<string, unknown>;
           }
-        } catch {}
+        } catch { /* non-JSON metadata — return empty object */ }
       }
       return {};
     };
@@ -87,7 +87,7 @@ export const traverseTool: ToolHandler = {
       depth: number;
       path: string[];
     }>;
-    let targetFound: boolean | null = null;
+    let targetFound: boolean | null;
 
     try {
       const result = await runStandaloneTraverse({

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { buildStatusPreamble } from "../../mcp/agent-brief.js";
+import { isFactsFtsReady } from "../../runtime/facets-fts-state.js";
 import {
   createToolSuccessResult,
   registerTool,
@@ -30,12 +31,17 @@ export const statusTool: ToolHandler = {
     const input = StatusInput.parse(args);
     const embeddingRuntime = context.embeddings.getStatus();
 
+    // Phase 2: facets.bm25 reflects whether the FTS-sync bootstrap succeeded
+    // at server startup (see src/db/facets-fts-sync.ts). When true, the
+    // active ghostcrab_search bm25/hybrid path uses MindBrain FTS5 BM25;
+    // when false, both modes fall back to keyword_sql substring scoring.
+    const factsFtsReady = isFactsFtsReady();
     const sqliteReadiness = {
       facets: {
         registered: false,
         count: false,
         hierarchy: false,
-        bm25: false,
+        bm25: factsFtsReady,
         deltaMerge: false
       },
       dgraph: {
@@ -143,7 +149,7 @@ export const statusTool: ToolHandler = {
         : "misconfigured_or_blocked"
       : embeddingRuntime.vectorSearchReady
         ? "ready"
-        : "bm25_only";
+        : "keyword_only";
 
     const embeddingsIssue =
       embeddingsStatus === "degraded_but_retryable" ||

@@ -456,10 +456,10 @@ export const ddlExecuteTool: ToolHandler = {
         }
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      semanticsError = message.startsWith("semantic persistence failed:")
-        ? message.replace(/^semantic persistence failed:\s*/, "")
-        : semanticsError;
+      const raw = error instanceof Error ? error.message : String(error);
+      const message = raw.startsWith("semantic persistence failed:")
+        ? raw.replace(/^semantic persistence failed:\s*/, "")
+        : raw;
       return createToolErrorResult(
         "ghostcrab_ddl_execute",
         `DDL execution failed: ${message}`,
