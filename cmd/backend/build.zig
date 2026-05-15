@@ -16,6 +16,11 @@ const std = @import("std");
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+    const neon = b.option(
+        NeonMode,
+        "neon",
+        "ARM NEON support: auto (off on aarch64 until CRoaring 4.7.0 verified on M1), on, off",
+    ) orelse .auto;
 
     const ztoon_mod = b.createModule(.{
         .root_source_file = b.path("../../vendor/ztoon/src/lib.zig"),
@@ -31,7 +36,7 @@ pub fn build(b: *std.Build) void {
     });
     // Bundle sqlite3 amalgamation — no system libsqlite3 dependency.
     configureSqlite3(mindbrain_mod);
-    configureCroaring(mindbrain_mod);
+    configureCroaring(b, mindbrain_mod, target, neon);
     mindbrain_mod.addImport("ztoon", ztoon_mod);
 
     const http_mod = b.createModule(.{
@@ -102,17 +107,26 @@ fn configureSqlite3(module: *std.Build.Module) void {
     });
 }
 
-fn configureCroaring(module: *std.Build.Module) void {
-    module.addIncludePath(.{ .cwd_relative = "../../vendor/mindbrain/deps/pg_roaringbitmap" });
-    // Module-wide: standalone `roaring.zig` uses `@cImport("roaring.h")`, which does not inherit
-    // per-file C flags from `addCSourceFile`. Without this, aarch64 translation pulls in
-    // `arm_neon.h` and Zig 0.16's Clang can fail parsing it.
-    module.addCMacro("DISABLENEON", "1");
+const NeonMode = enum { auto, on, off };
+
+fn configureCroaring(
+    b: *std.Build,
+    module: *std.Build.Module,
+    target: std.Build.ResolvedTarget,
+    neon: NeonMode,
+) void {
+    const disable_neon = switch (neon) {
+        .off => true,
+        .on => false,
+        // aarch64: keep NEON disabled until CRoaring 4.7.0 is verified on M1.
+        .auto => target.result.cpu.arch == .aarch64,
+    };
+
     module.addCSourceFile(.{
-        .file = .{ .cwd_relative = "../../vendor/mindbrain/deps/pg_roaringbitmap/roaring.c" },
-        .flags = &.{
-            "-DCROARING_COMPILER_SUPPORTS_AVX512=0",
-            "-DDISABLENEON=1",
-        },
+        .file = b.path("../../vendor/mindbrain/deps/croaring/roaring.c"),
+        .flags = if (disable_neon)
+            &.{"-DDISABLENEON=1"}
+        else
+            &.{},
     });
 }
