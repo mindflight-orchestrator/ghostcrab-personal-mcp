@@ -10,7 +10,8 @@ export default tseslint.config(
       "dist/**",
       "docs/**",
       "extensions/**",
-      "node_modules/**"
+      "node_modules/**",
+      "vendor/**"
     ]
   },
   js.configs.recommended,
