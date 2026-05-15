@@ -12,6 +12,8 @@ import { ZodError } from "zod";
 
 import { resolveGhostcrabConfig } from "./config/env.js";
 import { createDatabaseClient } from "./db/client.js";
+import { ensureFactsFtsSync } from "./db/facets-fts-sync.js";
+import { setFactsFtsReady } from "./runtime/facets-fts-state.js";
 import { EmbeddingProviderError } from "./embeddings/errors.js";
 import { createEmbeddingProvider } from "./embeddings/provider.js";
 import { ensureBootstrapData } from "./bootstrap/seed.js";
@@ -303,6 +305,34 @@ export async function startMcpServer(): Promise<void> {
       `[ghostcrab] MCP server connected on stdio with ${listRegisteredTools().length} registered tool(s)` +
         (serverState.databaseReady ? "" : " [DEGRADED — backend unreachable]")
     );
+
+    if (serverState.databaseReady) {
+      // FTS-sync bootstrap: register `facets` in MindBrain's `bm25_sync_triggers`
+      // and backfill `search_fts` from existing rows. Required because the
+      // v1.2.1 baseline does not auto-register `facets` for sync. Failures are
+      // non-fatal — the search path falls back to keyword_sql until this
+      // succeeds.
+      try {
+        const ftsSummary = await ensureFactsFtsSync(database);
+        setFactsFtsReady(ftsSummary.ready);
+        if (ftsSummary.ready) {
+          console.error(
+            `[ghostcrab] facets FTS5 sync ready (registered=${ftsSummary.registered}, +${ftsSummary.documentsInserted} documents, +${ftsSummary.ftsDocsInserted} fts_docs, +${ftsSummary.ftsRowsInserted} fts rows)`
+          );
+        } else {
+          console.error(
+            `[ghostcrab] facets FTS5 sync NOT READY — falling back to keyword_sql. Reason: ${ftsSummary.error ?? "unknown"}`
+          );
+        }
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : String(error);
+        console.error(
+          `[ghostcrab] facets FTS5 sync raised an unexpected error — keyword_sql fallback active. Reason: ${message}`
+        );
+        setFactsFtsReady(false);
+      }
+    }
 
     if (serverState.databaseReady && config.bootstrapSeedEnabled) {
       try {

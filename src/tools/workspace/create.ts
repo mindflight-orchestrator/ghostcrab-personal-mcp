@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import {
-  createToolErrorResult,
   createToolSuccessResult,
   registerTool,
   type ToolHandler

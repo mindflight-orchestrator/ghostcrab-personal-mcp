@@ -103,4 +103,119 @@ describe("embeddings backfill", () => {
       query.mock.calls.some((call) => call[0].includes("UPDATE facets"))
     ).toBe(true);
   });
+
+  it("targets the active embedding_blob column, not the legacy embedding column", async () => {
+    const query = vi
+      .fn<DatabaseClient["query"]>()
+      .mockResolvedValueOnce([{ id: "facet-1", content: "hello" }])
+      .mockResolvedValueOnce([])
+      .mockResolvedValue([]);
+    const database = createMockDatabase(query);
+    const embeddings = {
+      async embedMany(texts: string[]) {
+        return texts.map(() => [0.1, 0.2, 0.3, 0.4]);
+      },
+      getStatus() {
+        return {
+          available: true,
+          dimensions: 4,
+          mode: "fake" as const,
+          note: "Fake",
+          vectorSearchReady: true,
+          writeEmbeddingsEnabled: true
+        };
+      }
+    };
+
+    await runBackfill(database, embeddings, {
+      batchSize: 1,
+      dryRun: false
+    });
+
+    const selectCalls = query.mock.calls.filter((call) =>
+      call[0].includes("FROM facets")
+    );
+    expect(selectCalls.length).toBeGreaterThan(0);
+    for (const call of selectCalls) {
+      expect(call[0]).toMatch(/embedding_blob\s+IS\s+NULL/);
+      expect(call[0]).not.toMatch(/\bembedding\s+IS\s+NULL\b/);
+    }
+
+    const updateCalls = query.mock.calls.filter((call) =>
+      call[0].includes("UPDATE facets")
+    );
+    expect(updateCalls.length).toBe(1);
+    expect(updateCalls[0]?.[0]).toMatch(/SET\s+embedding_blob\s*=/);
+    expect(updateCalls[0]?.[0]).not.toMatch(/SET\s+embedding\s*=/);
+  });
+
+  it("uses SQLite-style positional placeholders, not Postgres $N", async () => {
+    const query = vi
+      .fn<DatabaseClient["query"]>()
+      .mockResolvedValueOnce([{ id: "facet-1", content: "hello" }])
+      .mockResolvedValueOnce([])
+      .mockResolvedValue([]);
+    const database = createMockDatabase(query);
+    const embeddings = {
+      async embedMany(texts: string[]) {
+        return texts.map(() => [0.1, 0.2, 0.3, 0.4]);
+      },
+      getStatus() {
+        return {
+          available: true,
+          dimensions: 4,
+          mode: "fake" as const,
+          note: "Fake",
+          vectorSearchReady: true,
+          writeEmbeddingsEnabled: true
+        };
+      }
+    };
+
+    await runBackfill(database, embeddings, {
+      batchSize: 1,
+      dryRun: false
+    });
+
+    for (const call of query.mock.calls) {
+      expect(call[0]).not.toMatch(/\$\d+/);
+      expect(call[0]).not.toMatch(/::vector/);
+    }
+  });
+
+  it("is a no-op when every row already has an embedding_blob", async () => {
+    const query = vi
+      .fn<DatabaseClient["query"]>()
+      .mockResolvedValueOnce([])
+      .mockResolvedValue([]);
+    const database = createMockDatabase(query);
+    const embeddings = {
+      async embedMany() {
+        throw new Error("should not be called when nothing needs backfill");
+      },
+      getStatus() {
+        return {
+          available: true,
+          dimensions: 4,
+          mode: "fake" as const,
+          note: "Fake",
+          vectorSearchReady: true,
+          writeEmbeddingsEnabled: true
+        };
+      }
+    };
+
+    const summary = await runBackfill(database, embeddings, {
+      batchSize: 50,
+      dryRun: false
+    });
+
+    expect(summary).toEqual({
+      failed: 0,
+      scanned: 0,
+      skipped: 0,
+      updated: 0
+    });
+    expect(query).toHaveBeenCalledTimes(1);
+  });
 });

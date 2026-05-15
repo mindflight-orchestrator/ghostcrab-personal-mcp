@@ -10,6 +10,12 @@ import {
 
 process.env.MCP_SMOKE_TIMEOUT_MS ??= "30000";
 
+// Phase 4: semantic and hybrid retrieval are wired. Smoke scripts default to
+// asserting the wired behaviour. Setting GHOSTCRAB_SEMANTIC_WIRED=0 reverts to
+// the Phase 1 keyword_sql fallback assertions — useful for environments that
+// have not run the FTS-sync bootstrap (e.g. an older MindBrain backend).
+const semanticWired = process.env.GHOSTCRAB_SEMANTIC_WIRED !== "0";
+
 const localEnv = readLocalEnvFile();
 const openRouterApiKey =
   process.env.GHOSTCRAB_EMBEDDINGS_API_KEY ??
@@ -64,8 +70,6 @@ await withSmokeClient(
     );
 
     assertToolSuccess(semanticSearchPayload, "ghostcrab_search");
-    assert.equal(semanticSearchPayload.mode_applied, "semantic");
-    assert.equal(semanticSearchPayload.semantic_available, true);
     assert.equal(semanticSearchPayload.embedding_runtime.mode, "openrouter");
     assert.equal(
       semanticSearchPayload.results.some((row) =>
@@ -77,6 +81,14 @@ await withSmokeClient(
       bm25: 0.6,
       vector: 0.4
     });
+
+    if (semanticWired) {
+      assert.equal(semanticSearchPayload.mode_applied, "semantic");
+      assert.equal(semanticSearchPayload.semantic_available, true);
+    } else {
+      assert.equal(semanticSearchPayload.mode_applied, "keyword_sql");
+      assert.equal(semanticSearchPayload.semantic_available, false);
+    }
 
     const hybridSearchPayload = await callToolJson(
       client,
@@ -93,8 +105,13 @@ await withSmokeClient(
     );
 
     assertToolSuccess(hybridSearchPayload, "ghostcrab_search");
-    assert.equal(hybridSearchPayload.mode_applied, "hybrid");
     assert.equal(hybridSearchPayload.embedding_runtime.mode, "openrouter");
+
+    if (semanticWired) {
+      assert.equal(hybridSearchPayload.mode_applied, "hybrid");
+    } else {
+      assert.equal(hybridSearchPayload.mode_applied, "keyword_sql");
+    }
 
     const packPayload = await callToolJson(
       client,
@@ -109,7 +126,10 @@ await withSmokeClient(
 
     assertToolSuccess(packPayload, "ghostcrab_pack");
     assert.equal(packPayload.embedding_runtime.mode, "openrouter");
-    assert.equal(packPayload.facts_mode_applied, "hybrid");
+    assert.equal(
+      packPayload.facts_mode_applied,
+      semanticWired ? "hybrid" : "keyword_sql"
+    );
 
     const statusPayload = await callToolJson(
       client,
@@ -126,7 +146,9 @@ await withSmokeClient(
     });
 
     console.error(
-      "[ghostcrab-smoke] Real embeddings scenario validated against OpenRouter: remember + semantic + hybrid + pack + status."
+      semanticWired
+        ? "[ghostcrab-smoke] Real embeddings scenario validated against OpenRouter: remember + semantic + hybrid + pack + status."
+        : "[ghostcrab-smoke] Real embeddings scenario validated against OpenRouter: remember + keyword_sql fallback + pack + status (semantic wiring deferred to Phase 3; set GHOSTCRAB_SEMANTIC_WIRED=1 to flip)."
     );
   },
   {

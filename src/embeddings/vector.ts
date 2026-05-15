@@ -20,6 +20,12 @@ export function createDeterministicUnitVector(
   return values.map((value) => value / scale);
 }
 
+/**
+ * @deprecated Prefer `encodeEmbedding` from `./blob.js`. Kept as a thin alias
+ * because the wire format is the same (canonical JSON-array text payload
+ * stored in `facets.embedding_blob`). Will be removed once all call sites
+ * have migrated.
+ */
 export function formatPgVector(vector: number[]): string {
   return `[${vector.map((value) => Number(value).toString()).join(",")}]`;
 }

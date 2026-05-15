@@ -173,7 +173,7 @@ function transformSqliteQuery(
     .replace(/\bgraph\.entity\b/g, "graph_entity")
     .replace(/\bgraph\.relation\b/g, "graph_relation")
     .replace(/\bfacets\b(?=\s*(?:->|->>|@>))/g, "facets_json")
-    .replace(/::[a-zA-Z0-9_.\[\]]+/g, "")
+    .replace(/::[a-zA-Z0-9_.[\]]+/g, "")
     .replace(/\bILIKE\b/g, "LIKE")
     .replace(/\bnow\(\)/g, "CURRENT_TIMESTAMP")
     .replace(/\bTRUE\b/g, "1")

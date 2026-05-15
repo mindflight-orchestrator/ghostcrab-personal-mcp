@@ -321,7 +321,9 @@ async function scoreEmbeddingSimilarity(
 
   const textToEmbedding = new Map<string, number[]>();
   for (let i = 0; i < uniqueTexts.length; i++) {
-    textEmbeddings[i] && textToEmbedding.set(uniqueTexts[i], textEmbeddings[i]);
+    if (textEmbeddings[i]) {
+      textToEmbedding.set(uniqueTexts[i], textEmbeddings[i]);
+    }
   }
 
   const familyBestScore = new Map<
@@ -816,7 +818,7 @@ function generateToolSteps(
   });
 
   steps.push({
-    order: order++,
+    order: order,
     tool: "ghostcrab_project",
     action: "Generate your first working view / heartbeat projection",
     params_hint: {

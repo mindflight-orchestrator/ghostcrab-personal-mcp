@@ -147,7 +147,7 @@ describe("pragma tools", () => {
       tool: "ghostcrab_pack",
       backend: "native",
       surface_version: GHOSTCRAB_MCP_SURFACE_VERSION,
-      facts_mode_applied: "bm25",
+      facts_mode_applied: "keyword_sql",
       has_blocking_constraint: true,
       activity_family_detected: null,
       scope_profile_id_detected: null,
@@ -304,7 +304,7 @@ describe("pragma tools", () => {
           health: "RED",
           agent_state: "BUSY",
           database_kind: "sqlite",
-          embeddings_status: "bm25_only"
+          embeddings_status: "keyword_only"
         }
       },
       next_actions: []

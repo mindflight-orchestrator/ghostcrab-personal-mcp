@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { DatabaseClient, Queryable } from "../../src/db/client.js";
 import { createToolContext } from "../helpers/tool-context.js";
@@ -12,6 +12,7 @@ import {
 import { searchTool } from "../../src/tools/facets/search.js";
 import { upsertTool } from "../../src/tools/facets/upsert.js";
 import { GHOSTCRAB_MCP_SURFACE_VERSION } from "../../src/tools/registry.js";
+import { setFactsFtsReady } from "../../src/runtime/facets-fts-state.js";
 
 const FIXED_CREATED_AT_UNIX = Date.parse("2026-03-23T12:00:00.000Z") / 1000;
 const UUID_V4 =
@@ -189,7 +190,7 @@ describe("facet tools", () => {
     });
   });
 
-  it("searches with BM25 fallback when semantic mode is requested", async () => {
+  it("searches with keyword_sql fallback when semantic mode is requested", async () => {
     const query = vi.fn(async () => [
       {
         id: "facet-1",
@@ -221,7 +222,7 @@ describe("facet tools", () => {
       returned: 1,
       exact_structured_read: false,
       mode_requested: "semantic",
-      mode_applied: "bm25",
+      mode_applied: "keyword_sql",
       semantic_available: false,
       searched_layers: ["facets"],
       excluded_layers: ["graph_entity", "graph_relation", "projection_result"],
@@ -311,7 +312,7 @@ describe("facet tools", () => {
         vector: 0.4
       },
       mode_requested: "hybrid",
-      mode_applied: "hybrid",
+      mode_applied: "keyword_sql",
       semantic_available: false,
       embedding_runtime: expect.objectContaining({
         mode: "fake",
@@ -353,7 +354,7 @@ describe("facet tools", () => {
     expect(readStructured(result)).toMatchObject({
       returned: 1,
       mode_requested: "bm25",
-      mode_applied: "bm25",
+      mode_applied: "keyword_sql",
       semantic_available: false
     });
   });
@@ -421,15 +422,18 @@ describe("facet tools", () => {
 
     expect(readStructured(result)).toMatchObject({
       mode_requested: "semantic",
-      mode_applied: "bm25",
+      mode_applied: "keyword_sql",
       semantic_available: false,
       embedding_runtime: expect.objectContaining({
         mode: "openrouter",
         failure: undefined
       })
     });
+    // Phase 3: when the embedding provider crashes mid-call, the user gets the
+    // exact error attached to the response so they can act on it. The further
+    // fallback (BM25/keyword_sql) is implicit in mode_applied.
     expect(readStructured(result).notes).toEqual([
-      "SQLite mode currently applies fast local keyword scoring."
+      "Query embedding failed (Invalid API key); ranking without the semantic layer."
     ]);
   });
 
@@ -464,7 +468,7 @@ describe("facet tools", () => {
       tool: "ghostcrab_search",
       returned: 1,
       mode_requested: "bm25",
-      mode_applied: "bm25",
+      mode_applied: "keyword_sql",
       backend: "sql"
     });
   });
@@ -503,7 +507,7 @@ describe("facet tools", () => {
       ok: true,
       tool: "ghostcrab_search",
       returned: 1,
-      mode_applied: "bm25",
+      mode_applied: "keyword_sql",
       backend: "sql"
     });
   });
@@ -712,6 +716,174 @@ describe("facet tools", () => {
       tool: "ghostcrab_schema_inspect",
       found: true,
       schema_id: "ghostcrab:task"
+    });
+  });
+
+  describe("FTS5 BM25 wiring", () => {
+    afterEach(() => {
+      setFactsFtsReady(false);
+    });
+
+    it("uses MATCH against search_fts when bm25 mode is requested and FTS is ready", async () => {
+      setFactsFtsReady(true);
+      const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
+        if (sql.includes("search_fts MATCH")) {
+          return [
+            {
+              id: "facet-fts-1",
+              schema_id: "agent:observation",
+              content: "Real BM25 ranking finally wired",
+              facets_json: JSON.stringify({ domain: "product" }),
+              created_at_unix: FIXED_CREATED_AT_UNIX,
+              version: 1,
+              score: 0.42
+            }
+          ];
+        }
+        return [];
+      });
+      const database = createMockDatabase(query);
+
+      const result = await searchTool.handler(
+        {
+          query: "real bm25",
+          mode: "bm25",
+          limit: 5
+        },
+        createToolContext(database)
+      );
+
+      expect(query.mock.calls.some((call) => call[0].includes("search_fts MATCH"))).toBe(true);
+      expect(query.mock.calls.some((call) => call[0].includes("bm25(search_fts)"))).toBe(true);
+      expect(readStructured(result)).toMatchObject({
+        ok: true,
+        tool: "ghostcrab_search",
+        returned: 1,
+        mode_requested: "bm25",
+        mode_applied: "bm25",
+        backend: "sql"
+      });
+    });
+
+    it("uses FTS5 even for hybrid mode in Phase 2 (vector layer ships in Phase 3)", async () => {
+      setFactsFtsReady(true);
+      const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
+        if (sql.includes("search_fts MATCH")) {
+          return [
+            {
+              id: "facet-fts-2",
+              schema_id: "agent:observation",
+              content: "Hybrid still leans on BM25 in Phase 2",
+              facets_json: JSON.stringify({ domain: "product" }),
+              created_at_unix: FIXED_CREATED_AT_UNIX,
+              version: 1,
+              score: 0.31
+            }
+          ];
+        }
+        return [];
+      });
+      const database = createMockDatabase(query);
+
+      const result = await searchTool.handler(
+        {
+          query: "hybrid keyword",
+          mode: "hybrid",
+          limit: 5
+        },
+        createToolContext(database)
+      );
+
+      expect(query.mock.calls.some((call) => call[0].includes("search_fts MATCH"))).toBe(true);
+      expect(readStructured(result)).toMatchObject({
+        mode_requested: "hybrid",
+        mode_applied: "bm25",
+        semantic_available: false
+      });
+    });
+
+    it("falls back to keyword_sql when FTS5 fails mid-call and surfaces a note", async () => {
+      setFactsFtsReady(true);
+      const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
+        if (sql.includes("search_fts MATCH")) {
+          throw new Error("malformed MATCH expression");
+        }
+        if (sql.includes("FROM facets")) {
+          return [
+            {
+              id: "facet-fallback-1",
+              schema_id: "agent:observation",
+              content: "Fallback via substring",
+              facets_json: JSON.stringify({ domain: "product" }),
+              created_at_unix: FIXED_CREATED_AT_UNIX,
+              version: 1,
+              score: 0.21
+            }
+          ];
+        }
+        return [];
+      });
+      const database = createMockDatabase(query);
+
+      const result = await searchTool.handler(
+        {
+          query: "fallback substring",
+          mode: "bm25",
+          limit: 5
+        },
+        createToolContext(database)
+      );
+
+      const payload = readStructured(result) as Record<string, unknown> & {
+        notes?: string[];
+      };
+      expect(payload.mode_applied).toBe("keyword_sql");
+      expect(payload.notes).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining("FTS5 BM25 path failed")
+        ])
+      );
+    });
+
+    it("stays on keyword_sql when FTS is not ready", async () => {
+      setFactsFtsReady(false);
+      const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
+        if (sql.includes("FROM facets")) {
+          return [
+            {
+              id: "facet-keyword-only",
+              schema_id: "agent:observation",
+              content: "FTS not ready yet",
+              facets_json: JSON.stringify({ domain: "product" }),
+              created_at_unix: FIXED_CREATED_AT_UNIX,
+              version: 1,
+              score: 0.18
+            }
+          ];
+        }
+        return [];
+      });
+      const database = createMockDatabase(query);
+
+      const result = await searchTool.handler(
+        {
+          query: "fts not ready",
+          mode: "bm25",
+          limit: 5
+        },
+        createToolContext(database)
+      );
+
+      expect(query.mock.calls.every((call) => !call[0].includes("search_fts MATCH"))).toBe(true);
+      const payload = readStructured(result) as Record<string, unknown> & {
+        notes?: string[];
+      };
+      expect(payload.mode_applied).toBe("keyword_sql");
+      expect(payload.notes).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining("FTS5 BM25 not ready yet")
+        ])
+      );
     });
   });
 });

@@ -51,7 +51,8 @@ export async function fetchResource({ registryUrl, token, type, owner, name }) {
   } catch (err) {
     throw new Error(
       `Registry unreachable (${base}): ${err.message}\n` +
-        `  Check your internet connection or registry.url config.`
+        `  Check your internet connection or registry.url config.`,
+      { cause: err }
     );
   }
 
@@ -96,7 +97,7 @@ export async function listRegistryResources({ registryUrl, token, type }) {
       signal: AbortSignal.timeout(10_000),
     });
   } catch (err) {
-    throw new Error(`Registry unreachable (${base}): ${err.message}`);
+    throw new Error(`Registry unreachable (${base}): ${err.message}`, { cause: err });
   }
 
   if (!res.ok) {

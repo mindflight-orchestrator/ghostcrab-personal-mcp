@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
 
-import { formatPgVector } from "../../embeddings/vector.js";
+import { encodeEmbedding } from "../../embeddings/blob.js";
 import { SQLITE_NEXT_FACT_DOC_ID_EXPR } from "../../db/fact-store.js";
 import {
   createToolSuccessResult,
@@ -75,7 +75,7 @@ export const rememberTool: ToolHandler = {
         const [embedding] = await context.embeddings.embedMany([input.content]);
 
         if (embedding.length > 0) {
-          embeddingValue = formatPgVector(embedding);
+          embeddingValue = encodeEmbedding(embedding);
           embeddingStored = true;
         }
       } catch (error) {

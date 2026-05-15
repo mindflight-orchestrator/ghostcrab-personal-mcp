@@ -1,6 +1,6 @@
 import { pathToFileURL } from "node:url";
 
-import { formatPgVector } from "../embeddings/vector.js";
+import { encodeEmbedding } from "../embeddings/blob.js";
 import { resolveGhostcrabConfig } from "../config/env.js";
 import { createDatabaseClient } from "../db/client.js";
 import { createEmbeddingProvider } from "../embeddings/provider.js";
@@ -77,8 +77,8 @@ export async function runBackfill(
         SELECT id, content
         FROM facets
         ${whereClause}
-        ORDER BY created_at ASC
-        LIMIT $${params.length}
+        ORDER BY created_at_unix ASC
+        LIMIT ?
       `,
       params
     );
@@ -96,6 +96,7 @@ export async function runBackfill(
     }
 
     const vectors = await embeddings.embedMany(rows.map((row) => row.content));
+    const nowUnix = Math.floor(Date.now() / 1000);
 
     await database.transaction(async (tx) => {
       for (const [index, row] of rows.entries()) {
@@ -106,14 +107,19 @@ export async function runBackfill(
           continue;
         }
 
+        // Phase 2: aligned with the active write path via the shared
+        // `encodeEmbedding` helper in src/embeddings/blob.ts. remember.ts,
+        // upsert.ts, and this CLI all use the same canonical JSON-array text
+        // payload, so a backfilled row is indistinguishable from a freshly
+        // written one.
         await tx.query(
           `
             UPDATE facets
-            SET embedding = $2::vector
-            WHERE id = $1
-              AND embedding IS NULL
+            SET embedding_blob = ?, updated_at_unix = ?
+            WHERE id = ?
+              AND embedding_blob IS NULL
           `,
-          [row.id, formatPgVector(vector)]
+          [encodeEmbedding(vector), nowUnix, row.id]
         );
         summary.updated += 1;
       }
@@ -131,11 +137,11 @@ function buildWhereClause(
   whereClause: string;
 } {
   const params: unknown[] = [];
-  const conditions = ["embedding IS NULL"];
+  const conditions = ["embedding_blob IS NULL"];
 
   if (schemaId) {
     params.push(schemaId);
-    conditions.push(`schema_id = $${params.length}`);
+    conditions.push(`schema_id = ?`);
   }
 
   params.push(limit);
