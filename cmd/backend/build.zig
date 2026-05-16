@@ -35,6 +35,7 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
     });
     // Bundle sqlite3 amalgamation — no system libsqlite3 dependency.
+    addMindbrainSqliteSchemaImport(mindbrain_mod, b);
     configureSqlite3(mindbrain_mod);
     configureCroaring(b, mindbrain_mod, target, neon);
     mindbrain_mod.addImport("ztoon", ztoon_mod);
@@ -104,6 +105,12 @@ fn configureSqlite3(module: *std.Build.Module) void {
             // with `no such module: fts5` and the backend exits at init.
             "-DSQLITE_ENABLE_FTS5",
         },
+    });
+}
+
+fn addMindbrainSqliteSchemaImport(module: *std.Build.Module, b: *std.Build) void {
+    module.addAnonymousImport("sqlite_mindbrain_schema", .{
+        .root_source_file = b.path("../../vendor/mindbrain/sql/sqlite_mindbrain--1.0.0.sql"),
     });
 }
 

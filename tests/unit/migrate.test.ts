@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -41,16 +41,20 @@ describe("loadMigrationFiles", () => {
     expect(migrations[2]?.useTransaction).toBe(false);
   });
 
-  it("expands the baseline marker to the vendored SQLite schema", async () => {
+  it("loads the canonical vendored SQLite schema without a marker fallback", async () => {
     const migrations = await loadMigrationFiles();
     const baseline = migrations.find(
-      (migration) => migration.filename === "001_mindbrain_baseline.sql"
+      (migration) => migration.filename === "sqlite_mindbrain--1.0.0.sql"
+    );
+    const canonicalSql = await readFile(
+      join("vendor", "mindbrain", "sql", "sqlite_mindbrain--1.0.0.sql"),
+      "utf8"
     );
 
     expect(baseline).toBeDefined();
-    expect(baseline?.sql).toContain(
-      "This file is intentionally SQLite-only"
-    );
+    expect(baseline?.sql).toBe(canonicalSql);
+    expect(baseline?.sql).not.toContain("ghostcrab-baseline-vendor");
+    expect(baseline?.sql).toContain("This file is intentionally SQLite-only");
     expect(baseline?.sql).toContain(
       "CREATE VIRTUAL TABLE IF NOT EXISTS search_fts USING fts5"
     );
@@ -66,13 +70,13 @@ describe("loadMigrationFiles", () => {
 
     const summary = await runMigrations(
       database as never,
-      pathToFileURL("src/db/migrations")
+      pathToFileURL("vendor/mindbrain/sql")
     );
 
     expect(summary).toMatchObject({
       applied: [],
-      discovered: ["001_mindbrain_baseline.sql"],
-      skipped: ["001_mindbrain_baseline.sql"]
+      discovered: ["sqlite_mindbrain--1.0.0.sql"],
+      skipped: ["sqlite_mindbrain--1.0.0.sql"]
     });
     expect(database.query).not.toHaveBeenCalled();
     expect(database.transaction).not.toHaveBeenCalled();
