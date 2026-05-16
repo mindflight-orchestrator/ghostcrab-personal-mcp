@@ -71,7 +71,7 @@ for (const requiredPath of [
   "bin/lib/postinstall-smoke.mjs",
   "dist/index.js",
   "dist/index.d.ts",
-  "dist/db/migrations/001_mindbrain_baseline.sql",
+  "dist/db/migrations/sqlite_mindbrain--1.0.0.sql",
   "docs/dev/getting_started_mcp_client.md",
   "docs/dev/mcp_tools_contract.md",
   "docs/dev/architecture.md",

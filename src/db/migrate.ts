@@ -1,13 +1,13 @@
 import { createHash } from "node:crypto";
-import { access, readFile, readdir } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { readFile, readdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import type { DatabaseClient } from "./client.js";
 
 const NO_TRANSACTION_DIRECTIVE = "-- @no-transaction";
-const BASELINE_VENDOR_MARKER = "-- ghostcrab-baseline-vendor";
-const BASELINE_VENDOR_REL = join(
+const CANONICAL_SQL_REL = join(
   "vendor",
   "mindbrain",
   "sql",
@@ -45,14 +45,9 @@ export async function loadMigrationFiles(
 
   return Promise.all(
     migrationFilenames.map(async (filename) => {
-      const rawSql = await readFile(
+      const sql = await readFile(
         new URL(filename, normalizedMigrationDirectory),
         "utf8"
-      );
-      const sql = await resolveMindbrainBaselineSql(
-        normalizedMigrationDirectory,
-        filename,
-        rawSql
       );
 
       return {
@@ -80,44 +75,31 @@ export async function runMigrations(
 }
 
 export function getDefaultMigrationDirectory(): URL {
+  const moduleDirectory = dirname(fileURLToPath(import.meta.url));
+  const packageRoot = findPackageRootSync(moduleDirectory);
+  const vendoredSqlDirectory = join(packageRoot, dirname(CANONICAL_SQL_REL));
+
+  if (existsSync(join(vendoredSqlDirectory, "sqlite_mindbrain--1.0.0.sql"))) {
+    return pathToFileURL(`${vendoredSqlDirectory}/`);
+  }
+
   return new URL("./migrations/", import.meta.url);
 }
 
-async function findPackageRoot(fromDirectory: string): Promise<string> {
+function findPackageRootSync(fromDirectory: string): string {
   let directory = fromDirectory;
 
   for (;;) {
-    try {
-      await access(join(directory, "package.json"));
+    if (existsSync(join(directory, "package.json"))) {
       return directory;
-    } catch {
-      const parent = dirname(directory);
-      if (parent === directory) {
-        throw new Error(
-          "package.json not found while resolving mindbrain baseline SQL"
-        );
-      }
-      directory = parent;
     }
+
+    const parent = dirname(directory);
+    if (parent === directory) {
+      throw new Error(
+        "package.json not found while resolving mindbrain SQLite SQL"
+      );
+    }
+    directory = parent;
   }
-}
-
-async function resolveMindbrainBaselineSql(
-  migrationDirectoryUrl: URL,
-  filename: string,
-  rawSql: string
-): Promise<string> {
-  if (filename !== "001_mindbrain_baseline.sql") {
-    return rawSql;
-  }
-
-  if (!rawSql.trimStart().startsWith(BASELINE_VENDOR_MARKER)) {
-    return rawSql;
-  }
-
-  const migrationsDir = fileURLToPath(migrationDirectoryUrl);
-  const packageRoot = await findPackageRoot(migrationsDir);
-  const vendorPath = join(packageRoot, BASELINE_VENDOR_REL);
-
-  return readFile(vendorPath, "utf8");
 }
