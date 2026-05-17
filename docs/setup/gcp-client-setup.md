@@ -82,7 +82,7 @@ See the root [README.md](../../README.md) for the full table. Typical SQLite def
 
 Use **`gcp brain document`** for PDF/HTML normalization, LLM document profiling, enqueue/worker, and related MindBrain CLI flows. **Quit MCP / stop `ghostcrab-backend` first** so the SQLite file is not locked; the command probes `/health` and refuses to run if the backend is up unless you pass **`--force`**.
 
-Database commands automatically receive **`--db`** matching your **`GHOSTCRAB_SQLITE_PATH`** (and optional **`--workspace`** / `-w` for path resolution). Run **`gcp brain document --help`** for examples. Full flag reference for subcommands such as `document-profile-worker` lives in the vendored MindBrain docs (`vendor/mindbrain/docs/document-profile.md` in this repo).
+Database commands automatically receive **`--db`** matching your **`GHOSTCRAB_SQLITE_PATH`** (and optional **`--workspace`** / `-w` for path resolution), or the explicit **`--db <path>`** you pass to the wrapper. Run **`gcp brain document --help`** for examples. Full flag reference for subcommands such as `document-profile-worker` lives in the vendored MindBrain docs (`vendor/mindbrain/docs/document-profile.md` in this repo).
 
 ## MCP configuration examples
 

@@ -392,7 +392,8 @@ Subcommands:
   workspace list                          List workspaces
   schema <list|pull|remove|show>           Ontologies / knowledge structure in the DB
   db-who [--path] [--workspace]            Which processes have the SQLite file open (lsof)
-  document [--workspace] [--force] <cmd>   Corpus import / normalize / profile (stop MCP first)
+  document [--workspace] [--db] [--force] <cmd>
+                                           Corpus import / normalize / profile (stop MCP first)
   load <file.jsonl>                       Load a portable JSONL profile into the DB
   setup <cursor|codex|claude> [opts]     User-global MCP: ~/.cursor/mcp.json, codex mcp add, or claude mcp add
 
