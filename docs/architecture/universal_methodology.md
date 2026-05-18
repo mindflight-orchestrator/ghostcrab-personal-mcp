@@ -1,5 +1,7 @@
 # Universal GhostCrab Methodology
 
+> English version — version française : [`fr/universal_methodology.md`](fr/universal_methodology.md)
+
 Iterative 4-phase methodology for taking any domain — a SaaS UI, a document
 corpus, a CRM pipeline, a compliance dataset — from a confirmed Model Proposal
 all the way to agent-consumable reports, using GhostCrab primitives end to end.
@@ -11,7 +13,7 @@ fully worked narrative, see:
 - [ontology_dev_for_llm.md](ontology_dev_for_llm.md) — generic ontology
   engineering theory (competency questions, "is-a" test, quality checklist).
 - [ontology_story2doc_example.md](ontology_story2doc_example.md) — annotated
-  Story2doc transcript covering the full lifecycle in one concrete case.
+  SaaS application transcript covering the full lifecycle in one concrete case.
 
 This methodology is the bridge between the two: theory on top, GhostCrab
 runtime on the bottom, one iterative loop in the middle.
@@ -35,7 +37,7 @@ domain in GhostCrab. The loop covers four phases:
   This methodology **starts at Phase D (Execute)** of the contract. It assumes
   that intake, clarification, and a user-confirmed Model Proposal have already
   happened.
-- Not a domain catalogue. It uses two recurring mini-examples (a UI/Story2doc
+- Not a domain catalogue. It uses two recurring mini-examples (a SaaS UI
   slice and a document-corpus slice) only to make each step concrete.
 - Not a tooling manual. For tool flags and edge cases, see the cited
   references at the end.
@@ -52,6 +54,39 @@ Before entering Phase 1 below, all of the following must be true:
 
 If any of these is missing, you are still in Phase A/B/C of the contract. Stop
 and return to intake.
+
+### How to elicit competency questions — the narrative approach
+
+Asking "what questions do you need answered?" is too abstract. The live-course
+workshop method (documented in [`methodology-immo/`](methodology-immo/)) is
+more reliable: give a concrete 90-second scenario anchored in a routine event
+from the domain, then ask the team to narrate what happens.
+
+**Example (property management / syndic domain):**
+
+> *"It's the 5th of the month. Marie, the accountant, opens the morning bank
+> statement. She sees a transfer of €1,847 labelled 'CP LOT 12 CHGE JANV'. She
+> must determine who paid, for which building, whether the payment is complete
+> or partial, and whether to issue a receipt or send a reminder."*
+
+In 90 seconds, this scenario produces the core vocabulary across five natural
+categories — what the live-course workshops call the **5 acts**:
+
+| Act | Facilitator question | Produces | Maps to GhostCrab |
+|---|---|---|---|
+| **Nouns** | "What exists in this domain?" | `Copropriétaire`, `ÉcritureBancaire`, `Appel de charges`, `Lot` | Facet schemas / record types |
+| **Verbs** | "What happens between things?" | `rapprocher`, `imputer`, `lettrer`, `ventiler` | Graph edges / `ghostcrab_learn` |
+| **Qualifiers** | "How do we describe its state?" | `statut_paiement`, `communication_structurée` | Facet fields (dimensions) |
+| **Conditions** | "When does it change?" | *if amount matches → Quittance; if partial → Relance level 1* | CONSTRAINT projections / state transitions |
+| **Search modes** | "How will you find it in 6 months?" | *by building, by month, by status, by amount range* | Facet index definitions |
+
+The "search modes" question is the most productive and the least spontaneous.
+Nobody asks it without prompting. It directly determines which facets are
+worth indexing — and therefore which projections are answerable at scale.
+
+For an agent running Phase B (Clarify), use this technique: propose a scenario
+from the user's domain, let them correct it, then derive the 5-category
+vocabulary. The competency questions emerge from the "search modes" row.
 
 ## 2. The Four Phases as One Loop
 
@@ -77,7 +112,7 @@ flowchart LR
 
 ### Key principle: design the read contract before ingestion
 
-Doc 2 (`ontology_story2doc_example.md`) was written in the natural order of
+Doc 2 (`ontology_story2doc_example.md`) was built from a natural order of
 discovery: ontology → graph → projection → artefact. That order is fine for a
 post-hoc narrative; it is a trap when you are doing the work, because it lets
 you spend days ingesting data you will never read back.
@@ -119,12 +154,49 @@ first** (per ONBOARDING_CONTRACT §11 "use `ghostcrab_remember` for durable
 facts… `ghostcrab_project` for provisional compact views"). Custom schemas are
 the last resort, not the first.
 
+The **5-acts vocabulary** from the live-course narrative approach maps directly
+onto this table. Use it to translate a domain narrative into GhostCrab terms
+without requiring the user to know the primitives.
+
 ## 4. Phase 1 — Facets (Thin Slice)
 
 ### Goal
 
 Define the smallest durable shape that can carry the data needed by the
 competency question. Nothing more.
+
+### Multi-ontology awareness
+
+Before designing your first facet schema, answer: **is this domain standalone,
+or is it a process that consumes other ontologies?**
+
+A **standalone domain** (a document corpus, a contact list, a task tracker) can
+be modelled in isolation. A **process domain** (a claim declaration, an order
+fulfilment, a regulatory audit) is typically a *consumer* that traverses
+several peripheral ontologies, each modelling a stable layer of the business
+world.
+
+The property management sinistre case (see
+[`methodology-immo/`](methodology-immo/)) shows a canonical layering:
+
+| Layer | Examples in syndic domain | Modelling rule |
+|---|---|---|
+| Physical / structural | Building, floors, lots, shared areas | Separate namespace; anchor for all processes |
+| Actors and roles | Persons + Role Object pattern (one person, multiple roles) | Separate namespace; reused across all processes |
+| Contracts / legal | Generic `Contrat` + specialisations (`PoliceAssurance`, `ContratSyndic`) | Abstract parent schema + child schemas |
+| Process / events | Generic state machine + event log | Template once, instantiate per case |
+| Financial | Budgets, charges, payments, bank statement entries | Separate namespace; joined by projection |
+| Regulatory | Obligations, compliance deadlines, diagnostic types | Separate namespace; `SOUMIS_A` graph edges |
+
+Each layer is a separate named graph. Cross-graph joins happen at **projection
+time** — not in the facet layer. A projection can traverse `onto_processus` +
+`onto_batiment` + `onto_contrat` to answer "all open sinistres on lots whose
+leases expire within 90 days" without merging the underlying schemas.
+
+**Do not model all layers in one pass.** Model the anchor entity of the process
+first (Wave 1), then extend to one peripheral layer per loop wave.
+
+If the domain is standalone, skip this section.
 
 ### Read-before-write protocol
 
@@ -149,6 +221,11 @@ Phase 2.
   three sibling schemas if it belongs on their parent.
 - **Cardinality is mandatory.** Every field gets a type and a cardinality (one,
   optional, required, many). No "we'll figure it out later".
+- **Use a dimension namespace for facet fields.** Prefix each field with its
+  semantic dimension: `dim_temporelle.date_signalement`,
+  `dim_acteur.copropriétaire_id`, `dim_statut.statut_dossier`. This keeps
+  cross-workspace queries readable and prevents field-name collisions when
+  peripheral ontologies share a workspace.
 - **Do not model implementation artefacts as domain classes.** If a field
   exists only because the import format has it, it goes in `source.*` (the
   built-in namespace), not in your domain schema.
@@ -167,7 +244,7 @@ If — and only if — the user typed `APPROVE_SCHEMA_FREEZE` for a custom schem
 call `ghostcrab_schema_register`. Otherwise stay on canonical primitives and
 use `ghostcrab_upsert` / `ghostcrab_remember` for the instances.
 
-### Mini-example A — UI / Story2doc
+### Mini-example A — SaaS UI
 
 Competency question: "What sections exist on the Dashboard page, and who can
 see them?"
@@ -250,14 +327,14 @@ For every projection, decide explicitly:
   if the underlying data does not yet exist. Phase 2 designs the projection;
   Phase 4 materialises it.
 
-### Mini-example A — UI / Story2doc
+### Mini-example A — SaaS UI
 
 Competency question: "What steps does a user follow to create an opportunity?"
 
 | Decision | Value |
 |---|---|
 | `proj_type` | `STEP` (one row per step, ordered) |
-| `scope` | `workspace::story2doc` |
+| `scope` | `workspace::saas_app` |
 | Content shape | `step\|order=3\|action=fill\|field=opportunity_name` |
 | `source_ref` | facet row id of the matching `screen_section` |
 | `weight` | `0.8` — operational instruction, well grounded |
@@ -326,7 +403,7 @@ Never treat one empty exact read as proof the whole domain is empty.
 | Document classification + chunking | `gcp brain document document-profile` (or `-worker` for queues) |
 | Controlled-vocabulary assignment | `gcp brain document document-qualify` |
 
-### Mini-example A — UI / Story2doc
+### Mini-example A — SaaS UI
 
 - One crawled snapshot becomes one record per `screen_section`.
 - Insert via `ghostcrab_upsert` against the schema from Phase 1.
@@ -395,7 +472,7 @@ PDF, HTML, JSON player, audit log, chatbot context, voice-over script. This
 is the doc 2 §21 principle: artefact generation is downstream of projections,
 not parallel to them. Do not re-ingest or re-model to produce a new format.
 
-### Mini-example A — UI / Story2doc
+### Mini-example A — SaaS UI
 
 The `STEP` projection from §5 is read back as an ordered list of steps. The
 same projection feeds a chatbot answer ("here are the 5 steps to create an
@@ -515,7 +592,7 @@ Source documents this methodology bridges and depends on:
   generic ontology engineering theory (competency questions, "is-a" test,
   quality checklist, common mistakes). The theory ground.
 - [`docs/architecture/ontology_story2doc_example.md`](ontology_story2doc_example.md)
-  — worked Story2doc example covering snapshot → graph → projection →
+  — worked SaaS application example covering snapshot → graph → projection →
   artefact, including the blind-spot identification step and the "one graph,
   many outputs" principle.
 - [`ghostcrab-skills/shared/ONBOARDING_CONTRACT.md`](../../ghostcrab-skills/shared/ONBOARDING_CONTRACT.md)
@@ -532,3 +609,11 @@ Source documents this methodology bridges and depends on:
 - [`docs/setup/document-import.md`](../setup/document-import.md) — operator
   runbook for the document import path (`gcp brain document`), including the
   no-LLM fallbacks this methodology relies on for Phase 3 wiring validation.
+- [`docs/architecture/methodology-immo/`](methodology-immo/) — real estate /
+  syndic live-course workshop pack. Contains: the 5-act card game methodology
+  (narrative approach, competency question elicitation, Miro colour-coding
+  system); the sinistre claim declaration ontology (multi-graph architecture,
+  dimensional facet naming, state machine, cross-graph projections); and the
+  master ontology for a property management firm (`Ontologie Maître —
+  Gestionnaire de Syndic`). The primary source for the narrative approach in
+  §1 and the multi-ontology awareness section in §4.
