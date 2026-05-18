@@ -76,9 +76,10 @@ describe("cosineSimilarity", () => {
     expect(cosineSimilarity([1, 1], [])).toBe(0);
   });
 
-  it("ignores trailing components when lengths differ", () => {
-    // The shared prefix [1, 0] is identical → cosine should be 1.
-    const result = cosineSimilarity([1, 0], [1, 0, 99]);
-    expect(result).toBeCloseTo(1, 10);
+  it("returns 0 when vector lengths differ (dimension mismatch)", () => {
+    // Vectors produced by different embedding models are incomparable;
+    // a prefix dot product would yield a meaningless score, so 0 is safer.
+    expect(cosineSimilarity([1, 0], [1, 0, 99])).toBe(0);
+    expect(cosineSimilarity([1, 0, 99], [1, 0])).toBe(0);
   });
 });

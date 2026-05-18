@@ -108,7 +108,13 @@ export function cosineSimilarity(
   if (left.length === 0 || right.length === 0) {
     return 0;
   }
-  const length = Math.min(left.length, right.length);
+  if (left.length !== right.length) {
+    // Dimension mismatch — vectors are incomparable (likely produced by
+    // different embedding models). Return 0 rather than silently computing
+    // a prefix dot product that would yield a meaningless score.
+    return 0;
+  }
+  const length = left.length;
   let dot = 0;
   let leftNorm = 0;
   let rightNorm = 0;

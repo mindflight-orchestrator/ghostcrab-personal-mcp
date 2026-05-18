@@ -162,6 +162,14 @@ export interface StandaloneGhostcrabGraphSearchResponse {
   rows: StandaloneGhostcrabGraphSearchRow[];
 }
 
+export interface StandaloneSearchEmbeddingUpsertParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  tableId: number;
+  docId: number;
+  embedding: number[];
+}
+
 export interface StandaloneGhostcrabSearchParams {
   mindbrainUrl: string;
   timeoutMs?: number;
@@ -379,6 +387,28 @@ export async function runStandaloneGhostcrabGraphSearch(
     url,
     {
       method: "GET"
+    },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneSearchEmbeddingUpsert(
+  params: StandaloneSearchEmbeddingUpsertParams
+): Promise<void> {
+  const url = new URL(
+    "/api/mindbrain/search-embedding-upsert",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  await fetchJson<{ ok: true }>(
+    url,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        table_id: params.tableId,
+        doc_id: params.docId,
+        embedding: params.embedding
+      }),
+      headers: { "content-type": "application/json" }
     },
     params.timeoutMs
   );

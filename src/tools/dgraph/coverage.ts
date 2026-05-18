@@ -15,7 +15,12 @@ const THRESHOLD_PARTIAL = 0.7;
 export const CoverageInput = z.object({
   domain: z.string().trim().min(1),
   agent_id: z.string().min(1).default("agent:self"),
-  workspace_id: z.string().min(1).optional()
+  workspace_id: z.string().min(1).optional(),
+  entity_type: z
+    .array(z.string().min(1))
+    .max(20)
+    .optional()
+    .describe("Restrict coverage check to these entity types only.")
 });
 
 export const coverageTool: ToolHandler = {
@@ -38,6 +43,12 @@ export const coverageTool: ToolHandler = {
           type: "string",
           description:
             "Target workspace id. Overrides session context for this call only."
+        },
+        entity_type: {
+          type: "array",
+          items: { type: "string" },
+          description:
+            "Restrict coverage check to these entity types only (e.g. [\"concept\", \"skill\"])."
         }
       }
     }
@@ -219,7 +230,8 @@ export const coverageTool: ToolHandler = {
       const config = resolveGhostcrabConfig();
       const toon = await runStandaloneCoverageReportToon({
         mindbrainUrl: config.mindbrainUrl,
-        domainOrWorkspace: input.domain
+        domainOrWorkspace: input.domain,
+        entityTypes: input.entity_type
       });
       const report = parseCoverageToon(toon);
       if (!report) {
