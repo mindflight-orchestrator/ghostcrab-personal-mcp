@@ -15,6 +15,8 @@ Zep is a temporal knowledge graph memory system: its intelligence lives in extra
 
 MindBrain is a typed ontology plus projection engine: its intelligence lives in schema enforcement, explicit relations, and precomputed working context over a modeled domain. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
 
+![Comparison Zep vs mindBrain](ressources/zep-vs-mindbrain.png)
+
 ***
 
 ## What Zep Is

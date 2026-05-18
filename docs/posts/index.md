@@ -11,7 +11,7 @@ tags:
 
 This index summarizes the tools analyzed in the comparison series and links to the dedicated article for each existing opposition. The series now favors two-way comparisons against MindBrain rather than three-product articles.
 
-![[overview-agentic-memory-system.png]]
+![Overview — agentic memory systems](ressources/overview-agentic-memory-system.png)
 
 ## Personal knowledge graphs and agent memory
 
