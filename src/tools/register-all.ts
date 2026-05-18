@@ -1,7 +1,9 @@
 import "./dgraph/coverage.js";
 import "./dgraph/entity-chunks.js";
+import "./dgraph/graph-path.js";
 import "./dgraph/graph-reindex.js";
 import "./dgraph/graph-search.js";
+import "./dgraph/graph-subgraph.js";
 import "./dgraph/learn.js";
 import "./dgraph/traverse.js";
 import "./facets/count.js";

@@ -41,88 +41,59 @@ describe("pragma tools", () => {
   it("builds a pack with blocking constraints and facts", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () => {
-        return new Response(
-          JSON.stringify({
-            rows: [
-              {
-                id: "proj-constraint-1",
-                proj_type: "CONSTRAINT",
-                content: "Do not break public API",
-                weight: 1,
-                source_ref: null,
-                status: "blocking"
-              },
-              {
-                id: "proj-goal-1",
-                proj_type: "GOAL",
-                content: "Ship phase 2 tools",
-                weight: 0.8,
-                source_ref: null,
-                status: "active"
-              }
-            ]
-          }),
-          {
-            status: 200,
-            headers: {
-              "content-type": "application/json"
-            }
-          }
-        );
+      vi.fn(async (url: string | URL) => {
+        const path =
+          typeof url === "string" ? url : (url as URL).pathname ?? url.toString();
+
+        if (String(path).includes("pack-projections")) {
+          return new Response(
+            JSON.stringify({
+              rows: [
+                {
+                  id: "proj-constraint-1",
+                  proj_type: "CONSTRAINT",
+                  content: "Do not break public API",
+                  weight: 1,
+                  source_ref: null,
+                  status: "blocking"
+                },
+                {
+                  id: "proj-goal-1",
+                  proj_type: "GOAL",
+                  content: "Ship phase 2 tools",
+                  weight: 0.8,
+                  source_ref: null,
+                  status: "active"
+                }
+              ]
+            }),
+            { status: 200, headers: { "content-type": "application/json" } }
+          );
+        }
+
+        if (String(path).includes("ghostcrab/search")) {
+          return new Response(
+            JSON.stringify({
+              workspace_id: "default",
+              query: "phase 2 project-delivery board",
+              returned: 1,
+              matches: [{ doc_id: 42, bm25_score: 0.9, vector_score: 0, combined_score: 0.9 }]
+            }),
+            { status: 200, headers: { "content-type": "application/json" } }
+          );
+        }
+
+        return new Response("{}", {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        });
       })
     );
 
     const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
-      if (sql.includes("schema_id = 'ghostcrab:activity-family'")) {
+      if (sql.includes("FROM mb_pragma.facets") && sql.includes("doc_id IN")) {
         return [
-          {
-            activity_family: "workflow-tracking",
-            keywords: ["phase", "sprint", "task"],
-            title: "Workflow Tracking"
-          }
-        ];
-      }
-
-      if (sql.includes("schema_id = 'ghostcrab:projection-recipe'")) {
-        return [
-          {
-            content:
-              "Use a compact delivery projection with blockers, tasks by status, and next step.",
-            preferred_kpis: ["tasks_by_status"],
-            preferred_proj_type: "STEP",
-            projection_kind: "workflow-heartbeat"
-          }
-        ];
-      }
-
-      if (sql.includes("schema_id = 'ghostcrab:kpi-pattern'")) {
-        return [
-          {
-            content: "Track tasks by status to steer execution.",
-            metric_name: "tasks_by_status",
-            schema_id: "ghostcrab:task",
-            facet_key: "status",
-            filter_key: null,
-            filter_value: null
-          }
-        ];
-      }
-
-      if (sql.includes("GROUP BY bucket")) {
-        return [
-          { bucket: "in_progress", count: 2 },
-          { bucket: "blocked", count: 1 }
-        ];
-      }
-
-      if (sql.includes("FROM mb_pragma.facets")) {
-        return [
-          {
-            id: "facet-1",
-            content: "Search relies on BM25 fallback today",
-            score: 0.9
-          }
+          { id: "facet-1", content: "Search relies on hybrid search today", doc_id: 42 }
         ];
       }
 
@@ -147,7 +118,7 @@ describe("pragma tools", () => {
       tool: "ghostcrab_pack",
       backend: "native",
       surface_version: GHOSTCRAB_MCP_SURFACE_VERSION,
-      facts_mode_applied: "keyword_sql",
+      facts_mode_applied: "mindbrain_hybrid",
       has_blocking_constraint: true,
       activity_family_detected: null,
       scope_profile_id_detected: null,

@@ -1,13 +1,10 @@
 import { z } from "zod";
 
-import { runStandaloneGhostcrabPack } from "../../db/standalone-mindbrain.js";
-import { resolveGhostcrabConfig } from "../../config/env.js";
-import { FACETS_SEARCH_TABLE_ID } from "../../db/fact-store.js";
 import {
-  buildFtsMatchExpression,
-  ensureSearchFtsCaughtUp
-} from "../../db/facets-fts-search.js";
-import { isFactsFtsReady } from "../../runtime/facets-fts-state.js";
+  runStandaloneGhostcrabPack,
+  runStandaloneGhostcrabSearch
+} from "../../db/standalone-mindbrain.js";
+import { resolveGhostcrabConfig } from "../../config/env.js";
 import {
   createToolSuccessResult,
   registerTool,
@@ -133,103 +130,42 @@ export const packTool: ToolHandler = {
       );
     }
 
-    // Phase 2: prefer the genuine FTS5 BM25 path when available; fall back to
-    // local keyword (substring) scoring otherwise. The mode label
-    // (`facts_mode_applied`) is set in the response builder below to match
-    // whichever path actually ran.
-    const ftsExpression = buildFtsMatchExpression(input.query);
-    const factWorkspaceClauses: string[] = [
-      "workspace_id = ?",
-      "(valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))"
-    ];
-    const factWorkspaceParams: unknown[] = [effectiveWorkspaceId];
-    if (effectiveSchemaId) {
-      factWorkspaceClauses.push("schema_id = ?");
-      factWorkspaceParams.push(effectiveSchemaId);
+    // Phase 2: hybrid BM25+vector fact retrieval via MindBrain ghostcrab/search.
+    // Attempt to compute a query embedding for richer vector scoring; fall back
+    // to BM25-only (empty embedding) when embeddings are unavailable.
+    let queryEmbedding: number[] = [];
+    if (embeddingRuntime.writeEmbeddingsEnabled) {
+      try {
+        const [vec] = await context.embeddings.embedMany([input.query]);
+        if (vec && vec.length > 0) queryEmbedding = vec;
+      } catch {
+        // non-fatal: BM25-only search will still run
+      }
     }
 
     let factRows: FactRow[] = [];
-    let factsModeApplied: "bm25" | "keyword_sql" = "keyword_sql";
+    const factsModeApplied = "mindbrain_hybrid";
 
-    if (ftsExpression !== null && isFactsFtsReady()) {
-      try {
-        await ensureSearchFtsCaughtUp(context.database);
-        const ftsClauses = factWorkspaceClauses.map((clause) =>
-          clause === "workspace_id = ?"
-            ? "f.workspace_id = ?"
-            : clause === "schema_id = ?"
-              ? "f.schema_id = ?"
-              : clause.replace(/\bvalid_until_unix\b/g, "f.valid_until_unix")
-        );
-        factRows = await context.database.query<FactRow>(
-          `
-            SELECT
-              f.id,
-              f.content,
-              bm25(search_fts) AS score
-            FROM mb_pragma.facets AS f
-            JOIN search_fts_docs AS sd
-              ON sd.table_id = ? AND sd.doc_id = f.doc_id
-            JOIN search_fts AS sf
-              ON sf.rowid = sd.fts_rowid
-            WHERE search_fts MATCH ?
-              AND ${ftsClauses.join(" AND ")}
-            ORDER BY score
-            LIMIT 5
-          `,
-          [
-            FACETS_SEARCH_TABLE_ID,
-            ftsExpression,
-            ...factWorkspaceParams
-          ]
-        );
-        factsModeApplied = "bm25";
-      } catch (error) {
-        notes.push(
-          `Pack facts: FTS5 BM25 path failed (${error instanceof Error ? error.message : "unknown error"}); falling back to keyword_sql.`
+    try {
+      const searchResponse = await runStandaloneGhostcrabSearch({
+        mindbrainUrl: config.mindbrainUrl,
+        workspaceId: effectiveWorkspaceId,
+        query: input.query,
+        embedding: queryEmbedding,
+        vectorWeight: context.retrieval.hybridVectorWeight,
+        limit: 5
+      });
+
+      if (searchResponse.matches.length > 0) {
+        factRows = await fetchFacetsByDocIds(
+          context.database,
+          searchResponse.matches,
+          effectiveSchemaId
         );
       }
-    }
-
-    if (factsModeApplied !== "bm25") {
-      const factTerms = input.query.split(/\s+/).filter(Boolean);
-      const factWhereClause =
-        factTerms.length > 0
-          ? `(${factTerms.map(() => "instr(lower(content), lower(?)) > 0").join(" OR ")})`
-          : "1 = 0";
-      const factScoreSql =
-        factTerms.length > 0
-          ? factTerms
-              .map(
-                () => `
-                  (
-                    CAST(
-                      length(lower(content)) - length(replace(lower(content), lower(?), ''))
-                      AS REAL
-                    ) / NULLIF(length(?), 0)
-                  )
-                `
-              )
-              .join(" + ")
-          : "0.0";
-      const factScoreParams: unknown[] = [];
-      for (const term of factTerms) {
-        factScoreParams.push(term, term);
-      }
-
-      factRows = await context.database.query<FactRow>(
-        `
-          SELECT
-            id,
-            content,
-            ${factScoreSql} AS score
-          FROM mb_pragma.facets
-          WHERE ${factWhereClause.replace("1 = 0", "1 = 0 AND 1 = 1")}
-            AND ${factWorkspaceClauses.join(" AND ")}
-          ORDER BY score DESC, created_at_unix DESC
-          LIMIT 5
-        `,
-        [...factScoreParams, ...factTerms, ...factWorkspaceParams]
+    } catch (error) {
+      notes.push(
+        `Pack facts: ghostcrab/search failed (${error instanceof Error ? error.message : "unknown error"}); no facts added.`
       );
     }
 
@@ -297,5 +233,38 @@ export const packTool: ToolHandler = {
     });
   }
 };
+
+async function fetchFacetsByDocIds(
+  database: import("../../db/client.js").Queryable,
+  matches: Array<{ doc_id: number; combined_score: number }>,
+  schemaId: string | undefined
+): Promise<FactRow[]> {
+  const docIds = matches.map((m) => m.doc_id);
+  const scoreByDocId = new Map(matches.map((m) => [m.doc_id, m.combined_score]));
+
+  const whereClauses = [
+    `doc_id IN (${docIds.map(() => "?").join(", ")})`,
+    "(valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))"
+  ];
+  const sqlParams: unknown[] = [...docIds];
+
+  if (schemaId) {
+    whereClauses.push("schema_id = ?");
+    sqlParams.push(schemaId);
+  }
+
+  const rows = await database.query<{ id: string; content: string; doc_id: number }>(
+    `SELECT id, content, doc_id FROM mb_pragma.facets WHERE ${whereClauses.join(" AND ")}`,
+    sqlParams
+  );
+
+  return rows
+    .map((row) => ({
+      id: row.id,
+      content: row.content,
+      score: scoreByDocId.get(Number(row.doc_id)) ?? 0
+    }))
+    .sort((a, b) => b.score - a.score);
+}
 
 registerTool(packTool);

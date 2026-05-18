@@ -140,7 +140,7 @@ describe("ghostcrab_projection_get", () => {
     ]);
   });
 
-  it("falls back to local graph SQL when the endpoint is unavailable", async () => {
+  it("returns backend_unavailable when MindBrain projection-get endpoint is offline", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => {
@@ -148,72 +148,21 @@ describe("ghostcrab_projection_get", () => {
       })
     );
 
-    const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
-      if (sql.includes("JOIN graph_relation")) {
-        return [
-          {
-            relation_id: 20,
-            relation_type: "PROVEN_BY",
-            source_id: 10,
-            target_id: 11,
-            relation_metadata_json: "{}",
-            evidence_entity_id: 11,
-            evidence_entity_type: "Evidence",
-            evidence_name: "query export",
-            evidence_confidence: 0.9,
-            evidence_metadata_json: '{"external_id":"evidence-1"}'
-          }
-        ];
-      }
-
-      if (sql.includes("entity_type = 'ProjectionResult'")) {
-        return [
-          {
-            entity_id: 10,
-            entity_type: "ProjectionResult",
-            name: "keyword opportunity set",
-            confidence: 1,
-            metadata_json:
-              '{"projection_id":"proj_keyword_opportunities","external_id":"result-1"}'
-          }
-        ];
-      }
-
-      if (sql.includes("entity_type = 'DeltaFinding'")) {
-        return [
-          {
-            entity_id: 12,
-            entity_type: "DeltaFinding",
-            name: "keyword gap",
-            confidence: 0.8,
-            metadata_json:
-              '{"metric":"proj_keyword_opportunities","external_id":"delta-1"}'
-          }
-        ];
-      }
-
-      return [];
-    });
-
     const result = await projectionGetTool.handler(
       {
         workspace_id: "mindbrain-seo-audit",
         collection_id: null,
         projection_id: "proj_keyword_opportunities"
       },
-      createToolContext(createMockDatabase(query))
+      createToolContext(createMockDatabase(async () => []))
     );
 
-    expect(readStructured(result)).toMatchObject({
-      backend: "sql",
-      collection_id: null,
-      report: {
-        collection_id: null,
-        projection_result_count: 1,
-        linked_evidence_count: 1,
-        delta_count: 1,
-        has_projection: true
-      }
+    expect(result.isError).toBe(true);
+    const structured = result.structuredContent as Record<string, unknown>;
+    expect(structured).toMatchObject({
+      ok: false,
+      tool: "ghostcrab_projection_get",
+      error: expect.objectContaining({ code: "backend_unavailable" })
     });
   });
 
