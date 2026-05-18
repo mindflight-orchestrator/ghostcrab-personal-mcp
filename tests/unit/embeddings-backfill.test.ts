@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { DatabaseClient, Queryable } from "../../src/db/client.js";
 import { runBackfill } from "../../src/cli/embeddings-backfill.js";
+import * as standaloneMindBrain from "../../src/db/standalone-mindbrain.js";
+import { FACETS_SEARCH_TABLE_ID } from "../../src/db/fact-store.js";
 
 function createMockDatabase(
   queryImpl: DatabaseClient["query"]
@@ -181,6 +183,97 @@ describe("embeddings backfill", () => {
       expect(call[0]).not.toMatch(/\$\d+/);
       expect(call[0]).not.toMatch(/::vector/);
     }
+  });
+
+  it("mirrors each backfilled embedding into search_embeddings", async () => {
+    // Guards the Bug-A regression for the backfill path: every row that gets
+    // an embedding_blob written must also be synced into search_embeddings so
+    // the MindBrain native hybrid engine can find it.
+    const upsertSpy = vi
+      .spyOn(standaloneMindBrain, "runStandaloneSearchEmbeddingUpsert")
+      .mockResolvedValue(undefined);
+
+    const query = vi
+      .fn<DatabaseClient["query"]>()
+      .mockResolvedValueOnce([
+        { id: "facet-1", doc_id: 1, content: "hello" },
+        { id: "facet-2", doc_id: 2, content: "world" }
+      ])
+      .mockResolvedValueOnce([]) // second batch → empty → stops loop
+      .mockResolvedValue([]); // UPDATE calls inside tx
+    const database = createMockDatabase(query);
+    const embeddings = {
+      async embedMany(texts: string[]) {
+        return texts.map((_, i) =>
+          i === 0 ? [0.1, 0.2, 0.3, 0.4] : [0.5, 0.6, 0.7, 0.8]
+        );
+      },
+      getStatus() {
+        return {
+          available: true,
+          dimensions: 4,
+          mode: "fake" as const,
+          note: "Fake",
+          vectorSearchReady: true,
+          writeEmbeddingsEnabled: true
+        };
+      }
+    };
+
+    await runBackfill(database, embeddings, { batchSize: 2, dryRun: false });
+
+    expect(upsertSpy).toHaveBeenCalledTimes(2);
+    expect(upsertSpy.mock.calls[0]?.[0]).toMatchObject({
+      tableId: FACETS_SEARCH_TABLE_ID,
+      docId: 1,
+      embedding: [0.1, 0.2, 0.3, 0.4]
+    });
+    expect(upsertSpy.mock.calls[1]?.[0]).toMatchObject({
+      tableId: FACETS_SEARCH_TABLE_ID,
+      docId: 2,
+      embedding: [0.5, 0.6, 0.7, 0.8]
+    });
+
+    upsertSpy.mockRestore();
+  });
+
+  it("counts search_embeddings sync failures in summary.failed", async () => {
+    // Guards that a MindBrain sync failure does not abort the backfill but IS
+    // counted so operators know the sync is degraded.
+    const upsertSpy = vi
+      .spyOn(standaloneMindBrain, "runStandaloneSearchEmbeddingUpsert")
+      .mockRejectedValue(new Error("MindBrain unreachable"));
+
+    const query = vi
+      .fn<DatabaseClient["query"]>()
+      .mockResolvedValueOnce([{ id: "facet-1", doc_id: 1, content: "hello" }])
+      .mockResolvedValueOnce([])
+      .mockResolvedValue([]);
+    const database = createMockDatabase(query);
+    const embeddings = {
+      async embedMany(texts: string[]) {
+        return texts.map(() => [0.1, 0.2, 0.3, 0.4]);
+      },
+      getStatus() {
+        return {
+          available: true,
+          dimensions: 4,
+          mode: "fake" as const,
+          note: "Fake",
+          vectorSearchReady: true,
+          writeEmbeddingsEnabled: true
+        };
+      }
+    };
+
+    const summary = await runBackfill(database, embeddings, {
+      batchSize: 1,
+      dryRun: false
+    });
+
+    expect(summary.updated).toBe(1); // facets was updated
+    expect(summary.failed).toBe(1); // sync counted as failure
+    upsertSpy.mockRestore();
   });
 
   it("is a no-op when every row already has an embedding_blob", async () => {

@@ -1,8 +1,10 @@
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
 
-import { SQLITE_NEXT_FACT_DOC_ID_EXPR } from "../../db/fact-store.js";
+import { resolveGhostcrabConfig } from "../../config/env.js";
+import { FACETS_SEARCH_TABLE_ID, SQLITE_NEXT_FACT_DOC_ID_EXPR } from "../../db/fact-store.js";
 import { encodeEmbedding } from "../../embeddings/blob.js";
+import { runStandaloneSearchEmbeddingUpsert } from "../../db/standalone-mindbrain.js";
 import {
   createToolErrorResult,
   createToolSuccessResult,
@@ -120,6 +122,9 @@ export const upsertTool: ToolHandler = {
     let embeddingRuntime = context.embeddings.getStatus();
     const notes: string[] = [];
 
+    let pendingEmbeddingSync: { docId: number; embedding: number[] } | null =
+      null;
+
     const result = await context.database.transaction(async (queryable) => {
       const candidates = await queryable.query<{
         content: string;
@@ -207,6 +212,7 @@ export const upsertTool: ToolHandler = {
 
       let embeddingStored = false;
       let embeddingValue: string | null = null;
+      let rawEmbedding: number[] | null = null;
       const contentChanged =
         input.set_content !== undefined &&
         input.set_content !== (existing?.content ?? null);
@@ -215,6 +221,7 @@ export const upsertTool: ToolHandler = {
         try {
           const [embedding] = await context.embeddings.embedMany([nextContent]);
           if (embedding.length > 0) {
+            rawEmbedding = embedding;
             embeddingValue = encodeEmbedding(embedding);
             embeddingStored = true;
           }
@@ -257,16 +264,24 @@ export const upsertTool: ToolHandler = {
 
         const [updated] = await queryable.query<{
           id: string;
+          doc_id: number;
           updated_at_unix: number;
           version: number;
         }>(
           `
-            SELECT id, updated_at_unix, version
+            SELECT id, doc_id, updated_at_unix, version
             FROM facets
             WHERE id = ?
           `,
           [existing.id]
         );
+
+        if (rawEmbedding !== null && updated?.doc_id) {
+          pendingEmbeddingSync = {
+            docId: Number(updated.doc_id),
+            embedding: rawEmbedding
+          };
+        }
 
         return {
           kind: "success" as const,
@@ -323,6 +338,19 @@ export const upsertTool: ToolHandler = {
         ]
       );
 
+      if (rawEmbedding !== null) {
+        const [inserted] = await queryable.query<{ doc_id: number }>(
+          "SELECT doc_id FROM facets WHERE id = ?",
+          [id]
+        );
+        if (inserted?.doc_id) {
+          pendingEmbeddingSync = {
+            docId: Number(inserted.doc_id),
+            embedding: rawEmbedding
+          };
+        }
+      }
+
       return {
         kind: "success" as const,
         result: createToolSuccessResult("ghostcrab_upsert", {
@@ -340,6 +368,28 @@ export const upsertTool: ToolHandler = {
         })
       };
     });
+
+    // Mirror the embedding into search_embeddings after the transaction
+    // commits so the MindBrain native hybrid engine can find it. Best-effort.
+    // pendingEmbeddingSync is set inside an async callback so TypeScript cannot
+    // narrow it after the await — we use a cast to preserve the union type.
+    if (pendingEmbeddingSync) {
+      const sync = pendingEmbeddingSync as { docId: number; embedding: number[] };
+      try {
+        const config = resolveGhostcrabConfig();
+        await runStandaloneSearchEmbeddingUpsert({
+          mindbrainUrl: config.mindbrainUrl,
+          timeoutMs: config.mindbrainHttpTimeoutMs,
+          tableId: FACETS_SEARCH_TABLE_ID,
+          docId: sync.docId,
+          embedding: sync.embedding
+        });
+      } catch {
+        notes.push(
+          "Embedding mirrored to facets but search_embeddings sync failed; native hybrid search will not find this row until backfill runs."
+        );
+      }
+    }
 
     return result.result;
   }

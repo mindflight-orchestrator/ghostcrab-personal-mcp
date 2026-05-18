@@ -4,6 +4,8 @@ import { encodeEmbedding } from "../embeddings/blob.js";
 import { resolveGhostcrabConfig } from "../config/env.js";
 import { createDatabaseClient } from "../db/client.js";
 import { createEmbeddingProvider } from "../embeddings/provider.js";
+import { FACETS_SEARCH_TABLE_ID } from "../db/fact-store.js";
+import { runStandaloneSearchEmbeddingUpsert } from "../db/standalone-mindbrain.js";
 
 interface BackfillOptions {
   batchSize: number;
@@ -72,9 +74,13 @@ export async function runBackfill(
       options.schemaId,
       batchLimit
     );
-    const rows = await database.query<{ content: string; id: string }>(
+    const rows = await database.query<{
+      content: string;
+      id: string;
+      doc_id: number;
+    }>(
       `
-        SELECT id, content
+        SELECT id, doc_id, content
         FROM facets
         ${whereClause}
         ORDER BY created_at_unix ASC
@@ -98,6 +104,10 @@ export async function runBackfill(
     const vectors = await embeddings.embedMany(rows.map((row) => row.content));
     const nowUnix = Math.floor(Date.now() / 1000);
 
+    // Collect successful (doc_id, vector) pairs for search_embeddings sync
+    // after the SQL transaction commits.
+    const syncPending: { docId: number; embedding: number[] }[] = [];
+
     await database.transaction(async (tx) => {
       for (const [index, row] of rows.entries()) {
         const vector = vectors[index];
@@ -107,11 +117,10 @@ export async function runBackfill(
           continue;
         }
 
-        // Phase 2: aligned with the active write path via the shared
-        // `encodeEmbedding` helper in src/embeddings/blob.ts. remember.ts,
-        // upsert.ts, and this CLI all use the same canonical JSON-array text
-        // payload, so a backfilled row is indistinguishable from a freshly
-        // written one.
+        // Aligned with the active write path via the shared `encodeEmbedding`
+        // helper. remember.ts, upsert.ts, and this CLI all use the same
+        // canonical JSON-array text payload so a backfilled row is
+        // indistinguishable from a freshly written one.
         await tx.query(
           `
             UPDATE facets
@@ -122,8 +131,29 @@ export async function runBackfill(
           [encodeEmbedding(vector), nowUnix, row.id]
         );
         summary.updated += 1;
+
+        if (row.doc_id) {
+          syncPending.push({ docId: Number(row.doc_id), embedding: vector });
+        }
       }
     });
+
+    // Mirror embeddings into search_embeddings so the MindBrain native
+    // hybrid search engine can find them. Best-effort per-row; failures are
+    // counted but do not abort the backfill.
+    const config = resolveGhostcrabConfig();
+    for (const { docId, embedding } of syncPending) {
+      try {
+        await runStandaloneSearchEmbeddingUpsert({
+          mindbrainUrl: config.mindbrainUrl,
+          tableId: FACETS_SEARCH_TABLE_ID,
+          docId,
+          embedding
+        });
+      } catch {
+        summary.failed += 1;
+      }
+    }
   }
 
   return summary;
