@@ -17,6 +17,7 @@ Start here when you need the project documentation map.
 ## Architecture And Migrations
 
 - [Ontology naming migration](architecture/ontology-naming-migration.md) — current naming contract after the `mfo` cleanup.
+- [Universal methodology](architecture/universal_methodology.md) — iterative 4-phase methodology for GhostCrab (facets → projections → import → reports).
 
 ## Articles
 

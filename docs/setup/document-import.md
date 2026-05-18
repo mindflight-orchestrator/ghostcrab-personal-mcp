@@ -209,9 +209,11 @@ gcp brain document --force document-profile-worker \
   --embedding-model text-embedding-3-small
 ```
 
-## Workflow 4: Qualify Taxonomies And Facets
+## Workflow 4: List Qualification Vocabulary
 
-After documents and chunks exist, list the controlled vocabulary:
+After documents and chunks exist, list the controlled vocabulary. This command
+returns the taxonomy IDs to pass as `--taxonomies` and facet IDs to pass as
+`--facets`:
 
 ```bash
 gcp brain document --force qualification-vocab-list \
@@ -219,7 +221,49 @@ gcp brain document --force qualification-vocab-list \
   --collection-id my_ws::docs
 ```
 
-Use the returned taxonomy IDs and facet IDs with `document-qualify`:
+The output shape is JSON:
+
+```json
+{
+  "workspace_id": "my_ws",
+  "collection_id": "my_ws::docs",
+  "taxonomies": [
+    {
+      "id": "my_ws::core",
+      "name": "Core taxonomy",
+      "version": "1.0.0",
+      "source_kind": "constructed",
+      "role": "primary"
+    }
+  ],
+  "facets": [
+    {
+      "id": "topic.category",
+      "taxonomy_id": "my_ws::core",
+      "namespace": "topic",
+      "dimension": "category",
+      "value_type": "text",
+      "is_multi": false,
+      "hierarchy_kind": "flat",
+      "values_count": 3,
+      "values_preview": ["governance", "risk", "compliance"]
+    }
+  ]
+}
+```
+
+You can narrow the listing:
+
+```bash
+gcp brain document --force qualification-vocab-list \
+  --workspace-id my_ws \
+  --collection-id my_ws::docs \
+  --taxonomies my_ws::core \
+  --facets topic.category,source.filename
+```
+
+Use returned taxonomy IDs and facet IDs with a native engine that exposes
+`document-qualify`:
 
 ```bash
 gcp brain document --force document-qualify \
@@ -232,7 +276,7 @@ gcp brain document --force document-qualify \
   --model gpt-4.1-mini
 ```
 
-No-LLM qualification fallback:
+No-LLM qualification fallback when `document-qualify` is available:
 
 ```bash
 gcp brain document --force document-qualify \
@@ -244,7 +288,7 @@ gcp brain document --force document-qualify \
 ```
 
 Dry-run qualification checks prompt construction and target selection without
-calling an LLM or writing assignments:
+calling an LLM or writing assignments when the native engine provides the verb:
 
 ```bash
 gcp brain document --force document-qualify \
@@ -258,6 +302,11 @@ gcp brain document --force document-qualify \
 Accepted qualification rows are written to `facet_assignments_raw`. Chunk
 assignments are persisted directly and aggregated to document-level assignments.
 
+Current boundary: `qualification-vocab-list` is part of this package's native
+document engine. Full controlled LLM qualification through `document-qualify`
+is a separate engine capability; verify it with `gcp brain document --help`
+before relying on it in an install.
+
 ## Fallbacks And Troubleshooting
 
 | Situation | Fallback |
@@ -268,6 +317,8 @@ assignments are persisted directly and aggregated to document-level assignments.
 | Backend is running | Stop MCP / `ghostcrab-backend`, or pass `--force` only when you accept SQLite lock risk. |
 | Wrong database | Set `GHOSTCRAB_SQLITE_PATH` or pass wrapper-level `--db <path>` before the subcommand. |
 | Need to inspect what happened | Run `collection-export`, `document-by-nanoid`, or `qualification-vocab-list`. |
+| Need IDs for `--taxonomies` / `--facets` | Run `qualification-vocab-list --workspace-id <id> [--collection-id <id>]`. |
+| `document-qualify` returns `InvalidArguments` | The installed native engine may not expose full controlled qualification yet; use `qualification-vocab-list` to inspect vocabulary and verify `gcp brain document --help`. |
 
 If a DB-backed command refuses to run, inspect holders:
 

@@ -295,6 +295,9 @@ Usage: gcp brain document [--workspace <name>] [--db <path>] [--force] <subcomma
     --base-url https://api.openai.com/v1 --model gpt-4.1-mini --limit 4
   gcp brain document qualification-vocab-list \\
     --workspace-id my_ws --collection-id my_ws::docs
+  gcp brain document qualification-vocab-list \\
+    --workspace-id my_ws --collection-id my_ws::docs \\
+    --taxonomies my_ws::core --facets topic.category,source.filename
   gcp brain document document-qualify \\
     --workspace-id my_ws --collection-id my_ws::docs \\
     --taxonomies my_ws::core --facets topic.category \\
@@ -302,6 +305,10 @@ Usage: gcp brain document [--workspace <name>] [--db <path>] [--force] <subcomma
 
   For commands that need a database, --db is set automatically to your GHOSTCRAB_SQLITE_PATH
   (you do not pass --db unless you intentionally override).
+
+  qualification-vocab-list returns the taxonomy IDs for --taxonomies and facet IDs
+  (namespace.dimension) for --facets. Full document-qualify support depends on the
+  installed native document engine exposing that verb; verify it with this help output.
 
   Override binary: GHOSTCRAB_DOCUMENT_ENGINE=/path/to/ghostcrab-document
 `.trim()
