@@ -19,7 +19,7 @@ operations.
 | **Equip agents (skills)** | `gcp agent skills …` | Registry skills (agent capabilities). Shortcut: `gcp agent equip owner/name` = `agent skills pull`. Legacy: `gcp skills …`. |
 | **CLI / MCP environment** | `gcp env …` | Read/write `~/.config/ghostcrab/config.json`. Legacy: `gcp config …`. |
 | **Load demo profile** | `gcp brain load …` | JSONL profile into the DB. Legacy: `gcp load …`. |
-| **Corpus import / profiling** | `gcp brain document …` | Normalize, profile, enqueue/worker, ingest (stop MCP first). See `gcp brain document --help`. |
+| **Corpus import / profiling** | `gcp brain document …` | Normalize, profile, enqueue/worker, ingest, qualify (stop MCP first). See `gcp brain document --help` and [document-import.md](../setup/document-import.md). |
 | **Native binary permissions** | `gcp authorize` | `chmod` / macOS quarantine (also runs on `postinstall`). |
 | **Human DDL maintenance** | `gcp maintenance ddl-approve \| ddl-execute` | Explicit operator-only approval/execution for pending DDL migrations. |
 | **User-global MCP in IDE** | `gcp brain setup <cursor, codex, or claude> […]` | Registers the GhostCrab stdio server in the **user** scope: merges `~/.cursor/mcp.json` for Cursor, runs `codex mcp add` (or prints a TOML fragment) for Codex, or runs `claude mcp add` for Claude Code. Aliases: `gcp brain setup_cursor` / `setup_codex` / `setup_claude` / `setup_claudecode`. See [gcp-client-setup.md](../setup/gcp-client-setup.md) and the root `README_*_MCP.md` files. |
@@ -53,6 +53,7 @@ Legacy (still supported):
 ## See also
 
 - [gcp-client-setup.md](../setup/gcp-client-setup.md) — IDE integration and env vars
+- [document-import.md](../setup/document-import.md) — document normalization, deterministic import, LLM profiling, qualification, and no-LLM fallbacks
 - [skillset-demo-import.md](../setup/skillset-demo-import.md) — bundle manifests, schema/skill pulls, vendored `skills install`, JSONL loads
 - [docs index](../index.md) — documentation entry point
 - Root `README_CURSOR_MCP.md`, `README_CODEX_MCP.md`, `README_CLAUDE_CODE_MCP.md` — per-IDE MCP wiring

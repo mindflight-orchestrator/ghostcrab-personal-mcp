@@ -5,6 +5,7 @@ Start here when you need the project documentation map.
 ## Setup And Usage
 
 - [CLI and MCP client setup](setup/gcp-client-setup.md) — install and wire `gcp` into Cursor, Claude Code, Codex, and OpenClaw-style MCP clients.
+- [Document import runbook](setup/document-import.md) — normalize, ingest, profile, qualify, and operate no-LLM fallbacks for `gcp brain document`.
 - [Skillset and demo import](setup/skillset-demo-import.md) — pull registry skills, install vendored skills, and load JSONL demo profiles.
 - [Beta bundle Makefile workflow](installers/beta-bundle/README.md) — install from a beta bundle on macOS, Linux, WSL, or Git Bash.
 

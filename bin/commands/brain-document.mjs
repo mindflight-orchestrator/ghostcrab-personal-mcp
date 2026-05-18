@@ -293,6 +293,12 @@ Usage: gcp brain document [--workspace <name>] [--db <path>] [--force] <subcomma
     --workspace-id my_ws --collection-id my_ws::docs --doc-id-start 1
   gcp brain document document-profile-worker \\
     --base-url https://api.openai.com/v1 --model gpt-4.1-mini --limit 4
+  gcp brain document qualification-vocab-list \\
+    --workspace-id my_ws --collection-id my_ws::docs
+  gcp brain document document-qualify \\
+    --workspace-id my_ws --collection-id my_ws::docs \\
+    --taxonomies my_ws::core --facets topic.category \\
+    --base-url https://api.openai.com/v1 --model gpt-4.1-mini
 
   For commands that need a database, --db is set automatically to your GHOSTCRAB_SQLITE_PATH
   (you do not pass --db unless you intentionally override).

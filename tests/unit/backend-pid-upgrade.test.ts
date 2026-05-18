@@ -28,8 +28,8 @@ function needsUpgrade(storedVersion: string, currentVersion: string): boolean {
 
 describe("PID file format (3-field: pid:port:version)", () => {
   it("parses a current-format file correctly", () => {
-    const result = parsePidFile("54390:8091:0.2.22\n");
-    expect(result).toEqual({ pid: 54390, port: 8091, version: "0.2.22" });
+    const result = parsePidFile("54390:8091:0.3.0\n");
+    expect(result).toEqual({ pid: 54390, port: 8091, version: "0.3.0" });
   });
 
   it("parses a legacy 2-field file (pre-0.2.23) as version 'unknown'", () => {
@@ -42,11 +42,11 @@ describe("PID file format (3-field: pid:port:version)", () => {
   });
 
   it("returns null when pid field is not a number", () => {
-    expect(parsePidFile("abc:8091:0.2.22")).toBeNull();
+    expect(parsePidFile("abc:8091:0.3.0")).toBeNull();
   });
 
   it("returns null when port field is not a number", () => {
-    expect(parsePidFile("54390:xyz:0.2.22")).toBeNull();
+    expect(parsePidFile("54390:xyz:0.3.0")).toBeNull();
   });
 
   it("handles whitespace-only content", () => {
@@ -56,18 +56,18 @@ describe("PID file format (3-field: pid:port:version)", () => {
 
 describe("upgrade detection logic", () => {
   it("no upgrade needed when versions match", () => {
-    expect(needsUpgrade("0.2.22", "0.2.22")).toBe(false);
+    expect(needsUpgrade("0.3.0", "0.3.0")).toBe(false);
   });
 
   it("upgrade triggered when stored version is older", () => {
-    expect(needsUpgrade("0.2.18", "0.2.22")).toBe(true);
+    expect(needsUpgrade("0.2.22", "0.3.0")).toBe(true);
   });
 
   it("upgrade triggered for legacy 2-field files (version = 'unknown')", () => {
-    expect(needsUpgrade("unknown", "0.2.22")).toBe(true);
+    expect(needsUpgrade("unknown", "0.3.0")).toBe(true);
   });
 
   it("upgrade triggered when stored version is somehow newer (downgrade scenario)", () => {
-    expect(needsUpgrade("0.2.99", "0.2.22")).toBe(true);
+    expect(needsUpgrade("0.3.1", "0.3.0")).toBe(true);
   });
 });

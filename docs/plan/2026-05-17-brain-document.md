@@ -20,6 +20,8 @@ The operational rule stays conservative: commands that write or read the GhostCr
 - Verify no-DB subcommands can run while a backend health endpoint is alive.
 - Verify DB subcommands refuse to run while the backend is alive unless `--force` is passed.
 - Verify `--db` is used for preflight and forwarded exactly once to the document engine.
+- Verify qualification subcommands are treated as DB-backed and receive wrapper
+  `--db` injection.
 - Run `node bin/gcp.mjs brain document --help`, targeted Vitest coverage, and `npm run typecheck`.
 
 ## Assumptions

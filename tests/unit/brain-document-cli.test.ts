@@ -20,6 +20,10 @@ describe("gcp brain document helpers", () => {
       true
     );
     expect(__private__.subcommandUsesDatabase("collection-import")).toBe(true);
+    expect(__private__.subcommandUsesDatabase("qualification-vocab-list")).toBe(
+      true
+    );
+    expect(__private__.subcommandUsesDatabase("document-qualify")).toBe(true);
   });
 
   it("parses wrapper-level --db without forwarding it as a raw argument", () => {
@@ -69,6 +73,39 @@ describe("gcp brain document helpers", () => {
       "paper.pdf",
       "--output-dir",
       "out"
+    ]);
+  });
+
+  it("injects --db for qualification commands", () => {
+    expect(
+      __private__.buildDocumentEngineArgs(
+        [
+          "document-qualify",
+          "--workspace-id",
+          "ws",
+          "--collection-id",
+          "ws::docs",
+          "--taxonomies",
+          "ws::core",
+          "--facets",
+          "topic.category",
+          "--dry-run"
+        ],
+        "/tmp/docs.sqlite"
+      )
+    ).toEqual([
+      "document-qualify",
+      "--db",
+      "/tmp/docs.sqlite",
+      "--workspace-id",
+      "ws",
+      "--collection-id",
+      "ws::docs",
+      "--taxonomies",
+      "ws::core",
+      "--facets",
+      "topic.category",
+      "--dry-run"
     ]);
   });
 

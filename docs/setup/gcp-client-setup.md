@@ -80,9 +80,11 @@ See the root [README.md](../../README.md) for the full table. Typical SQLite def
 
 ### Document import (`gcp brain document`)
 
-Use **`gcp brain document`** for PDF/HTML normalization, LLM document profiling, enqueue/worker, and related MindBrain CLI flows. **Quit MCP / stop `ghostcrab-backend` first** so the SQLite file is not locked; the command probes `/health` and refuses to run if the backend is up unless you pass **`--force`**.
+Use **`gcp brain document`** for PDF/HTML normalization, LLM document profiling, enqueue/worker, taxonomy/facet vocabulary listing, LLM qualification, and related MindBrain CLI flows. **Quit MCP / stop `ghostcrab-backend` first** so the SQLite file is not locked; the command probes `/health` and refuses to run if the backend is up unless you pass **`--force`**.
 
-Database commands automatically receive **`--db`** matching your **`GHOSTCRAB_SQLITE_PATH`** (and optional **`--workspace`** / `-w` for path resolution), or the explicit **`--db <path>`** you pass to the wrapper. Run **`gcp brain document --help`** for examples. Full flag reference for subcommands such as `document-profile-worker` lives in the vendored MindBrain docs (`vendor/mindbrain/docs/document-profile.md` in this repo).
+Database commands automatically receive **`--db`** matching your **`GHOSTCRAB_SQLITE_PATH`** (and optional **`--workspace`** / `-w` for path resolution), or the explicit **`--db <path>`** you pass to the wrapper. Run **`gcp brain document --help`** for examples. The dedicated runbook is [document-import.md](document-import.md). Full flag reference for subcommands such as `document-profile-worker` lives in the vendored MindBrain docs (`vendor/mindbrain/docs/document-profile.md` in this repo).
+
+For controlled qualification, first run **`gcp brain document qualification-vocab-list --workspace-id <id> [--collection-id <id>]`** to list taxonomy IDs and facet IDs, then run **`gcp brain document document-qualify --workspace-id <id> --collection-id <id> --taxonomies <id,id> --facets <namespace.dimension,...> ...`**.
 
 ## MCP configuration examples
 

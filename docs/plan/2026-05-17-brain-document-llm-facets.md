@@ -154,8 +154,12 @@ Validations executees :
 - `node --check bin/commands/brain-document.mjs`
 - `node --check bin/commands/brain.mjs`
 
-Etat restant :
+Suite implementee :
 
-- non committe ;
-- le flux de classification LLM contre une ontologie reste une prochaine feature,
-  pas une capacite deja presente.
+- ajout d'une commande `qualification-vocab-list` pour lister les
+  taxonomies et facettes qualifiables depuis le vocabulaire controle ;
+- ajout d'une commande `document-qualify` pour qualifier les documents et
+  chunks existants avec `--taxonomies <id,id>` et `--facets
+  <namespace.dimension,...>` ;
+- les assignments valides sont ecrits dans `facet_assignments_raw`; les
+  assignments chunk acceptes sont aussi agreges au niveau document.
