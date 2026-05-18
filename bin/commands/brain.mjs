@@ -104,11 +104,26 @@ async function cmdBrainSetup(args) {
     }
   }
 
+  // Always inject an absolute --db path into the MCP launch args so the MCP
+  // host (Cursor, Codex, Claude Code…) uses the correct database regardless of
+  // its working directory.  The user's explicit --db wins; otherwise we resolve
+  // the same path that `gcp brain up` would pick at setup time (workspace
+  // config → defaultWorkspace → cwd/data/ghostcrab.sqlite).
+  let effectiveDbPath = p.dbPath;
+  if (!effectiveDbPath) {
+    const { resolveGhostcrabSqlite } = await import("../lib/resolve-ghostcrab-sqlite.mjs");
+    const resolved = resolveGhostcrabSqlite({
+      workspaceNameFromCli: p.workspace ?? null,
+      sqlitePathFromCli: null
+    });
+    effectiveDbPath = resolved.sqlitePathResolved;
+  }
+
   const base = {
     packageName,
     runner: p.runner,
     workspace: p.workspace,
-    dbPath: p.dbPath,
+    dbPath: effectiveDbPath,
     serverName: p.serverName,
     extraEnv: p.extraEnv,
     dryRun: p.dryRun,
