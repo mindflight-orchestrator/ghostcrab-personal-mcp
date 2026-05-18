@@ -1,5 +1,7 @@
 # Skill: Ontology Development for LLMs
 
+> English version — version française : [`fr/ontology_dev_for_llm.md`](fr/ontology_dev_for_llm.md)
+
 ## Purpose
 
 Use this skill to help a user design, review, refine, or document an ontology for a domain. The ontology should define a shared vocabulary of domain concepts, their relationships, their properties, constraints on those properties, and representative instances.
