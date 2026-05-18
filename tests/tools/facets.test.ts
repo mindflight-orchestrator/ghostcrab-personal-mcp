@@ -45,15 +45,33 @@ function readStructured(
 }
 
 describe("facet tools", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("stores a fact and returns its identifier", async () => {
-    const database = createMockDatabase(async () => [{ next_doc_id: 1 }]);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            ok: true,
+            id: "a1b2c3d4-e5f6-4789-abcd-ef1234567890",
+            doc_id: 1,
+            created: true,
+            updated: false
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        )
+      )
+    );
 
     const result = await rememberTool.handler(
       {
         content: "Ghostcrab remembers smoke facts.",
         facets: { domain: "smoke" }
       },
-      createToolContext(database)
+      createToolContext(createMockDatabase(async () => []))
     );
 
     expect(readStructured(result)).toMatchObject({
@@ -61,7 +79,7 @@ describe("facet tools", () => {
       tool: "ghostcrab_remember",
       surface_version: GHOSTCRAB_MCP_SURFACE_VERSION,
       stored: true,
-      id: expect.stringMatching(UUID_V4),
+      id: "a1b2c3d4-e5f6-4789-abcd-ef1234567890",
       schema_id: "agent:observation"
     });
   });
@@ -256,24 +274,40 @@ describe("facet tools", () => {
   });
 
   it("stores embeddings when the fake provider is enabled", async () => {
-    const query = vi.fn(async () => [{ next_doc_id: 1 }]);
-    const database = createMockDatabase(query);
+    const fetchMock = vi.fn(async (url: string | URL) => {
+      const path = typeof url === "string" ? url : url.toString();
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          id: "b2c3d4e5-f6a7-4890-bcde-f12345678901",
+          doc_id: 2,
+          created: true,
+          updated: false
+        }),
+        { status: 200, headers: { "content-type": "application/json" } }
+      );
+      void path;
+    });
+    vi.stubGlobal("fetch", fetchMock);
 
     const result = await rememberTool.handler(
       {
         content: "Native extension build is deferred.",
         facets: { domain: "product" }
       },
-      createToolContext(database, { embeddingsMode: "fake" })
+      createToolContext(createMockDatabase(async () => []), {
+        embeddingsMode: "fake"
+      })
     );
 
-    expect(query).toHaveBeenCalledTimes(1);
-    expect(query.mock.calls[0]?.[0]).toContain("embedding_blob");
-    expect(query.mock.calls[0]?.[1]?.[4]).toContain("[");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [, init] = fetchMock.mock.calls[0] as [unknown, RequestInit];
+    const body = JSON.parse(init?.body as string) as Record<string, unknown>;
+    expect(body.embedding_blob).toBeTruthy();
+    expect(typeof body.embedding_blob).toBe("string");
+    expect(Array.isArray(body.embedding)).toBe(true);
     expect(readStructured(result)).toMatchObject({
-      embedding_runtime: expect.objectContaining({
-        mode: "fake"
-      }),
+      embedding_runtime: expect.objectContaining({ mode: "fake" }),
       embedding_stored: true,
       stored: true
     });

@@ -252,41 +252,13 @@ describe("dgraph tools", () => {
     });
   });
 
-  it("ghostcrab_graph_search falls back to local SQL and can include relations", async () => {
+  it("returns backend_unavailable when MindBrain graph-search endpoint is offline", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => {
         throw new Error("backend offline");
       })
     );
-    const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
-      if (sql.includes("FROM graph_entity")) {
-        return [
-          {
-            entity_id: 7,
-            entity_type: "SEOIssue",
-            name: "Missing title tag",
-            confidence: 0.91,
-            metadata_json: '{"collection_id":"seo","severity":"high"}',
-            score: 4
-          }
-        ];
-      }
-
-      if (sql.includes("FROM graph_relation")) {
-        return [
-          {
-            relation_id: 11,
-            relation_type: "OBSERVED_IN",
-            source_id: 7,
-            target_id: 8,
-            metadata_json: '{"phase":"a1_phase1"}'
-          }
-        ];
-      }
-
-      return [];
-    });
 
     const result = await graphSearchTool.handler(
       {
@@ -297,19 +269,15 @@ describe("dgraph tools", () => {
         metadata_filters: { severity: "high" },
         include_relations: true
       },
-      createToolContext(createMockDatabase(query))
+      createToolContext(createMockDatabase(async () => []))
     );
 
-    expect(readStructured(result)).toMatchObject({
-      backend: "sql",
-      collection_id: null,
-      returned: 1,
-      relations: [
-        expect.objectContaining({
-          relation_type: "OBSERVED_IN",
-          metadata: expect.objectContaining({ phase: "a1_phase1" })
-        })
-      ]
+    expect(result.isError).toBe(true);
+    const structured = result.structuredContent as Record<string, unknown>;
+    expect(structured).toMatchObject({
+      ok: false,
+      tool: "ghostcrab_graph_search",
+      error: expect.objectContaining({ code: "backend_unavailable" })
     });
   });
 

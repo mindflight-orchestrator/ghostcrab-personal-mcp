@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 import { resolveGhostcrabConfig } from "../../config/env.js";
-import type { Queryable } from "../../db/client.js";
 import { runStandaloneGhostcrabProjectionGet } from "../../db/standalone-mindbrain.js";
 import {
+  createToolErrorResult,
   createToolSuccessResult,
   registerTool,
   type ToolHandler
@@ -124,14 +124,10 @@ export const projectionGetTool: ToolHandler = {
   async handler(args, context) {
     const input = ProjectionGetInput.parse(args);
     const workspaceId = input.workspace_id ?? context.session.workspace_id;
-    const notes: string[] = [];
-    let backend: "native" | "sql" = "native";
-    let projectionResults: ProjectionEntity[];
-    let linkedEvidence: LinkedEvidence[];
-    let deltas: ProjectionEntity[];
 
+    let response;
     try {
-      const response = await runStandaloneGhostcrabProjectionGet({
+      response = await runStandaloneGhostcrabProjectionGet({
         mindbrainUrl: resolveGhostcrabConfig().mindbrainUrl,
         workspaceId,
         collectionId: input.collection_id,
@@ -139,52 +135,32 @@ export const projectionGetTool: ToolHandler = {
         includeEvidence: input.include_evidence,
         includeDeltas: input.include_deltas
       });
-      projectionResults = response.projection_results.map(mapEntity);
-      linkedEvidence = response.linked_evidence.map((row) => ({
-        relation: {
-          relation_id: Number(row.relation_id),
-          relation_type: row.relation_type,
-          source_id: Number(row.source_id),
-          target_id: Number(row.target_id),
-          metadata: parseJsonObject(row.relation_metadata_json)
-        },
-        evidence: {
-          entity_id: Number(row.evidence_entity_id),
-          entity_type: row.evidence_entity_type,
-          name: row.evidence_name,
-          confidence: Number(row.evidence_confidence ?? 0),
-          metadata: parseJsonObject(row.evidence_metadata_json)
-        }
-      }));
-      deltas = response.deltas.map(mapEntity);
     } catch (error) {
-      backend = "sql";
-      notes.push(
-        `MindBrain projection-get endpoint unavailable: ${error instanceof Error ? error.message : "Unknown backend error"} Falling back to local graph SQL.`
+      return createToolErrorResult(
+        "ghostcrab_projection_get",
+        error instanceof Error ? error.message : "MindBrain projection-get backend unavailable",
+        "backend_unavailable"
       );
-      projectionResults = await loadProjectionResultsSql(
-        context.database,
-        workspaceId,
-        input.collection_id,
-        input.projection_id
-      );
-      linkedEvidence = input.include_evidence
-        ? await loadLinkedEvidenceSql(
-            context.database,
-            workspaceId,
-            input.collection_id,
-            input.projection_id
-          )
-        : [];
-      deltas = input.include_deltas
-        ? await loadDeltasSql(
-            context.database,
-            workspaceId,
-            input.collection_id,
-            input.projection_id
-          )
-        : [];
     }
+
+    const projectionResults = response.projection_results.map(mapEntity);
+    const linkedEvidence = response.linked_evidence.map((row) => ({
+      relation: {
+        relation_id: Number(row.relation_id),
+        relation_type: row.relation_type,
+        source_id: Number(row.source_id),
+        target_id: Number(row.target_id),
+        metadata: parseJsonObject(row.relation_metadata_json)
+      },
+      evidence: {
+        entity_id: Number(row.evidence_entity_id),
+        entity_type: row.evidence_entity_type,
+        name: row.evidence_name,
+        confidence: Number(row.evidence_confidence ?? 0),
+        metadata: parseJsonObject(row.evidence_metadata_json)
+      }
+    }));
+    const deltas = response.deltas.map(mapEntity);
 
     return createToolSuccessResult("ghostcrab_projection_get", {
       workspace_id: workspaceId,
@@ -192,8 +168,8 @@ export const projectionGetTool: ToolHandler = {
       projection_id: input.projection_id,
       include_evidence: input.include_evidence,
       include_deltas: input.include_deltas,
-      backend,
-      notes,
+      backend: "native",
+      notes: [],
       projection_results: projectionResults,
       linked_evidence: linkedEvidence,
       deltas,
@@ -209,123 +185,5 @@ export const projectionGetTool: ToolHandler = {
     });
   }
 };
-
-async function loadProjectionResultsSql(
-  database: Queryable,
-  workspaceId: string,
-  collectionId: string | undefined,
-  projectionId: string
-): Promise<ProjectionEntity[]> {
-  const rows = await database.query<{
-    confidence: number;
-    entity_id: number;
-    entity_type: string;
-    metadata_json: unknown;
-    name: string;
-  }>(
-    `
-        SELECT entity_id, entity_type, name, confidence, metadata_json
-        FROM graph_entity
-        WHERE workspace_id = ?
-          AND entity_type = 'ProjectionResult'
-          AND json_extract(metadata_json, '$.projection_id') = ?
-          AND (? IS NULL OR json_extract(metadata_json, '$.collection_id') = ?)
-          AND deprecated_at IS NULL
-        ORDER BY confidence DESC, entity_id ASC
-      `,
-    [workspaceId, projectionId, collectionId ?? null, collectionId ?? null]
-  );
-  return rows.map(mapEntity);
-}
-
-async function loadLinkedEvidenceSql(
-  database: Queryable,
-  workspaceId: string,
-  collectionId: string | undefined,
-  projectionId: string
-): Promise<LinkedEvidence[]> {
-  const rows = await database.query<{
-    evidence_confidence: number;
-    evidence_entity_id: number;
-    evidence_entity_type: string;
-    evidence_metadata_json: unknown;
-    evidence_name: string;
-    relation_id: number;
-    relation_metadata_json: unknown;
-    relation_type: string;
-    source_id: number;
-    target_id: number;
-  }>(
-    `
-        SELECT
-          r.relation_id,
-          r.relation_type,
-          r.source_id,
-          r.target_id,
-          r.metadata_json AS relation_metadata_json,
-          e.entity_id AS evidence_entity_id,
-          e.entity_type AS evidence_entity_type,
-          e.name AS evidence_name,
-          e.confidence AS evidence_confidence,
-          e.metadata_json AS evidence_metadata_json
-        FROM graph_entity p
-        JOIN graph_relation r ON r.source_id = p.entity_id
-        JOIN graph_entity e ON e.entity_id = r.target_id
-        WHERE p.workspace_id = ?
-          AND p.entity_type = 'ProjectionResult'
-          AND json_extract(p.metadata_json, '$.projection_id') = ?
-          AND (? IS NULL OR json_extract(p.metadata_json, '$.collection_id') = ?)
-          AND p.deprecated_at IS NULL
-          AND r.deprecated_at IS NULL
-          AND e.deprecated_at IS NULL
-        ORDER BY r.relation_id ASC, e.entity_id ASC
-      `,
-    [workspaceId, projectionId, collectionId ?? null, collectionId ?? null]
-  );
-  return rows.map((row) => ({
-    relation: {
-      relation_id: Number(row.relation_id),
-      relation_type: row.relation_type,
-      source_id: Number(row.source_id),
-      target_id: Number(row.target_id),
-      metadata: parseJsonObject(row.relation_metadata_json)
-    },
-    evidence: {
-      entity_id: Number(row.evidence_entity_id),
-      entity_type: row.evidence_entity_type,
-      name: row.evidence_name,
-      confidence: Number(row.evidence_confidence ?? 0),
-      metadata: parseJsonObject(row.evidence_metadata_json)
-    }
-  }));
-}
-
-async function loadDeltasSql(
-  database: Queryable,
-  workspaceId: string,
-  collectionId: string | undefined,
-  projectionId: string
-): Promise<ProjectionEntity[]> {
-  const rows = await database.query<{
-    confidence: number;
-    entity_id: number;
-    entity_type: string;
-    metadata_json: unknown;
-    name: string;
-  }>(
-    `
-        SELECT entity_id, entity_type, name, confidence, metadata_json
-        FROM graph_entity
-        WHERE workspace_id = ?
-          AND entity_type = 'DeltaFinding'
-          AND json_extract(metadata_json, '$.metric') = ?
-          AND (? IS NULL OR json_extract(metadata_json, '$.collection_id') = ?)
-          AND deprecated_at IS NULL
-        ORDER BY confidence DESC, entity_id ASC
-      `,
-    [workspaceId, projectionId, collectionId ?? null, collectionId ?? null]
-  );
-  return rows.map(mapEntity);
-}
 
 registerTool(projectionGetTool);

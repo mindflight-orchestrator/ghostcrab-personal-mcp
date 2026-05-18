@@ -162,6 +162,78 @@ export interface StandaloneGhostcrabGraphSearchResponse {
   rows: StandaloneGhostcrabGraphSearchRow[];
 }
 
+export interface StandaloneGhostcrabSearchParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  workspaceId: string;
+  query: string;
+  embedding: number[];
+  vectorWeight: number;
+  limit: number;
+}
+
+export interface StandaloneGhostcrabSearchMatch {
+  doc_id: number;
+  bm25_score: number;
+  vector_score: number;
+  combined_score: number;
+}
+
+export interface StandaloneGhostcrabSearchResponse {
+  workspace_id: string;
+  query: string;
+  returned: number;
+  matches: StandaloneGhostcrabSearchMatch[];
+}
+
+export interface StandaloneFactWriteParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  id?: string;
+  workspaceId?: string;
+  schemaId: string;
+  content: string;
+  facetsJson?: string;
+  embeddingBlob?: string;
+  /** Numeric embedding vector for auto-sync to search_embeddings. */
+  embedding?: number[];
+  createdBy?: string;
+  validFromUnix?: number;
+  validUntilUnix?: number;
+  sourceRef?: string;
+}
+
+export interface StandaloneFactWriteResponse {
+  ok: true;
+  id: string;
+  doc_id: number;
+  created: boolean;
+  updated: boolean;
+}
+
+export interface StandaloneGraphPathParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  source: string;
+  target: string;
+  maxDepth?: number;
+  edgeLabels?: string[];
+}
+
+export interface StandaloneGraphSubgraphParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  seedIds: number[];
+  hops?: number;
+  edgeTypes?: string[];
+}
+
+export interface StandaloneGraphSubgraphEvent {
+  seq: number;
+  kind: string;
+  payload: unknown;
+}
+
 export interface StandaloneMindbrainSqlParams {
   mindbrainUrl: string;
   timeoutMs?: number;
@@ -308,6 +380,103 @@ export async function runStandaloneGhostcrabGraphSearch(
     {
       method: "GET"
     },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneGhostcrabSearch(
+  params: StandaloneGhostcrabSearchParams
+): Promise<StandaloneGhostcrabSearchResponse> {
+  const url = new URL(
+    "/api/mindbrain/ghostcrab/search",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  return await fetchJson<StandaloneGhostcrabSearchResponse>(
+    url,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        workspace_id: params.workspaceId,
+        query: params.query,
+        embedding: params.embedding,
+        vector_weight: params.vectorWeight,
+        limit: params.limit
+      }),
+      headers: { "content-type": "application/json" }
+    },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneFactWrite(
+  params: StandaloneFactWriteParams
+): Promise<StandaloneFactWriteResponse> {
+  const url = new URL(
+    "/api/mindbrain/facts/write",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  const body: Record<string, unknown> = {
+    schema_id: params.schemaId,
+    content: params.content
+  };
+  if (params.id !== undefined) body.id = params.id;
+  if (params.workspaceId !== undefined) body.workspace_id = params.workspaceId;
+  if (params.facetsJson !== undefined) body.facets_json = params.facetsJson;
+  if (params.embeddingBlob !== undefined) body.embedding_blob = params.embeddingBlob;
+  if (params.embedding !== undefined && params.embedding.length > 0)
+    body.embedding = params.embedding;
+  if (params.createdBy !== undefined) body.created_by = params.createdBy;
+  if (params.validFromUnix !== undefined) body.valid_from_unix = params.validFromUnix;
+  if (params.validUntilUnix !== undefined) body.valid_until_unix = params.validUntilUnix;
+  if (params.sourceRef !== undefined) body.source_ref = params.sourceRef;
+
+  return await fetchJson<StandaloneFactWriteResponse>(
+    url,
+    {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: { "content-type": "application/json" }
+    },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneGraphPath(
+  params: StandaloneGraphPathParams
+): Promise<string> {
+  const url = new URL(
+    "/api/mindbrain/graph-path",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  url.searchParams.set("source", params.source);
+  url.searchParams.set("target", params.target);
+  if (params.maxDepth !== undefined) {
+    url.searchParams.set("max_depth", String(params.maxDepth));
+  }
+  for (const label of params.edgeLabels ?? []) {
+    url.searchParams.append("edge_label", label);
+  }
+  return await fetchText(url, { method: "GET" }, params.timeoutMs);
+}
+
+export async function runStandaloneGraphSubgraph(
+  params: StandaloneGraphSubgraphParams
+): Promise<StandaloneGraphSubgraphEvent[]> {
+  const url = new URL(
+    "/api/mindbrain/graph/subgraph",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  url.searchParams.set("seed_ids", params.seedIds.join(","));
+  url.searchParams.set("format", "json");
+  if (params.hops !== undefined) {
+    url.searchParams.set("hops", String(params.hops));
+  }
+  if (params.edgeTypes && params.edgeTypes.length > 0) {
+    url.searchParams.set("edge_types", params.edgeTypes.join(","));
+  }
+  return await fetchJson<StandaloneGraphSubgraphEvent[]>(
+    url,
+    { method: "GET" },
     params.timeoutMs
   );
 }

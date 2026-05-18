@@ -4,6 +4,7 @@ import { resolveGhostcrabConfig } from "../../config/env.js";
 import type { Queryable } from "../../db/client.js";
 import { runStandaloneGhostcrabGraphSearch } from "../../db/standalone-mindbrain.js";
 import {
+  createToolErrorResult,
   createToolSuccessResult,
   registerTool,
   type ToolHandler
@@ -140,12 +141,10 @@ export const graphSearchTool: ToolHandler = {
   async handler(args, context) {
     const input = GraphSearchInput.parse(args);
     const workspaceId = input.workspace_id ?? context.session.workspace_id;
-    const notes: string[] = [];
-    let backend: "native" | "sql" = "native";
-    let results: GraphEntityResult[];
 
+    let response;
     try {
-      const response = await runStandaloneGhostcrabGraphSearch({
+      response = await runStandaloneGhostcrabGraphSearch({
         mindbrainUrl: resolveGhostcrabConfig().mindbrainUrl,
         workspaceId,
         collectionId: input.collection_id,
@@ -154,21 +153,15 @@ export const graphSearchTool: ToolHandler = {
         metadataFilters: input.metadata_filters,
         limit: input.limit
       });
-      results = response.rows.map(mapGraphEntity);
     } catch (error) {
-      backend = "sql";
-      notes.push(
-        `MindBrain graph-search endpoint unavailable: ${error instanceof Error ? error.message : "Unknown backend error"} Falling back to local graph SQL.`
+      return createToolErrorResult(
+        "ghostcrab_graph_search",
+        error instanceof Error ? error.message : "MindBrain graph-search backend unavailable",
+        "backend_unavailable"
       );
-      results = await loadGraphSearchSql(context.database, {
-        workspaceId,
-        collectionId: input.collection_id,
-        query: input.query,
-        entityTypes: input.entity_types,
-        metadataFilters: input.metadata_filters,
-        limit: input.limit
-      });
     }
+
+    const results = response.rows.map(mapGraphEntity);
 
     const relations = input.include_relations
       ? await loadRelationsForEntitiesSql(
@@ -185,88 +178,15 @@ export const graphSearchTool: ToolHandler = {
       metadata_filters: input.metadata_filters,
       include_relations: input.include_relations,
       returned: results.length,
-      backend,
+      backend: "native",
       searched_layers: ["graph_entity"],
       excluded_layers: ["facets", "projections", "memory_projections"],
-      notes,
+      notes: [],
       results,
       relations
     });
   }
 };
-
-async function loadGraphSearchSql(
-  database: Queryable,
-  params: {
-    workspaceId: string;
-    collectionId: string | undefined;
-    query: string;
-    entityTypes: string[];
-    metadataFilters: Record<string, unknown>;
-    limit: number;
-  }
-): Promise<GraphEntityResult[]> {
-  const whereClauses = [
-    "workspace_id = ?",
-    "deprecated_at IS NULL",
-    "(? IS NULL OR json_extract(metadata_json, '$.collection_id') = ?)"
-  ];
-  const sqlParams: unknown[] = [
-    params.workspaceId,
-    params.collectionId ?? null,
-    params.collectionId ?? null
-  ];
-
-  if (params.entityTypes.length > 0) {
-    whereClauses.push(
-      `entity_type IN (${params.entityTypes.map(() => "?").join(", ")})`
-    );
-    sqlParams.push(...params.entityTypes);
-  }
-
-  for (const [key, value] of Object.entries(params.metadataFilters)) {
-    whereClauses.push(`json_extract(metadata_json, '$.${key}') = ?`);
-    sqlParams.push(value);
-  }
-
-  const terms = params.query.split(/\s+/).filter(Boolean);
-  let scoreSql = "confidence";
-  if (terms.length > 0) {
-    const termClauses = terms.map(
-      () =>
-        "(instr(lower(name), lower(?)) > 0 OR instr(lower(entity_type), lower(?)) > 0 OR instr(lower(metadata_json), lower(?)) > 0)"
-    );
-    whereClauses.push(`(${termClauses.join(" OR ")})`);
-    sqlParams.push(...terms.flatMap((term) => [term, term, term]));
-    scoreSql = terms
-      .map(
-        () =>
-          "(CASE WHEN instr(lower(name), lower(?)) > 0 THEN 4 ELSE 0 END + CASE WHEN instr(lower(entity_type), lower(?)) > 0 THEN 3 ELSE 0 END + CASE WHEN instr(lower(metadata_json), lower(?)) > 0 THEN 1 ELSE 0 END)"
-      )
-      .join(" + ");
-  }
-
-  const scoreParams = terms.flatMap((term) => [term, term, term]);
-  const rows = await database.query<{
-    confidence: number;
-    entity_id: number;
-    entity_type: string;
-    metadata_json: unknown;
-    name: string;
-    score: number;
-  }>(
-    `
-      SELECT entity_id, entity_type, name, confidence, metadata_json, ${scoreSql} AS score
-      FROM graph_entity
-      WHERE ${whereClauses.join(" AND ")}
-      ORDER BY score DESC, confidence DESC, entity_id ASC
-      LIMIT ?
-    `,
-    [...scoreParams, ...sqlParams, params.limit]
-  );
-
-  return rows.map(mapGraphEntity);
-}
 
 async function loadRelationsForEntitiesSql(
   database: Queryable,
