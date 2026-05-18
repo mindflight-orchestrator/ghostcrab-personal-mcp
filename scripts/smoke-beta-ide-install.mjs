@@ -75,12 +75,14 @@ try {
   const platformTarball = join(distPackDir, platformEntry.filename);
 
   assertRunOk(
-    "npm install root tarball",
-    run("npm", ["install", "--omit=optional", rootTarball])
-  );
-  assertRunOk(
-    "npm install platform tarball",
-    run("npm", ["install", platformTarball, "--no-package-lock"])
+    "npm install root + platform tarballs",
+    run("npm", [
+      "install",
+      "--no-audit",
+      "--no-fund",
+      rootTarball,
+      platformTarball
+    ])
   );
 
   const gcpMjs = join(

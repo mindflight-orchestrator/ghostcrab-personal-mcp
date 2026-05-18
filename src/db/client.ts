@@ -55,7 +55,10 @@ function createMindbrainDatabaseClient(
     ): Promise<T> {
       let sessionId: number;
       try {
-        sessionId = await openStandaloneMindbrainSqlSession(baseUrl, timeoutMs);
+        sessionId = await withSqlSessionBusyRetry(
+          () => openStandaloneMindbrainSqlSession(baseUrl, timeoutMs),
+          timeoutMs
+        );
       } catch (error) {
         if (isSqlSessionUnsupported(error)) {
           return await operation(baseQueryable);
@@ -128,13 +131,17 @@ function createMindbrainQueryable(
       params: readonly unknown[] = []
     ): Promise<T[]> {
       const transformed = transformSqliteQuery(sql, params);
-      const response = await runStandaloneMindbrainSql({
-        mindbrainUrl: baseUrl,
-        sql: transformed.sql,
-        params: transformed.params,
-        timeoutMs,
-        sessionId
-      });
+      const response = await withSqlSessionBusyRetry(
+        () =>
+          runStandaloneMindbrainSql({
+            mindbrainUrl: baseUrl,
+            sql: transformed.sql,
+            params: transformed.params,
+            timeoutMs,
+            sessionId
+          }),
+        timeoutMs
+      );
       return mapMindbrainRows<T>(response.columns, response.rows);
     }
   };
@@ -217,6 +224,55 @@ function normalizeSqliteParam(value: unknown): unknown {
   }
 
   return value;
+}
+
+async function withSqlSessionBusyRetry<T>(
+  operation: () => Promise<T>,
+  timeoutMs: number
+): Promise<T> {
+  const startedAt = Date.now();
+  let delayMs = 25;
+
+  while (true) {
+    try {
+      return await operation();
+    } catch (error) {
+      if (
+        !isSqlSessionBusy(error) ||
+        Date.now() - startedAt + delayMs > timeoutMs
+      ) {
+        throw error;
+      }
+      await sleep(delayMs);
+      delayMs = Math.min(delayMs * 2, 250);
+    }
+  }
+}
+
+function isSqlSessionBusy(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const cause = error.cause;
+  if (
+    cause &&
+    typeof cause === "object" &&
+    "status" in cause &&
+    (cause as { status?: unknown }).status === 503
+  ) {
+    const body =
+      "body" in cause && typeof (cause as { body?: unknown }).body === "string"
+        ? (cause as { body: string }).body
+        : "";
+    return body.includes("sql_session_busy");
+  }
+
+  return /\bsql_session_busy\b/.test(error.message);
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function normalizeBaseUrl(baseUrl: string): string {

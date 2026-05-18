@@ -46,18 +46,17 @@ try {
   const rootTarball = join(distPackDir, manifest.root.filename);
   const platformTarball = join(distPackDir, platformEntry.filename);
 
-  const installRoot = run("npm", ["install", "--omit=optional", rootTarball]);
+  const install = run("npm", [
+    "install",
+    "--no-audit",
+    "--no-fund",
+    rootTarball,
+    platformTarball
+  ]);
   assert.equal(
-    installRoot.status,
+    install.status,
     0,
-    `npm install root tarball failed (exit ${installRoot.status ?? "null"}).\n${installRoot.stderr}\n${installRoot.stdout}`
-  );
-
-  const installPlatform = run("npm", ["install", platformTarball]);
-  assert.equal(
-    installPlatform.status,
-    0,
-    `npm install platform tarball failed (exit ${installPlatform.status ?? "null"}).\n${installPlatform.stderr}\n${installPlatform.stdout}`
+    `npm install root + platform tarballs failed (exit ${install.status ?? "null"}).\n${install.stderr}\n${install.stdout}`
   );
 
   const gcp = run(process.execPath, [

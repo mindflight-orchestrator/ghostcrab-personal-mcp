@@ -141,6 +141,73 @@ describe("sqlite database client SQL rewrite", () => {
     expect(mocks.closeStandaloneMindbrainSqlSession).not.toHaveBeenCalled();
   });
 
+  it("retries transient busy writer responses for direct SQL", async () => {
+    mocks.runStandaloneMindbrainSql
+      .mockRejectedValueOnce(
+        new Error(
+          "MindBrain request failed (503 Service Unavailable): sql_session_busy",
+          {
+            cause: {
+              path: "/api/mindbrain/sql",
+              status: 503,
+              body: '{"ok":false,"error":{"code":"sql_session_busy"}}'
+            }
+          }
+        )
+      )
+      .mockResolvedValueOnce({
+        ok: true as const,
+        columns: ["ok"],
+        rows: [[1]],
+        changes: 0
+      });
+
+    const { createDatabaseClient } = await import("../../src/db/client.js");
+    const database = createDatabaseClient(testConfig);
+
+    const rows = await database.query<{ ok: number }>("INSERT INTO x VALUES (?) RETURNING 1 AS ok", [1]);
+
+    expect(rows).toEqual([{ ok: 1 }]);
+    expect(mocks.runStandaloneMindbrainSql).toHaveBeenCalledTimes(2);
+  });
+
+  it("retries transient busy writer responses while opening SQL sessions", async () => {
+    mocks.openStandaloneMindbrainSqlSession
+      .mockRejectedValueOnce(
+        new Error(
+          "MindBrain request failed (503 Service Unavailable): sql_session_busy",
+          {
+            cause: {
+              path: "/api/mindbrain/sql/session/open",
+              status: 503,
+              body: '{"ok":false,"error":{"code":"sql_session_busy"}}'
+            }
+          }
+        )
+      )
+      .mockResolvedValueOnce(7);
+
+    const { createDatabaseClient } = await import("../../src/db/client.js");
+    const database = createDatabaseClient(testConfig);
+
+    await database.transaction(async (tx) => {
+      await tx.query("SELECT 1");
+    });
+
+    expect(mocks.openStandaloneMindbrainSqlSession).toHaveBeenCalledTimes(2);
+    expect(mocks.runStandaloneMindbrainSql).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sessionId: 7
+      })
+    );
+    expect(mocks.closeStandaloneMindbrainSqlSession).toHaveBeenCalledWith(
+      "http://127.0.0.1:8091",
+      7,
+      true,
+      30_000
+    );
+  });
+
   it("falls back to non-session SQL when session query is unsupported", async () => {
     mocks.runStandaloneMindbrainSql.mockImplementationOnce(async (params) => {
       if (params.sessionId !== undefined) {
