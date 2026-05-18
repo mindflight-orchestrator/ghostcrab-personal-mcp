@@ -80,6 +80,35 @@ describe("gcp brain document helpers", () => {
     expect(
       __private__.buildDocumentEngineArgs(
         [
+          "qualification-vocab-list",
+          "--workspace-id",
+          "ws",
+          "--collection-id",
+          "ws::docs",
+          "--taxonomies",
+          "ws::core",
+          "--facets",
+          "topic.category,source.filename"
+        ],
+        "/tmp/docs.sqlite"
+      )
+    ).toEqual([
+      "qualification-vocab-list",
+      "--db",
+      "/tmp/docs.sqlite",
+      "--workspace-id",
+      "ws",
+      "--collection-id",
+      "ws::docs",
+      "--taxonomies",
+      "ws::core",
+      "--facets",
+      "topic.category,source.filename"
+    ]);
+
+    expect(
+      __private__.buildDocumentEngineArgs(
+        [
           "document-qualify",
           "--workspace-id",
           "ws",

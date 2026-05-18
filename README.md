@@ -173,6 +173,56 @@ This launches mindBrain, creates `./data/ghostcrab.sqlite`, and holds stdio open
 
 ***
 
+## Document Imports
+
+GhostCrab also ships the MindBrain document engine through `gcp brain document`.
+Use it when you want to turn a PDF, HTML page, Markdown folder, or text corpus
+into structured SQLite data before agents query it.
+
+The recommended thin-slice flow is:
+
+```bash
+# 1. Normalize source files into inspectable text/Markdown
+npx gcp brain document document-normalize --input ./source.pdf --output-dir ./out
+
+# 2. Ingest or queue profile-backed persistence into a workspace collection
+npx gcp brain document --force document-ingest \
+  --workspace-id my_ws --collection-id my_ws::docs \
+  --doc-id 1 --source-ref ./out/source.md \
+  --language english --strategy paragraph \
+  --content-file ./out/source.md
+
+# 3. List controlled taxonomy and facet IDs available for qualification
+npx gcp brain document --force qualification-vocab-list \
+  --workspace-id my_ws --collection-id my_ws::docs
+```
+
+The listing output gives the IDs expected by future controlled qualification
+flags: taxonomy IDs for `--taxonomies` and facet IDs such as
+`source.filename` or `topic.category` for `--facets`.
+
+There are three import levels:
+
+- **No LLM:** normalize and ingest raw documents/chunks with deterministic
+  `source.*` facets.
+- **LLM profiling:** classify document kind/language/structure to choose a
+  deterministic chunking strategy.
+- **Controlled qualification:** map chunks/documents onto known taxonomy/facet
+  values. The vocabulary listing command is available now; full LLM
+  `document-qualify` support depends on the packaged native engine exposing
+  that verb.
+
+Stop MCP / `ghostcrab-backend` before database-backed import commands. The CLI
+will refuse to run against a live backend unless you pass `--force`.
+
+Reference docs:
+
+- `docs/setup/document-import.md` — operator runbook and examples.
+- `docs/architecture/universal_methodology.md` — four-phase methodology:
+  facets → projections → import → reports.
+
+***
+
 ## Model compatibility
 
 GhostCrab works with any model your client exposes. Reliability varies by how well the model follows mindBrain conventions (intake questions, structured projections, graph usage).
