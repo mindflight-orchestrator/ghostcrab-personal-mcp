@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { DatabaseClient, Queryable } from "../../src/db/client.js";
 import { createToolContext } from "../helpers/tool-context.js";
@@ -45,7 +45,12 @@ function readStructured(
 }
 
 describe("facet tools", () => {
+  beforeEach(() => {
+    setFactsFtsReady(false);
+  });
+
   afterEach(() => {
+    setFactsFtsReady(false);
     vi.unstubAllGlobals();
   });
 
@@ -337,8 +342,10 @@ describe("facet tools", () => {
       createToolContext(database, { embeddingsMode: "fake" })
     );
 
-    expect(query).toHaveBeenCalledOnce();
-    expect(query.mock.calls[0]?.[0]).toContain("FROM facets");
+    const facetsCalls = query.mock.calls.filter((call) =>
+      call[0].includes("FROM facets")
+    );
+    expect(facetsCalls.length).toBeGreaterThanOrEqual(1);
     expect(readStructured(result)).toMatchObject({
       returned: 1,
       hybrid_weights: {

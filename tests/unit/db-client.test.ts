@@ -171,6 +171,54 @@ describe("sqlite database client SQL rewrite", () => {
     expect(mocks.runStandaloneMindbrainSql).toHaveBeenCalledTimes(2);
   });
 
+  it("falls back to a temporary writer session when direct SQL cannot open a read connection", async () => {
+    mocks.runStandaloneMindbrainSql
+      .mockRejectedValueOnce(
+        new Error(
+          'MindBrain request failed (500 Internal Server Error): OpenFailed (raw: {"error":"OpenFailed"})',
+          {
+            cause: {
+              path: "/api/mindbrain/sql",
+              status: 500,
+              body: '{"error":"OpenFailed"}'
+            }
+          }
+        )
+      )
+      .mockResolvedValueOnce({
+        ok: true as const,
+        columns: ["ok"],
+        rows: [[1]],
+        changes: 0
+      });
+    mocks.openStandaloneMindbrainSqlSession.mockResolvedValueOnce(9);
+
+    const { createDatabaseClient } = await import("../../src/db/client.js");
+    const database = createDatabaseClient(testConfig);
+
+    const rows = await database.query<{ ok: number }>("SELECT 1 AS ok");
+
+    expect(rows).toEqual([{ ok: 1 }]);
+    expect(mocks.openStandaloneMindbrainSqlSession).toHaveBeenCalledWith(
+      "http://127.0.0.1:8091",
+      30_000
+    );
+    expect(mocks.runStandaloneMindbrainSql).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        sql: "SELECT 1 AS ok",
+        sessionId: 9,
+        timeoutMs: 30_000
+      })
+    );
+    expect(mocks.closeStandaloneMindbrainSqlSession).toHaveBeenCalledWith(
+      "http://127.0.0.1:8091",
+      9,
+      true,
+      30_000
+    );
+  });
+
   it("retries transient busy writer responses while opening SQL sessions", async () => {
     mocks.openStandaloneMindbrainSqlSession
       .mockRejectedValueOnce(
