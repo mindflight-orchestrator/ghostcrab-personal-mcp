@@ -15,6 +15,8 @@ TopBraid EDG is an **enterprise semantic data governance platform**: its intelli
 
 MindBrain is an **agentic ontology runtime**: its intelligence lives in typed operational state, faceted retrieval, directed dependency graphs, and compact projections exposed to agents through GhostCrab MCP. [GhostCrab](https://www.ghostcrab.be/architecture.html)
 
+![Comparison TopBraid vs mindBrain](ressources/topbraid-vs-mindbrain.png)
+
 ***
 
 ## What TopBraid Is

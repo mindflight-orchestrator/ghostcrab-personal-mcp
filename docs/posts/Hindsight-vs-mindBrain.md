@@ -14,7 +14,7 @@ Hindsight is a **learning-oriented agent memory system**: its intelligence lives
 
 mindBrain is a **structured agentic database**: its intelligence lives in typed domain state, facets, directed graph relations, and projections that make an operational world navigable without reconstructing it from memories each turn. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
 
-![[hindsight-vs-mindbrain.png]]
+![Comparison Hindsight vs mindBrain](ressources/hindsight-vs-mindbrain.png)
 
 ***
 
