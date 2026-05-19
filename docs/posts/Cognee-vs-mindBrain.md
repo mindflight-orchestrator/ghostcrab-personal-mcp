@@ -14,6 +14,8 @@ Cognee is a **graph-emergent memory system**: its intelligence lives in turning 
 
 mindBrain is a **schema-first domain modeling system**: its intelligence lives in typed ontologies, facets, directed graph relations, and projections that define the domain before the agent uses it. [GhostCrab architecture](https://www.ghostcrab.be/architecture.html)
 
+![Comparison Cognee vs mindBrain](ressources/cognee-vs-mindbrain.png)
+
 ***
 
 ## What Cognee Is
