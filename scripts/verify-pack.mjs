@@ -8,6 +8,29 @@ const packDir = "/tmp/ghostcrab-verify-pack";
 const pkg = JSON.parse(
   readFileSync(join(process.cwd(), "package.json"), "utf8")
 );
+const platformPackageDirs = [
+  "packages/prebuild-linux-x64",
+  "packages/prebuild-linux-arm64",
+  "packages/prebuild-darwin-x64",
+  "packages/prebuild-darwin-arm64",
+  "packages/prebuild-win32-x64"
+];
+
+for (const packageDir of platformPackageDirs) {
+  const platformPkg = JSON.parse(
+    readFileSync(join(process.cwd(), packageDir, "package.json"), "utf8")
+  );
+  assert.equal(
+    pkg.optionalDependencies?.[platformPkg.name],
+    pkg.version,
+    `Expected optionalDependency ${platformPkg.name} to match root version ${pkg.version}.`
+  );
+  assert.equal(
+    platformPkg.version,
+    pkg.version,
+    `Expected ${packageDir}/package.json version to match root version ${pkg.version}.`
+  );
+}
 
 function packFilename(name, version) {
   return `${name.replace(/^@/, "").replace(/\//g, "-")}-${version}.tgz`;

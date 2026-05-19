@@ -131,20 +131,75 @@ function createMindbrainQueryable(
       params: readonly unknown[] = []
     ): Promise<T[]> {
       const transformed = transformSqliteQuery(sql, params);
-      const response = await withSqlSessionBusyRetry(
-        () =>
-          runStandaloneMindbrainSql({
-            mindbrainUrl: baseUrl,
-            sql: transformed.sql,
-            params: transformed.params,
-            timeoutMs,
-            sessionId
-          }),
-        timeoutMs
-      );
+      let response;
+      try {
+        response = await withSqlSessionBusyRetry(
+          () =>
+            runStandaloneMindbrainSql({
+              mindbrainUrl: baseUrl,
+              sql: transformed.sql,
+              params: transformed.params,
+              timeoutMs,
+              sessionId
+            }),
+          timeoutMs
+        );
+      } catch (error) {
+        if (sessionId !== undefined || !isMindbrainSqliteOpenFailed(error)) {
+          throw error;
+        }
+        response = await runSqlViaTemporaryWriterSession({
+          baseUrl,
+          timeoutMs,
+          sql: transformed.sql,
+          params: transformed.params
+        });
+      }
       return mapMindbrainRows<T>(response.columns, response.rows);
     }
   };
+}
+
+async function runSqlViaTemporaryWriterSession(params: {
+  baseUrl: string;
+  timeoutMs: number;
+  sql: string;
+  params: unknown[];
+}) {
+  const sessionId = await withSqlSessionBusyRetry(
+    () => openStandaloneMindbrainSqlSession(params.baseUrl, params.timeoutMs),
+    params.timeoutMs
+  );
+  try {
+    const response = await withSqlSessionBusyRetry(
+      () =>
+        runStandaloneMindbrainSql({
+          mindbrainUrl: params.baseUrl,
+          sql: params.sql,
+          params: params.params,
+          timeoutMs: params.timeoutMs,
+          sessionId
+        }),
+      params.timeoutMs
+    );
+    await closeStandaloneMindbrainSqlSession(
+      params.baseUrl,
+      sessionId,
+      true,
+      params.timeoutMs
+    );
+    return response;
+  } catch (error) {
+    await closeStandaloneMindbrainSqlSession(
+      params.baseUrl,
+      sessionId,
+      false,
+      params.timeoutMs
+    ).catch(() => {
+      return;
+    });
+    throw error;
+  }
 }
 
 function mapMindbrainRows<T>(
@@ -269,6 +324,25 @@ function isSqlSessionBusy(error: unknown): boolean {
   }
 
   return /\bsql_session_busy\b/.test(error.message);
+}
+
+function isMindbrainSqliteOpenFailed(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const cause = error.cause;
+  if (
+    cause &&
+    typeof cause === "object" &&
+    "body" in cause &&
+    typeof (cause as { body?: unknown }).body === "string" &&
+    /\bOpenFailed\b/.test((cause as { body: string }).body)
+  ) {
+    return true;
+  }
+
+  return /\bOpenFailed\b/.test(error.message);
 }
 
 function sleep(ms: number): Promise<void> {
