@@ -8,6 +8,7 @@ GhostCrab stores data in three separate layers. Each has dedicated tools. Mixing
 flowchart LR
   subgraph facetsLayer ["Facets layer (mb_pragma.facets)"]
     S[ghostcrab_search]
+    CS[ghostcrab_combined_search]
     C[ghostcrab_count]
     PK[ghostcrab_pack]
   end
@@ -42,12 +43,33 @@ Structured domain records written via `ghostcrab_remember` / `ghostcrab_upsert`.
 | Tool | Purpose |
 |------|---------|
 | `ghostcrab_search` | Ranked retrieval — keyword (`hybrid` / `bm25` / `semantic`) + exact facet filters |
+| `ghostcrab_combined_search` | Graph-first cross-layer retrieval — graph entities + linked facet facts, with facet fallback |
 | `ghostcrab_count` | Shape the space before searching — aggregate counts by facet |
 | `ghostcrab_pack` | Compact context bundle — top matching facts + active pragma projections |
 
 **Key constraint:** `ghostcrab_search` explicitly excludes `graph_entity`, `graph_relation`, and `projection_result`. A zero-hit result here does **not** mean the domain is empty — it means the facets table has no match.
 
 When `ghostcrab_search` returns zero hits, it suggests `ghostcrab_graph_search` and `ghostcrab_projection_get` as next steps.
+
+### Cross-layer search
+
+Use `ghostcrab_combined_search` when the caller does not know whether the answer
+lives in graph entities/relations or in facet facts.
+
+`ghostcrab_combined_search` is graph-first:
+
+1. search `graph_entity` with optional `entity_types`, `collection_id`, and
+   `metadata_filters`;
+2. optionally include touching relations;
+3. retrieve linked facts through `graph_entity_document` where
+   `table_id = FACETS_SEARCH_TABLE_ID`;
+4. if no graph entities or linked facts are found, fall back to
+   `ghostcrab_search` with `facet_schema_id`, `facet_filters`, and
+   `facet_mode`.
+
+`ghostcrab_csearch` is a strict alias for `ghostcrab_combined_search`. The
+canonical name is listed by default; the alias is discoverable through
+`ghostcrab_tool_search`.
 
 ---
 
@@ -65,7 +87,7 @@ Imported or derived structural data: ontology nodes, knowledge graph entities, p
 | `ghostcrab_graph_path` | Shortest path between two entity IDs |
 | `ghostcrab_entity_chunks` | Raw chunk / document content linked to a graph entity |
 
-**All graph tools are extended** — they do not appear in the default 11 MCP descriptors. Discover them with:
+**All graph tools are extended** — they do not appear in the default MCP descriptors. Discover them with:
 
 ```
 ghostcrab_tool_search { visibility: ["extended"], subsystem: ["graph"] }
@@ -146,6 +168,7 @@ Precomputed analytical snapshots built by ingest pipelines or recipes (e.g. SEO 
 | Question | Tool |
 |----------|------|
 | Find stored domain facts by text or facet values? | `ghostcrab_search` |
+| Search when the storage layer is unknown? | `ghostcrab_combined_search` |
 | Count facts by facet before searching? | `ghostcrab_count` |
 | Compact agent context (active goals + relevant facts)? | `ghostcrab_pack` |
 | Find graph entities by type, name, or metadata? | `ghostcrab_graph_search` |
@@ -154,7 +177,7 @@ Precomputed analytical snapshots built by ingest pipelines or recipes (e.g. SEO 
 | Shortest path between two graph entities? | `ghostcrab_graph_path` |
 | Retrieve a precomputed analytical snapshot? | `ghostcrab_projection_get` |
 | Create or update agent working memory? | `ghostcrab_project` |
-| Discover graph / projection tools not in default 11? | `ghostcrab_tool_search { visibility: ["extended"] }` |
+| Discover graph / projection tools not in the default list? | `ghostcrab_tool_search { visibility: ["extended"] }` |
 
 ---
 
@@ -164,6 +187,7 @@ Precomputed analytical snapshots built by ingest pipelines or recipes (e.g. SEO 
 - **Calling graph tools by default.** They are extended — not listed in the default tool set. Call `ghostcrab_tool_search` first.
 - **Confusing the two "projection" concepts.** Working memory projections (`mb_pragma.projections`) ≠ materialized `ProjectionResult` entities in the graph. Different stores, different tools.
 - **Expecting `ghostcrab_pack` to include graph data.** It doesn't. Pack = pragma projections + facet facts only.
+- **Using `ghostcrab_search` as a catch-all.** Use `ghostcrab_combined_search` when graph and facets should both be considered.
 
 ---
 

@@ -84,19 +84,19 @@ If the project cannot run stdio MCP directly, add a small MCP-to-HTTP bridge and
 
 ## Tool Mapping
 
-| LlamaIndex need | GhostCrab tool | Rule |
-| --- | --- | --- |
-| Check runtime and routing | `ghostcrab_status` | Call before durable writes in normal work. |
-| Find or create project memory | `ghostcrab_workspace_list`, then `ghostcrab_workspace_create` | List first, create only if missing. |
-| Load prior run context | `ghostcrab_pack` | Best first call before an agent run. |
-| Search operational history | `ghostcrab_search` | Operational facts only, never document retrieval. |
-| Record stable decisions | `ghostcrab_remember` | Immutable enough to preserve as history. |
-| Update current step state | `ghostcrab_upsert` | Mutable task, phase, status, output count, or blocker. |
-| Track active goals | `ghostcrab_project` | Current goals, constraints, and recovery anchors. |
-| Count states | `ghostcrab_count` | Counts by status, phase, owner, or workspace facets. |
-| Link tasks and evidence | `ghostcrab_learn` | Durable graph nodes or edges. |
-| Follow dependency/evidence chain | `ghostcrab_traverse` | Read graph paths from a known node. |
-| Inspect model shape | `ghostcrab_schema_list`, `ghostcrab_schema_inspect`, `ghostcrab_workspace_export_model` | Use when generating or validating structured data. |
+| LlamaIndex need                  | GhostCrab tool                                                                          | Rule                                                   |
+| -------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Check runtime and routing        | `ghostcrab_status`                                                                      | Call before durable writes in normal work.             |
+| Find or create project memory    | `ghostcrab_workspace_list`, then `ghostcrab_workspace_create`                           | List first, create only if missing.                    |
+| Load prior run context           | `ghostcrab_pack`                                                                        | Best first call before an agent run.                   |
+| Search operational history       | `ghostcrab_search`                                                                      | Operational facts only, never document retrieval.      |
+| Record stable decisions          | `ghostcrab_remember`                                                                    | Immutable enough to preserve as history.               |
+| Update current step state        | `ghostcrab_upsert`                                                                      | Mutable task, phase, status, output count, or blocker. |
+| Track active goals               | `ghostcrab_project`                                                                     | Current goals, constraints, and recovery anchors.      |
+| Count states                     | `ghostcrab_count`                                                                       | Counts by status, phase, owner, or workspace facets.   |
+| Link tasks and evidence          | `ghostcrab_learn`                                                                       | Durable graph nodes or edges.                          |
+| Follow dependency/evidence chain | `ghostcrab_traverse`                                                                    | Read graph paths from a known node.                    |
+| Inspect model shape              | `ghostcrab_schema_list`, `ghostcrab_schema_inspect`, `ghostcrab_workspace_export_model` | Use when generating or validating structured data.     |
 
 ## remember vs upsert
 
@@ -140,13 +140,13 @@ Do not use `remember` for live status that will change. Do not use `upsert` for 
 
 ## Lifecycle JTBD
 
-| Moment | LlamaIndex job | GhostCrab action |
-| --- | --- | --- |
-| Before the run | Rehydrate prior operating context. | `ghostcrab_pack` with the workflow goal and workspace scope. |
-| During retrieval | Query documents, tools, and indexes. | No GhostCrab call unless operating state is needed. |
-| During reasoning | Check prior decisions or blockers. | `ghostcrab_search` for operational facts only. |
-| During writeback | Preserve decisions and findings. | `ghostcrab_remember` with concise facets. |
-| During progress and recovery | Update task state and active goals. | `ghostcrab_upsert` for step state, `ghostcrab_project` for current goals. |
+| Moment                       | LlamaIndex job                       | GhostCrab action                                                          |
+| ---------------------------- | ------------------------------------ | ------------------------------------------------------------------------- |
+| Before the run               | Rehydrate prior operating context.   | `ghostcrab_pack` with the workflow goal and workspace scope.              |
+| During retrieval             | Query documents, tools, and indexes. | No GhostCrab call unless operating state is needed.                       |
+| During reasoning             | Check prior decisions or blockers.   | `ghostcrab_search` for operational facts only.                            |
+| During writeback             | Preserve decisions and findings.     | `ghostcrab_remember` with concise facets.                                 |
+| During progress and recovery | Update task state and active goals.  | `ghostcrab_upsert` for step state, `ghostcrab_project` for current goals. |
 
 ## Agent Performance Contract
 

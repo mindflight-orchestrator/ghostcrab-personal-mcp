@@ -109,11 +109,11 @@ async def ensure_workspace(workbench, workspace_id: str) -> None:
 
 ## Lifecycle JTBD
 
-| AutoGen role | Job | GhostCrab calls |
-| --- | --- | --- |
-| Planner | Load context, set active goals, store plan decision. | `ghostcrab_pack`, `ghostcrab_project`, `ghostcrab_remember` |
-| Executor | Load relevant state, update task state, store findings. | `ghostcrab_pack`, `ghostcrab_upsert`, `ghostcrab_remember` |
-| Reviewer | Search prior decisions, record approval or critique. | `ghostcrab_search`, `ghostcrab_remember` |
+| AutoGen role | Job                                                     | GhostCrab calls                                             |
+| ------------ | ------------------------------------------------------- | ----------------------------------------------------------- |
+| Planner      | Load context, set active goals, store plan decision.    | `ghostcrab_pack`, `ghostcrab_project`, `ghostcrab_remember` |
+| Executor     | Load relevant state, update task state, store findings. | `ghostcrab_pack`, `ghostcrab_upsert`, `ghostcrab_remember`  |
+| Reviewer     | Search prior decisions, record approval or critique.    | `ghostcrab_search`, `ghostcrab_remember`                    |
 
 ## Agent Performance Contract
 

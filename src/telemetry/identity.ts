@@ -91,7 +91,9 @@ export async function getOrCreateTelemetryMeta(
       "first_installed_at" in parsed &&
       typeof (parsed as { first_installed_at?: unknown }).first_installed_at ===
         "string" &&
-      isIsoTimestamp((parsed as { first_installed_at: string }).first_installed_at)
+      isIsoTimestamp(
+        (parsed as { first_installed_at: string }).first_installed_at
+      )
     ) {
       return {
         first_installed_at: (parsed as { first_installed_at: string })

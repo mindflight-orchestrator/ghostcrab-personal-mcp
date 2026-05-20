@@ -8,7 +8,13 @@
  * Skip entirely: GHOSTCRAB_SKIP_IDE_SKILLS=1
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync, cpSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+  cpSync
+} from "node:fs";
 import { dirname, join } from "node:path";
 import { detectIde } from "./ide-detect.mjs";
 
@@ -57,7 +63,10 @@ export function maybeInstallIdeSkills(opts) {
       return;
     }
     if (!force && existsSync(dest)) {
-      log(context, `${LOG_PREFIX} IDE skills: cursor rule already exists — ${dest}`);
+      log(
+        context,
+        `${LOG_PREFIX} IDE skills: cursor rule already exists — ${dest}`
+      );
       return;
     }
     mkdirSync(dirname(dest), { recursive: true });
@@ -71,7 +80,10 @@ export function maybeInstallIdeSkills(opts) {
       return;
     }
     if (!force && existsSync(dest)) {
-      log(context, `${LOG_PREFIX} IDE skills: Claude fragment already exists — ${dest}`);
+      log(
+        context,
+        `${LOG_PREFIX} IDE skills: Claude fragment already exists — ${dest}`
+      );
       return;
     }
     mkdirSync(dirname(dest), { recursive: true });
@@ -91,7 +103,10 @@ export function maybeInstallIdeSkills(opts) {
     }
     const skillMd = join(destMem, "SKILL.md");
     if (!force && existsSync(skillMd)) {
-      log(context, `${LOG_PREFIX} IDE skills: Codex skill already present — ${destMem}`);
+      log(
+        context,
+        `${LOG_PREFIX} IDE skills: Codex skill already present — ${destMem}`
+      );
       return;
     }
     mkdirSync(dirname(destMem), { recursive: true });

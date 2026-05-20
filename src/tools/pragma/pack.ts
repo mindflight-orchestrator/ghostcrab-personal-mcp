@@ -240,7 +240,9 @@ async function fetchFacetsByDocIds(
   schemaId: string | undefined
 ): Promise<FactRow[]> {
   const docIds = matches.map((m) => m.doc_id);
-  const scoreByDocId = new Map(matches.map((m) => [m.doc_id, m.combined_score]));
+  const scoreByDocId = new Map(
+    matches.map((m) => [m.doc_id, m.combined_score])
+  );
 
   const whereClauses = [
     `doc_id IN (${docIds.map(() => "?").join(", ")})`,
@@ -253,7 +255,11 @@ async function fetchFacetsByDocIds(
     sqlParams.push(schemaId);
   }
 
-  const rows = await database.query<{ id: string; content: string; doc_id: number }>(
+  const rows = await database.query<{
+    id: string;
+    content: string;
+    doc_id: number;
+  }>(
     `SELECT id, content, doc_id FROM mb_pragma.facets WHERE ${whereClauses.join(" AND ")}`,
     sqlParams
   );

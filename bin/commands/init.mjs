@@ -10,11 +10,7 @@
  */
 
 import { mkdirSync, existsSync } from "node:fs";
-import {
-  readConfig,
-  writeConfig,
-  getConfigPath,
-} from "../lib/cli-config.mjs";
+import { readConfig, writeConfig, getConfigPath } from "../lib/cli-config.mjs";
 import { getDataDir } from "../lib/data-dir.mjs";
 import { slugifyWorkspace } from "../lib/workspace-slug.mjs";
 import { dirname, join } from "node:path";
@@ -72,7 +68,7 @@ export async function cmdInit(args) {
       pkgRoot,
       skip: skipIdeSkills,
       force: forceIdeSkills,
-      context: "init",
+      context: "init"
     });
     return;
   }
@@ -80,7 +76,7 @@ export async function cmdInit(args) {
   // ── Register new workspace ────────────────────────────────────────────────
   if (!config.workspaces) config.workspaces = {};
   config.workspaces[workspaceName] = {
-    sqlitePath,
+    sqlitePath
   };
   if (!config.defaultWorkspace) {
     config.defaultWorkspace = workspaceName;
@@ -107,7 +103,7 @@ export async function cmdInit(args) {
     pkgRoot,
     skip: skipIdeSkills,
     force: forceIdeSkills,
-    context: "init",
+    context: "init"
   });
 }
 
@@ -120,8 +116,8 @@ function printMcpSnippet(workspaceName) {
   const snippet = {
     "ghostcrab-personal-mcp": {
       command: "gcp",
-      args,
-    },
+      args
+    }
   };
 
   console.log(`Add this to your MCP client config:\n`);

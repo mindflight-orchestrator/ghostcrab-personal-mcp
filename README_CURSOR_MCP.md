@@ -8,14 +8,14 @@ This guide is only about **connecting the GhostCrab MCP server in [Cursor](https
 - **Command:** the `gcp` CLI from this package — run **`gcp brain up`**, **`gcp up`**, or legacy **`gcp serve`** so the process starts the MindBrain backend and the MCP server on stdin/stdout.
 - **NPM package name** (as in this repo’s `package.json`): `@mindflight/ghostcrab-personal-mcp`. Other guides may cite `@mindflight/ghostcrab-mcp`; use **`ghostcrab-personal-mcp`** for this SQLite distribution. Quick paths: [INSTALL.md](INSTALL.md).
 
-You need **Node 20+** and a build of this package that includes a **prebuilt backend** for your OS under `prebuilds/`, *or* you must build the Zig backend yourself (see the main README and `Makefile`).
+You need **Node 20+** and a build of this package that includes a **prebuilt backend** for your OS under `prebuilds/`, _or_ you must build the Zig backend yourself (see the main README and `Makefile`).
 
 ## Where to put configuration
 
-| Scope | File |
-|--------|------|
+| Scope                    | File                                   |
+| ------------------------ | -------------------------------------- |
 | **This repository only** | `.cursor/mcp.json` at the project root |
-| **All your projects** | `~/.cursor/mcp.json` |
+| **All your projects**    | `~/.cursor/mcp.json`                   |
 
 Project configuration applies to that workspace; global configuration applies everywhere. If the same server name exists in both, the usual expectation is that **project settings take precedence** over global ones—confirm in Cursor if you duplicate names.
 
@@ -157,7 +157,7 @@ Interpolation such as `${workspaceFolder}` and `${env:VAR_NAME}` is supported in
 
 Two related symptoms in `~/.cursor/logs/.../anysphere.cursor-mcp.MCP …`:
 
-- **`Connection failed: spawn gcp ENOENT`** — Cursor tried to spawn a `command` of `gcp`, but `gcp` is not on the PATH Cursor inherits when it launches MCP servers (this is *not* the same PATH as your shell, especially on macOS).
+- **`Connection failed: spawn gcp ENOENT`** — Cursor tried to spawn a `command` of `gcp`, but `gcp` is not on the PATH Cursor inherits when it launches MCP servers (this is _not_ the same PATH as your shell, especially on macOS).
 - **`npm error could not determine executable to run`** — Cursor tried to spawn `npx -y @mindflight/ghostcrab-personal-mcp@latest gcp brain up`, but on npm 10/11 that legacy form fails for scoped packages whose name does not match a bin name.
 
 **Both symptoms are fixed by re-running setup on 0.2.10+:**

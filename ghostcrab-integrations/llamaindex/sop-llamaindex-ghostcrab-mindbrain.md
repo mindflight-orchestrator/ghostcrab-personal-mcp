@@ -25,7 +25,7 @@ LlamaIndex currently splits memory across **three isolated layers**: short-term 
 
 LlamaIndex pitch: **GhostCrab MCP replaces custom `BaseMemory` while acting as one shared registry for every workflow agent** — no native `MemoryBlock` achieves that scope.
 
-***
+---
 
 ## Technical integration hooks
 
@@ -89,8 +89,7 @@ class MindBrainOntologyBlock(BaseMemoryBlock):
         await ghostcrab.index_agent_turn(messages)
 ```
 
-
-***
+---
 
     async def _aget(self, messages, **kwargs) -> str:
         # Inject structured ontology context into the system prompt
@@ -98,6 +97,7 @@ class MindBrainOntologyBlock(BaseMemoryBlock):
 
     async def _aput(self, messages, **kwargs) -> None:
         await ghostcrab.index_agent_turn(messages)
+
 ```
 
 
@@ -200,27 +200,29 @@ In a standard LlamaIndex `AgentWorkflow`, the orchestrator has no shared, querya
 GhostCrab Runtime inverts this. The orchestrator does not track state — it **reads state from MindBrain**. Every agent writes its progress as structured facts. The orchestrator queries `pg_pragma` projections to decide what to do next: spawn, halt, retry, or advance.
 
 ```
+
 ┌───────────────────────────────────────────────────────────────┐
-│                        AgentWorkflow                          │
-│                                                               │
-│  ┌──────────────┐    ┌──────────────┐    ┌────────────────┐  │
-│  │  ResearchAgent│    │ BuilderAgent │    │ ReviewerAgent  │  │
-│  │  (worker)    │    │  (worker)    │    │  (worker)      │  │
-│  └──────┬───────┘    └──────┬───────┘    └───────┬────────┘  │
-│         │ assert_fact        │ assert_fact         │ assert_fact│
-│         └───────────────────┴─────────────────────┘           │
-│                              │                                 │
-│                    ┌─────────▼──────────┐                     │
-│                    │   MindBrain Store   │                     │
-│                    │  (pg_pragma proj.)  │                     │
-│                    └─────────┬──────────┘                     │
-│                              │ query_projection                │
-│                    ┌─────────▼──────────┐                     │
-│                    │   OrchestratorAgent │                     │
-│                    │  (reads, decides)   │                     │
-│                    └────────────────────┘                     │
+│ AgentWorkflow │
+│ │
+│ ┌──────────────┐ ┌──────────────┐ ┌────────────────┐ │
+│ │ ResearchAgent│ │ BuilderAgent │ │ ReviewerAgent │ │
+│ │ (worker) │ │ (worker) │ │ (worker) │ │
+│ └──────┬───────┘ └──────┬───────┘ └───────┬────────┘ │
+│ │ assert_fact │ assert_fact │ assert_fact│
+│ └───────────────────┴─────────────────────┘ │
+│ │ │
+│ ┌─────────▼──────────┐ │
+│ │ MindBrain Store │ │
+│ │ (pg_pragma proj.) │ │
+│ └─────────┬──────────┘ │
+│ │ query_projection │
+│ ┌─────────▼──────────┐ │
+│ │ OrchestratorAgent │ │
+│ │ (reads, decides) │ │
+│ └────────────────────┘ │
 └───────────────────────────────────────────────────────────────┘
-```
+
+````
 
 
 ***
@@ -245,26 +247,24 @@ await client.assert_fact(
         "payload": {...},              # Optional: structured data blob
     }
 )
-```
+````
 
 **Standard predicates** (use these consistently across all agents in a workflow):
 
+| Predicate      | Subject        | Object values                                         | Description                 |
+| :------------- | :------------- | :---------------------------------------------------- | :-------------------------- |
+| `has_status`   | `task:{id}`    | `pending`, `in_progress`, `blocked`, `done`, `failed` | Task lifecycle state        |
+| `has_phase`    | `project:{id}` | Phase name string                                     | Current active phase        |
+| `depends_on`   | `task:{id}`    | `task:{other_id}`                                     | Dependency edge             |
+| `assigned_to`  | `task:{id}`    | `agent:{id}`                                          | Agent assignment            |
+| `has_score`    | `task:{id}`    | Float string `"0.85"`                                 | Completion or quality score |
+| `has_error`    | `task:{id}`    | Error message string                                  | Failure reason              |
+| `is_node`      | `node:{id}`    | Node type string                                      | KG node declaration         |
+| `is_edge`      | `edge:{id}`    | Relation type string                                  | KG edge declaration         |
+| `validated_by` | `node:{id}`    | `agent:{id}`                                          | KG validation authorship    |
+| `contradicts`  | `node:{id}`    | `node:{other_id}`                                     | KG conflict signal          |
 
-| Predicate | Subject | Object values | Description |
-| :-- | :-- | :-- | :-- |
-| `has_status` | `task:{id}` | `pending`, `in_progress`, `blocked`, `done`, `failed` | Task lifecycle state |
-| `has_phase` | `project:{id}` | Phase name string | Current active phase |
-| `depends_on` | `task:{id}` | `task:{other_id}` | Dependency edge |
-| `assigned_to` | `task:{id}` | `agent:{id}` | Agent assignment |
-| `has_score` | `task:{id}` | Float string `"0.85"` | Completion or quality score |
-| `has_error` | `task:{id}` | Error message string | Failure reason |
-| `is_node` | `node:{id}` | Node type string | KG node declaration |
-| `is_edge` | `edge:{id}` | Relation type string | KG edge declaration |
-| `validated_by` | `node:{id}` | `agent:{id}` | KG validation authorship |
-| `contradicts` | `node:{id}` | `node:{other_id}` | KG conflict signal |
-
-
-***
+---
 
 ### 2.2 `pg_pragma` Projections
 
@@ -332,8 +332,7 @@ result = await client.query_projection("phase_completion", ns="project.alpha")
 # }
 ```
 
-
-***
+---
 
 ## 3. Worker Agent Pattern
 
@@ -413,8 +412,7 @@ class WorkerAgent:
         )
 ```
 
-
-***
+---
 
 ## 4. Orchestrator Agent Pattern
 

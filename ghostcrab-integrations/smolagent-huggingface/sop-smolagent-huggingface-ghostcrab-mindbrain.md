@@ -23,7 +23,7 @@ The clean integration path is to expose GhostCrab as MCP tools and let smolagent
 
 smolagents is Hugging Face’s minimalist framework where **agents author Python**, not rigid JSON plans [^1_1]. Memory is a linear list of steps (`ActionStep`, `TaskStep`) in `agent.memory.steps`, lacking semantic persistence, cross-session continuity, or multi-agent sharing [^1_2]. GhostCrab/MindBrain slots into that vacuum.
 
-***
+---
 
 ## Integration vector: native `MCPClient`
 
@@ -48,7 +48,7 @@ with MCPClient(
 
 `structured_output=True` matters [^1_3]: the agent sees JSON response schemas ahead of ontology tool calls, improving MCP precision.
 
-***
+---
 
 ## Three lifecycle injection points
 
@@ -96,29 +96,27 @@ agent.memory.steps.append(TaskStep(task=task, task_images=[]))
 while final_answer is None and step_number <= 20:
     memory_step = ActionStep(step_number=step_number, observations_images=[])
     final_answer = agent.step(memory_step)
-    
+
     # Enrich step with ontology registry before next iteration
     ontology_patch = mindbrain_client.get_relevant_context(memory_step.observations)
     memory_step.observations += f"\n[MindBrain context]: {ontology_patch}"
-    
+
     agent.memory.steps.append(memory_step)
     step_number += 1
 ```
 
-
-***
+---
 
 ## Practical MindBrain value for smolagents
 
-| Native smolagents limits | MindBrain / GhostCrab adds |
-| :-- | :-- |
-| Ephemeral memory, session-bound [^1_4] | Durable registry across sessions |
-| No pipeline-wide context sharing [^1_4] | Shared ontology reachable by every agent |
-| Flat step list lacking semantics [^1_1] | Typed entities, relations, facets via GhostCrab |
-| No dedupe / compaction primitives [^1_4] | Targeted retrieval via pg_facets + pg_dgraph |
+| Native smolagents limits                 | MindBrain / GhostCrab adds                      |
+| :--------------------------------------- | :---------------------------------------------- |
+| Ephemeral memory, session-bound [^1_4]   | Durable registry across sessions                |
+| No pipeline-wide context sharing [^1_4]  | Shared ontology reachable by every agent        |
+| Flat step list lacking semantics [^1_1]  | Typed entities, relations, facets via GhostCrab |
+| No dedupe / compaction primitives [^1_4] | Targeted retrieval via pg_facets + pg_dgraph    |
 
-
-***
+---
 
 ## Implementation priority
 
@@ -163,7 +161,6 @@ Fastest POC path:
 
 [^1_15]: https://github.com/FaustoS88/SmolAgents-MCPs
 
-
 ---
 
 # `skills.md` for Codex + Claude Code — MindBrain + GhostCrab MCP with smolagents
@@ -191,22 +188,22 @@ Each section ships runnable snippets (not pseudocode).
 
 [^2_2]: https://huggingface.co/docs/smolagents/v1.21.1/tutorials/memory
 
-
 ---
 
 # SKILL: `ghostcrab-runtime` — steering smolagents with MindBrain
 
-> **Audience**: Any smolagents deployment that must read/write coordinated graph state — project ops, collaborative KGs, data-driven supervisors that restart/stop/phase-shift pipelines using `pg_pragma` projections.  
+> **Audience**: Any smolagents deployment that must read/write coordinated graph state — project ops, collaborative KGs, data-driven supervisors that restart/stop/phase-shift pipelines using `pg_pragma` projections.
 >
 > **Runtime handle**: `ghostcrab-runtime` — GhostCrab MCP surfaces that elevate MindBrain into a communal agent brain.
 
-***
+---
 
 ## Foundational principle
 
 smolagents handles **execution** (LLM-authored Python plus `ManagedAgent`). MindBrain/GhostCrab holds **truth**: assignments, statuses, timelines, orchestration hints.
 
 Supervisors refuse to hallucinate rollout state — they **consult projections**. Workers hoard no durable checkpoints; they **write MindBrain deltas** whenever a step materially advances work.
+
 ```
 Orchestrator (CodeAgent)
     │
@@ -228,8 +225,7 @@ Orchestrator (CodeAgent)
         └── pg_pragma   : materialized projections (aggregated statuses, progress scores)
 ```
 
-
-***
+---
 
 ## MindBrain data model for supervisors
 
@@ -248,7 +244,6 @@ statuts task   : pending | in_progress | blocked | done | failed
 statuts phase  : pending | active | completed | aborted
 statuts project: planning | executing | review | done | paused
 ```
-
 
 ### `pg_pragma` projections for orchestrators
 
@@ -274,34 +269,33 @@ pragma.kg_coverage(domain) ->
 
 Those projections are the **sole decision channel** for supervisors — they avoid raw entity scans.
 
-***
+---
 
 ## GhostCrab MCP tools (`ghostcrab-runtime` contract)
 
 ### Worker tools (state writes)
 
-| MCP tool | Input | Output | Usage |
-| :-- | :-- | :-- | :-- |
-| `task_status_update` | `task_id`, `status`, `progress_pct`, `notes` | `ok` | Worker reports progress |
-| `task_claim` | `task_id`, `agent_name` | `ok \| conflict` | Worker reserves a task |
-| `entity_upsert` | `type`, `payload{}`, `tags[]`, `session_id` | `entity_id` | Ontology upsert |
-| `entity_link` | `source_id`, `target_id`, `rel`, `weight` | `edge_id` | Create pg_dgraph relation |
-| `heartbeat` | `agent_name`, `task_id` | `ok` | Keepalive / liveness proof |
-| `agent_run_log` | `agent_name`, `task_id`, `status`, `error?` | `run_id` | Start/end/error journal |
+| MCP tool             | Input                                        | Output           | Usage                      |
+| :------------------- | :------------------------------------------- | :--------------- | :------------------------- |
+| `task_status_update` | `task_id`, `status`, `progress_pct`, `notes` | `ok`             | Worker reports progress    |
+| `task_claim`         | `task_id`, `agent_name`                      | `ok \| conflict` | Worker reserves a task     |
+| `entity_upsert`      | `type`, `payload{}`, `tags[]`, `session_id`  | `entity_id`      | Ontology upsert            |
+| `entity_link`        | `source_id`, `target_id`, `rel`, `weight`    | `edge_id`        | Create pg_dgraph relation  |
+| `heartbeat`          | `agent_name`, `task_id`                      | `ok`             | Keepalive / liveness proof |
+| `agent_run_log`      | `agent_name`, `task_id`, `status`, `error?`  | `run_id`         | Start/end/error journal    |
 
 ### Supervisor tools (projection reads)
 
-| MCP tool | Input | Output | Usage |
-| :-- | :-- | :-- | :-- |
-| `phase_progress` | `phase_id` | `{completion_pct, can_advance, blocked}` | Decide whether to advance phases |
-| `project_health` | `project_id` | `{next_action, stalled_tasks, ...}` | Global situational snapshot |
-| `stalled_agents` | `threshold_minutes` | `[{agent_name, task_id, duration}]` | Detect silent crews to restart |
-| `pending_tasks` | `phase_id`, `limit` | `[{task_id, name, priority}]` | Dispatch queue |
-| `kg_coverage` | `domain` | `{coverage_pct, orphan_nodes, ...}` | Gauge KG completeness |
-| `context_retrieve` | `query`, `session_id`, `top_k` | `[{entity_id, content, score}]` | Pull grounding snippets |
+| MCP tool           | Input                          | Output                                   | Usage                            |
+| :----------------- | :----------------------------- | :--------------------------------------- | :------------------------------- |
+| `phase_progress`   | `phase_id`                     | `{completion_pct, can_advance, blocked}` | Decide whether to advance phases |
+| `project_health`   | `project_id`                   | `{next_action, stalled_tasks, ...}`      | Global situational snapshot      |
+| `stalled_agents`   | `threshold_minutes`            | `[{agent_name, task_id, duration}]`      | Detect silent crews to restart   |
+| `pending_tasks`    | `phase_id`, `limit`            | `[{task_id, name, priority}]`            | Dispatch queue                   |
+| `kg_coverage`      | `domain`                       | `{coverage_pct, orphan_nodes, ...}`      | Gauge KG completeness            |
+| `context_retrieve` | `query`, `session_id`, `top_k` | `[{entity_id, content, score}]`          | Pull grounding snippets          |
 
-
-***
+---
 
 ## Implementation patterns
 
@@ -369,8 +363,7 @@ def run_worker(task_id: str, task_description: str, agent_name: str):
             tools["agent_run_log"](agent_name=agent_name, task_id=task_id, status="failed", error=str(e))
 ```
 
-
-***
+---
 
 ### Pattern 2 — Supervisor: projections-first control loop
 
@@ -434,17 +427,31 @@ def orchestrator_loop(project_id: str):
 <div align="center">⁂</div>
 
 [^3_1]: https://huggingface.co/learn/agents-course/unit2/smolagents/multi_agent_systems
+
 [^3_2]: https://www.marktechpost.com/2026/04/15/a-coding-implementation-to-build-multi-agent-ai-systems-with-smolagents-using-code-execution-tool-calling-and-dynamic-orchestration/
+
 [^3_3]: https://www.cohorte.co/blog/unpacking-smolagents-a-beginner-friendly-guide-to-agentic-systems
+
 [^3_4]: https://starlog.is/articles/ai-agents/huggingface-smolagents
+
 [^3_5]: https://huggingface.co/docs/smolagents/examples/multiagents
+
 [^3_6]: https://docs.inkog.io/frameworks/smolagents
+
 [^3_7]: https://techcommunity.microsoft.com/blog/adforpostgresql/what%E2%80%99s-new-in-the-postgres-16-query-planner--optimizer/4051828
+
 [^3_8]: https://github.com/huggingface/smolagents
+
 [^3_9]: https://deepwiki.com/huggingface/smolagents/6.2-multi-agent-orchestration
+
 [^3_10]: https://pganalyze.com/blog/5mins-postgres-memoize-speed-up-joins
+
 [^3_11]: https://saipien.org/smolagents-use-codeagent-toolcallingagent-to-build-lightweight-multi-agent-ai-automation/
+
 [^3_12]: https://deepwiki.com/huggingface/smolagents/9-examples-and-use-cases
+
 [^3_13]: https://www.depesz.com/2025/08/04/waiting-for-postgresql-19-display-memoize-planner-estimates-in-explain/
+
 [^3_14]: https://github.com/ashwath007/smolagents-approach
+
 [^3_15]: https://stackoverflow.com/questions/33651401/postgres-trigger-procedure-seems-to-be-memoized

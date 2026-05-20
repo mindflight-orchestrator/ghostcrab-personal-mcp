@@ -25,9 +25,9 @@ function createMockDatabase(
   };
 }
 
-function readStructured(
-  result: { structuredContent?: unknown }
-): Record<string, unknown> {
+function readStructured(result: {
+  structuredContent?: unknown;
+}): Record<string, unknown> {
   expect(result.structuredContent).toBeDefined();
   return result.structuredContent as Record<string, unknown>;
 }

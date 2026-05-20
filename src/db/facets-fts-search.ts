@@ -44,7 +44,9 @@ export function buildFtsMatchExpression(query: string): string | null {
 
   const tokens: string[] = [];
   for (const raw of cleaned.split(/\s+/)) {
-    const filtered = Array.from(raw).filter((char) => FTS5_SAFE_CHAR.test(char)).join("");
+    const filtered = Array.from(raw)
+      .filter((char) => FTS5_SAFE_CHAR.test(char))
+      .join("");
     if (filtered.length > 0) {
       tokens.push(filtered);
     }

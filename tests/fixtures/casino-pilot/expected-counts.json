@@ -12,15 +12,15 @@
     "app_events_per_player": 20
   },
   "layer1": {
-    "casino.game_types":          { "min": 8,    "max": 8,    "exact": true },
-    "casino.campaigns":           { "min": 10,   "max": 10,   "exact": true },
-    "casino.players":             { "min": 100,  "max": 100,  "exact": true },
-    "casino.visits":              { "min": 400,  "max": 600,  "exact": false },
-    "casino.hotel_stays":         { "min": 20,   "max": 50,   "exact": false },
-    "casino.event_registrations": { "min": 10,   "max": 30,   "exact": false },
-    "casino.transactions":        { "min": 800,  "max": 1200, "exact": false },
-    "casino.game_sessions":       { "min": 1200, "max": 2000, "exact": false },
-    "casino.app_events":          { "min": 1500, "max": 2500, "exact": false }
+    "casino.game_types": { "min": 8, "max": 8, "exact": true },
+    "casino.campaigns": { "min": 10, "max": 10, "exact": true },
+    "casino.players": { "min": 100, "max": 100, "exact": true },
+    "casino.visits": { "min": 400, "max": 600, "exact": false },
+    "casino.hotel_stays": { "min": 20, "max": 50, "exact": false },
+    "casino.event_registrations": { "min": 10, "max": 30, "exact": false },
+    "casino.transactions": { "min": 800, "max": 1200, "exact": false },
+    "casino.game_sessions": { "min": 1200, "max": 2000, "exact": false },
+    "casino.app_events": { "min": 1500, "max": 2500, "exact": false }
   },
   "layer2": {
     "facets": {

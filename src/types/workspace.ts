@@ -4,11 +4,15 @@ import { z } from "zod";
  * Workspace identifier constraints: lowercase alphanum + hyphens, 2–64 chars.
  * Must start with a letter to remain valid for legacy workspace schema slugs.
  */
-export const WORKSPACE_ID_REGEX = /^[a-z][a-z0-9-]{1,62}[a-z0-9]$|^[a-z][a-z0-9]$/;
+export const WORKSPACE_ID_REGEX =
+  /^[a-z][a-z0-9-]{1,62}[a-z0-9]$|^[a-z][a-z0-9]$/;
 
 export const WorkspaceIdSchema = z
   .string()
-  .regex(WORKSPACE_ID_REGEX, "workspace_id must be lowercase alphanum+hyphens, 2–64 chars, start with a letter");
+  .regex(
+    WORKSPACE_ID_REGEX,
+    "workspace_id must be lowercase alphanum+hyphens, 2–64 chars, start with a letter"
+  );
 
 export const WorkspaceStatusSchema = z.enum(["active", "archived"]);
 export type WorkspaceStatus = z.infer<typeof WorkspaceStatusSchema>;

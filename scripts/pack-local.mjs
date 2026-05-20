@@ -1,4 +1,10 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -37,7 +43,9 @@ const PLATFORM_PACKAGES = [
   }
 ];
 
-const rootPackage = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8"));
+const rootPackage = JSON.parse(
+  readFileSync(join(repoRoot, "package.json"), "utf8")
+);
 const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
 function packFilename(name, version) {
@@ -45,19 +53,17 @@ function packFilename(name, version) {
 }
 
 function runPack(cwd) {
-  const packageJson = JSON.parse(readFileSync(join(cwd, "package.json"), "utf8"));
-  const result = spawnSync(
-    pnpm,
-    ["pack", "--pack-destination", distPackDir],
-    {
-      cwd,
-      encoding: "utf8",
-      env: {
-        ...process.env,
-        npm_config_cache: process.env.npm_config_cache ?? tempNpmCache
-      }
-    }
+  const packageJson = JSON.parse(
+    readFileSync(join(cwd, "package.json"), "utf8")
   );
+  const result = spawnSync(pnpm, ["pack", "--pack-destination", distPackDir], {
+    cwd,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      npm_config_cache: process.env.npm_config_cache ?? tempNpmCache
+    }
+  });
 
   if (result.status !== 0) {
     throw new Error(
@@ -66,7 +72,10 @@ function runPack(cwd) {
     );
   }
 
-  const filename = join(distPackDir, packFilename(packageJson.name, packageJson.version));
+  const filename = join(
+    distPackDir,
+    packFilename(packageJson.name, packageJson.version)
+  );
   if (!packageJson.name || !packageJson.version) {
     throw new Error(`Invalid package metadata in ${cwd}/package.json`);
   }
@@ -85,11 +94,15 @@ mkdirSync(tempNpmCache, { recursive: true });
 rmSync(distPackDir, { recursive: true, force: true });
 mkdirSync(distPackDir, { recursive: true });
 
-const stage = spawnSync(process.execPath, [join(repoRoot, "scripts/stage-platform-packages.mjs")], {
-  cwd: repoRoot,
-  encoding: "utf8",
-  env: process.env
-});
+const stage = spawnSync(
+  process.execPath,
+  [join(repoRoot, "scripts/stage-platform-packages.mjs")],
+  {
+    cwd: repoRoot,
+    encoding: "utf8",
+    env: process.env
+  }
+);
 
 if (stage.status !== 0) {
   throw new Error(
@@ -120,5 +133,10 @@ manifest.root = {
   filename: rootPacked.filename
 };
 
-writeFileSync(join(distPackDir, "pack-manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
-console.error(`[pack-local] Wrote ${PLATFORM_PACKAGES.length + 1} tarballs to ${distPackDir}`);
+writeFileSync(
+  join(distPackDir, "pack-manifest.json"),
+  JSON.stringify(manifest, null, 2) + "\n"
+);
+console.error(
+  `[pack-local] Wrote ${PLATFORM_PACKAGES.length + 1} tarballs to ${distPackDir}`
+);

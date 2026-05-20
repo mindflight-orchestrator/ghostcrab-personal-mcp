@@ -56,7 +56,10 @@ async function readWorkspaceDomainProfile(
   workspaceId: string
 ): Promise<{ id: string; domain_profile: string | null } | null> {
   try {
-    const rows = await context.database.query<{ id: string; domain_profile: string | null }>(
+    const rows = await context.database.query<{
+      id: string;
+      domain_profile: string | null;
+    }>(
       `SELECT id, domain_profile
        FROM workspaces
        WHERE id = ?`,
@@ -142,8 +145,16 @@ export const loadoutInspectTool: ToolHandler = {
               .filter((node) => node.node_type === "ontology_relation")
               .map((node) => node.label),
             wrapper_nodes: skeleton.nodes
-              .filter((node) => node.node_type !== "ontology_entity" && node.node_type !== "ontology_relation")
-              .map((node) => ({ id: node.id, node_type: node.node_type, label: node.label }))
+              .filter(
+                (node) =>
+                  node.node_type !== "ontology_entity" &&
+                  node.node_type !== "ontology_relation"
+              )
+              .map((node) => ({
+                id: node.id,
+                node_type: node.node_type,
+                label: node.label
+              }))
           }
         : null
     });
@@ -170,8 +181,7 @@ export const loadoutApplyTool: ToolHandler = {
         overwrite: {
           type: "boolean",
           default: false,
-          description:
-            "Allow replacing an already selected different loadout."
+          description: "Allow replacing an already selected different loadout."
         }
       }
     }
@@ -187,7 +197,10 @@ export const loadoutApplyTool: ToolHandler = {
       );
     }
 
-    const workspace = await readWorkspaceDomainProfile(context, input.workspace_id);
+    const workspace = await readWorkspaceDomainProfile(
+      context,
+      input.workspace_id
+    );
     if (!workspace) {
       return createToolErrorResult(
         "ghostcrab_loadout_apply",
@@ -287,17 +300,20 @@ export const loadoutSuggestTool: ToolHandler = {
   },
   async handler(args, _context) {
     const input = LoadoutSuggestInput.parse(args);
-    const suggestions = suggestOntologyLoadouts(input.goal, input.limit).map((entry) => ({
-      loadout: formatLoadout(entry.loadout),
-      score: entry.score,
-      matched_terms: entry.matched_terms
-    }));
+    const suggestions = suggestOntologyLoadouts(input.goal, input.limit).map(
+      (entry) => ({
+        loadout: formatLoadout(entry.loadout),
+        score: entry.score,
+        matched_terms: entry.matched_terms
+      })
+    );
 
     return createToolSuccessResult("ghostcrab_loadout_suggest", {
       goal: input.goal,
       limit: input.limit,
       suggestions,
-      recommended_loadout_id: suggestions[0]?.loadout?.loadout_id ?? "default-minimal"
+      recommended_loadout_id:
+        suggestions[0]?.loadout?.loadout_id ?? "default-minimal"
     });
   }
 };

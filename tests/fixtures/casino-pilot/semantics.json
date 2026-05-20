@@ -127,9 +127,24 @@
       "schema_id": "casino-player-profile",
       "content_columns": ["display_name", "email"],
       "facet_columns": [
-        { "column_name": "tier",   "facet_key": "player_tier",   "index_in_bm25": false, "facet_type": "term" },
-        { "column_name": "status", "facet_key": "player_status", "index_in_bm25": false, "facet_type": "term" },
-        { "column_name": "country_code", "facet_key": "player_country", "index_in_bm25": false, "facet_type": "term" }
+        {
+          "column_name": "tier",
+          "facet_key": "player_tier",
+          "index_in_bm25": false,
+          "facet_type": "term"
+        },
+        {
+          "column_name": "status",
+          "facet_key": "player_status",
+          "index_in_bm25": false,
+          "facet_type": "term"
+        },
+        {
+          "column_name": "country_code",
+          "facet_key": "player_country",
+          "index_in_bm25": false,
+          "facet_type": "term"
+        }
       ]
     },
     "casino.visits": {
@@ -138,8 +153,18 @@
       "schema_id": "casino-visit-summary",
       "content_columns": ["channel"],
       "facet_columns": [
-        { "column_name": "channel",    "facet_key": "visit_channel",  "index_in_bm25": false, "facet_type": "term" },
-        { "column_name": "ip_country", "facet_key": "visit_country",  "index_in_bm25": false, "facet_type": "term" }
+        {
+          "column_name": "channel",
+          "facet_key": "visit_channel",
+          "index_in_bm25": false,
+          "facet_type": "term"
+        },
+        {
+          "column_name": "ip_country",
+          "facet_key": "visit_country",
+          "index_in_bm25": false,
+          "facet_type": "term"
+        }
       ]
     },
     "casino.transactions": {
@@ -148,8 +173,18 @@
       "schema_id": "casino-transaction",
       "content_columns": ["reference"],
       "facet_columns": [
-        { "column_name": "type",   "facet_key": "tx_type",    "index_in_bm25": false, "facet_type": "term" },
-        { "column_name": "status", "facet_key": "tx_status",  "index_in_bm25": false, "facet_type": "term" }
+        {
+          "column_name": "type",
+          "facet_key": "tx_type",
+          "index_in_bm25": false,
+          "facet_type": "term"
+        },
+        {
+          "column_name": "status",
+          "facet_key": "tx_status",
+          "index_in_bm25": false,
+          "facet_type": "term"
+        }
       ]
     },
     "casino.game_sessions": {
@@ -158,7 +193,12 @@
       "schema_id": "casino-game-session",
       "content_columns": ["game_type_id"],
       "facet_columns": [
-        { "column_name": "result", "facet_key": "session_result", "index_in_bm25": false, "facet_type": "term" }
+        {
+          "column_name": "result",
+          "facet_key": "session_result",
+          "index_in_bm25": false,
+          "facet_type": "term"
+        }
       ]
     },
     "casino.hotel_stays": {
@@ -167,8 +207,18 @@
       "schema_id": "casino-hotel-stay",
       "content_columns": ["room_type"],
       "facet_columns": [
-        { "column_name": "room_type", "facet_key": "stay_room_type", "index_in_bm25": false, "facet_type": "term" },
-        { "column_name": "status",    "facet_key": "stay_status",    "index_in_bm25": false, "facet_type": "term" }
+        {
+          "column_name": "room_type",
+          "facet_key": "stay_room_type",
+          "index_in_bm25": false,
+          "facet_type": "term"
+        },
+        {
+          "column_name": "status",
+          "facet_key": "stay_status",
+          "index_in_bm25": false,
+          "facet_type": "term"
+        }
       ]
     }
   }

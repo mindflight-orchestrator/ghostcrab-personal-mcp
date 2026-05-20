@@ -26,11 +26,11 @@ Goose is an MCP-capable agent runtime. GhostCrab Personal is an MCP server. The 
 
 The division of responsibility is simple:
 
-| Layer | Responsibility |
-|---|---|
-| Goose | Agent reasoning, recipes, sub-agent orchestration, user interaction |
+| Layer                  | Responsibility                                                                  |
+| ---------------------- | ------------------------------------------------------------------------------- |
+| Goose                  | Agent reasoning, recipes, sub-agent orchestration, user interaction             |
 | GhostCrab Personal MCP | Local tools for structured memory, search, project context, and graph relations |
-| SQLite | Durable local storage owned by GhostCrab Personal |
+| SQLite                 | Durable local storage owned by GhostCrab Personal                               |
 
 ## Start Here
 
@@ -55,13 +55,13 @@ goose configure
 
 Choose `Add Extension`, then `Command-line Extension`, and configure:
 
-| Field | Value |
-|---|---|
-| Name | `ghostcrab-personal` |
-| Type | `stdio` |
-| Command | `gcp` |
-| Arguments | `brain`, `up` |
-| Timeout | `120` |
+| Field     | Value                |
+| --------- | -------------------- |
+| Name      | `ghostcrab-personal` |
+| Type      | `stdio`              |
+| Command   | `gcp`                |
+| Arguments | `brain`, `up`        |
+| Timeout   | `120`                |
 
 For a reusable Goose recipe, declare the extension in the recipe:
 
@@ -104,17 +104,17 @@ This uses four tools or fewer and proves that Goose can read and write GhostCrab
 
 ## Tool Mapping
 
-| Goose need | GhostCrab tool |
-|---|---|
-| Check the extension is alive | `ghostcrab_status` |
-| Load compact project context | `ghostcrab_pack` |
-| Store a durable fact or report | `ghostcrab_remember` |
-| Update current task or run state | `ghostcrab_upsert` |
-| Search saved facts | `ghostcrab_search` |
-| Count items for a status view | `ghostcrab_count` |
-| Save dependencies, blockers, or handoffs | `ghostcrab_learn` |
-| Leave a session checkpoint | `ghostcrab_project` |
-| Create project isolation | `ghostcrab_workspace_create` |
+| Goose need                               | GhostCrab tool               |
+| ---------------------------------------- | ---------------------------- |
+| Check the extension is alive             | `ghostcrab_status`           |
+| Load compact project context             | `ghostcrab_pack`             |
+| Store a durable fact or report           | `ghostcrab_remember`         |
+| Update current task or run state         | `ghostcrab_upsert`           |
+| Search saved facts                       | `ghostcrab_search`           |
+| Count items for a status view            | `ghostcrab_count`            |
+| Save dependencies, blockers, or handoffs | `ghostcrab_learn`            |
+| Leave a session checkpoint               | `ghostcrab_project`          |
+| Create project isolation                 | `ghostcrab_workspace_create` |
 
 ## Write Model
 
@@ -176,14 +176,14 @@ Avoid recipe fields such as `enabled` or `envs`; those belong to other extension
 
 ## Failure Modes
 
-| Situation | Expected Goose behavior |
-|---|---|
-| `ghostcrab_status` fails | Stop the GhostCrab-dependent flow and ask the user to start `gcp brain up` or reconfigure the extension |
-| `ghostcrab_pack` returns empty context | Treat it as a first run, continue with a small project summary, and write only confirmed facts |
-| Workspace does not exist | Ask whether to create one, then use `ghostcrab_workspace_create` if the user confirms or the recipe parameter requires it |
-| Schema is missing | Continue with general facets first; only inspect or register schemas in an advanced architect flow |
-| Goose cannot see the extension | Re-run `goose configure` or use a recipe with the `ghostcrab-personal` stdio extension declared |
-| Write fails mid-run | Continue the Goose task if possible, but tell the user that GhostCrab persistence did not complete |
+| Situation                              | Expected Goose behavior                                                                                                   |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `ghostcrab_status` fails               | Stop the GhostCrab-dependent flow and ask the user to start `gcp brain up` or reconfigure the extension                   |
+| `ghostcrab_pack` returns empty context | Treat it as a first run, continue with a small project summary, and write only confirmed facts                            |
+| Workspace does not exist               | Ask whether to create one, then use `ghostcrab_workspace_create` if the user confirms or the recipe parameter requires it |
+| Schema is missing                      | Continue with general facets first; only inspect or register schemas in an advanced architect flow                        |
+| Goose cannot see the extension         | Re-run `goose configure` or use a recipe with the `ghostcrab-personal` stdio extension declared                           |
+| Write fails mid-run                    | Continue the Goose task if possible, but tell the user that GhostCrab persistence did not complete                        |
 
 ## Search Mode Note
 

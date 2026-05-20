@@ -29,34 +29,34 @@ This is not a custom orchestration layer. CrewAI keeps task execution; GhostCrab
 
 ## CrewAI Memory Mapping
 
-| CrewAI memory type | Runtime behavior |
-| --- | --- |
-| Long-term memory | Persist durable findings with `ghostcrab_remember`. |
-| Entity memory | Refresh current entity or task state with `ghostcrab_upsert`. |
-| Short-term memory | Keep inside CrewAI for the current run. |
-| Contextual memory | Keep inside CrewAI prompt/context assembly. |
+| CrewAI memory type | Runtime behavior                                              |
+| ------------------ | ------------------------------------------------------------- |
+| Long-term memory   | Persist durable findings with `ghostcrab_remember`.           |
+| Entity memory      | Refresh current entity or task state with `ghostcrab_upsert`. |
+| Short-term memory  | Keep inside CrewAI for the current run.                       |
+| Contextual memory  | Keep inside CrewAI prompt/context assembly.                   |
 
 ## Agent Update Contract
 
 Each agent should write only what future agents need:
 
-| Event | Tool | Example facets |
-| --- | --- | --- |
-| Task started | `ghostcrab_upsert` | `record_id`, `task_id`, `agent_id`, `status: in_progress` |
-| Task blocked | `ghostcrab_upsert` and `ghostcrab_learn` | `status: blocked`, `blocks` edge |
-| Finding produced | `ghostcrab_remember` | `agent_id`, `task_id`, `kind: finding`, `confidence` |
-| Entity updated | `ghostcrab_upsert` | `record_id`, `entity_type`, `entity_name`, `status` |
-| Task completed | `ghostcrab_upsert` and `ghostcrab_project` | `status: done`, handoff summary |
+| Event            | Tool                                       | Example facets                                            |
+| ---------------- | ------------------------------------------ | --------------------------------------------------------- |
+| Task started     | `ghostcrab_upsert`                         | `record_id`, `task_id`, `agent_id`, `status: in_progress` |
+| Task blocked     | `ghostcrab_upsert` and `ghostcrab_learn`   | `status: blocked`, `blocks` edge                          |
+| Finding produced | `ghostcrab_remember`                       | `agent_id`, `task_id`, `kind: finding`, `confidence`      |
+| Entity updated   | `ghostcrab_upsert`                         | `record_id`, `entity_type`, `entity_name`, `status`       |
+| Task completed   | `ghostcrab_upsert` and `ghostcrab_project` | `status: done`, handoff summary                           |
 
 ## Lifecycle JTBD
 
-| Moment | Agent question | Tool |
-| --- | --- | --- |
-| Before | What prior project context should I load? | `ghostcrab_pack` |
-| Read | What facts or entities match this task? | `ghostcrab_search` |
-| Write | Is this a durable fact or mutable current state? | `ghostcrab_remember` or `ghostcrab_upsert` |
-| After | What should the next agent see first? | `ghostcrab_project` |
-| Recovery | What happened before interruption? | `ghostcrab_pack` |
+| Moment   | Agent question                                   | Tool                                       |
+| -------- | ------------------------------------------------ | ------------------------------------------ |
+| Before   | What prior project context should I load?        | `ghostcrab_pack`                           |
+| Read     | What facts or entities match this task?          | `ghostcrab_search`                         |
+| Write    | Is this a durable fact or mutable current state? | `ghostcrab_remember` or `ghostcrab_upsert` |
+| After    | What should the next agent see first?            | `ghostcrab_project`                        |
+| Recovery | What happened before interruption?               | `ghostcrab_pack`                           |
 
 ## Coordinator Pattern
 
@@ -84,11 +84,11 @@ When a run restarts:
 
 ## Failure Modes
 
-| Condition | Runtime response |
-| --- | --- |
-| GhostCrab unavailable | Ask for `gcp brain up`; continue CrewAI only if the user accepts losing durable shared memory. |
-| Empty pack | First run; proceed with empty context and write first useful facts. |
-| Workspace absent | Create after `ghostcrab_workspace_list`, before first write. |
-| Concurrent writes | Current state uses `ghostcrab_upsert`; durable findings use `ghostcrab_remember` so each agent keeps its evidence. |
-| Search miss between agents | Retry broader query and check facets; do not assume another agent failed. |
-| Missing schema | Keep writing with clear facets; schema inspection is a later hardening step. |
+| Condition                  | Runtime response                                                                                                   |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| GhostCrab unavailable      | Ask for `gcp brain up`; continue CrewAI only if the user accepts losing durable shared memory.                     |
+| Empty pack                 | First run; proceed with empty context and write first useful facts.                                                |
+| Workspace absent           | Create after `ghostcrab_workspace_list`, before first write.                                                       |
+| Concurrent writes          | Current state uses `ghostcrab_upsert`; durable findings use `ghostcrab_remember` so each agent keeps its evidence. |
+| Search miss between agents | Retry broader query and check facets; do not assume another agent failed.                                          |
+| Missing schema             | Keep writing with clear facets; schema inspection is a later hardening step.                                       |

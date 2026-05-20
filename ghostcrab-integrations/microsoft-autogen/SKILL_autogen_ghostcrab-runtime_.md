@@ -32,15 +32,15 @@ Use GhostCrab for:
 
 ## Runtime Tool Mapping
 
-| AutoGen runtime need | GhostCrab tool | Pattern |
-| --- | --- | --- |
-| Agent joins a run | `ghostcrab_pack` | Load active context by workspace and task. |
-| Planner sets goal | `ghostcrab_project` | Store active goal or constraint. |
-| Executor claims task | `ghostcrab_upsert` | Mutable record with `status=in_progress`. |
-| Executor reports result | `ghostcrab_upsert` | Same record with `status=complete` or `blocked`. |
-| Reviewer stores finding | `ghostcrab_remember` | Durable, not overwritten. |
-| Agent links dependency | `ghostcrab_learn` | Edge from task to blocker, source, or decision. |
-| Orchestrator checks progress | `ghostcrab_count`, `ghostcrab_search`, `ghostcrab_pack` | AutoGen then decides the next speaker. |
+| AutoGen runtime need         | GhostCrab tool                                          | Pattern                                          |
+| ---------------------------- | ------------------------------------------------------- | ------------------------------------------------ |
+| Agent joins a run            | `ghostcrab_pack`                                        | Load active context by workspace and task.       |
+| Planner sets goal            | `ghostcrab_project`                                     | Store active goal or constraint.                 |
+| Executor claims task         | `ghostcrab_upsert`                                      | Mutable record with `status=in_progress`.        |
+| Executor reports result      | `ghostcrab_upsert`                                      | Same record with `status=complete` or `blocked`. |
+| Reviewer stores finding      | `ghostcrab_remember`                                    | Durable, not overwritten.                        |
+| Agent links dependency       | `ghostcrab_learn`                                       | Edge from task to blocker, source, or decision.  |
+| Orchestrator checks progress | `ghostcrab_count`, `ghostcrab_search`, `ghostcrab_pack` | AutoGen then decides the next speaker.           |
 
 ## Connection
 

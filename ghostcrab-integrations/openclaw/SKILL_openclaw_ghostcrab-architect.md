@@ -48,10 +48,10 @@ with modeling calls until GhostCrab tools are visible.
 
 ## External Endpoints
 
-| Endpoint | Transport | Data sent | Notes |
-| --- | --- | --- | --- |
-| local `gcp brain up` process | stdio MCP | workspace descriptions, schema inspection requests, modeling notes | Default Personal path |
-| optional local bridge | HTTP/SSE to bridge, stdio to GhostCrab | same as above | Only when OpenClaw cannot call stdio MCP directly |
+| Endpoint                     | Transport                              | Data sent                                                          | Notes                                             |
+| ---------------------------- | -------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------- |
+| local `gcp brain up` process | stdio MCP                              | workspace descriptions, schema inspection requests, modeling notes | Default Personal path                             |
+| optional local bridge        | HTTP/SSE to bridge, stdio to GhostCrab | same as above                                                      | Only when OpenClaw cannot call stdio MCP directly |
 
 ## Security and Privacy
 
@@ -115,15 +115,15 @@ This skill does not invent custom tool names or assume direct database access.
 
 ## Lifecycle JTBD
 
-| Moment | Architect question | GhostCrab tool |
-| --- | --- | --- |
-| Before | What domain context already exists? | `ghostcrab_pack` |
-| Read | What modeling notes or records already exist? | `ghostcrab_search` |
-| Write durable | What architecture decision should be remembered? | `ghostcrab_remember` |
-| Write state | What modeling question or workspace state changed? | `ghostcrab_project` or `ghostcrab_upsert` |
-| Inspect | What schemas are available and relevant? | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
-| After | What should future agents do with this model? | `ghostcrab_project` |
-| Recovery | What context allows modeling to resume? | `ghostcrab_pack` |
+| Moment        | Architect question                                 | GhostCrab tool                                      |
+| ------------- | -------------------------------------------------- | --------------------------------------------------- |
+| Before        | What domain context already exists?                | `ghostcrab_pack`                                    |
+| Read          | What modeling notes or records already exist?      | `ghostcrab_search`                                  |
+| Write durable | What architecture decision should be remembered?   | `ghostcrab_remember`                                |
+| Write state   | What modeling question or workspace state changed? | `ghostcrab_project` or `ghostcrab_upsert`           |
+| Inspect       | What schemas are available and relevant?           | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
+| After         | What should future agents do with this model?      | `ghostcrab_project`                                 |
+| Recovery      | What context allows modeling to resume?            | `ghostcrab_pack`                                    |
 
 ## remember vs upsert
 
@@ -145,13 +145,13 @@ Create a workspace only when the intended workspace is absent.
 
 ## Failure Modes
 
-| Failure | Required behavior |
-| --- | --- |
-| Transport not configured | Abort with a clear transport setup message |
-| `ghostcrab_status` unavailable | Ask the user to run `gcp brain up` |
-| `ghostcrab_pack` empty | Treat as a new domain; create only after `ghostcrab_workspace_list` confirms absence |
-| No matching schema | Continue with provisional memory and record the modeling gap |
-| User goal is fuzzy | Ask one clarifying question before storing durable structure |
+| Failure                        | Required behavior                                                                    |
+| ------------------------------ | ------------------------------------------------------------------------------------ |
+| Transport not configured       | Abort with a clear transport setup message                                           |
+| `ghostcrab_status` unavailable | Ask the user to run `gcp brain up`                                                   |
+| `ghostcrab_pack` empty         | Treat as a new domain; create only after `ghostcrab_workspace_list` confirms absence |
+| No matching schema             | Continue with provisional memory and record the modeling gap                         |
+| User goal is fuzzy             | Ask one clarifying question before storing durable structure                         |
 
 ## Verification
 

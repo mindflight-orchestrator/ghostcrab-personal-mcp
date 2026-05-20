@@ -68,7 +68,9 @@ export const graphPathTool: ToolHandler = {
     } catch (error) {
       return createToolErrorResult(
         "ghostcrab_graph_path",
-        error instanceof Error ? error.message : "MindBrain graph-path backend unavailable",
+        error instanceof Error
+          ? error.message
+          : "MindBrain graph-path backend unavailable",
         "backend_unavailable"
       );
     }

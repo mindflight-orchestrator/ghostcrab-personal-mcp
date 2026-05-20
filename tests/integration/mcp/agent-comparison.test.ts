@@ -27,7 +27,7 @@ function makeArtifact(
       }
     ],
     observed_backend: ["native"],
-    final_answer_summary: "{\"ok\":true,\"tool\":\"ghostcrab_search\"}",
+    final_answer_summary: '{"ok":true,"tool":"ghostcrab_search"}',
     scorecard: {
       tool_choice: "pass",
       runtime_awareness: "pass",

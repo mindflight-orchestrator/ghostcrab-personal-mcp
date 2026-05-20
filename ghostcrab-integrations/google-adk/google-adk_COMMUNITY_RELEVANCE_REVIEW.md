@@ -169,18 +169,18 @@ What needs correction:
 
 ## 8. Tool Mapping
 
-| ADK need | GhostCrab Personal tool |
-| --- | --- |
-| Start or select a project memory | `ghostcrab_workspace_create`, `ghostcrab_workspace_list` |
-| Retrieve context for an agent run | `ghostcrab_pack` |
-| Search prior decisions or facts | `ghostcrab_search` |
-| Save durable observations | `ghostcrab_remember` |
-| Update current state | `ghostcrab_upsert` |
-| Track active goals or constraints | `ghostcrab_project` |
-| Link blockers, tasks, and dependencies | `ghostcrab_learn` |
-| Traverse dependency chains | `ghostcrab_traverse` |
-| Count records by state or type | `ghostcrab_count` |
-| Inspect model contracts | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
+| ADK need                               | GhostCrab Personal tool                                  |
+| -------------------------------------- | -------------------------------------------------------- |
+| Start or select a project memory       | `ghostcrab_workspace_create`, `ghostcrab_workspace_list` |
+| Retrieve context for an agent run      | `ghostcrab_pack`                                         |
+| Search prior decisions or facts        | `ghostcrab_search`                                       |
+| Save durable observations              | `ghostcrab_remember`                                     |
+| Update current state                   | `ghostcrab_upsert`                                       |
+| Track active goals or constraints      | `ghostcrab_project`                                      |
+| Link blockers, tasks, and dependencies | `ghostcrab_learn`                                        |
+| Traverse dependency chains             | `ghostcrab_traverse`                                     |
+| Count records by state or type         | `ghostcrab_count`                                        |
+| Inspect model contracts                | `ghostcrab_schema_list`, `ghostcrab_schema_inspect`      |
 
 ## 9. Community Demo Scenarios
 
@@ -210,14 +210,14 @@ Recommended wording:
 
 ### Agent Lifecycle Mapping
 
-| Moment | Agent question | Expected GhostCrab tool | Present in current review? |
-|---|---|---|---|
-| Before | Select or create a GhostCrab workspace for this ADK project, then load context | `ghostcrab_workspace_create`, `ghostcrab_pack` | `ghostcrab_pack` mentioned; workspace creation not sequenced |
-| Read | Search prior session facts and decisions | `ghostcrab_search` | Yes |
-| Write (durable) | Record an immutable ADK observation | `ghostcrab_remember` | Listed but not distinguished from upsert |
-| Write (state) | Update the current ADK task or step state | `ghostcrab_upsert` | Listed but not distinguished from remember |
-| After | Record active ADK agent goals | `ghostcrab_project` | Not explicitly covered |
-| Recovery | Resume from prior session state | `ghostcrab_pack` | Demo 2 covers this |
+| Moment          | Agent question                                                                 | Expected GhostCrab tool                        | Present in current review?                                   |
+| --------------- | ------------------------------------------------------------------------------ | ---------------------------------------------- | ------------------------------------------------------------ |
+| Before          | Select or create a GhostCrab workspace for this ADK project, then load context | `ghostcrab_workspace_create`, `ghostcrab_pack` | `ghostcrab_pack` mentioned; workspace creation not sequenced |
+| Read            | Search prior session facts and decisions                                       | `ghostcrab_search`                             | Yes                                                          |
+| Write (durable) | Record an immutable ADK observation                                            | `ghostcrab_remember`                           | Listed but not distinguished from upsert                     |
+| Write (state)   | Update the current ADK task or step state                                      | `ghostcrab_upsert`                             | Listed but not distinguished from remember                   |
+| After           | Record active ADK agent goals                                                  | `ghostcrab_project`                            | Not explicitly covered                                       |
+| Recovery        | Resume from prior session state                                                | `ghostcrab_pack`                               | Demo 2 covers this                                           |
 
 ### Critical Gap: ADK `session_id` → GhostCrab `workspace_id` Mapping
 
@@ -230,6 +230,7 @@ Recommended addition: a developer reading this review should see a clear stateme
 ### Critical Gap: `remember` vs `upsert` Distinction
 
 Not explained. For ADK:
+
 - `ghostcrab_remember`: "Observed that entity type X appears in 80% of pipeline runs" — immutable
 - `ghostcrab_upsert`: "Current ADK pipeline step: extraction, status: running" — mutable
 
@@ -243,14 +244,14 @@ Demo 1 and Demo 2 together provide a ≤4-tool path, but no "start here" label e
 
 Status: **Addressed by the May 2026 rewrite.**
 
-| Criterion | Score | Notes |
-| --- | ---: | --- |
-| Community relevance | 5/5 | ADK is framed as an MCP-first generic agent framework. |
-| Framework alignment | 5/5 | `session_id` is mapped to facets inside one project workspace. |
-| GhostCrab Personal accuracy | 5/5 | Uses `@mindflight/ghostcrab-personal-mcp`, `gcp brain up`, SQLite, and stdio by default. |
-| Tool-name accuracy | 5/5 | Public `ghostcrab_*` tools replace custom runtime labels. |
-| Agent behavioral clarity | 5/5 | Lifecycle, remember/upsert, workspace creation, and empty-pack recovery are explicit. |
-| Community readiness | 5/5 | Ready as a local-first community trial path. |
+| Criterion                   | Score | Notes                                                                                    |
+| --------------------------- | ----: | ---------------------------------------------------------------------------------------- |
+| Community relevance         |   5/5 | ADK is framed as an MCP-first generic agent framework.                                   |
+| Framework alignment         |   5/5 | `session_id` is mapped to facets inside one project workspace.                           |
+| GhostCrab Personal accuracy |   5/5 | Uses `@mindflight/ghostcrab-personal-mcp`, `gcp brain up`, SQLite, and stdio by default. |
+| Tool-name accuracy          |   5/5 | Public `ghostcrab_*` tools replace custom runtime labels.                                |
+| Agent behavioral clarity    |   5/5 | Lifecycle, remember/upsert, workspace creation, and empty-pack recovery are explicit.    |
+| Community readiness         |   5/5 | Ready as a local-first community trial path.                                             |
 
 Overall readiness: **Publishable after normal editorial review.**
 
@@ -262,14 +263,14 @@ Not addressed. Critical case: first ADK session for a new project — `ghostcrab
 
 ## 11. Readiness Score
 
-| Criterion | Score | Notes |
-| --- | ---: | --- |
-| Community relevance | 4/5 | ADK memory and tool concepts are a good fit. |
-| Framework alignment | 4/5 | MCP and MemoryService paths are both plausible. |
-| GhostCrab Personal accuracy | 2/5 | SQLite is mentioned but mixed with PostgreSQL and older commands. |
-| Tool-name accuracy | 2/5 | Many tools are scenario-specific rather than actual MCP tools. |
-| Agent behavioral clarity | 1/5 | session_id → workspace_id mapping entirely absent; remember/upsert not distinguished; failure modes missing. |
-| Community readiness | 2/5 | Needs English rewrite, session mapping, and API correction. |
+| Criterion                   | Score | Notes                                                                                                        |
+| --------------------------- | ----: | ------------------------------------------------------------------------------------------------------------ |
+| Community relevance         |   4/5 | ADK memory and tool concepts are a good fit.                                                                 |
+| Framework alignment         |   4/5 | MCP and MemoryService paths are both plausible.                                                              |
+| GhostCrab Personal accuracy |   2/5 | SQLite is mentioned but mixed with PostgreSQL and older commands.                                            |
+| Tool-name accuracy          |   2/5 | Many tools are scenario-specific rather than actual MCP tools.                                               |
+| Agent behavioral clarity    |   1/5 | session_id → workspace_id mapping entirely absent; remember/upsert not distinguished; failure modes missing. |
+| Community readiness         |   2/5 | Needs English rewrite, session mapping, and API correction.                                                  |
 
 Overall readiness: **Good target, needs a clean MCP-first rewrite.**
 

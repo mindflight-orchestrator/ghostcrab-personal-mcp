@@ -57,17 +57,18 @@ describe("facet tools", () => {
   it("stores a fact and returns its identifier", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () =>
-        new Response(
-          JSON.stringify({
-            ok: true,
-            id: "a1b2c3d4-e5f6-4789-abcd-ef1234567890",
-            doc_id: 1,
-            created: true,
-            updated: false
-          }),
-          { status: 200, headers: { "content-type": "application/json" } }
-        )
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              ok: true,
+              id: "a1b2c3d4-e5f6-4789-abcd-ef1234567890",
+              doc_id: 1,
+              created: true,
+              updated: false
+            }),
+            { status: 200, headers: { "content-type": "application/json" } }
+          )
       )
     );
 
@@ -273,7 +274,9 @@ describe("facet tools", () => {
     });
     expect(readStructured(result).notes).toEqual(
       expect.arrayContaining([
-        expect.stringContaining("Zero rows returned for this exact structured read only")
+        expect.stringContaining(
+          "Zero rows returned for this exact structured read only"
+        )
       ])
     );
   });
@@ -300,9 +303,12 @@ describe("facet tools", () => {
         content: "Native extension build is deferred.",
         facets: { domain: "product" }
       },
-      createToolContext(createMockDatabase(async () => []), {
-        embeddingsMode: "fake"
-      })
+      createToolContext(
+        createMockDatabase(async () => []),
+        {
+          embeddingsMode: "fake"
+        }
+      )
     );
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -388,7 +394,9 @@ describe("facet tools", () => {
     );
 
     expect(query).toHaveBeenCalledOnce();
-    expect(query.mock.calls[0]?.[0]).not.toContain("embedding_blob IS NOT NULL");
+    expect(query.mock.calls[0]?.[0]).not.toContain(
+      "embedding_blob IS NOT NULL"
+    );
     expect(query.mock.calls[0]?.[1]).toEqual(
       expect.arrayContaining(["default", "smoke", "fact", 5])
     );
@@ -589,9 +597,7 @@ describe("facet tools", () => {
   it("uses SQL JSONB GROUP BY path for count", async () => {
     const query = vi
       .fn<DatabaseClient["query"]>()
-      .mockResolvedValueOnce([
-        { val: "agent:observation", count: 3 }
-      ]);
+      .mockResolvedValueOnce([{ val: "agent:observation", count: 3 }]);
     const database = createMockDatabase(query);
 
     const result = await countTool.handler(
@@ -641,12 +647,10 @@ describe("facet tools", () => {
   });
 
   it("uses SQLite count path when pg_facets flags are ignored in SQLite mode", async () => {
-    const query = vi
-      .fn<DatabaseClient["query"]>()
-      .mockResolvedValueOnce([
-        { val: "agent:observation", count: 3 },
-        { val: "agent:task", count: 1 }
-      ]);
+    const query = vi.fn<DatabaseClient["query"]>().mockResolvedValueOnce([
+      { val: "agent:observation", count: 3 },
+      { val: "agent:task", count: 1 }
+    ]);
     const database = createMockDatabase(query);
 
     const result = await countTool.handler(
@@ -794,8 +798,12 @@ describe("facet tools", () => {
         createToolContext(database)
       );
 
-      expect(query.mock.calls.some((call) => call[0].includes("search_fts MATCH"))).toBe(true);
-      expect(query.mock.calls.some((call) => call[0].includes("bm25(search_fts)"))).toBe(true);
+      expect(
+        query.mock.calls.some((call) => call[0].includes("search_fts MATCH"))
+      ).toBe(true);
+      expect(
+        query.mock.calls.some((call) => call[0].includes("bm25(search_fts)"))
+      ).toBe(true);
       expect(readStructured(result)).toMatchObject({
         ok: true,
         tool: "ghostcrab_search",
@@ -835,7 +843,9 @@ describe("facet tools", () => {
         createToolContext(database)
       );
 
-      expect(query.mock.calls.some((call) => call[0].includes("search_fts MATCH"))).toBe(true);
+      expect(
+        query.mock.calls.some((call) => call[0].includes("search_fts MATCH"))
+      ).toBe(true);
       expect(readStructured(result)).toMatchObject({
         mode_requested: "hybrid",
         mode_applied: "bm25",
@@ -915,7 +925,9 @@ describe("facet tools", () => {
         createToolContext(database)
       );
 
-      expect(query.mock.calls.every((call) => !call[0].includes("search_fts MATCH"))).toBe(true);
+      expect(
+        query.mock.calls.every((call) => !call[0].includes("search_fts MATCH"))
+      ).toBe(true);
       const payload = readStructured(result) as Record<string, unknown> & {
         notes?: string[];
       };

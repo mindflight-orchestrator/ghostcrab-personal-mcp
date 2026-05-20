@@ -67,10 +67,19 @@ const ONTOLOGY_LOADOUTS: OntologyLoadoutDefinition[] = [
   {
     loadout_id: "crm",
     label: "CRM",
-    description:
-      "Customer, account, pipeline, and activity ontology starter.",
+    description: "Customer, account, pipeline, and activity ontology starter.",
     domain_profile: "crm",
-    keywords: ["crm", "sales", "pipeline", "account", "lead", "prospect", "opportunity", "customer", "contact"],
+    keywords: [
+      "crm",
+      "sales",
+      "pipeline",
+      "account",
+      "lead",
+      "prospect",
+      "opportunity",
+      "customer",
+      "contact"
+    ],
     recommended_for: [
       "accounts and contacts",
       "opportunity pipelines",
@@ -83,7 +92,11 @@ const ONTOLOGY_LOADOUTS: OntologyLoadoutDefinition[] = [
       "Which records need status and ownership facets?"
     ],
     core_entities: ["account", "contact", "opportunity", "activity"],
-    core_relations: ["account_has_contact", "account_has_opportunity", "opportunity_has_activity"],
+    core_relations: [
+      "account_has_contact",
+      "account_has_opportunity",
+      "opportunity_has_activity"
+    ],
     facet_focus: ["status", "stage", "owner", "source", "segment"],
     graph_focus: ["customer ownership and pipeline transitions"],
     suggested_next_tools: [
@@ -95,15 +108,20 @@ const ONTOLOGY_LOADOUTS: OntologyLoadoutDefinition[] = [
   {
     loadout_id: "kanban",
     label: "Kanban",
-    description:
-      "Task, board, sprint, and blocker ontology starter.",
+    description: "Task, board, sprint, and blocker ontology starter.",
     domain_profile: "kanban",
-    keywords: ["kanban", "task", "board", "issue", "ticket", "sprint", "workflow", "backlog", "project"],
-    recommended_for: [
-      "delivery boards",
-      "issue tracking",
-      "task workflows"
+    keywords: [
+      "kanban",
+      "task",
+      "board",
+      "issue",
+      "ticket",
+      "sprint",
+      "workflow",
+      "backlog",
+      "project"
     ],
+    recommended_for: ["delivery boards", "issue tracking", "task workflows"],
     modeling_questions: [
       "What is the unit of work?",
       "Do we need boards, projects, or both?",
@@ -111,7 +129,11 @@ const ONTOLOGY_LOADOUTS: OntologyLoadoutDefinition[] = [
       "What blockers or dependencies matter?"
     ],
     core_entities: ["task", "board", "project", "blocker"],
-    core_relations: ["board_has_task", "task_blocks_task", "project_contains_board"],
+    core_relations: [
+      "board_has_task",
+      "task_blocks_task",
+      "project_contains_board"
+    ],
     facet_focus: ["status", "priority", "assignee", "project", "board"],
     graph_focus: ["work items, dependencies, and status movement"],
     suggested_next_tools: [
@@ -123,10 +145,19 @@ const ONTOLOGY_LOADOUTS: OntologyLoadoutDefinition[] = [
   {
     loadout_id: "knowledge-base",
     label: "Knowledge Base",
-    description:
-      "Article, note, topic, and reference ontology starter.",
+    description: "Article, note, topic, and reference ontology starter.",
     domain_profile: "knowledge-base",
-    keywords: ["knowledge base", "wiki", "docs", "documentation", "notes", "articles", "references", "research", "glossary"],
+    keywords: [
+      "knowledge base",
+      "wiki",
+      "docs",
+      "documentation",
+      "notes",
+      "articles",
+      "references",
+      "research",
+      "glossary"
+    ],
     recommended_for: [
       "documentation portals",
       "note collections",
@@ -139,7 +170,11 @@ const ONTOLOGY_LOADOUTS: OntologyLoadoutDefinition[] = [
       "Which facets should power search?"
     ],
     core_entities: ["document", "note", "topic", "source"],
-    core_relations: ["document_mentions_topic", "note_references_source", "document_links_document"],
+    core_relations: [
+      "document_mentions_topic",
+      "note_references_source",
+      "document_links_document"
+    ],
     facet_focus: ["topic", "source", "author", "type", "language"],
     graph_focus: ["document links and topical navigation"],
     suggested_next_tools: [
@@ -154,7 +189,17 @@ const ONTOLOGY_LOADOUTS: OntologyLoadoutDefinition[] = [
     description:
       "Operational incidents, alerts, services, and remediation ontology starter.",
     domain_profile: "incident-response",
-    keywords: ["incident", "outage", "alert", "runbook", "on-call", "severity", "service", "page", "triage"],
+    keywords: [
+      "incident",
+      "outage",
+      "alert",
+      "runbook",
+      "on-call",
+      "severity",
+      "service",
+      "page",
+      "triage"
+    ],
     recommended_for: [
       "on-call workflows",
       "incident management",
@@ -167,7 +212,11 @@ const ONTOLOGY_LOADOUTS: OntologyLoadoutDefinition[] = [
       "Which ownership facets must be searchable?"
     ],
     core_entities: ["service", "incident", "alert", "runbook", "action"],
-    core_relations: ["incident_affects_service", "incident_has_alert", "incident_has_action"],
+    core_relations: [
+      "incident_affects_service",
+      "incident_has_alert",
+      "incident_has_action"
+    ],
     facet_focus: ["severity", "status", "service", "owner", "impact"],
     graph_focus: ["incident causality and remediation links"],
     suggested_next_tools: [
@@ -182,7 +231,17 @@ const ONTOLOGY_LOADOUTS: OntologyLoadoutDefinition[] = [
     description:
       "Policy, control, obligation, evidence, and exception ontology starter.",
     domain_profile: "compliance",
-    keywords: ["compliance", "audit", "policy", "control", "evidence", "risk", "obligation", "framework", "regulation"],
+    keywords: [
+      "compliance",
+      "audit",
+      "policy",
+      "control",
+      "evidence",
+      "risk",
+      "obligation",
+      "framework",
+      "regulation"
+    ],
     recommended_for: [
       "regulatory mapping",
       "audit evidence tracking",
@@ -195,7 +254,11 @@ const ONTOLOGY_LOADOUTS: OntologyLoadoutDefinition[] = [
       "Which exception states matter?"
     ],
     core_entities: ["policy", "control", "obligation", "evidence", "exception"],
-    core_relations: ["policy_defines_control", "control_satisfies_obligation", "evidence_supports_control"],
+    core_relations: [
+      "policy_defines_control",
+      "control_satisfies_obligation",
+      "evidence_supports_control"
+    ],
     facet_focus: ["status", "framework", "control_area", "owner", "due_date"],
     graph_focus: ["coverage, obligation, and evidence links"],
     suggested_next_tools: [
@@ -210,7 +273,17 @@ const ONTOLOGY_LOADOUTS: OntologyLoadoutDefinition[] = [
     description:
       "Recurring process, checkpoint, and execution rhythm ontology starter.",
     domain_profile: "workflow-tracking",
-    keywords: ["workflow", "process", "run", "step", "checkpoint", "delivery", "execution", "rhythm", "heartbeat"],
+    keywords: [
+      "workflow",
+      "process",
+      "run",
+      "step",
+      "checkpoint",
+      "delivery",
+      "execution",
+      "rhythm",
+      "heartbeat"
+    ],
     recommended_for: [
       "operational runbooks",
       "process tracking",
@@ -223,7 +296,11 @@ const ONTOLOGY_LOADOUTS: OntologyLoadoutDefinition[] = [
       "Which status transitions should be tracked?"
     ],
     core_entities: ["workflow", "run", "step", "checkpoint"],
-    core_relations: ["workflow_has_step", "run_executes_workflow", "step_has_checkpoint"],
+    core_relations: [
+      "workflow_has_step",
+      "run_executes_workflow",
+      "step_has_checkpoint"
+    ],
     facet_focus: ["status", "run_type", "owner", "schedule", "checkpoint"],
     graph_focus: ["run lifecycle and step dependencies"],
     suggested_next_tools: [
@@ -281,7 +358,10 @@ function normalizeText(text: string): string {
     .trim();
 }
 
-export function suggestOntologyLoadouts(goal: string, limit = 3): Array<{
+export function suggestOntologyLoadouts(
+  goal: string,
+  limit = 3
+): Array<{
   loadout: OntologyLoadoutDefinition;
   score: number;
   matched_terms: string[];
@@ -326,10 +406,16 @@ export function suggestOntologyLoadouts(goal: string, limit = 3): Array<{
     };
   });
 
-  matches.sort((left, right) => right.score - left.score || left.loadout.loadout_id.localeCompare(right.loadout.loadout_id));
+  matches.sort(
+    (left, right) =>
+      right.score - left.score ||
+      left.loadout.loadout_id.localeCompare(right.loadout.loadout_id)
+  );
 
   const filtered = matches.filter((entry) => entry.score > 0);
-  const fallback = matches.find((entry) => entry.loadout.loadout_id === "default-minimal");
+  const fallback = matches.find(
+    (entry) => entry.loadout.loadout_id === "default-minimal"
+  );
 
   return (filtered.length > 0 ? filtered : fallback ? [fallback] : matches)
     .slice(0, limit)
@@ -522,7 +608,8 @@ function inferPlaceholderBusinessRole(
     if (entity === "blocker") return "association";
   }
   if (loadoutId === "incident-response") {
-    if (entity === "incident" || entity === "alert" || entity === "action") return "event";
+    if (entity === "incident" || entity === "alert" || entity === "action")
+      return "event";
     if (entity === "service" || entity === "runbook") return "reference";
   }
   if (loadoutId === "compliance") {
@@ -543,7 +630,9 @@ function inferPlaceholderBusinessRole(
   return "reference";
 }
 
-function buildPlaceholderColumns(entityName: string): Array<Record<string, unknown>> {
+function buildPlaceholderColumns(
+  entityName: string
+): Array<Record<string, unknown>> {
   const lower = entityName.toLowerCase();
   const columns: Array<Record<string, unknown>> = [
     {
@@ -656,7 +745,10 @@ export function buildOntologyLoadoutSemanticProposal(
     table_semantics.push({
       table_schema: "loadout",
       table_name: entityTableName,
-      business_role: inferPlaceholderBusinessRole(loadout.loadout_id, entityName),
+      business_role: inferPlaceholderBusinessRole(
+        loadout.loadout_id,
+        entityName
+      ),
       generation_strategy: "unknown",
       emit_facets: true,
       emit_graph_entity: true,

@@ -62,7 +62,9 @@ if (
   runPostinstallSmoke({ pkgRoot, backendPath: r.binPath, quiet });
   if (!quiet) {
     console.error("[ghostcrab] Next steps:");
-    console.error("  1. If .env / data/ / README symlinks are missing in your project root, run:");
+    console.error(
+      "  1. If .env / data/ / README symlinks are missing in your project root, run:"
+    );
     console.error("       npx gcp bootstrap");
     console.error("  2. Register the MCP server in your IDE:");
     console.error("       npx gcp brain setup cursor --force");

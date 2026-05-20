@@ -24,13 +24,13 @@ The benefit is architectural rather than cosmetic: AutoGen remains responsible f
 
 The angle is specific: AutoGen 0.4 handles memory per agent through its `Memory` protocol (`ListMemory`, ChromaDB, Redis), each instance staying isolated [^1_1]. MindBrain/GhostCrab plugs in as a **single** implementation of that protocol — **shared** across every agent on a team.
 
-***
+---
 
 ## What AutoGen provides out of the box
 
 AutoGen exposes a `Memory` protocol with four methods: `add`, `query`, `update_context`, `clear` [^1_2]. Built-in implementations are `ListMemory` (chronological, in-memory), `ChromaDBVectorMemory` (local vector similarity), and `RedisMemory` (Redis vectors) [^1_1]. Each `AssistantAgent` gets **its own** memory instance — there is no shared registry across agents on the same team by default [^1_3].
 
-***
+---
 
 ## Entry point: implement the `Memory` protocol
 
@@ -79,8 +79,7 @@ class MindBrainMemory(Memory):
         await self._client.close()
 ```
 
-
-***
+---
 
 ## Cross-cutting share across agents on a team
 
@@ -99,7 +98,7 @@ team = RoundRobinGroupChat([planner, coder, critic])
 
 When `planner` records an architecture decision, `coder` picks it up without an explicit re-prompt — context stays structured, persistent, and queryable [^1_2].
 
-***
+---
 
 ## Connecting to GhostCrab via `autogen-ext` MCP
 
@@ -121,22 +120,21 @@ async with McpWorkbench(ghostcrab_params) as workbench:
     )
 ```
 
-
-***
+---
 
 ## What MindBrain adds that ChromaDB/Redis do not
 
-| Capability | ChromaDB/Redis (AutoGen default) | MindBrain via GhostCrab |
-| :-- | :-- | :-- |
-| Cross-agent persistence | ❌ silos per instance | ✅ single registry |
-| Semantic querying | Vector similarity only | Faceted + graph + vector |
-| Ontology model | None | Types, relationships, constraints |
-| Structured queryability | No | SQL-like graph queries |
-| Cross-session without re-index | ❌ | ✅ PostgreSQL persistence |
+| Capability                     | ChromaDB/Redis (AutoGen default) | MindBrain via GhostCrab           |
+| :----------------------------- | :------------------------------- | :-------------------------------- |
+| Cross-agent persistence        | ❌ silos per instance            | ✅ single registry                |
+| Semantic querying              | Vector similarity only           | Faceted + graph + vector          |
+| Ontology model                 | None                             | Types, relationships, constraints |
+| Structured queryability        | No                               | SQL-like graph queries            |
+| Cross-session without re-index | ❌                               | ✅ PostgreSQL persistence         |
 
 [^1_5][^1_1]
 
-***
+---
 
 ## Namespace per team, shared by default
 
@@ -175,7 +173,6 @@ Integration best practice: use a MindBrain `namespace` aligned with the AutoGen 
 
 [^1_15]: https://mcpservers.org/servers/DynamicEndpoints/Autogen_MCP
 
-
 ---
 
 # SKILLS — MindBrain/GhostCrab integration for Microsoft AutoGen
@@ -185,7 +182,7 @@ Integration best practice: use a MindBrain `namespace` aligned with the AutoGen 
 > for integrating MindBrain (ontology registry) and GhostCrab (MCP server)
 > into a Microsoft AutoGen (v0.4+) project.
 
-***
+---
 
 ## Context and positioning
 
@@ -203,18 +200,18 @@ Integration rests on three pillars:
 2. Share one instance across every agent on a team
 3. Expose GhostCrab tools (query, graph, facets) through AutoGen’s native MCP workbench
 
-***
+---
 
 ## Stack and prerequisites
 
-| Component | Minimum version | Notes |
-| :-- | :-- | :-- |
-| `autogen-agentchat` | 0.4.6+ | Stable `Memory` protocol |
-| `autogen-ext` | 0.4.6+ | `McpWorkbench`, `SseServerParams` |
-| `autogen-core` | 0.4.6+ | `MemoryContent`, `MemoryQueryResult` |
-| GhostCrab MCP Server | — | SSE at `http://localhost:8080/mcp` |
-| MindBrain | — | PostgreSQL backend, pg_facets, pg_dgraph |
-| Python | 3.11+ |  |
+| Component            | Minimum version | Notes                                    |
+| :------------------- | :-------------- | :--------------------------------------- |
+| `autogen-agentchat`  | 0.4.6+          | Stable `Memory` protocol                 |
+| `autogen-ext`        | 0.4.6+          | `McpWorkbench`, `SseServerParams`        |
+| `autogen-core`       | 0.4.6+          | `MemoryContent`, `MemoryQueryResult`     |
+| GhostCrab MCP Server | —               | SSE at `http://localhost:8080/mcp`       |
+| MindBrain            | —               | PostgreSQL backend, pg_facets, pg_dgraph |
+| Python               | 3.11+           |                                          |
 
 Python dependencies:
 
@@ -225,8 +222,7 @@ autogen-core>=0.4.6
 mcp>=1.0.0
 ```
 
-
-***
+---
 
 ## Integration architecture
 
@@ -259,8 +255,7 @@ mcp>=1.0.0
            └─────────────────────┘
 ```
 
-
-***
+---
 
 ## Implementation: `MindBrainMemory`
 
@@ -269,7 +264,6 @@ mcp>=1.0.0
 - Class: `MindBrainMemory`
 - File: `mindbrain/autogen/memory.py`
 - Namespace: matches team or project id
-
 
 ### Reference code
 
@@ -400,8 +394,7 @@ class MindBrainMemory(Memory):
             await self._client.close()
 ```
 
-
-***
+---
 
 ## Implementation: GhostCrab connection (MCP)
 
@@ -416,7 +409,6 @@ def ghostcrab_sse_params(host: str = "localhost", port: int = 8080) -> SseServer
     return SseServerParams(url=f"http://{host}:{port}/mcp")
 ```
 
-
 ### stdio (recommended for local development)
 
 ```python
@@ -430,8 +422,7 @@ def ghostcrab_stdio_params(binary_path: str = "./ghostcrab") -> StdioServerParam
     )
 ```
 
-
-***
+---
 
 ## Implementation: assembling an AutoGen team
 
@@ -502,26 +493,23 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-
-***
+---
 
 ## GhostCrab tools exposed through MCP
 
 These tools are available in the AutoGen workbench automatically
 once GhostCrab is connected. Agents can call them directly.
 
+| MCP tool                    | Description                 | Key parameters                                 |
+| :-------------------------- | :-------------------------- | :--------------------------------------------- |
+| `mindbrain_add`             | Add content to the registry | `namespace`, `content`, `metadata`             |
+| `mindbrain_query`           | Semantic / faceted query    | `namespace`, `query`, `k`, `mode`, `filters`   |
+| `mindbrain_graph_query`     | Graph traversal             | `namespace`, `start_node`, `relation`, `depth` |
+| `mindbrain_facet_search`    | Strict faceted search       | `namespace`, `facets` (dict)                   |
+| `mindbrain_clear`           | Clear a namespace           | `namespace`                                    |
+| `mindbrain_list_namespaces` | List active namespaces      | —                                              |
 
-| MCP tool | Description | Key parameters |
-| :-- | :-- | :-- |
-| `mindbrain_add` | Add content to the registry | `namespace`, `content`, `metadata` |
-| `mindbrain_query` | Semantic / faceted query | `namespace`, `query`, `k`, `mode`, `filters` |
-| `mindbrain_graph_query` | Graph traversal | `namespace`, `start_node`, `relation`, `depth` |
-| `mindbrain_facet_search` | Strict faceted search | `namespace`, `facets` (dict) |
-| `mindbrain_clear` | Clear a namespace | `namespace` |
-| `mindbrain_list_namespaces` | List active namespaces | — |
-
-
-***
+---
 
 ## Namespace strategy
 
@@ -540,7 +528,7 @@ Examples:
 - An orchestrator may read multiple namespaces via `mindbrain_query` with `namespace="*"`
 - Never use `"default"` in production
 
-***
+---
 
 ## Error handling
 
@@ -557,7 +545,6 @@ async def safe_add(memory: MindBrainMemory, content: MemoryContent) -> None:
         pass
 ```
 
-
 ### Fallback when GhostCrab is unavailable
 
 ```python
@@ -570,8 +557,7 @@ def build_memory(mcp_client=None, namespace="default") -> Memory:
     return ListMemory()
 ```
 
-
-***
+---
 
 ## Tests
 
@@ -584,7 +570,6 @@ tests/
 └── integration/
     └── test_autogen_team.py       # real GhostCrab required
 ```
-
 
 ### Unit test example
 
@@ -628,6 +613,7 @@ Here's what it covers:
 **Tool reference table** — all GhostCrab MCP tools organized by category (namespace, schema declaration, data ops, query, export), with required/optional params and return shapes. The agent discovers them automatically via `workbench.list_tools()` at runtime.[^3_3]
 
 **Three implementation layers:**
+
 - `connection.py` — SSE and stdio helpers
 - `architect.py` — single-agent pattern with a system prompt that enforces the onboarding order strictly and `reflect_on_tool_use=True` so the agent self-corrects after tool errors
 - `team.py` — two-agent pattern (Architect builds, Reviewer validates via graph traversal before exporting)
@@ -640,42 +626,57 @@ Here's what it covers:
 <div align="center">⁂</div>
 
 [^3_1]: https://github.com/microsoft/autogen/issues/6534
+
 [^3_2]: https://github.com/microsoft/autogen/pull/6340
+
 [^3_3]: https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/components/workbench.html
+
 [^3_4]: https://mintlify.wiki/microsoft/autogen/examples/web-browsing
+
 [^3_5]: https://microsoft.github.io/autogen/stable/reference/python/autogen_ext.tools.mcp.html
+
 [^3_6]: https://newsletter.victordibia.com/p/how-to-use-mcp-anthropic-mcp-tools
+
 [^3_7]: https://mintlify.wiki/microsoft/autogen/extensions/tools
+
 [^3_8]: https://www.linkedin.com/pulse/building-multi-agent-workflows-autogen-mcp-new-ganesh-jagadeesan-lcxuf
+
 [^3_9]: https://github.com/ai4curation/owl-mcp
+
 [^3_10]: https://www.reddit.com/r/AutoGenAI/comments/1im587f/tools_and_function_calling_via_custom_model/
+
 [^3_11]: https://mcpmarket.com/server/ontology
+
 [^3_12]: https://www.gettingstarted.ai/autogen-mcp/
+
 [^3_13]: https://github.com/microsoft/autogen/discussions/4449
+
 [^3_14]: https://palantir.com/docs/foundry/ontology-mcp/overview/
+
 [^3_15]: https://mintlify.com/microsoft/autogen/extensions/tools
 
 ---
 
 # SKILL: ghostcrab-runtime
+
 **Target:** Claude Code · Codex  
 **Goal:** General-purpose runtime for AutoGen multi-agent systems — project management, knowledge graph lifecycle, task progression tracking, and orchestrator-driven phase control using GhostCrab MCP and MindBrain pg_pragma projections.  
 **Language:** Python 3.11+ · AutoGen 0.4.6+
 
-***
+---
 
 ## Overview
 
 This skill covers **two complementary responsibilities**:
 
-| Layer | Who uses it | What it does |
-|---|---|---|
-| **Worker layer** | Any AutoGen agent | Records task status, progression, and knowledge into MindBrain via GhostCrab tools |
+| Layer                  | Who uses it                      | What it does                                                                                              |
+| ---------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Worker layer**       | Any AutoGen agent                | Records task status, progression, and knowledge into MindBrain via GhostCrab tools                        |
 | **Orchestrator layer** | `SelectorGroupChat` orchestrator | Reads pg_pragma projections to decide which agent to activate, when to change project phase, when to stop |
 
 The key insight: **MindBrain is the single source of truth for runtime state**. Agents write their progress into it. The orchestrator reads aggregated projections from it to make control decisions — without relying on conversation history alone.
 
-***
+---
 
 ## Prerequisites
 
@@ -694,12 +695,12 @@ mcp>=1.0.0
 
 Must be running before agents start.
 
-| Mode | Command |
-|---|---|
-| SSE (prod) | `./ghostcrab serve --sse --port 8080` |
-| stdio (dev) | `./ghostcrab serve --stdio` |
+| Mode        | Command                               |
+| ----------- | ------------------------------------- |
+| SSE (prod)  | `./ghostcrab serve --sse --port 8080` |
+| stdio (dev) | `./ghostcrab serve --stdio`           |
 
-***
+---
 
 ## Core Concepts
 
@@ -743,41 +744,42 @@ without scanning the full graph — low latency, high signal.
 
 Built-in projections used in this skill:
 
-| Projection | Returns | Orchestrator uses it to |
-|---|---|---|
-| `task_summary` | Counts per status per phase | Detect phase completion or stalls |
-| `agent_load` | Active tasks per agent | Load-balance or detect idle agents |
-| `blockers` | All BLOCKED tasks with their dependency | Decide intervention |
-| `critical_path` | Longest dependency chain | Estimate remaining time |
-| `phase_readiness` | Score 0–100 for transition readiness | Trigger phase change |
+| Projection        | Returns                                 | Orchestrator uses it to            |
+| ----------------- | --------------------------------------- | ---------------------------------- |
+| `task_summary`    | Counts per status per phase             | Detect phase completion or stalls  |
+| `agent_load`      | Active tasks per agent                  | Load-balance or detect idle agents |
+| `blockers`        | All BLOCKED tasks with their dependency | Decide intervention                |
+| `critical_path`   | Longest dependency chain                | Estimate remaining time            |
+| `phase_readiness` | Score 0–100 for transition readiness    | Trigger phase change               |
 
-***
+---
 
 ## Tool Reference
 
 ### Status & Progression Tools (Worker agents)
 
-| Tool | Required params | Description |
-|---|---|---|
-| `ghostcrab_task_create` | `namespace`, `task_id`, `title`, `type`, `assignee`, `phase` | Creates a task entity |
-| `ghostcrab_task_status_set` | `namespace`, `task_id`, `status`, `note?` | Sets task status |
-| `ghostcrab_task_progress_set` | `namespace`, `task_id`, `progress: 0–100` | Sets numeric progress |
-| `ghostcrab_task_block` | `namespace`, `task_id`, `blocked_by: task_id` | Marks task as BLOCKED with dependency |
-| `ghostcrab_task_unblock` | `namespace`, `task_id` | Clears BLOCKED status |
-| `ghostcrab_knowledge_add` | `namespace`, `content`, `source_task_id`, `tags?: []` | Records knowledge produced by a task |
-| `ghostcrab_entity_update` | `namespace`, `entity_id`, `attributes` | Generic attribute update |
+| Tool                          | Required params                                              | Description                           |
+| ----------------------------- | ------------------------------------------------------------ | ------------------------------------- |
+| `ghostcrab_task_create`       | `namespace`, `task_id`, `title`, `type`, `assignee`, `phase` | Creates a task entity                 |
+| `ghostcrab_task_status_set`   | `namespace`, `task_id`, `status`, `note?`                    | Sets task status                      |
+| `ghostcrab_task_progress_set` | `namespace`, `task_id`, `progress: 0–100`                    | Sets numeric progress                 |
+| `ghostcrab_task_block`        | `namespace`, `task_id`, `blocked_by: task_id`                | Marks task as BLOCKED with dependency |
+| `ghostcrab_task_unblock`      | `namespace`, `task_id`                                       | Clears BLOCKED status                 |
+| `ghostcrab_knowledge_add`     | `namespace`, `content`, `source_task_id`, `tags?: []`        | Records knowledge produced by a task  |
+| `ghostcrab_entity_update`     | `namespace`, `entity_id`, `attributes`                       | Generic attribute update              |
 
 ### Orchestrator Tools (Orchestrator agent only)
 
-| Tool | Required params | Optional params | Description |
-|---|---|---|---|
-| `ghostcrab_pragma_query` | `namespace`, `projection` | `filters?` | Reads a pg_pragma projection |
-| `ghostcrab_phase_transition` | `namespace`, `project_id`, `to_phase` | `reason?` | Transitions project phase |
-| `ghostcrab_agent_signal` | `namespace`, `agent_name`, `signal` | `context?` | Sends RESUME / PAUSE / STOP to an agent |
-| `ghostcrab_task_reassign` | `namespace`, `task_id`, `new_assignee` | — | Reassigns a task |
-| `ghostcrab_query` | `namespace`, `query` | `mode`, `k` | Full ontology query |
+| Tool                         | Required params                        | Optional params | Description                             |
+| ---------------------------- | -------------------------------------- | --------------- | --------------------------------------- |
+| `ghostcrab_pragma_query`     | `namespace`, `projection`              | `filters?`      | Reads a pg_pragma projection            |
+| `ghostcrab_phase_transition` | `namespace`, `project_id`, `to_phase`  | `reason?`       | Transitions project phase               |
+| `ghostcrab_agent_signal`     | `namespace`, `agent_name`, `signal`    | `context?`      | Sends RESUME / PAUSE / STOP to an agent |
+| `ghostcrab_task_reassign`    | `namespace`, `task_id`, `new_assignee` | —               | Reassigns a task                        |
+| `ghostcrab_query`            | `namespace`, `query`                   | `mode`, `k`     | Full ontology query                     |
 
 Signal values for `ghostcrab_agent_signal`:
+
 ```
 
 RESUME  → re-activate a paused or idle agent
@@ -787,7 +789,7 @@ RESTART → stop and re-initialize an agent
 
 ```
 
-***
+---
 
 ## Implementation
 
@@ -805,7 +807,6 @@ def sse_params(host: str = "localhost", port: int = 8080) -> SseServerParams:
 def stdio_params(binary: str = "./ghostcrab") -> StdioServerParams:
     return StdioServerParams(command=binary, args=["serve", "--stdio"])
 ```
-
 
 ### 2. Worker agent — system prompt template
 
@@ -864,7 +865,6 @@ def worker_prompt(
         task_type=task_type,
     )
 ```
-
 
 ### 3. Orchestrator agent — system prompt
 
@@ -929,7 +929,6 @@ def orchestrator_prompt(
         agent_names=", ".join(agent_names),
     )
 ```
-
 
 ### 4. Team assembly
 
@@ -1037,8 +1036,7 @@ async def run_project(
         await team.run(task=full_task)
 ```
 
-
-***
+---
 
 ## Knowledge Graph Usage
 
@@ -1072,7 +1070,6 @@ await workbench.call_tool("ghostcrab_edge_create", {
 })
 ```
 
-
 ### Querying the knowledge graph (any agent)
 
 ```python
@@ -1100,8 +1097,7 @@ result = await workbench.call_tool("ghostcrab_graph_traverse", {
 })
 ```
 
-
-***
+---
 
 ## Orchestrator Decision Examples
 
@@ -1122,7 +1118,6 @@ summary = await workbench.call_tool("ghostcrab_pragma_query", {
 # }
 ```
 
-
 ### Reading phase_readiness projection
 
 ```python
@@ -1140,7 +1135,6 @@ readiness = await workbench.call_tool("ghostcrab_pragma_query", {
 # }
 ```
 
-
 ### Triggering a phase transition
 
 ```python
@@ -1152,7 +1146,6 @@ if readiness["score"] >= 85:
         "reason": f"Phase readiness score reached {readiness['score']}.",
     })
 ```
-
 
 ### Signaling an agent
 
@@ -1174,8 +1167,7 @@ await workbench.call_tool("ghostcrab_agent_signal", {
 })
 ```
 
-
-***
+---
 
 ## Project Lifecycle Patterns
 
@@ -1207,8 +1199,7 @@ PLANNING (define schema via ghostcrab-architect skill)
   -> DELIVERY (ghostcrab_snapshot_export)
 ```
 
-
-***
+---
 
 ## Project Setup (before running the team)
 
@@ -1289,8 +1280,7 @@ async def setup_project(
         print(f"Project {project_id} initialized in namespace {namespace}.")
 ```
 
-
-***
+---
 
 ## Testing
 
@@ -1351,22 +1341,37 @@ async def test_agent_signal_on_blocked_tasks():
     data = json.loads(blockers.result[0].content)
     assert len(data.get("blocked_tasks", [])) >= 1
 ```
+
 <span style="display:none">[^4_1][^4_10][^4_11][^4_12][^4_13][^4_14][^4_15][^4_2][^4_3][^4_4][^4_5][^4_6][^4_7][^4_8][^4_9]</span>
 
 <div align="center">⁂</div>
 
 [^4_1]: https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/design-patterns/mixture-of-agents.html
+
 [^4_2]: https://www.linkedin.com/posts/shailender-choudhary_understand-microsoft-autogen-04-with-a-mini-activity-7288891049358307328-cgBG
+
 [^4_3]: https://learn.microsoft.com/en-us/agent-framework/migration-guide/from-autogen/
+
 [^4_4]: https://github.com/microsoft/autogen/discussions/4208
+
 [^4_5]: https://genmind.ch/posts/Multi-Agent-Orchestration-Patterns-Building-Collaborative-AI-Teams/
+
 [^4_6]: https://github.com/aanari/pg-materialize
+
 [^4_7]: https://www.datacamp.com/tutorial/autogen-tutorial
+
 [^4_8]: https://newsletter.victordibia.com/p/a-friendly-introduction-to-the-autogen
+
 [^4_9]: https://stackoverflow.com/questions/71433083/stored-procedure-in-pgsql-to-create-materialized-views
+
 [^4_10]: https://www.microsoft.com/en-us/research/blog/autogen-v0-4-reimagining-the-foundation-of-agentic-ai-for-scale-extensibility-and-robustness/
+
 [^4_11]: https://www.cohorte.co/blog/autogen-v0-4-ag2-crash-course-build-event-driven-observable-ai-agents-that-scale
+
 [^4_12]: https://www.reddit.com/r/PostgreSQL/comments/rm2zmx/is_this_an_appropriate_use_case_for_a/
+
 [^4_13]: https://deepfa.ir/en/blog/autogen-microsoft-multi-agent-ai-framework
+
 [^4_14]: https://microsoft.github.io/autogen/0.4.2/user-guide/agentchat-user-guide/tutorial/teams.html
+
 [^4_15]: https://www.postgresql.org/docs/current/rules-materializedviews.html

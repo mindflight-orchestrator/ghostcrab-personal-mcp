@@ -34,7 +34,10 @@ const subsystemValues = [
   "workspace"
 ] as const satisfies readonly ToolSubsystem[];
 
-const visibilityValues = ["basic", "extended"] as const satisfies readonly ToolVisibility[];
+const visibilityValues = [
+  "basic",
+  "extended"
+] as const satisfies readonly ToolVisibility[];
 
 export const ToolSearchInput = z.object({
   query: z.string().max(200).default(""),

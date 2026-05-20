@@ -10,7 +10,10 @@ import {
   closeIntegrationDatabase,
   createIntegrationHarness
 } from "../../helpers/cli-integration.js";
-import { ddlExecuteTool, ddlProposeTool } from "../../../src/tools/workspace/ddl.js";
+import {
+  ddlExecuteTool,
+  ddlProposeTool
+} from "../../../src/tools/workspace/ddl.js";
 import { workspaceExportModelTool } from "../../../src/tools/workspace/export.js";
 import { createToolContext } from "../../helpers/tool-context.js";
 
@@ -36,7 +39,9 @@ describe.sequential("Workspace semantics — migration 012 + DDL persist", () =>
     const columns = await harness.database.query<{ name: string }>(
       `PRAGMA table_info(pending_migrations)`
     );
-    expect(columns.some((column) => column.name === "semantic_spec")).toBe(true);
+    expect(columns.some((column) => column.name === "semantic_spec")).toBe(
+      true
+    );
   });
 
   it("DDL execute persists inferred semantics to mindbrain.table_semantics", async () => {
@@ -67,7 +72,10 @@ describe.sequential("Workspace semantics — migration 012 + DDL persist", () =>
       [migrationId]
     );
 
-    const exec = await ddlExecuteTool.handler({ migration_id: migrationId }, ctx);
+    const exec = await ddlExecuteTool.handler(
+      { migration_id: migrationId },
+      ctx
+    );
     expect(exec.isError).toBeFalsy();
     const edata = exec.structuredContent as Record<string, unknown>;
     expect(edata.semantics_applied).toBeDefined();

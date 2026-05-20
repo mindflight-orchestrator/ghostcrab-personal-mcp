@@ -18,10 +18,20 @@ const manifestPath = join(distPackDir, "pack-manifest.json");
 const bundleDir = join(distPackDir, "beta-bundle");
 const betaReadme = join(repoRoot, "docs", "dev", "beta_testers_readme.md");
 const installScriptSrc = join(repoRoot, "scripts", "beta-bundle-install.mjs");
-const ideSmokeScriptSrc = join(repoRoot, "scripts", "smoke-beta-ide-install.mjs");
+const ideSmokeScriptSrc = join(
+  repoRoot,
+  "scripts",
+  "smoke-beta-ide-install.mjs"
+);
 const installMdSrc = join(repoRoot, "INSTALL.md");
 const licenceSrc = join(repoRoot, "Licence.md");
-const makefileSrc = join(repoRoot, "docs", "installers", "beta-bundle", "Makefile");
+const makefileSrc = join(
+  repoRoot,
+  "docs",
+  "installers",
+  "beta-bundle",
+  "Makefile"
+);
 const makefileReadmeSrc = join(
   repoRoot,
   "docs",

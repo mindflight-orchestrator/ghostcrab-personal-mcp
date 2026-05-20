@@ -57,7 +57,9 @@ describe("inferBasicSemantics", () => {
     const sql = `CREATE TABLE public.articles (id INT, title TEXT);`;
     const r = inferBasicSemantics(sql, {
       source_table: "public.articles",
-      fields: [{ column_name: "title", facet_key: "title", index_in_bm25: true }]
+      fields: [
+        { column_name: "title", facet_key: "title", index_in_bm25: true }
+      ]
     });
     const t = r.table_semantics.find((x) => x.table_name === "articles");
     expect(t?.emit_facets).toBe(true);
@@ -132,17 +134,29 @@ describe("validateSemanticsAgainstCatalog", () => {
     const warnings = validateSemanticsAgainstCatalog({
       existingTables: new Set(["casino.players"]),
       existingColumns: new Set(["casino.players.id", "casino.players.status"]),
-      tableSemantics: [{
-        table_schema: "casino",
-        table_name: "players",
-        generation_strategy: "unknown",
-        emit_facets: true,
-        emit_graph_entity: false,
-        emit_graph_relation: false
-      }],
+      tableSemantics: [
+        {
+          table_schema: "casino",
+          table_name: "players",
+          generation_strategy: "unknown",
+          emit_facets: true,
+          emit_graph_entity: false,
+          emit_graph_relation: false
+        }
+      ],
       columnSemantics: [
-        { table_schema: "casino", table_name: "players", column_name: "id", column_role: "id" },
-        { table_schema: "casino", table_name: "players", column_name: "status", column_role: "status" }
+        {
+          table_schema: "casino",
+          table_name: "players",
+          column_name: "id",
+          column_role: "id"
+        },
+        {
+          table_schema: "casino",
+          table_name: "players",
+          column_name: "status",
+          column_role: "status"
+        }
       ]
     });
     expect(warnings).toHaveLength(0);
@@ -159,9 +173,18 @@ describe("computeTableOrder", () => {
       { schema_name: "casino", table_name: "visits" },
       { schema_name: "casino", table_name: "players" }
     ];
-    const edges = [{ from_schema: "casino", from_table: "visits", to_schema: "casino", to_table: "players" }];
+    const edges = [
+      {
+        from_schema: "casino",
+        from_table: "visits",
+        to_schema: "casino",
+        to_table: "players"
+      }
+    ];
     const order = computeTableOrder(tables, edges);
-    expect(order.indexOf("casino.players")).toBeLessThan(order.indexOf("casino.visits"));
+    expect(order.indexOf("casino.players")).toBeLessThan(
+      order.indexOf("casino.visits")
+    );
   });
 
   it("handles disconnected graph (no edges)", () => {
@@ -199,7 +222,11 @@ describe("computeTableOrder", () => {
 
 describe("buildGenerationHints", () => {
   it("returns default seed_multipliers", () => {
-    const hints = buildGenerationHints({ domainProfile: "casino", tables: [], edges: [] });
+    const hints = buildGenerationHints({
+      domainProfile: "casino",
+      tables: [],
+      edges: []
+    });
     expect(hints.seed_multipliers?.tiny).toBe(20);
     expect(hints.seed_multipliers?.low).toBe(200);
     expect(hints.seed_multipliers?.medium).toBe(2000);
@@ -207,7 +234,11 @@ describe("buildGenerationHints", () => {
   });
 
   it("returns default time_window_days of 90", () => {
-    const hints = buildGenerationHints({ domainProfile: null, tables: [], edges: [] });
+    const hints = buildGenerationHints({
+      domainProfile: null,
+      tables: [],
+      edges: []
+    });
     expect(hints.time_window_days).toBe(90);
   });
 
@@ -277,22 +308,31 @@ describe("WorkspaceModelExportSchema cross-validation", () => {
     const full = {
       schema_version: "1.0.0",
       exported_at: "2026-03-31T00:00:00Z",
-      workspace: { id: "casino-pilot", label: "Casino Pilot", domain_profile: "casino", pg_schema: "casino" },
-      tables: [{
-        schema_name: "casino",
-        table_name: "players",
-        table_role: "actor",
-        emit_facets: true,
-        emit_graph_entities: true,
-        emit_graph_relations: false,
-        emit_projections: false
-      }],
-      columns: [{
-        schema_name: "casino",
-        table_name: "players",
-        column_name: "id",
-        column_role: "id"
-      }],
+      workspace: {
+        id: "casino-pilot",
+        label: "Casino Pilot",
+        domain_profile: "casino",
+        pg_schema: "casino"
+      },
+      tables: [
+        {
+          schema_name: "casino",
+          table_name: "players",
+          table_role: "actor",
+          emit_facets: true,
+          emit_graph_entities: true,
+          emit_graph_relations: false,
+          emit_projections: false
+        }
+      ],
+      columns: [
+        {
+          schema_name: "casino",
+          table_name: "players",
+          column_name: "id",
+          column_role: "id"
+        }
+      ],
       relations: [],
       generation_hints: {
         table_order: ["casino.players"],

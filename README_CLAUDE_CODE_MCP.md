@@ -8,7 +8,7 @@ This guide is only about **wiring the GhostCrab MCP server into [Claude Code](ht
 - **Command:** the `gcp` CLI from this package — use **`gcp brain up`**, **`gcp up`**, or legacy **`gcp serve`** to start the MindBrain backend and the MCP server on stdin/stdout.
 - **NPM package name** (as in this repo's `package.json`): `@mindflight/ghostcrab-personal-mcp`. Quick install: [INSTALL.md](INSTALL.md).
 
-You need **Node 20+** and a build of this package that includes a **prebuilt backend** for your OS under `prebuilds/`, *or* you must build the Zig backend yourself (see the main README and `Makefile`).
+You need **Node 20+** and a build of this package that includes a **prebuilt backend** for your OS under `prebuilds/`, _or_ you must build the Zig backend yourself (see the main README and `Makefile`).
 
 ## Quickest path: `gcp brain setup claude`
 

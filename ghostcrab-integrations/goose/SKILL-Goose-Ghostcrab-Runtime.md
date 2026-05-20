@@ -63,13 +63,13 @@ Ask only what is needed to generate a useful runtime recipe:
 
 Recommended records:
 
-| Record | Mutable? | Tool | Purpose |
-|---|---|---|---|
-| `TASK` | yes | `ghostcrab_upsert` | Current status, assignee, latest summary |
-| `AGENT_REPORT` | no | `ghostcrab_remember` | Durable completion report |
-| `DECISION` | no | `ghostcrab_remember` | Rationale and committed choice |
-| `BLOCKER` | yes | `ghostcrab_upsert` | Current blocker state |
-| `RUN_CHECKPOINT` | yes | `ghostcrab_project` | Session handoff and recovery |
+| Record           | Mutable? | Tool                 | Purpose                                  |
+| ---------------- | -------- | -------------------- | ---------------------------------------- |
+| `TASK`           | yes      | `ghostcrab_upsert`   | Current status, assignee, latest summary |
+| `AGENT_REPORT`   | no       | `ghostcrab_remember` | Durable completion report                |
+| `DECISION`       | no       | `ghostcrab_remember` | Rationale and committed choice           |
+| `BLOCKER`        | yes      | `ghostcrab_upsert`   | Current blocker state                    |
+| `RUN_CHECKPOINT` | yes      | `ghostcrab_project`  | Session handoff and recovery             |
 
 Recommended relation labels through `ghostcrab_learn`:
 
@@ -218,27 +218,27 @@ Do not dump the full project graph into Goose context. Use compact packs and tar
 
 ## JTBD Lifecycle for Goose Agents
 
-| Moment | Goose agent question | GhostCrab tool |
-|---|---|---|
-| Before | What context should I start with? | `ghostcrab_status`, `ghostcrab_pack` |
-| Read | What facts or states do I need now? | `ghostcrab_search`, `ghostcrab_count` |
-| Write durable | What did I learn that should remain true? | `ghostcrab_remember` |
-| Write current | What state changed? | `ghostcrab_upsert` |
-| Relate | What depends on or blocks what? | `ghostcrab_learn` |
-| After | What should the next session know? | `ghostcrab_project` |
-| Recovery | How do I resume after interruption? | `ghostcrab_pack` |
+| Moment        | Goose agent question                      | GhostCrab tool                        |
+| ------------- | ----------------------------------------- | ------------------------------------- |
+| Before        | What context should I start with?         | `ghostcrab_status`, `ghostcrab_pack`  |
+| Read          | What facts or states do I need now?       | `ghostcrab_search`, `ghostcrab_count` |
+| Write durable | What did I learn that should remain true? | `ghostcrab_remember`                  |
+| Write current | What state changed?                       | `ghostcrab_upsert`                    |
+| Relate        | What depends on or blocks what?           | `ghostcrab_learn`                     |
+| After         | What should the next session know?        | `ghostcrab_project`                   |
+| Recovery      | How do I resume after interruption?       | `ghostcrab_pack`                      |
 
 ## Failure Modes
 
-| Situation | Runtime behavior |
-|---|---|
-| GhostCrab unavailable | Stop persistence-dependent steps and ask user to run `gcp brain up` or fix Goose extension config |
-| Goose extension not loaded | Tell user to run `goose configure` or use a recipe that declares `ghostcrab-personal` |
-| Empty pack | Continue as first run; write only confirmed facts |
-| Workspace absent | Ask for confirmation, then create one with `ghostcrab_workspace_create` |
-| Schema absent | Use general `goose:*` schema IDs first; advanced schema registration is optional |
-| Report write fails | Continue the Goose task if safe, but mark persistence incomplete |
-| Mutable state conflict | Use stable `record_id` facets and `ghostcrab_upsert`; do not append duplicate task states |
+| Situation                  | Runtime behavior                                                                                  |
+| -------------------------- | ------------------------------------------------------------------------------------------------- |
+| GhostCrab unavailable      | Stop persistence-dependent steps and ask user to run `gcp brain up` or fix Goose extension config |
+| Goose extension not loaded | Tell user to run `goose configure` or use a recipe that declares `ghostcrab-personal`             |
+| Empty pack                 | Continue as first run; write only confirmed facts                                                 |
+| Workspace absent           | Ask for confirmation, then create one with `ghostcrab_workspace_create`                           |
+| Schema absent              | Use general `goose:*` schema IDs first; advanced schema registration is optional                  |
+| Report write fails         | Continue the Goose task if safe, but mark persistence incomplete                                  |
+| Mutable state conflict     | Use stable `record_id` facets and `ghostcrab_upsert`; do not append duplicate task states         |
 
 ## First Contact Recipe
 

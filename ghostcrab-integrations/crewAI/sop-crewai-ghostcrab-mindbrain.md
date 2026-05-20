@@ -103,14 +103,14 @@ On the MindBrain side, these scopes map to queryable ontology subgraphs — wher
 
 ## Conceptual mapping
 
-| Native CrewAI | MindBrain / GhostCrab equivalent |
-| :-- | :-- |
-| `Memory()` with LanceDB | `Memory(storage=MindBrainStorageBackend)` |
-| Scope `/project/alpha` | Ontology namespace + node type |
-| `memory.recall("what DB?")` | Vector query + graph traversal |
-| `memory.tree()` | `ghostcrab ontology list --namespace ...` |
-| Short-term silo per crew | Shared registry across crews and runs |
-| Ad-hoc entity extraction via LLM | Typed entities with explicit schema |
+| Native CrewAI                    | MindBrain / GhostCrab equivalent          |
+| :------------------------------- | :---------------------------------------- |
+| `Memory()` with LanceDB          | `Memory(storage=MindBrainStorageBackend)` |
+| Scope `/project/alpha`           | Ontology namespace + node type            |
+| `memory.recall("what DB?")`      | Vector query + graph traversal            |
+| `memory.tree()`                  | `ghostcrab ontology list --namespace ...` |
+| Short-term silo per crew         | Shared registry across crews and runs     |
+| Ad-hoc entity extraction via LLM | Typed entities with explicit schema       |
 
 ## What to implement on the GhostCrab side
 
@@ -155,14 +155,13 @@ The value proposition is the same for any CrewAI user: one crew or fifty, MindBr
 
 [^1_15]: https://www.zinyando.com/building-conversational-chatbots-with-knowledge-using-crewai-and-mem0-2/
 
-
 ---
 
 # Describe the structure the CrewAI integration Skill should contain.
 
 The skill structure follows documented CrewAI interfaces. Full description below.
 
-***
+---
 
 ## Scope of the `ghostcrab-crewai` skill
 
@@ -201,7 +200,6 @@ ghostcrab-crewai/
     ├── test_mcp_tools.py            # GhostCrab tool discovery
     └── test_shared_memory.py        # Cross-crew scope binding
 ```
-
 
 ## Contents of each key module
 
@@ -265,7 +263,6 @@ class MindBrainStorage:
         ...
 ```
 
-
 ### `mcp/client.py` — MCP transport
 
 Supports **stdio** (local GhostCrab process) and **HTTP/SSE** (deployed GhostCrab) [^2_3]. Transport is inferred from `endpoint` (`ghostcrab://` → stdio, `http://` → HTTP).
@@ -276,7 +273,6 @@ class GhostCrabMCPClient:
     def call(self, method: str, params: dict) -> dict: ...
     def list_tools(self) -> list[str]: ...  # for MCPServerAdapter
 ```
-
 
 ### `mcp/tools.py` — advanced tools for agents
 
@@ -293,7 +289,6 @@ GHOSTCRAB_TOOLS = [
     "ontology.diff",               # compare two graph snapshots
 ]
 ```
-
 
 ### `memory/shared.py` — cross-crew sharing
 
@@ -321,7 +316,6 @@ def shared_ontology_memory(
     )
 ```
 
-
 ## `pyproject.toml` — dependencies and extras
 
 ```toml
@@ -345,14 +339,12 @@ dev = [
 ]
 ```
 
-
 ## What the skill does NOT include
 
 - No embedding logic (delegated to native CrewAI `Memory`)
 - No LLM models (delegated to user CrewAI config)
 - No ontology definitions (they live in MindBrain, not the skill)
 - No UI or CLI (GhostCrab MCP already exposes `ghostcrab ontology ...`)
-
 
 ## Final usage for CrewAI integrators
 
@@ -407,7 +399,6 @@ That is the minimal API surface — no need to learn Go, MCP internals, or MindB
 
 [^2_16]: https://www.youtube.com/watch?v=ojgQBDu6H6M
 
-
 ---
 
 # Now write in English the full “skills” document for Claude Code or Codex so it knows how to handle everything discussed above.
@@ -418,17 +409,16 @@ The skill file is ready — 724 lines, self-contained, ready to drop into a `~/s
 
 The file is organized in eight sections that a coding agent reads top-to-bottom before touching any file:
 
-
-| Section | Purpose |
-| :-- | :-- |
-| **Mental model** | Explains the two orthogonal concerns (memory backend vs. agent tools) so the agent never conflates them |
-| **Repository layout** | Exact file tree — the agent creates this structure verbatim |
-| **`pyproject.toml`** | Full metadata, dependencies, extras — the agent runs `hatch build` without asking questions |
-| **Per-module implementations** | Complete, runnable Python for each of the 8 source files |
-| **Tests** | `conftest.py` + three test files with `respx` mocks — the agent runs `pytest` and knows what green looks like |
-| **Integration reference** | Three copy-paste usage patterns (memory-only, memory+tools, multi-crew) |
-| **What is NOT covered** | Hard boundary so the agent doesn't hallucinate GhostCrab internals |
-| **Failure modes table** | 5 known failure scenarios with symptoms and mitigations — the agent handles them without escalating |
+| Section                        | Purpose                                                                                                       |
+| :----------------------------- | :------------------------------------------------------------------------------------------------------------ |
+| **Mental model**               | Explains the two orthogonal concerns (memory backend vs. agent tools) so the agent never conflates them       |
+| **Repository layout**          | Exact file tree — the agent creates this structure verbatim                                                   |
+| **`pyproject.toml`**           | Full metadata, dependencies, extras — the agent runs `hatch build` without asking questions                   |
+| **Per-module implementations** | Complete, runnable Python for each of the 8 source files                                                      |
+| **Tests**                      | `conftest.py` + three test files with `respx` mocks — the agent runs `pytest` and knows what green looks like |
+| **Integration reference**      | Three copy-paste usage patterns (memory-only, memory+tools, multi-crew)                                       |
+| **What is NOT covered**        | Hard boundary so the agent doesn't hallucinate GhostCrab internals                                            |
+| **Failure modes table**        | 5 known failure scenarios with symptoms and mitigations — the agent handles them without escalating           |
 
 ## How to invoke it in an agent session
 
@@ -444,8 +434,8 @@ For Codex or any OpenAI Codex-compatible agent, pass it as a system file or cont
 
 # Skill: ghostcrab-architect
 
+---
 
-***
 name: ghostcrab-architect
 version: 1
 description: >
@@ -455,7 +445,8 @@ node type definition, relation schema, facet configuration, and seed data
 ingestion — all expressed as GhostCrab MCP calls or CLI commands.
 Intended for Claude Code, Codex, or any agentic coding assistant.
 agents: [claude_code, codex, general_purpose]
-***
+
+---
 
 ## Purpose
 
@@ -468,7 +459,7 @@ typed relations, and facets (structured attributes). The goal is always the same
 give AI agents a shared, persistent, structured context layer they can read and write
 collaboratively.
 
-***
+---
 
 ## Mental Model
 
@@ -487,7 +478,7 @@ Facets are the core differentiator vs. a plain graph DB:
 - Every `memory.search` or `ontology.query_facets` call filters by node type + facets.
 - Agents use facets to retrieve precise slices of context without full-text ambiguity.
 
-***
+---
 
 ## GhostCrab MCP Transport
 
@@ -495,10 +486,10 @@ GhostCrab exposes all operations as **MCP (Model Context Protocol) JSON-RPC 2.0*
 
 ### Two supported transports
 
-| Transport | When to use | Command |
-| :-- | :-- | :-- |
-| **stdio** | Local dev, Claude Code sessions | `ghostcrab serve --mode mcp --stdio` |
-| **HTTP/SSE** | Deployed service | `POST http://localhost:8765/mcp` |
+| Transport    | When to use                     | Command                              |
+| :----------- | :------------------------------ | :----------------------------------- |
+| **stdio**    | Local dev, Claude Code sessions | `ghostcrab serve --mode mcp --stdio` |
+| **HTTP/SSE** | Deployed service                | `POST http://localhost:8765/mcp`     |
 
 ### JSON-RPC envelope
 
@@ -514,7 +505,7 @@ GhostCrab exposes all operations as **MCP (Model Context Protocol) JSON-RPC 2.0*
 All methods below follow this envelope. In CLI examples, the equivalent
 `ghostcrab` subcommand is shown as an alternative.
 
-***
+---
 
 ## Onboarding Sequence
 
@@ -529,8 +520,7 @@ The sequence must be followed in order. Each step depends on the previous.
 6. verify               → introspect and validate the graph
 ```
 
-
-***
+---
 
 ## Step 1 — Initialize the Namespace
 
@@ -549,7 +539,6 @@ A namespace is an isolated ontological partition. All subsequent operations are 
 }
 ```
 
-
 ### CLI equivalent
 
 ```bash
@@ -558,13 +547,15 @@ ghostcrab ontology init \
   --description "Infrastructure knowledge graph for CrewAI agents"
 ```
 
-
 ### Response
 
 ```json
-{ "namespace": "infra-project", "status": "created", "created_at": "2026-05-10T09:00:00Z" }
+{
+  "namespace": "infra-project",
+  "status": "created",
+  "created_at": "2026-05-10T09:00:00Z"
+}
 ```
-
 
 ### Rules
 
@@ -572,7 +563,7 @@ ghostcrab ontology init \
 - A namespace already exists: call returns `"status": "exists"` — safe to call idempotently.
 - Never delete a namespace mid-session. Use `ontology.snapshot` to checkpoint before destructive ops.
 
-***
+---
 
 ## Step 2 — Define Node Types
 
@@ -589,28 +580,42 @@ Each type declares **a set of facets** — typed, indexed attributes.
     "type_name": "Component",
     "description": "A software or infrastructure component",
     "facets": [
-      { "name": "status",   "type": "enum",   "values": ["active", "deprecated", "experimental"], "required": true },
-      { "name": "layer",    "type": "enum",   "values": ["data", "api", "agent", "ui"], "required": true },
+      {
+        "name": "status",
+        "type": "enum",
+        "values": ["active", "deprecated", "experimental"],
+        "required": true
+      },
+      {
+        "name": "layer",
+        "type": "enum",
+        "values": ["data", "api", "agent", "ui"],
+        "required": true
+      },
       { "name": "language", "type": "string", "required": false },
-      { "name": "version",  "type": "string", "required": false },
-      { "name": "tags",     "type": "list",   "item_type": "string", "required": false }
+      { "name": "version", "type": "string", "required": false },
+      {
+        "name": "tags",
+        "type": "list",
+        "item_type": "string",
+        "required": false
+      }
     ]
   }
 }
 ```
 
-
 ### Facet types reference
 
-| Facet type | Description | Example value |
-| :-- | :-- | :-- |
-| `string` | Free-text, searchable | `"Go 1.22"` |
-| `enum` | Constrained set of values | `"active"` |
-| `float` | Numeric, range-filterable | `0.95` |
-| `int` | Integer, range-filterable | `42` |
-| `bool` | Boolean flag | `true` |
-| `list` | Ordered list of items (typed) | `["postgresql", "mcp"]` |
-| `date` | ISO 8601 date | `"2026-05-10"` |
+| Facet type | Description                   | Example value           |
+| :--------- | :---------------------------- | :---------------------- |
+| `string`   | Free-text, searchable         | `"Go 1.22"`             |
+| `enum`     | Constrained set of values     | `"active"`              |
+| `float`    | Numeric, range-filterable     | `0.95`                  |
+| `int`      | Integer, range-filterable     | `42`                    |
+| `bool`     | Boolean flag                  | `true`                  |
+| `list`     | Ordered list of items (typed) | `["postgresql", "mcp"]` |
+| `date`     | ISO 8601 date                 | `"2026-05-10"`          |
 
 ### Rules
 
@@ -619,8 +624,7 @@ Each type declares **a set of facets** — typed, indexed attributes.
 - Facet names must be lowercase snake_case.
 - You can add facets to an existing type (additive), but you cannot remove them without a migration.
 - For CrewAI integration, always define a `MemoryObservation` and `TaskOutput` node type
-— these are the types written by `MindBrainStorage.save()`.
-
+  — these are the types written by `MindBrainStorage.save()`.
 
 ### Mandatory types for CrewAI integration
 
@@ -634,11 +638,11 @@ Always define these two types in any namespace used with `ghostcrab-crewai`:
     "type_name": "MemoryObservation",
     "description": "A raw memory item saved by a CrewAI agent",
     "facets": [
-      { "name": "agent_id",    "type": "string", "required": false },
-      { "name": "task_id",     "type": "string", "required": false },
-      { "name": "crew_id",     "type": "string", "required": false },
-      { "name": "scope",       "type": "string", "required": false },
-      { "name": "importance",  "type": "float",  "required": false }
+      { "name": "agent_id", "type": "string", "required": false },
+      { "name": "task_id", "type": "string", "required": false },
+      { "name": "crew_id", "type": "string", "required": false },
+      { "name": "scope", "type": "string", "required": false },
+      { "name": "importance", "type": "float", "required": false }
     ]
   }
 }
@@ -652,16 +656,20 @@ Always define these two types in any namespace used with `ghostcrab-crewai`:
     "type_name": "TaskOutput",
     "description": "The structured output of a completed CrewAI task",
     "facets": [
-      { "name": "task_id",  "type": "string", "required": true },
-      { "name": "crew_id",  "type": "string", "required": false },
-      { "name": "status",   "type": "enum",   "values": ["success", "partial", "failed"], "required": true }
+      { "name": "task_id", "type": "string", "required": true },
+      { "name": "crew_id", "type": "string", "required": false },
+      {
+        "name": "status",
+        "type": "enum",
+        "values": ["success", "partial", "failed"],
+        "required": true
+      }
     ]
   }
 }
 ```
 
-
-***
+---
 
 ## Step 3 — Define Relation Types
 
@@ -679,13 +687,16 @@ Relation types declare the typed directed edges between nodes.
     "source_types": ["Component"],
     "target_types": ["Component"],
     "attributes": [
-      { "name": "strength", "type": "enum", "values": ["hard", "soft", "optional"] },
-      { "name": "since",    "type": "date" }
+      {
+        "name": "strength",
+        "type": "enum",
+        "values": ["hard", "soft", "optional"]
+      },
+      { "name": "since", "type": "date" }
     ]
   }
 }
 ```
-
 
 ### Common relation type patterns
 
@@ -703,7 +714,6 @@ Relation types declare the typed directed edges between nodes.
 { "relation_name": "REFERENCES",  "source_types": ["MemoryObservation"], "target_types": ["Component", "Capability"] }
 ```
 
-
 ### Rules
 
 - `source_types` and `target_types` must reference already-defined node types.
@@ -711,7 +721,7 @@ Relation types declare the typed directed edges between nodes.
 - Relation names: UPPER_SNAKE_CASE by convention.
 - A relation can span multiple source or target types — use arrays.
 
-***
+---
 
 ## Step 4 — Seed Nodes
 
@@ -739,7 +749,6 @@ and all `required` facets must be provided.
 }
 ```
 
-
 ### MCP call — batch nodes
 
 ```json
@@ -765,7 +774,6 @@ and all `required` facets must be provided.
 }
 ```
 
-
 ### CLI equivalent
 
 ```bash
@@ -779,7 +787,6 @@ ghostcrab ontology node create \
   --facet language=Go
 ```
 
-
 ### Response
 
 ```json
@@ -791,7 +798,6 @@ ghostcrab ontology node create \
 }
 ```
 
-
 ### Rules
 
 - `slug` must be unique within a `(namespace, type_name)` pair.
@@ -799,7 +805,7 @@ ghostcrab ontology node create \
 - `slug` format: lowercase alphanumeric + hyphens. No spaces.
 - Upsert behavior: `create_node` on an existing slug updates the node (idempotent).
 
-***
+---
 
 ## Step 5 — Seed Relations
 
@@ -824,7 +830,6 @@ Wire nodes together with typed directed edges.
 }
 ```
 
-
 ### Batch relations
 
 ```json
@@ -835,14 +840,18 @@ Wire nodes together with typed directed edges.
     "relations": [
       {
         "relation_name": "DEPENDS_ON",
-        "source_type": "Component", "source_slug": "ghostcrab-crewai",
-        "target_type": "Component", "target_slug": "ghostcrab-mcp",
+        "source_type": "Component",
+        "source_slug": "ghostcrab-crewai",
+        "target_type": "Component",
+        "target_slug": "ghostcrab-mcp",
         "attributes": { "strength": "hard" }
       },
       {
         "relation_name": "DEPENDS_ON",
-        "source_type": "Component", "source_slug": "ghostcrab-mcp",
-        "target_type": "Component", "target_slug": "mindbrain-core",
+        "source_type": "Component",
+        "source_slug": "ghostcrab-mcp",
+        "target_type": "Component",
+        "target_slug": "mindbrain-core",
         "attributes": { "strength": "hard" }
       }
     ]
@@ -850,14 +859,13 @@ Wire nodes together with typed directed edges.
 }
 ```
 
-
 ### Rules
 
 - Source and target slugs must already exist before asserting a relation.
 - `assert_relation` is idempotent: calling it twice with the same args updates attributes.
 - Relation attributes are merged (not replaced) on update.
 
-***
+---
 
 ## Step 6 — Verify the Graph
 
@@ -867,13 +875,11 @@ Wire nodes together with typed directed edges.
 { "method": "ontology.list_types", "params": { "namespace": "infra-project" } }
 ```
 
-
 ### Get the ontology tree
 
 ```json
 { "method": "ontology.tree", "params": { "namespace": "infra-project" } }
 ```
-
 
 ### Search (vector + facets)
 
@@ -889,7 +895,6 @@ Wire nodes together with typed directed edges.
 }
 ```
 
-
 ### Faceted search
 
 ```json
@@ -899,14 +904,13 @@ Wire nodes together with typed directed edges.
     "namespace": "infra-project",
     "type_name": "Component",
     "filters": [
-      { "facet": "status", "op": "eq",  "value": "active" },
-      { "facet": "layer",  "op": "eq",  "value": "api" }
+      { "facet": "status", "op": "eq", "value": "active" },
+      { "facet": "layer", "op": "eq", "value": "api" }
     ],
     "limit": 20
   }
 }
 ```
-
 
 ### Traverse from a node
 
@@ -924,7 +928,6 @@ Wire nodes together with typed directed edges.
 }
 ```
 
-
 ### CLI equivalents
 
 ```bash
@@ -935,15 +938,17 @@ ghostcrab ontology traverse --namespace infra-project \
   --relation DEPENDS_ON --depth 3
 ```
 
-
-***
+---
 
 ## Snapshot and Recovery
 
 Always snapshot before destructive operations or before handing off the namespace to CrewAI agents.
 
 ```json
-{ "method": "ontology.snapshot", "params": { "namespace": "infra-project", "label": "post-seed-v1" } }
+{
+  "method": "ontology.snapshot",
+  "params": { "namespace": "infra-project", "label": "post-seed-v1" }
+}
 ```
 
 ```bash
@@ -951,8 +956,7 @@ ghostcrab ontology snapshot --namespace infra-project --label post-seed-v1
 ghostcrab ontology restore --namespace infra-project --snapshot post-seed-v1
 ```
 
-
-***
+---
 
 ## Full Python Onboarding Script (reference implementation)
 
@@ -1104,18 +1108,20 @@ def onboard(namespace: str, endpoint: str) -> None:
 
 # Skill: ghostcrab-runtime
 
-***
+---
+
 name: ghostcrab-runtime
 version: 1
 description: >
-  Load this skill when the task is to build a CrewAI orchestrator that uses
-  MindBrain (via GhostCrab MCP) as its operational backbone: project coordination,
-  agent reporting, task status tracking, and inter-agent context sharing all flow
-  through the knowledge graph. MindBrain is not a passive store — it is the
-  source of truth that drives what agents do next.
+Load this skill when the task is to build a CrewAI orchestrator that uses
+MindBrain (via GhostCrab MCP) as its operational backbone: project coordination,
+agent reporting, task status tracking, and inter-agent context sharing all flow
+through the knowledge graph. MindBrain is not a passive store — it is the
+source of truth that drives what agents do next.
 agents: [claude_code, codex, general_purpose]
 requires: [ghostcrab-architect, ghostcrab-crewai]
-***
+
+---
 
 ## Purpose
 
@@ -1131,7 +1137,7 @@ passing messages to each other. **The graph decides.** The orchestrator queries
 MindBrain for pending work, dispatches agents, and agents write results back.
 MindBrain is the single source of truth at all times.
 
-***
+---
 
 ## Mental Model
 
@@ -1164,7 +1170,7 @@ The orchestrator never passes raw text between agents. All inter-agent context
 travels through MindBrain. An agent that needs context from a previous agent
 queries the graph directly.
 
-***
+---
 
 ## Ontology Extension for Runtime
 
@@ -1182,10 +1188,15 @@ with the node types and relation types required for runtime operations.
     "type_name": "Project",
     "description": "A managed project tracked in MindBrain",
     "facets": [
-      { "name": "status",     "type": "enum",   "values": ["planning", "active", "paused", "done"], "required": true },
-      { "name": "phase",      "type": "string", "required": false },
-      { "name": "owner",      "type": "string", "required": false },
-      { "name": "started_at", "type": "date",   "required": false }
+      {
+        "name": "status",
+        "type": "enum",
+        "values": ["planning", "active", "paused", "done"],
+        "required": true
+      },
+      { "name": "phase", "type": "string", "required": false },
+      { "name": "owner", "type": "string", "required": false },
+      { "name": "started_at", "type": "date", "required": false }
     ]
   }
 }
@@ -1200,11 +1211,21 @@ with the node types and relation types required for runtime operations.
     "type_name": "Task",
     "description": "A unit of work assigned to a CrewAI agent",
     "facets": [
-      { "name": "status",      "type": "enum",   "values": ["pending", "in_progress", "done", "failed", "blocked"], "required": true },
+      {
+        "name": "status",
+        "type": "enum",
+        "values": ["pending", "in_progress", "done", "failed", "blocked"],
+        "required": true
+      },
       { "name": "assigned_to", "type": "string", "required": false },
-      { "name": "priority",    "type": "enum",   "values": ["critical", "high", "normal", "low"], "required": false },
-      { "name": "started_at",  "type": "date",   "required": false },
-      { "name": "done_at",     "type": "date",   "required": false }
+      {
+        "name": "priority",
+        "type": "enum",
+        "values": ["critical", "high", "normal", "low"],
+        "required": false
+      },
+      { "name": "started_at", "type": "date", "required": false },
+      { "name": "done_at", "type": "date", "required": false }
     ]
   }
 }
@@ -1219,10 +1240,10 @@ with the node types and relation types required for runtime operations.
     "type_name": "Finding",
     "description": "A structured insight or analysis result produced by an agent",
     "facets": [
-      { "name": "category",   "type": "string", "required": false },
-      { "name": "confidence", "type": "float",  "required": false },
-      { "name": "agent_id",   "type": "string", "required": false },
-      { "name": "task_id",    "type": "string", "required": false }
+      { "name": "category", "type": "string", "required": false },
+      { "name": "confidence", "type": "float", "required": false },
+      { "name": "agent_id", "type": "string", "required": false },
+      { "name": "task_id", "type": "string", "required": false }
     ]
   }
 }
@@ -1237,9 +1258,9 @@ with the node types and relation types required for runtime operations.
     "type_name": "Decision",
     "description": "A project-level decision driven by agent findings",
     "facets": [
-      { "name": "rationale",   "type": "string", "required": false },
-      { "name": "decided_by",  "type": "string", "required": false },
-      { "name": "decided_at",  "type": "date",   "required": false }
+      { "name": "rationale", "type": "string", "required": false },
+      { "name": "decided_by", "type": "string", "required": false },
+      { "name": "decided_at", "type": "date", "required": false }
     ]
   }
 }
@@ -1254,16 +1275,20 @@ with the node types and relation types required for runtime operations.
     "type_name": "AgentReport",
     "description": "Complete reporting envelope written by an agent upon task completion",
     "facets": [
-      { "name": "agent_id",    "type": "string", "required": true },
-      { "name": "task_id",     "type": "string", "required": true },
-      { "name": "crew_id",     "type": "string", "required": false },
-      { "name": "status",      "type": "enum",   "values": ["success", "partial", "failed"], "required": true },
-      { "name": "duration_s",  "type": "float",  "required": false }
+      { "name": "agent_id", "type": "string", "required": true },
+      { "name": "task_id", "type": "string", "required": true },
+      { "name": "crew_id", "type": "string", "required": false },
+      {
+        "name": "status",
+        "type": "enum",
+        "values": ["success", "partial", "failed"],
+        "required": true
+      },
+      { "name": "duration_s", "type": "float", "required": false }
     ]
   }
 }
 ```
-
 
 ### Additional relation types
 
@@ -1332,8 +1357,7 @@ with the node types and relation types required for runtime operations.
 }
 ```
 
-
-***
+---
 
 ## Core Orchestrator Pattern
 

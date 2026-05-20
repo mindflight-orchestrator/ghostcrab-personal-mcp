@@ -88,13 +88,13 @@ If an Agno version uses a different MCPTools constructor, keep the same integrat
 
 ## 4. Agent Lifecycle
 
-| Moment | Agent action | GhostCrab tool |
-| --- | --- | --- |
-| Before | Check runtime and select workspace | `ghostcrab_status`, `ghostcrab_workspace_list`, `ghostcrab_workspace_create` if missing |
-| Read | Recover prior context | `ghostcrab_pack`, `ghostcrab_search` |
-| Write | Save facts or current state | `ghostcrab_remember`, `ghostcrab_upsert` |
-| After | Leave goals or next steps | `ghostcrab_project` |
-| Recovery | Resume from shared memory | `ghostcrab_pack` |
+| Moment   | Agent action                       | GhostCrab tool                                                                          |
+| -------- | ---------------------------------- | --------------------------------------------------------------------------------------- |
+| Before   | Check runtime and select workspace | `ghostcrab_status`, `ghostcrab_workspace_list`, `ghostcrab_workspace_create` if missing |
+| Read     | Recover prior context              | `ghostcrab_pack`, `ghostcrab_search`                                                    |
+| Write    | Save facts or current state        | `ghostcrab_remember`, `ghostcrab_upsert`                                                |
+| After    | Leave goals or next steps          | `ghostcrab_project`                                                                     |
+| Recovery | Resume from shared memory          | `ghostcrab_pack`                                                                        |
 
 ---
 
@@ -185,13 +185,13 @@ Agents should not append every status change as a durable fact. Current task sta
 
 ## 8. Failure Modes
 
-| Situation | Correct Agno behavior |
-| --- | --- |
-| `ghostcrab_status` unavailable | Ask the user to run `gcp brain up`; do not silently continue memory writes. |
-| Workspace does not exist | Call `ghostcrab_workspace_list`, then `ghostcrab_workspace_create` before any write. |
-| `ghostcrab_pack` returns empty | Treat it as a normal first run. |
-| `ghostcrab_search` returns no result | Continue and optionally store a new fact. |
-| A write tool fails | Report that the memory update did not persist. |
+| Situation                            | Correct Agno behavior                                                                |
+| ------------------------------------ | ------------------------------------------------------------------------------------ |
+| `ghostcrab_status` unavailable       | Ask the user to run `gcp brain up`; do not silently continue memory writes.          |
+| Workspace does not exist             | Call `ghostcrab_workspace_list`, then `ghostcrab_workspace_create` before any write. |
+| `ghostcrab_pack` returns empty       | Treat it as a normal first run.                                                      |
+| `ghostcrab_search` returns no result | Continue and optionally store a new fact.                                            |
+| A write tool fails                   | Report that the memory update did not persist.                                       |
 
 `ghostcrab_search` supports `mode="bm25"` for keyword search, `mode="semantic"` for vector search, and `mode="hybrid"` for the recommended combined mode. On GhostCrab Personal SQLite without embedding configuration, `semantic` and `hybrid` fall back to BM25 and the MCP response notes that fallback. To enable vector retrieval, configure `GHOSTCRAB_EMBEDDINGS_MODE=openrouter`, `GHOSTCRAB_EMBEDDINGS_MODEL`, and `GHOSTCRAB_EMBEDDINGS_API_KEY` in the GhostCrab server environment or config. Agno agents can keep the same `ghostcrab_search` call; retrieval quality follows the active GhostCrab server mode.
 

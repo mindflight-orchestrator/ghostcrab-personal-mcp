@@ -136,18 +136,18 @@ Recommended use:
 
 ## 8. Tool Mapping
 
-| LlamaIndex need | GhostCrab Personal tool |
-| --- | --- |
-| Create a project memory workspace | `ghostcrab_workspace_create` |
-| Save workflow decisions | `ghostcrab_remember` |
-| Search prior state | `ghostcrab_search` |
-| Update workflow/task state | `ghostcrab_upsert` |
-| Represent links between tasks and documents | `ghostcrab_learn` |
-| Traverse dependency or evidence chains | `ghostcrab_traverse` |
-| Track active goals or constraints | `ghostcrab_project` |
-| Load compact context before a workflow run | `ghostcrab_pack` |
-| Count open blockers or states | `ghostcrab_count` |
-| Inspect/export model shape | `ghostcrab_schema_list`, `ghostcrab_schema_inspect`, `ghostcrab_workspace_export_model` |
+| LlamaIndex need                             | GhostCrab Personal tool                                                                 |
+| ------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Create a project memory workspace           | `ghostcrab_workspace_create`                                                            |
+| Save workflow decisions                     | `ghostcrab_remember`                                                                    |
+| Search prior state                          | `ghostcrab_search`                                                                      |
+| Update workflow/task state                  | `ghostcrab_upsert`                                                                      |
+| Represent links between tasks and documents | `ghostcrab_learn`                                                                       |
+| Traverse dependency or evidence chains      | `ghostcrab_traverse`                                                                    |
+| Track active goals or constraints           | `ghostcrab_project`                                                                     |
+| Load compact context before a workflow run  | `ghostcrab_pack`                                                                        |
+| Count open blockers or states               | `ghostcrab_count`                                                                       |
+| Inspect/export model shape                  | `ghostcrab_schema_list`, `ghostcrab_schema_inspect`, `ghostcrab_workspace_export_model` |
 
 ## 9. Community Demo Scenarios
 
@@ -177,14 +177,14 @@ Suggested wording:
 
 ### Agent Lifecycle Mapping
 
-| Moment | Agent question | Expected GhostCrab tool | Present in current review? |
-|---|---|---|---|
-| Before | Load prior workflow operational context (not documents) | `ghostcrab_pack` | Mentioned in Demo 1 — good |
-| Read | Search prior OPERATIONAL decisions and task states | `ghostcrab_search` | Listed — but must be marked as NOT a document retrieval replacement |
-| Write (durable) | Record a workflow decision that should not change | `ghostcrab_remember` | Listed but not distinguished from upsert |
-| Write (state) | Update the current workflow step or task status | `ghostcrab_upsert` | Listed but not distinguished from remember |
-| After | Record the active workflow goal or constraint | `ghostcrab_project` | Not covered |
-| Recovery | Resume a workflow from prior state | `ghostcrab_pack` | Demo 1 — good |
+| Moment          | Agent question                                          | Expected GhostCrab tool | Present in current review?                                          |
+| --------------- | ------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------- |
+| Before          | Load prior workflow operational context (not documents) | `ghostcrab_pack`        | Mentioned in Demo 1 — good                                          |
+| Read            | Search prior OPERATIONAL decisions and task states      | `ghostcrab_search`      | Listed — but must be marked as NOT a document retrieval replacement |
+| Write (durable) | Record a workflow decision that should not change       | `ghostcrab_remember`    | Listed but not distinguished from upsert                            |
+| Write (state)   | Update the current workflow step or task status         | `ghostcrab_upsert`      | Listed but not distinguished from remember                          |
+| After           | Record the active workflow goal or constraint           | `ghostcrab_project`     | Not covered                                                         |
+| Recovery        | Resume a workflow from prior state                      | `ghostcrab_pack`        | Demo 1 — good                                                       |
 
 ### Critical Gap: The Operational/Retrieval Boundary
 
@@ -207,6 +207,7 @@ The review recommends using GhostCrab through MCP, but never shows HOW a LlamaIn
 ### `remember` vs `upsert` Distinction
 
 Not explained. For LlamaIndex:
+
 - `ghostcrab_remember`: "Workflow decision: use ReAct pattern over CoT for this agent type" — immutable
 - `ghostcrab_upsert`: "Workflow step: data-extraction, status: complete, output: 847 records" — mutable
 
@@ -222,14 +223,14 @@ Not addressed. Also unaddressed: LlamaIndex workflows may run in parallel — co
 
 Historical pre-rewrite score:
 
-| Criterion | Score | Notes |
-| --- | ---: | --- |
-| Community relevance | 4/5 | LlamaIndex users understand memory and retrieval problems. |
-| Framework alignment | 4/5 | Strong fit if positioned as complementary state memory. |
-| GhostCrab Personal accuracy | 2/5 | Needs less PostgreSQL and pragma language. |
-| Tool-name accuracy | 2/5 | Custom tool names must be replaced. |
-| Agent behavioral clarity | 1/5 | Operational/retrieval boundary named but not enforced; Python MCP connection not shown; remember/upsert absent; failure modes missing. |
-| Community readiness | 2/5 | Needs sharper complementary framing and connection path. |
+| Criterion                   | Score | Notes                                                                                                                                  |
+| --------------------------- | ----: | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Community relevance         |   4/5 | LlamaIndex users understand memory and retrieval problems.                                                                             |
+| Framework alignment         |   4/5 | Strong fit if positioned as complementary state memory.                                                                                |
+| GhostCrab Personal accuracy |   2/5 | Needs less PostgreSQL and pragma language.                                                                                             |
+| Tool-name accuracy          |   2/5 | Custom tool names must be replaced.                                                                                                    |
+| Agent behavioral clarity    |   1/5 | Operational/retrieval boundary named but not enforced; Python MCP connection not shown; remember/upsert absent; failure modes missing. |
+| Community readiness         |   2/5 | Needs sharper complementary framing and connection path.                                                                               |
 
 Overall readiness: **Conceptually good, needs clearer boundaries and API correction.**
 
@@ -251,13 +252,13 @@ Worker 3 rewrite completed the requested corrections in:
 
 Updated readiness:
 
-| Criterion | Score | Notes |
-| --- | ---: | --- |
-| Community relevance | 4/5 | Still a strong complementary-memory pitch for LlamaIndex users. |
-| Framework alignment | 5/5 | Uses LlamaIndex MCP client tooling and preserves LlamaIndex retrieval ownership. |
-| GhostCrab Personal accuracy | 5/5 | Personal path is `@mindflight/ghostcrab-personal-mcp`, `gcp brain up`, stdio, local SQLite. |
-| Tool-name accuracy | 5/5 | Public `ghostcrab_*` tools replace custom draft tools. |
-| Agent behavioral clarity | 5/5 | Operational/retrieval boundary, lifecycle, remember/upsert, and failure modes are explicit. |
-| Community readiness | 5/5 | Ready as a Personal-first community skill. |
+| Criterion                   | Score | Notes                                                                                       |
+| --------------------------- | ----: | ------------------------------------------------------------------------------------------- |
+| Community relevance         |   4/5 | Still a strong complementary-memory pitch for LlamaIndex users.                             |
+| Framework alignment         |   5/5 | Uses LlamaIndex MCP client tooling and preserves LlamaIndex retrieval ownership.            |
+| GhostCrab Personal accuracy |   5/5 | Personal path is `@mindflight/ghostcrab-personal-mcp`, `gcp brain up`, stdio, local SQLite. |
+| Tool-name accuracy          |   5/5 | Public `ghostcrab_*` tools replace custom draft tools.                                      |
+| Agent behavioral clarity    |   5/5 | Operational/retrieval boundary, lifecycle, remember/upsert, and failure modes are explicit. |
+| Community readiness         |   5/5 | Ready as a Personal-first community skill.                                                  |
 
 Overall readiness: **Ready after Personal SQLite rewrite.**

@@ -129,8 +129,15 @@
       "projection_signal": "alert_trigger",
       "is_nullable": false,
       "distribution_hint": {
-        "values": ["backlog", "todo", "in_progress", "review", "done", "blocked"],
-        "weights": [0.20, 0.15, 0.30, 0.10, 0.20, 0.05]
+        "values": [
+          "backlog",
+          "todo",
+          "in_progress",
+          "review",
+          "done",
+          "blocked"
+        ],
+        "weights": [0.2, 0.15, 0.3, 0.1, 0.2, 0.05]
       }
     },
     {
@@ -145,7 +152,7 @@
       "is_nullable": false,
       "distribution_hint": {
         "values": ["low", "medium", "high", "critical"],
-        "weights": [0.30, 0.40, 0.25, 0.05]
+        "weights": [0.3, 0.4, 0.25, 0.05]
       }
     },
     {

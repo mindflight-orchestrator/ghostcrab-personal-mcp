@@ -10,7 +10,7 @@ import {
   getConfigValue,
   setConfigValue,
   flattenConfig,
-  getConfigPath,
+  getConfigPath
 } from "../lib/cli-config.mjs";
 
 let configLabel = "gcp config";
@@ -93,8 +93,7 @@ function configSet(key, value) {
   setConfigValue(config, key, value);
   writeConfig(config);
 
-  const display =
-    key === "registry.token" ? "(set, hidden)" : String(value);
+  const display = key === "registry.token" ? "(set, hidden)" : String(value);
   console.log(`${key} = ${display}`);
   console.log(`Saved to ${getConfigPath()}`);
 }

@@ -11,10 +11,10 @@
 
 The **root** package is a small installer: it does **not** ship `prebuilds/` inside the same tarball.
 
-| Package | Role |
-|--------|------|
-| `@mindflight/ghostcrab-personal-mcp` | JS/CLI, docs, skills, `postinstall`; declares **optionalDependencies** on the five platform packages below |
-| `…-linux-x64`, `…-linux-arm64`, `…-darwin-x64`, `…-darwin-arm64`, `…-win32-x64` | One native build each (`ghostcrab-backend` + `ghostcrab-document` where applicable) |
+| Package                                                                         | Role                                                                                                       |
+| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `@mindflight/ghostcrab-personal-mcp`                                            | JS/CLI, docs, skills, `postinstall`; declares **optionalDependencies** on the five platform packages below |
+| `…-linux-x64`, `…-linux-arm64`, `…-darwin-x64`, `…-darwin-arm64`, `…-win32-x64` | One native build each (`ghostcrab-backend` + `ghostcrab-document` where applicable)                        |
 
 At **`npm install`**, the client tries to install the **optional** package matching the current OS/CPU. The root **`postinstall`** ([`bin/lib/postinstall-prebuilds.mjs`](bin/lib/postinstall-prebuilds.mjs)) locates that binary, fixes permissions / quarantine when needed, runs a small smoke (`gcp --help`, backend `--help`). On success it may print **next steps** for IDE wiring (unless `GHOSTCRAB_POSTINSTALL_QUIET=1`):
 
@@ -31,9 +31,9 @@ Aligned with `package.json` **`files`**: `bin/`, `dist/`, `ghostcrab-skills/`, `
 
 ### Beta zip vs npm registry (two parallel channels)
 
-| Channel | What users get |
-|--------|----------------|
-| **npmjs** | Install root → optional platform package from registry → `postinstall` |
+| Channel                               | What users get                                                                                                                                                                                                       |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **npmjs**                             | Install root → optional platform package from registry → `postinstall`                                                                                                                                               |
 | **Beta zip** (`pnpm run beta:bundle`) | Same six `.tgz` files as local [`pack:local`](scripts/pack-local.mjs), plus **`install-beta.mjs`**, tester **README** (from `docs/dev/beta_testers_readme.md`), **`INSTALL.md`**, Makefile helpers, `SHA256SUMS.txt` |
 
 The zip path stays **separate** from npm: offline testers, pre-registry validation, or teams that avoid the public registry. See [`docs/dev/npm_split_release_process.md`](docs/dev/npm_split_release_process.md).
@@ -75,7 +75,6 @@ pnpm run beta:smoke
    ```
 
    The script runs **`npm publish --provenance --access public`** in order:
-
    1. `packages/prebuild-linux-x64`
    2. `packages/prebuild-linux-arm64`
    3. `packages/prebuild-darwin-x64`
@@ -114,11 +113,11 @@ When `gcp brain up` / `gcp up` (or legacy `gcp serve`) is called by an MCP clien
 
 ### Pinned versions (change together where duplicated)
 
-| Thing | Where |
-|-------|--------|
-| SQLite amalgamation | `scripts/download-sqlite3.sh`, `.github/workflows/publish.yml` (`SQLITE_VERSION`, `SQLITE_YEAR`) |
-| Zig | **0.16.x** — `.github/workflows/publish.yml` (`ZIG_VERSION`), must match [`scripts/cross-build-all.sh`](scripts/cross-build-all.sh) |
-| Node | `.github/workflows/publish.yml` (`NODE_VERSION`), `engines` in `package.json` |
+| Thing               | Where                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| SQLite amalgamation | `scripts/download-sqlite3.sh`, `.github/workflows/publish.yml` (`SQLITE_VERSION`, `SQLITE_YEAR`)                                    |
+| Zig                 | **0.16.x** — `.github/workflows/publish.yml` (`ZIG_VERSION`), must match [`scripts/cross-build-all.sh`](scripts/cross-build-all.sh) |
+| Node                | `.github/workflows/publish.yml` (`NODE_VERSION`), `engines` in `package.json`                                                       |
 
 ### Security checklist before publish
 
@@ -145,6 +144,7 @@ pnpm add -g @mindflight/ghostcrab-personal-mcp
 ```
 
 The package exposes two binaries:
+
 - **`gcp`** — full CLI (all subcommands below)
 - **`ghostcrab`** — backward-compatible shim, equivalent to `gcp brain up` / `gcp serve`
 
@@ -161,6 +161,7 @@ gcp brain up [--workspace <name>]
 ```
 
 **Workspace resolution** (highest priority first):
+
 1. `--workspace` flag → looks up workspace in `~/.config/ghostcrab/config.json`
 2. `GHOSTCRAB_SQLITE_PATH` env var → bypasses workspace config entirely
 3. `config.defaultWorkspace`
@@ -180,11 +181,11 @@ gcp brain up [--workspace <name>]
 
 **Environment variables (all optional):**
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `GHOSTCRAB_SQLITE_PATH` | (from workspace config) | SQLite file path |
-| `GHOSTCRAB_BACKEND_ADDR` | `:8091` | Backend listen address |
-| `GHOSTCRAB_MINDBRAIN_URL` | `http://127.0.0.1:8091` | MCP → backend URL |
+| Variable                  | Default                 | Description            |
+| ------------------------- | ----------------------- | ---------------------- |
+| `GHOSTCRAB_SQLITE_PATH`   | (from workspace config) | SQLite file path       |
+| `GHOSTCRAB_BACKEND_ADDR`  | `:8091`                 | Backend listen address |
+| `GHOSTCRAB_MINDBRAIN_URL` | `http://127.0.0.1:8091` | MCP → backend URL      |
 
 ---
 
@@ -225,11 +226,11 @@ gcp env path                        # Print path to config file
 
 **Common keys:**
 
-| Key | Default | Description |
-|-----|---------|-------------|
-| `registry.url` | `https://registry.ghostcrab.io` | Registry server URL |
-| `registry.token` | `(not set)` | Bearer token for private resources |
-| `defaultWorkspace` | `(not set)` | Workspace used when `--workspace` is omitted |
+| Key                | Default                         | Description                                  |
+| ------------------ | ------------------------------- | -------------------------------------------- |
+| `registry.url`     | `https://registry.ghostcrab.io` | Registry server URL                          |
+| `registry.token`   | `(not set)`                     | Bearer token for private resources           |
+| `defaultWorkspace` | `(not set)`                     | Workspace used when `--workspace` is omitted |
 
 ```bash
 # Examples
@@ -240,7 +241,7 @@ gcp env list
 ```
 
 > `registry.token` is stored in plain text in the config file. Use `chmod 600
-> ~/.config/ghostcrab/config.json` or set `GHOSTCRAB_REGISTRY_TOKEN` via your
+~/.config/ghostcrab/config.json` or set `GHOSTCRAB_REGISTRY_TOKEN` via your
 > secrets manager instead.
 
 ---
@@ -259,6 +260,7 @@ gcp brain schema show <owner/name>               # Print to stdout
 **Local storage:** `~/.local/share/ghostcrab/ontologies/{owner}/{name}/`
 
 Each installed ontology contains:
+
 - `content.yaml` — the ontology content (may be watermarked if private)
 - `manifest.json` — version, access level, pull timestamp
 
@@ -307,29 +309,29 @@ gcp agent equip <owner/name>        # shortcut for: gcp agent skills pull …
 
 Both `brain schema pull` / `ontologies pull` and `agent skills pull` / `skills pull` accept:
 
-| Flag | Description |
-|------|-------------|
-| `--token <tok>` | Override `registry.token` from config for this call |
-| `--registry <url>` | Override `registry.url` from config for this call |
+| Flag               | Description                                         |
+| ------------------ | --------------------------------------------------- |
+| `--token <tok>`    | Override `registry.token` from config for this call |
+| `--registry <url>` | Override `registry.url` from config for this call   |
 
 ---
 
 ### Config file location
 
-| Platform | Path |
-|----------|------|
-| Linux | `$XDG_CONFIG_HOME/ghostcrab/config.json` → `~/.config/ghostcrab/config.json` |
-| macOS | `~/Library/Application Support/ghostcrab/config.json` |
-| Windows | `%APPDATA%\ghostcrab\config.json` |
+| Platform | Path                                                                         |
+| -------- | ---------------------------------------------------------------------------- |
+| Linux    | `$XDG_CONFIG_HOME/ghostcrab/config.json` → `~/.config/ghostcrab/config.json` |
+| macOS    | `~/Library/Application Support/ghostcrab/config.json`                        |
+| Windows  | `%APPDATA%\ghostcrab\config.json`                                            |
 
 Override with `GHOSTCRAB_CONFIG_DIR` env var.
 
 ### Data directory location
 
-| Platform | Path |
-|----------|------|
-| Linux | `$XDG_DATA_HOME/ghostcrab` → `~/.local/share/ghostcrab` |
-| macOS | `~/Library/Application Support/ghostcrab` |
-| Windows | `%APPDATA%\ghostcrab` |
+| Platform | Path                                                    |
+| -------- | ------------------------------------------------------- |
+| Linux    | `$XDG_DATA_HOME/ghostcrab` → `~/.local/share/ghostcrab` |
+| macOS    | `~/Library/Application Support/ghostcrab`               |
+| Windows  | `%APPDATA%\ghostcrab`                                   |
 
 Override with `GHOSTCRAB_DATA_DIR` env var.

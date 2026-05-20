@@ -25,33 +25,71 @@ const CONTRACTS_DIR = resolve(__dirname, "../../docs/dev");
 // ---------------------------------------------------------------------------
 
 const TableRoleSchema = z.enum([
-  "actor", "event", "transaction", "stateful_item",
-  "reference", "hierarchy", "association"
+  "actor",
+  "event",
+  "transaction",
+  "stateful_item",
+  "reference",
+  "hierarchy",
+  "association"
 ]);
 
 const GenerationStrategySchema = z.enum([
-  "seed_table", "per_parent", "time_series", "sparse_events", "static_ref"
+  "seed_table",
+  "per_parent",
+  "time_series",
+  "sparse_events",
+  "static_ref"
 ]);
 
 const VolumeDriverSchema = z.enum(["high", "medium", "low", "tiny"]);
 
 const ColumnRoleSchema = z.enum([
-  "id", "fk", "status", "timestamp", "amount", "score",
-  "category", "owner", "parent_ref", "text_content",
-  "geo", "embedding_source", "label", "flag"
+  "id",
+  "fk",
+  "status",
+  "timestamp",
+  "amount",
+  "score",
+  "category",
+  "owner",
+  "parent_ref",
+  "text_content",
+  "geo",
+  "embedding_source",
+  "label",
+  "flag"
 ]);
 
 const SemanticTypeSchema = z.enum([
-  "identifier", "state", "measure", "enum", "free_text", "temporal", "spatial", "vector", "boolean"
+  "identifier",
+  "state",
+  "measure",
+  "enum",
+  "free_text",
+  "temporal",
+  "spatial",
+  "vector",
+  "boolean"
 ]);
 
 const GraphUsageSchema = z.enum([
-  "entity_name", "entity_property", "edge_source", "edge_target", "edge_metadata"
+  "entity_name",
+  "entity_property",
+  "edge_source",
+  "edge_target",
+  "edge_metadata"
 ]);
 
 const RelationRoleSchema = z.enum([
-  "belongs_to", "contains", "depends_on", "targets",
-  "registered_for", "works_at", "assigned_to", "references"
+  "belongs_to",
+  "contains",
+  "depends_on",
+  "targets",
+  "registered_for",
+  "works_at",
+  "assigned_to",
+  "references"
 ]);
 
 const CardinalitySchema = z.enum(["1:1", "1:n", "n:n"]);
@@ -78,7 +116,7 @@ const TableExportSchema = z.object({
   emit_graph_entities: z.boolean().optional().default(false),
   emit_graph_relations: z.boolean().optional().default(false),
   emit_projections: z.boolean().optional().default(false),
-    notes: z.record(z.string(), z.unknown()).nullable().optional()
+  notes: z.record(z.string(), z.unknown()).nullable().optional()
 });
 
 const ColumnExportSchema = z.object({
@@ -108,18 +146,22 @@ const RelationExportSchema = z.object({
   notes: z.record(z.string(), z.unknown()).nullable().optional()
 });
 
-const GenerationHintsSchema = z.object({
-  table_order: z.array(z.string()).optional(),
-  estimated_total_rows: z.number().int().min(0).optional(),
-  seed_multipliers: z.object({
-    tiny: z.number().int().optional(),
-    low: z.number().int().optional(),
-    medium: z.number().int().optional(),
-    high: z.number().int().optional()
-  }).optional(),
-  domain_profile: z.string().nullable().optional(),
-  time_window_days: z.number().int().min(1).optional()
-}).optional();
+const GenerationHintsSchema = z
+  .object({
+    table_order: z.array(z.string()).optional(),
+    estimated_total_rows: z.number().int().min(0).optional(),
+    seed_multipliers: z
+      .object({
+        tiny: z.number().int().optional(),
+        low: z.number().int().optional(),
+        medium: z.number().int().optional(),
+        high: z.number().int().optional()
+      })
+      .optional(),
+    domain_profile: z.string().nullable().optional(),
+    time_window_days: z.number().int().min(1).optional()
+  })
+  .optional();
 
 const WorkspaceModelExportSchema = z.object({
   schema_version: SemVerSchema,
@@ -193,9 +235,20 @@ describe("WorkspaceModelExport contract", () => {
 
   describe("enum validation", () => {
     it("validates all TableRole values", () => {
-      const validRoles = ["actor", "event", "transaction", "stateful_item", "reference", "hierarchy", "association"];
+      const validRoles = [
+        "actor",
+        "event",
+        "transaction",
+        "stateful_item",
+        "reference",
+        "hierarchy",
+        "association"
+      ];
       for (const role of validRoles) {
-        expect(TableRoleSchema.safeParse(role).success, `role ${role} should be valid`).toBe(true);
+        expect(
+          TableRoleSchema.safeParse(role).success,
+          `role ${role} should be valid`
+        ).toBe(true);
       }
     });
 
@@ -205,16 +258,43 @@ describe("WorkspaceModelExport contract", () => {
     });
 
     it("validates all GenerationStrategy values", () => {
-      const validStrategies = ["seed_table", "per_parent", "time_series", "sparse_events", "static_ref"];
+      const validStrategies = [
+        "seed_table",
+        "per_parent",
+        "time_series",
+        "sparse_events",
+        "static_ref"
+      ];
       for (const strategy of validStrategies) {
-        expect(GenerationStrategySchema.safeParse(strategy).success, `strategy ${strategy} should be valid`).toBe(true);
+        expect(
+          GenerationStrategySchema.safeParse(strategy).success,
+          `strategy ${strategy} should be valid`
+        ).toBe(true);
       }
     });
 
     it("validates all ColumnRole values", () => {
-      const validRoles = ["id", "fk", "status", "timestamp", "amount", "score", "category", "owner", "parent_ref", "text_content", "geo", "embedding_source", "label", "flag"];
+      const validRoles = [
+        "id",
+        "fk",
+        "status",
+        "timestamp",
+        "amount",
+        "score",
+        "category",
+        "owner",
+        "parent_ref",
+        "text_content",
+        "geo",
+        "embedding_source",
+        "label",
+        "flag"
+      ];
       for (const role of validRoles) {
-        expect(ColumnRoleSchema.safeParse(role).success, `column role ${role} should be valid`).toBe(true);
+        expect(
+          ColumnRoleSchema.safeParse(role).success,
+          `column role ${role} should be valid`
+        ).toBe(true);
       }
     });
 
@@ -271,7 +351,9 @@ describe("Domain example: casino-benchmark", () => {
   let parsed: WorkspaceModelExport;
 
   it("parses without error", () => {
-    expect(() => { parsed = parseExport(raw); }).not.toThrow();
+    expect(() => {
+      parsed = parseExport(raw);
+    }).not.toThrow();
   });
 
   it("has schema_version 1.0.0", () => {
@@ -295,7 +377,7 @@ describe("Domain example: casino-benchmark", () => {
 
   it("has a players table as actor with emit_facets and emit_graph_entities", () => {
     parsed = parseExport(raw);
-    const players = parsed.tables.find(t => t.table_name === "players");
+    const players = parsed.tables.find((t) => t.table_name === "players");
     expect(players).toBeDefined();
     expect(players!.table_role).toBe("actor");
     expect(players!.emit_facets).toBe(true);
@@ -355,13 +437,13 @@ describe("Domain example: crm-pipeline", () => {
 
   it("has accounts as actor table", () => {
     const parsed = parseExport(raw);
-    const accounts = parsed.tables.find(t => t.table_name === "accounts");
+    const accounts = parsed.tables.find((t) => t.table_name === "accounts");
     expect(accounts?.table_role).toBe("actor");
   });
 
   it("has opportunities as stateful_item", () => {
     const parsed = parseExport(raw);
-    const opps = parsed.tables.find(t => t.table_name === "opportunities");
+    const opps = parsed.tables.find((t) => t.table_name === "opportunities");
     expect(opps?.table_role).toBe("stateful_item");
     expect(opps?.emit_projections).toBe(true);
   });
@@ -387,9 +469,11 @@ describe("Domain example: kanban-board", () => {
 
   it("has cards as stateful_item with hierarchical relations", () => {
     const parsed = parseExport(raw);
-    const cards = parsed.tables.find(t => t.table_name === "cards");
+    const cards = parsed.tables.find((t) => t.table_name === "cards");
     expect(cards?.table_role).toBe("stateful_item");
-    const hierarchical = parsed.relations!.filter(r => r.hierarchical === true);
+    const hierarchical = parsed.relations!.filter(
+      (r) => r.hierarchical === true
+    );
     expect(hierarchical.length).toBeGreaterThan(0);
   });
 
@@ -415,7 +499,7 @@ describe("Domain example: project-delivery", () => {
   it("has a self-referential relation (tasks blocked_by)", () => {
     const parsed = parseExport(raw);
     const selfRef = parsed.relations!.find(
-      r => r.source_table === "tasks" && r.target_table === "tasks"
+      (r) => r.source_table === "tasks" && r.target_table === "tasks"
     );
     expect(selfRef).toBeDefined();
     expect(selfRef?.relation_role).toBe("depends_on");
@@ -424,7 +508,7 @@ describe("Domain example: project-delivery", () => {
 
   it("has risks with emit_projections for alert coverage", () => {
     const parsed = parseExport(raw);
-    const risks = parsed.tables.find(t => t.table_name === "risks");
+    const risks = parsed.tables.find((t) => t.table_name === "risks");
     expect(risks?.emit_projections).toBe(true);
   });
 
@@ -468,7 +552,10 @@ describe("generation_hints validation", () => {
       const parsed = parseExport(loadExample(filename));
       if (parsed.generation_hints?.table_order) {
         for (const entry of parsed.generation_hints.table_order) {
-          expect(entry, `${filename}: entry "${entry}" should be schema.table format`).toMatch(/^[a-z_]+\.[a-z_]+$/);
+          expect(
+            entry,
+            `${filename}: entry "${entry}" should be schema.table format`
+          ).toMatch(/^[a-z_]+\.[a-z_]+$/);
         }
       }
     }
@@ -493,21 +580,29 @@ describe("cross-example schema consistency", () => {
   it("all examples have schema_version 1.0.0", () => {
     for (const filename of examples) {
       const parsed = parseExport(loadExample(filename));
-      expect(parsed.schema_version, `${filename} should be 1.0.0`).toBe("1.0.0");
+      expect(parsed.schema_version, `${filename} should be 1.0.0`).toBe(
+        "1.0.0"
+      );
     }
   });
 
   it("all examples have non-empty tables array", () => {
     for (const filename of examples) {
       const parsed = parseExport(loadExample(filename));
-      expect(parsed.tables.length, `${filename} should have tables`).toBeGreaterThan(0);
+      expect(
+        parsed.tables.length,
+        `${filename} should have tables`
+      ).toBeGreaterThan(0);
     }
   });
 
   it("all examples have validation_warnings array (empty or not)", () => {
     for (const filename of examples) {
       const parsed = parseExport(loadExample(filename));
-      expect(Array.isArray(parsed.validation_warnings), `${filename} should have validation_warnings`).toBe(true);
+      expect(
+        Array.isArray(parsed.validation_warnings),
+        `${filename} should have validation_warnings`
+      ).toBe(true);
     }
   });
 

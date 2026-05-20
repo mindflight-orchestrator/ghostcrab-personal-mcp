@@ -39,7 +39,10 @@ describe("embedding provider", () => {
       embeddingTimeoutMs: 1_000
     });
 
-    const [first, second] = await provider.embedMany(["ghostcrab", "ghostcrab"]);
+    const [first, second] = await provider.embedMany([
+      "ghostcrab",
+      "ghostcrab"
+    ]);
     const [different] = await provider.embedMany(["postgres"]);
 
     expect(first).toEqual(second);

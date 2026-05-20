@@ -7,7 +7,13 @@
  * Codex, and Claude Code without writing real user config files.
  */
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -125,7 +131,11 @@ try {
     "beta-smoke"
   ]);
   assertRunOk("gcp brain setup codex --dry-run", codex);
-  assertIncludes(codex.stdout, "[mcp_servers.ghostcrab-personal-mcp]", "codex dry-run");
+  assertIncludes(
+    codex.stdout,
+    "[mcp_servers.ghostcrab-personal-mcp]",
+    "codex dry-run"
+  );
   assertIncludes(codex.stdout, "brain", "codex dry-run");
   assertIncludes(codex.stdout, "up", "codex dry-run");
   assertIncludes(codex.stdout, "beta-smoke", "codex dry-run");
@@ -140,7 +150,11 @@ try {
     "beta-smoke"
   ]);
   assertRunOk("gcp brain setup claude --dry-run", claude);
-  assertIncludes(claude.stdout, "claude mcp add --transport stdio", "claude dry-run");
+  assertIncludes(
+    claude.stdout,
+    "claude mcp add --transport stdio",
+    "claude dry-run"
+  );
   assertIncludes(claude.stdout, "ghostcrab-personal-mcp --", "claude dry-run");
   assertIncludes(claude.stdout, "brain up", "claude dry-run");
   assertIncludes(claude.stdout, "beta-smoke", "claude dry-run");

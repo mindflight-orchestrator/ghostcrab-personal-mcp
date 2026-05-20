@@ -15,7 +15,7 @@ import {
   rmSync,
   mkdirSync,
   existsSync,
-  statSync,
+  statSync
 } from "node:fs";
 import { join } from "node:path";
 import { getDataDir } from "./data-dir.mjs";

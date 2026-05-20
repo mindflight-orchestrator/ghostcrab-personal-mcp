@@ -53,7 +53,10 @@ function runCommand(command, args, options = {}) {
 }
 
 function assertBackendHealthy(baseUrl) {
-  const healthUrl = new URL("/health", baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`);
+  const healthUrl = new URL(
+    "/health",
+    baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`
+  );
   const result = spawnSync(
     process.execPath,
     [

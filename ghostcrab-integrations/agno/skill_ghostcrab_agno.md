@@ -232,18 +232,18 @@ team.run(
 
 ## GhostCrab tools exposed via MCP
 
-| MCP tool                   | Purpose                                                       | Key parameters                             |
-|----------------------------|---------------------------------------------------------------|--------------------------------------------|
-| `ontology_type_create`     | Define an EntityType with facets                               | `namespace`, `type_name`, `facets[]`       |
-| `ontology_type_get`        | Fetch an existing type (idempotence check)                    | `namespace`, `type_name`                   |
-| `ontology_relation_create` | Define a directed RelationType between EntityTypes           | `namespace`, `name`, `from`, `to`           |
-| `ontology_schema_get`      | Full namespace schema                                          | `namespace`                               |
-| `entity_upsert`            | Create or update an entity                                      | `namespace`, `type`, `facets{}`             |
-| `entity_get`               | Fetch by id or unique facet slice                              | `namespace`, `id` or `filter{}`           |
-| `entity_search`            | Multi-criteria faceted search                                  | `namespace`, `filter{}`, `limit`          |
-| `relation_create`          | Link two entities                                              | `namespace`, `from_id`, `to_id`, `type`     |
-| `graph_traverse`           | Traverse graph from a node (BFS/DFS)                           | `namespace`, `from_id`, `depth`           |
-| `context_push`             | Inject structured context into current session                 | `namespace`, `session_id`, `payload{}`      |
+| MCP tool                   | Purpose                                            | Key parameters                          |
+| -------------------------- | -------------------------------------------------- | --------------------------------------- |
+| `ontology_type_create`     | Define an EntityType with facets                   | `namespace`, `type_name`, `facets[]`    |
+| `ontology_type_get`        | Fetch an existing type (idempotence check)         | `namespace`, `type_name`                |
+| `ontology_relation_create` | Define a directed RelationType between EntityTypes | `namespace`, `name`, `from`, `to`       |
+| `ontology_schema_get`      | Full namespace schema                              | `namespace`                             |
+| `entity_upsert`            | Create or update an entity                         | `namespace`, `type`, `facets{}`         |
+| `entity_get`               | Fetch by id or unique facet slice                  | `namespace`, `id` or `filter{}`         |
+| `entity_search`            | Multi-criteria faceted search                      | `namespace`, `filter{}`, `limit`        |
+| `relation_create`          | Link two entities                                  | `namespace`, `from_id`, `to_id`, `type` |
+| `graph_traverse`           | Traverse graph from a node (BFS/DFS)               | `namespace`, `from_id`, `depth`         |
+| `context_push`             | Inject structured context into current session     | `namespace`, `session_id`, `payload{}`  |
 
 ---
 

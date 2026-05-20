@@ -173,18 +173,18 @@ Recommended use:
 
 ## 8. Tool Mapping
 
-| Agents SDK need | GhostCrab Personal tool |
-| --- | --- |
-| Check local memory server | `ghostcrab_status` |
-| Load compact agent context | `ghostcrab_pack` |
-| Search prior memory | `ghostcrab_search` |
-| Store durable facts | `ghostcrab_remember` |
-| Update current task or state | `ghostcrab_upsert` |
-| Link dependencies or evidence | `ghostcrab_learn` |
-| Traverse linked context | `ghostcrab_traverse` |
-| Track active goals or constraints | `ghostcrab_project` |
-| Count records by state | `ghostcrab_count` |
-| Inspect schemas | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
+| Agents SDK need                   | GhostCrab Personal tool                             |
+| --------------------------------- | --------------------------------------------------- |
+| Check local memory server         | `ghostcrab_status`                                  |
+| Load compact agent context        | `ghostcrab_pack`                                    |
+| Search prior memory               | `ghostcrab_search`                                  |
+| Store durable facts               | `ghostcrab_remember`                                |
+| Update current task or state      | `ghostcrab_upsert`                                  |
+| Link dependencies or evidence     | `ghostcrab_learn`                                   |
+| Traverse linked context           | `ghostcrab_traverse`                                |
+| Track active goals or constraints | `ghostcrab_project`                                 |
+| Count records by state            | `ghostcrab_count`                                   |
+| Inspect schemas                   | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
 
 ## 9. Community Demo Scenarios
 
@@ -216,14 +216,14 @@ Keep this as a footnote, not a setup path.
 
 ### Agent Lifecycle Mapping
 
-| Moment | Agent question | Expected GhostCrab tool | Present in current review? |
-|---|---|---|---|
-| Before | Verify GhostCrab is running; load prior run context | `ghostcrab_status`, `ghostcrab_pack` | Demo 1 (status) and Demo 2 (pack) — good |
-| Read | Search prior decisions and project notes | `ghostcrab_search` | Tool mapping — listed |
-| Write (durable) | Record a permanent project note or finding | `ghostcrab_remember` | Demo 2 and Recommended Next Step — good |
-| Write (state) | Update the current task or agent state | `ghostcrab_upsert` | Demo 3 and Recommended Next Step — good |
-| After | Record active agent goals | `ghostcrab_project` | Tool mapping only, no demo |
-| Recovery | Resume from prior run state | `ghostcrab_pack` | Demo 2 — good |
+| Moment          | Agent question                                      | Expected GhostCrab tool              | Present in current review?               |
+| --------------- | --------------------------------------------------- | ------------------------------------ | ---------------------------------------- |
+| Before          | Verify GhostCrab is running; load prior run context | `ghostcrab_status`, `ghostcrab_pack` | Demo 1 (status) and Demo 2 (pack) — good |
+| Read            | Search prior decisions and project notes            | `ghostcrab_search`                   | Tool mapping — listed                    |
+| Write (durable) | Record a permanent project note or finding          | `ghostcrab_remember`                 | Demo 2 and Recommended Next Step — good  |
+| Write (state)   | Update the current task or agent state              | `ghostcrab_upsert`                   | Demo 3 and Recommended Next Step — good  |
+| After           | Record active agent goals                           | `ghostcrab_project`                  | Tool mapping only, no demo               |
+| Recovery        | Resume from prior run state                         | `ghostcrab_pack`                     | Demo 2 — good                            |
 
 ### Strongest MCP Native Integration Path — Underemphasized
 
@@ -244,6 +244,7 @@ This 3-line setup is the key differentiator and belongs in a prominent "Start He
 ### `remember` vs `upsert` Distinction
 
 Not explained. For OpenAI Agents SDK:
+
 - `ghostcrab_remember`: "Discovered that API endpoint /v2/products is deprecated" — immutable project fact
 - `ghostcrab_upsert`: "Task: migrate-endpoints, status: in_progress, deadline: 2026-05-15" — mutable task record
 
@@ -254,19 +255,20 @@ Demo 1 → Demo 2 → Demo 3 provides a 4-tool path. The review should label it 
 ### Failure Mode Coverage
 
 Not addressed. Most important cases:
+
 - `MCPServerStdio` fails to start GhostCrab — the SDK will likely surface a connection error; the review should tell developers to run `gcp brain up` separately and verify with `ghostcrab_status`
 - `ghostcrab_pack` returns empty on first run — expected behavior for a new project; agent should proceed with empty context
 
 ## 11. Readiness Score
 
-| Criterion | Score | Notes |
-| --- | ---: | --- |
-| Community relevance | 5/5 | SDK users are a natural MCP audience. |
-| Framework alignment | 5/5 | Local MCP tools and MCPServerStdio are the right integration shape. |
-| GhostCrab Personal accuracy | 3/5 | Needs cleanup but the path is close. |
-| Tool-name accuracy | 2/5 | Several tool names need replacement. |
-| Agent behavioral clarity | 2/5 | MCPServerStdio setup underemphasized; remember/upsert absent; ghostcrab_project has no demo; failure modes missing. |
-| Community readiness | 3/5 | Very publishable after setup, language, and remember/upsert correction. |
+| Criterion                   | Score | Notes                                                                                                               |
+| --------------------------- | ----: | ------------------------------------------------------------------------------------------------------------------- |
+| Community relevance         |   5/5 | SDK users are a natural MCP audience.                                                                               |
+| Framework alignment         |   5/5 | Local MCP tools and MCPServerStdio are the right integration shape.                                                 |
+| GhostCrab Personal accuracy |   3/5 | Needs cleanup but the path is close.                                                                                |
+| Tool-name accuracy          |   2/5 | Several tool names need replacement.                                                                                |
+| Agent behavioral clarity    |   2/5 | MCPServerStdio setup underemphasized; remember/upsert absent; ghostcrab_project has no demo; failure modes missing. |
+| Community readiness         |   3/5 | Very publishable after setup, language, and remember/upsert correction.                                             |
 
 Overall readiness: **Strong target, close after API cleanup.**
 

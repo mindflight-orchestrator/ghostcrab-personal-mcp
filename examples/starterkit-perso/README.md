@@ -30,11 +30,11 @@ pnpm run demo:load -- --profile knowledge-base --skills-repo-root ../ghostcrab-s
 
 ## Relation to the external starter kit
 
-| Starter kit artifact | This seed |
-|----------------------|-----------|
-| `templates/jtbd.yaml` | One `remember` row summarising JTBD intent |
+| Starter kit artifact               | This seed                                      |
+| ---------------------------------- | ---------------------------------------------- |
+| `templates/jtbd.yaml`              | One `remember` row summarising JTBD intent     |
 | `templates/mvp_core_contract.yaml` | One `remember` row with contract / edge policy |
-| Other templates | One `remember` row describing the bundle |
-| QUICKSTART three phases | Three `learn_node` + `DEPENDS_ON` chain |
+| Other templates                    | One `remember` row describing the bundle       |
+| QUICKSTART three phases            | Three `learn_node` + `DEPENDS_ON` chain        |
 
 To seed **your own** filled YAML as rows later, either extend this JSONL or use `ghostcrab_remember` / ingest pipelines from the starter kit SOPs.

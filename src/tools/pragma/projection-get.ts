@@ -138,7 +138,9 @@ export const projectionGetTool: ToolHandler = {
     } catch (error) {
       return createToolErrorResult(
         "ghostcrab_projection_get",
-        error instanceof Error ? error.message : "MindBrain projection-get backend unavailable",
+        error instanceof Error
+          ? error.message
+          : "MindBrain projection-get backend unavailable",
         "backend_unavailable"
       );
     }

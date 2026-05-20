@@ -4,7 +4,9 @@ import { workspaceCreateTool } from "../../src/tools/workspace/create.js";
 import { workspaceListTool } from "../../src/tools/workspace/list.js";
 import type { ToolExecutionContext } from "../../src/tools/registry.js";
 
-function makeContext(overrides?: Partial<{ rows: unknown[][] }>): ToolExecutionContext {
+function makeContext(
+  overrides?: Partial<{ rows: unknown[][] }>
+): ToolExecutionContext {
   let callIndex = 0;
   const rowSets = overrides?.rows ?? [[]];
 
@@ -32,7 +34,9 @@ describe("ghostcrab_workspace_create", () => {
       { id: "my-ws", label: "My Workspace", created_by: "agent" },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(data.ok).toBe(true);
     expect(data.created).toBe(true);
     expect(data.workspace_id).toBe("my-ws");
@@ -45,7 +49,9 @@ describe("ghostcrab_workspace_create", () => {
       { id: "my-ws", label: "My Workspace" },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(data.ok).toBe(true);
     expect(data.created).toBe(false);
     expect(data.idempotent).toBe(true);
@@ -82,7 +88,9 @@ describe("ghostcrab_workspace_list", () => {
   it("lists workspaces with stats", async () => {
     const ctx = makeContext({ rows: [[fakeRow]] });
     const result = await workspaceListTool.handler({}, ctx);
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(data.ok).toBe(true);
     const workspaces = data.workspaces as unknown[];
     expect(workspaces).toHaveLength(1);
@@ -95,18 +103,26 @@ describe("ghostcrab_workspace_list", () => {
   it("filters by status", async () => {
     const ctx = makeContext({ rows: [[fakeRow]] });
     const result = await workspaceListTool.handler({ status: "active" }, ctx);
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(data.filter_status).toBe("active");
-    const dbQuery = (ctx.database.query as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+    const dbQuery = (ctx.database.query as ReturnType<typeof vi.fn>).mock
+      .calls[0][0] as string;
     expect(dbQuery).toContain("w.status = ?");
   });
 
   it("returns all when no status filter", async () => {
     const ctx = makeContext({ rows: [[]] });
     const result = await workspaceListTool.handler({}, ctx);
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(data.filter_status).toBe("all");
-    const dbQuery = (ctx.database.query as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
-    expect(dbQuery).not.toMatch(/FROM mindbrain\.workspaces w\s+WHERE\s+w\.status/);
+    const dbQuery = (ctx.database.query as ReturnType<typeof vi.fn>).mock
+      .calls[0][0] as string;
+    expect(dbQuery).not.toMatch(
+      /FROM mindbrain\.workspaces w\s+WHERE\s+w\.status/
+    );
   });
 });

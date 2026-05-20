@@ -74,7 +74,10 @@ export const FACET_CATALOG: readonly FacetCatalogEntry[] = [
   { facetName: "recommended_action" },
   { facetName: "recommended_activity_family" },
   { facetName: "recommended_schema" },
-  { facetName: "record_id", native: { column: "facet_record_id", kind: "plain" } },
+  {
+    facetName: "record_id",
+    native: { column: "facet_record_id", kind: "plain" }
+  },
   { facetName: "region" },
   { facetName: "render_sections" },
   { facetName: "requires_confirmation" },

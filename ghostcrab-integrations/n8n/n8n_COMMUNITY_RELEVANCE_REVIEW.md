@@ -124,15 +124,15 @@ Recommended rewrite direction:
 
 ## 8. Tool Mapping
 
-| n8n workflow need | GhostCrab Personal tool |
-| --- | --- |
-| Store enrichment result | `ghostcrab_remember` |
-| Search prior workflow context | `ghostcrab_search` |
-| Maintain current record state | `ghostcrab_upsert` |
-| Count items by status or category | `ghostcrab_count` |
-| Link records, events, or dependencies | `ghostcrab_learn` |
-| Load compact workflow context | `ghostcrab_pack` |
-| Inspect available schemas | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
+| n8n workflow need                     | GhostCrab Personal tool                             |
+| ------------------------------------- | --------------------------------------------------- |
+| Store enrichment result               | `ghostcrab_remember`                                |
+| Search prior workflow context         | `ghostcrab_search`                                  |
+| Maintain current record state         | `ghostcrab_upsert`                                  |
+| Count items by status or category     | `ghostcrab_count`                                   |
+| Link records, events, or dependencies | `ghostcrab_learn`                                   |
+| Load compact workflow context         | `ghostcrab_pack`                                    |
+| Inspect available schemas             | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
 
 ## 9. Community Demo Scenarios
 
@@ -166,13 +166,13 @@ Keep this note short.
 
 ### n8n-Specific Lifecycle Mapping
 
-| Moment | n8n equivalent | GhostCrab tool | Present in current review? |
-|---|---|---|---|
-| Trigger fires | Workflow starts | ghostcrab_search (deduplication check) or ghostcrab_pack (load prior workflow context) | ghostcrab_search mentioned — good; ghostcrab_pack not mapped to n8n trigger |
-| Node executes | Processing step | ghostcrab_upsert (update record state) or ghostcrab_remember (store enrichment result) | Tool mapping covers this — good |
-| Workflow completes | End of run | ghostcrab_remember (durable audit note) | Tool mapping — good |
-| Retry / re-run | Next trigger | ghostcrab_search (has this record been processed?) | Demo 1 covers deduplication — good |
-| Bridge failure | HTTP call fails | — | NOT addressed |
+| Moment             | n8n equivalent  | GhostCrab tool                                                                         | Present in current review?                                                  |
+| ------------------ | --------------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Trigger fires      | Workflow starts | ghostcrab_search (deduplication check) or ghostcrab_pack (load prior workflow context) | ghostcrab_search mentioned — good; ghostcrab_pack not mapped to n8n trigger |
+| Node executes      | Processing step | ghostcrab_upsert (update record state) or ghostcrab_remember (store enrichment result) | Tool mapping covers this — good                                             |
+| Workflow completes | End of run      | ghostcrab_remember (durable audit note)                                                | Tool mapping — good                                                         |
+| Retry / re-run     | Next trigger    | ghostcrab_search (has this record been processed?)                                     | Demo 1 covers deduplication — good                                          |
+| Bridge failure     | HTTP call fails | —                                                                                      | NOT addressed                                                               |
 
 ### Critical Gap: The Standard Agent Lifecycle Does Not Apply
 
@@ -195,6 +195,7 @@ Until the bridge is documented, this review should explicitly state: **"Direct n
 ### `remember` vs `upsert` for n8n
 
 For n8n the distinction maps to:
+
 - `ghostcrab_remember`: enrichment result, routing decision, processed event ID — immutable anchors for deduplication
 - `ghostcrab_upsert`: current state of a tracked entity (lead, ticket, order) — mutable record
 
@@ -204,14 +205,14 @@ The most critical failure mode — bridge unavailability — is not addressed. n
 
 ## 11. Readiness Score
 
-| Criterion | Score | Notes |
-| --- | ---: | --- |
-| Community relevance | 4/5 | Workflow memory, deduplication, enrichment, and cross-run state are now framed directly for n8n. |
-| Framework alignment | 4/5 | The public artifact is a recipe, not an agent skill, and uses trigger-fire-action lifecycle language. |
-| GhostCrab Personal accuracy | 4/5 | The recipe centers `@mindflight/ghostcrab-personal-mcp`, `gcp brain up`, SQLite, and stdio default. |
-| Tool-name accuracy | 4/5 | The recipe maps actual `ghostcrab_*` tools and avoids invented endpoints. |
-| Agent behavioral clarity | 4/5 | The adapted n8n lifecycle, bridge requirement, remember/upsert rule, and failure modes are explicit. |
-| Community readiness | 4/5 | Ready as an honest recipe, with direct integration still dependent on bridge/custom node choice. |
+| Criterion                   | Score | Notes                                                                                                 |
+| --------------------------- | ----: | ----------------------------------------------------------------------------------------------------- |
+| Community relevance         |   4/5 | Workflow memory, deduplication, enrichment, and cross-run state are now framed directly for n8n.      |
+| Framework alignment         |   4/5 | The public artifact is a recipe, not an agent skill, and uses trigger-fire-action lifecycle language. |
+| GhostCrab Personal accuracy |   4/5 | The recipe centers `@mindflight/ghostcrab-personal-mcp`, `gcp brain up`, SQLite, and stdio default.   |
+| Tool-name accuracy          |   4/5 | The recipe maps actual `ghostcrab_*` tools and avoids invented endpoints.                             |
+| Agent behavioral clarity    |   4/5 | The adapted n8n lifecycle, bridge requirement, remember/upsert rule, and failure modes are explicit.  |
+| Community readiness         |   4/5 | Ready as an honest recipe, with direct integration still dependent on bridge/custom node choice.      |
 
 Overall readiness: **Community-ready recipe with explicit bridge caveat.**
 

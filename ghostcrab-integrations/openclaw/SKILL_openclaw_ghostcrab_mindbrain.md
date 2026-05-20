@@ -71,10 +71,10 @@ part of the integration; without it the skill should abort.
 
 ## External Endpoints
 
-| Endpoint | Transport | Data sent | Notes |
-| --- | --- | --- | --- |
-| local `gcp brain up` process | stdio MCP | prompts, memory facts, state updates, graph edges | Default Personal path; data remains local |
-| optional local bridge | HTTP/SSE to bridge, stdio to GhostCrab | same as above | Required only when OpenClaw cannot call stdio MCP directly |
+| Endpoint                     | Transport                              | Data sent                                         | Notes                                                      |
+| ---------------------------- | -------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------- |
+| local `gcp brain up` process | stdio MCP                              | prompts, memory facts, state updates, graph edges | Default Personal path; data remains local                  |
+| optional local bridge        | HTTP/SSE to bridge, stdio to GhostCrab | same as above                                     | Required only when OpenClaw cannot call stdio MCP directly |
 
 ## Security and Privacy
 
@@ -113,14 +113,14 @@ has an explicit state or graph need.
 
 ## Lifecycle JTBD
 
-| Moment | Agent question | GhostCrab tool |
-| --- | --- | --- |
-| Before | What durable context matters for this skill run? | `ghostcrab_pack` |
-| Read | What prior observations or decisions match this question? | `ghostcrab_search` |
-| Write durable | What new finding should future runs remember unchanged? | `ghostcrab_remember` |
-| Write state | What current task or entity state changed? | `ghostcrab_upsert` |
-| After | What goal, handoff, or next step should persist? | `ghostcrab_project` |
-| Recovery | What context lets this skill resume after interruption? | `ghostcrab_pack` |
+| Moment        | Agent question                                            | GhostCrab tool       |
+| ------------- | --------------------------------------------------------- | -------------------- |
+| Before        | What durable context matters for this skill run?          | `ghostcrab_pack`     |
+| Read          | What prior observations or decisions match this question? | `ghostcrab_search`   |
+| Write durable | What new finding should future runs remember unchanged?   | `ghostcrab_remember` |
+| Write state   | What current task or entity state changed?                | `ghostcrab_upsert`   |
+| After         | What goal, handoff, or next step should persist?          | `ghostcrab_project`  |
+| Recovery      | What context lets this skill resume after interruption?   | `ghostcrab_pack`     |
 
 ## Agent Performance Contract
 
@@ -132,20 +132,20 @@ has an explicit state or graph need.
 
 ## Tool Mapping
 
-| OpenClaw need | GhostCrab Personal tool |
-| --- | --- |
-| Load compact working context | `ghostcrab_pack` |
-| Search durable memory | `ghostcrab_search` |
-| Store immutable findings | `ghostcrab_remember` |
-| Update mutable task or record state | `ghostcrab_upsert` |
-| Count items by facet | `ghostcrab_count` |
-| Link decisions, tasks, dependencies, or concepts | `ghostcrab_learn` |
-| Traverse linked memory | `ghostcrab_traverse` |
-| Track active goals | `ghostcrab_project` |
-| List workspaces before creating one | `ghostcrab_workspace_list` |
-| Create a missing workspace | `ghostcrab_workspace_create` |
-| Inspect model contracts | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
-| Export a workspace model | `ghostcrab_workspace_export_model` |
+| OpenClaw need                                    | GhostCrab Personal tool                             |
+| ------------------------------------------------ | --------------------------------------------------- |
+| Load compact working context                     | `ghostcrab_pack`                                    |
+| Search durable memory                            | `ghostcrab_search`                                  |
+| Store immutable findings                         | `ghostcrab_remember`                                |
+| Update mutable task or record state              | `ghostcrab_upsert`                                  |
+| Count items by facet                             | `ghostcrab_count`                                   |
+| Link decisions, tasks, dependencies, or concepts | `ghostcrab_learn`                                   |
+| Traverse linked memory                           | `ghostcrab_traverse`                                |
+| Track active goals                               | `ghostcrab_project`                                 |
+| List workspaces before creating one              | `ghostcrab_workspace_list`                          |
+| Create a missing workspace                       | `ghostcrab_workspace_create`                        |
+| Inspect model contracts                          | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
+| Export a workspace model                         | `ghostcrab_workspace_export_model`                  |
 
 `ghostcrab_search` supports `mode="bm25"` for keyword search, `mode="semantic"` for vector search, and `mode="hybrid"` for the recommended combined mode. On GhostCrab Personal SQLite without embeddings configured, `semantic` and `hybrid` fall back to BM25 and the MCP response notes that fallback. To enable vector retrieval, configure `GHOSTCRAB_EMBEDDINGS_MODE=openrouter`, `GHOSTCRAB_EMBEDDINGS_MODEL`, and `GHOSTCRAB_EMBEDDINGS_API_KEY` in GhostCrab. OpenClaw skills can request `mode="hybrid"` without changing transport; the response note reveals the active retrieval path.
 
@@ -173,13 +173,13 @@ with slightly different names.
 
 ## Failure Modes
 
-| Failure | Required behavior |
-| --- | --- |
-| Transport not configured | Abort the skill with a clear message: configure stdio MCP or run a bridge first |
-| `ghostcrab_status` reports unavailable | Ask the user to start GhostCrab with `gcp brain up` |
-| `ghostcrab_pack` returns empty | Treat it as a new workspace or new topic; call `ghostcrab_workspace_list` before `ghostcrab_workspace_create` |
-| Bridge unavailable | Do not pretend memory writes succeeded; surface the bridge error and continue only if memory is optional |
-| Upsert match is ambiguous | Stop and choose a stable `record_id` facet before writing |
+| Failure                                | Required behavior                                                                                             |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Transport not configured               | Abort the skill with a clear message: configure stdio MCP or run a bridge first                               |
+| `ghostcrab_status` reports unavailable | Ask the user to start GhostCrab with `gcp brain up`                                                           |
+| `ghostcrab_pack` returns empty         | Treat it as a new workspace or new topic; call `ghostcrab_workspace_list` before `ghostcrab_workspace_create` |
+| Bridge unavailable                     | Do not pretend memory writes succeeded; surface the bridge error and continue only if memory is optional      |
+| Upsert match is ambiguous              | Stop and choose a stable `record_id` facet before writing                                                     |
 
 ## Verification
 

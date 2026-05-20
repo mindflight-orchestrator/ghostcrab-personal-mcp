@@ -226,19 +226,19 @@ What needs correction:
 
 Recommended mapping for BMAD:
 
-| BMAD need | GhostCrab Personal tool |
-| --- | --- |
-| Initialize local BMAD memory | `ghostcrab_workspace_create` |
-| Store artifact summaries | `ghostcrab_remember` |
-| Retrieve prior context | `ghostcrab_search` |
-| Maintain task or phase state | `ghostcrab_upsert` |
-| Count blockers by phase or owner | `ghostcrab_count` |
-| Link task dependencies | `ghostcrab_learn` |
-| Trace blocker chains | `ghostcrab_traverse` |
-| Maintain active phase context | `ghostcrab_project` |
-| Load a role-specific context pack | `ghostcrab_pack` |
-| Inspect available schemas | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
-| Export stabilized model | `ghostcrab_workspace_export_model` |
+| BMAD need                         | GhostCrab Personal tool                             |
+| --------------------------------- | --------------------------------------------------- |
+| Initialize local BMAD memory      | `ghostcrab_workspace_create`                        |
+| Store artifact summaries          | `ghostcrab_remember`                                |
+| Retrieve prior context            | `ghostcrab_search`                                  |
+| Maintain task or phase state      | `ghostcrab_upsert`                                  |
+| Count blockers by phase or owner  | `ghostcrab_count`                                   |
+| Link task dependencies            | `ghostcrab_learn`                                   |
+| Trace blocker chains              | `ghostcrab_traverse`                                |
+| Maintain active phase context     | `ghostcrab_project`                                 |
+| Load a role-specific context pack | `ghostcrab_pack`                                    |
+| Inspect available schemas         | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
+| Export stabilized model           | `ghostcrab_workspace_export_model`                  |
 
 ## 9. Community Demo Scenarios
 
@@ -281,14 +281,14 @@ No PostgreSQL-first examples should appear in the community-facing BMAD skills.
 
 ### Agent Lifecycle Mapping
 
-| Moment | Agent question | Expected GhostCrab tool | Present in current review? |
-|---|---|---|---|
-| Before | Load role-specific BMAD project context | `ghostcrab_pack` | Recommended runtime loop step 1 — good |
-| Read | Query artifacts, decisions, and open blockers | `ghostcrab_search`, `ghostcrab_count`, `ghostcrab_traverse` | Partially — count and traverse mentioned in demos |
-| Write (durable) | Record an architectural decision or artifact summary | `ghostcrab_remember` | Listed but not distinguished from upsert |
-| Write (state) | Update task status, phase state, or blocker status | `ghostcrab_upsert` | Listed but not distinguished from remember |
-| After | Record the current phase gate state | `ghostcrab_project` | Mentioned in runtime loop — good |
-| Recovery | Resume a BMAD session from the last phase state | `ghostcrab_pack` | Mentioned in Demo 1 — good |
+| Moment          | Agent question                                       | Expected GhostCrab tool                                     | Present in current review?                        |
+| --------------- | ---------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------- |
+| Before          | Load role-specific BMAD project context              | `ghostcrab_pack`                                            | Recommended runtime loop step 1 — good            |
+| Read            | Query artifacts, decisions, and open blockers        | `ghostcrab_search`, `ghostcrab_count`, `ghostcrab_traverse` | Partially — count and traverse mentioned in demos |
+| Write (durable) | Record an architectural decision or artifact summary | `ghostcrab_remember`                                        | Listed but not distinguished from upsert          |
+| Write (state)   | Update task status, phase state, or blocker status   | `ghostcrab_upsert`                                          | Listed but not distinguished from remember        |
+| After           | Record the current phase gate state                  | `ghostcrab_project`                                         | Mentioned in runtime loop — good                  |
+| Recovery        | Resume a BMAD session from the last phase state      | `ghostcrab_pack`                                            | Mentioned in Demo 1 — good                        |
 
 ### Critical Gap: `remember` vs `upsert` Distinction
 
@@ -310,20 +310,21 @@ Missing: workspace must exist before any write. For a BMAD project starting fres
 ### Failure Mode Coverage
 
 Not addressed. Critical BMAD cases:
+
 - `ghostcrab_pack` returns empty on first session — the Architect skill should be invoked to bootstrap the workspace
 - No registered artifact types — the agent should proceed with untyped `ghostcrab_remember` calls and inspect schema later
 - Phase gate query returns incomplete data — the Orchestrator should flag this rather than auto-advancing
 
 ## 11. Readiness Score
 
-| Criterion | Score | Notes |
-| --- | ---: | --- |
-| Community relevance | 5/5 | BMAD has a strong natural need for durable project memory. |
-| Framework alignment | 5/5 | The role/process structure maps cleanly to GhostCrab. |
-| GhostCrab Personal accuracy | 5/5 | Skills now default to `@mindflight/ghostcrab-personal-mcp`, `gcp brain up`, SQLite, and local MCP `stdio`. |
-| Tool-name accuracy | 5/5 | Runtime and architect skills now use the real public `ghostcrab_*` tools. |
-| Agent behavioral clarity | 5/5 | Lifecycle tables, remember/upsert rules, workspace bootstrap, and failure modes are explicit. |
-| Community readiness | 4/5 | Ready as a local-first skill pack; still benefits from a small runnable demo in future docs. |
+| Criterion                   | Score | Notes                                                                                                      |
+| --------------------------- | ----: | ---------------------------------------------------------------------------------------------------------- |
+| Community relevance         |   5/5 | BMAD has a strong natural need for durable project memory.                                                 |
+| Framework alignment         |   5/5 | The role/process structure maps cleanly to GhostCrab.                                                      |
+| GhostCrab Personal accuracy |   5/5 | Skills now default to `@mindflight/ghostcrab-personal-mcp`, `gcp brain up`, SQLite, and local MCP `stdio`. |
+| Tool-name accuracy          |   5/5 | Runtime and architect skills now use the real public `ghostcrab_*` tools.                                  |
+| Agent behavioral clarity    |   5/5 | Lifecycle tables, remember/upsert rules, workspace bootstrap, and failure modes are explicit.              |
+| Community readiness         |   4/5 | Ready as a local-first skill pack; still benefits from a small runnable demo in future docs.               |
 
 Overall readiness: **Community-ready after rewrite.**
 

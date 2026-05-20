@@ -16,7 +16,7 @@ on:
 
 permissions:
   contents: read
-  id-token: write   # required for npm trusted publishing (OIDC)
+  id-token: write # required for npm trusted publishing (OIDC)
 
 env:
   ZIG_VERSION: "0.16.0"
@@ -69,7 +69,7 @@ jobs:
     name: Publish to npm
     runs-on: ubuntu-latest
     needs: build-backends
-    environment: npm-publish   # configure trusted publishing in this environment
+    environment: npm-publish # configure trusted publishing in this environment
 
     steps:
       - uses: actions/checkout@v4

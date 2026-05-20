@@ -31,7 +31,10 @@ async function readWorkspace(
   workspaceId: string
 ): Promise<{ id: string; domain_profile: string | null } | null> {
   try {
-    const rows = await database.query<{ id: string; domain_profile: string | null }>(
+    const rows = await database.query<{
+      id: string;
+      domain_profile: string | null;
+    }>(
       `SELECT id, domain_profile
        FROM workspaces
        WHERE id = ?`,
@@ -112,68 +115,76 @@ export const loadoutSeedTool: ToolHandler = {
       input.workspace_id
     );
 
-    const graphResult = await context.database.transaction(async (queryable) => {
-      const seededNodes: string[] = [];
-      const seededEdges: Array<{ source: string; target: string; label: string }> = [];
+    const graphResult = await context.database.transaction(
+      async (queryable) => {
+        const seededNodes: string[] = [];
+        const seededEdges: Array<{
+          source: string;
+          target: string;
+          label: string;
+        }> = [];
 
-      for (const node of skeleton.nodes) {
-        await upsertGraphEntity(queryable, {
-          nodeId: node.id,
-          nodeType: node.node_type,
-          label: node.label,
-          properties: {
-            ...node.properties,
-            workspace_id: input.workspace_id
-          },
-          schemaId: null
-        });
+        for (const node of skeleton.nodes) {
+          await upsertGraphEntity(queryable, {
+            nodeId: node.id,
+            nodeType: node.node_type,
+            label: node.label,
+            properties: {
+              ...node.properties,
+              workspace_id: input.workspace_id
+            },
+            schemaId: null
+          });
 
-        const entityId = await resolveGraphEntityId(queryable, node.id);
-        if (entityId !== null) {
-          await setGraphEntityWorkspaceId(queryable, entityId, input.workspace_id);
-        }
-
-        seededNodes.push(node.id);
-      }
-
-      for (const edge of skeleton.edges) {
-        const sourceId = await resolveGraphEntityId(queryable, edge.source);
-        const targetId = await resolveGraphEntityId(queryable, edge.target);
-        if (sourceId === null || targetId === null) {
-          continue;
-        }
-
-        await upsertGraphRelation(queryable, {
-          label: edge.label,
-          sourceId,
-          targetId,
-          confidence: 1,
-          properties: {
-            ...edge.properties,
-            workspace_id: input.workspace_id
+          const entityId = await resolveGraphEntityId(queryable, node.id);
+          if (entityId !== null) {
+            await setGraphEntityWorkspaceId(
+              queryable,
+              entityId,
+              input.workspace_id
+            );
           }
-        });
 
-        seededEdges.push({
-          source: edge.source,
-          target: edge.target,
-          label: edge.label
-        });
-      }
-
-      return {
-        seeded_nodes: seededNodes,
-        seeded_edges: seededEdges
-      };
-    });
-
-    let semanticResult:
-      | {
-          table_semantics: number;
-          column_semantics: number;
-          relation_semantics: number;
+          seededNodes.push(node.id);
         }
-      | null = null;
+
+        for (const edge of skeleton.edges) {
+          const sourceId = await resolveGraphEntityId(queryable, edge.source);
+          const targetId = await resolveGraphEntityId(queryable, edge.target);
+          if (sourceId === null || targetId === null) {
+            continue;
+          }
+
+          await upsertGraphRelation(queryable, {
+            label: edge.label,
+            sourceId,
+            targetId,
+            confidence: 1,
+            properties: {
+              ...edge.properties,
+              workspace_id: input.workspace_id
+            }
+          });
+
+          seededEdges.push({
+            source: edge.source,
+            target: edge.target,
+            label: edge.label
+          });
+        }
+
+        return {
+          seeded_nodes: seededNodes,
+          seeded_edges: seededEdges
+        };
+      }
+    );
+
+    let semanticResult: {
+      table_semantics: number;
+      column_semantics: number;
+      relation_semantics: number;
+    } | null = null;
 
     if (input.persist_semantics && semanticProposal) {
       const persisted = await context.database.transaction((tx) =>

@@ -17,6 +17,7 @@ import "./pragma/pack.js";
 import "./pragma/projection-get.js";
 import "./pragma/project.js";
 import "./pragma/status.js";
+import "./search/combined-search.js";
 import "./workspace/create.js";
 import "./workspace/ddl.js";
 import "./workspace/export.js";

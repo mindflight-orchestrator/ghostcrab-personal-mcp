@@ -48,10 +48,10 @@ working.
 
 ## External Endpoints
 
-| Endpoint | Transport | Data sent | Notes |
-| --- | --- | --- | --- |
-| local `gcp brain up` process | stdio MCP | task state, findings, graph edges, goals | Default Personal path |
-| optional local bridge | HTTP/SSE to bridge, stdio to GhostCrab | same as above | Required only for HTTP-only OpenClaw setups |
+| Endpoint                     | Transport                              | Data sent                                | Notes                                       |
+| ---------------------------- | -------------------------------------- | ---------------------------------------- | ------------------------------------------- |
+| local `gcp brain up` process | stdio MCP                              | task state, findings, graph edges, goals | Default Personal path                       |
+| optional local bridge        | HTTP/SSE to bridge, stdio to GhostCrab | same as above                            | Required only for HTTP-only OpenClaw setups |
 
 ## Security and Privacy
 
@@ -86,15 +86,15 @@ Use this three-tool path for a first runtime integration:
 
 ## Lifecycle JTBD
 
-| Moment | Runtime question | GhostCrab tool |
-| --- | --- | --- |
-| Before | What task context or handoff state already exists? | `ghostcrab_pack` |
-| Read | What prior findings affect this action? | `ghostcrab_search` |
+| Moment        | Runtime question                                          | GhostCrab tool       |
+| ------------- | --------------------------------------------------------- | -------------------- |
+| Before        | What task context or handoff state already exists?        | `ghostcrab_pack`     |
+| Read          | What prior findings affect this action?                   | `ghostcrab_search`   |
 | Write durable | What did this agent learn that should not be overwritten? | `ghostcrab_remember` |
-| Write state | What task, ticket, phase, or agent status changed? | `ghostcrab_upsert` |
-| Link | What depends on or blocks what? | `ghostcrab_learn` |
-| After | What goal or next step remains active? | `ghostcrab_project` |
-| Recovery | What compact state should a restarted agent load? | `ghostcrab_pack` |
+| Write state   | What task, ticket, phase, or agent status changed?        | `ghostcrab_upsert`   |
+| Link          | What depends on or blocks what?                           | `ghostcrab_learn`    |
+| After         | What goal or next step remains active?                    | `ghostcrab_project`  |
+| Recovery      | What compact state should a restarted agent load?         | `ghostcrab_pack`     |
 
 ## Runtime Tool Patterns
 
@@ -209,13 +209,13 @@ Only call `ghostcrab_workspace_create` if the workspace is missing.
 
 ## Failure Modes
 
-| Failure | Required behavior |
-| --- | --- |
-| Transport not configured | Abort with "GhostCrab transport is not configured; configure stdio MCP or a local bridge." |
-| `ghostcrab_status` unavailable | Ask the user to run `gcp brain up` |
-| `ghostcrab_pack` empty | Continue with empty context, then list workspaces before creating one |
-| Bridge timeout | Mark the OpenClaw step as memory-not-written and retry if state is critical |
-| Ambiguous task state | Ask for or derive a stable `record_id` before `ghostcrab_upsert` |
+| Failure                        | Required behavior                                                                          |
+| ------------------------------ | ------------------------------------------------------------------------------------------ |
+| Transport not configured       | Abort with "GhostCrab transport is not configured; configure stdio MCP or a local bridge." |
+| `ghostcrab_status` unavailable | Ask the user to run `gcp brain up`                                                         |
+| `ghostcrab_pack` empty         | Continue with empty context, then list workspaces before creating one                      |
+| Bridge timeout                 | Mark the OpenClaw step as memory-not-written and retry if state is critical                |
+| Ambiguous task state           | Ask for or derive a stable `record_id` before `ghostcrab_upsert`                           |
 
 ## Verification
 

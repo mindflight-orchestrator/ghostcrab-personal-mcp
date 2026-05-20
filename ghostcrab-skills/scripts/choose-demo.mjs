@@ -3,7 +3,10 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const repoRoot = path.resolve(
+  path.dirname(new URL(import.meta.url).pathname),
+  ".."
+);
 const demoDir = path.join(repoRoot, "shared", "demo-profiles");
 
 function readProfile(fileName) {

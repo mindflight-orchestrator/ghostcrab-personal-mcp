@@ -53,9 +53,9 @@ describe("parseCliInput", () => {
   });
 
   it("rejects scalar JSON values in --input", () => {
-    expect(() => parseCliInput(statusCmd, ["status", "--input", '"hello"'])).toThrow(
-      /must contain a JSON object payload/
-    );
+    expect(() =>
+      parseCliInput(statusCmd, ["status", "--input", '"hello"'])
+    ).toThrow(/must contain a JSON object payload/);
   });
 
   it("throws when --input JSON is invalid", () => {

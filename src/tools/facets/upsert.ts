@@ -2,7 +2,10 @@ import { z } from "zod";
 import { randomUUID } from "node:crypto";
 
 import { resolveGhostcrabConfig } from "../../config/env.js";
-import { FACETS_SEARCH_TABLE_ID, SQLITE_NEXT_FACT_DOC_ID_EXPR } from "../../db/fact-store.js";
+import {
+  FACETS_SEARCH_TABLE_ID,
+  SQLITE_NEXT_FACT_DOC_ID_EXPR
+} from "../../db/fact-store.js";
 import { encodeEmbedding } from "../../embeddings/blob.js";
 import { runStandaloneSearchEmbeddingUpsert } from "../../db/standalone-mindbrain.js";
 import {
@@ -374,7 +377,10 @@ export const upsertTool: ToolHandler = {
     // pendingEmbeddingSync is set inside an async callback so TypeScript cannot
     // narrow it after the await — we use a cast to preserve the union type.
     if (pendingEmbeddingSync) {
-      const sync = pendingEmbeddingSync as { docId: number; embedding: number[] };
+      const sync = pendingEmbeddingSync as {
+        docId: number;
+        embedding: number[];
+      };
       try {
         const config = resolveGhostcrabConfig();
         await runStandaloneSearchEmbeddingUpsert({

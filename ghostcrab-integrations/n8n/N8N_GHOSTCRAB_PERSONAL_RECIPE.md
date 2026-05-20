@@ -26,11 +26,11 @@ local MCP stdio client.
 Do not assume direct n8n-to-stdio support. Pick one of these bridge patterns
 before designing workflow nodes.
 
-| Option | Pattern | Prerequisites | Complexity | Recommendation |
-| --- | --- | --- | --- | --- |
-| A | n8n HTTP Request node -> external HTTP bridge -> GhostCrab stdio | A small local service that starts or connects to `gcp brain up`, accepts HTTP from n8n, and calls MCP tools over stdio | Medium | Best first demo because it uses stock n8n nodes |
-| B | Custom n8n node wrapping MCP calls | n8n custom node development, MCP client code, local process permissions | High | Best long-term UX if publishing an n8n integration |
-| C | External runner script | Node.js or Python runner called by n8n via Execute Command/Webhook/HTTP; runner talks to GhostCrab stdio | Medium | Good for private workflows and prototypes |
+| Option | Pattern                                                          | Prerequisites                                                                                                          | Complexity | Recommendation                                     |
+| ------ | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ---------- | -------------------------------------------------- |
+| A      | n8n HTTP Request node -> external HTTP bridge -> GhostCrab stdio | A small local service that starts or connects to `gcp brain up`, accepts HTTP from n8n, and calls MCP tools over stdio | Medium     | Best first demo because it uses stock n8n nodes    |
+| B      | Custom n8n node wrapping MCP calls                               | n8n custom node development, MCP client code, local process permissions                                                | High       | Best long-term UX if publishing an n8n integration |
+| C      | External runner script                                           | Node.js or Python runner called by n8n via Execute Command/Webhook/HTTP; runner talks to GhostCrab stdio               | Medium     | Good for private workflows and prototypes          |
 
 The bridge should expose only the GhostCrab tools your workflow needs, validate
 inputs, and return tool errors in a shape n8n can branch on.
@@ -90,18 +90,18 @@ Goal: make retries and duplicate triggers safe.
 
 ## Tool Mapping for n8n
 
-| n8n workflow need | GhostCrab Personal tool |
-| --- | --- |
-| Check whether a record or event was seen before | `ghostcrab_search` |
-| Load compact context for a workflow decision | `ghostcrab_pack` |
-| Store an enrichment result, audit note, or processed event | `ghostcrab_remember` |
-| Maintain current state for a lead, ticket, order, or task | `ghostcrab_upsert` |
-| Count records by status, source, workflow, or owner | `ghostcrab_count` |
-| Link related leads, tickets, orders, decisions, or dependencies | `ghostcrab_learn` |
-| Traverse linked workflow memory | `ghostcrab_traverse` |
-| Track active workflow goals or handoffs | `ghostcrab_project` |
-| Inspect available schemas | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
-| Export a workspace model for a generator or bridge | `ghostcrab_workspace_export_model` |
+| n8n workflow need                                               | GhostCrab Personal tool                             |
+| --------------------------------------------------------------- | --------------------------------------------------- |
+| Check whether a record or event was seen before                 | `ghostcrab_search`                                  |
+| Load compact context for a workflow decision                    | `ghostcrab_pack`                                    |
+| Store an enrichment result, audit note, or processed event      | `ghostcrab_remember`                                |
+| Maintain current state for a lead, ticket, order, or task       | `ghostcrab_upsert`                                  |
+| Count records by status, source, workflow, or owner             | `ghostcrab_count`                                   |
+| Link related leads, tickets, orders, decisions, or dependencies | `ghostcrab_learn`                                   |
+| Traverse linked workflow memory                                 | `ghostcrab_traverse`                                |
+| Track active workflow goals or handoffs                         | `ghostcrab_project`                                 |
+| Inspect available schemas                                       | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
+| Export a workspace model for a generator or bridge              | `ghostcrab_workspace_export_model`                  |
 
 `ghostcrab_search` supports `mode="bm25"` for keyword search, `mode="semantic"` for vector search, and `mode="hybrid"` for the recommended combined mode. On GhostCrab Personal SQLite without embeddings configured, `semantic` and `hybrid` fall back to BM25 and the MCP response notes that fallback. To enable vector retrieval, configure `GHOSTCRAB_EMBEDDINGS_MODE=openrouter`, `GHOSTCRAB_EMBEDDINGS_MODEL`, and `GHOSTCRAB_EMBEDDINGS_API_KEY` in the GhostCrab server. n8n workflows pass `mode` in the bridge request payload; the workflow nodes do not change.
 
@@ -135,12 +135,12 @@ Use `ghostcrab_upsert` for current-state records that should change over time:
 
 n8n has a trigger-fire-action lifecycle, not an agent session lifecycle.
 
-| Moment | n8n action | GhostCrab action |
-| --- | --- | --- |
-| Trigger fires | Load cross-run context or dedupe key | `ghostcrab_search` or `ghostcrab_pack` |
-| Node executes | Write result or update state | `ghostcrab_remember` or `ghostcrab_upsert` |
-| Workflow completes | Leave an audit note | `ghostcrab_remember` |
-| Workflow retries | Check whether the event was already processed | `ghostcrab_search` |
+| Moment             | n8n action                                    | GhostCrab action                           |
+| ------------------ | --------------------------------------------- | ------------------------------------------ |
+| Trigger fires      | Load cross-run context or dedupe key          | `ghostcrab_search` or `ghostcrab_pack`     |
+| Node executes      | Write result or update state                  | `ghostcrab_remember` or `ghostcrab_upsert` |
+| Workflow completes | Leave an audit note                           | `ghostcrab_remember`                       |
+| Workflow retries   | Check whether the event was already processed | `ghostcrab_search`                         |
 
 If the bridge is unavailable, the workflow should branch explicitly:
 
