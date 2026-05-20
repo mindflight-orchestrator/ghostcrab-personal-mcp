@@ -324,3 +324,9 @@ Upstream: `github.com/mindflight-orchestrator/mindBrain`.
 - `docs/dev/INTERNALS.md` — Repository layout, packaging, Docker dev stack
 
 ***
+
+## A starter Kit
+
+To start a full project to create your first ontology, you could add this starter kit skills :
+
+`https://github.com/mindflight-orchestrator/ghostcrab-personal-mcp`.
