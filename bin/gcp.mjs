@@ -112,6 +112,7 @@ Usage: gcp <command> [options]
   brain workspace create [name]   Create / register a workspace
   brain workspace list            List workspaces
   brain schema <sub>              Ontologies (knowledge structure in the DB)
+  brain ontology import|export    Import/export OWL2 N-Triples
   brain backup [opts]             Export workspace/collection/taxonomy backup
   brain export [opts]             Alias for brain backup
   brain load <file>               Load JSONL profile or restore backup bundle

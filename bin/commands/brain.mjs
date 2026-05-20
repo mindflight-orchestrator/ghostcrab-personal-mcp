@@ -30,6 +30,11 @@ export async function cmdBrain(args) {
       await cmdOntologies(rest);
       break;
     }
+    case "ontology": {
+      const { cmdBrainOntology } = await import("./brain-ontology.mjs");
+      await cmdBrainOntology(rest);
+      break;
+    }
     case "load": {
       const { cmdLoad } = await import("./load.mjs");
       await cmdLoad(rest);
@@ -413,6 +418,7 @@ Subcommands:
   workspace create [name]                 Register a workspace & data paths
   workspace list                          List workspaces
   schema <list|pull|remove|show>           Ontologies / knowledge structure in the DB
+  ontology import|export [opts]           Import/export OWL2 N-Triples into MindBrain
   db-who [--path] [--workspace]            Which processes have the SQLite file open (lsof)
   document [--workspace] [--db] [--force] <cmd>
                                            Corpus import / normalize / profile (stop MCP first)
@@ -425,6 +431,8 @@ Examples:
   gcp brain up --workspace my-app
   gcp brain workspace create my-app
   gcp brain schema pull mindflight/mindbrain
+  gcp brain ontology import --workspace-id my_ws --ontology-id my_ws::owl --input ./ontology.nt --materialize-graph
+  gcp brain ontology export --ontology-id my_ws::owl --format ntriples -o ./ontology.nt
   gcp brain backup --workspace-id my_ws --output ./backup.json
   gcp brain backup --workspace-id my_ws --scope taxonomies --output ./taxonomies.json
   gcp brain export --workspace-id my_ws --scope collection --collection-id my_ws::docs -o ./docs.json

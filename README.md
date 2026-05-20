@@ -202,6 +202,7 @@ Backup and restore use the same canonical raw tables:
 ```bash
 npx gcp brain backup --workspace-id my_ws --output ./my_ws.backup.json
 npx gcp brain backup --workspace-id my_ws --scope taxonomies --output ./my_ws.taxonomies.json
+npx gcp brain ontology import --workspace-id my_ws --ontology-id my_ws::owl --input ./ontology.nt --materialize-graph
 npx gcp brain load ./my_ws.backup.json --dry-run
 ```
 
