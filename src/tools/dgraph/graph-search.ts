@@ -14,19 +14,16 @@ export const GraphSearchInput = z.object({
   query: z.string().trim().max(4_096).default(""),
   entity_types: z.array(z.string().trim().min(1)).max(50).default([]),
   metadata_filters: z.record(z.string(), z.unknown()).default({}),
-  collection_id: z.preprocess(
-    (value) => {
-      if (value === null) return undefined;
-      if (typeof value === "string") {
-        const normalized = value.trim().toLowerCase();
-        if (normalized === "" || normalized === "null" || normalized === "nil") {
-          return undefined;
-        }
+  collection_id: z.preprocess((value) => {
+    if (value === null) return undefined;
+    if (typeof value === "string") {
+      const normalized = value.trim().toLowerCase();
+      if (normalized === "" || normalized === "null" || normalized === "nil") {
+        return undefined;
       }
-      return value;
-    },
-    z.string().trim().min(1).optional()
-  ),
+    }
+    return value;
+  }, z.string().trim().min(1).optional()),
   include_relations: z.boolean().default(false),
   limit: z.coerce.number().int().min(1).max(100).default(20),
   workspace_id: z.string().trim().min(1).optional()
@@ -71,7 +68,9 @@ function parseJsonObject(value: unknown): Record<string, unknown> {
 
   try {
     const parsed = JSON.parse(value);
-    return typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
+    return typeof parsed === "object" &&
+      parsed !== null &&
+      !Array.isArray(parsed)
       ? (parsed as Record<string, unknown>)
       : {};
   } catch {
@@ -107,7 +106,8 @@ export const graphSearchTool: ToolHandler = {
       properties: {
         workspace_id: {
           type: "string",
-          description: "Target workspace id. Overrides session context for this call only."
+          description:
+            "Target workspace id. Overrides session context for this call only."
         },
         collection_id: {
           type: ["string", "null"],
@@ -132,13 +132,12 @@ export const graphSearchTool: ToolHandler = {
           default: {},
           additionalProperties: true,
           description:
-            "Exact metadata_json filters. Example: {\"projection_id\":\"proj_keyword_opportunities\"}."
+            'Exact metadata_json filters. Example: {"projection_id":"proj_keyword_opportunities"}.'
         },
         include_relations: {
           type: "boolean",
           default: false,
-          description:
-            "Include graph_relation rows touching returned entities."
+          description: "Include graph_relation rows touching returned entities."
         },
         limit: {
           type: "integer",
@@ -167,7 +166,9 @@ export const graphSearchTool: ToolHandler = {
     } catch (error) {
       return createToolErrorResult(
         "ghostcrab_graph_search",
-        error instanceof Error ? error.message : "MindBrain graph-search backend unavailable",
+        error instanceof Error
+          ? error.message
+          : "MindBrain graph-search backend unavailable",
         "backend_unavailable"
       );
     }

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { WORKSPACE_ID_REGEX, WorkspaceIdSchema, CreateWorkspaceInputSchema } from "../../src/types/workspace.js";
+import {
+  WORKSPACE_ID_REGEX,
+  WorkspaceIdSchema,
+  CreateWorkspaceInputSchema
+} from "../../src/types/workspace.js";
 
 describe("WORKSPACE_ID_REGEX", () => {
   it("accepts valid ids", () => {
@@ -65,9 +69,7 @@ describe("CreateWorkspaceInputSchema", () => {
   });
 
   it("rejects missing label", () => {
-    expect(() =>
-      CreateWorkspaceInputSchema.parse({ id: "ws1" })
-    ).toThrow();
+    expect(() => CreateWorkspaceInputSchema.parse({ id: "ws1" })).toThrow();
   });
 
   it("rejects invalid workspace_id", () => {

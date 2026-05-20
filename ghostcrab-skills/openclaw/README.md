@@ -44,7 +44,15 @@ Canonical copy-paste source in this tree: [ghostcrab-memory/mcp.json](ghostcrab-
   "mcpServers": {
     "ghostcrab": {
       "command": "pnpm",
-      "args": ["dlx", "@mindflight/ghostcrab-mcp", "gcp", "brain", "up", "--workspace", "my-project"]
+      "args": [
+        "dlx",
+        "@mindflight/ghostcrab-mcp",
+        "gcp",
+        "brain",
+        "up",
+        "--workspace",
+        "my-project"
+      ]
     }
   }
 }
@@ -76,10 +84,10 @@ After configuration, use OpenClaw’s own MCP status or tool listing (per your v
 
 ## Part 2 — Install skills and the epistemic agent profile
 
-| Path | Role |
-|------|------|
-| [ghostcrab-memory/](ghostcrab-memory/) | Core OpenClaw skill: memory, onboarding discipline, patterns (`SKILL.md`, `mcp.json`, schema/query/app notes) |
-| [ghostcrab-epistemic-agent/](ghostcrab-epistemic-agent/) | Richer persona: startup/heartbeat, gaps, checkpoints (`AGENTS.md`, `SOUL.md`, `WORKING.md`, `HEARTBEAT.md`) |
+| Path                                                     | Role                                                                                                          |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| [ghostcrab-memory/](ghostcrab-memory/)                   | Core OpenClaw skill: memory, onboarding discipline, patterns (`SKILL.md`, `mcp.json`, schema/query/app notes) |
+| [ghostcrab-epistemic-agent/](ghostcrab-epistemic-agent/) | Richer persona: startup/heartbeat, gaps, checkpoints (`AGENTS.md`, `SOUL.md`, `WORKING.md`, `HEARTBEAT.md`)   |
 
 Copy or symlink these folders into the location **your OpenClaw install** uses for skills and agent definitions. This repo does not automate OpenClaw installation.
 
@@ -104,18 +112,18 @@ ghostcrab-skills/
 
 Guided prompts for live OpenClaw sessions live under [scenarios/](scenarios/):
 
-| Scenario | File |
-|----------|------|
-| Codebase intelligence | [scenarios/codebase-intelligence.md](scenarios/codebase-intelligence.md) |
-| Compliance audit | [scenarios/compliance-audit.md](scenarios/compliance-audit.md) |
-| CRM pipeline | [scenarios/crm-pipeline.md](scenarios/crm-pipeline.md) |
-| Environment delivery | [scenarios/environment-delivery.md](scenarios/environment-delivery.md) |
-| Incident response | [scenarios/incident-response.md](scenarios/incident-response.md) |
+| Scenario               | File                                                                       |
+| ---------------------- | -------------------------------------------------------------------------- |
+| Codebase intelligence  | [scenarios/codebase-intelligence.md](scenarios/codebase-intelligence.md)   |
+| Compliance audit       | [scenarios/compliance-audit.md](scenarios/compliance-audit.md)             |
+| CRM pipeline           | [scenarios/crm-pipeline.md](scenarios/crm-pipeline.md)                     |
+| Environment delivery   | [scenarios/environment-delivery.md](scenarios/environment-delivery.md)     |
+| Incident response      | [scenarios/incident-response.md](scenarios/incident-response.md)           |
 | Integration operations | [scenarios/integration-operations.md](scenarios/integration-operations.md) |
-| Knowledge base | [scenarios/knowledge-base.md](scenarios/knowledge-base.md) |
-| Out of domain | [scenarios/out-of-domain.md](scenarios/out-of-domain.md) |
-| Project delivery | [scenarios/project-delivery.md](scenarios/project-delivery.md) |
-| Software delivery | [scenarios/software-delivery.md](scenarios/software-delivery.md) |
+| Knowledge base         | [scenarios/knowledge-base.md](scenarios/knowledge-base.md)                 |
+| Out of domain          | [scenarios/out-of-domain.md](scenarios/out-of-domain.md)                   |
+| Project delivery       | [scenarios/project-delivery.md](scenarios/project-delivery.md)             |
+| Software delivery      | [scenarios/software-delivery.md](scenarios/software-delivery.md)           |
 
 Pair scenarios with demo profiles from [shared/demo-profiles/](../shared/demo-profiles/) when you want seeded data; see [ghostcrab-memory/README.md](ghostcrab-memory/README.md).
 

@@ -51,12 +51,40 @@ function resolveDevNativeEnginePath(pkgRoot) {
   const candidates =
     process.platform === "win32"
       ? [
-          join(pkgRoot, "cmd", "backend", "zig-out", "bin", "ghostcrab-document.exe"),
-          join(pkgRoot, "vendor", "mindbrain", "zig-out", "bin", "mindbrain-standalone-tool.exe")
+          join(
+            pkgRoot,
+            "cmd",
+            "backend",
+            "zig-out",
+            "bin",
+            "ghostcrab-document.exe"
+          ),
+          join(
+            pkgRoot,
+            "vendor",
+            "mindbrain",
+            "zig-out",
+            "bin",
+            "mindbrain-standalone-tool.exe"
+          )
         ]
       : [
-          join(pkgRoot, "cmd", "backend", "zig-out", "bin", "ghostcrab-document"),
-          join(pkgRoot, "vendor", "mindbrain", "zig-out", "bin", "mindbrain-standalone-tool")
+          join(
+            pkgRoot,
+            "cmd",
+            "backend",
+            "zig-out",
+            "bin",
+            "ghostcrab-document"
+          ),
+          join(
+            pkgRoot,
+            "vendor",
+            "mindbrain",
+            "zig-out",
+            "bin",
+            "mindbrain-standalone-tool"
+          )
         ];
   for (const candidate of candidates) {
     if (existsSync(candidate)) return candidate;

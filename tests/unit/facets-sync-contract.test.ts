@@ -9,7 +9,10 @@ import { join } from "node:path";
 describe("sqlite_mindbrain--1.0.0.sql — facets sync contract", () => {
   async function loadCanonicalSql(): Promise<string> {
     return readFile(
-      join(import.meta.dirname, "../../vendor/mindbrain/sql/sqlite_mindbrain--1.0.0.sql"),
+      join(
+        import.meta.dirname,
+        "../../vendor/mindbrain/sql/sqlite_mindbrain--1.0.0.sql"
+      ),
       "utf8"
     );
   }
@@ -34,7 +37,9 @@ describe("sqlite_mindbrain--1.0.0.sql — facets sync contract", () => {
 
   it("partial unique index only applies to synced rows (WHERE source_ref IS NOT NULL)", async () => {
     const sql = await loadCanonicalSql();
-    const uniqueIndexBlock = sql.slice(sql.indexOf("facets_source_ref_workspace_uniq"));
+    const uniqueIndexBlock = sql.slice(
+      sql.indexOf("facets_source_ref_workspace_uniq")
+    );
     expect(uniqueIndexBlock).toContain("WHERE source_ref IS NOT NULL");
   });
 
@@ -50,7 +55,9 @@ describe("sqlite_mindbrain--1.0.0.sql — facets sync contract", () => {
   it("uses IF NOT EXISTS on all index creations (idempotent re-run)", async () => {
     const sql = await loadCanonicalSql();
     // Every CREATE [UNIQUE] INDEX statement must be followed by IF NOT EXISTS.
-    const withoutIfNotExists = sql.match(/CREATE\s+(?:UNIQUE\s+)?INDEX\s+(?!IF\s+NOT\s+EXISTS)\w/gi);
+    const withoutIfNotExists = sql.match(
+      /CREATE\s+(?:UNIQUE\s+)?INDEX\s+(?!IF\s+NOT\s+EXISTS)\w/gi
+    );
     expect(withoutIfNotExists).toBeNull();
   });
 });

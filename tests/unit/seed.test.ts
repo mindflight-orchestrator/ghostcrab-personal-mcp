@@ -31,7 +31,8 @@ function createMockDatabase(): {
     }
 
     if (
-      (sql.includes("FROM graph.entity") || sql.includes("FROM graph_entity")) &&
+      (sql.includes("FROM graph.entity") ||
+        sql.includes("FROM graph_entity")) &&
       sql.includes("name =")
     ) {
       const nodeId = String(params.length >= 2 ? params[1] : params[0]);
@@ -40,7 +41,8 @@ function createMockDatabase(): {
     }
 
     if (
-      (sql.includes("FROM graph.relation") || sql.includes("FROM graph_relation")) &&
+      (sql.includes("FROM graph.relation") ||
+        sql.includes("FROM graph_relation")) &&
       sql.includes("s.name =")
     ) {
       lastEdgeLookupKey = `${params[0]}:${params[1]}:${params[2]}`;
@@ -57,7 +59,10 @@ function createMockDatabase(): {
       return insertedAgentStates.has(agentId) ? [{ agent_id: agentId }] : [];
     }
 
-    if (sql.includes("SELECT id") && sql.includes("FROM mb_pragma.projections")) {
+    if (
+      sql.includes("SELECT id") &&
+      sql.includes("FROM mb_pragma.projections")
+    ) {
       const projectionKey = `${params[0]}:${params[1]}:${params[3]}:${params[4]}`;
 
       return insertedProjectionKeys.has(projectionKey)

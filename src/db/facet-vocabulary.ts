@@ -64,9 +64,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function toFacetNameSet(
-  facetNames: Iterable<string> | undefined
-): Set<string> {
+function toFacetNameSet(facetNames: Iterable<string> | undefined): Set<string> {
   return new Set(facetNames ?? []);
 }
 
@@ -104,8 +102,7 @@ export function buildFacetDefinitionRecord(
     native: overrides?.native ?? Boolean(catalogEntry?.native),
     native_column:
       overrides?.native_column ?? catalogEntry?.native?.column ?? null,
-    native_kind:
-      overrides?.native_kind ?? (catalogEntry?.native?.kind ?? null)
+    native_kind: overrides?.native_kind ?? catalogEntry?.native?.kind ?? null
   };
 }
 
@@ -199,7 +196,8 @@ export function validateFacetRecordInput(
         key: "native_kind",
         path: "facets.native_kind",
         record_index: recordIndex,
-        message: "Facet definition native_kind must be 'plain', 'boolean', or null"
+        message:
+          "Facet definition native_kind must be 'plain', 'boolean', or null"
       });
     }
 
@@ -252,27 +250,29 @@ export async function listPersistedFacetDefinitions(
     created_at: string;
   }>
 > {
-  return database.query<{
-    content: string;
-    facets: string;
-    id: string;
-    created_at_unix: number;
-  }>(
-    `
+  return database
+    .query<{
+      content: string;
+      facets: string;
+      id: string;
+      created_at_unix: number;
+    }>(
+      `
       SELECT id, content, facets_json AS facets, created_at_unix
       FROM ${SQLITE_FACT_STORE_TABLE}
       WHERE schema_id = ?
       ORDER BY created_at_unix ASC
     `,
-    [FACET_DEFINITION_SCHEMA_ID]
-  ).then((rows) =>
-    rows.map((row) => ({
-      id: row.id,
-      content: row.content,
-      facets: safeParseFacetJson(row.facets),
-      created_at: new Date(Number(row.created_at_unix) * 1000).toISOString()
-    }))
-  );
+      [FACET_DEFINITION_SCHEMA_ID]
+    )
+    .then((rows) =>
+      rows.map((row) => ({
+        id: row.id,
+        content: row.content,
+        facets: safeParseFacetJson(row.facets),
+        created_at: new Date(Number(row.created_at_unix) * 1000).toISOString()
+      }))
+    );
 }
 
 export function parseFacetDefinitionRecord(row: {
@@ -287,7 +287,11 @@ export function parseFacetDefinitionRecord(row: {
 
   try {
     const parsed = JSON.parse(row.content) as unknown;
-    if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+    if (
+      typeof parsed === "object" &&
+      parsed !== null &&
+      !Array.isArray(parsed)
+    ) {
       parsedContent = parsed as Record<string, unknown>;
     }
   } catch {
@@ -347,15 +351,12 @@ export async function loadPersistedFacetDefinitionRecords(
 export async function loadPersistedFacetDefinition(
   database: DatabaseClient,
   facetName: string
-): Promise<
-  | {
-      content: string;
-      facets: Record<string, unknown>;
-      id: string;
-      created_at: string;
-    }
-  | null
-> {
+): Promise<{
+  content: string;
+  facets: Record<string, unknown>;
+  id: string;
+  created_at: string;
+} | null> {
   const [row] = await database.query<{
     content: string;
     facets_json: string;
@@ -391,7 +392,10 @@ export async function upsertFacetDefinitionRecord(
   id: string;
   created: boolean;
 }> {
-  const existing = await loadPersistedFacetDefinition(database, definition.facet_name);
+  const existing = await loadPersistedFacetDefinition(
+    database,
+    definition.facet_name
+  );
   const serializedContent = JSON.stringify(definition, null, 2);
   const serializedFacets = JSON.stringify({
     facet_name: definition.facet_name,

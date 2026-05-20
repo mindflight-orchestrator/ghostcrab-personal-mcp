@@ -177,7 +177,10 @@ await withSmokeClient(
     assert.equal(coveragePayload.coverage_score > 0, true);
     assert.equal(coveragePayload.coverage_score <= 1, true);
     assert.equal(coveragePayload.covered_nodes >= 1, true);
-    assert.equal(coveragePayload.total_nodes >= coveragePayload.covered_nodes, true);
+    assert.equal(
+      coveragePayload.total_nodes >= coveragePayload.covered_nodes,
+      true
+    );
     assert.equal(coveragePayload.can_proceed_autonomously, false);
     assert.equal(coveragePayload.recommended_action, "proceed_with_disclosure");
     assert.equal(Array.isArray(coveragePayload.gap_nodes), true);

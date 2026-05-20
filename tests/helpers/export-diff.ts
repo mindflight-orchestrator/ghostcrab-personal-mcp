@@ -41,14 +41,18 @@ export function diffExports(
         diffs.push(`${fieldPath}: expected object, got ${String(actualVal)}`);
         continue;
       }
-      diffs.push(...diffExports(
-        actualVal as ExportPayload,
-        expectedVal as ExportPayload,
-        fieldPath
-      ));
+      diffs.push(
+        ...diffExports(
+          actualVal as ExportPayload,
+          expectedVal as ExportPayload,
+          fieldPath
+        )
+      );
     } else {
       if (actualVal !== expectedVal) {
-        diffs.push(`${fieldPath}: expected ${JSON.stringify(expectedVal)}, got ${JSON.stringify(actualVal)}`);
+        diffs.push(
+          `${fieldPath}: expected ${JSON.stringify(expectedVal)}, got ${JSON.stringify(actualVal)}`
+        );
       }
     }
   }
@@ -68,7 +72,10 @@ function diffArrays(
 
   if (naturalKey) {
     const actualMap = new Map(
-      actual.map((item) => [naturalKey(item as Record<string, unknown>), item as Record<string, unknown>])
+      actual.map((item) => [
+        naturalKey(item as Record<string, unknown>),
+        item as Record<string, unknown>
+      ])
     );
     for (const expectedItem of expected) {
       const key = naturalKey(expectedItem as Record<string, unknown>);
@@ -77,12 +84,20 @@ function diffArrays(
         diffs.push(`${path}[${key}]: missing in actual`);
         continue;
       }
-      diffs.push(...diffExports(actualItem, expectedItem as ExportPayload, `${path}[${key}]`));
+      diffs.push(
+        ...diffExports(
+          actualItem,
+          expectedItem as ExportPayload,
+          `${path}[${key}]`
+        )
+      );
     }
   } else {
     // Ordered comparison
     if (actual.length !== expected.length) {
-      diffs.push(`${path}: length mismatch (actual=${actual.length}, expected=${expected.length})`);
+      diffs.push(
+        `${path}: length mismatch (actual=${actual.length}, expected=${expected.length})`
+      );
     }
     for (let i = 0; i < Math.min(actual.length, expected.length); i++) {
       const a = actual[i] as ExportPayload;
@@ -90,7 +105,9 @@ function diffArrays(
       if (typeof e === "object" && e !== null) {
         diffs.push(...diffExports(a, e, `${path}[${i}]`));
       } else if (a !== e) {
-        diffs.push(`${path}[${i}]: expected ${JSON.stringify(e)}, got ${JSON.stringify(a)}`);
+        diffs.push(
+          `${path}[${i}]: expected ${JSON.stringify(e)}, got ${JSON.stringify(a)}`
+        );
       }
     }
   }
@@ -106,7 +123,8 @@ function getNaturalKeyFn(
     return (item) => `${item.schema_name}.${item.table_name}`;
   }
   if (leaf === "columns") {
-    return (item) => `${item.schema_name}.${item.table_name}.${item.column_name}`;
+    return (item) =>
+      `${item.schema_name}.${item.table_name}.${item.column_name}`;
   }
   if (leaf === "relations") {
     return (item) =>

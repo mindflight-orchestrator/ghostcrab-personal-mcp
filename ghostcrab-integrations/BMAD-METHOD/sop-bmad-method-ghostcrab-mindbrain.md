@@ -22,7 +22,7 @@ The integration keeps BMAD's existing artifacts intact while giving Claude Code,
 
 ## BMAD-METHOD: architecture and integration hooks
 
-BMAD (Breakthrough Method of Agile AI-Driven Development) structures software delivery around **specialized agents with fixed roles** (Analyst, PM, Architect, Scrum Master, Dev, QA) who hand off context through **story files** — enriched Markdown files each agent reads, extends, then passes on. The core problem BMAD addresses internally matches yours: *context loss between agents*. GhostCrab/MindBrain fits with a clear value proposition.
+BMAD (Breakthrough Method of Agile AI-Driven Development) structures software delivery around **specialized agents with fixed roles** (Analyst, PM, Architect, Scrum Master, Dev, QA) who hand off context through **story files** — enriched Markdown files each agent reads, extends, then passes on. The core problem BMAD addresses internally matches yours: _context loss between agents_. GhostCrab/MindBrain fits with a clear value proposition.
 
 ## The problem BMAD acknowledges
 
@@ -38,8 +38,7 @@ These three agents produce PRD + architecture docs, today as static Markdown in 
 
 - **GhostCrab MCP** exposes a `register_entity` tool — every key PRD concept (feature, constraint, actor, decision) becomes a node in the MindBrain ontology.
 - The Architect agent, via MCP, calls `get_related_concepts("authentication")` and retrieves prior decisions on that slice across modules — **without rereading 80 pages of PRD**.
-- Outcome: static docs become an *ontology projection*, generated on demand.
-
+- Outcome: static docs become an _ontology projection_, generated on demand.
 
 ### Story file layer (SM agent)
 
@@ -49,7 +48,6 @@ The SM agent is the current bottleneck: they must manually hydrate every story w
 - The story file stays a Markdown artifact (compatible with existing BMAD flow), but its contextual payload is **generated dynamically** from the ontology instead of handwritten.
 - Every story becomes a graph node tied to features, ADRs, and dependencies.
 
-
 ### Dev/QA layer (execution agents)
 
 These agents today open one story file and work in isolation. With GhostCrab:
@@ -57,7 +55,6 @@ These agents today open one story file and work in isolation. With GhostCrab:
 - The Dev agent records implementation decisions in real time (`register_decision`).
 - The QA agent calls `get_implementation_context(component_id)` to understand choices made — without re-asking Dev or rereading the codebase.
 - Two Dev agents working in parallel on related stories share ontology updates **in real time** through MindBrain — impossible with static story files alone.
-
 
 ## Concrete integration proposal
 
@@ -80,7 +77,7 @@ Story files remain the interchange format between agents (BMAD unchanged), but t
 
 Good baseline. The structural pieces of BMAD `SKILL.md` are covered below. Full analysis follows.
 
-***
+---
 
 ## `SKILL.md` structure in BMAD
 
@@ -96,8 +93,7 @@ mindbrain-context-manager/
 └── templates/        ← generated outputs (enriched stories, ADR templates)
 ```
 
-
-***
+---
 
 ## What the MindBrain/GhostCrab `SKILL.md` must contain
 
@@ -115,7 +111,7 @@ Operational content below, split by required section.
 
 BMAD requires a prefix on every skill [^2_2]; using `mindbrain-` clearly namespaces integration tooling.
 
-***
+---
 
 ### 2. Persona and role
 
@@ -134,7 +130,7 @@ from which story files are generated and enriched.
 
 The role must be operational and bounded [^2_3] — BMAD expects every agent to have "clear persona, specific expertise, well-defined capabilities."
 
-***
+---
 
 ### 3. Declared capabilities
 
@@ -142,6 +138,7 @@ The role must be operational and bounded [^2_3] — BMAD expects every agent to 
 ## Capabilities
 
 ### Context Registration
+
 - `register_entity(name, type, description, relations[])` — persists a concept
   in the MindBrain ontology (feature, actor, constraint, decision, component).
 - `register_decision(story_id, decision, rationale, impacts[])` — persists an
@@ -150,6 +147,7 @@ The role must be operational and bounded [^2_3] — BMAD expects every agent to 
   ontology entities.
 
 ### Context Query
+
 - `query_context(scope, agent_role)` — returns entities and relations relevant
   to a given role (dev, architect, qa, pm).
 - `get_related_concepts(concept_name)` — graph traversal: returns linked decisions,
@@ -158,14 +156,14 @@ The role must be operational and bounded [^2_3] — BMAD expects every agent to 
   status.
 
 ### Story Hydration
+
 - `hydrate_story(story_id)` — generates a story contextual block from the ontology
   (replacing manual SM reconstruction).
 - `context_diff(story_id_a, story_id_b)` — surfaces context conflicts across two
   parallel stories.
 ```
 
-
-***
+---
 
 ### 4. Behavior rules
 
@@ -175,6 +173,7 @@ BMAD enforces divergent norms for Dev agents (lean, focused) vs planning agents 
 ## Behavior Rules
 
 ### For Planning Agents (Analyst, PM, Architect, SM)
+
 1. After every PRD section validated, call `register_entity` for each new
    concept introduced. Do not wait until the end of the document.
 2. Before generating a story, call `query_context(story_id, agent_role="sm")`
@@ -184,6 +183,7 @@ BMAD enforces divergent norms for Dev agents (lean, focused) vs planning agents 
    markup in story templates to trigger automatic hydration.
 
 ### For Dev Agents (Dev, QA)
+
 1. At story start: call `query_context(story_id, agent_role="dev")` — read
    the returned entities before writing any code.
 2. After each implementation decision: call `register_decision` immediately.
@@ -192,14 +192,14 @@ BMAD enforces divergent norms for Dev agents (lean, focused) vs planning agents 
    MindBrain as the single source of truth.
 
 ### Conflict Prevention (Parallel Stories)
+
 1. Before starting work on a story: call `context_diff` against all in-progress
    stories in the same epic. Block on conflicts before writing code.
 2. If `context_diff` returns overlapping entities with divergent decisions,
    escalate to the SM agent before proceeding.
 ```
 
-
-***
+---
 
 ### 5. Menu triggers
 
@@ -208,18 +208,17 @@ BMAD uses short codes to fire actions from an active agent [^2_2]:
 ```markdown
 ## Menu Triggers (when loaded as agent)
 
-| Code | Action |
-|------|--------|
-| `MB-REG` | Register current document entities into MindBrain |
-| `MB-CTX` | Query context for current story/component |
-| `MB-HYD` | Hydrate story with ontological context block |
-| `MB-DIFF` | Run context diff against in-progress stories |
+| Code      | Action                                                  |
+| --------- | ------------------------------------------------------- |
+| `MB-REG`  | Register current document entities into MindBrain       |
+| `MB-CTX`  | Query context for current story/component               |
+| `MB-HYD`  | Hydrate story with ontological context block            |
+| `MB-DIFF` | Run context diff against in-progress stories            |
 | `MB-SYNC` | Full project sync — rebuild ontology from existing docs |
-| `MB-ADR` | Register a new Architecture Decision Record |
+| `MB-ADR`  | Register a new Architecture Decision Record             |
 ```
 
-
-***
+---
 
 ### 6. Dependencies and prerequisites
 
@@ -229,6 +228,7 @@ BMAD uses short codes to fire actions from an active agent [^2_2]:
 ## Prerequisites
 
 ### MCP Server
+
 GhostCrab MCP must be running and accessible. Configure it in your project's MCP settings (see JSON example in the next block).
 
 ### BMAD Integration Points
@@ -250,7 +250,7 @@ GhostCrab MCP must be running and accessible. Configure it in your project's MCP
 }
 ```
 
-***
+---
 
 ### 7. Related templates (`templates/`)
 
@@ -267,8 +267,7 @@ Reference these templates using BMAD markup [^2_3] :
   `query_context(epic_id, role="all")`
 ```
 
-
-***
+---
 
 ## Physical location in the project
 
@@ -320,14 +319,13 @@ For Codex use the same tree under `.codex/skills/` [^2_1][^2_2]. The skill is in
 
 [^2_15]: https://www.scribd.com/document/899990438/Bmad-Master
 
-
 ---
 
 # How to model BMAD project-management ontology — delivering a SQLite artifact ready to project as a knowledge graph for running a BMAD project
 
 The SQLite file was generated and is ready — sharing the binary failed due to sandbox path limits. Below is exactly what it contains and how to reconstruct it.
 
-***
+---
 
 ## BMAD ontology model: SQLite layout
 
@@ -335,16 +333,16 @@ The delivered SQLite has **8 tables + 2 views** covering the four BMAD phases [^
 
 ### Schema tables
 
-| Table | Role | Delivered content |
-| :-- | :-- | :-- |
-| `entity_type` | 24 node kinds by layer | `project`, `prd`, `epic`, `story`, `adr`, `component`, `constraint`, `sprint`, `test_case`, `quality_gate`, … |
-| `entity` | 27 sample nodes | Root project → Brief → PRD → Architecture → 3 epics → 6 stories → sprints → QGs |
-| `relation_type` | 14 edge kinds | `produces`, `refines`, `implements`, `depends_on`, `validates`, `documents`, `constrains`, `supersedes`, … |
-| `relation` | 50 edges | Phase-to-phase graph |
-| `agent_role` | 6 BMAD roles | Analyst, PM, Architect, SM, Dev, QA with `produces[]` and `consumes[]` |
-| `agent_entity` | 30 ownership rows | Who authored / consumes / reviewed each entity |
-| `decision` | 3 ADRs | PostgreSQL choice, API design, WAL mode — context / rationale / status |
-| `facet` | 37 indexes | Facets `epic`, `sprint`, `component`, `agent_role`, `tech`, `layer` per entity |
+| Table           | Role                   | Delivered content                                                                                             |
+| :-------------- | :--------------------- | :------------------------------------------------------------------------------------------------------------ |
+| `entity_type`   | 24 node kinds by layer | `project`, `prd`, `epic`, `story`, `adr`, `component`, `constraint`, `sprint`, `test_case`, `quality_gate`, … |
+| `entity`        | 27 sample nodes        | Root project → Brief → PRD → Architecture → 3 epics → 6 stories → sprints → QGs                               |
+| `relation_type` | 14 edge kinds          | `produces`, `refines`, `implements`, `depends_on`, `validates`, `documents`, `constrains`, `supersedes`, …    |
+| `relation`      | 50 edges               | Phase-to-phase graph                                                                                          |
+| `agent_role`    | 6 BMAD roles           | Analyst, PM, Architect, SM, Dev, QA with `produces[]` and `consumes[]`                                        |
+| `agent_entity`  | 30 ownership rows      | Who authored / consumes / reviewed each entity                                                                |
+| `decision`      | 3 ADRs                 | PostgreSQL choice, API design, WAL mode — context / rationale / status                                        |
+| `facet`         | 37 indexes             | Facets `epic`, `sprint`, `component`, `agent_role`, `tech`, `layer` per entity                                |
 
 ### Ready-made views
 
@@ -355,7 +353,6 @@ SELECT * FROM v_graph_edges;
 -- Enriched entity rows (for agent query_context)
 SELECT * FROM v_entity_full WHERE layer = 'implementation' AND status = 'draft';
 ```
-
 
 ### GhostCrab-ready queries
 
@@ -386,8 +383,7 @@ WITH RECURSIVE deps(id, depth) AS (
 SELECT e.name, d.depth FROM deps d JOIN entity e ON e.id = d.id ORDER BY d.depth DESC;
 ```
 
-
-***
+---
 
 ## Rebuilding the file
 
@@ -400,7 +396,7 @@ python build_bmad_ontology.py
 
 The script bundles full DDL + seeds: entity types, relation types, agent roles, 27 sample entities, 50 relations, 37 facets, 3 ADRs.
 
-***
+---
 
 ## Migrating to PostgreSQL + MindBrain
 
@@ -446,14 +442,13 @@ SQLite acts as a **local seed** for BMAD bootstrapping without a server — the 
 
 [^3_15]: https://devlabs.angelhack.com/blog/bmad-method/
 
-
 ---
 
 # Meta-layer analysis: facets, semantic edges, and DDL projections (`pg_pragma`) for project management — as if an orchestrator agent had to query that structure to know how inner agents progress, where they stall, where work finished, and when downstream agents can start once prerequisite phases complete.
 
 Solid meta-layer question — that is precisely the workflow-orchestration problem space. Structural analysis follows.
 
-***
+---
 
 ## Vision: what the orchestrator must do
 
@@ -466,7 +461,7 @@ An orchestrating agent answers **four questions** by querying the structure:
 
 Those map to three structural primitives: **facets**, **semantic edges**, and **DDL projections**.
 
-***
+---
 
 ## Facets (query dimensions)
 
@@ -492,7 +487,6 @@ sprint          → sprint-id
 epic            → epic-id
 ```
 
-
 ### Severity and urgency facets
 
 ```
@@ -513,8 +507,7 @@ component       → component-id
 tech            → free-form technical tag
 ```
 
-
-***
+---
 
 ## Semantic edges (dependency graph semantics)
 
@@ -572,7 +565,7 @@ entity-A --supersedes--> entity-B  (superseded ADR; linked stories re-evaluated)
 
 Agents **author** these edges during execution; they are not pre-seeded. The orchestrator subscribes to their creation for immediate reaction.
 
-***
+---
 
 ## DDL projections (`pg_pragma` / materialized views)
 
@@ -604,7 +597,7 @@ WHERE ae.role IN ('author', 'consumer');
 
 **Orchestrator query**: `SELECT * FROM v_agent_workload WHERE agent_id = 'dev' AND status = 'in_progress'`
 
-***
+---
 
 ### Projection 2 — Blocker detection
 
@@ -625,7 +618,7 @@ HAVING COUNT(r.id) > 0;
 
 This immediately surfaces entities with ≥1 unresolved upstream dependency. The orchestrator raises alerts or reassigns work.
 
-***
+---
 
 ### Projection 3 — Ready-to-start queue
 
@@ -656,7 +649,7 @@ ORDER BY
 
 Poll this view (or subscribe via PostgreSQL LISTEN/NOTIFY) to dispatch agents whenever an entity becomes eligible.
 
-***
+---
 
 ### Projection 4 — Phase closure (quality gates)
 
@@ -678,7 +671,7 @@ HAVING pending_count = 0;  -- only gates cleared to proceed
 
 When `pending_count = 0`, the orchestrator **sets `qg.status → passed`** and cascades unlocking for the following phase.
 
-***
+---
 
 ### Projection 5 — Critical-path computation (`pg_dgraph`)
 
@@ -711,18 +704,17 @@ WITH RECURSIVE chain(id, path, depth, total_points) AS (
 SELECT path, depth, total_points FROM chain ORDER BY total_points DESC LIMIT 1;
 ```
 
-
-***
+---
 
 ## Summary: orchestrator polling each cycle
 
-| Question | Projection | Returned signal |
-| :-- | :-- | :-- |
-| Where is every agent? | `v_agent_workload` | Status list per agent / sprint |
-| Who is blocked? | `v_blocked_entities` | Entities + unsatisfied prerequisites |
-| Who can start? | `v_ready_to_start` | Priority-sorted queue |
-| Is a phase complete? | `v_phase_gate_status` | Gates with `pending_count = 0` |
-| What is the critical path? | `dgraph.longest_path` | Sequence + total points |
+| Question                   | Projection            | Returned signal                      |
+| :------------------------- | :-------------------- | :----------------------------------- |
+| Where is every agent?      | `v_agent_workload`    | Status list per agent / sprint       |
+| Who is blocked?            | `v_blocked_entities`  | Entities + unsatisfied prerequisites |
+| Who can start?             | `v_ready_to_start`    | Priority-sorted queue                |
+| Is a phase complete?       | `v_phase_gate_status` | Gates with `pending_count = 0`       |
+| What is the critical path? | `dgraph.longest_path` | Sequence + total points              |
 
 **Facets** index these queries without full scans. **Semantic edges** encode BMAD workflow semantics. **DDL projections** are the MCP tool surface GhostCrab exposes to the orchestrator — each projection becomes a tool such as `get_blocked_entities()`, `get_ready_to_start()`, `get_phase_gate_status(gate_id)`.
 
@@ -730,14 +722,13 @@ SELECT path, depth, total_points FROM chain ORDER BY total_points DESC LIMIT 1;
 
 [^4_1]: https://docs.bmad-method.org/reference/workflow-map/
 
-
 ---
 
 # Author a `SKILL.md` for Claude Code or Codex that consumes the ontology above to operationalize the BMAD orchestrator — coordinating project execution and enforcing per-agent reporting so status and payloads land inside the MindBrain knowledge graph.
 
 The artifact is prepared. Below is its design rationale.
 
-***
+---
 
 ## Contents of this `SKILL.md`
 
@@ -769,14 +760,13 @@ Those hotkeys let Claude Code or Codex drive the orchestrator from the IDE CLI w
 
 [^5_2]: https://blogs.infosys.com/digital-experience/emerging-technologies/bmad-the-framework-for-controlled-and-structured-ai-coding.html
 
-
 ---
 
 # Produce the BMAD `SKILL.md` `ghostcrab-architect` for Claude Code and Codex in American English — goal: stand up ontology via GhostCrab MCP onboarding.
 
 599 lines drafted. Conceptual rationale below.
 
-***
+---
 
 ## What this `SKILL.md` achieves
 
@@ -790,7 +780,6 @@ Every phase stays **idempotent** — rerunning against a partially seeded worksp
 - **OB-SCHEMA** separates taxonomy validation (24 entity types, 14 relation types, six agent roles) from data seeding so types are locked before tuples arrive.
 - **OB-LINK** embeds inference heuristics — `depends_on` edges inferred from story front matter, `constrains` edges from constraint-entity component mentions — without asking operators; artifacts are read directly.
 - **OB-VALIDATE** executes ten checks — the release gate ahead of handing control to orchestration tooling. Hard `FAIL` blocks progression; soft `WARN` proceeds with annotations.
-
 
 ## Handoff boundary to the orchestrator skill
 

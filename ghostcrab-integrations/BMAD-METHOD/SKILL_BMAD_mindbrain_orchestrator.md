@@ -16,4 +16,3 @@ Use the runtime skill for current guidance. It targets GhostCrab Personal SQLite
 - public tools such as `ghostcrab_pack`, `ghostcrab_search`, `ghostcrab_upsert`, `ghostcrab_learn`, and `ghostcrab_project`
 
 The previous custom commands and transport assumptions are historical and should not be used for new BMAD integrations.
-

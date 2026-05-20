@@ -12,14 +12,14 @@ Before any run the namespace must include these entity types—they form runtime
 
 ### Entity types
 
-| EntityType      | Required facets                                                          | Optional facets                                   |
-|-----------------|---------------------------------------------------------------------------|---------------------------------------------------|
-| `Project`       | `name`, `status`, `phase`, `created_at`                                  | `description`, `deadline`, `owner_agent`          |
-| `Task`          | `title`, `status`, `priority`, `phase`, `project_id`                     | `assignee`, `depends_on[]`, `result_ref`          |
-| `Agent`         | `name`, `role`, `status`, `framework`                                    | `capabilities[]`, `current_task_id`               |
-| `KnowledgeNode` | `label`, `domain`, `content`                                            | `source_ref`, `confidence`, `verified`            |
-| `Checkpoint`    | `phase`, `project_id`, `status`, `evaluated_at`                          | `blocking_tasks[]`, `next_phase`                  |
-| `Event`         | `type`, `source_agent`, `timestamp`, `payload`                           | `target_agent`, `project_id`                      |
+| EntityType      | Required facets                                      | Optional facets                          |
+| --------------- | ---------------------------------------------------- | ---------------------------------------- |
+| `Project`       | `name`, `status`, `phase`, `created_at`              | `description`, `deadline`, `owner_agent` |
+| `Task`          | `title`, `status`, `priority`, `phase`, `project_id` | `assignee`, `depends_on[]`, `result_ref` |
+| `Agent`         | `name`, `role`, `status`, `framework`                | `capabilities[]`, `current_task_id`      |
+| `KnowledgeNode` | `label`, `domain`, `content`                         | `source_ref`, `confidence`, `verified`   |
+| `Checkpoint`    | `phase`, `project_id`, `status`, `evaluated_at`      | `blocking_tasks[]`, `next_phase`         |
+| `Event`         | `type`, `source_agent`, `timestamp`, `payload`       | `target_agent`, `project_id`             |
 
 ### Canonical statuses
 
@@ -32,15 +32,15 @@ Checkpoint.status : pending | evaluating | passed | failed
 
 ### Relation types
 
-| Relation     | From          | To             | Semantics                                                     |
-|--------------|---------------|----------------|---------------------------------------------------------------|
-| `ASSIGNED_TO`| Task          | Agent          | Task entrusted to agent                                       |
-| `DEPENDS_ON` | Task          | Task           | Precedence constraint                                         |
-| `BELONGS_TO` | Task          | Project        | Task belongs to project                                       |
-| `PRODUCED`   | Agent         | KnowledgeNode  | Agent produced this knowledge artifact                        |
-| `REFERENCES` | Task          | KnowledgeNode  | Task consumes/references node                               |
-| `TRIGGERS`   | Checkpoint    | Task           | Checkpoint gates downstream tasks                             |
-| `RELATED_TO` | KnowledgeNode | KnowledgeNode  | Semantic link (treat as bidirectional)                         |
+| Relation      | From          | To            | Semantics                              |
+| ------------- | ------------- | ------------- | -------------------------------------- |
+| `ASSIGNED_TO` | Task          | Agent         | Task entrusted to agent                |
+| `DEPENDS_ON`  | Task          | Task          | Precedence constraint                  |
+| `BELONGS_TO`  | Task          | Project       | Task belongs to project                |
+| `PRODUCED`    | Agent         | KnowledgeNode | Agent produced this knowledge artifact |
+| `REFERENCES`  | Task          | KnowledgeNode | Task consumes/references node          |
+| `TRIGGERS`    | Checkpoint    | Task          | Checkpoint gates downstream tasks      |
+| `RELATED_TO`  | KnowledgeNode | KnowledgeNode | Semantic link (treat as bidirectional) |
 
 ---
 
@@ -186,14 +186,14 @@ def report_task_done(agent: Agent, task_id: str, result_summary: str, namespace:
 
 ### 3.1 Available `pg_pragma` projections
 
-| Projection                      | Returned signal                                                              |
-|---------------------------------|-------------------------------------------------------------------------------|
-| `pragma_project_progress`       | % tasks done vs total per phase plus blocking backlog                         |
-| `pragma_agent_availability`     | idle agents, errored agents, current load                                   |
-| `pragma_dependency_readiness`    | Tasks whose dependencies are satisfied (`done`)                               |
-| `pragma_checkpoint_evaluation` | Whether Checkpoint can flip to `passed` given blocking tasks                   |
-| `pragma_critical_path`          | Ordered critical-path task slice                                              |
-| `pragma_knowledge_coverage`     | produced vs expected KnowledgeNodes, uncovered domains                         |
+| Projection                     | Returned signal                                              |
+| ------------------------------ | ------------------------------------------------------------ |
+| `pragma_project_progress`      | % tasks done vs total per phase plus blocking backlog        |
+| `pragma_agent_availability`    | idle agents, errored agents, current load                    |
+| `pragma_dependency_readiness`  | Tasks whose dependencies are satisfied (`done`)              |
+| `pragma_checkpoint_evaluation` | Whether Checkpoint can flip to `passed` given blocking tasks |
+| `pragma_critical_path`         | Ordered critical-path task slice                             |
+| `pragma_knowledge_coverage`    | produced vs expected KnowledgeNodes, uncovered domains       |
 
 ### 3.2 Control loop skeleton
 

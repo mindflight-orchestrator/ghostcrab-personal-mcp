@@ -23,7 +23,7 @@ The integration also fits ADK's MCP and callback model. GhostCrab can expose min
 
 Direct angle: Google ADK exposes a `BaseMemoryService` interface you implement. MindBrain becomes the backend for that interface — placing GhostCrab exactly where ADK expects a persistent, queryable context registry.
 
-***
+---
 
 ## ADK architecture: where MindBrain fits
 
@@ -35,7 +35,7 @@ Google ADK cleanly separates three context layers [^1_1] :
 
 MindBrain targets **`MemoryService`**. That is the layer that lacks ontology structure out of the box: ADK offers `InMemoryMemoryService` (keyword matching, non-persistent), `VertexAiMemoryBankService` (LLM-extracted, cloud-only), and `VertexAiRagMemoryService` (vector similarity) [^1_2]. **None provides a typed, faceted ontology registry.**
 
-***
+---
 
 ## Main integration point: `BaseMemoryService`
 
@@ -51,7 +51,7 @@ class BaseMemoryService:
 
 Implement `MindBrainMemoryService(BaseMemoryService)` on the server in Go (exposed via HTTP/gRPC), with a Python ADK wrapper delegating to GhostCrab MCP or MindBrain HTTP. Turn `search_memory()` into faceted ontology queries — structurally richer than pure vector search.
 
-***
+---
 
 ## Deployment and Runner wiring
 
@@ -70,13 +70,13 @@ runner = Runner(
 
 For Cloud Run deployments, ADK accepts `--memory_service_uri` pointing at your external endpoint [^1_3]. MindBrain runs as a sidecar or dedicated service — no Vertex lock-in.
 
-***
+---
 
 ## Two memory-access patterns from agents
 
 Expose both via GhostCrab [^1_2] :
 
-- **`PreloadMemoryTool`** — injects ontology context *before* each LLM call (proactive): good when agents share a knowledge base
+- **`PreloadMemoryTool`** — injects ontology context _before_ each LLM call (proactive): good when agents share a knowledge base
 - **`LoadMemoryTool`** — agent chooses when to query MindBrain (reactive): good for exploratory agents
 
 ```python
@@ -90,8 +90,7 @@ agent = LlmAgent(
 )
 ```
 
-
-***
+---
 
 ## Automatic ingestion via callback
 
@@ -106,22 +105,22 @@ async def auto_save_to_mindbrain_callback(callback_context):
 
 Differentiator vs `VertexAiMemoryBankService`: store typed ontology entities instead of dumping raw text.
 
-***
+---
 
 ## Differentiation vs native ADK options
 
-| Capability | InMemoryMemoryService | VertexAiMemoryBankService | **MindBrain via GhostCrab** |
-| :-- | :-- | :-- | :-- |
-| Cross-session persistence | ✗ | ✓ (cloud) | ✓ (PostgreSQL) |
-| Structured / faceted search | ✗ | ✗ | ✓ |
-| Ontology-typed entities | ✗ | ✗ | ✓ |
-| Shared multi-agent context | ✗ (silo) | partial | ✓ (single registry) |
-| Self-hosted / air-gap | ✓ | ✗ | ✓ |
-| Hybrid queries (graph + facets) | ✗ | ✗ | ✓ |
+| Capability                      | InMemoryMemoryService | VertexAiMemoryBankService | **MindBrain via GhostCrab** |
+| :------------------------------ | :-------------------- | :------------------------ | :-------------------------- |
+| Cross-session persistence       | ✗                     | ✓ (cloud)                 | ✓ (PostgreSQL)              |
+| Structured / faceted search     | ✗                     | ✗                         | ✓                           |
+| Ontology-typed entities         | ✗                     | ✗                         | ✓                           |
+| Shared multi-agent context      | ✗ (silo)              | partial                   | ✓ (single registry)         |
+| Self-hosted / air-gap           | ✓                     | ✗                         | ✓                           |
+| Hybrid queries (graph + facets) | ✗                     | ✗                         | ✓                           |
 
 Talking point for ADK: Google describes `MemoryService` as “long-lived, searchable knowledge that outlives a single session” [^1_1] — that matches MindBrain’s ontology registry. You do not replace ADK; you supply the structured implementation ADK cannot build alone.
 
-***
+---
 
 ## Full integration flow
 
@@ -175,7 +174,6 @@ Immediate path: implement `MindBrainMemoryService` as a thin Python wrapper over
 
 [^1_15]: https://seroter.com/2025/10/14/how-to-build-and-deploy-a-portable-ai-agent-that-uses-a-managed-memory-service/
 
-
 ---
 
 # Start with GhostCrab MCP Personal (SQLite) — the free trial build for local MindBrain testing.
@@ -186,7 +184,7 @@ Below: full integration focused on GhostCrab SQLite over **stdio**, the simplest
 
 Local integration uses ADK **stdio** transport: the framework launches GhostCrab as a subprocess over stdin/stdout. Zero network ports, no external service — all local. [^2_1][^2_2]
 
-***
+---
 
 ## Project layout
 
@@ -198,8 +196,7 @@ ghostcrab-adk-demo/
 └── mindbrain.db          ← SQLite DB created on first run
 ```
 
-
-***
+---
 
 ## Step 1 — Prerequisites
 
@@ -224,8 +221,7 @@ go install github.com/your-org/ghostcrab@latest
 export GHOSTCRAB_BIN=./bin/ghostcrab-sqlite
 ```
 
-
-***
+---
 
 ## Step 2 — `agent.py`: stdio connection to GhostCrab
 
@@ -276,8 +272,7 @@ root_agent = LlmAgent(
 )
 ```
 
-
-***
+---
 
 ## Step 3 — `__init__.py`: ADK entrypoint
 
@@ -285,8 +280,7 @@ root_agent = LlmAgent(
 from . import agent
 ```
 
-
-***
+---
 
 ## Step 4 — Launch the ADK web dev UI
 
@@ -302,24 +296,23 @@ CLI-only test :
 adk run ghostcrab-adk-demo
 ```
 
-
-***
+---
 
 ## GhostCrab MCP tools exposed to ADK
 
 ADK loads GhostCrab’s MCP manifest at startup (`tools/list`) [^2_3]. With GhostCrab SQLite you typically see :
 
-| GhostCrab MCP tool | Role in ADK |
-| :-- | :-- |
-| `store_entity` | Persist typed entity in MindBrain |
-| `query_facets` | Faceted search (types, attributes) |
-| `get_relations` | Traverse relation graph |
-| `search_context` | Hybrid semantic + structured search |
-| `list_types` | Ontology introspection |
+| GhostCrab MCP tool | Role in ADK                         |
+| :----------------- | :---------------------------------- |
+| `store_entity`     | Persist typed entity in MindBrain   |
+| `query_facets`     | Faceted search (types, attributes)  |
+| `get_relations`    | Traverse relation graph             |
+| `search_context`   | Hybrid semantic + structured search |
+| `list_types`       | Ontology introspection              |
 
 ADK surfaces them as native Gemini function calls — no manual declaration.
 
-***
+---
 
 ## Step 5 — Opt into `BaseMemoryService` (next step)
 
@@ -336,7 +329,7 @@ runner = Runner(
 
 For local SQLite tests, `InMemorySessionService` is enough — persistence lives in MindBrain, not ADK sessions. [^2_5]
 
-***
+---
 
 ## Debugging
 
@@ -384,7 +377,6 @@ Minimal validation path: user message → Gemini calls `store_entity` via GhostC
 [^2_15]: https://www.youtube.com/watch?v=kmKb5HzjLZI
 
 [^2_16]: https://arjunprabhulal.com/adk-mcp-deep-dive/
-
 
 ---
 

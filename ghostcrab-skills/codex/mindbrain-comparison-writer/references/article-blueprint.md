@@ -46,20 +46,20 @@ Optional extension: add a `Query Catalog` when the article should show practical
 
 ## Tool Backlog And Angles
 
-| Tool | Category | Core comparison angle |
-|---|---|---|
-| GBrain | Personal knowledge graph | Self-wiring personal graph vs schema-enforced agentic database |
-| Mem0 | Personal/agent memory layer | Frictionless API memory vs structured domain model |
-| Zep | Temporal knowledge graph memory | Temporal fact graph vs typed ontology plus projections |
-| Letta | Agent memory operating system | Agent-controlled memory vs database-enforced structure |
-| Supermemory | Universal memory API | Ingest-anything memory API vs modeled domain state |
-| Cognee | Knowledge graph memory | Graph-emergent memory vs schema-first domain modeling |
-| Hindsight | Knowledge graph memory | Emerging retrieval memory vs durable ontology-backed state |
-| LangChain Memory | Agent framework memory | DIY memory assembly vs opinionated agentic database |
-| LlamaIndex | Document/RAG framework memory | Document retrieval memory vs domain state modeling |
-| Hermes Agent memory | Agent-native cross-session recall | Conversation recall vs cross-ontology structured state |
-| Notion / Obsidian + AI plugins | PKM tools | Human-authored notes plus AI vs agent-native structured memory |
-| Protege / TopBraid | Ontology tooling | Research-grade ontology editors vs practitioner-ready agentic ontology runtime |
+| Tool                           | Category                          | Core comparison angle                                                          |
+| ------------------------------ | --------------------------------- | ------------------------------------------------------------------------------ |
+| GBrain                         | Personal knowledge graph          | Self-wiring personal graph vs schema-enforced agentic database                 |
+| Mem0                           | Personal/agent memory layer       | Frictionless API memory vs structured domain model                             |
+| Zep                            | Temporal knowledge graph memory   | Temporal fact graph vs typed ontology plus projections                         |
+| Letta                          | Agent memory operating system     | Agent-controlled memory vs database-enforced structure                         |
+| Supermemory                    | Universal memory API              | Ingest-anything memory API vs modeled domain state                             |
+| Cognee                         | Knowledge graph memory            | Graph-emergent memory vs schema-first domain modeling                          |
+| Hindsight                      | Knowledge graph memory            | Emerging retrieval memory vs durable ontology-backed state                     |
+| LangChain Memory               | Agent framework memory            | DIY memory assembly vs opinionated agentic database                            |
+| LlamaIndex                     | Document/RAG framework memory     | Document retrieval memory vs domain state modeling                             |
+| Hermes Agent memory            | Agent-native cross-session recall | Conversation recall vs cross-ontology structured state                         |
+| Notion / Obsidian + AI plugins | PKM tools                         | Human-authored notes plus AI vs agent-native structured memory                 |
+| Protege / TopBraid             | Ontology tooling                  | Research-grade ontology editors vs practitioner-ready agentic ontology runtime |
 
 ## Category Framing
 
@@ -89,15 +89,15 @@ Facets and graph traversal let agents select the right records or endpoints in m
 
 ## Recommended Article Series
 
-| Article | Best audience | Likely conclusion |
-|---|---|---|
-| `GBrain vs Mem0 vs MindBrain` | AI builders and indie hackers | Personal brain, API memory, and structured domain model are three different layers |
-| `Zep vs MindBrain` | Backend engineers | Temporal memory graphs are strong for changing facts; MindBrain is stronger for domain operations |
-| `Cognee vs MindBrain` | Knowledge graph practitioners | Inferred graphs help discovery; typed ontologies help deterministic work |
-| `Letta vs MindBrain` | Agent framework architects | Letta trusts the agent to manage memory; MindBrain constrains the domain so agents can act safely |
-| `Hermes memory vs MindBrain` | OpenClaw/Hermes users | Cross-session recall is not the same as cross-ontology project state |
-| `LangChain Memory vs MindBrain` | Full-stack developers | LangChain gives parts; MindBrain gives an operational model |
-| `Obsidian + AI vs GBrain vs MindBrain` | Developer productivity audience | Notes, personal graphs, and agentic databases solve different stages of knowledge work |
+| Article                                | Best audience                   | Likely conclusion                                                                                 |
+| -------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `GBrain vs Mem0 vs MindBrain`          | AI builders and indie hackers   | Personal brain, API memory, and structured domain model are three different layers                |
+| `Zep vs MindBrain`                     | Backend engineers               | Temporal memory graphs are strong for changing facts; MindBrain is stronger for domain operations |
+| `Cognee vs MindBrain`                  | Knowledge graph practitioners   | Inferred graphs help discovery; typed ontologies help deterministic work                          |
+| `Letta vs MindBrain`                   | Agent framework architects      | Letta trusts the agent to manage memory; MindBrain constrains the domain so agents can act safely |
+| `Hermes memory vs MindBrain`           | OpenClaw/Hermes users           | Cross-session recall is not the same as cross-ontology project state                              |
+| `LangChain Memory vs MindBrain`        | Full-stack developers           | LangChain gives parts; MindBrain gives an operational model                                       |
+| `Obsidian + AI vs GBrain vs MindBrain` | Developer productivity audience | Notes, personal graphs, and agentic databases solve different stages of knowledge work            |
 
 ## Head-To-Head Dimensions
 

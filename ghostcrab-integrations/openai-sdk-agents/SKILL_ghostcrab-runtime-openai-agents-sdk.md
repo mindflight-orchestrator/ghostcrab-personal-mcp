@@ -33,18 +33,18 @@ The first tool sequence for a runtime worker is:
 
 ## Runtime Tool Map
 
-| Runtime need | GhostCrab Personal tool |
-|---|---|
-| Check server health and routing | `ghostcrab_status` |
-| Rehydrate working memory | `ghostcrab_pack` |
-| Retrieve stored facts | `ghostcrab_search` |
-| Count records by facets | `ghostcrab_count` |
-| Store durable findings | `ghostcrab_remember` |
-| Update latest task/run state | `ghostcrab_upsert` |
-| Track goals, steps, constraints | `ghostcrab_project` |
-| Link dependencies or handoffs | `ghostcrab_learn` |
-| Follow graph relations | `ghostcrab_traverse` |
-| Inspect available schemas | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
+| Runtime need                    | GhostCrab Personal tool                             |
+| ------------------------------- | --------------------------------------------------- |
+| Check server health and routing | `ghostcrab_status`                                  |
+| Rehydrate working memory        | `ghostcrab_pack`                                    |
+| Retrieve stored facts           | `ghostcrab_search`                                  |
+| Count records by facets         | `ghostcrab_count`                                   |
+| Store durable findings          | `ghostcrab_remember`                                |
+| Update latest task/run state    | `ghostcrab_upsert`                                  |
+| Track goals, steps, constraints | `ghostcrab_project`                                 |
+| Link dependencies or handoffs   | `ghostcrab_learn`                                   |
+| Follow graph relations          | `ghostcrab_traverse`                                |
+| Inspect available schemas       | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
 
 Do not invent custom runtime tools. Express liveness pings, progress, blocked tasks, or latest reports as records updated by `ghostcrab_upsert` or project projections created by `ghostcrab_project`.
 
@@ -62,7 +62,7 @@ Use `ghostcrab_upsert` for a current-state record that should have one latest va
 
 ```json
 {
-  "match": {"facets": {"record_id": "task:payment-import"}},
+  "match": { "facets": { "record_id": "task:payment-import" } },
   "set_content": "Payment import is blocked on missing invoice_date.",
   "set_facets": {
     "workspace_id": "acme-demo",
@@ -78,15 +78,15 @@ Use `ghostcrab_project` when the state is a goal, step, constraint, or blocker i
 
 ## Lifecycle JTBD
 
-| Phase | Agent behavior |
-|---|---|
-| Before | Call `ghostcrab_status`, then `ghostcrab_pack` scoped to the task and workspace. |
-| Read | Use `ghostcrab_search` for exact facts, and `ghostcrab_count` for faceted summaries. |
-| Work | Execute the task with SDK tools and normal model reasoning. |
-| Durable write | Call `ghostcrab_remember` for decisions, findings, source notes, and completed observations. |
-| State write | Call `ghostcrab_upsert` for latest task/run status; call `ghostcrab_project` for progress and blockers. |
-| Handoff | Use `ghostcrab_learn` to link a task to a blocker, dependency, source, or downstream agent. |
-| Recovery | On restart, call `ghostcrab_pack`; if empty, start clean and create the first records. |
+| Phase         | Agent behavior                                                                                          |
+| ------------- | ------------------------------------------------------------------------------------------------------- |
+| Before        | Call `ghostcrab_status`, then `ghostcrab_pack` scoped to the task and workspace.                        |
+| Read          | Use `ghostcrab_search` for exact facts, and `ghostcrab_count` for faceted summaries.                    |
+| Work          | Execute the task with SDK tools and normal model reasoning.                                             |
+| Durable write | Call `ghostcrab_remember` for decisions, findings, source notes, and completed observations.            |
+| State write   | Call `ghostcrab_upsert` for latest task/run status; call `ghostcrab_project` for progress and blockers. |
+| Handoff       | Use `ghostcrab_learn` to link a task to a blocker, dependency, source, or downstream agent.             |
+| Recovery      | On restart, call `ghostcrab_pack`; if empty, start clean and create the first records.                  |
 
 ---
 
@@ -113,13 +113,13 @@ ghostcrab_upsert and store important evidence with ghostcrab_remember.
 
 Suggested current-state facets:
 
-| Facet | Example |
-|---|---|
-| `record_id` | `task:payment-import` |
-| `workspace_id` | `acme-demo` |
-| `kind` | `task_state` |
-| `status` | `todo`, `in_progress`, `blocked`, `done` |
-| `owner` | `RuntimeWorker` |
+| Facet          | Example                                  |
+| -------------- | ---------------------------------------- |
+| `record_id`    | `task:payment-import`                    |
+| `workspace_id` | `acme-demo`                              |
+| `kind`         | `task_state`                             |
+| `status`       | `todo`, `in_progress`, `blocked`, `done` |
+| `owner`        | `RuntimeWorker`                          |
 
 ---
 
@@ -165,12 +165,12 @@ For workspace setup:
 
 ## Failure Modes
 
-| Failure | Runtime response |
-|---|---|
-| `MCPServerStdio` cannot connect | Start `gcp brain up` separately, then verify with `ghostcrab_status`. |
-| `ghostcrab_pack` returns no context | Treat as a first run. Continue with an empty working set and write useful outputs. |
-| `ghostcrab_upsert` cannot find a record | Use `create_if_missing=True` with a stable `record_id` facet. |
-| A write fails mid-run | Continue the SDK task if safe, mention the persistence failure in final output, and retry once after `ghostcrab_status`. |
-| Search is noisy | Add exact facets and prefer stable `record_id` matches for state records. |
+| Failure                                 | Runtime response                                                                                                         |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `MCPServerStdio` cannot connect         | Start `gcp brain up` separately, then verify with `ghostcrab_status`.                                                    |
+| `ghostcrab_pack` returns no context     | Treat as a first run. Continue with an empty working set and write useful outputs.                                       |
+| `ghostcrab_upsert` cannot find a record | Use `create_if_missing=True` with a stable `record_id` facet.                                                            |
+| A write fails mid-run                   | Continue the SDK task if safe, mention the persistence failure in final output, and retry once after `ghostcrab_status`. |
+| Search is noisy                         | Add exact facets and prefer stable `record_id` matches for state records.                                                |
 
 **PRO note:** Centralized PostgreSQL deployment belongs to MCP GhostCrab PRO / mindBrain Pro. Keep Personal runtime guidance on local SQLite and stdio.

@@ -31,12 +31,12 @@ If `ghostcrab_pack` is empty, treat the project as unbootstrapped. Do not dispat
 
 ## Write Model
 
-| Runtime fact | Tool | Why |
-| --- | --- | --- |
-| Current story status, current owner, current blocker state, current phase gate | `ghostcrab_upsert` | Mutable state record updated in place. |
-| Accepted decision, review approval, defect finding, postmortem note | `ghostcrab_remember` | Durable evidence that should not be overwritten. |
-| `blocks`, `depends_on`, `validates`, `implements`, `documents`, `handoff_to` | `ghostcrab_learn` | Relationship the orchestrator can traverse. |
-| Session summary, gate heartbeat, handoff note | `ghostcrab_project` | Compact working projection for future recovery. |
+| Runtime fact                                                                   | Tool                 | Why                                              |
+| ------------------------------------------------------------------------------ | -------------------- | ------------------------------------------------ |
+| Current story status, current owner, current blocker state, current phase gate | `ghostcrab_upsert`   | Mutable state record updated in place.           |
+| Accepted decision, review approval, defect finding, postmortem note            | `ghostcrab_remember` | Durable evidence that should not be overwritten. |
+| `blocks`, `depends_on`, `validates`, `implements`, `documents`, `handoff_to`   | `ghostcrab_learn`    | Relationship the orchestrator can traverse.      |
+| Session summary, gate heartbeat, handoff note                                  | `ghostcrab_project`  | Compact working projection for future recovery.  |
 
 Never use a durable fact as the current task tracker. Never overwrite an accepted decision to change task status.
 
@@ -94,12 +94,12 @@ Upsert story and test state. A story moves to `done` only after review evidence 
 
 ## Lifecycle JTBD by BMAD Role
 
-| Role | Before | Read | Write | After | Recovery |
-| --- | --- | --- | --- | --- | --- |
-| Architect | Confirm workspace with `ghostcrab_workspace_list` | `ghostcrab_search` prior ADRs | `ghostcrab_remember` decisions, `ghostcrab_learn` dependencies | `ghostcrab_project` architecture handoff | `ghostcrab_pack` architecture state |
-| Developer | `ghostcrab_pack` story briefing | `ghostcrab_search` constraints | `ghostcrab_upsert` task status, `ghostcrab_remember` decisions | `ghostcrab_project` implementation handoff | `ghostcrab_pack` story resume |
-| Orchestrator | `ghostcrab_pack` phase snapshot | `ghostcrab_count` blockers, `ghostcrab_traverse` chains | `ghostcrab_upsert` gate state, `ghostcrab_learn` handoffs | `ghostcrab_project` gate summary | `ghostcrab_pack` dispatch briefing |
-| Reviewer | `ghostcrab_pack` review scope | `ghostcrab_search` requirements and decisions | `ghostcrab_remember` approval/finding, `ghostcrab_upsert` review status | `ghostcrab_project` review result | `ghostcrab_pack` unresolved findings |
+| Role         | Before                                            | Read                                                    | Write                                                                   | After                                      | Recovery                             |
+| ------------ | ------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------ |
+| Architect    | Confirm workspace with `ghostcrab_workspace_list` | `ghostcrab_search` prior ADRs                           | `ghostcrab_remember` decisions, `ghostcrab_learn` dependencies          | `ghostcrab_project` architecture handoff   | `ghostcrab_pack` architecture state  |
+| Developer    | `ghostcrab_pack` story briefing                   | `ghostcrab_search` constraints                          | `ghostcrab_upsert` task status, `ghostcrab_remember` decisions          | `ghostcrab_project` implementation handoff | `ghostcrab_pack` story resume        |
+| Orchestrator | `ghostcrab_pack` phase snapshot                   | `ghostcrab_count` blockers, `ghostcrab_traverse` chains | `ghostcrab_upsert` gate state, `ghostcrab_learn` handoffs               | `ghostcrab_project` gate summary           | `ghostcrab_pack` dispatch briefing   |
+| Reviewer     | `ghostcrab_pack` review scope                     | `ghostcrab_search` requirements and decisions           | `ghostcrab_remember` approval/finding, `ghostcrab_upsert` review status | `ghostcrab_project` review result          | `ghostcrab_pack` unresolved findings |
 
 ## Agent Performance Contract
 
@@ -159,14 +159,14 @@ The old custom phase-gate command is intentionally replaced by this explicit evi
 
 ## Failure Modes
 
-| Condition | Runtime behavior |
-| --- | --- |
-| `ghostcrab_status` unavailable | Ask the user to run `gcp brain up`; pause dispatch. |
-| Workspace missing | Invoke the Architect skill; do not write into a guessed workspace. |
-| `ghostcrab_pack` empty | Treat as first run; invoke the Architect skill for bootstrap. |
-| Search returns no prior decisions | Continue, but remember the new decision once made. |
-| Dependency chain incomplete | Mark gate `incomplete` with `ghostcrab_upsert`; ask the responsible role to seed missing state. |
-| Concurrent role writes conflict | Prefer `ghostcrab_upsert` with stable `record_id`; preserve durable decisions with separate `ghostcrab_remember` calls. |
+| Condition                         | Runtime behavior                                                                                                        |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `ghostcrab_status` unavailable    | Ask the user to run `gcp brain up`; pause dispatch.                                                                     |
+| Workspace missing                 | Invoke the Architect skill; do not write into a guessed workspace.                                                      |
+| `ghostcrab_pack` empty            | Treat as first run; invoke the Architect skill for bootstrap.                                                           |
+| Search returns no prior decisions | Continue, but remember the new decision once made.                                                                      |
+| Dependency chain incomplete       | Mark gate `incomplete` with `ghostcrab_upsert`; ask the responsible role to seed missing state.                         |
+| Concurrent role writes conflict   | Prefer `ghostcrab_upsert` with stable `record_id`; preserve durable decisions with separate `ghostcrab_remember` calls. |
 
 `ghostcrab_search` supports `mode="bm25"` for keyword search, `mode="semantic"` for vector search, and `mode="hybrid"` for the recommended combined mode. On GhostCrab Personal SQLite without embeddings configured, `semantic` and `hybrid` fall back to BM25 and the MCP response notes that fallback. To enable vector retrieval, configure `GHOSTCRAB_EMBEDDINGS_MODE=openrouter`, `GHOSTCRAB_EMBEDDINGS_MODEL`, and `GHOSTCRAB_EMBEDDINGS_API_KEY` in GhostCrab. BMAD orchestrators should use `mode="hybrid"` when embeddings are enabled so decisions from different roles can be matched semantically.
 

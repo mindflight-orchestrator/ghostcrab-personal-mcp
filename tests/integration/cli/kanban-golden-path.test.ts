@@ -15,7 +15,10 @@ import {
   closeIntegrationDatabase,
   createIntegrationHarness
 } from "../../helpers/cli-integration.js";
-import { ddlExecuteTool, ddlProposeTool } from "../../../src/tools/workspace/ddl.js";
+import {
+  ddlExecuteTool,
+  ddlProposeTool
+} from "../../../src/tools/workspace/ddl.js";
 import { workspaceCreateTool } from "../../../src/tools/workspace/create.js";
 import { workspaceExportModelTool } from "../../../src/tools/workspace/export.js";
 import { createToolContext } from "../../helpers/tool-context.js";
@@ -29,11 +32,17 @@ const WS_ID = `kanban-test-${RUN_ID}`;
 
 // Load fixtures
 const richProposal = JSON.parse(
-  readFileSync(join(__dirname, "../../fixtures/kanban/rich-proposal.json"), "utf8")
+  readFileSync(
+    join(__dirname, "../../fixtures/kanban/rich-proposal.json"),
+    "utf8"
+  )
 ) as Record<string, unknown>;
 
 const goldenExport = JSON.parse(
-  readFileSync(join(__dirname, "../../../docs/dev/examples/kanban-board.export.json"), "utf8")
+  readFileSync(
+    join(__dirname, "../../../docs/dev/examples/kanban-board.export.json"),
+    "utf8"
+  )
 ) as ExportPayload;
 
 // Kanban DDL (minimal tables to prove the flow)
@@ -85,7 +94,9 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
       await harness.database.query(`DROP TABLE IF EXISTS columns`);
       await harness.database.query(`DROP TABLE IF EXISTS boards`);
       await harness.database.query(`DROP TABLE IF EXISTS members`);
-      await harness.database.query(`DELETE FROM workspaces WHERE id = $1`, [WS_ID]);
+      await harness.database.query(`DELETE FROM workspaces WHERE id = $1`, [
+        WS_ID
+      ]);
     } catch {
       // best-effort cleanup
     }
@@ -106,7 +117,9 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
     const domainProfile = await harness.database.query<{ name: string }>(
       `PRAGMA table_info(workspaces)`
     );
-    expect(domainProfile.some((row) => row.name === "domain_profile")).toBe(true);
+    expect(domainProfile.some((row) => row.name === "domain_profile")).toBe(
+      true
+    );
   });
 
   it("creates kanban workspace and proposes DDL with rich semantics", async () => {
@@ -117,7 +130,8 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
       {
         id: WS_ID,
         label: "Kanban Board",
-        description: "Project management kanban: boards, columns, cards, comments and team members.",
+        description:
+          "Project management kanban: boards, columns, cards, comments and team members.",
         created_by: "kanban-golden-path-test"
       },
       ctx
@@ -144,7 +158,10 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
       ctx
     );
     expect(proposeResult.isError).toBeFalsy();
-    const proposeData = proposeResult.structuredContent as Record<string, unknown>;
+    const proposeData = proposeResult.structuredContent as Record<
+      string,
+      unknown
+    >;
     const migrationId = proposeData.migration_id as string;
     expect(migrationId).toBeDefined();
 
@@ -164,7 +181,10 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
     expect(execResult.isError).toBeFalsy();
     const execData = execResult.structuredContent as Record<string, unknown>;
     expect(execData.semantics_applied).toBeDefined();
-    const semanticsApplied = execData.semantics_applied as Record<string, number>;
+    const semanticsApplied = execData.semantics_applied as Record<
+      string,
+      number
+    >;
     expect(semanticsApplied.table_semantics).toBe(5);
     expect(semanticsApplied.column_semantics).toBe(8);
     expect(semanticsApplied.relation_semantics).toBe(4);
@@ -181,14 +201,18 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
       [WS_ID]
     );
     expect(statusCol).toHaveLength(1);
-    const rm = statusCol[0]?.rich_meta ? JSON.parse(statusCol[0].rich_meta) as Record<string, unknown> : null;
+    const rm = statusCol[0]?.rich_meta
+      ? (JSON.parse(statusCol[0].rich_meta) as Record<string, unknown>)
+      : null;
     expect(rm).toBeDefined();
     expect(rm?.public_column_role).toBe("status");
     expect(rm?.semantic_type).toBe("state");
     expect(rm?.facet_key).toBe("card_status");
     expect(rm?.projection_signal).toBe("alert_trigger");
     expect(rm?.is_nullable).toBe(false);
-    expect((rm?.distribution_hint as Record<string, unknown>)?.values).toBeDefined();
+    expect(
+      (rm?.distribution_hint as Record<string, unknown>)?.values
+    ).toBeDefined();
 
     // Verify relation rich_meta
     const colBoardRel = await harness.database.query<{
@@ -200,7 +224,9 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
       [WS_ID]
     );
     expect(colBoardRel).toHaveLength(1);
-    const relRm = colBoardRel[0]?.rich_meta ? JSON.parse(colBoardRel[0].rich_meta) as Record<string, unknown> : null;
+    const relRm = colBoardRel[0]?.rich_meta
+      ? (JSON.parse(colBoardRel[0].rich_meta) as Record<string, unknown>)
+      : null;
     expect(relRm?.relation_role).toBe("belongs_to");
     expect(relRm?.hierarchical).toBe(true);
     expect(relRm?.graph_label).toBe("CONTAINS");
@@ -219,30 +245,34 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
 
     // ── Table assertions ─────────────────────────────────────────────────────
     const tables = exportData.tables as Array<Record<string, unknown>>;
-    const boardsTable = tables.find(t => t.table_name === "boards");
+    const boardsTable = tables.find((t) => t.table_name === "boards");
     expect(boardsTable?.table_role).toBe("stateful_item");
     expect(boardsTable?.entity_family).toBe("board");
     expect(boardsTable?.primary_time_column).toBe("created_at");
     expect(boardsTable?.volume_driver).toBe("low");
 
-    const cardsTable = tables.find(t => t.table_name === "cards");
+    const cardsTable = tables.find((t) => t.table_name === "cards");
     expect(cardsTable?.table_role).toBe("stateful_item");
     expect(cardsTable?.entity_family).toBe("card");
     expect(cardsTable?.emit_projections).toBe(true);
     expect(cardsTable?.emit_graph_entities).toBe(true);
 
-    const commentsTable = tables.find(t => t.table_name === "comments");
+    const commentsTable = tables.find((t) => t.table_name === "comments");
     expect(commentsTable?.table_role).toBe("event");
 
     // ── Column assertions ─────────────────────────────────────────────────────
     const columns = exportData.columns as Array<Record<string, unknown>>;
 
-    const titleCol = columns.find(c => c.table_name === "cards" && c.column_name === "title");
+    const titleCol = columns.find(
+      (c) => c.table_name === "cards" && c.column_name === "title"
+    );
     expect(titleCol?.column_role).toBe("label");
     expect(titleCol?.semantic_type).toBe("free_text");
     expect(titleCol?.facet_key).toBe("card_title");
 
-    const statusCol = columns.find(c => c.table_name === "cards" && c.column_name === "status");
+    const statusCol = columns.find(
+      (c) => c.table_name === "cards" && c.column_name === "status"
+    );
     expect(statusCol?.column_role).toBe("status");
     expect(statusCol?.semantic_type).toBe("state");
     expect(statusCol?.facet_key).toBe("card_status");
@@ -251,12 +281,16 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
     const distHint = statusCol?.distribution_hint as Record<string, unknown>;
     expect(Array.isArray(distHint?.values)).toBe(true);
 
-    const priorityCol = columns.find(c => c.table_name === "cards" && c.column_name === "priority");
+    const priorityCol = columns.find(
+      (c) => c.table_name === "cards" && c.column_name === "priority"
+    );
     expect(priorityCol?.column_role).toBe("score");
     expect(priorityCol?.semantic_type).toBe("enum");
     expect(priorityCol?.facet_key).toBe("card_priority");
 
-    const assigneeCol = columns.find(c => c.table_name === "cards" && c.column_name === "assignee_id");
+    const assigneeCol = columns.find(
+      (c) => c.table_name === "cards" && c.column_name === "assignee_id"
+    );
     expect(assigneeCol?.column_role).toBe("owner");
     expect(assigneeCol?.graph_usage).toBe("edge_target");
     expect(assigneeCol?.is_nullable).toBe(true);
@@ -265,7 +299,7 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
     const relations = exportData.relations as Array<Record<string, unknown>>;
 
     const colBoardRel = relations.find(
-      r => r.source_table === "columns" && r.target_table === "boards"
+      (r) => r.source_table === "columns" && r.target_table === "boards"
     );
     expect(colBoardRel?.relation_role).toBe("belongs_to");
     expect(colBoardRel?.hierarchical).toBe(true);
@@ -273,7 +307,7 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
     expect(colBoardRel?.cardinality).toBe("1:n");
 
     const cardMemberRel = relations.find(
-      r => r.source_table === "cards" && r.target_table === "members"
+      (r) => r.source_table === "cards" && r.target_table === "members"
     );
     expect(cardMemberRel?.relation_role).toBe("assigned_to");
     expect(cardMemberRel?.hierarchical).toBe(false);
@@ -285,10 +319,10 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
     const tableOrder = hints.table_order as string[];
     expect(tableOrder).toBeDefined();
     // members and boards must come before columns, cards
-    const membersIdx = tableOrder.findIndex(t => t.includes("members"));
-    const boardsIdx = tableOrder.findIndex(t => t.includes("boards"));
-    const columnsIdx = tableOrder.findIndex(t => t.includes("columns"));
-    const cardsIdx = tableOrder.findIndex(t => t.includes("cards"));
+    const membersIdx = tableOrder.findIndex((t) => t.includes("members"));
+    const boardsIdx = tableOrder.findIndex((t) => t.includes("boards"));
+    const columnsIdx = tableOrder.findIndex((t) => t.includes("columns"));
+    const cardsIdx = tableOrder.findIndex((t) => t.includes("cards"));
     expect(boardsIdx).toBeLessThan(columnsIdx);
     expect(columnsIdx).toBeLessThan(cardsIdx);
     expect(membersIdx).toBeLessThan(cardsIdx);
@@ -306,7 +340,10 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
     // Adapt workspace id for structural comparison (golden uses "kanban-board", test uses WS_ID)
     const adaptedExport: ExportPayload = {
       ...exportData,
-      workspace: { ...(exportData.workspace as Record<string, unknown>), id: "kanban-board" }
+      workspace: {
+        ...(exportData.workspace as Record<string, unknown>),
+        id: "kanban-board"
+      }
     };
 
     // Compare against golden fixture — only fields present in golden are checked.
@@ -318,7 +355,8 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
         workspace: {
           id: "kanban-board",
           label: (goldenExport.workspace as Record<string, unknown>).label,
-          domain_profile: (goldenExport.workspace as Record<string, unknown>).domain_profile
+          domain_profile: (goldenExport.workspace as Record<string, unknown>)
+            .domain_profile
         },
         tables: goldenExport.tables,
         columns: goldenExport.columns,
@@ -329,20 +367,19 @@ describe.sequential("Kanban golden-path — rich semantics end-to-end", () => {
     // Report diffs as test context rather than hard failure for fields expected to differ
     // (e.g. generation_strategy computed differently from synthetic gen).
     // Core semantic fields (roles, families, facet_keys, relation_roles) must all match.
-    const criticalDiffs = diffs.filter(d =>
-      !d.includes(".notes:")
-      && (
-        d.includes("table_role") ||
-        d.includes("entity_family") ||
-        d.includes("facet_key") ||
-        d.includes("relation_role") ||
-        d.includes("hierarchical") ||
-        d.includes("graph_label") ||
-        d.includes("semantic_type") ||
-        d.includes("projection_signal") ||
-        d.includes("is_nullable") ||
-        d.includes("column_role")
-      )
+    const criticalDiffs = diffs.filter(
+      (d) =>
+        !d.includes(".notes:") &&
+        (d.includes("table_role") ||
+          d.includes("entity_family") ||
+          d.includes("facet_key") ||
+          d.includes("relation_role") ||
+          d.includes("hierarchical") ||
+          d.includes("graph_label") ||
+          d.includes("semantic_type") ||
+          d.includes("projection_signal") ||
+          d.includes("is_nullable") ||
+          d.includes("column_role"))
     );
 
     if (criticalDiffs.length > 0) {

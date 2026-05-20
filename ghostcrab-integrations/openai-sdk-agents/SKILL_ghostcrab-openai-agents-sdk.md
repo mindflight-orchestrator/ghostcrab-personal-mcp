@@ -42,15 +42,15 @@ async with MCPServerStdio(command="gcp", args=["brain", "up"]) as ghostcrab:
 
 Keep the first contact small. Give the model only the tools it needs to orient, retrieve, and write safely.
 
-| Need | Tool |
-|---|---|
-| Runtime and routing check | `ghostcrab_status` |
-| List existing workspaces before creating anything | `ghostcrab_workspace_list` |
-| Create a workspace only when absent | `ghostcrab_workspace_create` |
-| Build a compact context pack | `ghostcrab_pack` |
-| Retrieve facts | `ghostcrab_search` |
-| Store durable observations | `ghostcrab_remember` |
-| Update current state records | `ghostcrab_upsert` |
+| Need                                              | Tool                         |
+| ------------------------------------------------- | ---------------------------- |
+| Runtime and routing check                         | `ghostcrab_status`           |
+| List existing workspaces before creating anything | `ghostcrab_workspace_list`   |
+| Create a workspace only when absent               | `ghostcrab_workspace_create` |
+| Build a compact context pack                      | `ghostcrab_pack`             |
+| Retrieve facts                                    | `ghostcrab_search`           |
+| Store durable observations                        | `ghostcrab_remember`         |
+| Update current state records                      | `ghostcrab_upsert`           |
 
 `ghostcrab_search` supports `mode="bm25"` for keyword search, `mode="semantic"` for vector search, and `mode="hybrid"` for the recommended combined mode. On GhostCrab Personal SQLite without embeddings configured, `semantic` and `hybrid` fall back to BM25 and the MCP response notes that fallback. To enable vector retrieval, configure `GHOSTCRAB_EMBEDDINGS_MODE=openrouter`, `GHOSTCRAB_EMBEDDINGS_MODEL`, and `GHOSTCRAB_EMBEDDINGS_API_KEY` in GhostCrab. OpenAI Agents using `MCPServerStdio` can pass `mode="hybrid"` in `ghostcrab_search` arguments as soon as embeddings are enabled.
 
@@ -87,15 +87,15 @@ Workspace rule:
 
 Use this run lifecycle for SDK agents that need memory continuity.
 
-| Moment | Job | GhostCrab tools |
-|---|---|---|
-| Before run | Verify availability and hydrate compact context | `ghostcrab_status`, `ghostcrab_pack` |
-| Read during run | Retrieve specific facts or records | `ghostcrab_search`, `ghostcrab_count` |
-| Write durable | Store facts that should remain historically true | `ghostcrab_remember` |
-| Write current state | Replace a tracker, run status, or latest summary | `ghostcrab_upsert` |
-| Relate concepts | Link entities, blockers, dependencies, handoffs | `ghostcrab_learn`, `ghostcrab_traverse` |
-| After run | Record progress or next step | `ghostcrab_project`, `ghostcrab_upsert` |
-| Recovery | Rebuild working memory after restart | `ghostcrab_pack`, then `ghostcrab_search` |
+| Moment              | Job                                              | GhostCrab tools                           |
+| ------------------- | ------------------------------------------------ | ----------------------------------------- |
+| Before run          | Verify availability and hydrate compact context  | `ghostcrab_status`, `ghostcrab_pack`      |
+| Read during run     | Retrieve specific facts or records               | `ghostcrab_search`, `ghostcrab_count`     |
+| Write durable       | Store facts that should remain historically true | `ghostcrab_remember`                      |
+| Write current state | Replace a tracker, run status, or latest summary | `ghostcrab_upsert`                        |
+| Relate concepts     | Link entities, blockers, dependencies, handoffs  | `ghostcrab_learn`, `ghostcrab_traverse`   |
+| After run           | Record progress or next step                     | `ghostcrab_project`, `ghostcrab_upsert`   |
+| Recovery            | Rebuild working memory after restart             | `ghostcrab_pack`, then `ghostcrab_search` |
 
 ## Agent Performance Contract
 
@@ -197,12 +197,12 @@ The first agent writes durable findings. The second agent retrieves them from th
 
 Use these when the first-contact set is not enough:
 
-| Tool | Use |
-|---|---|
-| `ghostcrab_schema_list` / `ghostcrab_schema_inspect` | Inspect registered schemas before writing structured records |
-| `ghostcrab_project` | Track goals, steps, constraints, and active project progress |
-| `ghostcrab_learn` / `ghostcrab_traverse` | Store and follow graph relations such as blockers or dependencies |
-| `ghostcrab_workspace_export_model` | Export a workspace model for generators or downstream automation |
+| Tool                                                 | Use                                                               |
+| ---------------------------------------------------- | ----------------------------------------------------------------- |
+| `ghostcrab_schema_list` / `ghostcrab_schema_inspect` | Inspect registered schemas before writing structured records      |
+| `ghostcrab_project`                                  | Track goals, steps, constraints, and active project progress      |
+| `ghostcrab_learn` / `ghostcrab_traverse`             | Store and follow graph relations such as blockers or dependencies |
+| `ghostcrab_workspace_export_model`                   | Export a workspace model for generators or downstream automation  |
 
 Schema registration and ontology design are advanced moves. Prefer provisional workspace records and project notes first; freeze schema only after the pattern is stable.
 
@@ -210,13 +210,13 @@ Schema registration and ontology design are advanced moves. Prefer provisional w
 
 ## Failure Modes
 
-| Symptom | What to do |
-|---|---|
-| `MCPServerStdio` connection fails | Run `gcp brain up` separately in a terminal, confirm it starts, then retry the SDK run. First tool call should be `ghostcrab_status`. |
-| `ghostcrab_status` unavailable | Check that `@mindflight/ghostcrab-personal-mcp` is installed and that `gcp` is on `PATH`. |
-| `ghostcrab_pack` is empty on first run | This is expected for a new workspace. Proceed, then write durable facts with `ghostcrab_remember`. |
-| Search returns too much | Add exact facets such as `workspace_id`, `record_id`, `kind`, or `agent_id`. |
-| Upsert creates duplicates | Use a stable `record_id` facet and match under `match.facets`. |
+| Symptom                                | What to do                                                                                                                            |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `MCPServerStdio` connection fails      | Run `gcp brain up` separately in a terminal, confirm it starts, then retry the SDK run. First tool call should be `ghostcrab_status`. |
+| `ghostcrab_status` unavailable         | Check that `@mindflight/ghostcrab-personal-mcp` is installed and that `gcp` is on `PATH`.                                             |
+| `ghostcrab_pack` is empty on first run | This is expected for a new workspace. Proceed, then write durable facts with `ghostcrab_remember`.                                    |
+| Search returns too much                | Add exact facets such as `workspace_id`, `record_id`, `kind`, or `agent_id`.                                                          |
+| Upsert creates duplicates              | Use a stable `record_id` facet and match under `match.facets`.                                                                        |
 
 ---
 

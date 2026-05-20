@@ -145,17 +145,17 @@ Recommended use:
 
 ## 8. Tool Mapping
 
-| smolagents need | GhostCrab Personal tool |
-| --- | --- |
-| Load context before a run | `ghostcrab_pack` |
-| Search prior memory | `ghostcrab_search` |
-| Save durable step findings | `ghostcrab_remember` |
-| Update task or run state | `ghostcrab_upsert` |
-| Link managed-agent handoffs | `ghostcrab_learn` |
-| Traverse linked dependencies | `ghostcrab_traverse` |
-| Track active goals | `ghostcrab_project` |
-| Count open items | `ghostcrab_count` |
-| Inspect schema contracts | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
+| smolagents need              | GhostCrab Personal tool                             |
+| ---------------------------- | --------------------------------------------------- |
+| Load context before a run    | `ghostcrab_pack`                                    |
+| Search prior memory          | `ghostcrab_search`                                  |
+| Save durable step findings   | `ghostcrab_remember`                                |
+| Update task or run state     | `ghostcrab_upsert`                                  |
+| Link managed-agent handoffs  | `ghostcrab_learn`                                   |
+| Traverse linked dependencies | `ghostcrab_traverse`                                |
+| Track active goals           | `ghostcrab_project`                                 |
+| Count open items             | `ghostcrab_count`                                   |
+| Inspect schema contracts     | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
 
 ## 9. Community Demo Scenarios
 
@@ -187,18 +187,19 @@ Keep it as one short note.
 
 ### Agent Lifecycle Mapping
 
-| Moment | Agent question | Expected GhostCrab tool | Present in current review? |
-|---|---|---|---|
-| Before | Load prior step observations into memory | `ghostcrab_pack` | Demo 1 and Recommended Next Step — good |
-| Read | Search prior step context for a managed agent | `ghostcrab_search` | Tool mapping — listed |
-| Write (durable) | Persist a valuable step observation | `ghostcrab_remember` | Demo 1 — good |
-| Write (state) | Update current run or task state | `ghostcrab_upsert` | Demo 2 and Recommended Next Step — good |
-| After | Record active task goal across runs | `ghostcrab_project` | Demo 3 — good |
-| Recovery | Resume from prior step state | `ghostcrab_pack` | Demo 1 — good |
+| Moment          | Agent question                                | Expected GhostCrab tool | Present in current review?              |
+| --------------- | --------------------------------------------- | ----------------------- | --------------------------------------- |
+| Before          | Load prior step observations into memory      | `ghostcrab_pack`        | Demo 1 and Recommended Next Step — good |
+| Read            | Search prior step context for a managed agent | `ghostcrab_search`      | Tool mapping — listed                   |
+| Write (durable) | Persist a valuable step observation           | `ghostcrab_remember`    | Demo 1 — good                           |
+| Write (state)   | Update current run or task state              | `ghostcrab_upsert`      | Demo 2 and Recommended Next Step — good |
+| After           | Record active task goal across runs           | `ghostcrab_project`     | Demo 3 — good                           |
+| Recovery        | Resume from prior step state                  | `ghostcrab_pack`        | Demo 1 — good                           |
 
 ### Critical Gap: `SKILL_mindbrain_smolagents.md` — Most Technically Wrong Skill in the Set
 
 The source skill file (which was reviewed) uses:
+
 - `streamable-http` transport over `localhost:8000/mcp` — not the GhostCrab Personal default
 - `context_store`, `context_retrieve`, `entity_link`, `facet_query` — none of these exist in the public MCP surface
 - PostgreSQL/MindBrain PRO architecture as the implementation layer
@@ -213,6 +214,7 @@ But the review only partially surfaces this and never restates it using correct 
 ### `remember` vs `upsert` in step_callbacks
 
 Not explained. For smolagents:
+
 - `ghostcrab_remember`: observation from step N — immutable ("Found 3 duplicate records in dataset at step 7")
 - `ghostcrab_upsert`: current run state — mutable (`{"run_id": "xyz", "current_step": 7, "status": "running"}`)
 
@@ -227,19 +229,20 @@ The Recommended Next Step gives 5 steps (5 tools). Should be reduced to ≤4: `g
 ### Failure Mode Coverage
 
 Not addressed. Critical for step_callbacks:
+
 - What does the callback do when GhostCrab returns an error mid-run? Should the agent abort or continue?
 - What if `ghostcrab_pack` returns empty (first run)? Should the agent start with an empty `agent.memory.steps`?
 
 ## 11. Readiness Score
 
-| Criterion | Score | Notes |
-| --- | ---: | --- |
-| Community relevance | 4/5 | Lightweight durable memory is a good fit. |
-| Framework alignment | 4/5 | Step memory and managed agents map well to GhostCrab. |
-| GhostCrab Personal accuracy | 2/5 | Needs PostgreSQL cleanup. |
-| Tool-name accuracy | 2/5 | Custom tools need replacement. |
-| Agent behavioral clarity | 2/5 | step_callbacks insight is valuable but wired to wrong tools; remember/upsert rule absent; transport tension unresolved; failure modes missing. |
-| Community readiness | 3/5 | Good after simplifying the demo and fixing transport. |
+| Criterion                   | Score | Notes                                                                                                                                          |
+| --------------------------- | ----: | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Community relevance         |   4/5 | Lightweight durable memory is a good fit.                                                                                                      |
+| Framework alignment         |   4/5 | Step memory and managed agents map well to GhostCrab.                                                                                          |
+| GhostCrab Personal accuracy |   2/5 | Needs PostgreSQL cleanup.                                                                                                                      |
+| Tool-name accuracy          |   2/5 | Custom tools need replacement.                                                                                                                 |
+| Agent behavioral clarity    |   2/5 | step_callbacks insight is valuable but wired to wrong tools; remember/upsert rule absent; transport tension unresolved; failure modes missing. |
+| Community readiness         |   3/5 | Good after simplifying the demo and fixing transport.                                                                                          |
 
 Overall readiness: **Good fit, needs a smaller and more accurate public version.**
 

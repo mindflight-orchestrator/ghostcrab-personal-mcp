@@ -11,7 +11,7 @@ import {
   listRegistryResources,
   applyWatermark,
   resolveRegistryToken,
-  resolveRegistryUrl,
+  resolveRegistryUrl
 } from "../lib/registry.mjs";
 import {
   listLocal,
@@ -19,7 +19,7 @@ import {
   removeLocal,
   readLocalContent,
   parseResourceId,
-  typeDir,
+  typeDir
 } from "../lib/local-store.mjs";
 
 const TYPE = "ontologies";
@@ -62,7 +62,11 @@ async function ontologiesList(args) {
     const registryUrl = resolveRegistryUrl(args, config);
     console.log(`Fetching from ${registryUrl} …\n`);
     try {
-      const items = await listRegistryResources({ registryUrl, token, type: TYPE });
+      const items = await listRegistryResources({
+        registryUrl,
+        token,
+        type: TYPE
+      });
       if (items.length === 0) {
         console.log("No ontologies available in registry.");
         return;
@@ -73,7 +77,9 @@ async function ontologiesList(args) {
           item.version != null && String(item.version).length > 0
             ? ` v${item.version}`
             : "";
-        console.log(`${lock} ${item.owner}/${item.name}${ver}  (${item.access})`);
+        console.log(
+          `${lock} ${item.owner}/${item.name}${ver}  (${item.access})`
+        );
         if (item.description) console.log(`     ${item.description}`);
       }
     } catch (err) {
@@ -107,7 +113,9 @@ async function ontologiesList(args) {
 async function ontologiesPull(args) {
   const id = args.find((a) => !a.startsWith("-"));
   if (!id) {
-    console.error(`gcp ontologies pull: resource ID required (e.g. mindflight/mindbrain)`);
+    console.error(
+      `gcp ontologies pull: resource ID required (e.g. mindflight/mindbrain)`
+    );
     process.exit(1);
   }
 
@@ -140,7 +148,7 @@ async function ontologiesPull(args) {
     content = applyWatermark(content, {
       resourceId: `${owner}/${name}`,
       licensee,
-      pulledAt: new Date().toISOString(),
+      pulledAt: new Date().toISOString()
     });
   }
 
@@ -149,7 +157,13 @@ async function ontologiesPull(args) {
     owner,
     name,
     content,
-    manifest: { version, access, licensee: licensee ?? null, pulledAt, registryUrl },
+    manifest: {
+      version,
+      access,
+      licensee: licensee ?? null,
+      pulledAt,
+      registryUrl
+    }
   });
 
   console.log(`✓ Installed ${owner}/${name} v${version ?? "?"} [${access}]`);
@@ -212,7 +226,8 @@ async function ontologiesShow(args) {
 // ── helpers ───────────────────────────────────────────────────────────────────
 
 function printHelp() {
-  console.log(`
+  console.log(
+    `
 Usage: gcp brain schema <subcommand>   (recommended — “structure in the DB”)
        gcp ontologies <subcommand>     (alias)
 
@@ -232,5 +247,6 @@ Examples:
   gcp ontologies pull mindflight/mindbrain
   gcp ontologies pull company/internal --token sk_live_xyz
   gcp ontologies remove mindflight/mindbrain
-`.trim());
+`.trim()
+  );
 }

@@ -47,13 +47,13 @@ What remains true:
 
 The server registers **25** MCP tools, all prefixed `ghostcrab_*`. Registration is centralized in [`src/tools/register-all.ts`](src/tools/register-all.ts). At build time, `ghostcrab tools list` prints the same definitions (see [`src/cli/runner.ts`](src/cli/runner.ts)). Smoke tests validate the expected public tool families and startup behavior (see [`scripts/mcp-smoke.mjs`](scripts/mcp-smoke.mjs)).
 
-| Subsystem | Count | Tools |
-|-----------|------:|-------|
-| **Facets** (Layer 2 facts + schema registry) | 8 | `ghostcrab_search`, `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_count`, `ghostcrab_facet_tree`, `ghostcrab_schema_register`, `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
-| **Geo** (optional PostGIS; `geo_entities`) | 1 | `ghostcrab_query_geo` |
-| **Graph** (`graph.*` / `pg_dgraph`) | 5 | `ghostcrab_learn`, `ghostcrab_traverse`, `ghostcrab_marketplace`, `ghostcrab_patch`, `ghostcrab_coverage` |
-| **Pragma** (projections + operational snapshot) | 3 | `ghostcrab_project`, `ghostcrab_pack`, `ghostcrab_status` |
-| **Workspace** (`mindbrain`, DDL lifecycle, semantics export) | 7 | `ghostcrab_workspace_create`, `ghostcrab_workspace_list`, `ghostcrab_workspace_inspect`, `ghostcrab_workspace_export_model`, `ghostcrab_ddl_propose`, `ghostcrab_ddl_list_pending`, `ghostcrab_ddl_execute` |
+| Subsystem                                                    | Count | Tools                                                                                                                                                                                                       |
+| ------------------------------------------------------------ | ----: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Facets** (Layer 2 facts + schema registry)                 |     8 | `ghostcrab_search`, `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_count`, `ghostcrab_facet_tree`, `ghostcrab_schema_register`, `ghostcrab_schema_list`, `ghostcrab_schema_inspect`                   |
+| **Geo** (optional PostGIS; `geo_entities`)                   |     1 | `ghostcrab_query_geo`                                                                                                                                                                                       |
+| **Graph** (`graph.*` / `pg_dgraph`)                          |     5 | `ghostcrab_learn`, `ghostcrab_traverse`, `ghostcrab_marketplace`, `ghostcrab_patch`, `ghostcrab_coverage`                                                                                                   |
+| **Pragma** (projections + operational snapshot)              |     3 | `ghostcrab_project`, `ghostcrab_pack`, `ghostcrab_status`                                                                                                                                                   |
+| **Workspace** (`mindbrain`, DDL lifecycle, semantics export) |     7 | `ghostcrab_workspace_create`, `ghostcrab_workspace_list`, `ghostcrab_workspace_inspect`, `ghostcrab_workspace_export_model`, `ghostcrab_ddl_propose`, `ghostcrab_ddl_list_pending`, `ghostcrab_ddl_execute` |
 
 Workspace-scoped facet/graph reads (`workspace_id`) use the same facet and graph tools with an optional `workspace_id` argument; Layer 1 DDL and semantics are the workspace tools above. Geo is optional and gated by migration `010` + PostGIS (see runbook §8).
 
@@ -122,10 +122,10 @@ At runtime, **`ghostcrab_status`** reports:
 
 ## Runtime modes (`MINDBRAIN_NATIVE_EXTENSIONS`)
 
-| Mode        | Behavior |
-|------------|----------|
-| `sql-only` | Skip native probes for routing; tools use portable SQL even if extensions are installed. Useful only for explicit portability checks. |
-| `auto`     | Probe `pg_extension`; use native paths where loaded and readiness checks pass; fall back on failure. |
+| Mode       | Behavior                                                                                                                                                                                         |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `sql-only` | Skip native probes for routing; tools use portable SQL even if extensions are installed. Useful only for explicit portability checks.                                                            |
+| `auto`     | Probe `pg_extension`; use native paths where loaded and readiness checks pass; fall back on failure.                                                                                             |
 | `native`   | Fail fast during migrate / boot / seed if `pg_facets`, `pg_dgraph`, or `pg_pragma` are missing, or if the native bootstrap checks fail. This is the expected mode for real GhostCrab bootstraps. |
 
 Configure via environment (see `.env.example`). For real GhostCrab boot / seed, use [docker/docker-compose.native.yml](docker/docker-compose.native.yml) with `MINDBRAIN_NATIVE_EXTENSIONS=native`.
@@ -174,15 +174,15 @@ If a migration has already been applied, any later schema evolution must be adde
 
 ## Database layout (conceptual)
 
-| Area | Main tables / schemas | Migrations (examples) |
-|------|------------------------|------------------------|
-| Fact store | `public.facets` — `content`, `facets` (JSONB), `schema_id`, optional `embedding`, validity, materialized facet columns for `pg_facets`; workspace model adds `workspace_id`, `source_ref` for Layer1 sync | `001`–`008`, `009`, `011` |
-| Graph (canonical) | `graph.entity`, `graph.relation`, `graph.entity_alias` — aligned with `pg_dgraph`; workspace model adds `workspace_id` | `005`+, `009` |
-| Projections | `public.projections` — working memory / pragma surface; generated columns for FTS alignment (no `workspace_id` column today; scope via `agent_id` / `scope` as in V2) | `007`+ |
-| Agent state | `agent_state` and other `mindbrain_*` bootstrap tables | earlier migrations |
-| **Layer 1 (per workspace)** | Typed application tables in `mindbrain.workspaces.pg_schema` (e.g. `ws_prod_eu.*`) — created after human-approved DDL; FKs and native PostgreSQL types | DDL via `ghostcrab_ddl_execute` |
-| **Workspace control plane** | `mindbrain.workspaces`, `pending_migrations`, `query_templates`, `source_mappings`; semantics metadata in `table_semantics`, `column_semantics`, `relation_semantics` | `009`, `012`, `013`, `014` |
-| **Layer 1→2 coupling** | Generated `AFTER INSERT/UPDATE/DELETE` triggers sync Layer1 rows into `facets` (and optional graph/geo paths per `facet_type`); idempotence via `source_ref` + partial unique index | `009`–`011`, [`src/db/trigger-generator.ts`](src/db/trigger-generator.ts) |
+| Area                        | Main tables / schemas                                                                                                                                                                                     | Migrations (examples)                                                     |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Fact store                  | `public.facets` — `content`, `facets` (JSONB), `schema_id`, optional `embedding`, validity, materialized facet columns for `pg_facets`; workspace model adds `workspace_id`, `source_ref` for Layer1 sync | `001`–`008`, `009`, `011`                                                 |
+| Graph (canonical)           | `graph.entity`, `graph.relation`, `graph.entity_alias` — aligned with `pg_dgraph`; workspace model adds `workspace_id`                                                                                    | `005`+, `009`                                                             |
+| Projections                 | `public.projections` — working memory / pragma surface; generated columns for FTS alignment (no `workspace_id` column today; scope via `agent_id` / `scope` as in V2)                                     | `007`+                                                                    |
+| Agent state                 | `agent_state` and other `mindbrain_*` bootstrap tables                                                                                                                                                    | earlier migrations                                                        |
+| **Layer 1 (per workspace)** | Typed application tables in `mindbrain.workspaces.pg_schema` (e.g. `ws_prod_eu.*`) — created after human-approved DDL; FKs and native PostgreSQL types                                                    | DDL via `ghostcrab_ddl_execute`                                           |
+| **Workspace control plane** | `mindbrain.workspaces`, `pending_migrations`, `query_templates`, `source_mappings`; semantics metadata in `table_semantics`, `column_semantics`, `relation_semantics`                                     | `009`, `012`, `013`, `014`                                                |
+| **Layer 1→2 coupling**      | Generated `AFTER INSERT/UPDATE/DELETE` triggers sync Layer1 rows into `facets` (and optional graph/geo paths per `facet_type`); idempotence via `source_ref` + partial unique index                       | `009`–`011`, [`src/db/trigger-generator.ts`](src/db/trigger-generator.ts) |
 
 Legacy `graph.entity` / `graph.relation` may exist from older migrations; **new graph work targets `graph.*`**.
 
@@ -209,13 +209,13 @@ Filter type for native bitmap paths: composite **`facets.facet_filter`** as `(fa
 
 ### MCP tools (practical)
 
-| Tool | Writes / reads | Native when |
-|------|----------------|-------------|
-| **`ghostcrab_remember`** | **Write** — `INSERT` into `facets` | N/A (SQL insert); optional embeddings |
-| **`ghostcrab_upsert`** | **Write** — update/create current-state facts | N/A (SQL) |
-| **`ghostcrab_search`** | Read | `mode: "bm25"`, extension + readiness; complex JSONB facet filters may force SQL |
-| **`ghostcrab_count`** | Read | All `group_by` dimensions map to **registered** columns on `facets`, **no** `filters` object keys, readiness |
-| **`ghostcrab_facet_tree`** | Read | `pg_facets` loaded + readiness; empty filter edge cases documented in [docs/ROADMAP-V2.md](docs/ROADMAP-V2.md) |
+| Tool                       | Writes / reads                                | Native when                                                                                                    |
+| -------------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`ghostcrab_remember`**   | **Write** — `INSERT` into `facets`            | N/A (SQL insert); optional embeddings                                                                          |
+| **`ghostcrab_upsert`**     | **Write** — update/create current-state facts | N/A (SQL)                                                                                                      |
+| **`ghostcrab_search`**     | Read                                          | `mode: "bm25"`, extension + readiness; complex JSONB facet filters may force SQL                               |
+| **`ghostcrab_count`**      | Read                                          | All `group_by` dimensions map to **registered** columns on `facets`, **no** `filters` object keys, readiness   |
+| **`ghostcrab_facet_tree`** | Read                                          | `pg_facets` loaded + readiness; empty filter edge cases documented in [docs/ROADMAP-V2.md](docs/ROADMAP-V2.md) |
 
 **Registered dimensions for native count** (materialized column names on `facets`): `facet_record_id`, `facet_activity_family`, `facet_title`, `facet_label`, `schema_id`, `facet_tier`, `facet_app_segment`, `facet_churn_risk`, `facet_nationality`, `facet_game_type`, `facet_is_vip`, `facet_marketing_consent`. Logical names like `activity_family`, `tier`, or `is_vip` map to these materialized columns where applicable (see [`src/tools/facets/count.ts`](src/tools/facets/count.ts) and [`src/db/native-facets.ts`](src/db/native-facets.ts)).
 
@@ -229,7 +229,10 @@ Filter type for native bitmap paths: composite **`facets.facet_filter`** as `(fa
   "arguments": {
     "content": "Release 2.1 ships on Friday.",
     "schema_id": "agent:observation",
-    "facets": { "activity_family": "software-delivery", "title": "Release note" }
+    "facets": {
+      "activity_family": "software-delivery",
+      "title": "Release note"
+    }
   }
 }
 ```
@@ -276,13 +279,13 @@ Provides **graph-native** operators on `graph.*` (e.g. neighborhood and marketpl
 
 ### MCP tools (practical)
 
-| Tool | Writes / reads | Native when |
-|------|----------------|-------------|
-| **`ghostcrab_learn`** | **Write** — upsert **node** (`graph.entity`) and/or **edge** (`graph.relation`) | SQL persistence; native used for other tools |
-| **`ghostcrab_traverse`** | Read | **`depth === 1`**, no `target`, `pg_dgraph` + readiness → `entity_neighborhood`; multi-hop / target path-finding → **SQL recursive CTE**. Native rows are normalized before path / gap evaluation so malformed partial native payloads degrade to structured responses rather than crashes. |
-| **`ghostcrab_marketplace`** | Read | Requires `pg_dgraph` + readiness; otherwise structured error (e.g. `extension_not_loaded`) |
-| **`ghostcrab_patch`** | **Write** / graph op | Native patch pipeline when extension ready |
-| **`ghostcrab_coverage`** | Read | Uses graph / ontology; **decayed confidence** on gap nodes when native decay path available |
+| Tool                        | Writes / reads                                                                  | Native when                                                                                                                                                                                                                                                                                 |
+| --------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`ghostcrab_learn`**       | **Write** — upsert **node** (`graph.entity`) and/or **edge** (`graph.relation`) | SQL persistence; native used for other tools                                                                                                                                                                                                                                                |
+| **`ghostcrab_traverse`**    | Read                                                                            | **`depth === 1`**, no `target`, `pg_dgraph` + readiness → `entity_neighborhood`; multi-hop / target path-finding → **SQL recursive CTE**. Native rows are normalized before path / gap evaluation so malformed partial native payloads degrade to structured responses rather than crashes. |
+| **`ghostcrab_marketplace`** | Read                                                                            | Requires `pg_dgraph` + readiness; otherwise structured error (e.g. `extension_not_loaded`)                                                                                                                                                                                                  |
+| **`ghostcrab_patch`**       | **Write** / graph op                                                            | Native patch pipeline when extension ready                                                                                                                                                                                                                                                  |
+| **`ghostcrab_coverage`**    | Read                                                                            | Uses graph / ontology; **decayed confidence** on gap nodes when native decay path available                                                                                                                                                                                                 |
 
 ### Example MCP payloads (`pg_dgraph`-oriented)
 
@@ -362,11 +365,11 @@ Enhances **retrieval of working context** from **`projections`** via native pack
 
 ### MCP tools (practical)
 
-| Tool | Writes / reads | Native when |
-|------|----------------|-------------|
-| **`ghostcrab_project`** | **Write** — insert/update projection row | SQL |
-| **`ghostcrab_pack`** | Read | `pg_pragma` + readiness + **no `scope`** in arguments (try native; fallback to SQL on error) |
-| **`ghostcrab_status`** | Read | SQL-heavy snapshot; surfaces `runtime.capabilities.pragma_native_pack` |
+| Tool                    | Writes / reads                           | Native when                                                                                  |
+| ----------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------- |
+| **`ghostcrab_project`** | **Write** — insert/update projection row | SQL                                                                                          |
+| **`ghostcrab_pack`**    | Read                                     | `pg_pragma` + readiness + **no `scope`** in arguments (try native; fallback to SQL on error) |
+| **`ghostcrab_status`**  | Read                                     | SQL-heavy snapshot; surfaces `runtime.capabilities.pragma_native_pack`                       |
 
 ### Example MCP payloads (`pg_pragma`-oriented)
 
@@ -403,32 +406,32 @@ Enhances **retrieval of working context** from **`projections`** via native pack
 
 ## Full MCP tool reference (extension affinity)
 
-| Tool | Primary subsystem | Typical write? | Optional native acceleration |
-|------|-------------------|----------------|--------------------------------|
-| `ghostcrab_remember` | Facets | Yes (`facets`) | Search/count/tree elsewhere |
-| `ghostcrab_upsert` | Facets | Yes | Same |
-| `ghostcrab_search` | Facets | No | BM25 (`pg_facets`) |
-| `ghostcrab_count` | Facets | No | Counts (`pg_facets`) |
-| `ghostcrab_facet_tree` | Facets | No | Hierarchy (`pg_facets`) |
-| `ghostcrab_schema_register` | Facets / graph meta | Yes | SQL |
-| `ghostcrab_schema_list` | Facets / graph meta | No | SQL |
-| `ghostcrab_schema_inspect` | Facets / graph meta | No | SQL |
-| `ghostcrab_learn` | Graph | Yes (`graph.*`) | Other graph tools |
-| `ghostcrab_traverse` | Graph | No | Neighborhood (`pg_dgraph`), depth 1 |
-| `ghostcrab_marketplace` | Graph | No | `pg_dgraph` |
-| `ghostcrab_patch` | Graph | Yes | `pg_dgraph` |
-| `ghostcrab_coverage` | Graph / ontology | No | Confidence decay (`pg_dgraph`) |
-| `ghostcrab_project` | Pragma | Yes (`projections`) | Pack elsewhere |
-| `ghostcrab_pack` | Pragma | No | `pragma_pack_context` (`pg_pragma`) |
-| `ghostcrab_status` | Cross-cutting | No | Reports capabilities |
-| `ghostcrab_workspace_create` | Workspace / `mindbrain` | Yes (schema + workspace row) | SQL |
-| `ghostcrab_workspace_list` | Workspace / `mindbrain` | No | SQL |
-| `ghostcrab_workspace_inspect` | Workspace / `mindbrain` + Layer1 introspection | No | SQL |
-| `ghostcrab_workspace_export_model` | Workspace / semantics + export contract | No | SQL |
-| `ghostcrab_ddl_propose` | Workspace / `pending_migrations` | Yes (queued proposal) | SQL |
-| `ghostcrab_ddl_list_pending` | Workspace / `pending_migrations` | No | SQL |
-| `ghostcrab_ddl_execute` | Workspace / Layer1 DDL + triggers | Yes | SQL |
-| `ghostcrab_query_geo` | Workspace / `geo_entities` (optional PostGIS) | No | SQL (or structured error if PostGIS absent) |
+| Tool                               | Primary subsystem                              | Typical write?               | Optional native acceleration                |
+| ---------------------------------- | ---------------------------------------------- | ---------------------------- | ------------------------------------------- |
+| `ghostcrab_remember`               | Facets                                         | Yes (`facets`)               | Search/count/tree elsewhere                 |
+| `ghostcrab_upsert`                 | Facets                                         | Yes                          | Same                                        |
+| `ghostcrab_search`                 | Facets                                         | No                           | BM25 (`pg_facets`)                          |
+| `ghostcrab_count`                  | Facets                                         | No                           | Counts (`pg_facets`)                        |
+| `ghostcrab_facet_tree`             | Facets                                         | No                           | Hierarchy (`pg_facets`)                     |
+| `ghostcrab_schema_register`        | Facets / graph meta                            | Yes                          | SQL                                         |
+| `ghostcrab_schema_list`            | Facets / graph meta                            | No                           | SQL                                         |
+| `ghostcrab_schema_inspect`         | Facets / graph meta                            | No                           | SQL                                         |
+| `ghostcrab_learn`                  | Graph                                          | Yes (`graph.*`)              | Other graph tools                           |
+| `ghostcrab_traverse`               | Graph                                          | No                           | Neighborhood (`pg_dgraph`), depth 1         |
+| `ghostcrab_marketplace`            | Graph                                          | No                           | `pg_dgraph`                                 |
+| `ghostcrab_patch`                  | Graph                                          | Yes                          | `pg_dgraph`                                 |
+| `ghostcrab_coverage`               | Graph / ontology                               | No                           | Confidence decay (`pg_dgraph`)              |
+| `ghostcrab_project`                | Pragma                                         | Yes (`projections`)          | Pack elsewhere                              |
+| `ghostcrab_pack`                   | Pragma                                         | No                           | `pragma_pack_context` (`pg_pragma`)         |
+| `ghostcrab_status`                 | Cross-cutting                                  | No                           | Reports capabilities                        |
+| `ghostcrab_workspace_create`       | Workspace / `mindbrain`                        | Yes (schema + workspace row) | SQL                                         |
+| `ghostcrab_workspace_list`         | Workspace / `mindbrain`                        | No                           | SQL                                         |
+| `ghostcrab_workspace_inspect`      | Workspace / `mindbrain` + Layer1 introspection | No                           | SQL                                         |
+| `ghostcrab_workspace_export_model` | Workspace / semantics + export contract        | No                           | SQL                                         |
+| `ghostcrab_ddl_propose`            | Workspace / `pending_migrations`               | Yes (queued proposal)        | SQL                                         |
+| `ghostcrab_ddl_list_pending`       | Workspace / `pending_migrations`               | No                           | SQL                                         |
+| `ghostcrab_ddl_execute`            | Workspace / Layer1 DDL + triggers              | Yes                          | SQL                                         |
+| `ghostcrab_query_geo`              | Workspace / `geo_entities` (optional PostGIS)  | No                           | SQL (or structured error if PostGIS absent) |
 
 Tool responses include a `backend` field where dual-mode applies (e.g. `ghostcrab_count`, `ghostcrab_search`, `ghostcrab_pack`, `ghostcrab_traverse`).
 
@@ -438,13 +441,13 @@ Tool responses include a `backend` field where dual-mode applies (e.g. `ghostcra
 
 Run via `ghostcrab` after build (see [README.md](README.md)):
 
-| Command | Purpose |
-|---------|---------|
-| `ghostcrab maintenance register-pg-facets` | Idempotent registration of `facets` with **`pg_facets`** (needs extension + migration `008` surrogate key). |
-| `ghostcrab maintenance merge-facet-deltas` | Run `facets.merge_deltas` on `facets` after bulk facet writes. |
-| `ghostcrab maintenance refresh-entity-degree` | Refresh **`graph.entity_degree`** for `pg_dgraph` analytics / marketplace workflows. |
-| `ghostcrab maintenance ddl-approve --id <uuid> --by <name>` | **Workspace** Approve a pending DDL migration. Human-only step in the DDL lifecycle. |
-| `ghostcrab maintenance ddl-execute --id <uuid>` | **Workspace** Execute an approved DDL migration (DDL + trigger in one transaction). |
+| Command                                                     | Purpose                                                                                                     |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `ghostcrab maintenance register-pg-facets`                  | Idempotent registration of `facets` with **`pg_facets`** (needs extension + migration `008` surrogate key). |
+| `ghostcrab maintenance merge-facet-deltas`                  | Run `facets.merge_deltas` on `facets` after bulk facet writes.                                              |
+| `ghostcrab maintenance refresh-entity-degree`               | Refresh **`graph.entity_degree`** for `pg_dgraph` analytics / marketplace workflows.                        |
+| `ghostcrab maintenance ddl-approve --id <uuid> --by <name>` | **Workspace** Approve a pending DDL migration. Human-only step in the DDL lifecycle.                        |
+| `ghostcrab maintenance ddl-execute --id <uuid>`             | **Workspace** Execute an approved DDL migration (DDL + trigger in one transaction).                         |
 
 ## Validation status and commands
 
@@ -482,27 +485,27 @@ Migrations `009`+ introduce a `mindbrain` control schema (migration 009) and a `
 
 ### Workspace MCP tools
 
-| Tool | Purpose |
-|------|---------|
-| `ghostcrab_workspace_create` | Create a workspace (idempotent) |
-| `ghostcrab_workspace_list` | List workspaces with live stats |
-| `ghostcrab_workspace_inspect` | Introspect Layer 1 + semantics metadata for a workspace |
+| Tool                               | Purpose                                                                                       |
+| ---------------------------------- | --------------------------------------------------------------------------------------------- |
+| `ghostcrab_workspace_create`       | Create a workspace (idempotent)                                                               |
+| `ghostcrab_workspace_list`         | List workspaces with live stats                                                               |
+| `ghostcrab_workspace_inspect`      | Introspect Layer 1 + semantics metadata for a workspace                                       |
 | `ghostcrab_workspace_export_model` | Export workspace model + semantics to the JSON contract (enriched with `012`/`013` semantics) |
-| `ghostcrab_ddl_propose` | Propose a DDL migration for human review (optional `semantic_spec`, `sync_spec`) |
-| `ghostcrab_ddl_list_pending` | List pending / approved / executed migrations |
-| `ghostcrab_ddl_execute` | Execute an approved migration (DDL + triggers in one transaction) |
+| `ghostcrab_ddl_propose`            | Propose a DDL migration for human review (optional `semantic_spec`, `sync_spec`)              |
+| `ghostcrab_ddl_list_pending`       | List pending / approved / executed migrations                                                 |
+| `ghostcrab_ddl_execute`            | Execute an approved migration (DDL + triggers in one transaction)                             |
 
 All existing facet query tools (`ghostcrab_search`, `ghostcrab_count`, `ghostcrab_facet_tree`) accept an optional `workspace_id` parameter with full backward compatibility when Layer 2 rows are workspace-scoped. **`ghostcrab_query_geo`** (see §8 in the runbook) queries `geo_entities` and is optional when PostGIS is not installed.
 
 ### Workspace-related migrations
 
-| Migration | What it adds |
-|-----------|-------------|
-| `009_mindbrain_foundation.sql` | `mindbrain` schema, 4 control tables, `workspace_id` on Layer 2, seed `default` workspace |
-| `010_specialized_layer2.sql` | `geo_entities` (PostGIS optional), `embedding_vectors` (pgvector optional) |
-| `011_facets_sync_contract.sql` | `facets.source_ref`, partial unique index for trigger idempotence |
-| `012_workspace_semantics.sql` | `semantic_spec` on `pending_migrations`; `mindbrain.table_semantics`, `column_semantics`, `relation_semantics` |
-| `013_rich_semantics.sql` | `mindbrain.workspaces.domain_profile`; `rich_meta` JSONB on column/relation semantics |
+| Migration                      | What it adds                                                                                                   |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `009_mindbrain_foundation.sql` | `mindbrain` schema, 4 control tables, `workspace_id` on Layer 2, seed `default` workspace                      |
+| `010_specialized_layer2.sql`   | `geo_entities` (PostGIS optional), `embedding_vectors` (pgvector optional)                                     |
+| `011_facets_sync_contract.sql` | `facets.source_ref`, partial unique index for trigger idempotence                                              |
+| `012_workspace_semantics.sql`  | `semantic_spec` on `pending_migrations`; `mindbrain.table_semantics`, `column_semantics`, `relation_semantics` |
+| `013_rich_semantics.sql`       | `mindbrain.workspaces.domain_profile`; `rich_meta` JSONB on column/relation semantics                          |
 
 Full runbook: **[docs/v3/RUNBOOK_V3.md](docs/v3/RUNBOOK_V3.md)**
 

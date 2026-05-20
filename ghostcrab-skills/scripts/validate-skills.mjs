@@ -4,7 +4,10 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 
-const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const repoRoot = path.resolve(
+  path.dirname(new URL(import.meta.url).pathname),
+  ".."
+);
 const ghostcrabRoot = resolveSiblingGhostCrabRoot();
 const strictMode = process.argv.includes("--strict");
 
@@ -248,27 +251,36 @@ function validateEnvPlaceholders(filePath, content) {
   const matches = content.match(ALL_ENV_TOKENS_PATTERN) ?? [];
   for (const match of matches) {
     if (!VALID_ENV_TOKEN_PATTERN.test(match)) {
-      addError(`Invalid env placeholder syntax in ${relativeRepoPath(filePath)}: ${match}`);
+      addError(
+        `Invalid env placeholder syntax in ${relativeRepoPath(filePath)}: ${match}`
+      );
     }
   }
 }
 
 function validateJsonFiles() {
-  const jsonFiles = walkFiles(repoRoot).filter((filePath) => filePath.endsWith(".json"));
+  const jsonFiles = walkFiles(repoRoot).filter((filePath) =>
+    filePath.endsWith(".json")
+  );
 
   for (const filePath of jsonFiles) {
     let parsed;
     try {
       parsed = JSON.parse(readFile(filePath));
     } catch (error) {
-      addError(`Invalid JSON in ${relativeRepoPath(filePath)}: ${error.message}`);
+      addError(
+        `Invalid JSON in ${relativeRepoPath(filePath)}: ${error.message}`
+      );
       continue;
     }
 
     validateEnvPlaceholders(filePath, readFile(filePath));
     const relativePath = relativeRepoPath(filePath);
 
-    if (relativePath.endsWith(".mcp.json") || relativePath.endsWith("/mcp.json")) {
+    if (
+      relativePath.endsWith(".mcp.json") ||
+      relativePath.endsWith("/mcp.json")
+    ) {
       validateMcpConfig(relativePath, parsed);
     }
 
@@ -288,7 +300,11 @@ function validateMcpConfig(relativePath, parsed) {
     return;
   }
 
-  if (!parsed.mcpServers || typeof parsed.mcpServers !== "object" || Array.isArray(parsed.mcpServers)) {
+  if (
+    !parsed.mcpServers ||
+    typeof parsed.mcpServers !== "object" ||
+    Array.isArray(parsed.mcpServers)
+  ) {
     addError(`${relativePath} must define mcpServers.`);
     return;
   }
@@ -300,18 +316,32 @@ function validateMcpConfig(relativePath, parsed) {
   }
 
   for (const [serverName, serverConfig] of serverEntries) {
-    if (!serverConfig || typeof serverConfig !== "object" || Array.isArray(serverConfig)) {
+    if (
+      !serverConfig ||
+      typeof serverConfig !== "object" ||
+      Array.isArray(serverConfig)
+    ) {
       addError(`${relativePath} server ${serverName} must be an object.`);
       continue;
     }
 
-    if (typeof serverConfig.command !== "string" || serverConfig.command.trim() === "") {
-      addError(`${relativePath} server ${serverName} must define a non-empty command.`);
+    if (
+      typeof serverConfig.command !== "string" ||
+      serverConfig.command.trim() === ""
+    ) {
+      addError(
+        `${relativePath} server ${serverName} must define a non-empty command.`
+      );
     }
 
     if ("args" in serverConfig) {
-      if (!Array.isArray(serverConfig.args) || serverConfig.args.some((value) => typeof value !== "string")) {
-        addError(`${relativePath} server ${serverName} args must be an array of strings.`);
+      if (
+        !Array.isArray(serverConfig.args) ||
+        serverConfig.args.some((value) => typeof value !== "string")
+      ) {
+        addError(
+          `${relativePath} server ${serverName} args must be an array of strings.`
+        );
       }
     }
 
@@ -320,9 +350,13 @@ function validateMcpConfig(relativePath, parsed) {
         !serverConfig.env ||
         typeof serverConfig.env !== "object" ||
         Array.isArray(serverConfig.env) ||
-        Object.values(serverConfig.env).some((value) => typeof value !== "string")
+        Object.values(serverConfig.env).some(
+          (value) => typeof value !== "string"
+        )
       ) {
-        addError(`${relativePath} server ${serverName} env must be an object of strings.`);
+        addError(
+          `${relativePath} server ${serverName} env must be an object of strings.`
+        );
       }
     }
   }
@@ -334,7 +368,11 @@ function validateClaudeSettings(relativePath, parsed) {
     return;
   }
 
-  if (!parsed.hooks || typeof parsed.hooks !== "object" || Array.isArray(parsed.hooks)) {
+  if (
+    !parsed.hooks ||
+    typeof parsed.hooks !== "object" ||
+    Array.isArray(parsed.hooks)
+  ) {
     addError(`${relativePath} must define hooks as an object.`);
     return;
   }
@@ -347,16 +385,22 @@ function validateClaudeSettings(relativePath, parsed) {
 
     for (const [groupIndex, group] of hookGroups.entries()) {
       if (!group || typeof group !== "object" || Array.isArray(group)) {
-        addError(`${relativePath} hook group ${hookEvent}[${groupIndex}] must be an object.`);
+        addError(
+          `${relativePath} hook group ${hookEvent}[${groupIndex}] must be an object.`
+        );
         continue;
       }
 
       if (typeof group.matcher !== "string" || group.matcher.trim() === "") {
-        addError(`${relativePath} hook group ${hookEvent}[${groupIndex}] requires matcher.`);
+        addError(
+          `${relativePath} hook group ${hookEvent}[${groupIndex}] requires matcher.`
+        );
       }
 
       if (!Array.isArray(group.hooks) || group.hooks.length === 0) {
-        addError(`${relativePath} hook group ${hookEvent}[${groupIndex}] requires hooks.`);
+        addError(
+          `${relativePath} hook group ${hookEvent}[${groupIndex}] requires hooks.`
+        );
         continue;
       }
 
@@ -392,7 +436,11 @@ function validateDomainSchema(relativePath, parsed) {
   }
 
   for (const field of ["required_facets", "optional_facets"]) {
-    if (!parsed[field] || typeof parsed[field] !== "object" || Array.isArray(parsed[field])) {
+    if (
+      !parsed[field] ||
+      typeof parsed[field] !== "object" ||
+      Array.isArray(parsed[field])
+    ) {
       addError(`${relativePath} requires object field ${field}.`);
     }
   }
@@ -401,12 +449,16 @@ function validateDomainSchema(relativePath, parsed) {
     !Array.isArray(parsed.retrieval_patterns) ||
     parsed.retrieval_patterns.some((value) => typeof value !== "string")
   ) {
-    addError(`${relativePath} requires retrieval_patterns as an array of strings.`);
+    addError(
+      `${relativePath} requires retrieval_patterns as an array of strings.`
+    );
   }
 }
 
 function validateMarkdownLinks() {
-  const markdownFiles = walkFiles(repoRoot).filter((filePath) => filePath.endsWith(".md"));
+  const markdownFiles = walkFiles(repoRoot).filter((filePath) =>
+    filePath.endsWith(".md")
+  );
   for (const filePath of markdownFiles) {
     const content = readFile(filePath);
     const relativePath = relativeRepoPath(filePath);
@@ -431,7 +483,10 @@ function validateMarkdownLinks() {
         continue;
       }
 
-      const resolvedPath = path.resolve(path.dirname(filePath), targetWithoutAnchor);
+      const resolvedPath = path.resolve(
+        path.dirname(filePath),
+        targetWithoutAnchor
+      );
       if (!exists(resolvedPath)) {
         addError(`${relativePath} links to missing target: ${rawTarget}`);
       }
@@ -485,11 +540,15 @@ function validatePortableSeedFiles() {
   }
 
   if (missingFiles.length > 0) {
-    addError(`shared/demo-profiles is missing file(s): ${missingFiles.join(", ")}.`);
+    addError(
+      `shared/demo-profiles is missing file(s): ${missingFiles.join(", ")}.`
+    );
   }
 
   if (profileFiles.length === 0) {
-    addError("shared/demo-profiles must contain at least one .jsonl profile file.");
+    addError(
+      "shared/demo-profiles must contain at least one .jsonl profile file."
+    );
     return [];
   }
 
@@ -525,15 +584,21 @@ function validatePortableSeedFiles() {
 
     const profileEntry = entries.find((entry) => entry.kind === "profile");
     if (!profileEntry) {
-      addError(`shared/demo-profiles/${profileFile} must contain a profile entry.`);
+      addError(
+        `shared/demo-profiles/${profileFile} must contain a profile entry.`
+      );
       continue;
     }
 
     if (entries.filter((entry) => entry.kind === "profile").length !== 1) {
-      addError(`shared/demo-profiles/${profileFile} must contain exactly one profile entry.`);
+      addError(
+        `shared/demo-profiles/${profileFile} must contain exactly one profile entry.`
+      );
     }
 
-    const distinctProfileIds = new Set(entries.map((entry) => entry.profile_id));
+    const distinctProfileIds = new Set(
+      entries.map((entry) => entry.profile_id)
+    );
     if (distinctProfileIds.size !== 1) {
       addError(
         `shared/demo-profiles/${profileFile} must only contain entries for a single profile_id.`
@@ -623,7 +688,9 @@ function validateProfileLine(parsed, lineNumber, profileIds, label) {
 
   if (profileIds) {
     if (profileIds.has(parsed.profile_id)) {
-      addError(`${label}:${lineNumber} duplicates profile ${parsed.profile_id}.`);
+      addError(
+        `${label}:${lineNumber} duplicates profile ${parsed.profile_id}.`
+      );
     }
     profileIds.add(parsed.profile_id);
   }
@@ -639,7 +706,9 @@ function validateProfileLine(parsed, lineNumber, profileIds, label) {
   } else {
     for (const entrypoint of parsed.recommended_entrypoints) {
       if (!PROFILE_ENTRYPOINTS.has(entrypoint)) {
-        addError(`${label}:${lineNumber} uses unknown entrypoint ${entrypoint}.`);
+        addError(
+          `${label}:${lineNumber} uses unknown entrypoint ${entrypoint}.`
+        );
       }
     }
   }
@@ -662,19 +731,30 @@ function validateRememberLine(parsed, lineNumber, label) {
     addError(`${label}:${lineNumber} remember requires content.`);
   }
 
-  if (!parsed.facets || typeof parsed.facets !== "object" || Array.isArray(parsed.facets)) {
+  if (
+    !parsed.facets ||
+    typeof parsed.facets !== "object" ||
+    Array.isArray(parsed.facets)
+  ) {
     addError(`${label}:${lineNumber} remember requires facets object.`);
   }
 }
 
 function validateLearnNodeLine(parsed, lineNumber, label) {
-  if (!parsed.node || typeof parsed.node !== "object" || Array.isArray(parsed.node)) {
+  if (
+    !parsed.node ||
+    typeof parsed.node !== "object" ||
+    Array.isArray(parsed.node)
+  ) {
     addError(`${label}:${lineNumber} learn_node requires node object.`);
     return;
   }
 
   for (const field of ["id", "node_type", "label"]) {
-    if (typeof parsed.node[field] !== "string" || parsed.node[field].trim() === "") {
+    if (
+      typeof parsed.node[field] !== "string" ||
+      parsed.node[field].trim() === ""
+    ) {
       addError(`${label}:${lineNumber} learn_node requires node.${field}.`);
     }
   }
@@ -685,27 +765,43 @@ function validateLearnNodeLine(parsed, lineNumber, label) {
 }
 
 function validateLearnEdgeLine(parsed, lineNumber, label) {
-  if (!parsed.edge || typeof parsed.edge !== "object" || Array.isArray(parsed.edge)) {
+  if (
+    !parsed.edge ||
+    typeof parsed.edge !== "object" ||
+    Array.isArray(parsed.edge)
+  ) {
     addError(`${label}:${lineNumber} learn_edge requires edge object.`);
     return;
   }
 
   for (const field of ["source", "target", "label"]) {
-    if (typeof parsed.edge[field] !== "string" || parsed.edge[field].trim() === "") {
+    if (
+      typeof parsed.edge[field] !== "string" ||
+      parsed.edge[field].trim() === ""
+    ) {
       addError(`${label}:${lineNumber} learn_edge requires edge.${field}.`);
     }
   }
 }
 
 function validateProjectionLine(parsed, lineNumber, label) {
-  if (!parsed.projection || typeof parsed.projection !== "object" || Array.isArray(parsed.projection)) {
+  if (
+    !parsed.projection ||
+    typeof parsed.projection !== "object" ||
+    Array.isArray(parsed.projection)
+  ) {
     addError(`${label}:${lineNumber} projection requires projection object.`);
     return;
   }
 
   for (const field of ["agent_id", "scope", "proj_type", "status", "content"]) {
-    if (typeof parsed.projection[field] !== "string" || parsed.projection[field].trim() === "") {
-      addError(`${label}:${lineNumber} projection requires projection.${field}.`);
+    if (
+      typeof parsed.projection[field] !== "string" ||
+      parsed.projection[field].trim() === ""
+    ) {
+      addError(
+        `${label}:${lineNumber} projection requires projection.${field}.`
+      );
     }
   }
 }
@@ -713,11 +809,15 @@ function validateProjectionLine(parsed, lineNumber, label) {
 function extractProductTools() {
   const toolsDir = path.join(ghostcrabRoot, "src", "tools");
   if (!exists(toolsDir)) {
-    addWarning(`Sibling ghostcrab repo not found at ${ghostcrabRoot}; tool-reference checks were skipped.`);
+    addWarning(
+      `Sibling ghostcrab repo not found at ${ghostcrabRoot}; tool-reference checks were skipped.`
+    );
     return new Set();
   }
 
-  const toolFiles = walkFiles(toolsDir).filter((filePath) => filePath.endsWith(".ts"));
+  const toolFiles = walkFiles(toolsDir).filter((filePath) =>
+    filePath.endsWith(".ts")
+  );
   const tools = new Set();
 
   for (const filePath of toolFiles) {
@@ -737,7 +837,9 @@ function extractProductContext() {
   let packageName = null;
 
   if (!exists(packageJsonPath)) {
-    addWarning(`Sibling ghostcrab package.json not found at ${packageJsonPath}.`);
+    addWarning(
+      `Sibling ghostcrab package.json not found at ${packageJsonPath}.`
+    );
   } else {
     try {
       const parsed = JSON.parse(readFile(packageJsonPath));
@@ -806,12 +908,16 @@ function requiredToolsForSeedEntry(entry) {
 
 function validateSeedCompatibility(seedEntries, productContext) {
   if (seedEntries.length === 0) {
-    addWarning("No portable seed entries found to validate against sibling ghostcrab.");
+    addWarning(
+      "No portable seed entries found to validate against sibling ghostcrab."
+    );
     return;
   }
 
   if (productContext.tools.size === 0) {
-    addWarning("Seed compatibility checks were skipped because no sibling GhostCrab tool surface was detected.");
+    addWarning(
+      "Seed compatibility checks were skipped because no sibling GhostCrab tool surface was detected."
+    );
     return;
   }
 
@@ -831,7 +937,10 @@ function validateSeedCompatibility(seedEntries, productContext) {
     profileKinds.get(entry.profile_id).add(entry.kind);
 
     if (entry.kind === "profile") {
-      profileEntryPoints.set(entry.profile_id, entry.recommended_entrypoints ?? []);
+      profileEntryPoints.set(
+        entry.profile_id,
+        entry.recommended_entrypoints ?? []
+      );
       continue;
     }
 
@@ -859,7 +968,10 @@ function validateSeedCompatibility(seedEntries, productContext) {
       }
     }
 
-    if (entry.kind === "projection" && !entry.projection.agent_id.startsWith("agent:demo:")) {
+    if (
+      entry.kind === "projection" &&
+      !entry.projection.agent_id.startsWith("agent:demo:")
+    ) {
       addError(
         `Portable seed projection agent_id ${entry.projection.agent_id} for profile ${entry.profile_id} must start with agent:demo:.`
       );
@@ -868,7 +980,9 @@ function validateSeedCompatibility(seedEntries, productContext) {
 
   for (const toolName of allRequiredTools) {
     if (!productContext.tools.has(toolName)) {
-      addError(`Portable seed compatibility requires ${toolName}, but sibling ghostcrab does not expose it.`);
+      addError(
+        `Portable seed compatibility requires ${toolName}, but sibling ghostcrab does not expose it.`
+      );
     }
   }
 
@@ -883,7 +997,9 @@ function validateSeedCompatibility(seedEntries, productContext) {
   for (const [profileId, kinds] of profileKinds.entries()) {
     const entrypoints = profileEntryPoints.get(profileId) ?? [];
     if (entrypoints.length === 0) {
-      addError(`Portable seed profile ${profileId} is missing recommended entrypoints.`);
+      addError(
+        `Portable seed profile ${profileId} is missing recommended entrypoints.`
+      );
       continue;
     }
 
@@ -899,7 +1015,9 @@ function validateSeedCompatibility(seedEntries, productContext) {
       if (!capabilities) {
         return false;
       }
-      return Array.from(requiredTools).every((toolName) => capabilities.has(toolName));
+      return Array.from(requiredTools).every((toolName) =>
+        capabilities.has(toolName)
+      );
     });
 
     if (!supported) {
@@ -911,7 +1029,9 @@ function validateSeedCompatibility(seedEntries, productContext) {
     for (const entrypoint of entrypoints) {
       const capabilities = ENTRYPOINT_CAPABILITIES.get(entrypoint);
       if (!capabilities) {
-        addError(`Portable seed profile ${profileId} references unsupported entrypoint ${entrypoint}.`);
+        addError(
+          `Portable seed profile ${profileId} references unsupported entrypoint ${entrypoint}.`
+        );
         continue;
       }
 
@@ -929,7 +1049,9 @@ function validateSeedCompatibility(seedEntries, productContext) {
 
 function extractSeedDomain(entry) {
   if (entry.kind === "remember") {
-    return typeof entry.facets?.domain === "string" ? entry.facets.domain : null;
+    return typeof entry.facets?.domain === "string"
+      ? entry.facets.domain
+      : null;
   }
 
   if (entry.kind === "learn_node") {

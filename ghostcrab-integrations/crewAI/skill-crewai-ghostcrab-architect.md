@@ -65,22 +65,22 @@ Instead:
 
 ## CrewAI Memory Mapping
 
-| CrewAI memory type | Architect decision |
-| --- | --- |
-| Long-term memory | Represent as durable `ghostcrab_remember` records. |
-| Entity memory | Represent as mutable `ghostcrab_upsert` records with stable `record_id`. |
-| Short-term memory | Leave in CrewAI. |
-| Contextual memory | Leave in CrewAI. |
+| CrewAI memory type | Architect decision                                                       |
+| ------------------ | ------------------------------------------------------------------------ |
+| Long-term memory   | Represent as durable `ghostcrab_remember` records.                       |
+| Entity memory      | Represent as mutable `ghostcrab_upsert` records with stable `record_id`. |
+| Short-term memory  | Leave in CrewAI.                                                         |
+| Contextual memory  | Leave in CrewAI.                                                         |
 
 ## Lifecycle JTBD
 
-| Moment | Architect question | Tool |
-| --- | --- | --- |
-| Before | Does the workspace exist and what context is available? | `ghostcrab_workspace_list`, `ghostcrab_pack` |
-| Read | What facts/entities already exist? | `ghostcrab_search`, `ghostcrab_count` |
-| Write | Is this durable or current state? | `ghostcrab_remember` or `ghostcrab_upsert` |
-| After | What should crews inherit next run? | `ghostcrab_project` |
-| Recovery | What bootstrap state should be resumed? | `ghostcrab_pack` |
+| Moment   | Architect question                                      | Tool                                         |
+| -------- | ------------------------------------------------------- | -------------------------------------------- |
+| Before   | Does the workspace exist and what context is available? | `ghostcrab_workspace_list`, `ghostcrab_pack` |
+| Read     | What facts/entities already exist?                      | `ghostcrab_search`, `ghostcrab_count`        |
+| Write    | Is this durable or current state?                       | `ghostcrab_remember` or `ghostcrab_upsert`   |
+| After    | What should crews inherit next run?                     | `ghostcrab_project`                          |
+| Recovery | What bootstrap state should be resumed?                 | `ghostcrab_pack`                             |
 
 ## Starter Records
 
@@ -110,12 +110,12 @@ Use `ghostcrab_learn` for:
 
 ## Failure Modes
 
-| Condition | Response |
-| --- | --- |
-| `ghostcrab_status` fails | Ask the user to start `gcp brain up`; do not simulate persistence. |
-| Workspace missing | Create it only after `ghostcrab_workspace_list` confirms absence. |
-| Pack empty | Normal first run; seed the first facts and project heartbeat. |
-| No schema | Continue with well-named facets; inspect later. |
+| Condition                               | Response                                                                                     |
+| --------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `ghostcrab_status` fails                | Ask the user to start `gcp brain up`; do not simulate persistence.                           |
+| Workspace missing                       | Create it only after `ghostcrab_workspace_list` confirms absence.                            |
+| Pack empty                              | Normal first run; seed the first facts and project heartbeat.                                |
+| No schema                               | Continue with well-named facets; inspect later.                                              |
 | Concurrent agents write the same entity | Use stable `record_id` upserts for current state and separate remembered facts for evidence. |
 
 ## Later PRO Path

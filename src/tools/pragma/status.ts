@@ -87,26 +87,20 @@ export const statusTool: ToolHandler = {
       mb_ontology: {
         resolve_workspace: sqliteReadiness.ontology.resolveWorkspace,
         coverage_by_domain: sqliteReadiness.ontology.coverageByDomain,
-        marketplace_by_domain:
-          sqliteReadiness.ontology.marketplaceByDomain,
+        marketplace_by_domain: sqliteReadiness.ontology.marketplaceByDomain,
         export_workspace_model: sqliteReadiness.ontology.exportModel,
         validate_ddl_proposal: sqliteReadiness.ontology.validateDdl,
         register_entity_type: sqliteReadiness.ontology.registerEntityType,
-        register_relation_type:
-          sqliteReadiness.ontology.registerRelationType,
+        register_relation_type: sqliteReadiness.ontology.registerRelationType,
         compare_workspaces: sqliteReadiness.ontology.compareWorkspaces,
         bridge_workspaces: sqliteReadiness.ontology.bridgeWorkspaces,
         find_entity_bridges: sqliteReadiness.ontology.findEntityBridges,
         detect_conflicts: sqliteReadiness.ontology.detectConflicts,
         federated_search: sqliteReadiness.ontology.federatedSearch,
-        ontology_coverage_ref:
-          sqliteReadiness.ontology.computeOntologyCoverage,
-        ingest_knowledge_chunk:
-          sqliteReadiness.ontology.ingestKnowledgeChunk,
-        ingest_knowledge_batch:
-          sqliteReadiness.ontology.ingestKnowledgeBatch,
-        create_project_template:
-          sqliteReadiness.ontology.createProjectTemplate,
+        ontology_coverage_ref: sqliteReadiness.ontology.computeOntologyCoverage,
+        ingest_knowledge_chunk: sqliteReadiness.ontology.ingestKnowledgeChunk,
+        ingest_knowledge_batch: sqliteReadiness.ontology.ingestKnowledgeBatch,
+        create_project_template: sqliteReadiness.ontology.createProjectTemplate,
         instantiate_project: sqliteReadiness.ontology.instantiateProject,
         checkpoint_project: sqliteReadiness.ontology.checkpointProject
       }

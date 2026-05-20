@@ -13,8 +13,7 @@ export const TemporalFilterSchema = z
     if (!hasRelative && !hasAbsolute) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message:
-          "temporal filter requires relative or at least one of from, to"
+        message: "temporal filter requires relative or at least one of from, to"
       });
     }
     if (hasRelative && hasAbsolute) {

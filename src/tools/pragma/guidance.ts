@@ -34,16 +34,55 @@ interface FamilyAliasBank {
 const FAMILY_ALIAS_BANK: Record<string, FamilyAliasBank> = {
   "workflow-tracking": {
     terms: [
-      "kanban", "board", "backlog", "wip", "column", "task", "todo",
-      "to-do", "to do", "checklist", "sprint", "workflow", "trello",
-      "jira", "asana", "notion", "project board", "task board",
-      "tableau", "tâche", "tâches", "colonne", "étape", "suivi",
-      "flux de travail", "backlog produit", "en cours", "à faire",
-      "fait", "done", "doing", "planification", "planning",
-      "ticketing", "ticket", "issue tracker", "issues", "roadmap",
-      "feuille de route", "milestone", "jalon", "gestion de projet",
-      "project management", "work items", "story", "stories",
-      "user story", "epic", "epics"
+      "kanban",
+      "board",
+      "backlog",
+      "wip",
+      "column",
+      "task",
+      "todo",
+      "to-do",
+      "to do",
+      "checklist",
+      "sprint",
+      "workflow",
+      "trello",
+      "jira",
+      "asana",
+      "notion",
+      "project board",
+      "task board",
+      "tableau",
+      "tâche",
+      "tâches",
+      "colonne",
+      "étape",
+      "suivi",
+      "flux de travail",
+      "backlog produit",
+      "en cours",
+      "à faire",
+      "fait",
+      "done",
+      "doing",
+      "planification",
+      "planning",
+      "ticketing",
+      "ticket",
+      "issue tracker",
+      "issues",
+      "roadmap",
+      "feuille de route",
+      "milestone",
+      "jalon",
+      "gestion de projet",
+      "project management",
+      "work items",
+      "story",
+      "stories",
+      "user story",
+      "epic",
+      "epics"
     ],
     expansions: [
       "I want to track tasks through stages on a board",
@@ -54,14 +93,45 @@ const FAMILY_ALIAS_BANK: Record<string, FamilyAliasBank> = {
   },
   "software-delivery": {
     terms: [
-      "release", "deploy", "deployment", "pr", "pull request",
-      "merge request", "migration", "blocker", "bug", "bugfix",
-      "hotfix", "ci", "cd", "ci/cd", "pipeline ci", "build",
-      "test", "tests", "qa", "staging", "prod", "production",
-      "service", "dependency", "version", "versioning", "semver",
-      "git", "branch", "feature branch", "livraison", "mise en prod",
-      "déploiement", "correctif", "branche", "intégration continue",
-      "livraison continue", "régression", "regression"
+      "release",
+      "deploy",
+      "deployment",
+      "pr",
+      "pull request",
+      "merge request",
+      "migration",
+      "blocker",
+      "bug",
+      "bugfix",
+      "hotfix",
+      "ci",
+      "cd",
+      "ci/cd",
+      "pipeline ci",
+      "build",
+      "test",
+      "tests",
+      "qa",
+      "staging",
+      "prod",
+      "production",
+      "service",
+      "dependency",
+      "version",
+      "versioning",
+      "semver",
+      "git",
+      "branch",
+      "feature branch",
+      "livraison",
+      "mise en prod",
+      "déploiement",
+      "correctif",
+      "branche",
+      "intégration continue",
+      "livraison continue",
+      "régression",
+      "regression"
     ],
     expansions: [
       "track releases, PRs, and deployments",
@@ -72,14 +142,41 @@ const FAMILY_ALIAS_BANK: Record<string, FamilyAliasBank> = {
   },
   "incident-response": {
     terms: [
-      "incident", "outage", "latency", "alert", "runbook",
-      "sla", "slo", "degraded", "downtime", "pager", "on-call",
-      "oncall", "postmortem", "post-mortem", "root cause",
-      "rca", "impact", "severity", "p0", "p1", "critical",
-      "panne", "interruption", "alerte", "dégradé", "temps de réponse",
-      "astreinte", "cause racine", "indisponibilité",
-      "escalation", "escalade", "mitigation",
-      "résolution", "diagnostic", "triage"
+      "incident",
+      "outage",
+      "latency",
+      "alert",
+      "runbook",
+      "sla",
+      "slo",
+      "degraded",
+      "downtime",
+      "pager",
+      "on-call",
+      "oncall",
+      "postmortem",
+      "post-mortem",
+      "root cause",
+      "rca",
+      "impact",
+      "severity",
+      "p0",
+      "p1",
+      "critical",
+      "panne",
+      "interruption",
+      "alerte",
+      "dégradé",
+      "temps de réponse",
+      "astreinte",
+      "cause racine",
+      "indisponibilité",
+      "escalation",
+      "escalade",
+      "mitigation",
+      "résolution",
+      "diagnostic",
+      "triage"
     ],
     expansions: [
       "manage incidents and track their resolution",
@@ -90,13 +187,37 @@ const FAMILY_ALIAS_BANK: Record<string, FamilyAliasBank> = {
   },
   "compliance-audit": {
     terms: [
-      "compliance", "audit", "regulation", "obligation",
-      "evidence", "gdpr", "soc2", "soc 2", "iso", "iso27001",
-      "pci", "hipaa", "policy", "control", "framework",
-      "conformité", "réglementation", "preuve", "obligation légale",
-      "rgpd", "norme", "contrôle", "certification", "accréditation",
-      "dpia", "pia", "risk assessment", "évaluation des risques",
-      "audit trail", "trace d'audit", "gap analysis"
+      "compliance",
+      "audit",
+      "regulation",
+      "obligation",
+      "evidence",
+      "gdpr",
+      "soc2",
+      "soc 2",
+      "iso",
+      "iso27001",
+      "pci",
+      "hipaa",
+      "policy",
+      "control",
+      "framework",
+      "conformité",
+      "réglementation",
+      "preuve",
+      "obligation légale",
+      "rgpd",
+      "norme",
+      "contrôle",
+      "certification",
+      "accréditation",
+      "dpia",
+      "pia",
+      "risk assessment",
+      "évaluation des risques",
+      "audit trail",
+      "trace d'audit",
+      "gap analysis"
     ],
     expansions: [
       "track compliance obligations and evidence",
@@ -107,16 +228,43 @@ const FAMILY_ALIAS_BANK: Record<string, FamilyAliasBank> = {
   },
   "crm-pipeline": {
     terms: [
-      "crm", "lead", "leads", "account", "opportunity",
-      "deal", "pipeline", "stage", "outreach", "prospect",
-      "prospection", "prospecting", "funnel", "sales",
-      "vente", "ventes", "client", "contact", "follow-up",
-      "relance", "closing", "qualification", "qualified",
-      "cold call", "cold email", "demo", "proposal",
-      "proposition commerciale", "pipeline commercial",
-      "gestion commerciale", "suivi commercial",
-      "customer", "conversion", "nurturing", "linkedin",
-      "enrichment", "scoring"
+      "crm",
+      "lead",
+      "leads",
+      "account",
+      "opportunity",
+      "deal",
+      "pipeline",
+      "stage",
+      "outreach",
+      "prospect",
+      "prospection",
+      "prospecting",
+      "funnel",
+      "sales",
+      "vente",
+      "ventes",
+      "client",
+      "contact",
+      "follow-up",
+      "relance",
+      "closing",
+      "qualification",
+      "qualified",
+      "cold call",
+      "cold email",
+      "demo",
+      "proposal",
+      "proposition commerciale",
+      "pipeline commercial",
+      "gestion commerciale",
+      "suivi commercial",
+      "customer",
+      "conversion",
+      "nurturing",
+      "linkedin",
+      "enrichment",
+      "scoring"
     ],
     expansions: [
       "build a CRM to manage leads and deals through stages",
@@ -127,15 +275,43 @@ const FAMILY_ALIAS_BANK: Record<string, FamilyAliasBank> = {
   },
   "knowledge-base": {
     terms: [
-      "knowledge", "concept", "topic", "source", "note",
-      "notes", "research", "wiki", "briefing", "documentation",
-      "doc", "docs", "reference", "glossary", "faq",
-      "base de connaissances", "base documentaire", "connaissance",
-      "recherche", "synthèse", "mémo", "veille", "curation",
-      "bookmark", "bookmarks", "signets", "learning",
-      "apprentissage", "formation", "training material",
-      "second brain", "zettelkasten", "obsidian", "pkm",
-      "personal knowledge", "savoir", "encyclopédie"
+      "knowledge",
+      "concept",
+      "topic",
+      "source",
+      "note",
+      "notes",
+      "research",
+      "wiki",
+      "briefing",
+      "documentation",
+      "doc",
+      "docs",
+      "reference",
+      "glossary",
+      "faq",
+      "base de connaissances",
+      "base documentaire",
+      "connaissance",
+      "recherche",
+      "synthèse",
+      "mémo",
+      "veille",
+      "curation",
+      "bookmark",
+      "bookmarks",
+      "signets",
+      "learning",
+      "apprentissage",
+      "formation",
+      "training material",
+      "second brain",
+      "zettelkasten",
+      "obsidian",
+      "pkm",
+      "personal knowledge",
+      "savoir",
+      "encyclopédie"
     ],
     expansions: [
       "build a knowledge base for research notes and sources",
@@ -146,13 +322,32 @@ const FAMILY_ALIAS_BANK: Record<string, FamilyAliasBank> = {
   },
   "integration-operations": {
     terms: [
-      "api", "webhook", "connector", "integration",
-      "schema mapping", "sync", "credentials", "oauth",
-      "external postgres", "external db", "etl", "data pipeline",
-      "connecteur", "intégration", "synchronisation",
-      "mapping de schéma", "flux de données", "ingestion",
-      "rest", "graphql", "grpc", "microservice",
-      "third party", "third-party", "tiers", "service externe"
+      "api",
+      "webhook",
+      "connector",
+      "integration",
+      "schema mapping",
+      "sync",
+      "credentials",
+      "oauth",
+      "external postgres",
+      "external db",
+      "etl",
+      "data pipeline",
+      "connecteur",
+      "intégration",
+      "synchronisation",
+      "mapping de schéma",
+      "flux de données",
+      "ingestion",
+      "rest",
+      "graphql",
+      "grpc",
+      "microservice",
+      "third party",
+      "third-party",
+      "tiers",
+      "service externe"
     ],
     expansions: [
       "manage API integrations and connector health",
@@ -163,13 +358,30 @@ const FAMILY_ALIAS_BANK: Record<string, FamilyAliasBank> = {
   },
   "environment-delivery": {
     terms: [
-      "environment", "staging", "production", "rollout",
-      "customer environment", "compatibility", "verification",
-      "canary", "blue-green", "blue green", "feature flag",
-      "feature toggle", "infra", "infrastructure",
-      "environnement", "mise en production", "déploiement client",
-      "vérification", "compatibilité", "recette", "uat",
-      "pre-prod", "preprod", "pré-production"
+      "environment",
+      "staging",
+      "production",
+      "rollout",
+      "customer environment",
+      "compatibility",
+      "verification",
+      "canary",
+      "blue-green",
+      "blue green",
+      "feature flag",
+      "feature toggle",
+      "infra",
+      "infrastructure",
+      "environnement",
+      "mise en production",
+      "déploiement client",
+      "vérification",
+      "compatibilité",
+      "recette",
+      "uat",
+      "pre-prod",
+      "preprod",
+      "pré-production"
     ],
     expansions: [
       "manage environment rollouts and customer deployments",
@@ -210,7 +422,9 @@ function normalizeText(text: string): string {
  */
 function buildFuzzyTermRegex(termNormalized: string): RegExp {
   const escaped = escapeRegex(termNormalized);
-  return new RegExp(`\\b${escaped}(?:s|es|x|ed|ing|tion|ment|e|er|eur|euse)?\\b`);
+  return new RegExp(
+    `\\b${escaped}(?:s|es|x|ed|ing|tion|ment|e|er|eur|euse)?\\b`
+  );
 }
 
 function scoreKeywordMatches(goalNormalized: string): KeywordMatch[] {
@@ -393,25 +607,29 @@ function classifyByHeuristics(goalNormalized: string): ClassificationResult[] {
   }> = [
     {
       family: "workflow-tracking",
-      regex: /\b(track\w*|manag\w*|organiz\w*|follow\w*|suiv\w*|ger\w*|organis\w*)\b.*\b(task\w*|work\w*|item\w*|projet\w*|project\w*|activit\w*|tache\w*|avancement\w*)\b/,
+      regex:
+        /\b(track\w*|manag\w*|organiz\w*|follow\w*|suiv\w*|ger\w*|organis\w*)\b.*\b(task\w*|work\w*|item\w*|projet\w*|project\w*|activit\w*|tache\w*|avancement\w*)\b/,
       confidence: 0.5,
       reason: "verb+noun pattern: action on trackable work items"
     },
     {
       family: "workflow-tracking",
-      regex: /\b(app\w*|tool\w*|outil\w*|application\w*|system\w*)\b.*\b(task\w*|tache\w*|projet\w*|project\w*|todo|to.do)\b/,
+      regex:
+        /\b(app\w*|tool\w*|outil\w*|application\w*|system\w*)\b.*\b(task\w*|tache\w*|projet\w*|project\w*|todo|to.do)\b/,
       confidence: 0.45,
       reason: "tool-building intent for task/project domain"
     },
     {
       family: "crm-pipeline",
-      regex: /\b(track\w*|manag\w*|suiv\w*|ger\w*|relanc\w*)\b.*\b(lead\w*|client\w*|prospect\w*|customer\w*|contact\w*|vente\w*|sale\w*)\b/,
+      regex:
+        /\b(track\w*|manag\w*|suiv\w*|ger\w*|relanc\w*)\b.*\b(lead\w*|client\w*|prospect\w*|customer\w*|contact\w*|vente\w*|sale\w*)\b/,
       confidence: 0.5,
       reason: "verb+noun pattern: action on sales/client entities"
     },
     {
       family: "crm-pipeline",
-      regex: /\b(outil\w*|tool\w*|app\w*)\b.*\b(prospect\w*|commercial\w*|vente\w*|sale\w*|crm)\b/,
+      regex:
+        /\b(outil\w*|tool\w*|app\w*)\b.*\b(prospect\w*|commercial\w*|vente\w*|sale\w*|crm)\b/,
       confidence: 0.55,
       reason: "tool-building intent for CRM/sales domain"
     },
@@ -423,43 +641,50 @@ function classifyByHeuristics(goalNormalized: string): ClassificationResult[] {
     },
     {
       family: "knowledge-base",
-      regex: /\b(organiz\w*|organis\w*|collect\w*|curat\w*|compil\w*|rassembl\w*)\b.*\b(note\w*|info\w*|knowledge\w*|savoir\w*|doc\w*|research\w*|recherche\w*)\b/,
+      regex:
+        /\b(organiz\w*|organis\w*|collect\w*|curat\w*|compil\w*|rassembl\w*)\b.*\b(note\w*|info\w*|knowledge\w*|savoir\w*|doc\w*|research\w*|recherche\w*)\b/,
       confidence: 0.5,
       reason: "verb+noun pattern: organizing knowledge"
     },
     {
       family: "knowledge-base",
-      regex: /\b(second brain|zettelkasten|pkm|personal knowledge|base de connaissance\w*)\b/,
+      regex:
+        /\b(second brain|zettelkasten|pkm|personal knowledge|base de connaissance\w*)\b/,
       confidence: 0.6,
       reason: "explicit knowledge management system reference"
     },
     {
       family: "incident-response",
-      regex: /\b(respond\w*|handl\w*|ger\w*|trait\w*|suiv\w*)\b.*\b(incident\w*|panne\w*|outage\w*|alert\w*)\b/,
+      regex:
+        /\b(respond\w*|handl\w*|ger\w*|trait\w*|suiv\w*)\b.*\b(incident\w*|panne\w*|outage\w*|alert\w*)\b/,
       confidence: 0.55,
       reason: "verb+noun pattern: responding to incidents"
     },
     {
       family: "compliance-audit",
-      regex: /\b(track\w*|suiv\w*|manag\w*|ger\w*)\b.*\b(compliance\w*|conformite\w*|obligation\w*|regulat\w*|reglementat\w*)\b/,
+      regex:
+        /\b(track\w*|suiv\w*|manag\w*|ger\w*)\b.*\b(compliance\w*|conformite\w*|obligation\w*|regulat\w*|reglementat\w*)\b/,
       confidence: 0.55,
       reason: "verb+noun pattern: tracking compliance"
     },
     {
       family: "software-delivery",
-      regex: /\b(ship\w*|deliver\w*|releas\w*|deploy\w*|livr\w*)\b.*\b(software\w*|code\w*|app\w*|feature\w*|fonctionnalit\w*)\b/,
+      regex:
+        /\b(ship\w*|deliver\w*|releas\w*|deploy\w*|livr\w*)\b.*\b(software\w*|code\w*|app\w*|feature\w*|fonctionnalit\w*)\b/,
       confidence: 0.5,
       reason: "verb+noun pattern: delivering software"
     },
     {
       family: "integration-operations",
-      regex: /\b(connect\w*|integr\w*|sync\w*|synchronis\w*)\b.*\b(api\w*|service\w*|system\w*|database\w*|base\w*)\b/,
+      regex:
+        /\b(connect\w*|integr\w*|sync\w*|synchronis\w*)\b.*\b(api\w*|service\w*|system\w*|database\w*|base\w*)\b/,
       confidence: 0.5,
       reason: "verb+noun pattern: integrating systems"
     },
     {
       family: "environment-delivery",
-      regex: /\b(deploy\w*|rollout\w*)\b.*\b(environment\w*|staging\w*|production\w*|client\w*)\b/,
+      regex:
+        /\b(deploy\w*|rollout\w*)\b.*\b(environment\w*|staging\w*|production\w*|client\w*)\b/,
       confidence: 0.5,
       reason: "verb+noun pattern: deploying to environments"
     }
@@ -505,15 +730,21 @@ function mergeScores(
   keywordMatches: KeywordMatch[],
   embeddingMatches: EmbeddingMatch[],
   heuristicMatches: ClassificationResult[],
-  familyMeta: Map<string, { title: string; default_projection: string; keywords: string[] }>
+  familyMeta: Map<
+    string,
+    { title: string; default_projection: string; keywords: string[] }
+  >
 ): MergedFamilyMatch[] {
-  const merged = new Map<string, {
-    keyword: number;
-    embedding: number;
-    heuristic: number;
-    matchSources: Set<string>;
-    matchedTerms: string[];
-  }>();
+  const merged = new Map<
+    string,
+    {
+      keyword: number;
+      embedding: number;
+      heuristic: number;
+      matchSources: Set<string>;
+      matchedTerms: string[];
+    }
+  >();
 
   const ensure = (family: string) => {
     if (!merged.has(family)) {
@@ -548,9 +779,7 @@ function mergeScores(
   const results: MergedFamilyMatch[] = [];
   for (const [family, scores] of merged) {
     const combinedScore =
-      0.40 * scores.keyword +
-      0.35 * scores.embedding +
-      0.25 * scores.heuristic;
+      0.4 * scores.keyword + 0.35 * scores.embedding + 0.25 * scores.heuristic;
 
     const meta = familyMeta.get(family);
     results.push({
@@ -573,7 +802,13 @@ function mergeScores(
 // ---------------------------------------------------------------------------
 
 interface ClarifyingQuestion {
-  kind: "scope" | "entity" | "workflow" | "privacy" | "integration" | "confirmation";
+  kind:
+    | "scope"
+    | "entity"
+    | "workflow"
+    | "privacy"
+    | "integration"
+    | "confirmation";
   text: string;
   slot: string;
   applies_to: string[];
@@ -823,7 +1058,9 @@ function generateToolSteps(
     action: "Generate your first working view / heartbeat projection",
     params_hint: {
       projection_kind: topFamily
-        ? (FAMILY_ALIAS_BANK[topFamily] ? "from recipe" : "mini-heartbeat")
+        ? FAMILY_ALIAS_BANK[topFamily]
+          ? "from recipe"
+          : "mini-heartbeat"
         : "mini-heartbeat"
     }
   });
@@ -935,9 +1172,7 @@ export const guidanceTool: ToolHandler = {
           title: row.title ?? row.activity_family,
           default_projection: row.default_projection ?? "mini-heartbeat",
           keywords: Array.isArray(row.keywords)
-            ? row.keywords.filter(
-                (k): k is string => typeof k === "string"
-              )
+            ? row.keywords.filter((k): k is string => typeof k === "string")
             : []
         });
       }

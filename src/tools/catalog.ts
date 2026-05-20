@@ -41,6 +41,7 @@ const BASIC_LISTED_TOOL_NAMES = [
   "ghostcrab_status",
   "ghostcrab_search",
   "ghostcrab_count",
+  "ghostcrab_combined_search",
   "ghostcrab_remember",
   "ghostcrab_upsert",
   "ghostcrab_schema_list",
@@ -136,7 +137,12 @@ export function searchToolCatalog(
       score:
         queryTerms.length === 0
           ? defaultBrowseScore(entry)
-          : bm25LikeScore(entry, queryTerms, documentFrequency, candidates.length)
+          : bm25LikeScore(
+              entry,
+              queryTerms,
+              documentFrequency,
+              candidates.length
+            )
     }))
     .filter((entry) => entry.score > 0)
     .sort((left, right) => {
@@ -224,6 +230,7 @@ function classifySubsystem(name: string): ToolSubsystem {
 
   if (
     name.startsWith("ghostcrab_traverse") ||
+    name.startsWith("ghostcrab_entity_chunks") ||
     name.startsWith("ghostcrab_graph") ||
     name.startsWith("ghostcrab_coverage") ||
     name.startsWith("ghostcrab_learn") ||
@@ -280,10 +287,7 @@ function summarizeArguments(tool: Tool): ToolArgumentSummary[] {
   });
 }
 
-function normalizePropertyType(
-  type: unknown,
-  enumValues: unknown
-): string {
+function normalizePropertyType(type: unknown, enumValues: unknown): string {
   if (typeof type === "string") {
     return type;
   }

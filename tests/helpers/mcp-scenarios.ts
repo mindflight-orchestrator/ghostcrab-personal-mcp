@@ -166,7 +166,12 @@ function scoreToolChoice(
   if (sameStringArray(candidate.tools_called, baseline.expected_tools)) {
     return "pass";
   }
-  if (includesExpectedToolsInOrder(baseline.expected_tools, candidate.tools_called)) {
+  if (
+    includesExpectedToolsInOrder(
+      baseline.expected_tools,
+      candidate.tools_called
+    )
+  ) {
     return "weak_pass";
   }
   return "fail";
@@ -235,26 +240,23 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
     async run({ clientName, database }) {
       await loadMcpDataset(database, "empty_runtime");
 
-      return withMcpStdioClient(
-        clientName,
-        async ({ client, getTrace }) => {
-          await callToolJson(
-            client,
-            "ghostcrab_status",
-            { agent_id: "agent:self" },
-            "ghostcrab_status",
-            getTrace()
-          );
+      return withMcpStdioClient(clientName, async ({ client, getTrace }) => {
+        await callToolJson(
+          client,
+          "ghostcrab_status",
+          { agent_id: "agent:self" },
+          "ghostcrab_status",
+          getTrace()
+        );
 
-          return summarizeArtifact(
-            getTrace(),
-            this.prompt,
-            this.id,
-            this.dataset,
-            this.expectedTools
-          );
-        }
-      );
+        return summarizeArtifact(
+          getTrace(),
+          this.prompt,
+          this.id,
+          this.dataset,
+          this.expectedTools
+        );
+      });
     }
   },
   facets_task_count: {
@@ -265,30 +267,27 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
     async run({ clientName, database }) {
       await loadMcpDataset(database, "active_project");
 
-      return withMcpStdioClient(
-        clientName,
-        async ({ client, getTrace }) => {
-          await callToolJson(
-            client,
-            "ghostcrab_count",
-            {
-              schema_id: "demo:test:task",
-              group_by: ["status"],
-              filters: { scope: "project:apollo" }
-            },
-            "ghostcrab_count",
-            getTrace()
-          );
+      return withMcpStdioClient(clientName, async ({ client, getTrace }) => {
+        await callToolJson(
+          client,
+          "ghostcrab_count",
+          {
+            schema_id: "demo:test:task",
+            group_by: ["status"],
+            filters: { scope: "project:apollo" }
+          },
+          "ghostcrab_count",
+          getTrace()
+        );
 
-          return summarizeArtifact(
-            getTrace(),
-            this.prompt,
-            this.id,
-            this.dataset,
-            this.expectedTools
-          );
-        }
-      );
+        return summarizeArtifact(
+          getTrace(),
+          this.prompt,
+          this.id,
+          this.dataset,
+          this.expectedTools
+        );
+      });
     }
   },
   facets_bm25_blocker: {
@@ -299,30 +298,27 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
     async run({ clientName, database }) {
       await loadMcpDataset(database, "active_project");
 
-      return withMcpStdioClient(
-        clientName,
-        async ({ client, getTrace }) => {
-          await callToolJson(
-            client,
-            "ghostcrab_search",
-            {
-              query: "missing API token",
-              schema_id: "demo:test:task",
-              mode: "bm25"
-            },
-            "ghostcrab_search",
-            getTrace()
-          );
+      return withMcpStdioClient(clientName, async ({ client, getTrace }) => {
+        await callToolJson(
+          client,
+          "ghostcrab_search",
+          {
+            query: "missing API token",
+            schema_id: "demo:test:task",
+            mode: "bm25"
+          },
+          "ghostcrab_search",
+          getTrace()
+        );
 
-          return summarizeArtifact(
-            getTrace(),
-            this.prompt,
-            this.id,
-            this.dataset,
-            this.expectedTools
-          );
-        }
-      );
+        return summarizeArtifact(
+          getTrace(),
+          this.prompt,
+          this.id,
+          this.dataset,
+          this.expectedTools
+        );
+      });
     }
   },
   graph_gap_neighbors: {
@@ -333,30 +329,27 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
     async run({ clientName, database }) {
       await loadMcpDataset(database, "edge_cases");
 
-      return withMcpStdioClient(
-        clientName,
-        async ({ client, getTrace }) => {
-          await callToolJson(
-            client,
-            "ghostcrab_traverse",
-            {
-              start: "concept:demo:task",
-              depth: 1,
-              direction: "outbound"
-            },
-            "ghostcrab_traverse",
-            getTrace()
-          );
+      return withMcpStdioClient(clientName, async ({ client, getTrace }) => {
+        await callToolJson(
+          client,
+          "ghostcrab_traverse",
+          {
+            start: "concept:demo:task",
+            depth: 1,
+            direction: "outbound"
+          },
+          "ghostcrab_traverse",
+          getTrace()
+        );
 
-          return summarizeArtifact(
-            getTrace(),
-            this.prompt,
-            this.id,
-            this.dataset,
-            this.expectedTools
-          );
-        }
-      );
+        return summarizeArtifact(
+          getTrace(),
+          this.prompt,
+          this.id,
+          this.dataset,
+          this.expectedTools
+        );
+      });
     }
   },
   pragma_context_pack: {
@@ -367,26 +360,23 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
     async run({ clientName, database }) {
       await loadMcpDataset(database, "active_project");
 
-      return withMcpStdioClient(
-        clientName,
-        async ({ client, getTrace }) => {
-          await callToolJson(
-            client,
-            "ghostcrab_pack",
-            { query: "missing token blocker project apollo" },
-            "ghostcrab_pack",
-            getTrace()
-          );
+      return withMcpStdioClient(clientName, async ({ client, getTrace }) => {
+        await callToolJson(
+          client,
+          "ghostcrab_pack",
+          { query: "missing token blocker project apollo" },
+          "ghostcrab_pack",
+          getTrace()
+        );
 
-          return summarizeArtifact(
-            getTrace(),
-            this.prompt,
-            this.id,
-            this.dataset,
-            this.expectedTools
-          );
-        }
-      );
+        return summarizeArtifact(
+          getTrace(),
+          this.prompt,
+          this.id,
+          this.dataset,
+          this.expectedTools
+        );
+      });
     }
   },
   workspace_create: {
@@ -397,30 +387,27 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
     async run({ clientName, database }) {
       await loadMcpDataset(database, "empty_runtime");
 
-      return withMcpStdioClient(
-        clientName,
-        async ({ client, getTrace }) => {
-          await callToolJson(
-            client,
-            "ghostcrab_workspace_create",
-            {
-              id: workspaceIdForScenario(this.id),
-              label: "MCP Validation Workspace",
-              created_by: "baseline-mcp"
-            },
-            "ghostcrab_workspace_create",
-            getTrace()
-          );
+      return withMcpStdioClient(clientName, async ({ client, getTrace }) => {
+        await callToolJson(
+          client,
+          "ghostcrab_workspace_create",
+          {
+            id: workspaceIdForScenario(this.id),
+            label: "MCP Validation Workspace",
+            created_by: "baseline-mcp"
+          },
+          "ghostcrab_workspace_create",
+          getTrace()
+        );
 
-          return summarizeArtifact(
-            getTrace(),
-            this.prompt,
-            this.id,
-            this.dataset,
-            this.expectedTools
-          );
-        }
-      );
+        return summarizeArtifact(
+          getTrace(),
+          this.prompt,
+          this.id,
+          this.dataset,
+          this.expectedTools
+        );
+      });
     }
   },
   workspace_ddl_propose: {
@@ -431,30 +418,27 @@ const SCENARIOS: Record<McpScenarioId, McpScenario> = {
     async run({ clientName, database }) {
       await loadMcpDataset(database, "empty_runtime");
 
-      return withMcpStdioClient(
-        clientName,
-        async ({ client, getTrace }) => {
-          await callToolJson(
-            client,
-            "ghostcrab_ddl_propose",
-            {
-              workspace_id: "default",
-              sql: "CREATE TABLE IF NOT EXISTS mcp_validation_probe (id SERIAL PRIMARY KEY, label TEXT)",
-              rationale: "Validation baseline DDL propose path"
-            },
-            "ghostcrab_ddl_propose",
-            getTrace()
-          );
+      return withMcpStdioClient(clientName, async ({ client, getTrace }) => {
+        await callToolJson(
+          client,
+          "ghostcrab_ddl_propose",
+          {
+            workspace_id: "default",
+            sql: "CREATE TABLE IF NOT EXISTS mcp_validation_probe (id SERIAL PRIMARY KEY, label TEXT)",
+            rationale: "Validation baseline DDL propose path"
+          },
+          "ghostcrab_ddl_propose",
+          getTrace()
+        );
 
-          return summarizeArtifact(
-            getTrace(),
-            this.prompt,
-            this.id,
-            this.dataset,
-            this.expectedTools
-          );
-        }
-      );
+        return summarizeArtifact(
+          getTrace(),
+          this.prompt,
+          this.id,
+          this.dataset,
+          this.expectedTools
+        );
+      });
     }
   }
 };
@@ -537,7 +521,9 @@ export function compareScenarioArtifactToBaseline(
     );
   }
   if (candidate.trace.some((record) => !record.ok)) {
-    notes.push("At least one MCP call failed during the candidate scenario run.");
+    notes.push(
+      "At least one MCP call failed during the candidate scenario run."
+    );
   }
 
   return {

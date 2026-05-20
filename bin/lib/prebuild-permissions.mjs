@@ -57,10 +57,16 @@ function getCurrentPlatformKey() {
 function getTargetMetadata() {
   const platformKey = getCurrentPlatformKey();
   const binaryName =
-    process.platform === "win32" ? "ghostcrab-backend.exe" : "ghostcrab-backend";
+    process.platform === "win32"
+      ? "ghostcrab-backend.exe"
+      : "ghostcrab-backend";
   const documentBinaryName =
-    process.platform === "win32" ? "ghostcrab-document.exe" : "ghostcrab-document";
-  const packageEntry = SUPPORTED_PREBUILD_TARGETS.find((entry) => entry.platformKey === platformKey);
+    process.platform === "win32"
+      ? "ghostcrab-document.exe"
+      : "ghostcrab-document";
+  const packageEntry = SUPPORTED_PREBUILD_TARGETS.find(
+    (entry) => entry.platformKey === platformKey
+  );
   return {
     platformKey,
     binaryName,
@@ -92,10 +98,17 @@ export function resolveNativeBackendPath(pkgRoot) {
 
   if (bundled.packageName) {
     try {
-      const packageJsonPath = require.resolve(`${bundled.packageName}/package.json`, {
-        paths: [pkgRoot]
-      });
-      const installedPath = join(dirname(packageJsonPath), "bin", bundled.binaryName);
+      const packageJsonPath = require.resolve(
+        `${bundled.packageName}/package.json`,
+        {
+          paths: [pkgRoot]
+        }
+      );
+      const installedPath = join(
+        dirname(packageJsonPath),
+        "bin",
+        bundled.binaryName
+      );
       if (existsSync(installedPath)) {
         return {
           ok: true,
@@ -156,7 +169,8 @@ export function getNativeDocumentEnginePath(pkgRoot) {
 export function resolveDocumentEnginePath(pkgRoot) {
   const override = process.env.GHOSTCRAB_DOCUMENT_ENGINE?.trim();
   if (override) {
-    const { platformKey, documentBinaryName, packageName } = getTargetMetadata();
+    const { platformKey, documentBinaryName, packageName } =
+      getTargetMetadata();
     if (existsSync(override)) {
       return {
         ok: true,
@@ -173,10 +187,17 @@ export function resolveDocumentEnginePath(pkgRoot) {
 
   if (bundled.packageName) {
     try {
-      const packageJsonPath = require.resolve(`${bundled.packageName}/package.json`, {
-        paths: [pkgRoot]
-      });
-      const installedPath = join(dirname(packageJsonPath), "bin", bundled.binaryName);
+      const packageJsonPath = require.resolve(
+        `${bundled.packageName}/package.json`,
+        {
+          paths: [pkgRoot]
+        }
+      );
+      const installedPath = join(
+        dirname(packageJsonPath),
+        "bin",
+        bundled.binaryName
+      );
       if (existsSync(installedPath)) {
         return {
           ok: true,
@@ -205,8 +226,22 @@ export function resolveDocumentEnginePath(pkgRoot) {
 
   const devVendor =
     process.platform === "win32"
-      ? join(pkgRoot, "vendor", "mindbrain", "zig-out", "bin", "mindbrain-standalone-tool.exe")
-      : join(pkgRoot, "vendor", "mindbrain", "zig-out", "bin", "mindbrain-standalone-tool");
+      ? join(
+          pkgRoot,
+          "vendor",
+          "mindbrain",
+          "zig-out",
+          "bin",
+          "mindbrain-standalone-tool.exe"
+        )
+      : join(
+          pkgRoot,
+          "vendor",
+          "mindbrain",
+          "zig-out",
+          "bin",
+          "mindbrain-standalone-tool"
+        );
   if (existsSync(devVendor)) {
     return {
       ok: true,
@@ -224,7 +259,9 @@ export function resolveDocumentEnginePath(pkgRoot) {
     "backend",
     "zig-out",
     "bin",
-    process.platform === "win32" ? "ghostcrab-document.exe" : "ghostcrab-document"
+    process.platform === "win32"
+      ? "ghostcrab-document.exe"
+      : "ghostcrab-document"
   );
   if (existsSync(devCmd)) {
     return {
@@ -309,11 +346,19 @@ export function ensureBackendExecutableForServe(binPath) {
  * @returns {object}
  */
 export function preparePrebuildForInstall(pkgRoot, o = {}) {
-  if (!o.ignorePostinstallEnv && process.env.GHOSTCRAB_SKIP_POSTINSTALL === "1") {
+  if (
+    !o.ignorePostinstallEnv &&
+    process.env.GHOSTCRAB_SKIP_POSTINSTALL === "1"
+  ) {
     return { ok: true, skipped: "GHOSTCRAB_SKIP_POSTINSTALL" };
   }
 
-  const { verbose = false, silent = false, tryQuarantine = true, softFail = false } = o;
+  const {
+    verbose = false,
+    silent = false,
+    tryQuarantine = true,
+    softFail = false
+  } = o;
   const resolved = resolveNativeBackendPath(pkgRoot);
   const { path: binPath, platformKey, packageName } = resolved;
 
@@ -411,7 +456,9 @@ export function preparePrebuildForInstall(pkgRoot, o = {}) {
 
   if (verbose) {
     const detail =
-      actions.length > 0 ? actions.join(", ") : "already OK (execute + not quarantined or no xattr)";
+      actions.length > 0
+        ? actions.join(", ")
+        : "already OK (execute + not quarantined or no xattr)";
     console.log(
       `[ghostcrab] Native backend for ${platformKey} (${resolved.source}) — ${detail}\n` +
         `  ${binPath}`

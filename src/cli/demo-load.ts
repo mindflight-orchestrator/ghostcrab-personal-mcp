@@ -133,7 +133,10 @@ function readProfileEntriesFromFile(profilePath: string): DemoSeedEntry[] {
     .map((line) => JSON.parse(line) as DemoSeedEntry);
 }
 
-function readProfileFile(skillsRepoRoot: string, profileId: string): DemoSeedEntry[] {
+function readProfileFile(
+  skillsRepoRoot: string,
+  profileId: string
+): DemoSeedEntry[] {
   const profilePath = path.join(
     skillsRepoRoot,
     "shared",
@@ -378,7 +381,9 @@ async function loadDemoProfile(
         }
         break;
       default:
-        throw new Error(`Unsupported demo seed entry kind: ${(entry as { kind: string }).kind}`);
+        throw new Error(
+          `Unsupported demo seed entry kind: ${(entry as { kind: string }).kind}`
+        );
     }
   }
 

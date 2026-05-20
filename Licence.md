@@ -127,10 +127,10 @@ That is the **irreversible sublicensing / relicensing** language people associat
 
 ### CLA versus DCO (Developer Certificate of Origin)
 
-| | **CLA** | **DCO** |
-| :--- | :--- | :--- |
+|                             | **CLA**                               | **DCO**                                                                                                             |
+| :-------------------------- | :------------------------------------ | :------------------------------------------------------------------------------------------------------------------ |
 | Relicensing for the steward | Typically **yes**, if the CLA says so | **No** — contribution stays under the licence in force at submit time (with the usual outbound licence of the repo) |
-| Contributor friction | Higher (explicit agreement) | Lower (`Signed-off-by` in commit message) |
+| Contributor friction        | Higher (explicit agreement)           | Lower (`Signed-off-by` in commit message)                                                                           |
 
 Projects that need freedom to evolve from community terms to layered or commercial licences **without contributor vetoes** generally use a **CLA with explicit relicensing language**, not DCO alone.
 

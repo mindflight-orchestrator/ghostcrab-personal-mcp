@@ -10,15 +10,15 @@ smolagents runs Python-generating agents. GhostCrab Personal stores durable fact
 
 Use real GhostCrab Personal tools:
 
-| Need | Tool |
-|---|---|
-| Hydrate or recover context | `ghostcrab_pack` |
-| Retrieve specific records | `ghostcrab_search` |
-| Store durable findings | `ghostcrab_remember` |
-| Update latest state | `ghostcrab_upsert` |
-| Track active goals and blockers | `ghostcrab_project` |
-| Record handoffs and dependencies | `ghostcrab_learn` |
-| Traverse relationships | `ghostcrab_traverse` |
+| Need                             | Tool                 |
+| -------------------------------- | -------------------- |
+| Hydrate or recover context       | `ghostcrab_pack`     |
+| Retrieve specific records        | `ghostcrab_search`   |
+| Store durable findings           | `ghostcrab_remember` |
+| Update latest state              | `ghostcrab_upsert`   |
+| Track active goals and blockers  | `ghostcrab_project`  |
+| Record handoffs and dependencies | `ghostcrab_learn`    |
+| Traverse relationships           | `ghostcrab_traverse` |
 
 For first contact, expose no more than four tools: `ghostcrab_status`, `ghostcrab_pack`, `ghostcrab_remember`, and `ghostcrab_upsert`.
 
@@ -182,12 +182,12 @@ Never create a workspace before listing existing workspaces.
 
 ## Failure Modes
 
-| Failure | Runtime response |
-|---|---|
+| Failure                          | Runtime response                                                                                   |
+| -------------------------------- | -------------------------------------------------------------------------------------------------- |
 | GhostCrab unavailable before run | Start `gcp brain up`; if using an HTTP bridge, restart the bridge; verify with `ghostcrab_status`. |
-| GhostCrab error during callback | Catch, log, continue the agent run without persistence for that step. |
-| Empty recovery pack | Expected for a new workspace. Start with `agent.memory.steps=[]`. |
-| Latest state duplicated | Use a stable `record_id` under `match.facets`. |
-| Durable facts mixed with state | Move durable evidence to `ghostcrab_remember`; keep only latest status in `ghostcrab_upsert`. |
+| GhostCrab error during callback  | Catch, log, continue the agent run without persistence for that step.                              |
+| Empty recovery pack              | Expected for a new workspace. Start with `agent.memory.steps=[]`.                                  |
+| Latest state duplicated          | Use a stable `record_id` under `match.facets`.                                                     |
+| Durable facts mixed with state   | Move durable evidence to `ghostcrab_remember`; keep only latest status in `ghostcrab_upsert`.      |
 
 **PRO note:** mindBrain Pro is the centralized PostgreSQL-backed option for teams. The runtime path here stays GhostCrab Personal, SQLite, and `gcp brain up`.

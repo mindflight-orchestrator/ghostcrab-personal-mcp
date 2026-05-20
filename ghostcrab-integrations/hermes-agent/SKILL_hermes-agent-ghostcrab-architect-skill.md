@@ -198,14 +198,14 @@ to make the model look complete.
 
 ## Failure Modes
 
-| Failure | Fix |
-| --- | --- |
-| GhostCrab is unavailable | Ask the user to run `gcp brain up` and stop modeling writes. |
-| Workspace is missing | Create it with `ghostcrab_workspace_create` after checking `ghostcrab_workspace_list`. |
-| Pack is empty | Treat as first run and continue with careful first writes. |
-| Search misses expected records | Broaden query or inspect facets; one miss does not prove absence. |
-| Relationship direction is unclear | Ask the user before calling `ghostcrab_learn`. |
-| Current state would overwrite useful rationale | Store rationale with `ghostcrab_remember`, then update with `ghostcrab_upsert`. |
+| Failure                                        | Fix                                                                                    |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------- |
+| GhostCrab is unavailable                       | Ask the user to run `gcp brain up` and stop modeling writes.                           |
+| Workspace is missing                           | Create it with `ghostcrab_workspace_create` after checking `ghostcrab_workspace_list`. |
+| Pack is empty                                  | Treat as first run and continue with careful first writes.                             |
+| Search misses expected records                 | Broaden query or inspect facets; one miss does not prove absence.                      |
+| Relationship direction is unclear              | Ask the user before calling `ghostcrab_learn`.                                         |
+| Current state would overwrite useful rationale | Store rationale with `ghostcrab_remember`, then update with `ghostcrab_upsert`.        |
 
 ## PRO Note
 

@@ -53,7 +53,9 @@ function runNpmInstall(tgzBasename, { noPackageLock = false } = {}) {
 }
 
 if (!existsSync(manifestPath)) {
-  console.error(`pack-manifest.json not found next to this script (${bundleRoot}).`);
+  console.error(
+    `pack-manifest.json not found next to this script (${bundleRoot}).`
+  );
   process.exit(1);
 }
 
@@ -78,11 +80,15 @@ if (!plat?.filename) {
   console.error(
     `No prebuild in manifest for "${platformKey}" (host: ${process.platform} ${process.arch}).`
   );
-  console.error(`Available keys: ${Object.keys(manifest.platforms ?? {}).join(", ")}`);
+  console.error(
+    `Available keys: ${Object.keys(manifest.platforms ?? {}).join(", ")}`
+  );
   process.exit(1);
 }
 
-console.error(`[install-beta] Host → ${platformKey} (${basename(plat.filename)})`);
+console.error(
+  `[install-beta] Host → ${platformKey} (${basename(plat.filename)})`
+);
 
 runNpmInstall(root.filename);
 // Platform prebuild: always bypass the lock file.

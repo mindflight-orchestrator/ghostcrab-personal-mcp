@@ -6,7 +6,11 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { createDatabaseClient } from "../../../src/db/client.js";
 import { resolveGhostcrabConfig } from "../../../src/config/env.js";
-import { callToolJson, listToolNames, withMcpStdioClient } from "../../helpers/mcp-stdio.js";
+import {
+  callToolJson,
+  listToolNames,
+  withMcpStdioClient
+} from "../../helpers/mcp-stdio.js";
 import { loadMcpDataset } from "../../helpers/mcp-datasets.js";
 
 const SQLITE_TEST_DIR = mkdtempSync(join(tmpdir(), "ghostcrab-server-traces-"));

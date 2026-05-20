@@ -177,18 +177,18 @@ Recommended use:
 
 ## 8. Tool Mapping
 
-| CrewAI need | GhostCrab Personal tool |
-| --- | --- |
-| Create a crew memory workspace | `ghostcrab_workspace_create` |
-| Save durable research findings | `ghostcrab_remember` |
-| Retrieve prior crew context | `ghostcrab_search` |
-| Update task status or shared state | `ghostcrab_upsert` |
-| Track role workload or state counts | `ghostcrab_count` |
-| Link tasks, blockers, and decisions | `ghostcrab_learn` |
-| Follow dependency chains | `ghostcrab_traverse` |
-| Maintain active crew goals | `ghostcrab_project` |
-| Load a task-specific memory pack | `ghostcrab_pack` |
-| Inspect available schema contracts | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
+| CrewAI need                         | GhostCrab Personal tool                             |
+| ----------------------------------- | --------------------------------------------------- |
+| Create a crew memory workspace      | `ghostcrab_workspace_create`                        |
+| Save durable research findings      | `ghostcrab_remember`                                |
+| Retrieve prior crew context         | `ghostcrab_search`                                  |
+| Update task status or shared state  | `ghostcrab_upsert`                                  |
+| Track role workload or state counts | `ghostcrab_count`                                   |
+| Link tasks, blockers, and decisions | `ghostcrab_learn`                                   |
+| Follow dependency chains            | `ghostcrab_traverse`                                |
+| Maintain active crew goals          | `ghostcrab_project`                                 |
+| Load a task-specific memory pack    | `ghostcrab_pack`                                    |
+| Inspect available schema contracts  | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
 
 ## 9. Community Demo Scenarios
 
@@ -220,14 +220,14 @@ Keep this as a single short note.
 
 ### Agent Lifecycle Mapping
 
-| Moment | Agent question | Expected GhostCrab tool | Present in current review? |
-|---|---|---|---|
-| Before | Load current crew context before starting my task | `ghostcrab_pack` | Mentioned in Demo 3 but not as a standard starting step |
-| Read | What did prior agents find or decide? | `ghostcrab_search` | Yes, in demos |
-| Write (durable) | Record a research finding that other agents should use | `ghostcrab_remember` | Listed but not distinguished from upsert |
-| Write (state) | Update the status of my assigned task | `ghostcrab_upsert` | Listed but not distinguished from remember |
-| After | Record the active crew goal or handoff constraint | `ghostcrab_project` | Not covered |
-| Recovery | Resume a crew run from the last shared state | `ghostcrab_pack` | Demo 3 covers this |
+| Moment          | Agent question                                         | Expected GhostCrab tool | Present in current review?                              |
+| --------------- | ------------------------------------------------------ | ----------------------- | ------------------------------------------------------- |
+| Before          | Load current crew context before starting my task      | `ghostcrab_pack`        | Mentioned in Demo 3 but not as a standard starting step |
+| Read            | What did prior agents find or decide?                  | `ghostcrab_search`      | Yes, in demos                                           |
+| Write (durable) | Record a research finding that other agents should use | `ghostcrab_remember`    | Listed but not distinguished from upsert                |
+| Write (state)   | Update the status of my assigned task                  | `ghostcrab_upsert`      | Listed but not distinguished from remember              |
+| After           | Record the active crew goal or handoff constraint      | `ghostcrab_project`     | Not covered                                             |
+| Recovery        | Resume a crew run from the last shared state           | `ghostcrab_pack`        | Demo 3 covers this                                      |
 
 ### Critical Gap: `remember` vs `upsert` Distinction
 
@@ -241,6 +241,7 @@ Not explained in the current review. For CrewAI this is especially important:
 CrewAI has Long-term memory, Short-term memory, Entity memory, and Contextual memory. The review never maps which GhostCrab tool complements or replaces which. A developer reading this review will immediately ask "which of my crew's memory types does GhostCrab replace?" — and the review has no answer.
 
 Suggested mapping for the review:
+
 - Long-term memory → `ghostcrab_remember` (durable facts across runs)
 - Entity memory → `ghostcrab_upsert` (current state of tracked entities)
 - GhostCrab does NOT replace Short-term or Contextual memory (those stay in CrewAI)
@@ -256,19 +257,20 @@ Missing: workspace creation before first crew write. The review never tells the 
 ### Failure Mode Coverage
 
 Not addressed. Missing:
+
 - `ghostcrab_pack` returns empty on first crew run — agents should proceed with empty context, not error
 - Researcher writes a fact; writer searches and gets no results — timing issue in concurrent crews not addressed
 
 ## 11. Readiness Score
 
-| Criterion | Score | Notes |
-| --- | ---: | --- |
-| Community relevance | 5/5 | CrewAI users have a clear shared-memory pain point. |
-| Framework alignment | 4/5 | The role/task model maps well to GhostCrab. |
-| GhostCrab Personal accuracy | 5/5 | Skills now default to `@mindflight/ghostcrab-personal-mcp`, `gcp brain up`, SQLite, and local MCP `stdio`. |
-| Tool-name accuracy | 5/5 | Skills now use real `ghostcrab_*` tools instead of package-first or custom memory APIs. |
-| Agent behavioral clarity | 5/5 | Lifecycle JTBD, remember/upsert rules, native CrewAI memory mapping, first-write workspace setup, and failure modes are explicit. |
-| Community readiness | 4/5 | A new MCP-first quickstart skill provides a ≤4-tool first-contact path. |
+| Criterion                   | Score | Notes                                                                                                                             |
+| --------------------------- | ----: | --------------------------------------------------------------------------------------------------------------------------------- |
+| Community relevance         |   5/5 | CrewAI users have a clear shared-memory pain point.                                                                               |
+| Framework alignment         |   4/5 | The role/task model maps well to GhostCrab.                                                                                       |
+| GhostCrab Personal accuracy |   5/5 | Skills now default to `@mindflight/ghostcrab-personal-mcp`, `gcp brain up`, SQLite, and local MCP `stdio`.                        |
+| Tool-name accuracy          |   5/5 | Skills now use real `ghostcrab_*` tools instead of package-first or custom memory APIs.                                           |
+| Agent behavioral clarity    |   5/5 | Lifecycle JTBD, remember/upsert rules, native CrewAI memory mapping, first-write workspace setup, and failure modes are explicit. |
+| Community readiness         |   4/5 | A new MCP-first quickstart skill provides a ≤4-tool first-contact path.                                                           |
 
 Overall readiness: **Community-ready after rewrite.**
 

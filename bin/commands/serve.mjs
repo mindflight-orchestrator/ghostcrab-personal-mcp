@@ -14,7 +14,15 @@
 
 import { createServer } from "node:net";
 import { spawn } from "node:child_process";
-import { constants, existsSync, mkdirSync, openSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import {
+  constants,
+  existsSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  unlinkSync,
+  writeFileSync
+} from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -58,14 +66,20 @@ const PKG_VERSION = JSON.parse(
 ).version;
 
 export async function runServe(args) {
-  const installIdeSkills = args.includes("--install-skills") && !args.includes("--no-skills");
-  const filtered = args.filter((a) => a !== "--install-skills" && a !== "--no-skills");
+  const installIdeSkills =
+    args.includes("--install-skills") && !args.includes("--no-skills");
+  const filtered = args.filter(
+    (a) => a !== "--install-skills" && a !== "--no-skills"
+  );
 
   // Parse flags
   let workspaceName = null;
   let dbPathFromCli = null;
   for (let i = 0; i < filtered.length; i++) {
-    if ((filtered[i] === "--workspace" || filtered[i] === "-w") && filtered[i + 1]) {
+    if (
+      (filtered[i] === "--workspace" || filtered[i] === "-w") &&
+      filtered[i + 1]
+    ) {
       workspaceName = slugifyWorkspace(filtered[++i]);
       continue;
     }
@@ -97,14 +111,16 @@ export async function runServe(args) {
       pkgRoot,
       skip: false,
       force: false,
-      context: "serve",
+      context: "serve"
     });
   }
 
   // ── Resolve backend binary ────────────────────────────────────────────────
   const backend = resolveNativeBackendPath(pkgRoot);
   if (!backend.ok) {
-    const supported = SUPPORTED_PREBUILD_TARGETS.map((entry) => entry.platformKey).join(", ");
+    const supported = SUPPORTED_PREBUILD_TARGETS.map(
+      (entry) => entry.platformKey
+    ).join(", ");
     const packageHint = backend.packageName
       ? `  Expected package: ${backend.packageName}\n`
       : "";
@@ -125,7 +141,10 @@ export async function runServe(args) {
     sqlitePathSource,
     backendAddr: initialBackendAddr,
     portExplicit
-  } = resolveGhostcrabSqlite({ workspaceNameFromCli: workspaceName, sqlitePathFromCli: dbPathFromCli });
+  } = resolveGhostcrabSqlite({
+    workspaceNameFromCli: workspaceName,
+    sqlitePathFromCli: dbPathFromCli
+  });
   let backendAddr = initialBackendAddr;
   process.stderr.write(
     `[ghostcrab] SQLite database: ${sqlitePathResolved}\n` +
@@ -161,20 +180,26 @@ export async function runServe(args) {
           process.kill(existingPid, 0); // signal 0 = liveness probe
           const url = `http://127.0.0.1:${existingPort}`;
           const healthCheck = await fetch(`${url}/health`, {
-            signal: AbortSignal.timeout(1000),
+            signal: AbortSignal.timeout(1000)
           }).catch(() => null);
           if (healthCheck?.ok) {
             if (storedVersion !== PKG_VERSION) {
               // Version mismatch — kill the old backend and start fresh.
               process.stderr.write(
                 `[ghostcrab] upgrade: old backend v${storedVersion} (pid ${existingPid}, port ${existingPort}) is still running\n` +
-                `[ghostcrab] upgrade: sqlite dir → ${dataDir}\n` +
-                `[ghostcrab] upgrade: stopping old backend and starting v${PKG_VERSION}…\n`
+                  `[ghostcrab] upgrade: sqlite dir → ${dataDir}\n` +
+                  `[ghostcrab] upgrade: stopping old backend and starting v${PKG_VERSION}…\n`
               );
               try {
                 process.kill(existingPid, "SIGTERM");
-              } catch { /* SIGTERM may fail if the process is already gone */ }
-              try { unlinkSync(pidFile); } catch { /* stale file may already be gone */ }
+              } catch {
+                /* SIGTERM may fail if the process is already gone */
+              }
+              try {
+                unlinkSync(pidFile);
+              } catch {
+                /* stale file may already be gone */
+              }
               // backendAlreadyRunning stays false → fall through to spawn path
             } else {
               process.stderr.write(
@@ -187,11 +212,17 @@ export async function runServe(args) {
               backendAlreadyRunning = true;
             }
           }
-        } catch { /* PID gone — stale file, will be replaced below */
-          try { unlinkSync(pidFile); } catch { /* ignore — best effort */ }
+        } catch {
+          /* PID gone — stale file, will be replaced below */
+          try {
+            unlinkSync(pidFile);
+          } catch {
+            /* ignore — best effort */
+          }
         }
       }
-    } catch { /* unreadable PID file, ignore */
+    } catch {
+      /* unreadable PID file, ignore */
     }
   }
 
@@ -215,21 +246,20 @@ export async function runServe(args) {
   // ── Launch backend as independent detached process ────────────────────────
   if (!backendAlreadyRunning) {
     ensureBackendExecutableForServe(backendBin);
-    const logFd = openSync(logFile, constants.O_WRONLY | constants.O_CREAT | constants.O_APPEND);
-    const backendProcess = spawn(
-      backendBin,
-      [],
-      {
-        env: {
-          ...process.env,
-          GHOSTCRAB_BACKEND_ADDR: backendAddr,
-          GHOSTCRAB_SQLITE_PATH: sqlitePathResolved,
-          GHOSTCRAB_WORKSPACE_NAME: workspaceName ?? "default",
-        },
-        stdio: ["ignore", logFd, logFd],
-        detached: true,
-      }
+    const logFd = openSync(
+      logFile,
+      constants.O_WRONLY | constants.O_CREAT | constants.O_APPEND
     );
+    const backendProcess = spawn(backendBin, [], {
+      env: {
+        ...process.env,
+        GHOSTCRAB_BACKEND_ADDR: backendAddr,
+        GHOSTCRAB_SQLITE_PATH: sqlitePathResolved,
+        GHOSTCRAB_WORKSPACE_NAME: workspaceName ?? "default"
+      },
+      stdio: ["ignore", logFd, logFd],
+      detached: true
+    });
     backendProcess.on("error", (err) => {
       const hint =
         err.code === "EACCES"
@@ -248,7 +278,7 @@ export async function runServe(args) {
 
     process.stderr.write(
       `[ghostcrab] backend started (pid ${backendProcess.pid})\n` +
-      `[ghostcrab] log: ${logFile}\n`
+        `[ghostcrab] log: ${logFile}\n`
     );
 
     // Surface early crashes — if the backend exits before it becomes healthy
@@ -274,30 +304,41 @@ export async function runServe(args) {
           try {
             const raw = readFileSync(logFile);
             tail = raw.slice(Math.max(0, raw.length - 4096)).toString("utf8");
-          } catch { /* log file unreadable — report what we have */ }
+          } catch {
+            /* log file unreadable — report what we have */
+          }
           process.stderr.write(
             `[ghostcrab] backend exited early (code ${earlyCode ?? "?"})\n` +
-            `[ghostcrab] last lines from ${logFile}:\n${tail}\n`
+              `[ghostcrab] last lines from ${logFile}:\n${tail}\n`
           );
           process.exit(earlyCode ?? 1);
         }
         try {
-          const res = await fetch(healthUrl, { signal: AbortSignal.timeout(1000) });
+          const res = await fetch(healthUrl, {
+            signal: AbortSignal.timeout(1000)
+          });
           if (res.ok) {
             // Write pid:port:version so the next gcp serve can detect upgrades
             try {
-              writeFileSync(pidFile, `${backendProcess.pid}:${resolvedPort}:${PKG_VERSION}\n`, "utf8");
-            } catch { /* non-fatal: pid file is best-effort */ }
+              writeFileSync(
+                pidFile,
+                `${backendProcess.pid}:${resolvedPort}:${PKG_VERSION}\n`,
+                "utf8"
+              );
+            } catch {
+              /* non-fatal: pid file is best-effort */
+            }
             return;
           }
-        } catch { /* not ready yet */
+        } catch {
+          /* not ready yet */
         }
         await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
       }
       process.stderr.write(
         `[ghostcrab] backend did not become healthy within ${TIMEOUT_MS}ms\n` +
-        `  health URL: ${healthUrl}\n` +
-        `  log: ${logFile}\n`
+          `  health URL: ${healthUrl}\n` +
+          `  log: ${logFile}\n`
       );
       backendProcess.kill();
       process.exit(1);

@@ -90,7 +90,8 @@ const PATTERNS = {
   premature_modeling:
     /ghostcrab_workspace_create|Étapes suggérées|Prochaines étapes|Créer un workspace|Step \d+:|Entités\s*:/i,
   /** Matches alternate storage proposals. */
-  alt_storage: /YAML|fichier (local|JSON|Markdown)|local file|\.json|\.yaml|\.md file/i
+  alt_storage:
+    /YAML|fichier (local|JSON|Markdown)|local file|\.json|\.yaml|\.md file/i
 } as const;
 
 /**
@@ -134,7 +135,10 @@ export function scoreC4(replyText: string): ComplianceScore {
  * Score C5: Vue probable line (or locale equivalent).
  * Pass when the pattern is found; fail when absent.
  */
-export function scoreC5(replyText: string, promptLanguage: string): ComplianceScore {
+export function scoreC5(
+  replyText: string,
+  promptLanguage: string
+): ComplianceScore {
   const isFr = promptLanguage.startsWith("fr");
   const pattern = isFr ? PATTERNS.vue_probable_fr : PATTERNS.vue_probable_en;
   return pattern.test(replyText) ? "pass" : "fail";
@@ -143,7 +147,10 @@ export function scoreC5(replyText: string, promptLanguage: string): ComplianceSc
 /**
  * Score C6: offer to draft the next GhostCrab prompt.
  */
-export function scoreC6(replyText: string, promptLanguage: string): ComplianceScore {
+export function scoreC6(
+  replyText: string,
+  promptLanguage: string
+): ComplianceScore {
   const isFr = promptLanguage.startsWith("fr");
   const pattern = isFr ? PATTERNS.draft_offer_fr : PATTERNS.draft_offer_en;
   return pattern.test(replyText) ? "pass" : "fail";
@@ -171,7 +178,9 @@ export function scoreC9(replyText: string): ComplianceScore {
  *   weak_pass — at most two fail; failing criteria are only C4, C8, or C9
  *   fail     — any fail on C1/C2/C5/C6/C7; or three or more fail on any criteria
  */
-export function deriveVerdict(axes: ComplianceScorecardAxes): ComplianceVerdict {
+export function deriveVerdict(
+  axes: ComplianceScorecardAxes
+): ComplianceVerdict {
   const hardGateCriteria: (keyof ComplianceScorecardAxes)[] = [
     "c1_no_tool_calls",
     "c2_no_internals_exposed",

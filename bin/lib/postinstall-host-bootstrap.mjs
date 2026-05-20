@@ -14,7 +14,7 @@ import {
   mkdirSync,
   readFileSync,
   symlinkSync,
-  unlinkSync,
+  unlinkSync
 } from "node:fs";
 import { basename, dirname, join, relative } from "node:path";
 
@@ -27,7 +27,7 @@ const DOC_SYMLINKS = [
   { name: "Licence.md", optional: false },
   { name: "README_CURSOR_MCP.md", optional: true },
   { name: "README_CODEX_MCP.md", optional: true },
-  { name: "README_CLAUDE_CODE_MCP.md", optional: true },
+  { name: "README_CLAUDE_CODE_MCP.md", optional: true }
 ];
 
 /**
@@ -125,7 +125,7 @@ export function runHostProjectBootstrap(opts) {
       consumerRoot,
       env: "kept",
       data: "kept",
-      links: /** @type {Record<string, string>} */ ({}),
+      links: /** @type {Record<string, string>} */ ({})
     };
 
     const envDest = join(consumerRoot, ".env");
@@ -166,7 +166,9 @@ export function runHostProjectBootstrap(opts) {
       const src = join(pkgRoot, name);
       if (!existsSync(src)) {
         if (!optional) {
-          console.error(`[ghostcrab] postinstall: package file missing for doc link: ${name}`);
+          console.error(
+            `[ghostcrab] postinstall: package file missing for doc link: ${name}`
+          );
         }
         summary.links[name] = "no-source";
         continue;
@@ -174,7 +176,9 @@ export function runHostProjectBootstrap(opts) {
       const dest = join(consumerRoot, name);
       const targetRelative = relative(dirname(dest), src);
       const normalized =
-        process.platform === "win32" ? targetRelative.split("\\").join("/") : targetRelative;
+        process.platform === "win32"
+          ? targetRelative.split("\\").join("/")
+          : targetRelative;
       summary.links[name] = ensureSymlink(dest, normalized);
     }
 
@@ -191,7 +195,7 @@ export function runHostProjectBootstrap(opts) {
     }
   } catch (e) {
     console.error(
-      `[ghostcrab] postinstall: host bootstrap crashed (non-fatal): ${e instanceof Error ? e.stack ?? e.message : e}`
+      `[ghostcrab] postinstall: host bootstrap crashed (non-fatal): ${e instanceof Error ? (e.stack ?? e.message) : e}`
     );
   }
 }

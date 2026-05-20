@@ -88,7 +88,9 @@ export const RelationPropertyInput = z
     }
 
     const irrelevantText =
-      hasText && !textTypes.has(prop.value_type) && prop.value_type !== "doc_ref";
+      hasText &&
+      !textTypes.has(prop.value_type) &&
+      prop.value_type !== "doc_ref";
     const irrelevantNumber = hasNumber && !numberTypes.has(prop.value_type);
     const irrelevantInteger = hasInteger && !integerTypes.has(prop.value_type);
     const irrelevantRef = hasRef && prop.value_type !== "doc_ref";
@@ -297,7 +299,9 @@ export const learnTool: ToolHandler = {
           label: input.edge.label,
           ...(existingEdge ? { updated: true } : { created: true }),
           ...(input.edge.relation_properties?.length
-            ? { relation_properties_count: input.edge.relation_properties.length }
+            ? {
+                relation_properties_count: input.edge.relation_properties.length
+              }
             : {})
         };
       }

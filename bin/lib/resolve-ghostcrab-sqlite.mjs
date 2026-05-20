@@ -47,8 +47,7 @@ export function resolveGhostcrabSqlite(opts) {
       portExplicit = true;
     }
   } else {
-    const wsName =
-      workspaceNameFromCli ?? config.defaultWorkspace ?? null;
+    const wsName = workspaceNameFromCli ?? config.defaultWorkspace ?? null;
     const ws = wsName ? config.workspaces?.[wsName] : null;
     sqlitePath =
       ws?.sqlitePath ?? join(process.cwd(), "data", "ghostcrab.sqlite");

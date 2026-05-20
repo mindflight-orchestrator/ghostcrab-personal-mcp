@@ -62,7 +62,9 @@ function firstCallChecklistStandalone(): string {
 
 /** Same narrative block as ghostcrab_status.preamble (optimized for the status JSON payload). */
 export function buildStatusPreamble(): string {
-  return [...ROLE_LINES, NON_GOAL_LINE, firstCallChecklistForStatus()].join("\n");
+  return [...ROLE_LINES, NON_GOAL_LINE, firstCallChecklistForStatus()].join(
+    "\n"
+  );
 }
 
 /** Markdown body for the ghostcrab://readme resource. */
@@ -80,7 +82,7 @@ ${NON_GOAL_LINE}
 | Class     | Tools |
 |-----------|-------|
 | Bootstrap | \`ghostcrab_status\` — call first for routing, autonomy, recipe pointers |
-| Read      | \`search\`, \`count\`, \`schema_list\`, \`schema_inspect\`, \`pack\`, \`tool_search\` |
+| Read      | \`search\`, \`combined_search\`, \`count\`, \`schema_list\`, \`schema_inspect\`, \`pack\`, \`tool_search\` |
 | Write     | \`remember\`, \`upsert\` |
 | Model     | \`project\` |
 | Guide     | \`modeling_guidance\` — natural-language domain goals |
@@ -103,8 +105,9 @@ For normal work (after intake is clear):
 
 1. Call \`ghostcrab_status\` when runtime health, autonomy, or global blockers may affect the answer.
 2. Call \`ghostcrab_search\` with explicit \`schema_id\` and exact filters when the entity family is recognizable.
-3. Call \`ghostcrab_pack\` before heavy reasoning — only after at least one factual read.
-4. Call \`ghostcrab_tool_search\` when the compact list does not expose the specialized tool family you need.
+3. Call \`ghostcrab_combined_search\` when the storage layer is unclear and both graph structure and facet facts may matter.
+4. Call \`ghostcrab_pack\` before heavy reasoning — only after at least one factual read.
+5. Call \`ghostcrab_tool_search\` when the compact list does not expose the specialized tool family you need.
 
 For local ingest (email, messages, calendar, search results): skip \`ghostcrab_status\`; follow ingest-specific patterns; store summaries, not raw payloads.
 

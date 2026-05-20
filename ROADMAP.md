@@ -8,7 +8,7 @@ This file is the **operational checklist** at repo root (`[x]` done, `[ ]` not d
 
 **V2 native dual-mode** (native Docker boot/seed by default, SQL-first fallback only when explicitly requested, `pg_facets` / `pg_dgraph` / `pg_pragma`, toolchain, DockerHub, CI matrix): **[docs/ROADMAP-V2.md](docs/ROADMAP-V2.md)** — Phases 5–8 and PR-by-PR execution. Extension upstream URLs and vendoring: [docs/setup/extension_sources.md](docs/setup/extension_sources.md).
 
-**Workspace + Layer1 coupling** (typed relational tables, `mindbrain` control plane, triggers into `facets` / optional graph-geo, `workspace_id` isolation): operational detail in **[docs/v3/RUNBOOK_V3.md](docs/v3/RUNBOOK_V3.md)** and architecture summary in **[README_ARCHITECTURE.md](README_ARCHITECTURE.md)** (sections *MCP tool surface (24 tools)* and *Workspace isolation and DDL lifecycle*).
+**Workspace + Layer1 coupling** (typed relational tables, `mindbrain` control plane, triggers into `facets` / optional graph-geo, `workspace_id` isolation): operational detail in **[docs/v3/RUNBOOK_V3.md](docs/v3/RUNBOOK_V3.md)** and architecture summary in **[README_ARCHITECTURE.md](README_ARCHITECTURE.md)** (sections _MCP tool surface (24 tools)_ and _Workspace isolation and DDL lifecycle_).
 
 ---
 
@@ -41,13 +41,13 @@ This should always be interpreted as a **fresh native bootstrap validation** wit
 
 GhostCrab exposes **24** MCP tools (`ghostcrab_*`), registered from [`src/tools/register-all.ts`](src/tools/register-all.ts). **User-facing name:** **workspace** for isolation, DDL, and export semantics (not a “V3” product label). Inventory by subsystem:
 
-| Area | Tools |
-|------|--------|
-| Facets | `ghostcrab_search`, `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_count`, `ghostcrab_facet_tree`, `ghostcrab_schema_register`, `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
-| Geo (optional) | `ghostcrab_query_geo` |
-| Graph | `ghostcrab_learn`, `ghostcrab_traverse`, `ghostcrab_marketplace`, `ghostcrab_patch`, `ghostcrab_coverage` |
-| Pragma | `ghostcrab_project`, `ghostcrab_pack`, `ghostcrab_status` |
-| Workspace | `ghostcrab_workspace_create`, `ghostcrab_workspace_list`, `ghostcrab_workspace_inspect`, `ghostcrab_workspace_export_model`, `ghostcrab_ddl_propose`, `ghostcrab_ddl_list_pending`, `ghostcrab_ddl_execute` |
+| Area           | Tools                                                                                                                                                                                                       |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Facets         | `ghostcrab_search`, `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_count`, `ghostcrab_facet_tree`, `ghostcrab_schema_register`, `ghostcrab_schema_list`, `ghostcrab_schema_inspect`                   |
+| Geo (optional) | `ghostcrab_query_geo`                                                                                                                                                                                       |
+| Graph          | `ghostcrab_learn`, `ghostcrab_traverse`, `ghostcrab_marketplace`, `ghostcrab_patch`, `ghostcrab_coverage`                                                                                                   |
+| Pragma         | `ghostcrab_project`, `ghostcrab_pack`, `ghostcrab_status`                                                                                                                                                   |
+| Workspace      | `ghostcrab_workspace_create`, `ghostcrab_workspace_list`, `ghostcrab_workspace_inspect`, `ghostcrab_workspace_export_model`, `ghostcrab_ddl_propose`, `ghostcrab_ddl_list_pending`, `ghostcrab_ddl_execute` |
 
 **Operational commands:** `ghostcrab tools list` (JSON list of tool definitions); [`scripts/mcp-smoke.mjs`](scripts/mcp-smoke.mjs) validates the expected public tool families on startup. **Export contract:** [docs/dev/workspace-model-export.schema.json](docs/dev/workspace-model-export.schema.json). **Agent scenarios:** [docs/mcp_agent_scenarios.md](docs/mcp_agent_scenarios.md) — includes `workspace_create` and `workspace_ddl_propose` alongside facets/graph/pragma baselines.
 
@@ -63,7 +63,7 @@ Cross-repo table usage audit (mindCLI, mindBot): **[docs/v3/cross_repo_table_usa
 - [x] **Migrations 009–011** — `mindbrain` foundation, specialized Layer2, `source_ref` contract (see runbook migration list).
 - [x] **Migrations 012–013** — workspace semantics (`semantic_spec`, `table_semantics` / column / relation), `domain_profile`, `rich_meta` (see [README_ARCHITECTURE.md](README_ARCHITECTURE.md) workspace-related migrations table).
 - [x] **Migration immutability repair** — `006_facets_materialized_pg_facets.sql` restored to its historical shape; additive native facet materialization moved to `014_facets_materialized_native_expansion.sql`.
-- [x] **24-tool MCP surface** — workspace tools (`create`, `list`, `inspect`, `export_model`, DDL ×3) + facet/graph/pragma tools; `ghostcrab_query_geo` for optional PostGIS; see [README_ARCHITECTURE.md](README_ARCHITECTURE.md) *MCP tool surface (24 tools)*.
+- [x] **24-tool MCP surface** — workspace tools (`create`, `list`, `inspect`, `export_model`, DDL ×3) + facet/graph/pragma tools; `ghostcrab_query_geo` for optional PostGIS; see [README_ARCHITECTURE.md](README_ARCHITECTURE.md) _MCP tool surface (24 tools)_.
 - [x] **Workspace export semantics** — `ghostcrab_workspace_export_model` aligned with [docs/dev/workspace-model-export.schema.json](docs/dev/workspace-model-export.schema.json); examples under [docs/dev/examples/](docs/dev/examples/).
 - [x] **Scenario pack** — baseline MCP scenarios including `workspace_create` and `workspace_ddl_propose` ([docs/mcp_agent_scenarios.md](docs/mcp_agent_scenarios.md), [`tests/helpers/mcp-scenarios.ts`](tests/helpers/mcp-scenarios.ts)).
 - [x] **Validation split** — `npm run test` now covers unit/tool suites; `npm run test:integration` covers native integration and E2E suites; `verify:e2e` runs the native release chain.
@@ -80,7 +80,7 @@ Cross-repo table usage audit (mindCLI, mindBot): **[docs/v3/cross_repo_table_usa
 
 ## V2 — Deferred backlog (traceability)
 
-Items explicitly **postponed after V1** trace back to the same V1 narrative captured in [docs/dev/AUDIT_V1_TRACKING.md](docs/dev/AUDIT_V1_TRACKING.md) (*deferred after V1*, onboarding rails P1.3, P2.1–P2.5, P4.3). This section is a **backlog pointer only** — not a commitment order.
+Items explicitly **postponed after V1** trace back to the same V1 narrative captured in [docs/dev/AUDIT_V1_TRACKING.md](docs/dev/AUDIT_V1_TRACKING.md) (_deferred after V1_, onboarding rails P1.3, P2.1–P2.5, P4.3). This section is a **backlog pointer only** — not a commitment order.
 
 ### Universal primitives and canonical schemas (seed / modeling)
 
@@ -95,7 +95,7 @@ Items explicitly **postponed after V1** trace back to the same V1 narrative capt
 
 ### Composite / multi-family workspaces (seed + behavior)
 
-- [ ] **Modeling recipe `composite-workspace`** (`recipe:modeling:composite-workspace`); see onboarding P2.5 and V1 reduced plan *Composite workspaces*.
+- [ ] **Modeling recipe `composite-workspace`** (`recipe:modeling:composite-workspace`); see onboarding P2.5 and V1 reduced plan _Composite workspaces_.
 - [ ] **Projection recipe `composite-heartbeat`** (`recipe:projection:composite-heartbeat`); see P2.5.
 - [ ] **Intent `manage-composite-project`** (`intent:manage-composite-project`); see onboarding P4.3 and V1 reduced plan.
 - [ ] **Signal `composite-project`** (`signal:composite-project`); see P4.3.
@@ -108,7 +108,7 @@ Items explicitly **postponed after V1** trace back to the same V1 narrative capt
 
 ### Still assumed system limits (V1 “angles morts”; not automatically V2 scope)
 
-Exotic domains, advanced multi-family modeling, TSDB / warehouse / analytics, permissions / multi-tenant, atomic or reactive operations — see the V1 reduced plan (*assumed V1 blind spots*) and the unified onboarding plan (*known blind spots*). V2 seed items above narrow some **modeling** gaps; they do not by themselves remove those platform limits.
+Exotic domains, advanced multi-family modeling, TSDB / warehouse / analytics, permissions / multi-tenant, atomic or reactive operations — see the V1 reduced plan (_assumed V1 blind spots_) and the unified onboarding plan (_known blind spots_). V2 seed items above narrow some **modeling** gaps; they do not by themselves remove those platform limits.
 
 ---
 

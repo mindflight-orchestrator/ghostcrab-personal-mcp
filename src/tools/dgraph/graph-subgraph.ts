@@ -65,7 +65,9 @@ export const graphSubgraphTool: ToolHandler = {
     } catch (error) {
       return createToolErrorResult(
         "ghostcrab_graph_subgraph",
-        error instanceof Error ? error.message : "MindBrain graph-subgraph backend unavailable",
+        error instanceof Error
+          ? error.message
+          : "MindBrain graph-subgraph backend unavailable",
         "backend_unavailable"
       );
     }

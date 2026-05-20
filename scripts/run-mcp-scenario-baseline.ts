@@ -27,12 +27,16 @@ const database = createDatabaseClient(config);
 try {
   const reachable = await database.ping();
   if (!reachable) {
-    throw new Error(`Integration MindBrain backend is unreachable at ${config.mindbrainUrl}.`);
+    throw new Error(
+      `Integration MindBrain backend is unreachable at ${config.mindbrainUrl}.`
+    );
   }
 
   await ensureBootstrapData(database);
 
-  const scenarioIds = requestedScenario ? [requestedScenario] : [...MCP_SCENARIO_IDS];
+  const scenarioIds = requestedScenario
+    ? [requestedScenario]
+    : [...MCP_SCENARIO_IDS];
   const artifacts = [];
   for (const scenarioId of scenarioIds) {
     artifacts.push(

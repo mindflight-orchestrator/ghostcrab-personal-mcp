@@ -48,7 +48,7 @@ export const coverageTool: ToolHandler = {
           type: "array",
           items: { type: "string" },
           description:
-            "Restrict coverage check to these entity types only (e.g. [\"concept\", \"skill\"])."
+            'Restrict coverage check to these entity types only (e.g. ["concept", "skill"]).'
         }
       }
     }

@@ -8,7 +8,9 @@ import { spawnSync } from "node:child_process";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
 const distPackDir = join(repoRoot, "dist-pack");
-const manifest = JSON.parse(readFileSync(join(distPackDir, "pack-manifest.json"), "utf8"));
+const manifest = JSON.parse(
+  readFileSync(join(distPackDir, "pack-manifest.json"), "utf8")
+);
 
 const platformKey = `${process.platform}-${process.arch}`;
 const platformEntry = manifest.platforms?.[platformKey];
@@ -23,7 +25,8 @@ function run(cmd, args, opts = {}) {
     stdio: "pipe",
     env: {
       ...process.env,
-      npm_config_cache: process.env.npm_config_cache ?? join(tmpdir(), "ghostcrab-npm-cache"),
+      npm_config_cache:
+        process.env.npm_config_cache ?? join(tmpdir(), "ghostcrab-npm-cache"),
       ...(opts.env ?? {})
     }
   });

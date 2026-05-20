@@ -96,15 +96,14 @@ agent = Agent(
 )
 ```
 
-
 ## Key talking point for Agno users
 
-| Agno scenario | Problem | What MindBrain adds |
-| :-- | :-- | :-- |
-| Team of five agents, each with its own `SqliteMemoryDb` | No agent sees other agents’ facts | Shared namespace; all entities co-visible |
-| Agent A learns `client_X = enterprise` | Only Agent A knows | MindBrain propagates the relationship via the graph |
-| `agno_memories` stores unstructured strings | No typing, no semantic query | `pg_facets` + `pg_dgraph`: typed entities, named relations, queryable facets |
-| Recovery after crash → session lost | Memory tied to session, not domain | Ontology persistence decoupled from agent lifecycle |
+| Agno scenario                                           | Problem                            | What MindBrain adds                                                          |
+| :------------------------------------------------------ | :--------------------------------- | :--------------------------------------------------------------------------- |
+| Team of five agents, each with its own `SqliteMemoryDb` | No agent sees other agents’ facts  | Shared namespace; all entities co-visible                                    |
+| Agent A learns `client_X = enterprise`                  | Only Agent A knows                 | MindBrain propagates the relationship via the graph                          |
+| `agno_memories` stores unstructured strings             | No typing, no semantic query       | `pg_facets` + `pg_dgraph`: typed entities, named relations, queryable facets |
+| Recovery after crash → session lost                     | Memory tied to session, not domain | Ontology persistence decoupled from agent lifecycle                          |
 
 ## Recommended integration order
 
@@ -177,14 +176,13 @@ The MCPTools entry point is enough for a working POC in under a day, since Agno 
 
 [^1_30]: https://mintlify.wiki/Arindam200/awesome-ai-apps/guides/patterns/memory-systems
 
-
 ---
 
 # skill.md — Bootstrapping an ontology with GhostCrab Architect (Agno agent)
 
 > **Execution context**: this skill targets an Agno agent (Python), Codex, or Claude Code implementing Agno. It describes the full sequence to create and populate a MindBrain ontology via GhostCrab MCP, from type definitions through populated entities and persisted relations.
 
-***
+---
 
 ## Prerequisites
 
@@ -193,7 +191,7 @@ The MCPTools entry point is enough for a working POC in under a day, since Agno 
 - Target namespace is defined (e.g. `project_alpha`)
 - Agno `>=0.7` installed (`pip install agno`)
 
-***
+---
 
 ## Step 1 — Configure the Agno agent with MCPTools
 
@@ -231,8 +229,7 @@ architect_agent = Agent(
 )
 ```
 
-
-***
+---
 
 ## Step 2 — Ontology bootstrap sequence
 
@@ -264,7 +261,6 @@ result = architect_agent.run(bootstrap_prompt)
 print(result.content)
 ```
 
-
 ### 2.2 Seed initial entities
 
 ```python
@@ -293,8 +289,7 @@ Confirm each entity with an entity_get call.
 architect_agent.run(seed_prompt)
 ```
 
-
-***
+---
 
 ## Step 3 — Verify populated schema
 
@@ -311,8 +306,7 @@ verification = architect_agent.run(verify_prompt)
 print(verification.content)
 ```
 
-
-***
+---
 
 ## Step 4 — Deep memory integration (optional)
 

@@ -11,12 +11,12 @@ This block is for **all agents** (with or without extended reasoning). It is the
 
 ### Phase table
 
-| Phase | Name | Allowed write tools | Forbidden write tools |
-|-------|------|--------------------|-----------------------|
-| A | **Intake** | _(none)_ | ALL: `ghostcrab_workspace_create` `ghostcrab_remember` `ghostcrab_upsert` `ghostcrab_learn` `ghostcrab_patch` `ghostcrab_schema_register` `ghostcrab_ddl_*` |
-| B | **Clarify** | _(none)_ | Same as A |
-| C | **Model Proposal** | _(none)_ | Same as A — output proposal text only, no tool calls |
-| D | **Execute** | All, minimally | `ghostcrab_schema_register` unless user wrote `APPROVE_SCHEMA_FREEZE` |
+| Phase | Name               | Allowed write tools | Forbidden write tools                                                                                                                                       |
+| ----- | ------------------ | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A     | **Intake**         | _(none)_            | ALL: `ghostcrab_workspace_create` `ghostcrab_remember` `ghostcrab_upsert` `ghostcrab_learn` `ghostcrab_patch` `ghostcrab_schema_register` `ghostcrab_ddl_*` |
+| B     | **Clarify**        | _(none)_            | Same as A                                                                                                                                                   |
+| C     | **Model Proposal** | _(none)_            | Same as A — output proposal text only, no tool calls                                                                                                        |
+| D     | **Execute**        | All, minimally      | `ghostcrab_schema_register` unless user wrote `APPROVE_SCHEMA_FREEZE`                                                                                       |
 
 **Read tools are always allowed:** `ghostcrab_status` `ghostcrab_search` `ghostcrab_schema_inspect` `ghostcrab_schema_list` `ghostcrab_workspace_list` `ghostcrab_modeling_guidance` `ghostcrab_count` `ghostcrab_pack` `ghostcrab_facet_tree` `ghostcrab_traverse` `ghostcrab_coverage` `ghostcrab_workspace_inspect` `ghostcrab_workspace_export_model`
 
@@ -29,9 +29,11 @@ This block is for **all agents** (with or without extended reasoning). It is the
 **→ Phase C (Model Proposal):** After enough answers. Output the proposal. **Stop. No tool calls in this turn.**
 
 **→ Phase D (Execute):** Only after the user sends an explicit confirmation message in the **same thread** matching one of these:
+
 - "Yes, create it" / "Go ahead" / "Approved" / "Proceed with writes" / "That model works — implement" / or a clear equivalent in any language.
 
 **These do NOT count as confirmation:**
+
 - Silence or no reply.
 - "OK" / "ok" / "d'accord" sent **before** seeing the Model Proposal.
 - "Go" or "Start" at the beginning of the conversation (before any proposal existed).
@@ -44,7 +46,8 @@ You **must** surface at least the top 3 questions to the user **before calling a
 
 ### Self-audit (required at end of any turn that called a write tool)
 
-Before sending, complete this sentence internally:  
+Before sending, complete this sentence internally:
+
 > "Write authorized by: [paste the exact user sentence that confirmed the Model Proposal]."
 
 If you cannot fill in the bracket with a real user quote from this thread, **you must not call any write tool this turn.** Correct course: output the Model Proposal and stop.
@@ -60,12 +63,12 @@ If you cannot fill in the bracket with a real user quote from this thread, **you
 
 ## 2. Naive domain literacy (expected baseline)
 
-Most humans—and many AI agents—will arrive with **naive requests**: they know the *job* ("track a pipeline", "remember decisions", "kanban for agents") but not **which durable shape** GhostCrab should use.
+Most humans—and many AI agents—will arrive with **naive requests**: they know the _job_ ("track a pipeline", "remember decisions", "kanban for agents") but not **which durable shape** GhostCrab should use.
 
 **Assume by default:**
 
 - They do **not** yet know whether they need **facets-only** records, a **graph** (things linked by relationships), **projections** (compact working views), or a **workspace** boundary.
-- They do **not** owe you ontology vocabulary. Your job is to **translate** their goal into a *small* GhostCrab-shaped plan **after** clarification—not to dump GhostCrab concepts in the first reply.
+- They do **not** owe you ontology vocabulary. Your job is to **translate** their goal into a _small_ GhostCrab-shaped plan **after** clarification—not to dump GhostCrab concepts in the first reply.
 
 **How GhostCrab helps them see more clearly (product language, not jargon):**
 
@@ -77,7 +80,7 @@ Most humans—and many AI agents—will arrive with **naive requests**: they kno
 
 - **Facets** → searchable fields on durable records (who, status, phase, IDs from other systems).
 - **Graph** → explicit relationships when answers depend on "depends on", "blocks", "part of", "references".
-- **Projections** → short, regenerated summaries for heartbeat / status—*after* the domain is clear enough to matter.
+- **Projections** → short, regenerated summaries for heartbeat / status—_after_ the domain is clear enough to matter.
 - **Workspace** → isolation boundary for one domain; not every conversation needs a new workspace on turn one.
 
 Do **not** treat absence of this vocabulary as permission to invent a full model or to write data immediately.
@@ -128,10 +131,10 @@ If **every** answer is **no**, **block** for that reply: tool calls, schema/tool
 
 Before sending, confirm **all** are present:
 
-1. Intent hypothesis  
-2. Exactly 2–4 clarification questions (one question mark each; no sub-questions bundled into one)  
-3. A line starting with `Vue probable :` (or locale equivalent)  
-4. A line offering to draft the next GhostCrab prompt (or locale equivalent)  
+1. Intent hypothesis
+2. Exactly 2–4 clarification questions (one question mark each; no sub-questions bundled into one)
+3. A line starting with `Vue probable :` (or locale equivalent)
+4. A line offering to draft the next GhostCrab prompt (or locale equivalent)
 
 If any is missing, the reply is incomplete.
 
@@ -168,6 +171,7 @@ This section applies when the user (human or agent) asks to **create**, **set up
 **Phase C — Model Proposal**
 
 Output a **Model Proposal** in the user's language. It must include:
+
 - What one "item" is (plain words).
 - What columns or states items move through.
 - What you will store (plain words — no "facets" or "graph" unless the user asked).
@@ -181,6 +185,7 @@ Output a **Model Proposal** in the user's language. It must include:
 **Phase D — Execute**
 
 Allowed only after the user sends an **explicit confirmation** as defined in the HARD GATES block. Then:
+
 - Call the minimum tools that match the proposal.
 - Prefer canonical primitives and provisional facts over frozen schemas.
 - `ghostcrab_schema_register` requires the user to have written `APPROVE_SCHEMA_FREEZE` explicitly.
@@ -199,7 +204,8 @@ Allowed only after the user sends an **explicit confirmation** as defined in the
 
 ### 9.4 Self-audit (repeated from HARD GATES for emphasis)
 
-Before sending any reply that included a write tool call, state:  
+Before sending any reply that included a write tool call, state:
+
 > "Write authorized by: [exact user quote from this thread that confirmed the Model Proposal]."
 
 If the quote is missing or the proposal had not yet been shown: **do not send the write call. Output the Model Proposal instead.**

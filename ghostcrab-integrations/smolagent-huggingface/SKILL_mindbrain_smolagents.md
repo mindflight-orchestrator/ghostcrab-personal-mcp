@@ -51,12 +51,12 @@ Recommended order:
 
 Keep the first agent run small:
 
-| Need | Tool |
-|---|---|
-| Verify GhostCrab | `ghostcrab_status` |
-| Retrieve compact working memory | `ghostcrab_pack` |
-| Store durable step findings | `ghostcrab_remember` |
-| Update latest run or task state | `ghostcrab_upsert` |
+| Need                            | Tool                 |
+| ------------------------------- | -------------------- |
+| Verify GhostCrab                | `ghostcrab_status`   |
+| Retrieve compact working memory | `ghostcrab_pack`     |
+| Store durable step findings     | `ghostcrab_remember` |
+| Update latest run or task state | `ghostcrab_upsert`   |
 
 Add `ghostcrab_search` after the first run when the agent needs targeted retrieval. Add `ghostcrab_learn` when managed agents need to record handoffs, blockers, or dependencies.
 
@@ -64,13 +64,13 @@ Add `ghostcrab_search` after the first run when the agent needs targeted retriev
 
 ## Lifecycle JTBD
 
-| Moment | smolagents hook | GhostCrab action |
-|---|---|---|
-| Before run | build initial task memory | `ghostcrab_pack` |
-| Each successful step | `step_callbacks` | `ghostcrab_remember` for durable observations |
-| Each state change | `step_callbacks` | `ghostcrab_upsert` for latest task/run status |
-| Managed-agent handoff | orchestrator code or callback | `ghostcrab_learn` |
-| Recovery | before `agent.run()` | `ghostcrab_pack`; empty pack is normal on first run |
+| Moment                | smolagents hook               | GhostCrab action                                    |
+| --------------------- | ----------------------------- | --------------------------------------------------- |
+| Before run            | build initial task memory     | `ghostcrab_pack`                                    |
+| Each successful step  | `step_callbacks`              | `ghostcrab_remember` for durable observations       |
+| Each state change     | `step_callbacks`              | `ghostcrab_upsert` for latest task/run status       |
+| Managed-agent handoff | orchestrator code or callback | `ghostcrab_learn`                                   |
+| Recovery              | before `agent.run()`          | `ghostcrab_pack`; empty pack is normal on first run |
 
 The core rule:
 
@@ -219,11 +219,11 @@ Use `ghostcrab_pack` for compact recovery and `ghostcrab_search` for a specific 
 
 ## Failure Modes
 
-| Failure | Callback behavior |
-|---|---|
-| GhostCrab tool raises mid-run | Catch the error, log it, and continue the smolagents task without persistence for that step. |
-| `ghostcrab_pack` returns empty | Treat it as first run; leave `agent.memory.steps=[]`. |
-| Upsert duplicates latest state | Match with `match={"facets": {"record_id": RUN_ID}}`. |
-| HTTP bridge dies | Restart the bridge, or switch to direct stdio if supported. Verify with `ghostcrab_status`. |
+| Failure                        | Callback behavior                                                                            |
+| ------------------------------ | -------------------------------------------------------------------------------------------- |
+| GhostCrab tool raises mid-run  | Catch the error, log it, and continue the smolagents task without persistence for that step. |
+| `ghostcrab_pack` returns empty | Treat it as first run; leave `agent.memory.steps=[]`.                                        |
+| Upsert duplicates latest state | Match with `match={"facets": {"record_id": RUN_ID}}`.                                        |
+| HTTP bridge dies               | Restart the bridge, or switch to direct stdio if supported. Verify with `ghostcrab_status`.  |
 
 **PRO note:** Centralized team deployment can use MCP GhostCrab PRO / mindBrain Pro. This skill is for GhostCrab Personal with local SQLite.

@@ -38,12 +38,16 @@ export function sqliteFactStoreLookupWhere(
       .map(([key]) => `${sqliteFacetJsonExtractClause(key)} = ?`)
       .join(" AND "),
     params: pairs.map(([, value]) =>
-      typeof value === "object" && value !== null ? JSON.stringify(value) : value
+      typeof value === "object" && value !== null
+        ? JSON.stringify(value)
+        : value
     )
   };
 }
 
-export function safeParseFacetJson(value: string | null | undefined): Record<string, unknown> {
+export function safeParseFacetJson(
+  value: string | null | undefined
+): Record<string, unknown> {
   if (!value) {
     return {};
   }

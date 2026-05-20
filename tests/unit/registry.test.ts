@@ -61,17 +61,14 @@ describe("tool registry", () => {
     expect(listRegisteredTools()).toHaveLength(1);
     expect(tool?.definition.name).toBe("ghostcrab_test");
     await expect(
-      tool?.handler(
-        {},
-        {
-          database: createMockDatabase(),
-          embeddings: createMockEmbeddings(),
-          retrieval: {
-            hybridBm25Weight: 0.6,
-            hybridVectorWeight: 0.4
-          }
-        } as unknown as Parameters<NonNullable<typeof tool>["handler"]>[1]
-      )
+      tool?.handler({}, {
+        database: createMockDatabase(),
+        embeddings: createMockEmbeddings(),
+        retrieval: {
+          hybridBm25Weight: 0.6,
+          hybridVectorWeight: 0.4
+        }
+      } as unknown as Parameters<NonNullable<typeof tool>["handler"]>[1])
     ).resolves.toEqual(createJsonToolResult({ ok: true }));
   });
 

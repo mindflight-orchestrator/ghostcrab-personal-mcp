@@ -4,7 +4,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const databaseUrl =
-  process.env.DATABASE_URL ?? "postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab";
+  process.env.DATABASE_URL ??
+  "postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab";
 const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(currentDirectory, "../..");
 const serverEntry = path.join(packageRoot, "dist/index.js");
