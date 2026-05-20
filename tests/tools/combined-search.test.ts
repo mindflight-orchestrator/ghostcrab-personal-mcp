@@ -210,6 +210,138 @@ describe("combined search tools", () => {
     });
   });
 
+  it("returns chunk evidence when include_chunks is true and respects chunk_limit", async () => {
+    mockGraphSearchFetch([
+      {
+        entity_id: 11,
+        entity_type: "Document",
+        name: "Design spec",
+        confidence: 0.85,
+        metadata_json: "{}",
+        score: 3
+      }
+    ]);
+    const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
+      if (sql.includes("FROM graph_entity_document")) return [];
+      if (sql.includes("FROM graph_entity_chunk")) {
+        return [
+          {
+            entity_id: 11,
+            collection_id: "col-a",
+            doc_id: 55,
+            chunk_index: 0,
+            role: "body",
+            confidence: 0.9,
+            chunk_content: "Design spec chunk 0"
+          },
+          {
+            entity_id: 11,
+            collection_id: "col-a",
+            doc_id: 55,
+            chunk_index: 1,
+            role: "body",
+            confidence: 0.7,
+            chunk_content: "Design spec chunk 1"
+          }
+        ];
+      }
+      return [];
+    });
+
+    const result = await combinedSearchTool.handler(
+      {
+        workspace_id: "ws-test",
+        query: "design",
+        include_relations: false,
+        include_chunks: true,
+        chunk_limit: 5
+      },
+      createToolContext(createMockDatabase(query))
+    );
+
+    const payload = readStructured(result);
+    expect(payload).toMatchObject({
+      ok: true,
+      chunks: {
+        included: true,
+        limit: 5,
+        returned: 2
+      }
+    });
+    const chunks = (payload.chunks as Record<string, unknown>).results as Array<
+      Record<string, unknown>
+    >;
+    expect(chunks).toHaveLength(2);
+    expect(chunks[0]).toMatchObject({
+      entity_id: 11,
+      collection_id: "col-a",
+      chunk_index: 0,
+      content: "Design spec chunk 0"
+    });
+  });
+
+  it("deduplicates facts linked from multiple graph entities (fan-out)", async () => {
+    mockGraphSearchFetch([
+      {
+        entity_id: 20,
+        entity_type: "Topic",
+        name: "Alpha",
+        confidence: 0.9,
+        metadata_json: "{}",
+        score: 5
+      },
+      {
+        entity_id: 21,
+        entity_type: "Topic",
+        name: "Beta",
+        confidence: 0.8,
+        metadata_json: "{}",
+        score: 4
+      }
+    ]);
+    // Both entities link to the same fact-shared
+    const sharedRow = (entityId: number) => ({
+      entity_id: entityId,
+      link_confidence: 0.9,
+      id: "fact-shared",
+      schema_id: "demo:note",
+      content: "Shared fact content",
+      facets_json: "{}",
+      created_at_unix: FIXED_CREATED_AT_UNIX,
+      version: 1,
+      doc_id: 99
+    });
+
+    const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
+      if (sql.includes("FROM graph_entity_document")) {
+        return [sharedRow(20), sharedRow(21)];
+      }
+      return [];
+    });
+
+    const result = await combinedSearchTool.handler(
+      {
+        workspace_id: "ws-test",
+        query: "shared",
+        include_relations: false
+      },
+      createToolContext(createMockDatabase(query))
+    );
+
+    const payload = readStructured(result);
+    expect(payload).toMatchObject({
+      ok: true,
+      facets: { linked_returned: 1 }
+    });
+    const linkedFacts = (payload.facets as Record<string, unknown>)
+      .linked_facts as Array<Record<string, unknown>>;
+    expect(linkedFacts).toHaveLength(1);
+    expect(linkedFacts[0]).toMatchObject({
+      id: "fact-shared",
+      linked_entity_ids: expect.arrayContaining([20, 21])
+    });
+  });
+
   it("exposes ghostcrab_csearch as an alias for the canonical tool", async () => {
     mockGraphSearchFetch([]);
     const result = await combinedSearchAliasTool.handler(
