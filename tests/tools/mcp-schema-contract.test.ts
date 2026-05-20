@@ -450,6 +450,7 @@ describe("MCP inputSchema contract (drift guard)", () => {
     const schema = combinedSearchTool.definition.inputSchema as {
       properties: {
         collection_id: { type?: string | string[] };
+        chunk_limit: { maximum?: number; minimum?: number };
         facet_mode: { enum?: string[] };
         include_chunks: { default?: boolean };
         include_relations: { default?: boolean };
@@ -464,8 +465,10 @@ describe("MCP inputSchema contract (drift guard)", () => {
         "bm25",
         "semantic"
       ]);
-      expect(schema.properties.include_relations.default).toBe(true);
+      expect(schema.properties.include_relations.default).toBe(false);
       expect(schema.properties.include_chunks.default).toBe(false);
+      expect(schema.properties.chunk_limit.minimum).toBe(1);
+      expect(schema.properties.chunk_limit.maximum).toBe(200);
       expect(schema.properties.limit.minimum).toBe(1);
       expect(schema.properties.limit.maximum).toBe(50);
     });

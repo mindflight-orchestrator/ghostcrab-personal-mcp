@@ -178,7 +178,8 @@ export const graphSearchTool: ToolHandler = {
     const relations = input.include_relations
       ? await loadRelationsForEntitiesSql(
           context.database,
-          results.map((row) => row.entity_id)
+          results.map((row) => row.entity_id),
+          Math.min(500, input.limit * 10)
         )
       : [];
 
@@ -202,7 +203,8 @@ export const graphSearchTool: ToolHandler = {
 
 async function loadRelationsForEntitiesSql(
   database: Queryable,
-  entityIds: number[]
+  entityIds: number[],
+  relationLimit: number = 500
 ): Promise<GraphRelationResult[]> {
   if (entityIds.length === 0) {
     return [];
@@ -224,8 +226,9 @@ async function loadRelationsForEntitiesSql(
           OR target_id IN (${entityIds.map(() => "?").join(", ")})
         )
       ORDER BY relation_id ASC
+      LIMIT ?
     `,
-    [...entityIds, ...entityIds]
+    [...entityIds, ...entityIds, relationLimit]
   );
 
   if (rows.length === 0) {
