@@ -18,6 +18,7 @@ operations.
 | **Structure in the DB (ontologies)** | `gcp brain schema …` | Registry ontologies (knowledge schema). Legacy: `gcp ontologies …`. |
 | **Equip agents (skills)** | `gcp agent skills …` | Registry skills (agent capabilities). Shortcut: `gcp agent equip owner/name` = `agent skills pull`. Legacy: `gcp skills …`. |
 | **CLI / MCP environment** | `gcp env …` | Read/write `~/.config/ghostcrab/config.json`. Legacy: `gcp config …`. |
+| **Backup / restore** | `gcp brain backup …`, `gcp brain load …` | Export workspace, collection, or taxonomy backup bundles; restore `ghostcrab_backup_bundle` JSON. `gcp brain export` is an alias for backup. |
 | **Load demo profile** | `gcp brain load …` | JSONL profile into the DB. Legacy: `gcp load …`. |
 | **Corpus import / profiling** | `gcp brain document …` | Normalize, profile, enqueue/worker, ingest, list qualification vocabulary (stop MCP first). See `gcp brain document --help` and [document-import.md](../setup/document-import.md). |
 | **Native binary permissions** | `gcp authorize` | `chmod` / macOS quarantine (also runs on `postinstall`). |
