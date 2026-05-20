@@ -150,6 +150,31 @@ gcp brain backup --force \
   --output ./my_ws_taxonomies.backup.json
 ```
 
+Import a normalized OWL2/RDF N-Triples ontology source:
+
+```bash
+gcp brain ontology import --force \
+  --workspace-id my_ws \
+  --ontology-id my_ws::owl \
+  --input ./ontology.nt \
+  --materialize-graph
+```
+
+Export preserved triples or a taxonomies bundle:
+
+```bash
+gcp brain ontology export --force \
+  --ontology-id my_ws::owl \
+  --format ntriples \
+  --output ./ontology.export.nt
+
+gcp brain ontology export --force \
+  --workspace-id my_ws \
+  --ontology-id my_ws::owl \
+  --format bundle \
+  --output ./ontology.taxonomies.json
+```
+
 Validate or restore a backup bundle:
 
 ```bash
