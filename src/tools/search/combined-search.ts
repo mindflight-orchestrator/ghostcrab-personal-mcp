@@ -31,8 +31,9 @@ export const CombinedSearchInput = z.object({
   facet_schema_id: z.string().trim().min(1).optional(),
   facet_filters: z.record(z.string(), z.unknown()).default({}),
   facet_mode: z.enum(["hybrid", "bm25", "semantic"]).default("hybrid"),
-  include_relations: z.boolean().default(true),
-  include_chunks: z.boolean().default(false)
+  include_relations: z.boolean().default(false),
+  include_chunks: z.boolean().default(false),
+  chunk_limit: z.coerce.number().int().min(1).max(200).optional()
 });
 
 type GraphEntity = {
@@ -151,15 +152,22 @@ const combinedSearchInputSchema = {
     },
     include_relations: {
       type: "boolean",
-      default: true,
+      default: false,
       description:
-        "Include graph_relation rows touching returned graph entities."
+        "Include graph_relation rows touching returned graph entities. Off by default to keep payloads bounded; set true when relation topology is needed."
     },
     include_chunks: {
       type: "boolean",
       default: false,
       description:
         "Include graph_entity_chunk evidence for returned graph entities when available."
+    },
+    chunk_limit: {
+      type: "integer",
+      minimum: 1,
+      maximum: 200,
+      description:
+        "Maximum chunk evidence rows to return when include_chunks is true. Defaults to min(50, limit * 5)."
     }
   }
 } as const;
@@ -226,13 +234,14 @@ async function runCombinedSearch(
   }
 
   const graphEntities = readGraphEntities(graphPayload);
+  const graphScores = normalizedGraphScores(graphEntities);
   const linkedFacts =
     graphEntities.length > 0
       ? await loadLinkedFacetFacts({
           context,
           workspaceId,
           entityIds: graphEntities.map((entity) => entity.entity_id),
-          graphScores: normalizedGraphScores(graphEntities),
+          graphScores,
           facetSchemaId: input.facet_schema_id,
           facetFilters: input.facet_filters,
           limit: facetLimit
@@ -262,11 +271,13 @@ async function runCombinedSearch(
     }
   }
 
+  const chunkLimit = input.chunk_limit ?? Math.min(50, input.limit * 5);
   const chunkEvidence =
     input.include_chunks && graphEntities.length > 0
       ? await loadChunkEvidence(
           context,
-          graphEntities.map((entity) => entity.entity_id)
+          graphEntities.map((entity) => entity.entity_id),
+          chunkLimit
         )
       : [];
 
@@ -274,7 +285,8 @@ async function runCombinedSearch(
     graphEntities,
     linkedFacts,
     fallbackFacts,
-    input.limit
+    input.limit,
+    graphScores
   );
 
   return createToolSuccessResult(toolName, {
@@ -304,6 +316,7 @@ async function runCombinedSearch(
     },
     chunks: {
       included: input.include_chunks,
+      limit: chunkLimit,
       returned: chunkEvidence.length,
       results: chunkEvidence
     },
@@ -402,7 +415,8 @@ async function loadLinkedFacetFacts(args: {
 
 async function loadChunkEvidence(
   context: ToolExecutionContext,
-  entityIds: number[]
+  entityIds: number[],
+  chunkLimit: number
 ): Promise<Array<Record<string, unknown>>> {
   if (entityIds.length === 0) return [];
 
@@ -424,9 +438,9 @@ async function loadChunkEvidence(
        AND ch.chunk_index = c.chunk_index
       WHERE c.entity_id IN (${entityIds.map(() => "?").join(", ")})
       ORDER BY c.confidence DESC, c.collection_id ASC, c.doc_id ASC, c.chunk_index ASC
-      LIMIT 50
+      LIMIT ?
     `,
-    entityIds
+    [...entityIds, chunkLimit]
   );
 
   return rows.map((row) => ({
@@ -444,9 +458,9 @@ function buildCombinedResults(
   graphEntities: GraphEntity[],
   linkedFacts: CombinedFact[],
   fallbackFacts: CombinedFact[],
-  limit: number
+  limit: number,
+  graphScores: Map<number, number>
 ): Array<Record<string, unknown>> {
-  const graphScores = normalizedGraphScores(graphEntities);
   const graphItems = graphEntities.map((entity) => ({
     kind: "graph_entity",
     match_origin: "graph_search",
