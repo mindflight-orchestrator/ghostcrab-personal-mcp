@@ -41,12 +41,23 @@ type GraphEntityResult = {
   score: number;
 };
 
+type RelationPropertyResult = {
+  property_key: string;
+  value_type: string;
+  value_text: string | null;
+  value_number: number | null;
+  value_integer: number | null;
+  ref_doc_id: number | null;
+  currency: string | null;
+};
+
 type GraphRelationResult = {
   relation_id: number;
   relation_type: string;
   source_id: number;
   target_id: number;
   metadata: Record<string, unknown>;
+  relation_properties: RelationPropertyResult[];
 };
 
 function parseJsonObject(value: unknown): Record<string, unknown> {
@@ -216,12 +227,57 @@ async function loadRelationsForEntitiesSql(
     [...entityIds, ...entityIds]
   );
 
+  if (rows.length === 0) {
+    return [];
+  }
+
+  const relationIds = rows.map((r) => Number(r.relation_id));
+  const propRows = await database.query<{
+    relation_id: number;
+    property_key: string;
+    value_type: string;
+    value_text: string | null;
+    value_number: number | null;
+    value_integer: number | null;
+    ref_doc_id: number | null;
+    currency: string | null;
+  }>(
+    `
+      SELECT relation_id, property_key, value_type,
+             value_text, value_number, value_integer, ref_doc_id, currency
+      FROM graph_relation_property
+      WHERE relation_id IN (${relationIds.map(() => "?").join(", ")})
+      ORDER BY relation_id ASC, property_key ASC
+    `,
+    relationIds
+  );
+
+  const propsByRelation = new Map<number, RelationPropertyResult[]>();
+  for (const prop of propRows) {
+    const id = Number(prop.relation_id);
+    let bucket = propsByRelation.get(id);
+    if (!bucket) {
+      bucket = [];
+      propsByRelation.set(id, bucket);
+    }
+    bucket.push({
+      property_key: prop.property_key,
+      value_type: prop.value_type,
+      value_text: prop.value_text ?? null,
+      value_number: prop.value_number ?? null,
+      value_integer: prop.value_integer ?? null,
+      ref_doc_id: prop.ref_doc_id ?? null,
+      currency: prop.currency ?? null
+    });
+  }
+
   return rows.map((row) => ({
     relation_id: Number(row.relation_id),
     relation_type: row.relation_type,
     source_id: Number(row.source_id),
     target_id: Number(row.target_id),
-    metadata: parseJsonObject(row.metadata_json)
+    metadata: parseJsonObject(row.metadata_json),
+    relation_properties: propsByRelation.get(Number(row.relation_id)) ?? []
   }));
 }
 

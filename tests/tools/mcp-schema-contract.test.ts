@@ -5,7 +5,11 @@ import {
   graphSearchTool,
   GraphSearchInput
 } from "../../src/tools/dgraph/graph-search.js";
-import { learnTool, LearnInput } from "../../src/tools/dgraph/learn.js";
+import {
+  learnTool,
+  LearnInput,
+  RelationPropertyInput
+} from "../../src/tools/dgraph/learn.js";
 import {
   traverseTool,
   TraverseInput
@@ -262,15 +266,37 @@ describe("MCP inputSchema contract (drift guard)", () => {
   });
 
   describe("ghostcrab_learn", () => {
-    const node = (
-      learnTool.definition.inputSchema as {
-        properties: { node: Record<string, unknown> };
-      }
-    ).properties.node;
+    const schema = learnTool.definition.inputSchema as {
+      properties: {
+        node: Record<string, unknown>;
+        edge: {
+          properties: {
+            relation_properties: {
+              type?: string;
+              maxItems?: number;
+              items?: {
+                properties?: {
+                  value_type?: { enum?: string[] };
+                };
+              };
+            };
+          };
+        };
+      };
+    };
 
     it("documents required node keys in MCP schema", () => {
-      expect(node.required).toEqual(
+      expect(schema.properties.node.required).toEqual(
         expect.arrayContaining(["id", "node_type", "label"])
+      );
+    });
+
+    it("documents relation_properties as an array with maxItems 50 on edge", () => {
+      const rp = schema.properties.edge.properties.relation_properties;
+      expect(rp.type).toBe("array");
+      expect(rp.maxItems).toBe(50);
+      expect(rp.items?.properties?.value_type?.enum).toEqual(
+        expect.arrayContaining(["text", "number", "percentage_bp", "money_minor", "date_unix", "doc_ref", "uri"])
       );
     });
 
@@ -279,6 +305,48 @@ describe("MCP inputSchema contract (drift guard)", () => {
       expect(
         LearnInput.safeParse({
           node: { id: "n1", node_type: "topic", label: "L" }
+        }).success
+      ).toBe(true);
+    });
+
+    it("RelationPropertyInput accepts a valid text property", () => {
+      expect(
+        RelationPropertyInput.safeParse({
+          property_key: "url",
+          value_type: "text",
+          value_text: "https://example.com"
+        }).success
+      ).toBe(true);
+    });
+
+    it("RelationPropertyInput rejects currency on a non-money_minor value_type", () => {
+      expect(
+        RelationPropertyInput.safeParse({
+          property_key: "rate",
+          value_type: "number",
+          value_number: 3.14,
+          currency: "EUR"
+        }).success
+      ).toBe(false);
+    });
+
+    it("RelationPropertyInput rejects money_minor missing value_integer", () => {
+      expect(
+        RelationPropertyInput.safeParse({
+          property_key: "price",
+          value_type: "money_minor",
+          currency: "EUR"
+        }).success
+      ).toBe(false);
+    });
+
+    it("RelationPropertyInput accepts a valid money_minor property", () => {
+      expect(
+        RelationPropertyInput.safeParse({
+          property_key: "price",
+          value_type: "money_minor",
+          value_integer: 4999,
+          currency: "EUR"
         }).success
       ).toBe(true);
     });

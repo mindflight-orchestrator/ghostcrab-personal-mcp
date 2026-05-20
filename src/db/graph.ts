@@ -146,6 +146,14 @@ export async function upsertGraphRelation(
     [Number(params.sourceId), Number(params.targetId), params.label]
   );
   if (existing) {
+    await database.query(
+      `
+        UPDATE graph_relation
+        SET metadata_json = ?, confidence = ?
+        WHERE relation_id = ?
+      `,
+      [JSON.stringify(params.properties), confidence, existing.relation_id]
+    );
     return String(existing.relation_id);
   }
 
@@ -177,4 +185,204 @@ export async function upsertGraphRelation(
   );
 
   return String(relationId);
+}
+
+export interface RelationProperty {
+  property_key: string;
+  value_type:
+    | "text"
+    | "number"
+    | "percentage_bp"
+    | "money_minor"
+    | "date_unix"
+    | "doc_ref"
+    | "uri";
+  value_text?: string;
+  value_number?: number;
+  value_integer?: number;
+  ref_doc_id?: number;
+  currency?: string;
+}
+
+export async function upsertGraphRelationProperties(
+  database: Queryable,
+  workspaceId: string,
+  relationId: string,
+  relation: {
+    label: string;
+    properties: Record<string, unknown>;
+    sourceId: bigint;
+    targetId: bigint;
+    confidence?: number;
+  },
+  properties: RelationProperty[]
+): Promise<void> {
+  if (properties.length === 0) {
+    return;
+  }
+
+  const ontologyId = `${workspaceId}::ghostcrab_learn`;
+  const confidence = relation.confidence ?? 1;
+
+  await database.query(
+    `
+      INSERT INTO workspaces (id, workspace_id, label)
+      VALUES (?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        workspace_id = COALESCE(workspaces.workspace_id, excluded.workspace_id)
+    `,
+    [workspaceId, workspaceId, workspaceId]
+  );
+
+  await database.query(
+    `
+      INSERT INTO ontologies (ontology_id, workspace_id, name, source_kind)
+      VALUES (?, ?, ?, ?)
+      ON CONFLICT(ontology_id) DO UPDATE SET
+        workspace_id = excluded.workspace_id,
+        name = excluded.name
+    `,
+    [ontologyId, workspaceId, "ghostcrab_learn", "constructed"]
+  );
+
+  await database.query(
+    `
+      INSERT INTO entities_raw (
+        workspace_id,
+        ontology_id,
+        entity_id,
+        entity_type,
+        name,
+        confidence,
+        metadata_json
+      )
+      SELECT
+        ?,
+        ?,
+        entity_id,
+        entity_type,
+        name,
+        confidence,
+        metadata_json
+      FROM graph_entity
+      WHERE entity_id IN (?, ?)
+      ON CONFLICT(workspace_id, entity_id) DO UPDATE SET
+        ontology_id = excluded.ontology_id,
+        entity_type = excluded.entity_type,
+        name = excluded.name,
+        confidence = excluded.confidence,
+        metadata_json = excluded.metadata_json
+    `,
+    [
+      workspaceId,
+      ontologyId,
+      Number(relation.sourceId),
+      Number(relation.targetId)
+    ]
+  );
+
+  await database.query(
+    `
+      INSERT INTO relations_raw (
+        workspace_id,
+        ontology_id,
+        relation_id,
+        edge_type,
+        source_entity_id,
+        target_entity_id,
+        confidence,
+        metadata_json
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(workspace_id, relation_id) DO UPDATE SET
+        ontology_id = excluded.ontology_id,
+        edge_type = excluded.edge_type,
+        source_entity_id = excluded.source_entity_id,
+        target_entity_id = excluded.target_entity_id,
+        confidence = excluded.confidence,
+        metadata_json = excluded.metadata_json
+    `,
+    [
+      workspaceId,
+      ontologyId,
+      Number(relationId),
+      relation.label,
+      Number(relation.sourceId),
+      Number(relation.targetId),
+      confidence,
+      JSON.stringify(relation.properties)
+    ]
+  );
+
+  for (const prop of properties) {
+    await database.query(
+      `
+        INSERT INTO relation_properties_raw (
+          workspace_id,
+          relation_id,
+          property_key,
+          value_type,
+          value_text,
+          value_number,
+          value_integer,
+          ref_doc_id,
+          currency
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(workspace_id, relation_id, property_key) DO UPDATE SET
+          value_type = excluded.value_type,
+          value_text = excluded.value_text,
+          value_number = excluded.value_number,
+          value_integer = excluded.value_integer,
+          ref_doc_id = excluded.ref_doc_id,
+          currency = excluded.currency
+      `,
+      [
+        workspaceId,
+        Number(relationId),
+        prop.property_key,
+        prop.value_type,
+        prop.value_text ?? null,
+        prop.value_number ?? null,
+        prop.value_integer ?? null,
+        prop.ref_doc_id ?? null,
+        prop.currency ?? null
+      ]
+    );
+  }
+
+  await database.query(
+    `
+      INSERT INTO graph_relation_property (
+        relation_id,
+        property_key,
+        value_type,
+        value_text,
+        value_number,
+        value_integer,
+        ref_doc_id,
+        currency
+      )
+      SELECT
+        relation_id,
+        property_key,
+        value_type,
+        value_text,
+        value_number,
+        value_integer,
+        ref_doc_id,
+        currency
+      FROM relation_properties_raw
+      WHERE workspace_id = ?
+        AND relation_id = ?
+      ON CONFLICT(relation_id, property_key) DO UPDATE SET
+        value_type = excluded.value_type,
+        value_text = excluded.value_text,
+        value_number = excluded.value_number,
+        value_integer = excluded.value_integer,
+        ref_doc_id = excluded.ref_doc_id,
+        currency = excluded.currency
+    `,
+    [workspaceId, Number(relationId)]
+  );
 }
