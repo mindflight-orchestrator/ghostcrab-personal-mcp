@@ -76,15 +76,15 @@ If the user is only exploring, keep the workspace proposal provisional and do no
 
 Start with the public `ghostcrab_*` tools Goose will actually call.
 
-| Need | Tool | Rule |
-|---|---|---|
-| Health check | `ghostcrab_status` | First call in every recipe |
-| Recovery context | `ghostcrab_pack` | Use before broad search |
-| Durable observation | `ghostcrab_remember` | Append-style facts and reports |
-| Current state | `ghostcrab_upsert` | Tasks, blockers, run status |
-| Lookup | `ghostcrab_search` | Query facts by text and facets |
-| Relation | `ghostcrab_learn` | Dependencies, blockers, handoffs |
-| Handoff | `ghostcrab_project` | End-of-session checkpoint |
+| Need                | Tool                 | Rule                             |
+| ------------------- | -------------------- | -------------------------------- |
+| Health check        | `ghostcrab_status`   | First call in every recipe       |
+| Recovery context    | `ghostcrab_pack`     | Use before broad search          |
+| Durable observation | `ghostcrab_remember` | Append-style facts and reports   |
+| Current state       | `ghostcrab_upsert`   | Tasks, blockers, run status      |
+| Lookup              | `ghostcrab_search`   | Query facts by text and facets   |
+| Relation            | `ghostcrab_learn`    | Dependencies, blockers, handoffs |
+| Handoff             | `ghostcrab_project`  | End-of-session checkpoint        |
 
 ### Remember vs Upsert
 
@@ -130,14 +130,14 @@ For larger PRO deployments, direct database ingestion can be documented separate
 
 ## Failure Modes
 
-| Situation | Action |
-|---|---|
-| GhostCrab unavailable | Stay `[diagnostic]`; do not design or write |
-| Empty pack | Treat as first run; ask for the project summary |
-| Workspace missing | Create only after confirmation |
-| Schema missing | Use general records first; schema is an advanced follow-up |
+| Situation                  | Action                                                                               |
+| -------------------------- | ------------------------------------------------------------------------------------ |
+| GhostCrab unavailable      | Stay `[diagnostic]`; do not design or write                                          |
+| Empty pack                 | Treat as first run; ask for the project summary                                      |
+| Workspace missing          | Create only after confirmation                                                       |
+| Schema missing             | Use general records first; schema is an advanced follow-up                           |
 | Goose extension not loaded | Tell the user to run `goose configure` or use a recipe declaring the stdio extension |
-| Write failed | Report that persistence failed and continue without pretending state was saved |
+| Write failed               | Report that persistence failed and continue without pretending state was saved       |
 
 ## Hard Rules
 

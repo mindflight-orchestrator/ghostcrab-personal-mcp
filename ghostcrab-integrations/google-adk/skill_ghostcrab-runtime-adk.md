@@ -107,17 +107,17 @@ Each control cycle:
 
 ## Tool Mapping
 
-| Historical scenario label | Use this GhostCrab tool |
-| --- | --- |
-| get my task | `ghostcrab_pack` plus `ghostcrab_search` filtered by `agent_name` and `status` |
-| update status | `ghostcrab_upsert` |
-| log progress | `ghostcrab_remember` for immutable notes, `ghostcrab_upsert` for current progress |
-| flag blocker | `ghostcrab_upsert` for blocker state and `ghostcrab_learn` for what it blocks |
-| complete task | `ghostcrab_upsert` status to `done`, then `ghostcrab_remember` the result |
-| project snapshot | `ghostcrab_count`, `ghostcrab_pack`, `ghostcrab_search` |
-| phase readiness | `ghostcrab_count` plus explicit orchestrator rules |
-| dependency chain | `ghostcrab_traverse` |
-| active goals | `ghostcrab_project` |
+| Historical scenario label | Use this GhostCrab tool                                                           |
+| ------------------------- | --------------------------------------------------------------------------------- |
+| get my task               | `ghostcrab_pack` plus `ghostcrab_search` filtered by `agent_name` and `status`    |
+| update status             | `ghostcrab_upsert`                                                                |
+| log progress              | `ghostcrab_remember` for immutable notes, `ghostcrab_upsert` for current progress |
+| flag blocker              | `ghostcrab_upsert` for blocker state and `ghostcrab_learn` for what it blocks     |
+| complete task             | `ghostcrab_upsert` status to `done`, then `ghostcrab_remember` the result         |
+| project snapshot          | `ghostcrab_count`, `ghostcrab_pack`, `ghostcrab_search`                           |
+| phase readiness           | `ghostcrab_count` plus explicit orchestrator rules                                |
+| dependency chain          | `ghostcrab_traverse`                                                              |
+| active goals              | `ghostcrab_project`                                                               |
 
 `ghostcrab_search` supports `mode="bm25"` for keyword search, `mode="semantic"` for vector search, and `mode="hybrid"` for the recommended combined mode. On GhostCrab Personal SQLite without embeddings configured, `semantic` and `hybrid` fall back to BM25 and the MCP response notes that fallback. To enable vector retrieval, configure `GHOSTCRAB_EMBEDDINGS_MODE=openrouter`, `GHOSTCRAB_EMBEDDINGS_MODEL`, and `GHOSTCRAB_EMBEDDINGS_API_KEY` in GhostCrab. ADK workers and orchestrators can pass `mode="hybrid"` without changing workspace/session semantics.
 
@@ -161,13 +161,13 @@ ghostcrab_upsert(
 
 ## Runtime Lifecycle
 
-| Moment | Worker behavior | Orchestrator behavior |
-| --- | --- | --- |
-| Before | `ghostcrab_status`, workspace lookup/create, `ghostcrab_pack` | Same, then `ghostcrab_count` for dashboard shape |
-| Read | `ghostcrab_search` for relevant facts and constraints | `ghostcrab_search`, `ghostcrab_count`, `ghostcrab_traverse` |
-| Write | `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_learn` | Same for decisions, assignments, blockers |
-| After | `ghostcrab_project` and final `ghostcrab_upsert` | `ghostcrab_project` for the next control objective |
-| Recovery | Treat `ghostcrab_pack` as the restart briefing | Rebuild dashboard from `ghostcrab_pack` and counts |
+| Moment   | Worker behavior                                               | Orchestrator behavior                                       |
+| -------- | ------------------------------------------------------------- | ----------------------------------------------------------- |
+| Before   | `ghostcrab_status`, workspace lookup/create, `ghostcrab_pack` | Same, then `ghostcrab_count` for dashboard shape            |
+| Read     | `ghostcrab_search` for relevant facts and constraints         | `ghostcrab_search`, `ghostcrab_count`, `ghostcrab_traverse` |
+| Write    | `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_learn`   | Same for decisions, assignments, blockers                   |
+| After    | `ghostcrab_project` and final `ghostcrab_upsert`              | `ghostcrab_project` for the next control objective          |
+| Recovery | Treat `ghostcrab_pack` as the restart briefing                | Rebuild dashboard from `ghostcrab_pack` and counts          |
 
 ## Agent Performance Contract
 
@@ -199,14 +199,14 @@ ghostcrab_upsert(
 
 ## Failure Modes
 
-| Situation | Response |
-| --- | --- |
-| GhostCrab is unavailable | Tell the user to run `gcp brain up`; do not continue as if memory was written. |
-| Workspace is missing | Call `ghostcrab_workspace_create` once for the ADK project, then continue. |
-| `ghostcrab_pack` is empty | First run is expected; continue and write useful state. |
-| Search is empty | Continue with current task, but record uncertainty or ask a targeted question. |
-| Schema is missing | Use stable facets and provisional `schema_id` names; inspect schemas later with `ghostcrab_schema_list`. |
-| Conflicting updates | Prefer stable `record_id` and `ghostcrab_upsert` for current state. Preserve important rationale with `ghostcrab_remember`. |
+| Situation                 | Response                                                                                                                    |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| GhostCrab is unavailable  | Tell the user to run `gcp brain up`; do not continue as if memory was written.                                              |
+| Workspace is missing      | Call `ghostcrab_workspace_create` once for the ADK project, then continue.                                                  |
+| `ghostcrab_pack` is empty | First run is expected; continue and write useful state.                                                                     |
+| Search is empty           | Continue with current task, but record uncertainty or ask a targeted question.                                              |
+| Schema is missing         | Use stable facets and provisional `schema_id` names; inspect schemas later with `ghostcrab_schema_list`.                    |
+| Conflicting updates       | Prefer stable `record_id` and `ghostcrab_upsert` for current state. Preserve important rationale with `ghostcrab_remember`. |
 
 ## PRO Note
 

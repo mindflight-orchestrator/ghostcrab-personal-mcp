@@ -142,7 +142,7 @@
       "is_nullable": false,
       "distribution_hint": {
         "values": ["draft", "active", "paused", "completed"],
-        "weights": [0.20, 0.45, 0.15, 0.20]
+        "weights": [0.2, 0.45, 0.15, 0.2]
       }
     },
     {
@@ -157,7 +157,7 @@
       "is_nullable": false,
       "distribution_hint": {
         "values": ["queued", "active", "replied", "bounced", "unsubscribed"],
-        "weights": [0.20, 0.45, 0.15, 0.10, 0.10]
+        "weights": [0.2, 0.45, 0.15, 0.1, 0.1]
       }
     },
     {
@@ -171,7 +171,7 @@
       "is_nullable": false,
       "distribution_hint": {
         "values": ["email", "call", "linkedin", "reply"],
-        "weights": [0.50, 0.20, 0.15, 0.15]
+        "weights": [0.5, 0.2, 0.15, 0.15]
       }
     },
     {
@@ -186,7 +186,7 @@
       "is_nullable": true,
       "distribution_hint": {
         "values": ["sent", "opened", "clicked", "replied", "failed"],
-        "weights": [0.40, 0.20, 0.10, 0.15, 0.15]
+        "weights": [0.4, 0.2, 0.1, 0.15, 0.15]
       }
     },
     {

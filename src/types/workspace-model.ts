@@ -158,12 +158,14 @@ export type RelationExport = z.infer<typeof RelationExportSchema>;
 export const GenerationHintsSchema = z.object({
   table_order: z.array(z.string()).optional(),
   estimated_total_rows: z.number().int().min(0).optional(),
-  seed_multipliers: z.object({
-    tiny: z.number().int().optional(),
-    low: z.number().int().optional(),
-    medium: z.number().int().optional(),
-    high: z.number().int().optional()
-  }).optional(),
+  seed_multipliers: z
+    .object({
+      tiny: z.number().int().optional(),
+      low: z.number().int().optional(),
+      medium: z.number().int().optional(),
+      high: z.number().int().optional()
+    })
+    .optional(),
   domain_profile: z.string().nullable().optional(),
   time_window_days: z.number().int().min(1).optional()
 });
@@ -187,10 +189,20 @@ export type WorkspaceModelExport = z.infer<typeof WorkspaceModelExportSchema>;
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** DB-level column role values (constrained by migration 012 CHECK). */
-export type DbColumnRole = "id" | "fk" | "timestamp" | "status" | "attribute" | "unknown";
+export type DbColumnRole =
+  | "id"
+  | "fk"
+  | "timestamp"
+  | "status"
+  | "attribute"
+  | "unknown";
 
 /** DB-level generation strategy values (constrained by migration 012 CHECK). */
-export type DbGenerationStrategy = "synthetic" | "replay" | "hybrid" | "unknown";
+export type DbGenerationStrategy =
+  | "synthetic"
+  | "replay"
+  | "hybrid"
+  | "unknown";
 
 /**
  * Internal semantic proposal stored in pending_migrations.semantic_spec and
@@ -200,49 +212,65 @@ export type DbGenerationStrategy = "synthetic" | "replay" | "hybrid" | "unknown"
  * Rich fields are stored in column_semantics.rich_meta / relation_semantics.rich_meta JSONB.
  */
 export const SemanticProposalSchema = z.object({
-  table_semantics: z.array(z.object({
-    table_schema: z.string().min(1).default("public"),
-    table_name: z.string().min(1),
-    business_role: z.string().optional(),
-    generation_strategy: z.string().optional().default("unknown"),
-    emit_facets: z.boolean().default(true),
-    emit_graph_entity: z.boolean().default(false),
-    emit_graph_relation: z.boolean().default(false),
-    notes: z.string().optional(),
-    // Rich public-contract fields (stored in notes JSON)
-    table_role: TableRoleSchema.optional(),
-    entity_family: z.string().nullable().optional(),
-    volume_driver: VolumeDriverSchema.nullable().optional(),
-    primary_time_column: z.string().nullable().optional(),
-    emit_projections: z.boolean().optional()
-  })).default([]),
-  column_semantics: z.array(z.object({
-    table_schema: z.string().min(1).default("public"),
-    table_name: z.string().min(1),
-    column_name: z.string().min(1),
-    column_role: z.enum(["id", "fk", "timestamp", "status", "attribute", "unknown"]).default("unknown"),
-    // Rich public-contract fields (stored in column_semantics.rich_meta JSONB)
-    public_column_role: ColumnRoleSchema.optional(),
-    semantic_type: SemanticTypeSchema.optional(),
-    facet_key: z.string().optional(),
-    graph_usage: GraphUsageSchema.optional(),
-    projection_signal: z.string().optional(),
-    is_nullable: z.boolean().optional(),
-    distribution_hint: z.record(z.string(), z.unknown()).optional()
-  })).default([]),
-  relation_semantics: z.array(z.object({
-    from_schema: z.string().min(1).default("public"),
-    from_table: z.string().min(1),
-    to_schema: z.string().min(1).default("public"),
-    to_table: z.string().min(1),
-    fk_column: z.string().optional(),
-    relation_kind: z.enum(["many_to_one", "one_to_many", "unknown"]).default("unknown"),
-    // Rich public-contract fields (stored in relation_semantics.rich_meta JSONB)
-    relation_role: RelationRoleSchema.optional(),
-    hierarchical: z.boolean().optional(),
-    graph_label: z.string().optional(),
-    target_column: z.string().optional()
-  })).default([])
+  table_semantics: z
+    .array(
+      z.object({
+        table_schema: z.string().min(1).default("public"),
+        table_name: z.string().min(1),
+        business_role: z.string().optional(),
+        generation_strategy: z.string().optional().default("unknown"),
+        emit_facets: z.boolean().default(true),
+        emit_graph_entity: z.boolean().default(false),
+        emit_graph_relation: z.boolean().default(false),
+        notes: z.string().optional(),
+        // Rich public-contract fields (stored in notes JSON)
+        table_role: TableRoleSchema.optional(),
+        entity_family: z.string().nullable().optional(),
+        volume_driver: VolumeDriverSchema.nullable().optional(),
+        primary_time_column: z.string().nullable().optional(),
+        emit_projections: z.boolean().optional()
+      })
+    )
+    .default([]),
+  column_semantics: z
+    .array(
+      z.object({
+        table_schema: z.string().min(1).default("public"),
+        table_name: z.string().min(1),
+        column_name: z.string().min(1),
+        column_role: z
+          .enum(["id", "fk", "timestamp", "status", "attribute", "unknown"])
+          .default("unknown"),
+        // Rich public-contract fields (stored in column_semantics.rich_meta JSONB)
+        public_column_role: ColumnRoleSchema.optional(),
+        semantic_type: SemanticTypeSchema.optional(),
+        facet_key: z.string().optional(),
+        graph_usage: GraphUsageSchema.optional(),
+        projection_signal: z.string().optional(),
+        is_nullable: z.boolean().optional(),
+        distribution_hint: z.record(z.string(), z.unknown()).optional()
+      })
+    )
+    .default([]),
+  relation_semantics: z
+    .array(
+      z.object({
+        from_schema: z.string().min(1).default("public"),
+        from_table: z.string().min(1),
+        to_schema: z.string().min(1).default("public"),
+        to_table: z.string().min(1),
+        fk_column: z.string().optional(),
+        relation_kind: z
+          .enum(["many_to_one", "one_to_many", "unknown"])
+          .default("unknown"),
+        // Rich public-contract fields (stored in relation_semantics.rich_meta JSONB)
+        relation_role: RelationRoleSchema.optional(),
+        hierarchical: z.boolean().optional(),
+        graph_label: z.string().optional(),
+        target_column: z.string().optional()
+      })
+    )
+    .default([])
 });
 export type SemanticProposal = z.infer<typeof SemanticProposalSchema>;
 
@@ -269,7 +297,9 @@ export const ColumnSemanticSchema = z.object({
   table_schema: z.string().min(1).default("public"),
   table_name: z.string().min(1),
   column_name: z.string().min(1),
-  column_role: z.enum(["id", "fk", "timestamp", "status", "attribute", "unknown"]).default("unknown"),
+  column_role: z
+    .enum(["id", "fk", "timestamp", "status", "attribute", "unknown"])
+    .default("unknown"),
   public_column_role: ColumnRoleSchema.optional(),
   semantic_type: SemanticTypeSchema.optional(),
   facet_key: z.string().optional(),
@@ -286,7 +316,9 @@ export const RelationSemanticSchema = z.object({
   to_schema: z.string().min(1).default("public"),
   to_table: z.string().min(1),
   fk_column: z.string().optional(),
-  relation_kind: z.enum(["many_to_one", "one_to_many", "unknown"]).default("unknown"),
+  relation_kind: z
+    .enum(["many_to_one", "one_to_many", "unknown"])
+    .default("unknown"),
   relation_role: RelationRoleSchema.optional(),
   hierarchical: z.boolean().optional(),
   graph_label: z.string().optional(),
@@ -302,13 +334,20 @@ export type RelationSemantic = z.infer<typeof RelationSemanticSchema>;
  * Map DB column_role (migration 012 enum) to the public contract ColumnRole.
  * 'attribute' and 'unknown' remain unmapped (null) so consumers can handle them.
  */
-export function mapDbColumnRole(dbRole: string | null | undefined): ColumnRole | null {
+export function mapDbColumnRole(
+  dbRole: string | null | undefined
+): ColumnRole | null {
   switch (dbRole) {
-    case "id": return "id";
-    case "fk": return "fk";
-    case "timestamp": return "timestamp";
-    case "status": return "status";
-    default: return null;
+    case "id":
+      return "id";
+    case "fk":
+      return "fk";
+    case "timestamp":
+      return "timestamp";
+    case "status":
+      return "status";
+    default:
+      return null;
   }
 }
 
@@ -318,11 +357,16 @@ export function mapDbColumnRole(dbRole: string | null | undefined): ColumnRole |
  */
 export function mapPublicColumnRoleToDb(role: ColumnRole): DbColumnRole {
   switch (role) {
-    case "id": return "id";
-    case "fk": return "fk";
-    case "timestamp": return "timestamp";
-    case "status": return "status";
-    default: return "attribute";
+    case "id":
+      return "id";
+    case "fk":
+      return "fk";
+    case "timestamp":
+      return "timestamp";
+    case "status":
+      return "status";
+    default:
+      return "attribute";
   }
 }
 
@@ -345,7 +389,7 @@ export function computeTableOrder(
   tables: Array<{ schema_name: string; table_name: string }>,
   edges: RelationEdge[]
 ): string[] {
-  const keys = tables.map(t => `${t.schema_name}.${t.table_name}`);
+  const keys = tables.map((t) => `${t.schema_name}.${t.table_name}`);
   const keySet = new Set(keys);
 
   // Build adjacency: child -> parents
@@ -371,7 +415,7 @@ export function computeTableOrder(
     inDegree.set(k, parents.get(k)?.size ?? 0);
   }
 
-  const queue = keys.filter(k => (inDegree.get(k) ?? 0) === 0).sort();
+  const queue = keys.filter((k) => (inDegree.get(k) ?? 0) === 0).sort();
   const result: string[] = [];
 
   while (queue.length > 0) {
@@ -444,13 +488,20 @@ function inferDbColumnRole(columnName: string): DbColumnRole {
   if (lower === "id") return "id";
   if (lower.endsWith("_id")) return "fk";
   if (lower === "status" || lower === "state") return "status";
-  if (lower.endsWith("_at") || lower.endsWith("_date") || lower.endsWith("_time")) {
+  if (
+    lower.endsWith("_at") ||
+    lower.endsWith("_date") ||
+    lower.endsWith("_time")
+  ) {
     return "timestamp";
   }
   return "attribute";
 }
 
-function parseQualifiedTable(qualified: string): { schema: string; name: string } {
+function parseQualifiedTable(qualified: string): {
+  schema: string;
+  name: string;
+} {
   const trimmed = qualified.trim().replace(/^["']|["']$/g, "");
   const dot = trimmed.indexOf(".");
   if (dot === -1) {
@@ -559,8 +610,7 @@ export function inferBasicSemantics(
     const { schema, name } = parseQualifiedTable(syncSpec.source_table);
     const tkey = `${schema}.${name}`.toLowerCase();
     const existing = tableSemantics.find(
-      (t) =>
-        `${t.table_schema}.${t.table_name}`.toLowerCase() === tkey
+      (t) => `${t.table_schema}.${t.table_name}`.toLowerCase() === tkey
     );
     if (existing) {
       existing.emit_facets = true;
@@ -620,7 +670,9 @@ export function validateSemanticsAgainstCatalog(params: {
   for (const t of params.tableSemantics) {
     const key = `${t.table_schema}.${t.table_name}`.toLowerCase();
     if (!params.existingTables.has(key)) {
-      warnings.push(`table_semantics: no table "${t.table_schema}.${t.table_name}" in information_schema`);
+      warnings.push(
+        `table_semantics: no table "${t.table_schema}.${t.table_name}" in information_schema`
+      );
     }
   }
 
@@ -632,7 +684,8 @@ export function validateSemanticsAgainstCatalog(params: {
       );
       continue;
     }
-    const ckey = `${c.table_schema}.${c.table_name}.${c.column_name}`.toLowerCase();
+    const ckey =
+      `${c.table_schema}.${c.table_name}.${c.column_name}`.toLowerCase();
     if (!params.existingColumns.has(ckey)) {
       warnings.push(
         `column_semantics: no column "${c.table_schema}.${c.table_name}.${c.column_name}" in information_schema`

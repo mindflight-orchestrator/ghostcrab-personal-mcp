@@ -159,18 +159,18 @@ Recommended use:
 
 ## 8. Tool Mapping
 
-| AutoGen need | GhostCrab Personal tool |
-| --- | --- |
-| Initialize shared agent memory | `ghostcrab_workspace_create` |
-| Store durable agent findings | `ghostcrab_remember` |
-| Retrieve prior memory | `ghostcrab_search` |
-| Update current task or agent state | `ghostcrab_upsert` |
-| Represent dependencies and blockers | `ghostcrab_learn` |
-| Follow dependency chains | `ghostcrab_traverse` |
-| Maintain current goals or phase context | `ghostcrab_project` |
-| Load compact context at run start | `ghostcrab_pack` |
-| Count open work by state | `ghostcrab_count` |
-| Inspect model contracts | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
+| AutoGen need                            | GhostCrab Personal tool                             |
+| --------------------------------------- | --------------------------------------------------- |
+| Initialize shared agent memory          | `ghostcrab_workspace_create`                        |
+| Store durable agent findings            | `ghostcrab_remember`                                |
+| Retrieve prior memory                   | `ghostcrab_search`                                  |
+| Update current task or agent state      | `ghostcrab_upsert`                                  |
+| Represent dependencies and blockers     | `ghostcrab_learn`                                   |
+| Follow dependency chains                | `ghostcrab_traverse`                                |
+| Maintain current goals or phase context | `ghostcrab_project`                                 |
+| Load compact context at run start       | `ghostcrab_pack`                                    |
+| Count open work by state                | `ghostcrab_count`                                   |
+| Inspect model contracts                 | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
 
 ## 9. Community Demo Scenarios
 
@@ -200,14 +200,14 @@ Keep it short:
 
 ### Agent Lifecycle Mapping
 
-| Moment | Agent question | Expected GhostCrab tool | Present in current review? |
-|---|---|---|---|
-| Before | Load shared group context at the start of my turn | `ghostcrab_pack` | Demo 1 — good |
-| Read | What did prior agents find or decide? | `ghostcrab_search` | Demo 2 — good |
-| Write (durable) | Record a finding other agents should use | `ghostcrab_remember` | Demo 1 and 3 — good |
-| Write (state) | Update the current task or agent state | `ghostcrab_upsert` | Demo 1 — good |
-| After | Record active group goals or phase context | `ghostcrab_project` | Tool mapping only, no demo |
-| Recovery | Resume from prior group state | `ghostcrab_pack` | Demo 1 — good |
+| Moment          | Agent question                                    | Expected GhostCrab tool | Present in current review? |
+| --------------- | ------------------------------------------------- | ----------------------- | -------------------------- |
+| Before          | Load shared group context at the start of my turn | `ghostcrab_pack`        | Demo 1 — good              |
+| Read            | What did prior agents find or decide?             | `ghostcrab_search`      | Demo 2 — good              |
+| Write (durable) | Record a finding other agents should use          | `ghostcrab_remember`    | Demo 1 and 3 — good        |
+| Write (state)   | Update the current task or agent state            | `ghostcrab_upsert`      | Demo 1 — good              |
+| After           | Record active group goals or phase context        | `ghostcrab_project`     | Tool mapping only, no demo |
+| Recovery        | Resume from prior group state                     | `ghostcrab_pack`        | Demo 1 — good              |
 
 ### Orchestration Boundary — Partially Addressed
 
@@ -218,6 +218,7 @@ The review correctly flags that "GhostCrab should not be presented as the AutoGe
 ### `remember` vs `upsert` Distinction
 
 Not explained. For AutoGen:
+
 - `ghostcrab_remember`: "Critic finding: code coverage is below threshold" — immutable observation
 - `ghostcrab_upsert`: "Task: refactor-auth-module, assignee: executor, status: in_progress" — mutable state
 
@@ -232,6 +233,7 @@ The Recommended Next Step (section 12) gives a 5-step sequence. One step should 
 ### Failure Mode Coverage
 
 Not addressed. Missing:
+
 - `ghostcrab_pack` returns empty for an agent joining an existing run — agent should call `ghostcrab_search` as fallback
 - AutoGen group chat ends before all writes commit — partial state is not discussed
 
@@ -239,14 +241,14 @@ Not addressed. Missing:
 
 Historical pre-rewrite score:
 
-| Criterion | Score | Notes |
-| --- | ---: | --- |
-| Community relevance | 5/5 | AutoGen has a clear shared-memory need. |
-| Framework alignment | 5/5 | MCP/workbench and multi-agent patterns fit well. |
-| GhostCrab Personal accuracy | 2/5 | Current drafts need Personal-first cleanup. |
-| Tool-name accuracy | 2/5 | Several tools are old or custom. |
-| Agent behavioral clarity | 2/5 | Demos cover most lifecycle moments but remember/upsert absent, MCP connection path missing, failure modes not addressed. |
-| Community readiness | 3/5 | Strong after tool and setup rewrite. |
+| Criterion                   | Score | Notes                                                                                                                    |
+| --------------------------- | ----: | ------------------------------------------------------------------------------------------------------------------------ |
+| Community relevance         |   5/5 | AutoGen has a clear shared-memory need.                                                                                  |
+| Framework alignment         |   5/5 | MCP/workbench and multi-agent patterns fit well.                                                                         |
+| GhostCrab Personal accuracy |   2/5 | Current drafts need Personal-first cleanup.                                                                              |
+| Tool-name accuracy          |   2/5 | Several tools are old or custom.                                                                                         |
+| Agent behavioral clarity    |   2/5 | Demos cover most lifecycle moments but remember/upsert absent, MCP connection path missing, failure modes not addressed. |
+| Community readiness         |   3/5 | Strong after tool and setup rewrite.                                                                                     |
 
 Overall readiness: **High-potential, needs API alignment before publication.**
 
@@ -261,14 +263,14 @@ Worker 3 rewrite completed the requested corrections in:
 
 Updated readiness:
 
-| Criterion | Score | Notes |
-| --- | ---: | --- |
-| Community relevance | 5/5 | AutoGen has a clear shared-state need across planner, executor, and reviewer agents. |
-| Framework alignment | 5/5 | Uses `McpWorkbench` with `StdioServerParams` for the concrete AutoGen MCP path. |
-| GhostCrab Personal accuracy | 5/5 | Personal path is `@mindflight/ghostcrab-personal-mcp`, `gcp brain up`, stdio, local SQLite. |
-| Tool-name accuracy | 5/5 | Public `ghostcrab_*` tools replace custom draft tools. |
-| Agent behavioral clarity | 5/5 | Orchestration boundary, lifecycle, remember/upsert, and failure modes are explicit. |
-| Community readiness | 5/5 | Ready as a Personal-first community skill. |
+| Criterion                   | Score | Notes                                                                                       |
+| --------------------------- | ----: | ------------------------------------------------------------------------------------------- |
+| Community relevance         |   5/5 | AutoGen has a clear shared-state need across planner, executor, and reviewer agents.        |
+| Framework alignment         |   5/5 | Uses `McpWorkbench` with `StdioServerParams` for the concrete AutoGen MCP path.             |
+| GhostCrab Personal accuracy |   5/5 | Personal path is `@mindflight/ghostcrab-personal-mcp`, `gcp brain up`, stdio, local SQLite. |
+| Tool-name accuracy          |   5/5 | Public `ghostcrab_*` tools replace custom draft tools.                                      |
+| Agent behavioral clarity    |   5/5 | Orchestration boundary, lifecycle, remember/upsert, and failure modes are explicit.         |
+| Community readiness         |   5/5 | Ready as a Personal-first community skill.                                                  |
 
 Overall readiness: **Ready after Personal SQLite rewrite.**
 

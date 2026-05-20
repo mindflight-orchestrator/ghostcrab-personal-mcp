@@ -20,8 +20,7 @@ export function formatZodValidationError(
   const invalidFields: Array<{ field: string; message: string }> = [];
 
   for (const issue of error.issues) {
-    const fieldPath =
-      issue.path.length > 0 ? issue.path.join(".") : "(root)";
+    const fieldPath = issue.path.length > 0 ? issue.path.join(".") : "(root)";
 
     const isMissingRequired =
       issue.code === "invalid_type" &&
@@ -57,6 +56,7 @@ export function formatZodValidationError(
     message_plain: messagePlain,
     required_fields: requiredFields,
     invalid_fields: invalidFields,
-    hint_call: toolName === "ghostcrab_status" ? "check tool schema" : "ghostcrab_status"
+    hint_call:
+      toolName === "ghostcrab_status" ? "check tool schema" : "ghostcrab_status"
   };
 }

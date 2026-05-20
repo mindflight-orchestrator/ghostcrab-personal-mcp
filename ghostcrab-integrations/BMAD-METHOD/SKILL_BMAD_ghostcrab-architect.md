@@ -75,12 +75,12 @@ Do not invent missing artifacts.
 
 Use the core GhostCrab distinction:
 
-| Use case | Tool | Rule |
-| --- | --- | --- |
-| Accepted decision, ADR, requirement, constraint, research finding, review approval | `ghostcrab_remember` | Durable observation. Append a new fact instead of mutating history. |
-| Current project, epic, story, task, quality gate, blocker, role assignment | `ghostcrab_upsert` | Mutable current state. Match by stable `record_id` facet. |
-| Dependency, blocker edge, produced-by, validates, implements, documents | `ghostcrab_learn` | Structural relation between durable or current-state records. |
-| Schema discovery | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` | Late step after real usage reveals stable shape. |
+| Use case                                                                           | Tool                                                | Rule                                                                |
+| ---------------------------------------------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------- |
+| Accepted decision, ADR, requirement, constraint, research finding, review approval | `ghostcrab_remember`                                | Durable observation. Append a new fact instead of mutating history. |
+| Current project, epic, story, task, quality gate, blocker, role assignment         | `ghostcrab_upsert`                                  | Mutable current state. Match by stable `record_id` facet.           |
+| Dependency, blocker edge, produced-by, validates, implements, documents            | `ghostcrab_learn`                                   | Structural relation between durable or current-state records.       |
+| Schema discovery                                                                   | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` | Late step after real usage reveals stable shape.                    |
 
 Do not start by designing a full ontology. Seed real facts first, then inspect schemas after patterns emerge.
 
@@ -176,23 +176,23 @@ If no schema is registered, continue with `ghostcrab_remember` and `ghostcrab_up
 
 ## Lifecycle JTBD by BMAD Role
 
-| Role | Before | Read | Write | After | Recovery |
-| --- | --- | --- | --- | --- | --- |
-| Architect | `ghostcrab_workspace_list` then `ghostcrab_workspace_create` if absent | `ghostcrab_search` prior decisions | `ghostcrab_remember` decisions, `ghostcrab_learn` dependencies | `ghostcrab_project` architecture handoff | `ghostcrab_pack` project brief |
-| Developer | `ghostcrab_pack` story context | `ghostcrab_search` ADRs and constraints | `ghostcrab_upsert` task state, `ghostcrab_remember` implementation decisions | `ghostcrab_project` dev handoff | `ghostcrab_pack` story resume |
-| Orchestrator | `ghostcrab_pack` phase state | `ghostcrab_count`, `ghostcrab_traverse` blockers | `ghostcrab_upsert` gates, `ghostcrab_learn` blocker edges | `ghostcrab_project` phase-gate summary | `ghostcrab_pack` dispatch state |
-| Reviewer | `ghostcrab_pack` review scope | `ghostcrab_search` requirements and decisions | `ghostcrab_remember` approval findings, `ghostcrab_upsert` review state | `ghostcrab_project` review handoff | `ghostcrab_pack` unresolved review items |
+| Role         | Before                                                                 | Read                                             | Write                                                                        | After                                    | Recovery                                 |
+| ------------ | ---------------------------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------- | ---------------------------------------- | ---------------------------------------- |
+| Architect    | `ghostcrab_workspace_list` then `ghostcrab_workspace_create` if absent | `ghostcrab_search` prior decisions               | `ghostcrab_remember` decisions, `ghostcrab_learn` dependencies               | `ghostcrab_project` architecture handoff | `ghostcrab_pack` project brief           |
+| Developer    | `ghostcrab_pack` story context                                         | `ghostcrab_search` ADRs and constraints          | `ghostcrab_upsert` task state, `ghostcrab_remember` implementation decisions | `ghostcrab_project` dev handoff          | `ghostcrab_pack` story resume            |
+| Orchestrator | `ghostcrab_pack` phase state                                           | `ghostcrab_count`, `ghostcrab_traverse` blockers | `ghostcrab_upsert` gates, `ghostcrab_learn` blocker edges                    | `ghostcrab_project` phase-gate summary   | `ghostcrab_pack` dispatch state          |
+| Reviewer     | `ghostcrab_pack` review scope                                          | `ghostcrab_search` requirements and decisions    | `ghostcrab_remember` approval findings, `ghostcrab_upsert` review state      | `ghostcrab_project` review handoff       | `ghostcrab_pack` unresolved review items |
 
 ## Failure Modes
 
-| Condition | Response |
-| --- | --- |
-| `ghostcrab_status` unavailable | Tell the user to run `gcp brain up`; do not fake writes. |
-| `ghostcrab_pack` returns empty at startup | Treat it as a first run and execute this Architect bootstrap. |
-| Workspace not found | Call `ghostcrab_workspace_list`, then `ghostcrab_workspace_create`. |
-| No BMAD artifacts found | Do not seed placeholder records; ask whether to create or point to BMAD artifacts. |
-| No schema registered | Proceed with untyped `ghostcrab_remember` and clear facets; inspect schema later. |
-| Duplicate-looking artifact | Search by `artifact_path` or stable `record_id` before writing; upsert current state, remember historical decisions separately. |
+| Condition                                 | Response                                                                                                                        |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `ghostcrab_status` unavailable            | Tell the user to run `gcp brain up`; do not fake writes.                                                                        |
+| `ghostcrab_pack` returns empty at startup | Treat it as a first run and execute this Architect bootstrap.                                                                   |
+| Workspace not found                       | Call `ghostcrab_workspace_list`, then `ghostcrab_workspace_create`.                                                             |
+| No BMAD artifacts found                   | Do not seed placeholder records; ask whether to create or point to BMAD artifacts.                                              |
+| No schema registered                      | Proceed with untyped `ghostcrab_remember` and clear facets; inspect schema later.                                               |
+| Duplicate-looking artifact                | Search by `artifact_path` or stable `record_id` before writing; upsert current state, remember historical decisions separately. |
 
 ## Handoff Contract
 
@@ -206,4 +206,3 @@ Relations learned: <count>
 Open blockers: <count>
 Next skill: SKILL_BMAD_ghostcrab-runtime.md
 ```
-

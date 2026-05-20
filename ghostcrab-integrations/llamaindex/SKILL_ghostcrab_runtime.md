@@ -20,16 +20,16 @@ LlamaIndex decides which agent or workflow step executes next. GhostCrab does no
 
 ## Runtime Actions
 
-| Runtime action | GhostCrab tool | Notes |
-| --- | --- | --- |
-| Rehydrate a workflow before start | `ghostcrab_pack` | Use compact context from active projections and matching facts. |
-| Track active goal, constraint, or blocker | `ghostcrab_project` | Best for current-state project memory. |
-| Update task or step state | `ghostcrab_upsert` | Use stable `record_id` facets. |
-| Preserve durable decision or finding | `ghostcrab_remember` | Use for history that should not be overwritten. |
-| Search prior operational state | `ghostcrab_search` | Operational facts only, not documents. |
-| Count workflow states | `ghostcrab_count` | Useful for dashboards and gate checks. |
-| Link tasks, sources, blockers | `ghostcrab_learn` | Use graph nodes and edges for durable relationships. |
-| Inspect dependency/evidence path | `ghostcrab_traverse` | Read a known graph path. |
+| Runtime action                            | GhostCrab tool       | Notes                                                           |
+| ----------------------------------------- | -------------------- | --------------------------------------------------------------- |
+| Rehydrate a workflow before start         | `ghostcrab_pack`     | Use compact context from active projections and matching facts. |
+| Track active goal, constraint, or blocker | `ghostcrab_project`  | Best for current-state project memory.                          |
+| Update task or step state                 | `ghostcrab_upsert`   | Use stable `record_id` facets.                                  |
+| Preserve durable decision or finding      | `ghostcrab_remember` | Use for history that should not be overwritten.                 |
+| Search prior operational state            | `ghostcrab_search`   | Operational facts only, not documents.                          |
+| Count workflow states                     | `ghostcrab_count`    | Useful for dashboards and gate checks.                          |
+| Link tasks, sources, blockers             | `ghostcrab_learn`    | Use graph nodes and edges for durable relationships.            |
+| Inspect dependency/evidence path          | `ghostcrab_traverse` | Read a known graph path.                                        |
 
 ## Workspace Startup
 

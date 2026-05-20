@@ -165,7 +165,10 @@ describe("sqlite database client SQL rewrite", () => {
     const { createDatabaseClient } = await import("../../src/db/client.js");
     const database = createDatabaseClient(testConfig);
 
-    const rows = await database.query<{ ok: number }>("INSERT INTO x VALUES (?) RETURNING 1 AS ok", [1]);
+    const rows = await database.query<{ ok: number }>(
+      "INSERT INTO x VALUES (?) RETURNING 1 AS ok",
+      [1]
+    );
 
     expect(rows).toEqual([{ ok: 1 }]);
     expect(mocks.runStandaloneMindbrainSql).toHaveBeenCalledTimes(2);

@@ -3,7 +3,10 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const repoRoot = path.resolve(
+  path.dirname(new URL(import.meta.url).pathname),
+  ".."
+);
 const profilesDir = path.join(repoRoot, "shared", "demo-profiles");
 const aggregatePath = path.join(repoRoot, "shared", "bootstrap_seed.jsonl");
 const profileFiles = [
@@ -16,7 +19,9 @@ const profileFiles = [
   "software-delivery.jsonl"
 ];
 
-const missingFiles = profileFiles.filter((name) => !fs.existsSync(path.join(profilesDir, name)));
+const missingFiles = profileFiles.filter(
+  (name) => !fs.existsSync(path.join(profilesDir, name))
+);
 
 if (missingFiles.length > 0) {
   throw new Error(`Missing demo profile file(s): ${missingFiles.join(", ")}`);

@@ -417,13 +417,7 @@ describe("mcp-global-setup", () => {
       .trim()
       .split("\n")
       .map((line) => JSON.parse(line));
-    expect(calls[0]).toEqual([
-      "mcp",
-      "remove",
-      "--scope",
-      "local",
-      SERVER_KEY
-    ]);
+    expect(calls[0]).toEqual(["mcp", "remove", "--scope", "local", SERVER_KEY]);
     expect(calls[1]).toEqual([
       "mcp",
       "add",

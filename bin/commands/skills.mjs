@@ -12,7 +12,7 @@ import {
   listRegistryResources,
   applyWatermark,
   resolveRegistryToken,
-  resolveRegistryUrl,
+  resolveRegistryUrl
 } from "../lib/registry.mjs";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join as pathJoin, resolve } from "node:path";
@@ -23,7 +23,7 @@ import {
   removeLocal,
   readLocalContent,
   parseResourceId,
-  typeDir,
+  typeDir
 } from "../lib/local-store.mjs";
 
 const TYPE = "skills";
@@ -68,7 +68,11 @@ async function skillsList(args) {
     const registryUrl = resolveRegistryUrl(args, config);
     console.log(`Fetching from ${registryUrl} …\n`);
     try {
-      const items = await listRegistryResources({ registryUrl, token, type: TYPE });
+      const items = await listRegistryResources({
+        registryUrl,
+        token,
+        type: TYPE
+      });
       if (items.length === 0) {
         console.log("No skills available in registry.");
         return;
@@ -79,7 +83,9 @@ async function skillsList(args) {
           item.version != null && String(item.version).length > 0
             ? ` v${item.version}`
             : "";
-        console.log(`${lock} ${item.owner}/${item.name}${ver}  (${item.access})`);
+        console.log(
+          `${lock} ${item.owner}/${item.name}${ver}  (${item.access})`
+        );
         if (item.description) console.log(`     ${item.description}`);
       }
     } catch (err) {
@@ -112,7 +118,9 @@ async function skillsList(args) {
 async function skillsPull(args) {
   const id = args.find((a) => !a.startsWith("-"));
   if (!id) {
-    console.error(`gcp skills pull: resource ID required (e.g. mindflight/coding-assistant)`);
+    console.error(
+      `gcp skills pull: resource ID required (e.g. mindflight/coding-assistant)`
+    );
     process.exit(1);
   }
 
@@ -144,7 +152,7 @@ async function skillsPull(args) {
     content = applyWatermark(content, {
       resourceId: `${owner}/${name}`,
       licensee,
-      pulledAt: new Date().toISOString(),
+      pulledAt: new Date().toISOString()
     });
   }
 
@@ -153,7 +161,13 @@ async function skillsPull(args) {
     owner,
     name,
     content,
-    manifest: { version, access, licensee: licensee ?? null, pulledAt, registryUrl },
+    manifest: {
+      version,
+      access,
+      licensee: licensee ?? null,
+      pulledAt,
+      registryUrl
+    }
   });
 
   console.log(`✓ Installed ${owner}/${name} v${version ?? "?"} [${access}]`);
@@ -182,7 +196,8 @@ function skillsInstall(args) {
       continue;
     }
     if (a === "--help" || a === "-h") {
-      console.log(`
+      console.log(
+        `
 Usage: gcp agent skills install --dir <path> [--id owner/name]
 
   Copy a vendored skill folder into the local GhostCrab skill store (same on-disk
@@ -200,14 +215,15 @@ Usage: gcp agent skills install --dir <path> [--id owner/name]
 Examples:
   gcp agent skills install --dir ./vendor/mindflight/my-skill
   gcp agent skills install --dir ./vendor/mindflight/my-skill --id mindflight/my-skill
-`.trim());
+`.trim()
+      );
       return;
     }
   }
 
   if (!dirRaw) {
     console.error(
-      'gcp skills install: missing --dir <path>  (see: gcp agent skills install --help)'
+      "gcp skills install: missing --dir <path>  (see: gcp agent skills install --help)"
     );
     process.exit(1);
   }
@@ -232,14 +248,16 @@ Examples:
     }
   }
 
-  let owner = idRaw ? null : fileManifest?.owner ?? null;
-  let name = idRaw ? null : fileManifest?.name ?? null;
+  let owner = idRaw ? null : (fileManifest?.owner ?? null);
+  let name = idRaw ? null : (fileManifest?.name ?? null);
 
   if (idRaw) {
     try {
       ({ owner, name } = parseResourceId(idRaw));
     } catch (err) {
-      console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
+      console.error(
+        `Error: ${err instanceof Error ? err.message : String(err)}`
+      );
       process.exit(1);
     }
   }
@@ -291,11 +309,13 @@ Examples:
       licensee: null,
       pulledAt,
       sourceDir: dirAbs,
-      installedVia: "local-dir",
-    },
+      installedVia: "local-dir"
+    }
   });
 
-  console.log(`✓ Installed ${owner}/${name} v${version} [${access}] (local dir)`);
+  console.log(
+    `✓ Installed ${owner}/${name} v${version} [${access}] (local dir)`
+  );
   console.log(`  Source : ${dirAbs}`);
   console.log(`  Store  : ${typeDir(TYPE)}/${owner}/${name}/`);
 }
@@ -356,7 +376,8 @@ async function skillsShow(args) {
 // ── helpers ───────────────────────────────────────────────────────────────────
 
 function printHelp() {
-  console.log(`
+  console.log(
+    `
 Usage: gcp agent skills <subcommand>   (recommended — “equip agents”)
        gcp skills <subcommand>         (alias)
 
@@ -381,5 +402,6 @@ Examples:
   gcp skills pull company/internal --token sk_live_xyz
   gcp agent skills install --dir ./vendor/demo/hello-world
   gcp skills remove mindflight/coding-assistant
-`.trim());
+`.trim()
+  );
 }

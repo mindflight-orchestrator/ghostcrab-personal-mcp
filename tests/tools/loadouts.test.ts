@@ -28,7 +28,9 @@ describe("ghostcrab_loadout_list", () => {
   it("lists the predefined loadouts and default recommendation", async () => {
     const ctx = makeContext(async () => []);
     const result = await loadoutListTool.handler({}, ctx);
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
 
     expect(data.ok).toBe(true);
     expect(data.default_loadout_id).toBe("default-minimal");
@@ -54,35 +56,49 @@ describe("ghostcrab_loadout_seed", () => {
       entityIds.set(name, id);
       return id;
     };
-    const query = vi.fn().mockImplementation(async (sql: string, params?: readonly unknown[]) => {
-      if (sql.includes("SELECT id, domain_profile") && sql.includes("FROM workspaces")) {
-        return [{ id: "demo-ws", domain_profile: "crm" }];
-      }
-      if (sql.includes("FROM graph_entity") && sql.includes("WHERE entity_type = ? AND name = ?")) {
-        return Array.isArray(params) && typeof params[1] === "string"
-          ? [{ entity_id: ensureEntityId(String(params[1])) }]
-          : [];
-      }
-      if (sql.includes("INSERT INTO graph_entity")) {
+    const query = vi
+      .fn()
+      .mockImplementation(async (sql: string, params?: readonly unknown[]) => {
+        if (
+          sql.includes("SELECT id, domain_profile") &&
+          sql.includes("FROM workspaces")
+        ) {
+          return [{ id: "demo-ws", domain_profile: "crm" }];
+        }
+        if (
+          sql.includes("FROM graph_entity") &&
+          sql.includes("WHERE entity_type = ? AND name = ?")
+        ) {
+          return Array.isArray(params) && typeof params[1] === "string"
+            ? [{ entity_id: ensureEntityId(String(params[1])) }]
+            : [];
+        }
+        if (sql.includes("INSERT INTO graph_entity")) {
+          return [];
+        }
+        if (sql.includes("INSERT OR IGNORE INTO graph_entity_alias")) {
+          return [];
+        }
+        if (
+          sql.includes("SELECT relation_id") &&
+          sql.includes("FROM graph_relation")
+        ) {
+          return [];
+        }
+        if (sql.includes("SELECT COALESCE(MAX(relation_id), 0) + 1")) {
+          return [{ next_id: nextRelationId++ }];
+        }
+        if (sql.includes("INSERT INTO graph_relation")) {
+          return [];
+        }
+        if (
+          sql.includes("UPDATE workspaces") &&
+          sql.includes("domain_profile")
+        ) {
+          return [];
+        }
         return [];
-      }
-      if (sql.includes("INSERT OR IGNORE INTO graph_entity_alias")) {
-        return [];
-      }
-      if (sql.includes("SELECT relation_id") && sql.includes("FROM graph_relation")) {
-        return [];
-      }
-      if (sql.includes("SELECT COALESCE(MAX(relation_id), 0) + 1")) {
-        return [{ next_id: nextRelationId++ }];
-      }
-      if (sql.includes("INSERT INTO graph_relation")) {
-        return [];
-      }
-      if (sql.includes("UPDATE workspaces") && sql.includes("domain_profile")) {
-        return [];
-      }
-      return [];
-    });
+      });
 
     const ctx: ToolExecutionContext = {
       database: {
@@ -103,53 +119,73 @@ describe("ghostcrab_loadout_seed", () => {
       { workspace_id: "demo-ws", loadout_id: "crm", persist_semantics: false },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
 
     expect(result.isError).toBe(false);
     expect(data.loadout_id).toBe("crm");
-    expect((data.graph as Record<string, unknown>).seeded_nodes).toBeGreaterThan(0);
-    expect((data.graph as Record<string, unknown>).seeded_edges).toBeGreaterThan(0);
+    expect(
+      (data.graph as Record<string, unknown>).seeded_nodes
+    ).toBeGreaterThan(0);
+    expect(
+      (data.graph as Record<string, unknown>).seeded_edges
+    ).toBeGreaterThan(0);
   });
 
   it("can also persist semantic placeholders", async () => {
-    const query = vi.fn().mockImplementation(async (sql: string, params?: readonly unknown[]) => {
-      if (sql.includes("SELECT id, domain_profile") && sql.includes("FROM workspaces")) {
-        return [{ id: "demo-ws", domain_profile: "crm" }];
-      }
-      if (sql.includes("FROM graph_entity") && sql.includes("WHERE entity_type = ? AND name = ?")) {
-        return Array.isArray(params) && typeof params[1] === "string"
-          ? [{ entity_id: 301 }]
-          : [];
-      }
-      if (sql.includes("INSERT INTO graph_entity")) {
+    const query = vi
+      .fn()
+      .mockImplementation(async (sql: string, params?: readonly unknown[]) => {
+        if (
+          sql.includes("SELECT id, domain_profile") &&
+          sql.includes("FROM workspaces")
+        ) {
+          return [{ id: "demo-ws", domain_profile: "crm" }];
+        }
+        if (
+          sql.includes("FROM graph_entity") &&
+          sql.includes("WHERE entity_type = ? AND name = ?")
+        ) {
+          return Array.isArray(params) && typeof params[1] === "string"
+            ? [{ entity_id: 301 }]
+            : [];
+        }
+        if (sql.includes("INSERT INTO graph_entity")) {
+          return [];
+        }
+        if (sql.includes("INSERT OR IGNORE INTO graph_entity_alias")) {
+          return [];
+        }
+        if (
+          sql.includes("SELECT relation_id") &&
+          sql.includes("FROM graph_relation")
+        ) {
+          return [];
+        }
+        if (sql.includes("SELECT COALESCE(MAX(relation_id), 0) + 1")) {
+          return [{ next_id: 1 }];
+        }
+        if (sql.includes("INSERT INTO graph_relation")) {
+          return [];
+        }
+        if (sql.includes("INSERT INTO table_semantics")) {
+          return [];
+        }
+        if (sql.includes("INSERT INTO column_semantics")) {
+          return [];
+        }
+        if (sql.includes("INSERT INTO relation_semantics")) {
+          return [];
+        }
+        if (
+          sql.includes("UPDATE workspaces") &&
+          sql.includes("domain_profile")
+        ) {
+          return [];
+        }
         return [];
-      }
-      if (sql.includes("INSERT OR IGNORE INTO graph_entity_alias")) {
-        return [];
-      }
-      if (sql.includes("SELECT relation_id") && sql.includes("FROM graph_relation")) {
-        return [];
-      }
-      if (sql.includes("SELECT COALESCE(MAX(relation_id), 0) + 1")) {
-        return [{ next_id: 1 }];
-      }
-      if (sql.includes("INSERT INTO graph_relation")) {
-        return [];
-      }
-      if (sql.includes("INSERT INTO table_semantics")) {
-        return [];
-      }
-      if (sql.includes("INSERT INTO column_semantics")) {
-        return [];
-      }
-      if (sql.includes("INSERT INTO relation_semantics")) {
-        return [];
-      }
-      if (sql.includes("UPDATE workspaces") && sql.includes("domain_profile")) {
-        return [];
-      }
-      return [];
-    });
+      });
 
     const ctx: ToolExecutionContext = {
       database: {
@@ -170,29 +206,46 @@ describe("ghostcrab_loadout_seed", () => {
       { workspace_id: "demo-ws", loadout_id: "crm", persist_semantics: true },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
 
     expect(result.isError).toBe(false);
-    expect((data.semantics as Record<string, unknown>)?.table_semantics).toBeGreaterThan(0);
-    expect((data.semantics as Record<string, unknown>)?.column_semantics).toBeGreaterThan(0);
-    expect((data.semantics as Record<string, unknown>)?.relation_semantics).toBeGreaterThan(0);
+    expect(
+      (data.semantics as Record<string, unknown>)?.table_semantics
+    ).toBeGreaterThan(0);
+    expect(
+      (data.semantics as Record<string, unknown>)?.column_semantics
+    ).toBeGreaterThan(0);
+    expect(
+      (data.semantics as Record<string, unknown>)?.relation_semantics
+    ).toBeGreaterThan(0);
   });
 });
 
 describe("ghostcrab_loadout_inspect", () => {
   it("returns unknown_loadout for missing entries", async () => {
     const ctx = makeContext(async () => []);
-    const result = await loadoutInspectTool.handler({ loadout_id: "missing" }, ctx);
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const result = await loadoutInspectTool.handler(
+      { loadout_id: "missing" },
+      ctx
+    );
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
 
     expect(result.isError).toBe(true);
-    expect((data.error as Record<string, unknown>).code).toBe("unknown_loadout");
+    expect((data.error as Record<string, unknown>).code).toBe(
+      "unknown_loadout"
+    );
   });
 
   it("returns loadout details", async () => {
     const ctx = makeContext(async () => []);
     const result = await loadoutInspectTool.handler({ loadout_id: "crm" }, ctx);
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
 
     expect(result.isError).toBe(false);
     expect(data.loadout).toMatchObject({
@@ -223,7 +276,9 @@ describe("ghostcrab_loadout_apply", () => {
       { workspace_id: "demo-ws", loadout_id: "kanban" },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
 
     expect(result.isError).toBe(false);
     expect(data.applied).toBe(true);
@@ -242,10 +297,14 @@ describe("ghostcrab_loadout_apply", () => {
       { workspace_id: "demo-ws", loadout_id: "kanban" },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
 
     expect(result.isError).toBe(true);
-    expect((data.error as Record<string, unknown>).code).toBe("loadout_conflict");
+    expect((data.error as Record<string, unknown>).code).toBe(
+      "loadout_conflict"
+    );
   });
 });
 
@@ -253,14 +312,21 @@ describe("ghostcrab_loadout_suggest", () => {
   it("suggests crm for sales-oriented goals", async () => {
     const ctx = makeContext(async () => []);
     const result = await loadoutSuggestTool.handler(
-      { goal: "I need a CRM for leads, opportunities, and sales pipeline", limit: 3 },
+      {
+        goal: "I need a CRM for leads, opportunities, and sales pipeline",
+        limit: 3
+      },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
 
     expect(result.isError).toBe(false);
     expect(data.recommended_loadout_id).toBe("crm");
-    expect((data.suggestions as Array<Record<string, unknown>>)[0]?.loadout).toMatchObject({
+    expect(
+      (data.suggestions as Array<Record<string, unknown>>)[0]?.loadout
+    ).toMatchObject({
       loadout_id: "crm"
     });
   });

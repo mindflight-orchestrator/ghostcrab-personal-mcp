@@ -30,10 +30,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // ---------------------------------------------------------------------------
 
 const DATABASE_URL = process.env.DATABASE_URL;
-if (!DATABASE_URL) throw new Error("DATABASE_URL environment variable is required");
+if (!DATABASE_URL)
+  throw new Error("DATABASE_URL environment variable is required");
 
-const EXPORT_PATH = process.argv[2]
-  ?? resolve(__dirname, "../docs/dev/examples/casino-benchmark.export.json");
+const EXPORT_PATH =
+  process.argv[2] ??
+  resolve(__dirname, "../docs/dev/examples/casino-benchmark.export.json");
 
 const MULTIPLIER = parseInt(process.env.SYNTH_MULTIPLIER ?? "1", 10);
 
@@ -105,7 +107,12 @@ interface GenerationHints {
 interface WorkspaceModelExport {
   schema_version: string;
   exported_at: string;
-  workspace: { id: string; label: string; domain_profile?: string | null; pg_schema?: string };
+  workspace: {
+    id: string;
+    label: string;
+    domain_profile?: string | null;
+    pg_schema?: string;
+  };
   tables: TableExport[];
   columns?: ColumnExport[];
   relations?: RelationExport[];
@@ -119,16 +126,105 @@ interface WorkspaceModelExport {
 
 const DOMAIN_RECIPES = {
   casino: {
-    game_type_ids: ["slots", "blackjack", "roulette", "baccarat", "poker", "sports_betting", "live_dealer", "video_poker"],
-    game_type_categories: { slots: "slots", blackjack: "table", roulette: "table", baccarat: "table", poker: "poker", sports_betting: "sports", live_dealer: "live", video_poker: "slots" },
-    first_names: ["Alice", "Bob", "Carlos", "Diana", "Eric", "Fatima", "George", "Hannah", "Ivan", "Julia", "Kevin", "Laura", "Marco", "Nina", "Oscar", "Priya", "Quinn", "Rosa", "Sam", "Tina"],
-    last_names: ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Martinez", "Hernandez", "Lopez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin"],
-    countries: ["US", "CA", "GB", "DE", "FR", "AU", "JP", "BR", "MX", "ES", "IT", "NL"],
+    game_type_ids: [
+      "slots",
+      "blackjack",
+      "roulette",
+      "baccarat",
+      "poker",
+      "sports_betting",
+      "live_dealer",
+      "video_poker"
+    ],
+    game_type_categories: {
+      slots: "slots",
+      blackjack: "table",
+      roulette: "table",
+      baccarat: "table",
+      poker: "poker",
+      sports_betting: "sports",
+      live_dealer: "live",
+      video_poker: "slots"
+    },
+    first_names: [
+      "Alice",
+      "Bob",
+      "Carlos",
+      "Diana",
+      "Eric",
+      "Fatima",
+      "George",
+      "Hannah",
+      "Ivan",
+      "Julia",
+      "Kevin",
+      "Laura",
+      "Marco",
+      "Nina",
+      "Oscar",
+      "Priya",
+      "Quinn",
+      "Rosa",
+      "Sam",
+      "Tina"
+    ],
+    last_names: [
+      "Smith",
+      "Johnson",
+      "Williams",
+      "Brown",
+      "Jones",
+      "Garcia",
+      "Miller",
+      "Davis",
+      "Martinez",
+      "Hernandez",
+      "Lopez",
+      "Wilson",
+      "Anderson",
+      "Thomas",
+      "Taylor",
+      "Moore",
+      "Jackson",
+      "Martin"
+    ],
+    countries: [
+      "US",
+      "CA",
+      "GB",
+      "DE",
+      "FR",
+      "AU",
+      "JP",
+      "BR",
+      "MX",
+      "ES",
+      "IT",
+      "NL"
+    ],
     channels: ["web", "mobile_app", "tablet", "kiosk"],
     room_types: ["standard", "deluxe", "suite", "penthouse"],
     event_types: ["tournament", "show", "dinner", "sports"],
-    event_names: ["Grand Poker Tournament", "VIP Gala Night", "Summer Sports Event", "Winter Wonderland Show", "Championship Blackjack", "Jazz & Dine Evening"],
-    campaign_names: ["Welcome Pack", "VIP Exclusive", "Weekend Reload", "Summer Bonanza", "Loyalty Rewards", "New Year Special", "High Roller Club", "Birthday Bonus", "Friend Referral", "Comeback Offer"]
+    event_names: [
+      "Grand Poker Tournament",
+      "VIP Gala Night",
+      "Summer Sports Event",
+      "Winter Wonderland Show",
+      "Championship Blackjack",
+      "Jazz & Dine Evening"
+    ],
+    campaign_names: [
+      "Welcome Pack",
+      "VIP Exclusive",
+      "Weekend Reload",
+      "Summer Bonanza",
+      "Loyalty Rewards",
+      "New Year Special",
+      "High Roller Club",
+      "Birthday Bonus",
+      "Friend Referral",
+      "Comeback Offer"
+    ]
   }
 };
 
@@ -170,7 +266,13 @@ function randTimestamp(daysBack: number, daysBackEnd = 0): string {
 }
 
 function randEmail(firstName: string, lastName: string, idx: number): string {
-  const domains = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "casino-player.test"];
+  const domains = [
+    "gmail.com",
+    "yahoo.com",
+    "hotmail.com",
+    "outlook.com",
+    "casino-player.test"
+  ];
   return `${firstName.toLowerCase()}.${lastName.toLowerCase()}${idx}@${randItem(domains)}`;
 }
 
@@ -182,16 +284,28 @@ function randEmail(firstName: string, lastName: string, idx: number): string {
 // Casino-domain row builders (per table)
 // ---------------------------------------------------------------------------
 
-type RowGeneratorFn = (index: number, parentRows: Record<string, Record<string, unknown>[]>) => Record<string, unknown>;
+type RowGeneratorFn = (
+  index: number,
+  parentRows: Record<string, Record<string, unknown>[]>
+) => Record<string, unknown>;
 
-function buildCasinoRowGenerators(timeWindowDays: number): Record<string, RowGeneratorFn> {
+function buildCasinoRowGenerators(
+  timeWindowDays: number
+): Record<string, RowGeneratorFn> {
   const r = DOMAIN_RECIPES.casino;
 
   return {
     "casino.game_types": (i) => ({
       id: r.game_type_ids[i % r.game_type_ids.length],
-      name: r.game_type_ids[i % r.game_type_ids.length].replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
-      category: r.game_type_categories[r.game_type_ids[i % r.game_type_ids.length] as keyof typeof r.game_type_categories],
+      name: r.game_type_ids[i % r.game_type_ids.length]
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase()),
+      category:
+        r.game_type_categories[
+          r.game_type_ids[
+            i % r.game_type_ids.length
+          ] as keyof typeof r.game_type_categories
+        ],
       description: null,
       created_at: randTimestamp(365)
     }),
@@ -200,21 +314,40 @@ function buildCasinoRowGenerators(timeWindowDays: number): Record<string, RowGen
       id: uuid(),
       name: r.campaign_names[i % r.campaign_names.length],
       type: randItem(["welcome", "reload", "vip", "retention", "seasonal"]),
-      start_date: new Date(Date.now() - randInt(10, 180) * 86400000).toISOString().split("T")[0],
-      end_date: Math.random() > 0.3 ? new Date(Date.now() + randInt(10, 90) * 86400000).toISOString().split("T")[0] : null,
-      status: weightedRandom(["draft", "active", "paused", "ended"], [0.05, 0.65, 0.10, 0.20]),
+      start_date: new Date(Date.now() - randInt(10, 180) * 86400000)
+        .toISOString()
+        .split("T")[0],
+      end_date:
+        Math.random() > 0.3
+          ? new Date(Date.now() + randInt(10, 90) * 86400000)
+              .toISOString()
+              .split("T")[0]
+          : null,
+      status: weightedRandom(
+        ["draft", "active", "paused", "ended"],
+        [0.05, 0.65, 0.1, 0.2]
+      ),
       created_at: randTimestamp(180)
     }),
 
     "casino.players": (i) => {
       const first = r.first_names[i % r.first_names.length];
-      const last = r.last_names[Math.floor(i / r.first_names.length) % r.last_names.length];
+      const last =
+        r.last_names[
+          Math.floor(i / r.first_names.length) % r.last_names.length
+        ];
       return {
         id: uuid(),
         email: randEmail(first, last, i),
         display_name: `${first} ${last}`,
-        tier: weightedRandom(["bronze", "silver", "gold", "vip", "ultra_vip"], [0.45, 0.30, 0.15, 0.08, 0.02]),
-        status: weightedRandom(["active", "inactive", "suspended", "churned"], [0.65, 0.20, 0.10, 0.05]),
+        tier: weightedRandom(
+          ["bronze", "silver", "gold", "vip", "ultra_vip"],
+          [0.45, 0.3, 0.15, 0.08, 0.02]
+        ),
+        status: weightedRandom(
+          ["active", "inactive", "suspended", "churned"],
+          [0.65, 0.2, 0.1, 0.05]
+        ),
         country_code: randItem(r.countries),
         language_code: "en",
         lifetime_value: randFloat(0, 250000),
@@ -230,9 +363,11 @@ function buildCasinoRowGenerators(timeWindowDays: number): Record<string, RowGen
       return {
         id: uuid(),
         player_id: player.id,
-        channel: weightedRandom(r.channels, [0.45, 0.40, 0.10, 0.05]),
+        channel: weightedRandom(r.channels, [0.45, 0.4, 0.1, 0.05]),
         visit_at: visitAt,
-        ended_at: new Date(new Date(visitAt).getTime() + durationS * 1000).toISOString(),
+        ended_at: new Date(
+          new Date(visitAt).getTime() + durationS * 1000
+        ).toISOString(),
         duration_s: durationS,
         ip_country: randItem(r.countries)
       };
@@ -245,11 +380,16 @@ function buildCasinoRowGenerators(timeWindowDays: number): Record<string, RowGen
       return {
         id: uuid(),
         player_id: player.id,
-        room_type: weightedRandom(r.room_types, [0.50, 0.30, 0.15, 0.05]),
+        room_type: weightedRandom(r.room_types, [0.5, 0.3, 0.15, 0.05]),
         check_in_at: checkIn,
-        check_out_at: new Date(new Date(checkIn).getTime() + nights * 86400000).toISOString(),
+        check_out_at: new Date(
+          new Date(checkIn).getTime() + nights * 86400000
+        ).toISOString(),
         nights,
-        status: weightedRandom(["reserved", "checked_in", "checked_out", "cancelled"], [0.10, 0.15, 0.65, 0.10]),
+        status: weightedRandom(
+          ["reserved", "checked_in", "checked_out", "cancelled"],
+          [0.1, 0.15, 0.65, 0.1]
+        ),
         total_amount: randFloat(150, 5000),
         created_at: checkIn
       };
@@ -261,9 +401,12 @@ function buildCasinoRowGenerators(timeWindowDays: number): Record<string, RowGen
         id: uuid(),
         player_id: player.id,
         event_name: randItem(r.event_names),
-        event_type: weightedRandom(r.event_types, [0.40, 0.25, 0.20, 0.15]),
+        event_type: weightedRandom(r.event_types, [0.4, 0.25, 0.2, 0.15]),
         registered_at: randTimestamp(60),
-        status: weightedRandom(["confirmed", "attended", "no_show", "cancelled"], [0.30, 0.50, 0.10, 0.10])
+        status: weightedRandom(
+          ["confirmed", "attended", "no_show", "cancelled"],
+          [0.3, 0.5, 0.1, 0.1]
+        )
       };
     },
 
@@ -272,10 +415,16 @@ function buildCasinoRowGenerators(timeWindowDays: number): Record<string, RowGen
       return {
         id: uuid(),
         player_id: player.id,
-        type: weightedRandom(["deposit", "withdrawal", "bonus", "refund"], [0.50, 0.35, 0.12, 0.03]),
+        type: weightedRandom(
+          ["deposit", "withdrawal", "bonus", "refund"],
+          [0.5, 0.35, 0.12, 0.03]
+        ),
         amount: randFloat(1, 50000),
         currency: "USD",
-        status: weightedRandom(["pending", "completed", "failed", "reversed"], [0.05, 0.87, 0.06, 0.02]),
+        status: weightedRandom(
+          ["pending", "completed", "failed", "reversed"],
+          [0.05, 0.87, 0.06, 0.02]
+        ),
         occurred_at: randTimestamp(timeWindowDays),
         reference: `REF-${Math.random().toString(36).slice(2, 10).toUpperCase()}`
       };
@@ -283,7 +432,9 @@ function buildCasinoRowGenerators(timeWindowDays: number): Record<string, RowGen
 
     "casino.game_sessions": (_i, parentRows) => {
       const visit = randItem(parentRows["casino.visits"]) as { id: string };
-      const gameTypes = parentRows["casino.game_types"] as Array<{ id: string }>;
+      const gameTypes = parentRows["casino.game_types"] as Array<{
+        id: string;
+      }>;
       const durationS = randInt(30, 3600);
       const startedAt = randTimestamp(timeWindowDays);
       const betsTotal = randFloat(1, 5000);
@@ -293,11 +444,16 @@ function buildCasinoRowGenerators(timeWindowDays: number): Record<string, RowGen
         visit_id: visit.id,
         game_type_id: randItem(gameTypes).id,
         started_at: startedAt,
-        ended_at: new Date(new Date(startedAt).getTime() + durationS * 1000).toISOString(),
+        ended_at: new Date(
+          new Date(startedAt).getTime() + durationS * 1000
+        ).toISOString(),
         duration_s: durationS,
         bets_total: betsTotal,
         wins_total: winsTotal,
-        result: weightedRandom(["win", "loss", "push", "abandoned"], [0.25, 0.60, 0.10, 0.05])
+        result: weightedRandom(
+          ["win", "loss", "push", "abandoned"],
+          [0.25, 0.6, 0.1, 0.05]
+        )
       };
     },
 
@@ -307,8 +463,15 @@ function buildCasinoRowGenerators(timeWindowDays: number): Record<string, RowGen
         id: uuid(),
         player_id: player.id,
         event_type: weightedRandom(
-          ["login", "logout", "bonus_claim", "deposit_start", "page_view", "error"],
-          [0.25, 0.20, 0.08, 0.12, 0.30, 0.05]
+          [
+            "login",
+            "logout",
+            "bonus_claim",
+            "deposit_start",
+            "page_view",
+            "error"
+          ],
+          [0.25, 0.2, 0.08, 0.12, 0.3, 0.05]
         ),
         event_at: randTimestamp(timeWindowDays),
         session_id: uuid(),
@@ -337,13 +500,14 @@ async function bulkInsert(
   for (let i = 0; i < rows.length; i += batchSize) {
     const batch = rows.slice(i, i + batchSize);
     const valuePlaceholders = batch
-      .map((_, rowIdx) =>
-        `(${keys.map((_, colIdx) => `$${rowIdx * keys.length + colIdx + 1}`).join(", ")})`
+      .map(
+        (_, rowIdx) =>
+          `(${keys.map((_, colIdx) => `$${rowIdx * keys.length + colIdx + 1}`).join(", ")})`
       )
       .join(", ");
 
-    const values = batch.flatMap(row => keys.map(k => row[k] ?? null));
-    const sql = `INSERT INTO ${tableName} (${keys.map(k => `"${k}"`).join(", ")}) VALUES ${valuePlaceholders} ON CONFLICT DO NOTHING`;
+    const values = batch.flatMap((row) => keys.map((k) => row[k] ?? null));
+    const sql = `INSERT INTO ${tableName} (${keys.map((k) => `"${k}"`).join(", ")}) VALUES ${valuePlaceholders} ON CONFLICT DO NOTHING`;
 
     await client.query(sql, values);
   }
@@ -373,12 +537,13 @@ async function generate(): Promise<void> {
     workspaceModelExport.generation_hints?.time_window_days ?? 365;
   const tableOrder =
     workspaceModelExport.generation_hints?.table_order ??
-    workspaceModelExport.tables.map(
-      (t) => `${t.schema_name}.${t.table_name}`
-    );
+    workspaceModelExport.tables.map((t) => `${t.schema_name}.${t.table_name}`);
 
   const tableByKey = new Map(
-    workspaceModelExport.tables.map((t) => [`${t.schema_name}.${t.table_name}`, t])
+    workspaceModelExport.tables.map((t) => [
+      `${t.schema_name}.${t.table_name}`,
+      t
+    ])
   );
   const rowGenerators = buildCasinoRowGenerators(timeWindowDays);
 
@@ -388,7 +553,9 @@ async function generate(): Promise<void> {
   const allGeneratedRows: Record<string, Record<string, unknown>[]> = {};
   const stats: Array<{ table: string; rows: number; duration_ms: number }> = [];
 
-  console.log(`\nGenerating data for workspace: ${workspaceModelExport.workspace.id}`);
+  console.log(
+    `\nGenerating data for workspace: ${workspaceModelExport.workspace.id}`
+  );
   console.log(`Tables in order: ${tableOrder.join(", ")}\n`);
 
   for (const tableKey of tableOrder) {
@@ -406,7 +573,9 @@ async function generate(): Promise<void> {
 
     const n = computeRowCount(table, allGeneratedRows);
     if (n === 0) {
-      console.log(`  [skip] ${tableKey} — 0 rows to generate (sparse_events / no parent)`);
+      console.log(
+        `  [skip] ${tableKey} — 0 rows to generate (sparse_events / no parent)`
+      );
       continue;
     }
 
@@ -428,14 +597,20 @@ async function generate(): Promise<void> {
 
   await client.end();
 
-  console.log("\n── Generation Summary ──────────────────────────────────────────");
+  console.log(
+    "\n── Generation Summary ──────────────────────────────────────────"
+  );
   let totalRows = 0;
   for (const s of stats) {
-    console.log(`  ${s.table.padEnd(40)} ${String(s.rows).padStart(6)} rows  (${s.duration_ms}ms)`);
+    console.log(
+      `  ${s.table.padEnd(40)} ${String(s.rows).padStart(6)} rows  (${s.duration_ms}ms)`
+    );
     totalRows += s.rows;
   }
   console.log(`  ${"TOTAL".padEnd(40)} ${String(totalRows).padStart(6)} rows`);
-  console.log("────────────────────────────────────────────────────────────────\n");
+  console.log(
+    "────────────────────────────────────────────────────────────────\n"
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -452,7 +627,8 @@ function computeRowCount(
   switch (strategy) {
     case "static_ref": {
       // Use the number of recipe entries for the table, or fall back to tiny count
-      if (table.table_name === "game_types") return DOMAIN_RECIPES.casino.game_type_ids.length;
+      if (table.table_name === "game_types")
+        return DOMAIN_RECIPES.casino.game_type_ids.length;
       return rowCount("tiny");
     }
 
@@ -462,25 +638,35 @@ function computeRowCount(
     case "per_parent": {
       const parentTable = notes?.parent_table as string | undefined;
       if (!parentTable) return rowCount(table.volume_driver);
-      const parentKey = parentTable.includes(".") ? parentTable : `casino.${parentTable}`;
+      const parentKey = parentTable.includes(".")
+        ? parentTable
+        : `casino.${parentTable}`;
       const parentCount = existingRows[parentKey]?.length ?? 0;
       const avgPerParent = (notes?.avg_per_parent as number) ?? 3;
-      return Math.floor(parentCount * avgPerParent * (0.8 + Math.random() * 0.4));
+      return Math.floor(
+        parentCount * avgPerParent * (0.8 + Math.random() * 0.4)
+      );
     }
 
     case "time_series": {
       const parentTable = notes?.parent_table as string | undefined;
       if (!parentTable) return rowCount(table.volume_driver);
-      const parentKey = parentTable.includes(".") ? parentTable : `casino.${parentTable}`;
+      const parentKey = parentTable.includes(".")
+        ? parentTable
+        : `casino.${parentTable}`;
       const parentCount = existingRows[parentKey]?.length ?? 0;
       const avgPerParent = (notes?.avg_per_parent as number) ?? 10;
-      return Math.floor(parentCount * avgPerParent * (0.8 + Math.random() * 0.4));
+      return Math.floor(
+        parentCount * avgPerParent * (0.8 + Math.random() * 0.4)
+      );
     }
 
     case "sparse_events": {
       const parentTable = notes?.parent_table as string | undefined;
       if (!parentTable) return rowCount(table.volume_driver);
-      const parentKey = parentTable.includes(".") ? parentTable : `casino.${parentTable}`;
+      const parentKey = parentTable.includes(".")
+        ? parentTable
+        : `casino.${parentTable}`;
       const parentCount = existingRows[parentKey]?.length ?? 0;
       const coverage = (notes?.coverage_pct as number) ?? 0.3;
       return Math.floor(parentCount * coverage * (0.8 + Math.random() * 0.4));
@@ -495,7 +681,7 @@ function computeRowCount(
 // Entry point
 // ---------------------------------------------------------------------------
 
-generate().catch(err => {
+generate().catch((err) => {
   console.error("Generation failed:", err);
   process.exit(1);
 });

@@ -46,7 +46,7 @@ export async function fetchResource({ registryUrl, token, type, owner, name }) {
   try {
     res = await fetch(endpoint, {
       headers,
-      signal: AbortSignal.timeout(20_000),
+      signal: AbortSignal.timeout(20_000)
     });
   } catch (err) {
     throw new Error(
@@ -94,10 +94,12 @@ export async function listRegistryResources({ registryUrl, token, type }) {
   try {
     res = await fetch(endpoint, {
       headers,
-      signal: AbortSignal.timeout(10_000),
+      signal: AbortSignal.timeout(10_000)
     });
   } catch (err) {
-    throw new Error(`Registry unreachable (${base}): ${err.message}`, { cause: err });
+    throw new Error(`Registry unreachable (${base}): ${err.message}`, {
+      cause: err
+    });
   }
 
   if (!res.ok) {
@@ -146,7 +148,7 @@ export function applyWatermark(content, { resourceId, licensee, pulledAt }) {
     `# resource: ${resourceId}`,
     `# pulled: ${pulledAt}`,
     `# This file is licensed to the above entity only. Do not redistribute.`,
-    ``,
+    ``
   ];
   return lines.join("\n") + content;
 }
@@ -158,6 +160,6 @@ export function readWatermark(content) {
   return {
     licensee: lines[0].replace("# ghostcrab-license:", "").trim(),
     resource: lines[1]?.replace("# resource:", "").trim() ?? "",
-    pulledAt: lines[2]?.replace("# pulled:", "").trim() ?? "",
+    pulledAt: lines[2]?.replace("# pulled:", "").trim() ?? ""
   };
 }

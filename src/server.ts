@@ -251,10 +251,7 @@ export async function startMcpServer(): Promise<void> {
             error,
             request.params.name
           );
-          console.error(
-            "[ghostcrab] ZodError:",
-            JSON.stringify(error.issues)
-          );
+          console.error("[ghostcrab] ZodError:", JSON.stringify(error.issues));
           return createToolErrorResult(
             request.params.name,
             structured.message_plain,
@@ -325,8 +322,7 @@ export async function startMcpServer(): Promise<void> {
           );
         }
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : String(error);
+        const message = error instanceof Error ? error.message : String(error);
         console.error(
           `[ghostcrab] facets FTS5 sync raised an unexpected error — keyword_sql fallback active. Reason: ${message}`
         );
@@ -345,11 +341,12 @@ export async function startMcpServer(): Promise<void> {
           seedSummary.insertedProductRecords;
         console.error(
           `[ghostcrab] bootstrap seed complete: ${insertedFacets} facets, ` +
-          `${seedSummary.insertedGraphNodes} nodes, ${seedSummary.insertedGraphEdges} edges inserted ` +
-          `(${seedSummary.skipped} already present)`
+            `${seedSummary.insertedGraphNodes} nodes, ${seedSummary.insertedGraphEdges} edges inserted ` +
+            `(${seedSummary.skipped} already present)`
         );
       } catch (seedError) {
-        const msg = seedError instanceof Error ? seedError.message : String(seedError);
+        const msg =
+          seedError instanceof Error ? seedError.message : String(seedError);
         console.error(`[ghostcrab] WARNING: bootstrap seed failed — ${msg}`);
         if (seedError instanceof Error && seedError.cause != null) {
           const c = seedError.cause;
@@ -376,7 +373,9 @@ export async function startMcpServer(): Promise<void> {
       }
     } else if (serverState.databaseReady) {
       serverState.bootstrapComplete = true;
-      console.error("[ghostcrab] bootstrap seed skipped by GHOSTCRAB_BOOTSTRAP_SEED=0");
+      console.error(
+        "[ghostcrab] bootstrap seed skipped by GHOSTCRAB_BOOTSTRAP_SEED=0"
+      );
     }
   } catch (error) {
     const message =

@@ -93,14 +93,14 @@ ghostcrab_project(
 
 Before deciding on a schema, collect examples:
 
-| Artifact | Tool |
-|---|---|
-| Stable domain rule | `ghostcrab_remember` |
-| Current task or run state | `ghostcrab_upsert` |
-| Active goal or constraint | `ghostcrab_project` |
-| Dependency or blocker | `ghostcrab_learn` |
-| Existing schema inventory | `ghostcrab_schema_list` |
-| Specific schema details | `ghostcrab_schema_inspect` |
+| Artifact                  | Tool                       |
+| ------------------------- | -------------------------- |
+| Stable domain rule        | `ghostcrab_remember`       |
+| Current task or run state | `ghostcrab_upsert`         |
+| Active goal or constraint | `ghostcrab_project`        |
+| Dependency or blocker     | `ghostcrab_learn`          |
+| Existing schema inventory | `ghostcrab_schema_list`    |
+| Specific schema details   | `ghostcrab_schema_inspect` |
 
 Good provisional facets:
 
@@ -144,11 +144,11 @@ Use `ghostcrab_workspace_export_model` for synthetic data generators, documentat
 
 ## Failure Modes
 
-| Failure | Response |
-|---|---|
-| Workspace already exists | Reuse it. Do not create a near-duplicate. |
-| Schema list is empty or irrelevant | Continue with provisional records and examples. |
-| Exported model is too thin | Add more real examples with `ghostcrab_remember` and current-state records with `ghostcrab_upsert`. |
-| GhostCrab is unavailable | Start `gcp brain up` separately and verify with `ghostcrab_status`. |
+| Failure                            | Response                                                                                            |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Workspace already exists           | Reuse it. Do not create a near-duplicate.                                                           |
+| Schema list is empty or irrelevant | Continue with provisional records and examples.                                                     |
+| Exported model is too thin         | Add more real examples with `ghostcrab_remember` and current-state records with `ghostcrab_upsert`. |
+| GhostCrab is unavailable           | Start `gcp brain up` separately and verify with `ghostcrab_status`.                                 |
 
 **PRO note:** mindBrain Pro can support centralized team modeling on PostgreSQL. This advanced Personal skill remains local-first and SQLite-backed.

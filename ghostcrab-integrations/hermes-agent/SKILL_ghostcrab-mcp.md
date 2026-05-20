@@ -160,21 +160,21 @@ state with `ghostcrab_upsert`.
 
 ## Core Tools
 
-| Need | Tool |
-| --- | --- |
-| Check runtime health | `ghostcrab_status` |
-| List existing workspaces | `ghostcrab_workspace_list` |
-| Create a project workspace | `ghostcrab_workspace_create` |
-| Load recovery context | `ghostcrab_pack` |
-| Search prior memory | `ghostcrab_search` |
-| Store durable fact | `ghostcrab_remember` |
-| Update current state | `ghostcrab_upsert` |
-| Count by status, owner, type, or phase | `ghostcrab_count` |
-| Link dependencies or blockers | `ghostcrab_learn` |
-| Traverse relationships | `ghostcrab_traverse` |
-| Record active goals or constraints | `ghostcrab_project` |
-| Inspect schema contracts | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
-| Export a workspace model | `ghostcrab_workspace_export_model` |
+| Need                                   | Tool                                                |
+| -------------------------------------- | --------------------------------------------------- |
+| Check runtime health                   | `ghostcrab_status`                                  |
+| List existing workspaces               | `ghostcrab_workspace_list`                          |
+| Create a project workspace             | `ghostcrab_workspace_create`                        |
+| Load recovery context                  | `ghostcrab_pack`                                    |
+| Search prior memory                    | `ghostcrab_search`                                  |
+| Store durable fact                     | `ghostcrab_remember`                                |
+| Update current state                   | `ghostcrab_upsert`                                  |
+| Count by status, owner, type, or phase | `ghostcrab_count`                                   |
+| Link dependencies or blockers          | `ghostcrab_learn`                                   |
+| Traverse relationships                 | `ghostcrab_traverse`                                |
+| Record active goals or constraints     | `ghostcrab_project`                                 |
+| Inspect schema contracts               | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
+| Export a workspace model               | `ghostcrab_workspace_export_model`                  |
 
 `ghostcrab_search` supports `mode="bm25"` for keyword search, `mode="semantic"` for vector search, and `mode="hybrid"` for the recommended combined mode. On GhostCrab Personal SQLite without embeddings configured, `semantic` and `hybrid` fall back to BM25 and the MCP response notes that fallback. To enable vector retrieval, configure `GHOSTCRAB_EMBEDDINGS_MODE=openrouter`, `GHOSTCRAB_EMBEDDINGS_MODEL`, and `GHOSTCRAB_EMBEDDINGS_API_KEY` in GhostCrab. Generic MCP clients do not need different code; agents should read the response note to understand the active mode.
 
@@ -200,12 +200,12 @@ the current objective.
 
 ## Lifecycle
 
-| Moment | Agent behavior |
-| --- | --- |
-| Before | `ghostcrab_status`, workspace selection, `ghostcrab_pack` |
-| Read | `ghostcrab_search`, `ghostcrab_count`, `ghostcrab_traverse` |
-| Write | `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_learn` |
-| After | `ghostcrab_project` plus final current-state `ghostcrab_upsert` |
+| Moment   | Agent behavior                                                   |
+| -------- | ---------------------------------------------------------------- |
+| Before   | `ghostcrab_status`, workspace selection, `ghostcrab_pack`        |
+| Read     | `ghostcrab_search`, `ghostcrab_count`, `ghostcrab_traverse`      |
+| Write    | `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_learn`      |
+| After    | `ghostcrab_project` plus final current-state `ghostcrab_upsert`  |
 | Recovery | Start the next session with `ghostcrab_pack` before broad search |
 
 ## Agent Performance Contract
@@ -239,14 +239,14 @@ the current objective.
 
 ## Failure Modes
 
-| Situation | Agent response |
-| --- | --- |
-| `ghostcrab_status` is unhealthy or unavailable | Stop GhostCrab actions and tell the user to run `gcp brain up`. |
-| Workspace does not exist | Call `ghostcrab_workspace_create` after `ghostcrab_workspace_list`. |
-| `ghostcrab_pack` is empty | Treat as first run, not failure. Continue and write useful memory. |
-| `ghostcrab_search` returns empty | Adjust query or facets; do not claim the whole workspace is empty from one miss. |
-| Schema is missing | Continue with clear facets or inspect schemas with `ghostcrab_schema_list`. |
-| Current state conflicts | Use stable `record_id` selectors with `ghostcrab_upsert`; preserve rationale with `ghostcrab_remember`. |
+| Situation                                      | Agent response                                                                                          |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `ghostcrab_status` is unhealthy or unavailable | Stop GhostCrab actions and tell the user to run `gcp brain up`.                                         |
+| Workspace does not exist                       | Call `ghostcrab_workspace_create` after `ghostcrab_workspace_list`.                                     |
+| `ghostcrab_pack` is empty                      | Treat as first run, not failure. Continue and write useful memory.                                      |
+| `ghostcrab_search` returns empty               | Adjust query or facets; do not claim the whole workspace is empty from one miss.                        |
+| Schema is missing                              | Continue with clear facets or inspect schemas with `ghostcrab_schema_list`.                             |
+| Current state conflicts                        | Use stable `record_id` selectors with `ghostcrab_upsert`; preserve rationale with `ghostcrab_remember`. |
 
 ## Privacy and Local-First Notes
 

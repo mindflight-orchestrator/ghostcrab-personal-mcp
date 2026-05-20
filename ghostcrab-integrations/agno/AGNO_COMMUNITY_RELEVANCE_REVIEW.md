@@ -60,13 +60,13 @@ The current skills are strongest when they talk about shared context, graph-back
 
 ## Main Corrections Needed
 
-| Current framing | Issue | Recommended framing |
-|---|---|---|
-| MindBrain PostgreSQL with `pg_dgraph`, `pg_facets`, `pg_pragma` | Not the default for GhostCrab Personal SQLite | MindBrain Zig backend owns SQLite; facets, graph, and projections are exposed through `ghostcrab_*` MCP tools |
-| `http://localhost:8080/mcp` as primary path | The repo documents local stdio via `gcp brain up` as the standard path | Lead with `stdio`; mention HTTP only if a bridge/server mode is explicitly available |
-| `ontology_type_create`, `entity_upsert`, `relation_create`, `pragma_project_progress` | These names do not match the current public MCP tools | Use `ghostcrab_schema_*`, `ghostcrab_workspace_*`, `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_learn`, `ghostcrab_project`, `ghostcrab_pack`, `ghostcrab_status` |
-| Deep Agno `MemoryDb` replacement as a near-term path | Too heavy and not needed for a community first try | Keep as a future integration idea; first invite users to try GhostCrab through MCPTools |
-| Runtime orchestration via custom `pragma_*` tools | Conceptually useful but mismatched to current GhostCrab Personal | Recast as demo patterns using real tools: current-state upserts, graph edges, projections, pack/status recovery |
+| Current framing                                                                       | Issue                                                                  | Recommended framing                                                                                                                                                       |
+| ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MindBrain PostgreSQL with `pg_dgraph`, `pg_facets`, `pg_pragma`                       | Not the default for GhostCrab Personal SQLite                          | MindBrain Zig backend owns SQLite; facets, graph, and projections are exposed through `ghostcrab_*` MCP tools                                                             |
+| `http://localhost:8080/mcp` as primary path                                           | The repo documents local stdio via `gcp brain up` as the standard path | Lead with `stdio`; mention HTTP only if a bridge/server mode is explicitly available                                                                                      |
+| `ontology_type_create`, `entity_upsert`, `relation_create`, `pragma_project_progress` | These names do not match the current public MCP tools                  | Use `ghostcrab_schema_*`, `ghostcrab_workspace_*`, `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_learn`, `ghostcrab_project`, `ghostcrab_pack`, `ghostcrab_status` |
+| Deep Agno `MemoryDb` replacement as a near-term path                                  | Too heavy and not needed for a community first try                     | Keep as a future integration idea; first invite users to try GhostCrab through MCPTools                                                                                   |
+| Runtime orchestration via custom `pragma_*` tools                                     | Conceptually useful but mismatched to current GhostCrab Personal       | Recast as demo patterns using real tools: current-state upserts, graph edges, projections, pack/status recovery                                                           |
 
 ---
 
@@ -100,20 +100,20 @@ Keep this as a short note only:
 
 ## Tool Mapping For The Skills
 
-| Skill concept | Current draft tool names | GhostCrab Personal SQLite tool direction |
-|---|---|---|
-| Store a durable fact | `context_push`, `entity_upsert` | `ghostcrab_remember` |
-| Update current task / agent state | `entity_upsert` | `ghostcrab_upsert` |
-| Search shared context | `entity_search`, `facet_search` | `ghostcrab_search` |
-| Count / inspect state shape | not always explicit | `ghostcrab_count` |
-| Create graph relationships | `relation_create` | `ghostcrab_learn` |
-| Traverse dependencies | `graph_traverse` | `ghostcrab_traverse` |
-| Build recovery context | custom runtime prompt | `ghostcrab_pack` |
-| Record a working projection | `pragma_*` | `ghostcrab_project` |
-| Check runtime readiness | not emphasized | `ghostcrab_status` |
-| Workspace isolation | `namespace` | `workspace_id` / `gcp brain up --workspace <name>` |
-| Domain schema inspection | `ontology_schema_get` | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
-| Workspace model export | not present | `ghostcrab_workspace_export_model` |
+| Skill concept                     | Current draft tool names        | GhostCrab Personal SQLite tool direction            |
+| --------------------------------- | ------------------------------- | --------------------------------------------------- |
+| Store a durable fact              | `context_push`, `entity_upsert` | `ghostcrab_remember`                                |
+| Update current task / agent state | `entity_upsert`                 | `ghostcrab_upsert`                                  |
+| Search shared context             | `entity_search`, `facet_search` | `ghostcrab_search`                                  |
+| Count / inspect state shape       | not always explicit             | `ghostcrab_count`                                   |
+| Create graph relationships        | `relation_create`               | `ghostcrab_learn`                                   |
+| Traverse dependencies             | `graph_traverse`                | `ghostcrab_traverse`                                |
+| Build recovery context            | custom runtime prompt           | `ghostcrab_pack`                                    |
+| Record a working projection       | `pragma_*`                      | `ghostcrab_project`                                 |
+| Check runtime readiness           | not emphasized                  | `ghostcrab_status`                                  |
+| Workspace isolation               | `namespace`                     | `workspace_id` / `gcp brain up --workspace <name>`  |
+| Domain schema inspection          | `ontology_schema_get`           | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
+| Workspace model export            | not present                     | `ghostcrab_workspace_export_model`                  |
 
 Recommendation: replace most `namespace` language with `workspace` for GhostCrab Personal, while noting that “namespace” may still appear in older integration sketches.
 
@@ -280,14 +280,14 @@ No PostgreSQL is required for the first trial.
 
 ### Agent Lifecycle Mapping
 
-| Moment | Agent question | Expected GhostCrab tool | Present in current review? |
-|---|---|---|---|
-| Before | Load shared team context for this run | `ghostcrab_pack`, `ghostcrab_workspace_create` | Partially — scenarios mention it but no explicit "start here" label |
-| Read | Query what prior agents found or decided | `ghostcrab_search` | Yes |
-| Write (durable) | Record an immutable finding other agents should see | `ghostcrab_remember` | Listed but not distinguished from upsert |
-| Write (state) | Update a mutable task or agent status record | `ghostcrab_upsert` | Listed but not distinguished from remember |
-| After | Record active goals for the next agent | `ghostcrab_project` | Not covered |
-| Recovery | Resume a team run from shared persistent state | `ghostcrab_pack` | Scenario 4 covers this |
+| Moment          | Agent question                                      | Expected GhostCrab tool                        | Present in current review?                                          |
+| --------------- | --------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------- |
+| Before          | Load shared team context for this run               | `ghostcrab_pack`, `ghostcrab_workspace_create` | Partially — scenarios mention it but no explicit "start here" label |
+| Read            | Query what prior agents found or decided            | `ghostcrab_search`                             | Yes                                                                 |
+| Write (durable) | Record an immutable finding other agents should see | `ghostcrab_remember`                           | Listed but not distinguished from upsert                            |
+| Write (state)   | Update a mutable task or agent status record        | `ghostcrab_upsert`                             | Listed but not distinguished from remember                          |
+| After           | Record active goals for the next agent              | `ghostcrab_project`                            | Not covered                                                         |
+| Recovery        | Resume a team run from shared persistent state      | `ghostcrab_pack`                               | Scenario 4 covers this                                              |
 
 ### Critical Gap: `remember` vs `upsert` Distinction
 
@@ -309,17 +309,18 @@ Not validated. Missing: workspace must exist before any `ghostcrab_upsert` or `g
 ### Failure Mode Coverage
 
 Not addressed. Missing scenarios:
+
 - `ghostcrab_pack` returns empty (first run, no prior context) — agent should proceed with an empty context rather than erroring
 - workspace does not exist yet (first team run) — agent should call `ghostcrab_workspace_create`
 - `ghostcrab_status` reports runtime unavailable — agent should fail gracefully rather than silently drop writes
 
 ## Readiness Score
 
-| File | Product positioning | Framework alignment | GhostCrab Personal accuracy | Tool-name accuracy | Agent behavioral clarity | Community readiness |
-|---|---:|---:|---:|---:|---:|---:|
-| `skill_ghostcrab_agno.md` | 4/5 | 4/5 | 2/5 | 1/5 | 2/5 | 2/5 |
-| `skill_ghostcrab_runtime.md` | 4/5 | 3/5 | 2/5 | 1/5 | 1/5 | 2/5 |
-| `sop-agno-ghostcrab-mindbrain.md` | 4/5 | 4/5 | 2/5 | 2/5 | 2/5 | 3/5 |
+| File                              | Product positioning | Framework alignment | GhostCrab Personal accuracy | Tool-name accuracy | Agent behavioral clarity | Community readiness |
+| --------------------------------- | ------------------: | ------------------: | --------------------------: | -----------------: | -----------------------: | ------------------: |
+| `skill_ghostcrab_agno.md`         |                 4/5 |                 4/5 |                         2/5 |                1/5 |                      2/5 |                 2/5 |
+| `skill_ghostcrab_runtime.md`      |                 4/5 |                 3/5 |                         2/5 |                1/5 |                      1/5 |                 2/5 |
+| `sop-agno-ghostcrab-mindbrain.md` |                 4/5 |                 4/5 |                         2/5 |                2/5 |                      2/5 |                 3/5 |
 
 **Agent behavioral clarity** scores low across all files because the lifecycle order is implicit, the `remember`/`upsert` distinction is absent, and failure modes are not addressed. The Demo Scenarios approach the right behavioral shape but are buried at the end rather than leading the skill.
 

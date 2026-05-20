@@ -13,7 +13,9 @@ export function runPostinstallSmoke(opts) {
   const { pkgRoot, backendPath, quiet } = opts;
 
   if (!existsSync(backendPath)) {
-    console.error(`[ghostcrab] postinstall smoke: backend binary missing at ${backendPath}`);
+    console.error(
+      `[ghostcrab] postinstall smoke: backend binary missing at ${backendPath}`
+    );
     process.exit(1);
   }
 
@@ -55,7 +57,8 @@ export function runPostinstallSmoke(opts) {
 
   const combined = `${be.stdout ?? ""}${be.stderr ?? ""}`;
   const looksLikeHelp =
-    be.status === 0 || (/usage:/i.test(combined) && /ghostcrab-backend/i.test(combined));
+    be.status === 0 ||
+    (/usage:/i.test(combined) && /ghostcrab-backend/i.test(combined));
   if (!looksLikeHelp) {
     console.error(
       `[ghostcrab] postinstall smoke: backend --help did not print expected usage.\n` +
@@ -67,6 +70,8 @@ export function runPostinstallSmoke(opts) {
   }
 
   if (!quiet) {
-    console.log("[ghostcrab] postinstall smoke: OK (gcp --help, ghostcrab-backend --help)");
+    console.log(
+      "[ghostcrab] postinstall smoke: OK (gcp --help, ghostcrab-backend --help)"
+    );
   }
 }

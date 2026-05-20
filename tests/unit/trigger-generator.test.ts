@@ -10,7 +10,9 @@ describe("validateProposedSql", () => {
   });
 
   it("accepts ALTER TABLE ADD COLUMN", () => {
-    expect(validateProposedSql("ALTER TABLE foo ADD COLUMN bar TEXT")).toBeNull();
+    expect(
+      validateProposedSql("ALTER TABLE foo ADD COLUMN bar TEXT")
+    ).toBeNull();
   });
 
   it("accepts CREATE INDEX", () => {
@@ -23,7 +25,9 @@ describe("validateProposedSql", () => {
     expect(validateProposedSql("DROP TABLE foo")).not.toBeNull();
     expect(validateProposedSql("TRUNCATE TABLE foo")).not.toBeNull();
     expect(validateProposedSql("DELETE FROM foo WHERE id = 1")).not.toBeNull();
-    expect(validateProposedSql("ALTER TABLE foo DROP COLUMN bar")).not.toBeNull();
+    expect(
+      validateProposedSql("ALTER TABLE foo DROP COLUMN bar")
+    ).not.toBeNull();
   });
 
   it("blocks unsupported privilege and database attachment operations", () => {

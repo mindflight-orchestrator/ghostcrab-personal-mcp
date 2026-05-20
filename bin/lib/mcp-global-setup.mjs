@@ -637,12 +637,7 @@ export function runSetupClaude(opts) {
       mcpLine,
       envMap,
       launch,
-      shell: formatClaudeMcpAdd(
-        mcpLine,
-        envMap,
-        scope,
-        serverName
-      )
+      shell: formatClaudeMcpAdd(mcpLine, envMap, scope, serverName)
     };
   }
 
@@ -654,10 +649,14 @@ export function runSetupClaude(opts) {
 
   const bin = opts.claudeBin ?? "claude";
   if (opts.force) {
-    const remove = spawnSync(bin, ["mcp", "remove", "--scope", scope, serverName], {
-      stdio: "inherit",
-      env: process.env
-    });
+    const remove = spawnSync(
+      bin,
+      ["mcp", "remove", "--scope", scope, serverName],
+      {
+        stdio: "inherit",
+        env: process.env
+      }
+    );
     if (remove.error && remove.error.code !== "ENOENT") {
       return claudeNotFound(
         mcpLine,
@@ -674,32 +673,14 @@ export function runSetupClaude(opts) {
 
   if (r.error) {
     if (r.error.code === "ENOENT") {
-      return claudeNotFound(
-        mcpLine,
-        envMap,
-        scope,
-        null,
-        serverName
-      );
+      return claudeNotFound(mcpLine, envMap, scope, null, serverName);
     }
-    return claudeNotFound(
-      mcpLine,
-      envMap,
-      scope,
-      r.error.message,
-      serverName
-    );
+    return claudeNotFound(mcpLine, envMap, scope, r.error.message, serverName);
   }
   if (r.status === 0) {
     return { ok: true, code: EX_OK, message: "claude mcp add completed." };
   }
-  return claudeNotFound(
-    mcpLine,
-    envMap,
-    scope,
-    r.status,
-    serverName
-  );
+  return claudeNotFound(mcpLine, envMap, scope, r.status, serverName);
 }
 
 /**
@@ -714,7 +695,8 @@ export function formatClaudeMcpAdd(
   scope,
   serverName = SERVER_KEY
 ) {
-  const scopeValue = scope === true ? "project" : scope === false ? "user" : scope;
+  const scopeValue =
+    scope === true ? "project" : scope === false ? "user" : scope;
   const body = ["claude mcp add --transport stdio"];
   for (const [k, v] of Object.entries(envMap)) {
     body[body.length - 1] += " \\";
@@ -737,12 +719,7 @@ function claudeNotFound(
   detail,
   serverName = SERVER_KEY
 ) {
-  const cleanShell = formatClaudeMcpAdd(
-    mcpLine,
-    envMap,
-    scope,
-    serverName
-  );
+  const cleanShell = formatClaudeMcpAdd(mcpLine, envMap, scope, serverName);
 
   const msgBase =
     detail === null

@@ -1,33 +1,44 @@
 import { describe, expect, it } from "vitest";
 
-import { callToolJson, listToolNames, withMcpStdioClient } from "../../helpers/mcp-stdio.js";
+import {
+  callToolJson,
+  listToolNames,
+  withMcpStdioClient
+} from "../../helpers/mcp-stdio.js";
 
 describe.sequential("MCP server contract", () => {
   it("starts on stdio and lists the critical tool surface", async () => {
-    await withMcpStdioClient("contract-list-tools", async ({ client, getStderrOutput }) => {
-      const tools = await listToolNames(client);
+    await withMcpStdioClient(
+      "contract-list-tools",
+      async ({ client, getStderrOutput }) => {
+        const tools = await listToolNames(client);
 
-      expect(tools).toEqual(expect.arrayContaining([
-        "ghostcrab_status",
-        "ghostcrab_search",
-        "ghostcrab_count",
-        "ghostcrab_remember",
-        "ghostcrab_upsert",
-        "ghostcrab_schema_list",
-        "ghostcrab_schema_inspect",
-        "ghostcrab_pack",
-        "ghostcrab_project",
-        "ghostcrab_modeling_guidance",
-        "ghostcrab_tool_search"
-      ]));
-      expect(tools).toHaveLength(11);
-      expect(tools).not.toContain("ghostcrab_workspace_list");
-      expect(tools).not.toContain("ghostcrab_workspace_use");
+        expect(tools).toEqual(
+          expect.arrayContaining([
+            "ghostcrab_status",
+            "ghostcrab_search",
+            "ghostcrab_count",
+            "ghostcrab_combined_search",
+            "ghostcrab_remember",
+            "ghostcrab_upsert",
+            "ghostcrab_schema_list",
+            "ghostcrab_schema_inspect",
+            "ghostcrab_pack",
+            "ghostcrab_project",
+            "ghostcrab_modeling_guidance",
+            "ghostcrab_tool_search"
+          ])
+        );
+        expect(tools).toHaveLength(12);
+        expect(tools).not.toContain("ghostcrab_csearch");
+        expect(tools).not.toContain("ghostcrab_workspace_list");
+        expect(tools).not.toContain("ghostcrab_workspace_use");
 
-      const stderr = getStderrOutput();
-      expect(stderr).toContain("Starting MCP server");
-      expect(stderr).toContain("MCP server connected on stdio");
-    });
+        const stderr = getStderrOutput();
+        expect(stderr).toContain("Starting MCP server");
+        expect(stderr).toContain("MCP server connected on stdio");
+      }
+    );
   });
 
   it("discovers hidden tools via ghostcrab_tool_search", async () => {
@@ -46,6 +57,29 @@ describe.sequential("MCP server contract", () => {
         ])
       );
     });
+  });
+
+  it("discovers the combined search alias via ghostcrab_tool_search", async () => {
+    await withMcpStdioClient(
+      "contract-tool-search-alias",
+      async ({ client }) => {
+        const payload = await callToolJson(client, "ghostcrab_tool_search", {
+          query: "combined search csearch",
+          name_prefix: "ghostcrab_csearch",
+          visibility: ["extended"]
+        });
+
+        expect(payload.ok).toBe(true);
+        expect(payload.results).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              name: "ghostcrab_csearch",
+              visibility: "extended"
+            })
+          ])
+        );
+      }
+    );
   });
 
   it("returns a stable runtime payload from ghostcrab_status", async () => {
@@ -68,24 +102,31 @@ describe.sequential("MCP server contract", () => {
   });
 
   it("returns structured validation errors for invalid inputs", async () => {
-    await withMcpStdioClient("contract-validation-error", async ({ client }) => {
-      const payload = await callToolJson(client, "ghostcrab_search", {
-        query: "hello",
-        limit: 0
-      });
+    await withMcpStdioClient(
+      "contract-validation-error",
+      async ({ client }) => {
+        const payload = await callToolJson(client, "ghostcrab_search", {
+          query: "hello",
+          limit: 0
+        });
 
-      expect(payload.ok).toBe(false);
-      expect(payload.tool).toBe("ghostcrab_search");
-      expect(payload.error).toMatchObject({
-        code: "validation_error",
-        message: expect.any(String)
-      });
-    });
+        expect(payload.ok).toBe(false);
+        expect(payload.tool).toBe("ghostcrab_search");
+        expect(payload.error).toMatchObject({
+          code: "validation_error",
+          message: expect.any(String)
+        });
+      }
+    );
   });
 
   it("returns a structured error for an unknown tool", async () => {
     await withMcpStdioClient("contract-unknown-tool", async ({ client }) => {
-      const payload = await callToolJson(client, "ghostcrab_does_not_exist", {});
+      const payload = await callToolJson(
+        client,
+        "ghostcrab_does_not_exist",
+        {}
+      );
 
       expect(payload.ok).toBe(false);
       expect(payload.tool).toBe("ghostcrab_does_not_exist");

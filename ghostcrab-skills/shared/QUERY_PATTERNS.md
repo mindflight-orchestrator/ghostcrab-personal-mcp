@@ -10,9 +10,11 @@ Use a simple escalation ladder:
 
 1. `ghostcrab_search`
    - retrieve explicit facts when the entity type is recognizable
-2. `ghostcrab_count`
+2. `ghostcrab_combined_search`
+   - search graph first and linked facts second when the storage layer is unknown
+3. `ghostcrab_count`
    - shape the space when it is still broad
-3. `ghostcrab_pack`
+4. `ghostcrab_pack`
    - compress active context only after at least one factual read
 
 When the activity domain is new:
@@ -41,6 +43,7 @@ For a first-turn fuzzy GhostCrab onboarding request:
 
 - count first when the domain may be broad
 - search first when the user asked a concrete question
+- combined search first when the user does not know whether the answer is graph or facets
 - pack first when the task is complex, multi-step, or risky
 - status first only when operating constraints may matter
 - for repeated workflows, read the recipe layer before inventing a new model

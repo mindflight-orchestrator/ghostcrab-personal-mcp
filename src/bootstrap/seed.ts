@@ -507,7 +507,8 @@ const CANONICAL_SCHEMAS: BootstrapEntry[] = [
     schemaId: "mindbrain:schema",
     content: {
       schema_id: "ghostcrab:task",
-      description: "Atomic unit of work tracked by a GhostCrab-enabled workflow.",
+      description:
+        "Atomic unit of work tracked by a GhostCrab-enabled workflow.",
       facets: {
         required: {
           project: "string",
@@ -1869,7 +1870,8 @@ const PRODUCT_RECORDS: BootstrapEntry[] = [
       surface: "pg_facets",
       compatibility_state: "required",
       postgres_major: "17",
-      blocker: "Boot or seed must refuse SQL-only bootstrap when native stack is expected",
+      blocker:
+        "Boot or seed must refuse SQL-only bootstrap when native stack is expected",
       fallback: "none"
     },
     lookupFacets: {
@@ -1886,7 +1888,8 @@ const PRODUCT_RECORDS: BootstrapEntry[] = [
       surface: "pg_dgraph",
       compatibility_state: "required",
       postgres_major: "17",
-      blocker: "Boot or seed must refuse SQL-only bootstrap when native stack is expected",
+      blocker:
+        "Boot or seed must refuse SQL-only bootstrap when native stack is expected",
       fallback: "none"
     },
     lookupFacets: {
@@ -1903,7 +1906,8 @@ const PRODUCT_RECORDS: BootstrapEntry[] = [
       surface: "pg_pragma",
       compatibility_state: "required",
       postgres_major: "17",
-      blocker: "Boot or seed must refuse SQL-only bootstrap when native stack is expected",
+      blocker:
+        "Boot or seed must refuse SQL-only bootstrap when native stack is expected",
       fallback: "none"
     },
     lookupFacets: {
@@ -3554,7 +3558,12 @@ const META_RECORDS: BootstrapEntry[] = [
       provisional_namespace: "knowledge:base",
       fact_schema_hint: "demo:knowledge-base:concept",
       graph_node_hint: "concept|source|note|topic",
-      graph_edge_labels: ["EXPLAINS", "RELATES_TO", "DERIVES_FROM", "CONTRADICTS"]
+      graph_edge_labels: [
+        "EXPLAINS",
+        "RELATES_TO",
+        "DERIVES_FROM",
+        "CONTRADICTS"
+      ]
     },
     lookupFacets: {
       record_id: "recipe:modeling:knowledge-base"
@@ -4606,7 +4615,9 @@ function validateFacetEntry(entry: BootstrapEntry): void {
   }
 
   const details = [
-    unknownFacetKeys.length > 0 ? `facets=${unknownFacetKeys.join(", ")}` : null,
+    unknownFacetKeys.length > 0
+      ? `facets=${unknownFacetKeys.join(", ")}`
+      : null,
     unknownLookupFacetKeys.length > 0
       ? `lookupFacets=${unknownLookupFacetKeys.join(", ")}`
       : null

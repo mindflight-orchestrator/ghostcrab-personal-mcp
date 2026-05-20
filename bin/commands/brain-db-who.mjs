@@ -33,7 +33,11 @@ export async function runBrainDbWho(args) {
   }
 
   const { pathResolved, source } = resolveSqlitePath(parsed);
-  const candidates = [pathResolved, `${pathResolved}-wal`, `${pathResolved}-shm`];
+  const candidates = [
+    pathResolved,
+    `${pathResolved}-wal`,
+    `${pathResolved}-shm`
+  ];
   const existing = candidates.filter((p) => existsSync(p));
 
   console.error(`[ghostcrab] db-who: ${pathResolved}\n  (${source})\n`);
@@ -120,7 +124,8 @@ function resolveSqlitePath(p) {
 }
 
 function printHelp() {
-  console.log(`
+  console.log(
+    `
 Usage: gcp brain db-who [options]
 
   Show which processes have the GhostCrab SQLite file open, using lsof (macOS / Linux).
@@ -136,5 +141,6 @@ Examples:
   gcp brain db-who
   gcp brain db-who --workspace my-app
   gcp brain db-who --path /tmp/test.sqlite
-`.trim());
+`.trim()
+  );
 }

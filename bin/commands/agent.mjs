@@ -23,7 +23,7 @@ export async function cmdAgent(args) {
       const id = rest[0];
       if (!id || id.startsWith("-")) {
         console.error(
-          'gcp agent equip: resource ID required (e.g. mindflight/coding-assistant)\n' +
+          "gcp agent equip: resource ID required (e.g. mindflight/coding-assistant)\n" +
             "  This runs the same as: gcp agent skills pull <owner/name>"
         );
         process.exit(1);
@@ -42,7 +42,8 @@ export async function cmdAgent(args) {
 }
 
 function printAgentHelp() {
-  console.log(`
+  console.log(
+    `
 Usage: gcp agent <subcommand>
 
 Equip agents (skills = executable guidance / prompts for MCP), distinct from brain schema.
@@ -58,5 +59,6 @@ Examples:
   gcp agent equip mindflight/coding-assistant
 
 Legacy:  gcp skills …  (same as gcp agent skills …)
-`.trim());
+`.trim()
+  );
 }

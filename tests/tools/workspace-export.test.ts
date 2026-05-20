@@ -28,10 +28,9 @@ function adaptLegacyMockForSqlite(legacy: LegacyImpl): LegacyImpl {
       return legacy("mindbrain.relation_semantics", params);
     }
     if (sql.includes("sqlite_master")) {
-      const rows = (await legacy(
-        "information_schema.tables",
-        params
-      )) as Array<Record<string, unknown>>;
+      const rows = (await legacy("information_schema.tables", params)) as Array<
+        Record<string, unknown>
+      >;
       return rows
         .filter((row) => (row.table_schema ?? "public") !== "mindbrain")
         .map((row) => ({ name: row.table_name }));
@@ -88,17 +87,25 @@ describe("ghostcrab_workspace_export_model", () => {
       ctx
     );
     expect(result.isError).toBe(true);
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<
-      string,
-      unknown
-    >;
-    expect((data.error as Record<string, unknown>).code).toBe("workspace_not_found");
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
+    expect((data.error as Record<string, unknown>).code).toBe(
+      "workspace_not_found"
+    );
   });
 
   it("returns schema_version 1.0.0", async () => {
     const ctx = makeContext(async (sql: string) => {
       if (sql.includes("mindbrain.workspaces")) {
-        return [{ id: "default", label: "Default Workspace", description: null, pg_schema: "public" }];
+        return [
+          {
+            id: "default",
+            label: "Default Workspace",
+            description: null,
+            pg_schema: "public"
+          }
+        ];
       }
       if (sql.includes("mindbrain.table_semantics")) return [];
       if (sql.includes("mindbrain.column_semantics")) return [];
@@ -112,7 +119,9 @@ describe("ghostcrab_workspace_export_model", () => {
       ctx
     );
     expect(result.isError).toBeFalsy();
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(data.ok).toBe(true);
     expect(data.schema_version).toBe(WORKSPACE_MODEL_SCHEMA_VERSION);
     expect(data.schema_version).toBe("1.0.0");
@@ -121,42 +130,57 @@ describe("ghostcrab_workspace_export_model", () => {
   it("returns public contract shape (workspace, tables, columns, generation_hints)", async () => {
     const ctx = makeContext(async (sql: string) => {
       if (sql.includes("mindbrain.workspaces")) {
-        return [{ id: "casino-test", label: "Casino Test", description: null, pg_schema: "casino" }];
+        return [
+          {
+            id: "casino-test",
+            label: "Casino Test",
+            description: null,
+            pg_schema: "casino"
+          }
+        ];
       }
       if (sql.includes("mindbrain.table_semantics")) {
-        return [{
-          table_schema: "casino",
-          table_name: "players",
-          business_role: "actor",
-          generation_strategy: "synthetic",
-          emit_facets: true,
-          emit_graph_entity: true,
-          emit_graph_relation: false,
-          notes: "{\"entity_family\":\"player\",\"volume_driver\":\"low\",\"emit_projections\":true}"
-        }];
+        return [
+          {
+            table_schema: "casino",
+            table_name: "players",
+            business_role: "actor",
+            generation_strategy: "synthetic",
+            emit_facets: true,
+            emit_graph_entity: true,
+            emit_graph_relation: false,
+            notes:
+              '{"entity_family":"player","volume_driver":"low","emit_projections":true}'
+          }
+        ];
       }
       if (sql.includes("mindbrain.column_semantics")) {
-        return [{
-          table_schema: "casino",
-          table_name: "players",
-          column_name: "id",
-          column_role: "id"
-        }, {
-          table_schema: "casino",
-          table_name: "players",
-          column_name: "status",
-          column_role: "status"
-        }, {
-          table_schema: "casino",
-          table_name: "players",
-          column_name: "display_name",
-          column_role: "attribute"
-        }, {
-          table_schema: "casino",
-          table_name: "players",
-          column_name: "joined_at",
-          column_role: "timestamp"
-        }];
+        return [
+          {
+            table_schema: "casino",
+            table_name: "players",
+            column_name: "id",
+            column_role: "id"
+          },
+          {
+            table_schema: "casino",
+            table_name: "players",
+            column_name: "status",
+            column_role: "status"
+          },
+          {
+            table_schema: "casino",
+            table_name: "players",
+            column_name: "display_name",
+            column_role: "attribute"
+          },
+          {
+            table_schema: "casino",
+            table_name: "players",
+            column_name: "joined_at",
+            column_role: "timestamp"
+          }
+        ];
       }
       if (sql.includes("information_schema.tables")) {
         return [{ table_schema: "casino", table_name: "players" }];
@@ -164,9 +188,21 @@ describe("ghostcrab_workspace_export_model", () => {
       if (sql.includes("information_schema.columns")) {
         return [
           { table_schema: "casino", table_name: "players", column_name: "id" },
-          { table_schema: "casino", table_name: "players", column_name: "status" },
-          { table_schema: "casino", table_name: "players", column_name: "display_name" },
-          { table_schema: "casino", table_name: "players", column_name: "joined_at" }
+          {
+            table_schema: "casino",
+            table_name: "players",
+            column_name: "status"
+          },
+          {
+            table_schema: "casino",
+            table_name: "players",
+            column_name: "display_name"
+          },
+          {
+            table_schema: "casino",
+            table_name: "players",
+            column_name: "joined_at"
+          }
         ];
       }
       return [];
@@ -177,7 +213,9 @@ describe("ghostcrab_workspace_export_model", () => {
       ctx
     );
     expect(result.isError).toBeFalsy();
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(data.ok).toBe(true);
 
     // workspace object (not flat workspace_id)
@@ -228,7 +266,7 @@ describe("ghostcrab_workspace_export_model", () => {
     const hints = data.generation_hints as Record<string, unknown>;
     expect(hints).toBeDefined();
     expect(Array.isArray(hints.table_order)).toBe(true);
-    expect((hints.table_order as string[])).toContain("casino.players");
+    expect(hints.table_order as string[]).toContain("casino.players");
     expect(hints.seed_multipliers).toBeDefined();
     expect(hints.time_window_days).toBe(90);
 
@@ -242,22 +280,51 @@ describe("ghostcrab_workspace_export_model", () => {
   it("maps DB column_role 'attribute'/'unknown' to null in public contract", async () => {
     const ctx = makeContext(async (sql: string) => {
       if (sql.includes("mindbrain.workspaces")) {
-        return [{ id: "ws", label: "WS", description: null, pg_schema: "public" }];
+        return [
+          { id: "ws", label: "WS", description: null, pg_schema: "public" }
+        ];
       }
       if (sql.includes("mindbrain.column_semantics")) {
         return [
-          { table_schema: "public", table_name: "orders", column_name: "amount", column_role: "attribute" },
-          { table_schema: "public", table_name: "orders", column_name: "note", column_role: "unknown" }
+          {
+            table_schema: "public",
+            table_name: "orders",
+            column_name: "amount",
+            column_role: "attribute"
+          },
+          {
+            table_schema: "public",
+            table_name: "orders",
+            column_name: "note",
+            column_role: "unknown"
+          }
         ];
       }
       if (sql.includes("mindbrain.table_semantics")) {
-        return [{ table_schema: "public", table_name: "orders", business_role: null, generation_strategy: "unknown", emit_facets: false, emit_graph_entity: false, emit_graph_relation: false, notes: null }];
+        return [
+          {
+            table_schema: "public",
+            table_name: "orders",
+            business_role: null,
+            generation_strategy: "unknown",
+            emit_facets: false,
+            emit_graph_entity: false,
+            emit_graph_relation: false,
+            notes: null
+          }
+        ];
       }
-      if (sql.includes("information_schema.tables")) return [{ table_schema: "public", table_name: "orders" }];
-      if (sql.includes("information_schema.columns")) return [
-        { table_schema: "public", table_name: "orders", column_name: "amount" },
-        { table_schema: "public", table_name: "orders", column_name: "note" }
-      ];
+      if (sql.includes("information_schema.tables"))
+        return [{ table_schema: "public", table_name: "orders" }];
+      if (sql.includes("information_schema.columns"))
+        return [
+          {
+            table_schema: "public",
+            table_name: "orders",
+            column_name: "amount"
+          },
+          { table_schema: "public", table_name: "orders", column_name: "note" }
+        ];
       return [];
     });
 
@@ -265,7 +332,9 @@ describe("ghostcrab_workspace_export_model", () => {
       { workspace_id: "ws", depth: "tables_and_columns" },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     const columns = data.columns as Array<Record<string, unknown>>;
     expect(columns[0]?.column_role).toBeNull();
     expect(columns[1]?.column_role).toBeNull();
@@ -274,33 +343,46 @@ describe("ghostcrab_workspace_export_model", () => {
   it("builds validation_warnings for orphan table semantics", async () => {
     const ctx = makeContext(async (sql: string) => {
       if (sql.includes("mindbrain.workspaces")) {
-        return [{ id: "default", label: "Default", description: null, pg_schema: "public" }];
+        return [
+          {
+            id: "default",
+            label: "Default",
+            description: null,
+            pg_schema: "public"
+          }
+        ];
       }
       if (sql.includes("mindbrain.table_semantics")) {
-        return [{
-          table_schema: "public",
-          table_name: "ghost_table",
-          business_role: null,
-          generation_strategy: "unknown",
-          emit_facets: true,
-          emit_graph_entity: false,
-          emit_graph_relation: false,
-          notes: null
-        }];
+        return [
+          {
+            table_schema: "public",
+            table_name: "ghost_table",
+            business_role: null,
+            generation_strategy: "unknown",
+            emit_facets: true,
+            emit_graph_entity: false,
+            emit_graph_relation: false,
+            notes: null
+          }
+        ];
       }
       if (sql.includes("mindbrain.column_semantics")) {
-        return [{
-          table_schema: "public",
-          table_name: "real",
-          column_name: "a",
-          column_role: "attribute"
-        }];
+        return [
+          {
+            table_schema: "public",
+            table_name: "real",
+            column_name: "a",
+            column_role: "attribute"
+          }
+        ];
       }
       if (sql.includes("information_schema.tables")) {
         return [{ table_schema: "public", table_name: "real" }];
       }
       if (sql.includes("information_schema.columns")) {
-        return [{ table_schema: "public", table_name: "real", column_name: "a" }];
+        return [
+          { table_schema: "public", table_name: "real", column_name: "a" }
+        ];
       }
       return [];
     });
@@ -310,7 +392,9 @@ describe("ghostcrab_workspace_export_model", () => {
       ctx
     );
     expect(result.isError).toBeFalsy();
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(data.ok).toBe(true);
     const warnings = data.validation_warnings as string[];
     expect(warnings.some((w) => w.includes("ghost_table"))).toBe(true);
@@ -319,7 +403,9 @@ describe("ghostcrab_workspace_export_model", () => {
   it("omits columns when depth is tables_only", async () => {
     const ctx = makeContext(async (sql: string) => {
       if (sql.includes("mindbrain.workspaces")) {
-        return [{ id: "ws", label: "WS", description: null, pg_schema: "public" }];
+        return [
+          { id: "ws", label: "WS", description: null, pg_schema: "public" }
+        ];
       }
       if (sql.includes("mindbrain.table_semantics")) return [];
       if (sql.includes("information_schema.tables")) return [];
@@ -331,7 +417,9 @@ describe("ghostcrab_workspace_export_model", () => {
       { workspace_id: "ws", depth: "tables_only" },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(data.ok).toBe(true);
     expect(data.columns).toBeUndefined();
     expect(data.relations).toBeUndefined();
@@ -340,24 +428,46 @@ describe("ghostcrab_workspace_export_model", () => {
   it("includes relations when depth is full", async () => {
     const ctx = makeContext(async (sql: string) => {
       if (sql.includes("mindbrain.workspaces")) {
-        return [{ id: "ws", label: "WS", description: null, pg_schema: "public" }];
+        return [
+          { id: "ws", label: "WS", description: null, pg_schema: "public" }
+        ];
       }
       if (sql.includes("mindbrain.table_semantics")) {
         return [
-          { table_schema: "public", table_name: "visits", business_role: null, generation_strategy: "unknown", emit_facets: false, emit_graph_entity: false, emit_graph_relation: false, notes: null },
-          { table_schema: "public", table_name: "players", business_role: null, generation_strategy: "unknown", emit_facets: false, emit_graph_entity: false, emit_graph_relation: false, notes: null }
+          {
+            table_schema: "public",
+            table_name: "visits",
+            business_role: null,
+            generation_strategy: "unknown",
+            emit_facets: false,
+            emit_graph_entity: false,
+            emit_graph_relation: false,
+            notes: null
+          },
+          {
+            table_schema: "public",
+            table_name: "players",
+            business_role: null,
+            generation_strategy: "unknown",
+            emit_facets: false,
+            emit_graph_entity: false,
+            emit_graph_relation: false,
+            notes: null
+          }
         ];
       }
       if (sql.includes("mindbrain.column_semantics")) return [];
       if (sql.includes("mindbrain.relation_semantics")) {
-        return [{
-          from_schema: "public",
-          from_table: "visits",
-          to_schema: "public",
-          to_table: "players",
-          fk_column: "player_id",
-          relation_kind: "many_to_one"
-        }];
+        return [
+          {
+            from_schema: "public",
+            from_table: "visits",
+            to_schema: "public",
+            to_table: "players",
+            fk_column: "player_id",
+            relation_kind: "many_to_one"
+          }
+        ];
       }
       if (sql.includes("information_schema.tables")) return [];
       if (sql.includes("information_schema.columns")) return [];
@@ -368,7 +478,9 @@ describe("ghostcrab_workspace_export_model", () => {
       { workspace_id: "ws", depth: "full" },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(data.ok).toBe(true);
     const relations = data.relations as Array<Record<string, unknown>>;
     expect(Array.isArray(relations)).toBe(true);
@@ -382,7 +494,14 @@ describe("ghostcrab_workspace_export_model", () => {
   it("domain_profile derived from workspace id even when description is present", async () => {
     const ctx = makeContext(async (sql: string) => {
       if (sql.includes("mindbrain.workspaces")) {
-        return [{ id: "kanban-board", label: "Kanban Board", description: "A board for managing tasks.", pg_schema: "kanban" }];
+        return [
+          {
+            id: "kanban-board",
+            label: "Kanban Board",
+            description: "A board for managing tasks.",
+            pg_schema: "kanban"
+          }
+        ];
       }
       if (sql.includes("mindbrain.table_semantics")) return [];
       if (sql.includes("information_schema.table_constraints")) return [];
@@ -395,7 +514,9 @@ describe("ghostcrab_workspace_export_model", () => {
       { workspace_id: "kanban-board", depth: "tables_only" },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     expect(data.ok).toBe(true);
     const workspace = data.workspace as Record<string, unknown>;
     // Bug fix: description present must not nullify domain_profile
@@ -407,25 +528,56 @@ describe("ghostcrab_workspace_export_model", () => {
   it("target_column resolved from catalog PK, falls back to id when no PK row", async () => {
     const ctx = makeContext(async (sql: string) => {
       if (sql.includes("mindbrain.workspaces")) {
-        return [{ id: "ws", label: "WS", description: null, pg_schema: "public" }];
+        return [
+          { id: "ws", label: "WS", description: null, pg_schema: "public" }
+        ];
       }
       if (sql.includes("mindbrain.table_semantics")) {
         return [
-          { table_schema: "public", table_name: "cards", business_role: null, generation_strategy: "unknown", emit_facets: false, emit_graph_entity: false, emit_graph_relation: false, notes: null },
-          { table_schema: "public", table_name: "boards", business_role: null, generation_strategy: "unknown", emit_facets: false, emit_graph_entity: false, emit_graph_relation: false, notes: null }
+          {
+            table_schema: "public",
+            table_name: "cards",
+            business_role: null,
+            generation_strategy: "unknown",
+            emit_facets: false,
+            emit_graph_entity: false,
+            emit_graph_relation: false,
+            notes: null
+          },
+          {
+            table_schema: "public",
+            table_name: "boards",
+            business_role: null,
+            generation_strategy: "unknown",
+            emit_facets: false,
+            emit_graph_entity: false,
+            emit_graph_relation: false,
+            notes: null
+          }
         ];
       }
       if (sql.includes("mindbrain.column_semantics")) return [];
       if (sql.includes("mindbrain.relation_semantics")) {
-        return [{
-          from_schema: "public", from_table: "cards",
-          to_schema: "public", to_table: "boards",
-          fk_column: "board_id", relation_kind: "many_to_one"
-        }];
+        return [
+          {
+            from_schema: "public",
+            from_table: "cards",
+            to_schema: "public",
+            to_table: "boards",
+            fk_column: "board_id",
+            relation_kind: "many_to_one"
+          }
+        ];
       }
       if (sql.includes("information_schema.table_constraints")) {
         // boards has PK "board_uuid", cards has none in this mock
-        return [{ table_schema: "public", table_name: "boards", column_name: "board_uuid" }];
+        return [
+          {
+            table_schema: "public",
+            table_name: "boards",
+            column_name: "board_uuid"
+          }
+        ];
       }
       if (sql.includes("information_schema.tables")) {
         return [
@@ -435,8 +587,18 @@ describe("ghostcrab_workspace_export_model", () => {
       }
       if (sql.includes("information_schema.columns")) {
         return [
-          { table_schema: "public", table_name: "boards", column_name: "board_uuid", is_nullable: "NO" },
-          { table_schema: "public", table_name: "cards", column_name: "board_id", is_nullable: "YES" }
+          {
+            table_schema: "public",
+            table_name: "boards",
+            column_name: "board_uuid",
+            is_nullable: "NO"
+          },
+          {
+            table_schema: "public",
+            table_name: "cards",
+            column_name: "board_id",
+            is_nullable: "YES"
+          }
         ];
       }
       return [];
@@ -446,7 +608,9 @@ describe("ghostcrab_workspace_export_model", () => {
       { workspace_id: "ws", depth: "full" },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     const relations = data.relations as Array<Record<string, unknown>>;
     expect(relations).toHaveLength(1);
     // boards has PK "board_uuid" in catalog → target_column should be "board_uuid"
@@ -456,17 +620,46 @@ describe("ghostcrab_workspace_export_model", () => {
   it("generation_strategy maps synthetic→per_parent for child table, seed_table for root", async () => {
     const ctx = makeContext(async (sql: string) => {
       if (sql.includes("mindbrain.workspaces")) {
-        return [{ id: "ws", label: "WS", description: null, pg_schema: "public" }];
+        return [
+          { id: "ws", label: "WS", description: null, pg_schema: "public" }
+        ];
       }
       if (sql.includes("mindbrain.table_semantics")) {
         return [
-          { table_schema: "public", table_name: "players", business_role: null, generation_strategy: "synthetic", emit_facets: false, emit_graph_entity: false, emit_graph_relation: false, notes: null },
-          { table_schema: "public", table_name: "visits", business_role: null, generation_strategy: "synthetic", emit_facets: false, emit_graph_entity: false, emit_graph_relation: false, notes: null }
+          {
+            table_schema: "public",
+            table_name: "players",
+            business_role: null,
+            generation_strategy: "synthetic",
+            emit_facets: false,
+            emit_graph_entity: false,
+            emit_graph_relation: false,
+            notes: null
+          },
+          {
+            table_schema: "public",
+            table_name: "visits",
+            business_role: null,
+            generation_strategy: "synthetic",
+            emit_facets: false,
+            emit_graph_entity: false,
+            emit_graph_relation: false,
+            notes: null
+          }
         ];
       }
       if (sql.includes("mindbrain.column_semantics")) return [];
       if (sql.includes("mindbrain.relation_semantics")) {
-        return [{ from_schema: "public", from_table: "visits", to_schema: "public", to_table: "players", fk_column: "player_id", relation_kind: "many_to_one" }];
+        return [
+          {
+            from_schema: "public",
+            from_table: "visits",
+            to_schema: "public",
+            to_table: "players",
+            fk_column: "player_id",
+            relation_kind: "many_to_one"
+          }
+        ];
       }
       if (sql.includes("information_schema.table_constraints")) return [];
       if (sql.includes("information_schema.tables")) return [];
@@ -478,10 +671,12 @@ describe("ghostcrab_workspace_export_model", () => {
       { workspace_id: "ws", depth: "full" },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     const tables = data.tables as Array<Record<string, unknown>>;
-    const players = tables.find(t => t.table_name === "players");
-    const visits = tables.find(t => t.table_name === "visits");
+    const players = tables.find((t) => t.table_name === "players");
+    const visits = tables.find((t) => t.table_name === "visits");
     // players has no parent relation → seed_table
     expect(players?.generation_strategy).toBe("seed_table");
     // visits is the child (from_table) → per_parent
@@ -491,24 +686,46 @@ describe("ghostcrab_workspace_export_model", () => {
   it("computes table_order respecting FK edges from relation_semantics (full depth)", async () => {
     const ctx = makeContext(async (sql: string) => {
       if (sql.includes("mindbrain.workspaces")) {
-        return [{ id: "ws", label: "WS", description: null, pg_schema: "public" }];
+        return [
+          { id: "ws", label: "WS", description: null, pg_schema: "public" }
+        ];
       }
       if (sql.includes("mindbrain.table_semantics")) {
         return [
-          { table_schema: "public", table_name: "visits", business_role: null, generation_strategy: "unknown", emit_facets: false, emit_graph_entity: false, emit_graph_relation: false, notes: null },
-          { table_schema: "public", table_name: "players", business_role: null, generation_strategy: "unknown", emit_facets: false, emit_graph_entity: false, emit_graph_relation: false, notes: null }
+          {
+            table_schema: "public",
+            table_name: "visits",
+            business_role: null,
+            generation_strategy: "unknown",
+            emit_facets: false,
+            emit_graph_entity: false,
+            emit_graph_relation: false,
+            notes: null
+          },
+          {
+            table_schema: "public",
+            table_name: "players",
+            business_role: null,
+            generation_strategy: "unknown",
+            emit_facets: false,
+            emit_graph_entity: false,
+            emit_graph_relation: false,
+            notes: null
+          }
         ];
       }
       if (sql.includes("mindbrain.column_semantics")) return [];
       if (sql.includes("mindbrain.relation_semantics")) {
-        return [{
-          from_schema: "public",
-          from_table: "visits",
-          to_schema: "public",
-          to_table: "players",
-          fk_column: "player_id",
-          relation_kind: "many_to_one"
-        }];
+        return [
+          {
+            from_schema: "public",
+            from_table: "visits",
+            to_schema: "public",
+            to_table: "players",
+            fk_column: "player_id",
+            relation_kind: "many_to_one"
+          }
+        ];
       }
       if (sql.includes("information_schema.tables")) return [];
       if (sql.includes("information_schema.columns")) return [];
@@ -519,24 +736,51 @@ describe("ghostcrab_workspace_export_model", () => {
       { workspace_id: "ws", depth: "full" },
       ctx
     );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
+    const data = JSON.parse(
+      (result.content[0] as { text: string }).text
+    ) as Record<string, unknown>;
     const hints = data.generation_hints as Record<string, unknown>;
     const order = hints.table_order as string[];
-    expect(order.indexOf("public.players")).toBeLessThan(order.indexOf("public.visits"));
+    expect(order.indexOf("public.players")).toBeLessThan(
+      order.indexOf("public.visits")
+    );
   });
 });
 
-  it("rich_meta precedence: explicit fields override heuristics for columns", async () => {
-    const ctx = makeContext(async (sql: string) => {
-      if (sql.includes("mindbrain.workspaces")) {
-        return [{ id: "ws", label: "WS", description: null, pg_schema: "public", domain_profile: null }];
-      }
-      if (sql.includes("mindbrain.table_semantics")) {
-        return [{ table_schema: "public", table_name: "cards", business_role: "stateful_item", generation_strategy: "unknown", emit_facets: true, emit_graph_entity: true, emit_graph_relation: false, notes: "{\"entity_family\":\"card\",\"volume_driver\":\"medium\",\"emit_projections\":true}" }];
-      }
-      if (sql.includes("mindbrain.column_semantics")) {
-        return [{
-          table_schema: "public", table_name: "cards", column_name: "status",
+it("rich_meta precedence: explicit fields override heuristics for columns", async () => {
+  const ctx = makeContext(async (sql: string) => {
+    if (sql.includes("mindbrain.workspaces")) {
+      return [
+        {
+          id: "ws",
+          label: "WS",
+          description: null,
+          pg_schema: "public",
+          domain_profile: null
+        }
+      ];
+    }
+    if (sql.includes("mindbrain.table_semantics")) {
+      return [
+        {
+          table_schema: "public",
+          table_name: "cards",
+          business_role: "stateful_item",
+          generation_strategy: "unknown",
+          emit_facets: true,
+          emit_graph_entity: true,
+          emit_graph_relation: false,
+          notes:
+            '{"entity_family":"card","volume_driver":"medium","emit_projections":true}'
+        }
+      ];
+    }
+    if (sql.includes("mindbrain.column_semantics")) {
+      return [
+        {
+          table_schema: "public",
+          table_name: "cards",
+          column_name: "status",
           column_role: "status",
           rich_meta: {
             public_column_role: "status",
@@ -547,136 +791,255 @@ describe("ghostcrab_workspace_export_model", () => {
             is_nullable: false,
             distribution_hint: { values: ["todo", "done"], weights: [0.5, 0.5] }
           }
-        }];
-      }
-      if (sql.includes("information_schema.table_constraints")) return [];
-      if (sql.includes("information_schema.tables")) return [{ table_schema: "public", table_name: "cards" }];
-      if (sql.includes("information_schema.columns")) return [{ table_schema: "public", table_name: "cards", column_name: "status", is_nullable: "YES" }];
-      return [];
-    });
-
-    const result = await workspaceExportModelTool.handler(
-      { workspace_id: "ws", depth: "tables_and_columns" },
-      ctx
-    );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
-    const columns = data.columns as Array<Record<string, unknown>>;
-    const statusCol = columns.find(c => c.column_name === "status");
-    expect(statusCol).toBeDefined();
-    // Explicit rich_meta fields take precedence
-    expect(statusCol?.column_role).toBe("status");
-    expect(statusCol?.semantic_type).toBe("state");
-    expect(statusCol?.facet_key).toBe("card_status");
-    expect(statusCol?.graph_usage).toBe("entity_property");
-    expect(statusCol?.projection_signal).toBe("alert_trigger");
-    // is_nullable: explicit false overrides catalog YES
-    expect(statusCol?.is_nullable).toBe(false);
-    expect(statusCol?.distribution_hint).toEqual({ values: ["todo", "done"], weights: [0.5, 0.5] });
-
-    // Table-level rich fields from notes JSON
-    const tables = data.tables as Array<Record<string, unknown>>;
-    const cardsTable = tables.find(t => t.table_name === "cards");
-    expect(cardsTable?.table_role).toBe("stateful_item");
-    expect(cardsTable?.entity_family).toBe("card");
-    expect(cardsTable?.volume_driver).toBe("medium");
-    expect(cardsTable?.emit_projections).toBe(true);
+        }
+      ];
+    }
+    if (sql.includes("information_schema.table_constraints")) return [];
+    if (sql.includes("information_schema.tables"))
+      return [{ table_schema: "public", table_name: "cards" }];
+    if (sql.includes("information_schema.columns"))
+      return [
+        {
+          table_schema: "public",
+          table_name: "cards",
+          column_name: "status",
+          is_nullable: "YES"
+        }
+      ];
+    return [];
   });
 
-  it("is_nullable falls back to catalog when not in rich_meta", async () => {
-    const ctx = makeContext(async (sql: string) => {
-      if (sql.includes("mindbrain.workspaces")) {
-        return [{ id: "ws", label: "WS", description: null, pg_schema: "public", domain_profile: null }];
-      }
-      if (sql.includes("mindbrain.table_semantics")) {
-        return [{ table_schema: "public", table_name: "t", business_role: null, generation_strategy: "unknown", emit_facets: false, emit_graph_entity: false, emit_graph_relation: false, notes: null }];
-      }
-      if (sql.includes("mindbrain.column_semantics")) {
-        // No rich_meta → should use catalog
-        return [{ table_schema: "public", table_name: "t", column_name: "email", column_role: "attribute", rich_meta: null }];
-      }
-      if (sql.includes("information_schema.table_constraints")) return [];
-      if (sql.includes("information_schema.tables")) return [{ table_schema: "public", table_name: "t" }];
-      if (sql.includes("information_schema.columns")) return [{ table_schema: "public", table_name: "t", column_name: "email", is_nullable: "NO" }];
-      return [];
-    });
-
-    const result = await workspaceExportModelTool.handler(
-      { workspace_id: "ws", depth: "tables_and_columns" },
-      ctx
-    );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
-    const columns = data.columns as Array<Record<string, unknown>>;
-    const emailCol = columns.find(c => c.column_name === "email");
-    // Catalog says NOT NULL → is_nullable = false
-    expect(emailCol?.is_nullable).toBe(false);
+  const result = await workspaceExportModelTool.handler(
+    { workspace_id: "ws", depth: "tables_and_columns" },
+    ctx
+  );
+  const data = JSON.parse(
+    (result.content[0] as { text: string }).text
+  ) as Record<string, unknown>;
+  const columns = data.columns as Array<Record<string, unknown>>;
+  const statusCol = columns.find((c) => c.column_name === "status");
+  expect(statusCol).toBeDefined();
+  // Explicit rich_meta fields take precedence
+  expect(statusCol?.column_role).toBe("status");
+  expect(statusCol?.semantic_type).toBe("state");
+  expect(statusCol?.facet_key).toBe("card_status");
+  expect(statusCol?.graph_usage).toBe("entity_property");
+  expect(statusCol?.projection_signal).toBe("alert_trigger");
+  // is_nullable: explicit false overrides catalog YES
+  expect(statusCol?.is_nullable).toBe(false);
+  expect(statusCol?.distribution_hint).toEqual({
+    values: ["todo", "done"],
+    weights: [0.5, 0.5]
   });
 
-  it("rich_meta for relations: relation_role, hierarchical, graph_label from explicit", async () => {
-    const ctx = makeContext(async (sql: string) => {
-      if (sql.includes("mindbrain.workspaces")) {
-        return [{ id: "ws", label: "WS", description: null, pg_schema: "public", domain_profile: null }];
-      }
-      if (sql.includes("mindbrain.table_semantics")) {
-        return [
-          { table_schema: "public", table_name: "cards", business_role: null, generation_strategy: "unknown", emit_facets: false, emit_graph_entity: false, emit_graph_relation: false, notes: null },
-          { table_schema: "public", table_name: "boards", business_role: null, generation_strategy: "unknown", emit_facets: false, emit_graph_entity: false, emit_graph_relation: false, notes: null }
-        ];
-      }
-      if (sql.includes("mindbrain.column_semantics")) return [];
-      if (sql.includes("mindbrain.relation_semantics")) {
-        return [{
-          from_schema: "public", from_table: "cards",
-          to_schema: "public", to_table: "boards",
-          fk_column: "board_id", relation_kind: "many_to_one",
-          rich_meta: { relation_role: "belongs_to", hierarchical: true, graph_label: "CONTAINS", target_column: "uuid" }
-        }];
-      }
-      if (sql.includes("information_schema.table_constraints")) return [];
-      if (sql.includes("information_schema.tables")) return [];
-      if (sql.includes("information_schema.columns")) return [];
-      return [];
-    });
+  // Table-level rich fields from notes JSON
+  const tables = data.tables as Array<Record<string, unknown>>;
+  const cardsTable = tables.find((t) => t.table_name === "cards");
+  expect(cardsTable?.table_role).toBe("stateful_item");
+  expect(cardsTable?.entity_family).toBe("card");
+  expect(cardsTable?.volume_driver).toBe("medium");
+  expect(cardsTable?.emit_projections).toBe(true);
+});
 
-    const result = await workspaceExportModelTool.handler(
-      { workspace_id: "ws", depth: "full" },
-      ctx
-    );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
-    const relations = data.relations as Array<Record<string, unknown>>;
-    expect(relations).toHaveLength(1);
-    expect(relations[0]?.relation_role).toBe("belongs_to");
-    expect(relations[0]?.hierarchical).toBe(true);
-    expect(relations[0]?.graph_label).toBe("CONTAINS");
-    expect(relations[0]?.target_column).toBe("uuid");
+it("is_nullable falls back to catalog when not in rich_meta", async () => {
+  const ctx = makeContext(async (sql: string) => {
+    if (sql.includes("mindbrain.workspaces")) {
+      return [
+        {
+          id: "ws",
+          label: "WS",
+          description: null,
+          pg_schema: "public",
+          domain_profile: null
+        }
+      ];
+    }
+    if (sql.includes("mindbrain.table_semantics")) {
+      return [
+        {
+          table_schema: "public",
+          table_name: "t",
+          business_role: null,
+          generation_strategy: "unknown",
+          emit_facets: false,
+          emit_graph_entity: false,
+          emit_graph_relation: false,
+          notes: null
+        }
+      ];
+    }
+    if (sql.includes("mindbrain.column_semantics")) {
+      // No rich_meta → should use catalog
+      return [
+        {
+          table_schema: "public",
+          table_name: "t",
+          column_name: "email",
+          column_role: "attribute",
+          rich_meta: null
+        }
+      ];
+    }
+    if (sql.includes("information_schema.table_constraints")) return [];
+    if (sql.includes("information_schema.tables"))
+      return [{ table_schema: "public", table_name: "t" }];
+    if (sql.includes("information_schema.columns"))
+      return [
+        {
+          table_schema: "public",
+          table_name: "t",
+          column_name: "email",
+          is_nullable: "NO"
+        }
+      ];
+    return [];
   });
 
-  it("estimated_total_rows computed from volume_driver × seed_multipliers", async () => {
-    const ctx = makeContext(async (sql: string) => {
-      if (sql.includes("mindbrain.workspaces")) {
-        return [{ id: "ws", label: "WS", description: null, pg_schema: "public", domain_profile: null }];
-      }
-      if (sql.includes("mindbrain.table_semantics")) {
-        return [
-          { table_schema: "public", table_name: "members", business_role: "actor", generation_strategy: "unknown", emit_facets: true, emit_graph_entity: false, emit_graph_relation: false, notes: "{\"volume_driver\":\"low\"}" },
-          { table_schema: "public", table_name: "cards", business_role: "stateful_item", generation_strategy: "unknown", emit_facets: true, emit_graph_entity: false, emit_graph_relation: false, notes: "{\"volume_driver\":\"medium\"}" }
-        ];
-      }
-      if (sql.includes("mindbrain.column_semantics")) return [];
-      if (sql.includes("information_schema.table_constraints")) return [];
-      if (sql.includes("information_schema.tables")) return [];
-      if (sql.includes("information_schema.columns")) return [];
-      return [];
-    });
+  const result = await workspaceExportModelTool.handler(
+    { workspace_id: "ws", depth: "tables_and_columns" },
+    ctx
+  );
+  const data = JSON.parse(
+    (result.content[0] as { text: string }).text
+  ) as Record<string, unknown>;
+  const columns = data.columns as Array<Record<string, unknown>>;
+  const emailCol = columns.find((c) => c.column_name === "email");
+  // Catalog says NOT NULL → is_nullable = false
+  expect(emailCol?.is_nullable).toBe(false);
+});
 
-    const result = await workspaceExportModelTool.handler(
-      { workspace_id: "ws", depth: "tables_only" },
-      ctx
-    );
-    const data = JSON.parse((result.content[0] as { text: string }).text) as Record<string, unknown>;
-    const hints = data.generation_hints as Record<string, unknown>;
-    // low=200 + medium=2000 = 2200
-    expect(hints.estimated_total_rows).toBe(2200);
+it("rich_meta for relations: relation_role, hierarchical, graph_label from explicit", async () => {
+  const ctx = makeContext(async (sql: string) => {
+    if (sql.includes("mindbrain.workspaces")) {
+      return [
+        {
+          id: "ws",
+          label: "WS",
+          description: null,
+          pg_schema: "public",
+          domain_profile: null
+        }
+      ];
+    }
+    if (sql.includes("mindbrain.table_semantics")) {
+      return [
+        {
+          table_schema: "public",
+          table_name: "cards",
+          business_role: null,
+          generation_strategy: "unknown",
+          emit_facets: false,
+          emit_graph_entity: false,
+          emit_graph_relation: false,
+          notes: null
+        },
+        {
+          table_schema: "public",
+          table_name: "boards",
+          business_role: null,
+          generation_strategy: "unknown",
+          emit_facets: false,
+          emit_graph_entity: false,
+          emit_graph_relation: false,
+          notes: null
+        }
+      ];
+    }
+    if (sql.includes("mindbrain.column_semantics")) return [];
+    if (sql.includes("mindbrain.relation_semantics")) {
+      return [
+        {
+          from_schema: "public",
+          from_table: "cards",
+          to_schema: "public",
+          to_table: "boards",
+          fk_column: "board_id",
+          relation_kind: "many_to_one",
+          rich_meta: {
+            relation_role: "belongs_to",
+            hierarchical: true,
+            graph_label: "CONTAINS",
+            target_column: "uuid"
+          }
+        }
+      ];
+    }
+    if (sql.includes("information_schema.table_constraints")) return [];
+    if (sql.includes("information_schema.tables")) return [];
+    if (sql.includes("information_schema.columns")) return [];
+    return [];
   });
+
+  const result = await workspaceExportModelTool.handler(
+    { workspace_id: "ws", depth: "full" },
+    ctx
+  );
+  const data = JSON.parse(
+    (result.content[0] as { text: string }).text
+  ) as Record<string, unknown>;
+  const relations = data.relations as Array<Record<string, unknown>>;
+  expect(relations).toHaveLength(1);
+  expect(relations[0]?.relation_role).toBe("belongs_to");
+  expect(relations[0]?.hierarchical).toBe(true);
+  expect(relations[0]?.graph_label).toBe("CONTAINS");
+  expect(relations[0]?.target_column).toBe("uuid");
+});
+
+it("estimated_total_rows computed from volume_driver × seed_multipliers", async () => {
+  const ctx = makeContext(async (sql: string) => {
+    if (sql.includes("mindbrain.workspaces")) {
+      return [
+        {
+          id: "ws",
+          label: "WS",
+          description: null,
+          pg_schema: "public",
+          domain_profile: null
+        }
+      ];
+    }
+    if (sql.includes("mindbrain.table_semantics")) {
+      return [
+        {
+          table_schema: "public",
+          table_name: "members",
+          business_role: "actor",
+          generation_strategy: "unknown",
+          emit_facets: true,
+          emit_graph_entity: false,
+          emit_graph_relation: false,
+          notes: '{"volume_driver":"low"}'
+        },
+        {
+          table_schema: "public",
+          table_name: "cards",
+          business_role: "stateful_item",
+          generation_strategy: "unknown",
+          emit_facets: true,
+          emit_graph_entity: false,
+          emit_graph_relation: false,
+          notes: '{"volume_driver":"medium"}'
+        }
+      ];
+    }
+    if (sql.includes("mindbrain.column_semantics")) return [];
+    if (sql.includes("information_schema.table_constraints")) return [];
+    if (sql.includes("information_schema.tables")) return [];
+    if (sql.includes("information_schema.columns")) return [];
+    return [];
+  });
+
+  const result = await workspaceExportModelTool.handler(
+    { workspace_id: "ws", depth: "tables_only" },
+    ctx
+  );
+  const data = JSON.parse(
+    (result.content[0] as { text: string }).text
+  ) as Record<string, unknown>;
+  const hints = data.generation_hints as Record<string, unknown>;
+  // low=200 + medium=2000 = 2200
+  expect(hints.estimated_total_rows).toBe(2200);
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ghostcrab_workspace_inspect

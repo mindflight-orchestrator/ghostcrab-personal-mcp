@@ -6,7 +6,10 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { resolveGhostcrabConfig } from "../../../src/config/env.js";
 import { createDatabaseClient } from "../../../src/db/client.js";
-import { executeScenario, listScenarioPack } from "../../helpers/mcp-scenarios.js";
+import {
+  executeScenario,
+  listScenarioPack
+} from "../../helpers/mcp-scenarios.js";
 
 const SQLITE_TEST_DIR = mkdtempSync(join(tmpdir(), "ghostcrab-scenario-pack-"));
 const SQLITE_TEST_DB_PATH = join(SQLITE_TEST_DIR, "scenario-pack.sqlite");

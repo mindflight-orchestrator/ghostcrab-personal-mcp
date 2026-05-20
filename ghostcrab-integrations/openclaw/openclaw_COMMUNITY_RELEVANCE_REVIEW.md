@@ -164,17 +164,17 @@ Recommended use:
 
 ## 8. Tool Mapping
 
-| OpenClaw need | GhostCrab Personal tool |
-| --- | --- |
-| Load agent context | `ghostcrab_pack` |
-| Search durable memory | `ghostcrab_search` |
-| Store durable observations | `ghostcrab_remember` |
-| Update task or session state | `ghostcrab_upsert` |
-| Link tasks, decisions, and dependencies | `ghostcrab_learn` |
-| Traverse linked memory | `ghostcrab_traverse` |
-| Track active goals | `ghostcrab_project` |
-| Count open items | `ghostcrab_count` |
-| Inspect model contracts | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
+| OpenClaw need                           | GhostCrab Personal tool                             |
+| --------------------------------------- | --------------------------------------------------- |
+| Load agent context                      | `ghostcrab_pack`                                    |
+| Search durable memory                   | `ghostcrab_search`                                  |
+| Store durable observations              | `ghostcrab_remember`                                |
+| Update task or session state            | `ghostcrab_upsert`                                  |
+| Link tasks, decisions, and dependencies | `ghostcrab_learn`                                   |
+| Traverse linked memory                  | `ghostcrab_traverse`                                |
+| Track active goals                      | `ghostcrab_project`                                 |
+| Count open items                        | `ghostcrab_count`                                   |
+| Inspect model contracts                 | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
 
 ## 9. Community Demo Scenarios
 
@@ -204,14 +204,14 @@ Suggested wording:
 
 ### Agent Lifecycle Mapping
 
-| Moment | Agent question | Expected GhostCrab tool | Present in current review? |
-|---|---|---|---|
-| Before | Load durable context relevant to this skill | `ghostcrab_pack` | Demo 1 and recommended rewrite — good |
-| Read | Search prior observations or decisions | `ghostcrab_search` | Demo 2 — good |
-| Write (durable) | Record an immutable finding from this skill run | `ghostcrab_remember` | Demo 2 — good |
-| Write (state) | Update a mutable task or dependency record | `ghostcrab_upsert` | Demo 3 — good |
-| After | Record active goals for future skill invocations | `ghostcrab_project` | Tool mapping only, no demo |
-| Recovery | Resume from prior skill state | `ghostcrab_pack` | Demo 1 — good |
+| Moment          | Agent question                                   | Expected GhostCrab tool | Present in current review?            |
+| --------------- | ------------------------------------------------ | ----------------------- | ------------------------------------- |
+| Before          | Load durable context relevant to this skill      | `ghostcrab_pack`        | Demo 1 and recommended rewrite — good |
+| Read            | Search prior observations or decisions           | `ghostcrab_search`      | Demo 2 — good                         |
+| Write (durable) | Record an immutable finding from this skill run  | `ghostcrab_remember`    | Demo 2 — good                         |
+| Write (state)   | Update a mutable task or dependency record       | `ghostcrab_upsert`      | Demo 3 — good                         |
+| After           | Record active goals for future skill invocations | `ghostcrab_project`     | Tool mapping only, no demo            |
+| Recovery        | Resume from prior skill state                    | `ghostcrab_pack`        | Demo 1 — good                         |
 
 ### Best-Aligned JTBD Structure in This Review Set
 
@@ -232,26 +232,28 @@ The review should say:
 ### `remember` vs `upsert` Distinction
 
 Not explicitly stated. For OpenClaw skills:
+
 - `ghostcrab_remember`: "Skill run finding: detected 3 duplicate entries in dataset" — immutable
 - `ghostcrab_upsert`: "Task: deduplicate-records, status: running → done" — mutable
 
 ### Failure Mode Coverage
 
 Not addressed. Key failure modes for OpenClaw:
+
 - Transport not configured — skill should abort with a clear error message
 - `ghostcrab_pack` returns empty (new project) — skill should proceed with empty context and call `ghostcrab_workspace_create`
 - `ghostcrab_status` reports GhostCrab down — skill should degrade gracefully or prompt the user
 
 ## 11. Readiness Score
 
-| Criterion | Score | Notes |
-| --- | ---: | --- |
-| Community relevance | 4/5 | Strong local-agent memory, runtime state, and modeling use cases. |
-| Framework alignment | 4/5 | The skills are now ordered as main memory, runtime companion, and advanced architect companion. |
-| GhostCrab Personal accuracy | 4/5 | The skills center `@mindflight/ghostcrab-personal-mcp`, `gcp brain up`, SQLite, and stdio default. |
-| Tool-name accuracy | 4/5 | Public skills use actual `ghostcrab_*` tools and remove old custom tool names. |
-| Agent behavioral clarity | 4/5 | Step-zero transport, lifecycle JTBD, remember/upsert, workspace creation order, and failure modes are explicit. |
-| Community readiness | 4/5 | Ready for community review, with transport still dependent on OpenClaw stdio support or a bridge. |
+| Criterion                   | Score | Notes                                                                                                           |
+| --------------------------- | ----: | --------------------------------------------------------------------------------------------------------------- |
+| Community relevance         |   4/5 | Strong local-agent memory, runtime state, and modeling use cases.                                               |
+| Framework alignment         |   4/5 | The skills are now ordered as main memory, runtime companion, and advanced architect companion.                 |
+| GhostCrab Personal accuracy |   4/5 | The skills center `@mindflight/ghostcrab-personal-mcp`, `gcp brain up`, SQLite, and stdio default.              |
+| Tool-name accuracy          |   4/5 | Public skills use actual `ghostcrab_*` tools and remove old custom tool names.                                  |
+| Agent behavioral clarity    |   4/5 | Step-zero transport, lifecycle JTBD, remember/upsert, workspace creation order, and failure modes are explicit. |
+| Community readiness         |   4/5 | Ready for community review, with transport still dependent on OpenClaw stdio support or a bridge.               |
 
 Overall readiness: **Community-ready after transport verification in OpenClaw.**
 

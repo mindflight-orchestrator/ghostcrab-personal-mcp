@@ -151,7 +151,9 @@ export const searchTool: ToolHandler = {
 
     if (wantsSemanticLayer) {
       try {
-        const embeddings = await context.embeddings.embedMany([normalizedQuery]);
+        const embeddings = await context.embeddings.embedMany([
+          normalizedQuery
+        ]);
         const candidate = embeddings[0];
         if (Array.isArray(candidate) && candidate.length > 0) {
           queryVector = candidate;
@@ -165,7 +167,9 @@ export const searchTool: ToolHandler = {
 
     const ftsReady = isFactsFtsReady();
     const ftsExpression =
-      normalizedQuery.length > 0 ? buildFtsMatchExpression(normalizedQuery) : null;
+      normalizedQuery.length > 0
+        ? buildFtsMatchExpression(normalizedQuery)
+        : null;
     const ftsRequested = input.mode === "bm25" || input.mode === "hybrid";
 
     // Path 1a — MindBrain native hybrid (preferred when MindBrain is reachable).
@@ -183,7 +187,8 @@ export const searchTool: ToolHandler = {
         await ensureSearchFtsCaughtUp(context.database);
         const config = resolveGhostcrabConfig();
         const totalWeight =
-          context.retrieval.hybridBm25Weight + context.retrieval.hybridVectorWeight;
+          context.retrieval.hybridBm25Weight +
+          context.retrieval.hybridVectorWeight;
         const poolLimit = Math.max(
           HYBRID_CANDIDATE_FLOOR,
           input.limit * HYBRID_CANDIDATE_MULTIPLIER
@@ -253,7 +258,10 @@ export const searchTool: ToolHandler = {
             "Hybrid: BM25 pool returned 0 rows (no keyword matches); ranking by semantic score only."
           );
         }
-        const candidates = unionCandidatePools(bm25Candidates, semanticCandidates);
+        const candidates = unionCandidatePools(
+          bm25Candidates,
+          semanticCandidates
+        );
         const blended = blendBm25AndCosine(candidates, queryVector, {
           bm25: context.retrieval.hybridBm25Weight,
           vector: context.retrieval.hybridVectorWeight
@@ -357,11 +365,17 @@ export const searchTool: ToolHandler = {
           notes.push(
             "FTS5 BM25 not ready yet; using local keyword (substring) scoring. Run the FTS-sync bootstrap or restart the server to enable real BM25."
           );
-        } else if (input.mode === "semantic" && !embeddingRuntime.vectorSearchReady) {
+        } else if (
+          input.mode === "semantic" &&
+          !embeddingRuntime.vectorSearchReady
+        ) {
           notes.push(
             "Semantic mode unavailable: no embedding provider is configured. Set GHOSTCRAB_EMBEDDINGS_MODE to wire vectors; until then this call uses local keyword scoring."
           );
-        } else if (input.mode === "hybrid" && !embeddingRuntime.vectorSearchReady) {
+        } else if (
+          input.mode === "hybrid" &&
+          !embeddingRuntime.vectorSearchReady
+        ) {
           notes.push(
             "Hybrid blend unavailable: no embedding provider is configured. This call uses BM25/keyword scoring only."
           );
@@ -411,7 +425,9 @@ export const searchTool: ToolHandler = {
 registerTool(searchTool);
 
 interface RunFtsSearchArgs {
-  database: { query: <T>(sql: string, params?: readonly unknown[]) => Promise<T[]> };
+  database: {
+    query: <T>(sql: string, params?: readonly unknown[]) => Promise<T[]>;
+  };
   ftsExpression: string;
   workspaceId: string;
   facetWhereClauses: string[];
@@ -419,10 +435,10 @@ interface RunFtsSearchArgs {
   limit: number;
 }
 
-async function runFtsSearch(args: RunFtsSearchArgs): Promise<FacetsSearchRow[]> {
-  const whereClauses = buildFAliasedWhere(
-    args.facetWhereClauses
-  );
+async function runFtsSearch(
+  args: RunFtsSearchArgs
+): Promise<FacetsSearchRow[]> {
+  const whereClauses = buildFAliasedWhere(args.facetWhereClauses);
 
   const sql = `
     SELECT
@@ -493,7 +509,9 @@ async function runFtsCandidatePool(
 }
 
 interface RunSemanticCandidatePoolArgs {
-  database: { query: <T>(sql: string, params?: readonly unknown[]) => Promise<T[]> };
+  database: {
+    query: <T>(sql: string, params?: readonly unknown[]) => Promise<T[]>;
+  };
   workspaceId: string;
   facetWhereClauses: string[];
   facetWhereParams: unknown[];
@@ -539,7 +557,10 @@ function buildFAliasedWhere(facetWhereClauses: string[]): string[] {
     "f.workspace_id = ?",
     "(f.valid_until_unix IS NULL OR f.valid_until_unix > strftime('%s','now'))",
     ...facetWhereClauses.map((clause) =>
-      clause.replace(/json_extract\(facets_json,/g, "json_extract(f.facets_json,")
+      clause.replace(
+        /json_extract\(facets_json,/g,
+        "json_extract(f.facets_json,"
+      )
     )
   ];
 }
@@ -577,7 +598,9 @@ interface FacetsByDocIdRow extends FacetsSearchRow {
  * out rows leave enough results after the WHERE clause is applied.
  */
 async function fetchFacetsByDocIds(
-  database: { query: <T>(sql: string, params?: readonly unknown[]) => Promise<T[]> },
+  database: {
+    query: <T>(sql: string, params?: readonly unknown[]) => Promise<T[]>;
+  },
   matches: StandaloneGhostcrabSearchMatch[],
   workspaceId: string,
   facetWhereClauses: string[],
@@ -700,8 +723,7 @@ function blendBm25AndCosine(
       .map((entry) => ({
         ...entry.row,
         score:
-          bm25Weight * entry.normalizedBm25 +
-          vectorWeight * entry.cosineUnit
+          bm25Weight * entry.normalizedBm25 + vectorWeight * entry.cosineUnit
       }))
       .sort((a, b) => b.score - a.score),
     semanticHits
@@ -732,7 +754,9 @@ function rankByCosine(
 }
 
 interface RunKeywordSqlSearchArgs {
-  database: { query: <T>(sql: string, params?: readonly unknown[]) => Promise<T[]> };
+  database: {
+    query: <T>(sql: string, params?: readonly unknown[]) => Promise<T[]>;
+  };
   normalizedQuery: string;
   workspaceId: string;
   facetWhereClauses: string[];
@@ -761,9 +785,7 @@ async function runKeywordSqlSearch(
 
   if (args.normalizedQuery.length > 0) {
     const terms = args.normalizedQuery.split(/\s+/).filter(Boolean);
-    const matchClauses = terms.map(
-      () => "instr(lower(content), lower(?)) > 0"
-    );
+    const matchClauses = terms.map(() => "instr(lower(content), lower(?)) > 0");
     whereClauses.push(`(${matchClauses.join(" OR ")})`);
     whereParams.push(...terms);
     scoreSql = terms

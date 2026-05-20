@@ -16,10 +16,7 @@ import {
   upsertFacetDefinitionRecord,
   validateFacetRecordBatch
 } from "../../db/facet-vocabulary.js";
-import {
-  FACET_CATALOG,
-  isKnownFacetName
-} from "../../db/facet-catalog.js";
+import { FACET_CATALOG, isKnownFacetName } from "../../db/facet-catalog.js";
 
 const FacetInspectInput = z.object({
   facet_name: z.string().min(1)
@@ -209,9 +206,7 @@ export const facetValidateTool: ToolHandler = {
   },
   async handler(args, context) {
     const input = FacetValidateInput.parse(args);
-    const records =
-      input.records ??
-      (input.record ? [input.record] : []);
+    const records = input.records ?? (input.record ? [input.record] : []);
 
     if (records.length === 0) {
       return createToolErrorResult(
@@ -295,7 +290,11 @@ export const facetRegisterTool: ToolHandler = {
       (entry) => entry.facetName === input.definition.facet_name
     );
 
-    if (!catalogEntry && !input.definition.label && !input.definition.description) {
+    if (
+      !catalogEntry &&
+      !input.definition.label &&
+      !input.definition.description
+    ) {
       return createToolErrorResult(
         "ghostcrab_facet_register",
         "Unknown facet names must include an explicit label or description so the record is self-describing.",
@@ -311,9 +310,12 @@ export const facetRegisterTool: ToolHandler = {
             facet_name: input.definition.facet_name,
             label: input.definition.label ?? undefined,
             description: input.definition.description ?? undefined,
-            native: input.definition.native ?? catalogEntry?.native !== undefined,
+            native:
+              input.definition.native ?? catalogEntry?.native !== undefined,
             native_column:
-              input.definition.native_column ?? catalogEntry?.native?.column ?? null,
+              input.definition.native_column ??
+              catalogEntry?.native?.column ??
+              null,
             native_kind:
               input.definition.native_kind ?? catalogEntry?.native?.kind ?? null
           }

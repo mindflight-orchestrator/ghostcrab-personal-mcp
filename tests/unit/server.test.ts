@@ -4,9 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 // hoisted) can close over them. The actual implementations are reset in
 // beforeEach so each test starts clean.
 const connectSpy = vi.fn();
-const maybeSendStartupPingSpy = vi.fn(
-  () => new Promise<void>(() => undefined)
-);
+const maybeSendStartupPingSpy = vi.fn(() => new Promise<void>(() => undefined));
 const pingMock = vi.fn(async () => true);
 const bootstrapMock = vi.fn(async () => ({
   insertedSystemEntries: 0,
@@ -84,8 +82,9 @@ vi.mock("../../src/db/client.js", () => ({
     close: vi.fn(async () => undefined),
     ping: pingMock,
     query: vi.fn(async () => []),
-    transaction: vi.fn(async (operation: (queryable: unknown) => Promise<unknown>) =>
-      operation({ query: vi.fn(async () => []) })
+    transaction: vi.fn(
+      async (operation: (queryable: unknown) => Promise<unknown>) =>
+        operation({ query: vi.fn(async () => []) })
     )
   }))
 }));
@@ -220,6 +219,8 @@ describe("startMcpServer", () => {
       unknown,
       { instructions?: string }
     ];
-    expect(serverOptions.instructions).toContain("WARNING: backend is unreachable");
+    expect(serverOptions.instructions).toContain(
+      "WARNING: backend is unreachable"
+    );
   });
 });

@@ -35,9 +35,7 @@ function readStructured<T extends { structuredContent?: unknown }>(
 
 describe("facet vocabulary tools", () => {
   it("lists declared facets and (no longer-native) registration state", async () => {
-    const query = vi
-      .fn<DatabaseClient["query"]>()
-      .mockResolvedValueOnce([]);
+    const query = vi.fn<DatabaseClient["query"]>().mockResolvedValueOnce([]);
     const database = createMockDatabase(query);
 
     const result = await facetCatalogTool.handler(
@@ -52,8 +50,12 @@ describe("facet vocabulary tools", () => {
       total: expect.any(Number),
       native_registration_supported: false
     });
-    const catalog = readStructured(result).catalog as Array<Record<string, unknown>>;
-    expect(catalog.some((entry) => entry.facet_name === "schema_id")).toBe(true);
+    const catalog = readStructured(result).catalog as Array<
+      Record<string, unknown>
+    >;
+    expect(catalog.some((entry) => entry.facet_name === "schema_id")).toBe(
+      true
+    );
     expect(
       catalog.find((entry) => entry.facet_name === "schema_id")
     ).toMatchObject({
@@ -62,16 +64,14 @@ describe("facet vocabulary tools", () => {
   });
 
   it("inspects a known facet and includes persisted metadata when present", async () => {
-    const query = vi
-      .fn<DatabaseClient["query"]>()
-      .mockResolvedValueOnce([
-        {
-          id: "facet-def-1",
-          content: "{\"facet_name\":\"domain\"}",
-          facets_json: "{\"facet_name\":\"domain\"}",
-          created_at_unix: 1_742_732_800
-        }
-      ]);
+    const query = vi.fn<DatabaseClient["query"]>().mockResolvedValueOnce([
+      {
+        id: "facet-def-1",
+        content: '{"facet_name":"domain"}',
+        facets_json: '{"facet_name":"domain"}',
+        created_at_unix: 1_742_732_800
+      }
+    ]);
     const database = createMockDatabase(query);
 
     const result = await facetInspectTool.handler(
@@ -111,7 +111,9 @@ describe("facet vocabulary tools", () => {
       valid: false,
       validated: 1
     });
-    expect(readStructured(result).issues as Array<Record<string, unknown>>).toEqual(
+    expect(
+      readStructured(result).issues as Array<Record<string, unknown>>
+    ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ code: "unknown_facet" })
       ])
@@ -143,5 +145,4 @@ describe("facet vocabulary tools", () => {
       facet_name: "domain"
     });
   });
-
 });

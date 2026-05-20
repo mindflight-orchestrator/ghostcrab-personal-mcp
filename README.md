@@ -1,4 +1,5 @@
-[GhostCrab official website](https://www.ghostcrab.be)  | [mindBrain official website](https://www.mindbrain.be)
+[GhostCrab official website](https://www.ghostcrab.be) | [mindBrain official website](https://www.mindbrain.be)
+
 # GhostCrab Personal MCP
 
 ### The MCP interface to mindBrain — SQLite edition
@@ -7,7 +8,7 @@
 
 > Looking for the team or enterprise version? **GhostCrab Pro** runs on PostgreSQL and is built for multi-tenant, multi-agent deployments. → [mindflight-orchestrator/ghostcrab-pro-mcp](#)
 
-***
+---
 
 ### What is mindBrain?
 
@@ -27,7 +28,7 @@ GhostCrab MCP does not own the data. mindBrain does. GhostCrab MCP is the door.
 
 > **New here?** Start with [What is GhostCrab?](#what-is-ghostcrab) — then jump to [Install](#install).
 
-***
+---
 
 ## What is GhostCrab?
 
@@ -39,17 +40,17 @@ Most AI agent setups persist memory as text blobs or vector embeddings. That wor
 
 GhostCrab solves all three through three interlocking primitives:
 
-| Primitive | What it does | Example |
-|---|---|---|
-| **Facets** | Filter, aggregate, and track state across entities | "Show all compliance items flagged this week, grouped by severity" |
-| **Graph** | Map dependencies and traverse relationships | "What does this feature block, two levels deep?" |
-| **Projections** | Snapshot working context so agents can resume | "What was I doing in this workspace yesterday?" |
+| Primitive       | What it does                                       | Example                                                            |
+| --------------- | -------------------------------------------------- | ------------------------------------------------------------------ |
+| **Facets**      | Filter, aggregate, and track state across entities | "Show all compliance items flagged this week, grouped by severity" |
+| **Graph**       | Map dependencies and traverse relationships        | "What does this feature block, two levels deep?"                   |
+| **Projections** | Snapshot working context so agents can resume      | "What was I doing in this workspace yesterday?"                    |
 
 These work together inside mindBrain. There is no flat document pile — the data has structure your agents can reason against.
 
 ### How GhostCrab+mindBrain compares to alternatives
 
-> *(See the `/docs/comparisons/` folder for 10 detailed side-by-side breakdowns.)*
+> _(See the `/docs/comparisons/` folder for 10 detailed side-by-side breakdowns.)_
 
 The short version:
 
@@ -57,7 +58,7 @@ The short version:
 - **vs. plain memory tools (mem0, basic MCP memory servers):** Those store and retrieve text. GhostCrab stores structured ontologies with typed relationships and multi-dimensional queries into mindBrain.
 - **vs. graph databases (Neo4j, FalkorDB):** Full graph DBs are powerful but heavy. GhostCrab embeds a graph model directly in SQLite via mindBrain — zero infrastructure, same project directory, MCP-native. In the Pro version it manage 4,3 billions objects per table.
 
-***
+---
 
 ## Architecture in 60 seconds
 
@@ -78,7 +79,7 @@ mindBrain Backend (Zig)
 
 The MCP server never touches the SQLite file directly. mindBrain owns it. This separation means you can run multiple agent clients pointing at the same backend.
 
-***
+---
 
 ## Install
 
@@ -104,7 +105,7 @@ npm install -g @mindflight/ghostcrab-personal-mcp@latest
 > **pnpm users:** pnpm 10+ blocks postinstall scripts by default.
 > Run this once:
 
-```bash
+````bash
 > pnpm add --allow-build=@mindflight/ghostcrab-personal-mcp @mindflight/ghostcrab-personal-mcp@latest
 > ```
 
@@ -114,7 +115,7 @@ After install, postinstall creates a `./data/` directory, copies `.env.example` 
 
 ```bash
 npx gcp brain up --help
-```
+````
 
 Then a quick smoke check (stops itself after 8 seconds):
 
@@ -159,19 +160,19 @@ gcp brain up
 
 This launches mindBrain, creates `./data/ghostcrab.sqlite`, and holds stdio open for MCP traffic. You do not need to run this manually — your MCP host handles it.
 
-***
+---
 
 ## Supported environments
 
-| Environment | Setup command | Reference |
-|---|---|---|
-| Cursor | `gcp brain setup cursor --force` | `README_CURSOR_MCP.md` |
-| Claude Code | `gcp brain setup claude` | `README_CLAUDE_CODE_MCP.md` |
-| Codex | `gcp brain setup codex` | `README_CODEX_MCP.md` |
-| OpenClaw, Gemini CLI, Hermes-style, custom | — | `installations/` |
-| mindBot (orchestration) | — | `ghostcrab-skills/` |
+| Environment                                | Setup command                    | Reference                   |
+| ------------------------------------------ | -------------------------------- | --------------------------- |
+| Cursor                                     | `gcp brain setup cursor --force` | `README_CURSOR_MCP.md`      |
+| Claude Code                                | `gcp brain setup claude`         | `README_CLAUDE_CODE_MCP.md` |
+| Codex                                      | `gcp brain setup codex`          | `README_CODEX_MCP.md`       |
+| OpenClaw, Gemini CLI, Hermes-style, custom | —                                | `installations/`            |
+| mindBot (orchestration)                    | —                                | `ghostcrab-skills/`         |
 
-***
+---
 
 ## Document Imports
 
@@ -230,35 +231,35 @@ Reference docs:
 - `docs/architecture/universal_methodology.md` — four-phase methodology:
   facets → projections → import → reports.
 
-***
+---
 
 ## Model compatibility
 
 GhostCrab works with any model your client exposes. Reliability varies by how well the model follows mindBrain conventions (intake questions, structured projections, graph usage).
 
-| Tier | Models | Behavior |
-|---|---|---|
-| **1 — Full** | Composer 2 Fast, Kimi 2.5, Sonnet 4.5+, Opus 4.5+ | Consistent onboarding, graph, and projection adherence |
-| **2 — With caveats** | Haiku 4.5 | Good first turn; may drop graph or projections in later turns |
-| **3 — Partial** | Gemini 2.5 Flash | Weak template adherence; data quality degrades |
+| Tier                 | Models                                            | Behavior                                                      |
+| -------------------- | ------------------------------------------------- | ------------------------------------------------------------- |
+| **1 — Full**         | Composer 2 Fast, Kimi 2.5, Sonnet 4.5+, Opus 4.5+ | Consistent onboarding, graph, and projection adherence        |
+| **2 — With caveats** | Haiku 4.5                                         | Good first turn; may drop graph or projections in later turns |
+| **3 — Partial**      | Gemini 2.5 Flash                                  | Weak template adherence; data quality degrades                |
 
 Use Tier 1 models for first workspace setup or fuzzy onboarding. Lighter models work fine for narrow, well-scoped tasks once conventions are established.
 
-***
+---
 
 ## MCP tool surface
 
-| Group | Tools |
-|---|---|
-| **Facets** | `ghostcrab_search`, `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_count`, `ghostcrab_facet_tree`, `ghostcrab_query_geo` |
-| **Graph** | `ghostcrab_learn`, `ghostcrab_traverse`, `ghostcrab_marketplace`, `ghostcrab_patch`, `ghostcrab_coverage` |
-| **Projections** | `ghostcrab_project`, `ghostcrab_pack`, `ghostcrab_status` |
-| **Schema** | `ghostcrab_schema_register`, `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
-| **Workspace** | `ghostcrab_workspace_create`, `ghostcrab_workspace_list`, `ghostcrab_workspace_inspect`, `ghostcrab_workspace_export_model`, `ghostcrab_ddl_propose`, `ghostcrab_ddl_list_pending`, `ghostcrab_ddl_execute` |
+| Group               | Tools                                                                                                                                                                                                       |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Facets / Search** | `ghostcrab_search`, `ghostcrab_combined_search`, `ghostcrab_csearch`, `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_count`, `ghostcrab_facet_tree`, `ghostcrab_query_geo`                            |
+| **Graph**           | `ghostcrab_learn`, `ghostcrab_traverse`, `ghostcrab_marketplace`, `ghostcrab_patch`, `ghostcrab_coverage`                                                                                                   |
+| **Projections**     | `ghostcrab_project`, `ghostcrab_pack`, `ghostcrab_status`                                                                                                                                                   |
+| **Schema**          | `ghostcrab_schema_register`, `ghostcrab_schema_list`, `ghostcrab_schema_inspect`                                                                                                                            |
+| **Workspace**       | `ghostcrab_workspace_create`, `ghostcrab_workspace_list`, `ghostcrab_workspace_inspect`, `ghostcrab_workspace_export_model`, `ghostcrab_ddl_propose`, `ghostcrab_ddl_list_pending`, `ghostcrab_ddl_execute` |
 
 Full contract: `docs/dev/mcp_tools_contract.md`
 
-***
+---
 
 ## For AI agents handling installation
 
@@ -287,20 +288,20 @@ npx gcp brain up --help
 
 `.env` is created from `.env.example` during postinstall. Key overrides:
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `GHOSTCRAB_SQLITE_PATH` | `./data/ghostcrab.sqlite` | SQLite file location |
-| `GHOSTCRAB_BACKEND_ADDR` | `:8091` | mindBrain HTTP listen address |
-| `MCP_TELEMETRY` | `1` | Set to `0` to disable telemetry |
+| Variable                 | Default                   | Purpose                         |
+| ------------------------ | ------------------------- | ------------------------------- |
+| `GHOSTCRAB_SQLITE_PATH`  | `./data/ghostcrab.sqlite` | SQLite file location            |
+| `GHOSTCRAB_BACKEND_ADDR` | `:8091`                   | mindBrain HTTP listen address   |
+| `MCP_TELEMETRY`          | `1`                       | Set to `0` to disable telemetry |
 
 ### Error recovery
 
-| Error | Cause | Fix |
-|---|---|---|
-| `spawn gcp ENOENT` | Stale or relative-path mcp.json entry | `npx gcp brain setup <host> --force` |
-| `npm error could not determine executable` | Missing postinstall run | `npx gcp brain setup <host> --force` |
-| `Ignored build scripts` (pnpm) | pnpm 10+ security default | `pnpm add --allow-build=@mindflight/ghostcrab-personal-mcp @mindflight/ghostcrab-personal-mcp@latest` |
-| Native binary missing | Platform prebuild not pulled | Add tarball from local build or beta zip — see `INSTALL.md` |
+| Error                                      | Cause                                 | Fix                                                                                                   |
+| ------------------------------------------ | ------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `spawn gcp ENOENT`                         | Stale or relative-path mcp.json entry | `npx gcp brain setup <host> --force`                                                                  |
+| `npm error could not determine executable` | Missing postinstall run               | `npx gcp brain setup <host> --force`                                                                  |
+| `Ignored build scripts` (pnpm)             | pnpm 10+ security default             | `pnpm add --allow-build=@mindflight/ghostcrab-personal-mcp @mindflight/ghostcrab-personal-mcp@latest` |
+| Native binary missing                      | Platform prebuild not pulled          | Add tarball from local build or beta zip — see `INSTALL.md`                                           |
 
 ### Native binary
 
@@ -323,7 +324,7 @@ npx gcp brain up
 
 Upstream: `github.com/mindflight-orchestrator/mindBrain`.
 
-***
+---
 
 ## Going further
 
@@ -332,4 +333,4 @@ Upstream: `github.com/mindflight-orchestrator/mindBrain`.
 - `installations/` — Agent setup templates
 - `docs/dev/INTERNALS.md` — Repository layout, packaging, Docker dev stack
 
-***
+---

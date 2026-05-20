@@ -54,8 +54,11 @@ function shPnpm(args, opts) {
     ...opts,
     env: {
       ...process.env,
-      npm_config_cache: process.env.npm_config_cache ?? join(tmpdir(), "ghostcrab-npm-cache"),
-      pnpm_config_store_dir: process.env.pnpm_config_store_dir ?? join(tmpdir(), "ghostcrab-pnpm-store"),
+      npm_config_cache:
+        process.env.npm_config_cache ?? join(tmpdir(), "ghostcrab-npm-cache"),
+      pnpm_config_store_dir:
+        process.env.pnpm_config_store_dir ??
+        join(tmpdir(), "ghostcrab-pnpm-store"),
       ...(opts?.env ?? {})
     }
   });
@@ -70,7 +73,8 @@ function shNpm(args, opts) {
     ...opts,
     env: {
       ...process.env,
-      npm_config_cache: process.env.npm_config_cache ?? join(tmpdir(), "ghostcrab-npm-cache"),
+      npm_config_cache:
+        process.env.npm_config_cache ?? join(tmpdir(), "ghostcrab-npm-cache"),
       ...(opts?.env ?? {})
     }
   });
@@ -89,28 +93,41 @@ const packDest = mkdtempSync(join(tmpdir(), "ghostcrab-pack-"));
 let consumerDir;
 
 try {
-  const pack = run(process.execPath, [join(repoRoot, "scripts/pack-local.mjs")], {
-    cwd: repoRoot,
-    env: {
-      ...process.env,
-      npm_config_cache: process.env.npm_config_cache ?? join(tmpdir(), "ghostcrab-npm-cache")
+  const pack = run(
+    process.execPath,
+    [join(repoRoot, "scripts/pack-local.mjs")],
+    {
+      cwd: repoRoot,
+      env: {
+        ...process.env,
+        npm_config_cache:
+          process.env.npm_config_cache ?? join(tmpdir(), "ghostcrab-npm-cache")
+      }
     }
-  });
+  );
   assert.equal(
     pack.status,
     0,
     `pack-local failed (exit ${pack.status ?? "null"}).\n${pack.stderr}\n${pack.stdout}`
   );
 
-  const manifest = JSON.parse(readFileSync(join(repoRoot, "dist-pack", "pack-manifest.json"), "utf8"));
+  const manifest = JSON.parse(
+    readFileSync(join(repoRoot, "dist-pack", "pack-manifest.json"), "utf8")
+  );
   const tarball = join(repoRoot, "dist-pack", manifest.root.filename);
   assert.ok(manifest.root?.filename, "pack-manifest missing root tarball");
 
   const platformKey = currentPlatformKey();
   const platformPackageName = platformPackageMap[platformKey];
   const platformTarballName = manifest.platforms?.[platformKey]?.filename;
-  assert.ok(platformPackageName, `Unsupported verify-local-install platform ${platformKey}`);
-  assert.ok(platformTarballName, `Missing platform tarball for ${platformKey} in pack-manifest`);
+  assert.ok(
+    platformPackageName,
+    `Unsupported verify-local-install platform ${platformKey}`
+  );
+  assert.ok(
+    platformTarballName,
+    `Missing platform tarball for ${platformKey} in pack-manifest`
+  );
   const platformTarball = join(repoRoot, "dist-pack", platformTarballName);
 
   const outDir = process.env.GHOSTCRAB_PACK_OUTPUT_DIR;
@@ -118,7 +135,10 @@ try {
     mkdirSync(outDir, { recursive: true });
     const dest = join(outDir, tarball.split(/[/\\]/).pop());
     copyFileSync(tarball, dest);
-    copyFileSync(platformTarball, join(outDir, platformTarball.split(/[/\\]/).pop()));
+    copyFileSync(
+      platformTarball,
+      join(outDir, platformTarball.split(/[/\\]/).pop())
+    );
     console.error(`[verify-local-install] Copied pack to ${dest}`);
   }
 
@@ -173,7 +193,10 @@ try {
 
   const authz = run(
     process.execPath,
-    [join(pathUnderConsumer(consumerDir, pkgName), "bin", "gcp.mjs"), "authorize"],
+    [
+      join(pathUnderConsumer(consumerDir, pkgName), "bin", "gcp.mjs"),
+      "authorize"
+    ],
     { cwd: consumerDir }
   );
   assert.equal(
@@ -253,7 +276,8 @@ try {
   }
 
   // ── Re-install must NOT overwrite a user-edited .env ──
-  const userEnvSentinel = "# ghostcrab verify-local-install user edit sentinel\nFOO=user_edit\n";
+  const userEnvSentinel =
+    "# ghostcrab verify-local-install user edit sentinel\nFOO=user_edit\n";
   writeFileSync(consumerEnv, userEnvSentinel, "utf8");
   const reinstall = shNpm(
     ["install", "--no-audit", "--no-fund", `file:${tarball}`],
@@ -286,19 +310,25 @@ try {
           ghostcrab: {
             type: "stdio",
             command: "npx",
-            args: ["-y", "@mindflight/ghostcrab-personal-mcp@latest", "gcp", "brain", "up"],
+            args: [
+              "-y",
+              "@mindflight/ghostcrab-personal-mcp@latest",
+              "gcp",
+              "brain",
+              "up"
+            ],
             env: {
               GHOSTCRAB_DATABASE_KIND: "sqlite",
-              GHOSTCRAB_EMBEDDINGS_MODE: "disabled",
-            },
+              GHOSTCRAB_EMBEDDINGS_MODE: "disabled"
+            }
           },
           unrelated: {
             type: "stdio",
             command: "/bin/true",
             args: [],
-            env: { OTHER: "1" },
-          },
-        },
+            env: { OTHER: "1" }
+          }
+        }
       },
       null,
       2
@@ -309,7 +339,10 @@ try {
   const setupRun = run(
     process.execPath,
     [installedGcpMjs, "brain", "setup", "cursor", "--force"],
-    { cwd: consumerDir, env: { ...process.env, HOME: fakeCursorDir, USERPROFILE: fakeCursorDir } }
+    {
+      cwd: consumerDir,
+      env: { ...process.env, HOME: fakeCursorDir, USERPROFILE: fakeCursorDir }
+    }
   );
   assert.equal(
     setupRun.status,
@@ -337,7 +370,9 @@ try {
   // node ran "gcp brain setup cursor"). It must NOT be bare "node" — Cursor's spawner
   // resolves bare "node" to its own bundled runtime, not the user's system node.
   assert.ok(
-    newEntry.command && newEntry.command !== "node" && isAbsolute(newEntry.command),
+    newEntry.command &&
+      newEntry.command !== "node" &&
+      isAbsolute(newEntry.command),
     `[mcp-setup] expected command to be an absolute path to node (not bare "node"), got ${JSON.stringify(newEntry.command)}`
   );
   assert.ok(
@@ -360,20 +395,26 @@ try {
           ghostcrab: {
             type: "stdio",
             command: "npx",
-            args: ["-y", "@mindflight/ghostcrab-personal-mcp@latest", "gcp", "brain", "up"],
+            args: [
+              "-y",
+              "@mindflight/ghostcrab-personal-mcp@latest",
+              "gcp",
+              "brain",
+              "up"
+            ],
             env: {
               GHOSTCRAB_DATABASE_KIND: "sqlite",
-              GHOSTCRAB_EMBEDDINGS_MODE: "disabled",
-            },
+              GHOSTCRAB_EMBEDDINGS_MODE: "disabled"
+            }
           },
           unrelated: {
             type: "stdio",
             command: "/bin/true",
             args: [],
-            env: { OTHER: "1" },
+            env: { OTHER: "1" }
           },
-          "ghostcrab-personal-mcp": newEntry,
-        },
+          "ghostcrab-personal-mcp": newEntry
+        }
       },
       null,
       2
@@ -383,7 +424,10 @@ try {
   const setupPrune = run(
     process.execPath,
     [installedGcpMjs, "brain", "setup", "cursor", "--force"],
-    { cwd: consumerDir, env: { ...process.env, HOME: fakeCursorDir, USERPROFILE: fakeCursorDir } }
+    {
+      cwd: consumerDir,
+      env: { ...process.env, HOME: fakeCursorDir, USERPROFILE: fakeCursorDir }
+    }
   );
   assert.equal(
     setupPrune.status,

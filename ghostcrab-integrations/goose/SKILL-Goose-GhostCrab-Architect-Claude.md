@@ -124,13 +124,13 @@ Add `ghostcrab_workspace_create`, `ghostcrab_upsert`, `ghostcrab_learn`, and `gh
 
 ## Failure Modes
 
-| Situation | Response |
-|---|---|
+| Situation                   | Response                                                                            |
+| --------------------------- | ----------------------------------------------------------------------------------- |
 | GhostCrab tools are missing | Stay `[diagnostic]`; ask the user to configure the Goose/Codex/Claude MCP extension |
-| `ghostcrab_pack` is empty | Treat as first run; do not invent prior context |
-| Workspace is unknown | Search for prior checkpoints; if none exist, ask to create a workspace |
-| Schema is missing | Continue with general records; schema work is optional and advanced |
-| Write fails | Continue the conversation but clearly mark persistence as incomplete |
+| `ghostcrab_pack` is empty   | Treat as first run; do not invent prior context                                     |
+| Workspace is unknown        | Search for prior checkpoints; if none exist, ask to create a workspace              |
+| Schema is missing           | Continue with general records; schema work is optional and advanced                 |
+| Write fails                 | Continue the conversation but clearly mark persistence as incomplete                |
 
 ## Hard Rules
 

@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  FACET_TYPES,
-  FacetTypeSchema
-} from "../../src/types/facet-types.js";
+import { FACET_TYPES, FacetTypeSchema } from "../../src/types/facet-types.js";
 import { SyncFieldSpecSchema } from "../../src/types/facets.js";
 import { TemporalFilterSchema } from "../../src/tools/facets/filter-schemas.js";
 

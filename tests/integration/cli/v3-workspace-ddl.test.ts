@@ -20,12 +20,8 @@ import {
   closeIntegrationDatabase,
   createIntegrationHarness
 } from "../../helpers/cli-integration.js";
-import {
-  workspaceCreateTool
-} from "../../../src/tools/workspace/create.js";
-import {
-  workspaceListTool
-} from "../../../src/tools/workspace/list.js";
+import { workspaceCreateTool } from "../../../src/tools/workspace/create.js";
+import { workspaceListTool } from "../../../src/tools/workspace/list.js";
 import {
   ddlProposeTool,
   ddlExecuteTool,
@@ -64,10 +60,9 @@ async function cleanupMindbrainSemantics(
 }
 
 async function cleanupV3(db: typeof harness.database): Promise<void> {
-  await db.query(
-    `DELETE FROM mindbrain.workspaces WHERE id LIKE $1`,
-    [`v3test${RUN_ID.replace(/-/g, "")}%`]
-  );
+  await db.query(`DELETE FROM mindbrain.workspaces WHERE id LIKE $1`, [
+    `v3test${RUN_ID.replace(/-/g, "")}%`
+  ]);
 }
 
 describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () => {
@@ -182,10 +177,9 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
       [sourceRefSchemaId, refCross]
     );
     expect(rows).toHaveLength(2);
-    await harness.database.query(
-      `DELETE FROM facets WHERE schema_id = $1`,
-      [sourceRefSchemaId]
-    );
+    await harness.database.query(`DELETE FROM facets WHERE schema_id = $1`, [
+      sourceRefSchemaId
+    ]);
     await harness.database.query(
       `DELETE FROM workspaces WHERE id IN ($1, $2)`,
       [ws1, ws2]
@@ -288,7 +282,9 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
     );
     expect(result.isError).toBe(true);
     const data = result.structuredContent as Record<string, unknown>;
-    expect((data.error as Record<string, unknown>).code).toBe("blocked_ddl_pattern");
+    expect((data.error as Record<string, unknown>).code).toBe(
+      "blocked_ddl_pattern"
+    );
   });
 
   it("full DDL chain: propose → CLI approve → execute → table exists", async () => {
@@ -305,7 +301,10 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
       ctx
     );
     expect(proposeResult.isError).toBeFalsy();
-    const proposeData = proposeResult.structuredContent as Record<string, unknown>;
+    const proposeData = proposeResult.structuredContent as Record<
+      string,
+      unknown
+    >;
     const migrationId = proposeData.migration_id as string;
 
     // 2. Approve via CLI command simulation (direct DB update — simulates ddl-approve CLI)
@@ -371,7 +370,12 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
         sync_spec: {
           source_table: tableName,
           fields: [
-            { column_name: "title", facet_key: "title", index_in_bm25: true, facet_type: "term" }
+            {
+              column_name: "title",
+              facet_key: "title",
+              index_in_bm25: true,
+              facet_type: "term"
+            }
           ]
         }
       },
@@ -383,5 +387,4 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
       "sync_spec_not_supported"
     );
   });
-
 });

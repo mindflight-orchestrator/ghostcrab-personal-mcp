@@ -22,7 +22,7 @@ This n8n folder does not currently include standalone `SKILL.md` files. The clos
 
 n8n supports MCP through two native nodes since v1.x: **MCP Server Trigger** (expose a workflow as an MCP tool) and **MCP Client Tool** (n8n consumes an external MCP server) [^1_1]. For GhostCrab in `Perso/SQLite` mode, use the latter: n8n is the **client** querying your GhostCrab server.
 
-***
+---
 
 ## Prerequisites
 
@@ -36,7 +36,7 @@ N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true
 
 [^1_3]
 
-***
+---
 
 ## Option A — GhostCrab via SSE (recommended)
 
@@ -47,12 +47,12 @@ When GhostCrab runs as an HTTP/SSE server (standard for MCP exposed on the netwo
 3. `Authentication` → Bearer token or None per your GhostCrab config
 4. `Tools to Include` → **All** to expose all ontology resources, or **Selected** to filter (e.g. only `query_facts`, `add_triple`) [^1_2]
 5. Connect this node as a **tool sub-node** to an **AI Agent** node
+
 ```
 [AI Agent] ──tool──> [MCP Client Tool → GhostCrab SSE]
 ```
 
-
-***
+---
 
 ## Option B — GhostCrab via STDIO (local process)
 
@@ -61,11 +61,11 @@ When GhostCrab runs as a local CLI process (STDIO transport), use the community 
 1. **Settings → Community Nodes** → install `n8n-nodes-mcp` [^1_5]
 2. Create a credential of type `MCP Client (STDIO)`
 3. Configure:
-    - **Command**: path to GhostCrab executable, e.g. `/usr/local/bin/ghostcrab-mcp`
-    - **Arguments**: `--db /path/to/perso.sqlite` (or GhostCrab-specific flags)
+   - **Command**: path to GhostCrab executable, e.g. `/usr/local/bin/ghostcrab-mcp`
+   - **Arguments**: `--db /path/to/perso.sqlite` (or GhostCrab-specific flags)
 4. In the workflow, add an **MCP Client** node (from the community package), run `List available tools` first to validate, then `Execute a tool` [^1_3]
 
-***
+---
 
 ## Wiring into an n8n AI Agent workflow
 
@@ -82,13 +82,13 @@ Standard pattern exposing GhostCrab to an n8n agent :
 
 The **MCP Client Tool** node surfaces automatically as an available tool for the agent [^1_2]. The agent discovers GhostCrab tools (e.g. `search_concepts`, `add_relation`, etc.) and invokes them from conversational context.
 
-***
+---
 
 ## Native SQLite MCP pattern in n8n (alternative)
 
 Official n8n template **"Build your own SQLite MCP server"** [^1_6] exposes SQLite directly (SELECT/INSERT/UPDATE) via MCP Server Trigger. Use it to test without GhostCrab, or combine: n8n exposes raw SQLite; GhostCrab adds the ontology layer on top.
 
-***
+---
 
 ## Watchouts
 
@@ -96,7 +96,7 @@ Official n8n template **"Build your own SQLite MCP server"** [^1_6] exposes SQLi
 - **STDIO vs SSE**: STDIO is simpler for local/dev; SSE fits multi-agent or remote deployment [^1_3]
 - **SSE timeouts**: set n8n-side timeouts to avoid hanging SSE connections if GhostCrab is slow on complex graph queries [^1_1]
 - **Tool schemas**: polish JSON Schema descriptions on GhostCrab tools — n8n passes them straight to the LLM so the agent knows what to call [^1_1]
-<span style="display:none">[^1_10][^1_11][^1_12][^1_13][^1_14][^1_15][^1_7][^1_8][^1_9]</span>
+  <span style="display:none">[^1_10][^1_11][^1_12][^1_13][^1_14][^1_15][^1_7][^1_8][^1_9]</span>
 
 <div align="center">⁂</div>
 

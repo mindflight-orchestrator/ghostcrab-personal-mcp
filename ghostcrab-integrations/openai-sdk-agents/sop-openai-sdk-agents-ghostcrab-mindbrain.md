@@ -29,7 +29,7 @@ SDK splits context [^1_1]:
 
 Cross-run strategies include `result.history` (local replay), `session` (application storage), `conversationId`, or `previousResponseId` (OpenAI hosted) [^1_2]. None provides **structured, queryable knowledge shared among distinct agents.**
 
-***
+---
 
 ## Natural entrypoint: MCP via `mcp_servers`
 
@@ -61,7 +61,7 @@ async with MCPServerStreamableHttp(
 
 `cache_tools_list=True` makes sense — GhostCrab tool schemas rarely change mid-run .
 
-***
+---
 
 ## Three-layer integration sketch
 
@@ -87,7 +87,6 @@ Handle faceted lookups or traversals lazily via GhostCrab. The SDK routes tool c
 - `get_relationships(entity_id, depth)` → pg_dgraph traversal
 - `upsert_entity(type, properties)` → ontology writes
 
-
 ### 3. `tool_meta_resolver` for tenant/session scoping
 
 When multiple agents reuse one GhostCrab but separate tenants/workflows, propagate `session_id` or `workspace_id` through MCP `_meta` :
@@ -109,8 +108,7 @@ server = MCPServerStreamableHttp(
 )
 ```
 
-
-***
+---
 
 ## Tool filtering by agent role
 
@@ -135,17 +133,16 @@ writer_server = MCPServerStreamableHttp(
 )
 ```
 
-
-***
+---
 
 ## Positioning takeaway
 
-| Native SDK gaps | GhostCrab fix |
-| :-- | :-- |
-| Local `RunContext`, lost post-run [^1_3] | PostgreSQL state survives runs |
+| Native SDK gaps                            | GhostCrab fix                               |
+| :----------------------------------------- | :------------------------------------------ |
+| Local `RunContext`, lost post-run [^1_3]   | PostgreSQL state survives runs              |
 | In-memory sessions siloed per agent [^1_2] | Shared registry across heterogeneous agents |
-| No structured querying on memory | Faceted search + traversal via MindBrain |
-| Untyped context blobs | Explicit ontology schemas |
+| No structured querying on memory           | Faceted search + traversal via MindBrain    |
+| Untyped context blobs                      | Explicit ontology schemas                   |
 
 Agents SDK code stays untouched — GhostCrab is a declarative `mcp_server`; the agent consumes its tools normally. Shared ontology moves from bespoke hacks to packaged dependency declarations.
 <span style="display:none">[^1_10][^1_11][^1_12][^1_13][^1_14][^1_15][^1_4][^1_5][^1_6][^1_7][^1_8][^1_9]</span>
@@ -181,7 +178,6 @@ Agents SDK code stays untouched — GhostCrab is a declarative `mcp_server`; the
 [^1_14]: https://supermemory.ai/docs/integrations/openai-agents-sdk
 
 [^1_15]: https://dev.to/seratch/openai-agents-sdk-multiple-mcp-servers-8d2
-
 
 ---
 
@@ -235,7 +231,7 @@ Written for Codex: every unit is copy/paste runnable and names failure modes. De
 
 Applies to OpenAI Agents SDK agents, **not** Google ADK.
 
-Placeholder: *Answer skipped.*
+Placeholder: _Answer skipped._
 
 ---
 

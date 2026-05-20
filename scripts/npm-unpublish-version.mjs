@@ -17,7 +17,14 @@
  * Forcing removal of the *only* tarball can impose a registry cooldown before you can publish again.
  */
 import { spawnSync } from "node:child_process";
-import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -108,7 +115,9 @@ const version =
   "0.2.6";
 
 if (!/^\d+\.\d+\.\d+/.test(version)) {
-  console.error(`[npm-unpublish-version] Bad version: ${JSON.stringify(version)}`);
+  console.error(
+    `[npm-unpublish-version] Bad version: ${JSON.stringify(version)}`
+  );
   process.exit(1);
 }
 
@@ -142,7 +151,9 @@ try {
     });
     if (r.status !== 0) {
       failures += 1;
-      console.error(`[npm-unpublish-version] failed (exit ${r.status ?? "?"}) for ${spec}`);
+      console.error(
+        `[npm-unpublish-version] failed (exit ${r.status ?? "?"}) for ${spec}`
+      );
     }
   }
 } finally {
@@ -157,4 +168,6 @@ if (failures > 0) {
   process.exit(1);
 }
 
-console.error(`[npm-unpublish-version] All unpublish attempts succeeded for *@${version}.`);
+console.error(
+  `[npm-unpublish-version] All unpublish attempts succeeded for *@${version}.`
+);

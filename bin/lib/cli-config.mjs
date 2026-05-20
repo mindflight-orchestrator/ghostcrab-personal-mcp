@@ -11,12 +11,7 @@
  * }
  */
 
-import {
-  readFileSync,
-  writeFileSync,
-  mkdirSync,
-  existsSync,
-} from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { getConfigDir } from "./data-dir.mjs";
 
@@ -25,10 +20,10 @@ const CONFIG_FILE = "config.json";
 export const DEFAULT_CONFIG = {
   registry: {
     url: "https://registry.ghostcrab.io",
-    token: null,
+    token: null
   },
   workspaces: {},
-  defaultWorkspace: null,
+  defaultWorkspace: null
 };
 
 export function getConfigPath() {

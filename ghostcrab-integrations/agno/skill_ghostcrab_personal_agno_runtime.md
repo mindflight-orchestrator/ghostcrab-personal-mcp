@@ -189,10 +189,10 @@ This is the Personal SQLite replacement for older projection-style progress exam
 
 This distinction is mandatory:
 
-| Tool | Use for | Example |
-| --- | --- | --- |
+| Tool                 | Use for                | Example                                                 |
+| -------------------- | ---------------------- | ------------------------------------------------------- |
 | `ghostcrab_remember` | immutable durable fact | "Agno MCPTools are the first-contact integration path." |
-| `ghostcrab_upsert` | mutable current state | "Task: write-invitation, status: in_progress -> done." |
+| `ghostcrab_upsert`   | mutable current state  | "Task: write-invitation, status: in_progress -> done."  |
 
 If the information should be revised in place, use `ghostcrab_upsert`.
 
@@ -202,14 +202,14 @@ If the information should remain as evidence, use `ghostcrab_remember`.
 
 ## Failure Modes
 
-| Situation | Correct behavior |
-| --- | --- |
-| `ghostcrab_status` unavailable | Ask the user to run `gcp brain up`. |
-| Workspace missing | Call `ghostcrab_workspace_list`, then `ghostcrab_workspace_create` before writing. |
-| `ghostcrab_pack` returns empty | Treat as first run and continue. |
-| Target record missing before `ghostcrab_learn` | Create or identify stable records first. |
-| Search returns no result | Continue and optionally write new context. |
-| Write fails | Report the failure instead of claiming persistence. |
+| Situation                                      | Correct behavior                                                                   |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `ghostcrab_status` unavailable                 | Ask the user to run `gcp brain up`.                                                |
+| Workspace missing                              | Call `ghostcrab_workspace_list`, then `ghostcrab_workspace_create` before writing. |
+| `ghostcrab_pack` returns empty                 | Treat as first run and continue.                                                   |
+| Target record missing before `ghostcrab_learn` | Create or identify stable records first.                                           |
+| Search returns no result                       | Continue and optionally write new context.                                         |
+| Write fails                                    | Report the failure instead of claiming persistence.                                |
 
 ---
 

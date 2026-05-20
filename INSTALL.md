@@ -9,7 +9,7 @@ This document covers **`@mindflight/ghostcrab-personal-mcp`**: the Node CLI (`gc
 ### Parcours par défaut (npmjs)
 
 1. **Prérequis:** Node.js **20+**, accès Internet pour les dépendances JS.
-2. **Installer:** `npm install -g @mindflight/ghostcrab-personal-mcp@latest` *ou* tester avec `npx -y @mindflight/ghostcrab-personal-mcp@latest gcp --help`.
+2. **Installer:** `npm install -g @mindflight/ghostcrab-personal-mcp@latest` _ou_ tester avec `npx -y @mindflight/ghostcrab-personal-mcp@latest gcp --help`.
 3. Si besoin après `postinstall` : **`npx gcp authorize`**.
 4. **Avant l’IDE :** depuis la racine du projet, `npx gcp brain up --help` ; optionnel : `timeout 8 npx gcp brain up` (Ctrl+C — attente stdio MCP). Si Cursor affiche **`spawn gcp ENOENT`** ou **`npm error could not determine executable to run`**, relancez le setup (étape 5) — cela reconfigure l'entrée avec un chemin absolu. Détails : [README_CURSOR_MCP.md](README_CURSOR_MCP.md).
 5. **IDE :** `npx gcp brain setup cursor --force` | `npx gcp brain setup codex` | `npx gcp brain setup claude` — enregistre le MCP sous **`ghostcrab-personal-mcp`** avec un chemin absolu vers `bin/gcp.mjs` (supprime automatiquement l’ancienne entrée `ghostcrab`). Détails : [README_CURSOR_MCP.md](README_CURSOR_MCP.md), [README_CODEX_MCP.md](README_CODEX_MCP.md), [README_CLAUDE_CODE_MCP.md](README_CLAUDE_CODE_MCP.md).
@@ -65,9 +65,9 @@ Sans sous-modules au premier clone : `git submodule update --init --recursive`
 
 Pour développer ou produire des `.tgz` vous-même :
 
-- `make lib-build` — build JS seul  
-- `make local-pack` ou `pnpm run pack:local` — tarball sous `dist-pack/`  
-- `make prebuilds` puis `pnpm run pack:local` — inclut les binaires pour les 5 plateformes  
+- `make lib-build` — build JS seul
+- `make local-pack` ou `pnpm run pack:local` — tarball sous `dist-pack/`
+- `make prebuilds` puis `pnpm run pack:local` — inclut les binaires pour les 5 plateformes
 
 Détails : [Makefile](Makefile), [docs/dev/npm_split_release_process.md](docs/dev/npm_split_release_process.md).
 
@@ -165,9 +165,9 @@ If you cloned without submodules: `git submodule update --init --recursive`.
 
 To develop or produce tarballs yourself:
 
-- `make lib-build` — JS only  
-- `make local-pack` or `pnpm run pack:local` — tarball in `dist-pack/`  
-- `make prebuilds` then `pnpm run pack:local` — all five platform binaries  
+- `make lib-build` — JS only
+- `make local-pack` or `pnpm run pack:local` — tarball in `dist-pack/`
+- `make prebuilds` then `pnpm run pack:local` — all five platform binaries
 
 See [Makefile](Makefile) and [docs/dev/npm_split_release_process.md](docs/dev/npm_split_release_process.md).
 

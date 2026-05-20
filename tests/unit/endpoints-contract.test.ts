@@ -23,9 +23,7 @@ function extractRouteLines(block: string): string[] {
 function extractZigDocRoutes(source: string): string[] {
   const routesBlock = source.match(/\/\/\/ Routes:\n((?:\/\/\/.*\n)+)/);
   expect(routesBlock?.[1]).toBeDefined();
-  return extractRouteLines(
-    routesBlock![1].replaceAll("///", "")
-  );
+  return extractRouteLines(routesBlock![1].replaceAll("///", ""));
 }
 
 function extractZigUsageRoutes(source: string): string[] {
@@ -49,9 +47,7 @@ function extractZigDispatchRoutes(source: string): string[] {
       continue;
     }
 
-    const match = line.match(
-      /std\.mem\.eql\(u8,\s*path,\s*"([^"]+)"\)/
-    );
+    const match = line.match(/std\.mem\.eql\(u8,\s*path,\s*"([^"]+)"\)/);
     if (match && method) {
       routes.add(`${method} ${match[1]}`);
     }
@@ -71,9 +67,7 @@ function extractMindbrainDispatchRoutes(source: string): string[] {
       getOnly = true;
     }
 
-    const match = line.match(
-      /std\.mem\.eql\(u8,\s*path,\s*"([^"]+)"\)/
-    );
+    const match = line.match(/std\.mem\.eql\(u8,\s*path,\s*"([^"]+)"\)/);
     if (!match) {
       continue;
     }

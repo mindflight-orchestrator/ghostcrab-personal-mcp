@@ -42,12 +42,12 @@ the same context.
 
 Recommended mapping:
 
-| ADK concept | GhostCrab concept | Rule |
-| --- | --- | --- |
-| ADK app or project | `workspace_id` | One durable workspace per project |
-| ADK `session_id` | facet value such as `adk_session_id` | Store as metadata on writes |
-| ADK agent name | facet value such as `agent_name` | Use for filtering and handoff |
-| ADK run step | current-state record | Update with `ghostcrab_upsert` |
+| ADK concept        | GhostCrab concept                    | Rule                              |
+| ------------------ | ------------------------------------ | --------------------------------- |
+| ADK app or project | `workspace_id`                       | One durable workspace per project |
+| ADK `session_id`   | facet value such as `adk_session_id` | Store as metadata on writes       |
+| ADK agent name     | facet value such as `agent_name`     | Use for filtering and handoff     |
+| ADK run step       | current-state record                 | Update with `ghostcrab_upsert`    |
 
 ## Setup
 
@@ -150,13 +150,13 @@ Use stable facets on every write:
 
 Use the five lifecycle moments in every ADK agent instruction.
 
-| Moment | Agent question | GhostCrab tools |
-| --- | --- | --- |
-| Before | Is GhostCrab running, and which project workspace should I use? | `ghostcrab_status`, `ghostcrab_workspace_list`, `ghostcrab_workspace_create`, `ghostcrab_pack` |
-| Read | What has this project already learned? | `ghostcrab_pack`, `ghostcrab_search`, `ghostcrab_count` |
-| Write | What did this session learn or change? | `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_learn` |
-| After | What should the next ADK session resume from? | `ghostcrab_project`, `ghostcrab_upsert` |
-| Recovery | What compact briefing restores context after interruption? | `ghostcrab_pack`, `ghostcrab_traverse` |
+| Moment   | Agent question                                                  | GhostCrab tools                                                                                |
+| -------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Before   | Is GhostCrab running, and which project workspace should I use? | `ghostcrab_status`, `ghostcrab_workspace_list`, `ghostcrab_workspace_create`, `ghostcrab_pack` |
+| Read     | What has this project already learned?                          | `ghostcrab_pack`, `ghostcrab_search`, `ghostcrab_count`                                        |
+| Write    | What did this session learn or change?                          | `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_learn`                                    |
+| After    | What should the next ADK session resume from?                   | `ghostcrab_project`, `ghostcrab_upsert`                                                        |
+| Recovery | What compact briefing restores context after interruption?      | `ghostcrab_pack`, `ghostcrab_traverse`                                                         |
 
 ## Remember vs Upsert
 
@@ -221,14 +221,14 @@ clear `record_type` facets and ask the user whether to formalize the model later
 
 ## Failure Modes
 
-| Situation | Agent behavior |
-| --- | --- |
-| `ghostcrab_status` reports unavailable | Stop GhostCrab work and tell the user to run `gcp brain up`. Do not fake memory writes in chat. |
-| `ghostcrab_workspace_list` does not show the project | Call `ghostcrab_workspace_create` once for the project workspace. |
-| `ghostcrab_pack` is empty | Treat as a normal first run. Continue and write the first useful record. |
-| `ghostcrab_search` returns no results | Narrow or broaden facets, then continue without claiming the domain is empty. |
-| Required schema is missing | Use provisional facets or ask to register a schema later; do not invent tool names. |
-| Concurrent ADK sessions update the same state | Use stable `record_id` values with `ghostcrab_upsert` so the latest current state replaces the old one. |
+| Situation                                            | Agent behavior                                                                                          |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `ghostcrab_status` reports unavailable               | Stop GhostCrab work and tell the user to run `gcp brain up`. Do not fake memory writes in chat.         |
+| `ghostcrab_workspace_list` does not show the project | Call `ghostcrab_workspace_create` once for the project workspace.                                       |
+| `ghostcrab_pack` is empty                            | Treat as a normal first run. Continue and write the first useful record.                                |
+| `ghostcrab_search` returns no results                | Narrow or broaden facets, then continue without claiming the domain is empty.                           |
+| Required schema is missing                           | Use provisional facets or ask to register a schema later; do not invent tool names.                     |
+| Concurrent ADK sessions update the same state        | Use stable `record_id` values with `ghostcrab_upsert` so the latest current state replaces the old one. |
 
 ## Handoff Report
 

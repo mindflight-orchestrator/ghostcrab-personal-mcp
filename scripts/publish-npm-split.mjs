@@ -137,7 +137,9 @@ function npmPublishArgs() {
     args.splice(1, 0, "--provenance");
     console.error("[publish-npm-split] using --provenance (GitHub Actions).");
   } else if (ci && noProv) {
-    console.error("[publish-npm-split] NPM_PUBLISH_NO_PROVENANCE=1 — publishing without provenance.");
+    console.error(
+      "[publish-npm-split] NPM_PUBLISH_NO_PROVENANCE=1 — publishing without provenance."
+    );
   } else {
     console.error(
       "[publish-npm-split] publishing without --provenance (local or non-GitHub Actions; token login is OK)."
@@ -150,7 +152,11 @@ const rootVersion = readRootVersion();
 syncPlatformPackageVersions(rootVersion);
 assertAlignedVersions(rootVersion);
 
-run(process.execPath, [join(repoRoot, "scripts/stage-platform-packages.mjs")], repoRoot);
+run(
+  process.execPath,
+  [join(repoRoot, "scripts/stage-platform-packages.mjs")],
+  repoRoot
+);
 
 const publishCmd = npmPublishArgs();
 const { npmrcPath, cleanup } = createPublishUserconfig();

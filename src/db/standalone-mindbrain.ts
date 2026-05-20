@@ -452,12 +452,15 @@ export async function runStandaloneFactWrite(
   if (params.id !== undefined) body.id = params.id;
   if (params.workspaceId !== undefined) body.workspace_id = params.workspaceId;
   if (params.facetsJson !== undefined) body.facets_json = params.facetsJson;
-  if (params.embeddingBlob !== undefined) body.embedding_blob = params.embeddingBlob;
+  if (params.embeddingBlob !== undefined)
+    body.embedding_blob = params.embeddingBlob;
   if (params.embedding !== undefined && params.embedding.length > 0)
     body.embedding = params.embedding;
   if (params.createdBy !== undefined) body.created_by = params.createdBy;
-  if (params.validFromUnix !== undefined) body.valid_from_unix = params.validFromUnix;
-  if (params.validUntilUnix !== undefined) body.valid_until_unix = params.validUntilUnix;
+  if (params.validFromUnix !== undefined)
+    body.valid_from_unix = params.validFromUnix;
+  if (params.validUntilUnix !== undefined)
+    body.valid_until_unix = params.validUntilUnix;
   if (params.sourceRef !== undefined) body.source_ref = params.sourceRef;
 
   return await fetchJson<StandaloneFactWriteResponse>(

@@ -79,7 +79,8 @@ export const schemaRegisterTool: ToolHandler = {
         },
         workspace_id: {
           type: "string",
-          description: "Target workspace id. Overrides session context for this call only."
+          description:
+            "Target workspace id. Overrides session context for this call only."
         },
         definition: {
           type: "object",
@@ -110,7 +111,8 @@ export const schemaRegisterTool: ToolHandler = {
   },
   async handler(args, context) {
     const input = SchemaRegisterInput.parse(args);
-    const effectiveWorkspaceId = input.workspace_id ?? context.session.workspace_id;
+    const effectiveWorkspaceId =
+      input.workspace_id ?? context.session.workspace_id;
     const [existing] = await context.database.query<{ id: string }>(
       `
         SELECT id
@@ -398,8 +400,7 @@ export const schemaOnboardingTool: ToolHandler = {
     return createToolSuccessResult("ghostcrab_onboarding_schemas", {
       total: schemas.length,
       schemas,
-      note:
-        "These are the curated onboarding schemas. Inspect them individually for the full contract, then apply the matching loadout or modeling recipe."
+      note: "These are the curated onboarding schemas. Inspect them individually for the full contract, then apply the matching loadout or modeling recipe."
     });
   }
 };

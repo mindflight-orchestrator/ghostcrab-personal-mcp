@@ -73,7 +73,9 @@ export const traverseTool: ToolHandler = {
           if (typeof parsed === "object" && parsed !== null) {
             return parsed as Record<string, unknown>;
           }
-        } catch { /* non-JSON metadata — return empty object */ }
+        } catch {
+          /* non-JSON metadata — return empty object */
+        }
       }
       return {};
     };

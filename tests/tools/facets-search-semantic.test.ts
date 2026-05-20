@@ -117,11 +117,9 @@ describe("ghostcrab_search semantic and hybrid (fake embeddings)", () => {
   });
 
   it("falls back gracefully when no candidate row has an embedding", async () => {
-    const noEmbedding = seedRow(
-      "facet-none",
-      "This row was never embedded",
-      { embedded: false }
-    );
+    const noEmbedding = seedRow("facet-none", "This row was never embedded", {
+      embedded: false
+    });
 
     const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
       if (sql.includes("embedding_blob IS NOT NULL")) {
@@ -163,10 +161,7 @@ describe("ghostcrab_search semantic and hybrid (fake embeddings)", () => {
   it("blends BM25 and cosine for mode=hybrid when both layers are available", async () => {
     setFactsFtsReady(true);
 
-    const ftsTopBm25 = seedRow(
-      "facet-bm25",
-      "term term term term term phrase"
-    );
+    const ftsTopBm25 = seedRow("facet-bm25", "term term term term term phrase");
     const ftsCosineWinner = seedRow(
       "facet-cosine",
       "shared semantic anchor reference"

@@ -26,9 +26,9 @@ function createMockDatabase(
   };
 }
 
-function readStructured(
-  result: { structuredContent?: unknown }
-): Record<string, unknown> {
+function readStructured(result: {
+  structuredContent?: unknown;
+}): Record<string, unknown> {
   expect(result.structuredContent).toBeDefined();
   return result.structuredContent as Record<string, unknown>;
 }
@@ -43,7 +43,9 @@ describe("pragma tools", () => {
       "fetch",
       vi.fn(async (url: string | URL) => {
         const path =
-          typeof url === "string" ? url : (url as URL).pathname ?? url.toString();
+          typeof url === "string"
+            ? url
+            : ((url as URL).pathname ?? url.toString());
 
         if (String(path).includes("pack-projections")) {
           return new Response(
@@ -77,7 +79,14 @@ describe("pragma tools", () => {
               workspace_id: "default",
               query: "phase 2 project-delivery board",
               returned: 1,
-              matches: [{ doc_id: 42, bm25_score: 0.9, vector_score: 0, combined_score: 0.9 }]
+              matches: [
+                {
+                  doc_id: 42,
+                  bm25_score: 0.9,
+                  vector_score: 0,
+                  combined_score: 0.9
+                }
+              ]
             }),
             { status: 200, headers: { "content-type": "application/json" } }
           );
@@ -93,7 +102,11 @@ describe("pragma tools", () => {
     const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
       if (sql.includes("FROM mb_pragma.facets") && sql.includes("doc_id IN")) {
         return [
-          { id: "facet-1", content: "Search relies on hybrid search today", doc_id: 42 }
+          {
+            id: "facet-1",
+            content: "Search relies on hybrid search today",
+            doc_id: 42
+          }
         ];
       }
 
@@ -477,7 +490,10 @@ describe("pragma tools", () => {
   it("creates and updates a provisional projection through the public tool", async () => {
     let updateCalled = false;
     const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
-      if (sql.includes("SELECT id") && sql.includes("FROM mb_pragma.projections")) {
+      if (
+        sql.includes("SELECT id") &&
+        sql.includes("FROM mb_pragma.projections")
+      ) {
         return updateCalled ? [{ id: "proj-1" }] : [];
       }
 

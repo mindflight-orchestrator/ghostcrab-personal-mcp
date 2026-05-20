@@ -12,15 +12,26 @@ import { resolveGhostcrabSqlite } from "../../bin/lib/resolve-ghostcrab-sqlite.m
 function makeEmptyConfigDir(): string {
   const dir = mkdtempSync(join(tmpdir(), "gc-sqlite-resolve-"));
   mkdirSync(dir, { recursive: true });
-  writeFileSync(join(dir, "config.json"), JSON.stringify({ workspaces: {}, defaultWorkspace: null }), "utf8");
+  writeFileSync(
+    join(dir, "config.json"),
+    JSON.stringify({ workspaces: {}, defaultWorkspace: null }),
+    "utf8"
+  );
   return dir;
 }
 
 /** Write a workspace entry with an explicit sqlitePath into a config dir. */
-function writeWorkspaceConfig(configDir: string, wsName: string, sqlitePath: string) {
+function writeWorkspaceConfig(
+  configDir: string,
+  wsName: string,
+  sqlitePath: string
+) {
   writeFileSync(
     join(configDir, "config.json"),
-    JSON.stringify({ workspaces: { [wsName]: { sqlitePath } }, defaultWorkspace: wsName }),
+    JSON.stringify({
+      workspaces: { [wsName]: { sqlitePath } },
+      defaultWorkspace: wsName
+    }),
     "utf8"
   );
 }
@@ -34,7 +45,7 @@ describe("resolveGhostcrabSqlite — precedence", () => {
     savedEnv = {
       GHOSTCRAB_CONFIG_DIR: process.env.GHOSTCRAB_CONFIG_DIR,
       GHOSTCRAB_SQLITE_PATH: process.env.GHOSTCRAB_SQLITE_PATH,
-      GHOSTCRAB_BACKEND_ADDR: process.env.GHOSTCRAB_BACKEND_ADDR,
+      GHOSTCRAB_BACKEND_ADDR: process.env.GHOSTCRAB_BACKEND_ADDR
     };
     process.env.GHOSTCRAB_CONFIG_DIR = configDir;
     delete process.env.GHOSTCRAB_SQLITE_PATH;
@@ -54,28 +65,36 @@ describe("resolveGhostcrabSqlite — precedence", () => {
 
   it("falls back to data/ghostcrab.sqlite in cwd when nothing is set", () => {
     const r = resolveGhostcrabSqlite({});
-    expect(r.sqlitePathResolved).toBe(resolve(process.cwd(), "data", "ghostcrab.sqlite"));
+    expect(r.sqlitePathResolved).toBe(
+      resolve(process.cwd(), "data", "ghostcrab.sqlite")
+    );
     expect(r.sqlitePathSource).toMatch(/fallback/);
     expect(r.backendAddr).toBeUndefined();
     expect(r.portExplicit).toBe(false);
   });
 
   it("--db (sqlitePathFromCli) wins over cwd default", () => {
-    const r = resolveGhostcrabSqlite({ sqlitePathFromCli: "/tmp/explicit.sqlite" });
+    const r = resolveGhostcrabSqlite({
+      sqlitePathFromCli: "/tmp/explicit.sqlite"
+    });
     expect(r.sqlitePathResolved).toBe("/tmp/explicit.sqlite");
     expect(r.sqlitePathSource).toBe("CLI --db");
     expect(r.portExplicit).toBe(false);
   });
 
   it("--db resolves relative paths against cwd", () => {
-    const r = resolveGhostcrabSqlite({ sqlitePathFromCli: "relative/path.sqlite" });
+    const r = resolveGhostcrabSqlite({
+      sqlitePathFromCli: "relative/path.sqlite"
+    });
     expect(r.sqlitePathResolved).toBe(resolve("relative/path.sqlite"));
     expect(r.sqlitePathSource).toBe("CLI --db");
   });
 
   it("GHOSTCRAB_SQLITE_PATH env wins over --db", () => {
     process.env.GHOSTCRAB_SQLITE_PATH = "/tmp/from-env.sqlite";
-    const r = resolveGhostcrabSqlite({ sqlitePathFromCli: "/tmp/explicit.sqlite" });
+    const r = resolveGhostcrabSqlite({
+      sqlitePathFromCli: "/tmp/explicit.sqlite"
+    });
     expect(r.sqlitePathResolved).toBe("/tmp/from-env.sqlite");
     expect(r.sqlitePathSource).toBe("GHOSTCRAB_SQLITE_PATH");
   });
@@ -92,7 +111,7 @@ describe("resolveGhostcrabSqlite — precedence", () => {
     writeWorkspaceConfig(configDir, "myapp", "/ws/ghostcrab.sqlite");
     const r = resolveGhostcrabSqlite({
       workspaceNameFromCli: "myapp",
-      sqlitePathFromCli: "/tmp/explicit.sqlite",
+      sqlitePathFromCli: "/tmp/explicit.sqlite"
     });
     expect(r.sqlitePathResolved).toBe("/tmp/explicit.sqlite");
     expect(r.sqlitePathSource).toBe("CLI --db");
@@ -107,7 +126,9 @@ describe("resolveGhostcrabSqlite — precedence", () => {
 
   it("GHOSTCRAB_BACKEND_ADDR is picked up from env under --db branch", () => {
     process.env.GHOSTCRAB_BACKEND_ADDR = "127.0.0.1:9999";
-    const r = resolveGhostcrabSqlite({ sqlitePathFromCli: "/tmp/explicit.sqlite" });
+    const r = resolveGhostcrabSqlite({
+      sqlitePathFromCli: "/tmp/explicit.sqlite"
+    });
     expect(r.backendAddr).toBe("127.0.0.1:9999");
     expect(r.portExplicit).toBe(true);
   });

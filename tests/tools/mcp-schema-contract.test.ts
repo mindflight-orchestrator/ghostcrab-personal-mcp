@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { coverageTool, CoverageInput } from "../../src/tools/dgraph/coverage.js";
+import {
+  coverageTool,
+  CoverageInput
+} from "../../src/tools/dgraph/coverage.js";
 import {
   graphSearchTool,
   GraphSearchInput
@@ -21,7 +24,10 @@ import {
   facetRegisterTool,
   facetValidateTool
 } from "../../src/tools/facets/catalog.js";
-import { rememberTool, RememberInput } from "../../src/tools/facets/remember.js";
+import {
+  rememberTool,
+  RememberInput
+} from "../../src/tools/facets/remember.js";
 import { searchTool, SearchInput } from "../../src/tools/facets/search.js";
 import {
   schemaInspectTool,
@@ -35,10 +41,7 @@ import {
 } from "../../src/tools/facets/schema.js";
 import { upsertTool, UpsertInput } from "../../src/tools/facets/upsert.js";
 import { packTool, PackInput } from "../../src/tools/pragma/pack.js";
-import {
-  projectTool,
-  ProjectInput
-} from "../../src/tools/pragma/project.js";
+import { projectTool, ProjectInput } from "../../src/tools/pragma/project.js";
 import {
   projectionGetTool,
   ProjectionGetInput
@@ -48,6 +51,11 @@ import {
   toolSearchTool,
   ToolSearchInput
 } from "../../src/tools/tool-search.js";
+import {
+  combinedSearchAliasTool,
+  combinedSearchTool,
+  CombinedSearchInput
+} from "../../src/tools/search/combined-search.js";
 import {
   loadoutApplyTool,
   loadoutInspectTool,
@@ -239,7 +247,10 @@ describe("MCP inputSchema contract (drift guard)", () => {
   describe("ghostcrab_loadout_suggest", () => {
     const schema = loadoutSuggestTool.definition.inputSchema as {
       required?: string[];
-      properties: { goal: Record<string, unknown>; limit: { default?: number } };
+      properties: {
+        goal: Record<string, unknown>;
+        limit: { default?: number };
+      };
     };
 
     it("requires goal and documents limit default", () => {
@@ -296,7 +307,15 @@ describe("MCP inputSchema contract (drift guard)", () => {
       expect(rp.type).toBe("array");
       expect(rp.maxItems).toBe(50);
       expect(rp.items?.properties?.value_type?.enum).toEqual(
-        expect.arrayContaining(["text", "number", "percentage_bp", "money_minor", "date_unix", "doc_ref", "uri"])
+        expect.arrayContaining([
+          "text",
+          "number",
+          "percentage_bp",
+          "money_minor",
+          "date_unix",
+          "doc_ref",
+          "uri"
+        ])
       );
     });
 
@@ -405,7 +424,9 @@ describe("MCP inputSchema contract (drift guard)", () => {
       expect(schema.properties.collection_id.type).toEqual(["string", "null"]);
       expect(schema.properties.entity_types.default).toEqual([]);
       expect(schema.properties.entity_types.items?.type).toBe("string");
-      expect(schema.properties.metadata_filters.additionalProperties).toBe(true);
+      expect(schema.properties.metadata_filters.additionalProperties).toBe(
+        true
+      );
       expect(schema.properties.include_relations.default).toBe(false);
       expect(schema.properties.limit.minimum).toBe(1);
       expect(schema.properties.limit.maximum).toBe(100);
@@ -422,6 +443,50 @@ describe("MCP inputSchema contract (drift guard)", () => {
       if (parsed.success) {
         expect(parsed.data.collection_id).toBeUndefined();
       }
+    });
+  });
+
+  describe("ghostcrab_combined_search", () => {
+    const schema = combinedSearchTool.definition.inputSchema as {
+      properties: {
+        collection_id: { type?: string | string[] };
+        facet_mode: { enum?: string[] };
+        include_chunks: { default?: boolean };
+        include_relations: { default?: boolean };
+        limit: { minimum?: number; maximum?: number };
+      };
+    };
+
+    it("documents graph-first combined search controls", () => {
+      expect(schema.properties.collection_id.type).toEqual(["string", "null"]);
+      expect(schema.properties.facet_mode.enum).toEqual([
+        "hybrid",
+        "bm25",
+        "semantic"
+      ]);
+      expect(schema.properties.include_relations.default).toBe(true);
+      expect(schema.properties.include_chunks.default).toBe(false);
+      expect(schema.properties.limit.minimum).toBe(1);
+      expect(schema.properties.limit.maximum).toBe(50);
+    });
+
+    it("Zod accepts nil-like collection scope and facet filters", () => {
+      const parsed = CombinedSearchInput.safeParse({
+        collection_id: "nil",
+        query: "risk",
+        facet_filters: { status: ["open", "blocked"] }
+      });
+      expect(parsed.success).toBe(true);
+      if (parsed.success) {
+        expect(parsed.data.collection_id).toBeUndefined();
+      }
+    });
+
+    it("keeps csearch as a strict alias schema", () => {
+      expect(combinedSearchAliasTool.definition.name).toBe("ghostcrab_csearch");
+      expect(combinedSearchAliasTool.definition.inputSchema).toBe(
+        combinedSearchTool.definition.inputSchema
+      );
     });
   });
 
@@ -476,9 +541,7 @@ describe("MCP inputSchema contract (drift guard)", () => {
     });
 
     it("Zod rejects empty content", () => {
-      expect(
-        RememberInput.safeParse({ content: "   " }).success
-      ).toBe(false);
+      expect(RememberInput.safeParse({ content: "   " }).success).toBe(false);
       expect(
         RememberInput.safeParse({
           content: "note",
@@ -556,9 +619,9 @@ describe("MCP inputSchema contract (drift guard)", () => {
     });
 
     it("Zod rejects blank projection_id", () => {
-      expect(ProjectionGetInput.safeParse({ projection_id: "  " }).success).toBe(
-        false
-      );
+      expect(
+        ProjectionGetInput.safeParse({ projection_id: "  " }).success
+      ).toBe(false);
       expect(
         ProjectionGetInput.safeParse({
           collection_id: null,
@@ -652,10 +715,7 @@ describe("MCP inputSchema contract (drift guard)", () => {
 
     it("requires start and documents direction and depth", () => {
       expect(schema.required).toEqual(expect.arrayContaining(["start"]));
-      expect(schema.properties.direction.enum).toEqual([
-        "outbound",
-        "inbound"
-      ]);
+      expect(schema.properties.direction.enum).toEqual(["outbound", "inbound"]);
       expect(schema.properties.depth.minimum).toBe(1);
       expect(schema.properties.depth.maximum).toBe(10);
       expect(schema.properties.edge_labels.type).toBe("array");
@@ -667,15 +727,13 @@ describe("MCP inputSchema contract (drift guard)", () => {
   });
 
   describe("ghostcrab_schema_list", () => {
-    const inputSchema = (
-      schemaListTool.definition.inputSchema as {
-        properties: {
-          target: { enum?: string[] };
-          domain: { type?: string };
-          summary_only: { type?: string | boolean };
-        };
-      }
-    );
+    const inputSchema = schemaListTool.definition.inputSchema as {
+      properties: {
+        target: { enum?: string[] };
+        domain: { type?: string };
+        summary_only: { type?: string | boolean };
+      };
+    };
 
     it("documents target enum", () => {
       expect(inputSchema.properties.target.enum).toEqual([

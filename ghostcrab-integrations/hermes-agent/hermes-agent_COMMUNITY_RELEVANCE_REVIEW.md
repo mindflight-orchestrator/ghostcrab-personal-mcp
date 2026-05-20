@@ -137,18 +137,18 @@ Recommended position:
 
 ## 8. Tool Mapping
 
-| Hermes-Agent need | GhostCrab Personal tool |
-| --- | --- |
-| Check local memory availability | `ghostcrab_status` |
-| Create a durable memory entry | `ghostcrab_remember` |
-| Search remembered context | `ghostcrab_search` |
-| Maintain current task or project state | `ghostcrab_upsert` |
-| Link related items | `ghostcrab_learn` |
-| Follow linked context | `ghostcrab_traverse` |
-| Build active working context | `ghostcrab_project` |
-| Load compact session context | `ghostcrab_pack` |
-| Count records by facet | `ghostcrab_count` |
-| Inspect schema contracts | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
+| Hermes-Agent need                      | GhostCrab Personal tool                             |
+| -------------------------------------- | --------------------------------------------------- |
+| Check local memory availability        | `ghostcrab_status`                                  |
+| Create a durable memory entry          | `ghostcrab_remember`                                |
+| Search remembered context              | `ghostcrab_search`                                  |
+| Maintain current task or project state | `ghostcrab_upsert`                                  |
+| Link related items                     | `ghostcrab_learn`                                   |
+| Follow linked context                  | `ghostcrab_traverse`                                |
+| Build active working context           | `ghostcrab_project`                                 |
+| Load compact session context           | `ghostcrab_pack`                                    |
+| Count records by facet                 | `ghostcrab_count`                                   |
+| Inspect schema contracts               | `ghostcrab_schema_list`, `ghostcrab_schema_inspect` |
 
 ## 9. Community Demo Scenarios
 
@@ -180,14 +180,14 @@ Keep this note brief.
 
 ### Agent Lifecycle Mapping
 
-| Moment | Agent question | Expected GhostCrab tool | Present in current review? |
-|---|---|---|---|
-| Before | Verify GhostCrab is running; load prior session context | `ghostcrab_status`, `ghostcrab_pack` | `ghostcrab_status` in tool mapping; `ghostcrab_pack` in Demo 1 — good |
-| Read | Search prior notes, decisions, and task context | `ghostcrab_search` | Yes, Demo 3 |
-| Write (durable) | Record a project note or decision permanently | `ghostcrab_remember` | Demo 1 — good |
-| Write (state) | Update the current work item or blocker state | `ghostcrab_upsert` | Demo 2 — good |
-| After | Record active project goals | `ghostcrab_project` | Tool mapping only, no demo |
-| Recovery | Resume a coding session from prior state | `ghostcrab_pack` | Demo 1 covers this — good |
+| Moment          | Agent question                                          | Expected GhostCrab tool              | Present in current review?                                            |
+| --------------- | ------------------------------------------------------- | ------------------------------------ | --------------------------------------------------------------------- |
+| Before          | Verify GhostCrab is running; load prior session context | `ghostcrab_status`, `ghostcrab_pack` | `ghostcrab_status` in tool mapping; `ghostcrab_pack` in Demo 1 — good |
+| Read            | Search prior notes, decisions, and task context         | `ghostcrab_search`                   | Yes, Demo 3                                                           |
+| Write (durable) | Record a project note or decision permanently           | `ghostcrab_remember`                 | Demo 1 — good                                                         |
+| Write (state)   | Update the current work item or blocker state           | `ghostcrab_upsert`                   | Demo 2 — good                                                         |
+| After           | Record active project goals                             | `ghostcrab_project`                  | Tool mapping only, no demo                                            |
+| Recovery        | Resume a coding session from prior state                | `ghostcrab_pack`                     | Demo 1 covers this — good                                             |
 
 ### Partial Credit: Best Behavioral Coverage in This Review Set
 
@@ -214,19 +214,20 @@ Missing: workspace existence check before first write. An MCP client starting a 
 ### Failure Mode Coverage
 
 Not addressed. Critical cases:
+
 - `ghostcrab_status` returns unhealthy — agent should stop and prompt the user to run `gcp brain up`
 - `ghostcrab_pack` returns empty (new project) — agent should proceed, not error; note that first-time use requires a workspace
 
 ## 11. Readiness Score
 
-| Criterion | Score | Notes |
-| --- | ---: | --- |
-| Community relevance | 5/5 | MCP-native users are a strong audience, and the public entry skill is now concise. |
-| Framework alignment | 5/5 | The basic MCP memory story is direct and client-neutral. |
-| GhostCrab Personal accuracy | 5/5 | Commands now use `@mindflight/ghostcrab-personal-mcp` and `gcp brain up`. |
-| Tool-name accuracy | 5/5 | Skills use the public `ghostcrab_*` tool surface. |
-| Agent behavioral clarity | 5/5 | Start Here, remember/upsert, `ghostcrab_project`, and failure modes are explicit. |
-| Community readiness | 5/5 | Ready as a local-first community trial path. |
+| Criterion                   | Score | Notes                                                                              |
+| --------------------------- | ----: | ---------------------------------------------------------------------------------- |
+| Community relevance         |   5/5 | MCP-native users are a strong audience, and the public entry skill is now concise. |
+| Framework alignment         |   5/5 | The basic MCP memory story is direct and client-neutral.                           |
+| GhostCrab Personal accuracy |   5/5 | Commands now use `@mindflight/ghostcrab-personal-mcp` and `gcp brain up`.          |
+| Tool-name accuracy          |   5/5 | Skills use the public `ghostcrab_*` tool surface.                                  |
+| Agent behavioral clarity    |   5/5 | Start Here, remember/upsert, `ghostcrab_project`, and failure modes are explicit.  |
+| Community readiness         |   5/5 | Ready as a local-first community trial path.                                       |
 
 Overall readiness: **Publishable after normal editorial review.**
 
