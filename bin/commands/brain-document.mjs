@@ -5,14 +5,13 @@
 
 import { readFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { resolveGhostcrabSqlite } from "../lib/resolve-ghostcrab-sqlite.mjs";
 import { slugifyWorkspace } from "../lib/workspace-slug.mjs";
 import {
-  resolveDocumentEnginePath,
-  ensureUnixExecuteBit
-} from "../lib/prebuild-permissions.mjs";
+  preflightBrainDatabaseOrExit,
+  runNativeEngineOrExit
+} from "../lib/brain-engine-runner.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(__dirname, "..", "..");
@@ -54,52 +53,19 @@ export async function cmdBrainDocument(args) {
     process.exit(1);
   }
 
-  const resolved = resolveDocumentEnginePath(pkgRoot);
-  if (!resolved.ok) {
-    const hint = resolved.packageName
-      ? `  Optional package: ${resolved.packageName}\n`
-      : "";
-    console.error(
-      `[ghostcrab] Document engine not found for ${resolved.platformKey}.\n` +
-        hint +
-        `  Fallback path: ${resolved.path}\n` +
-        `  Build from source:  cd cmd/backend && zig build document-tool\n` +
-        `  Or set GHOSTCRAB_DOCUMENT_ENGINE=/path/to/ghostcrab-document`
-    );
-    process.exit(1);
-  }
-
-  const ex = ensureUnixExecuteBit(resolved.path);
-  if (!ex.ok) {
-    console.error(
-      `[ghostcrab] Cannot use document engine ${resolved.path}: ${ex.error?.message ?? ex}\n` +
-        `  Try:  chmod +x "${resolved.path}"  or  gcp authorize`
-    );
-    process.exit(1);
-  }
-
   const { sqlitePathResolved } = resolveGhostcrabSqlite({
     workspaceNameFromCli: workspaceName,
     sqlitePathFromCli
   });
 
   const usesDatabase = subcommandUsesDatabase(sub);
-  if (!force && usesDatabase) {
-    const backend = await probeBackend(sqlitePathResolved);
-    if (backend.alive) {
-      console.error(formatBackendRunningMessage(sqlitePathResolved, backend));
-      process.exit(1);
-    }
+  if (usesDatabase) {
+    await preflightBrainDatabaseOrExit(sqlitePathResolved, force);
   }
 
   /** @type {string[]} */
   const childArgs = buildDocumentEngineArgs(forward, sqlitePathResolved);
-
-  const r = spawnSync(resolved.path, childArgs, {
-    stdio: "inherit",
-    env: { ...process.env }
-  });
-  process.exit(r.status ?? 1);
+  runNativeEngineOrExit(pkgRoot, childArgs);
 }
 
 /**

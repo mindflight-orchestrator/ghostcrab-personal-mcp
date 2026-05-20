@@ -89,12 +89,15 @@ switch (cmd) {
     printHelp();
     break;
   default:
-    console.error(`gcp: unknown command "${cmd}". Run "gcp --help" for usage.\n`);
+    console.error(
+      `gcp: unknown command "${cmd}". Run "gcp --help" for usage.\n`
+    );
     process.exit(1);
 }
 
 function printHelp() {
-  console.log(`
+  console.log(
+    `
 GhostCrab CLI — durable structured memory for AI agents
 
 Usage: gcp <command> [options]
@@ -109,7 +112,9 @@ Usage: gcp <command> [options]
   brain workspace create [name]   Create / register a workspace
   brain workspace list            List workspaces
   brain schema <sub>              Ontologies (knowledge structure in the DB)
-  brain load <file.jsonl>         Load a portable JSONL profile
+  brain backup [opts]             Export workspace/collection/taxonomy backup
+  brain export [opts]             Alias for brain backup
+  brain load <file>               Load JSONL profile or restore backup bundle
   brain document <cmd> [args]     Corpus normalize/profile/ingest (stop MCP first)
   brain setup <cursor|codex|claude>  User-global MCP (see README_*_MCP.md)
   bootstrap                          Create .env / data/ / README symlinks in cwd
@@ -141,5 +146,6 @@ IDE skills (Cursor / Claude Code / Codex):
   gcp brain up --install-skills does the same explicitly during server startup.
 
 Run  gcp brain --help   /   gcp agent --help   /   gcp env --help   for details.
-`.trim());
+`.trim()
+  );
 }
