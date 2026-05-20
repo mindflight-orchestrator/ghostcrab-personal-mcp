@@ -85,6 +85,16 @@ export const graphReindexTool: ToolHandler = {
         [workspaceId]
       );
 
+      const [{ count: relationPropertyCount } = { count: 0 }] =
+        await database.query<{ count: number }>(
+          `
+            SELECT COUNT(*) AS count
+            FROM relation_properties_raw
+            WHERE workspace_id = ?
+          `,
+          [workspaceId]
+        );
+
       await database.query(
         `
           INSERT OR REPLACE INTO graph_entity (
@@ -146,6 +156,43 @@ export const graphReindexTool: ToolHandler = {
             metadata_json,
             NULL
           FROM relations_raw
+          WHERE workspace_id = ?
+        `,
+        [workspaceId]
+      );
+
+      await database.query(
+        `
+          DELETE FROM graph_relation_property
+          WHERE relation_id IN (
+            SELECT relation_id FROM graph_relation WHERE workspace_id = ?
+          )
+        `,
+        [workspaceId]
+      );
+
+      await database.query(
+        `
+          INSERT OR REPLACE INTO graph_relation_property (
+            relation_id,
+            property_key,
+            value_type,
+            value_text,
+            value_number,
+            value_integer,
+            ref_doc_id,
+            currency
+          )
+          SELECT
+            relation_id,
+            property_key,
+            value_type,
+            value_text,
+            value_number,
+            value_integer,
+            ref_doc_id,
+            currency
+          FROM relation_properties_raw
           WHERE workspace_id = ?
         `,
         [workspaceId]
@@ -267,6 +314,7 @@ export const graphReindexTool: ToolHandler = {
         entity_count: Number(entityCount),
         alias_count: Number(aliasCount),
         relation_count: Number(relationCount),
+        relation_property_count: Number(relationPropertyCount),
         document_link_count: documentLinkCount,
         chunk_link_count: chunkLinkCount
       };
@@ -283,6 +331,7 @@ export const graphReindexTool: ToolHandler = {
         report.entity_count +
         report.alias_count +
         report.relation_count +
+        report.relation_property_count +
         report.document_link_count +
         report.chunk_link_count
     });

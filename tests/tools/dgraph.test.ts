@@ -810,4 +810,221 @@ describe("dgraph tools", () => {
       edge: { learned: true, id: "1", label: "HAS_GAP", updated: true }
     });
   });
+
+  it("creates a new edge with relation_properties and writes raw source plus graph projection", async () => {
+    const sqlCalls: string[] = [];
+    const query = vi.fn(async (sql: string) => {
+      sqlCalls.push(sql);
+
+      if (sql.includes("INSERT INTO graph_entity")) return [];
+      if (sql.includes("INSERT OR IGNORE INTO graph_entity_alias")) return [];
+      if (sql.includes("FROM graph_entity") && sql.includes("WHERE entity_type =")) {
+        return [{ entity_id: 2 }];
+      }
+      if (sql.includes("FROM graph_relation") && sql.includes("LIMIT 1")) {
+        return [];
+      }
+      if (sql.includes("COALESCE(MAX(relation_id)")) {
+        return [{ next_id: 5 }];
+      }
+      if (sql.includes("INSERT INTO graph_relation")) return [];
+      if (sql.includes("INSERT INTO workspaces")) return [];
+      if (sql.includes("INSERT INTO ontologies")) return [];
+      if (sql.includes("INSERT INTO entities_raw")) return [];
+      if (sql.includes("INSERT INTO relations_raw")) return [];
+      if (sql.includes("INSERT INTO relation_properties_raw")) return [];
+      if (sql.includes("INSERT INTO graph_relation_property")) return [];
+      if (sql.includes("JOIN graph_entity") && sql.includes("relation_type")) return [];
+
+      return [];
+    });
+    const database = createMockDatabase(query);
+
+    const result = await learnTool.handler(
+      {
+        edge: {
+          source: "doc:a",
+          target: "doc:b",
+          label: "REFERENCES",
+          weight: 0.9,
+          relation_properties: [
+            { property_key: "url", value_type: "uri", value_text: "https://example.com" }
+          ]
+        }
+      },
+      createToolContext(database)
+    );
+
+    expect(readStructured(result)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_learn",
+      edge: {
+        learned: true,
+        created: true,
+        id: "5",
+        label: "REFERENCES",
+        relation_properties_count: 1
+      }
+    });
+    expect(sqlCalls.some((s) => s.includes("INSERT INTO relation_properties_raw"))).toBe(true);
+    expect(sqlCalls.some((s) => s.includes("INSERT INTO graph_relation_property"))).toBe(true);
+  });
+
+  it("updates an existing edge with relation_properties and issues UPDATE + raw property upsert", async () => {
+    const sqlCalls: string[] = [];
+    const query = vi.fn(async (sql: string) => {
+      sqlCalls.push(sql);
+
+      if (sql.includes("INSERT INTO graph_entity")) return [];
+      if (sql.includes("INSERT OR IGNORE INTO graph_entity_alias")) return [];
+      if (sql.includes("FROM graph_entity") && sql.includes("WHERE entity_type =")) {
+        return [{ entity_id: 3 }];
+      }
+      if (sql.includes("FROM graph_relation") && sql.includes("LIMIT 1")) {
+        return [{ relation_id: 7 }];
+      }
+      if (sql.includes("UPDATE graph_relation")) return [];
+      if (sql.includes("INSERT INTO workspaces")) return [];
+      if (sql.includes("INSERT INTO ontologies")) return [];
+      if (sql.includes("INSERT INTO entities_raw")) return [];
+      if (sql.includes("INSERT INTO relations_raw")) return [];
+      if (sql.includes("INSERT INTO relation_properties_raw")) return [];
+      if (sql.includes("INSERT INTO graph_relation_property")) return [];
+      if (sql.includes("JOIN graph_entity") && sql.includes("relation_type")) {
+        return [{ relation_id: 7 }];
+      }
+
+      return [];
+    });
+    const database = createMockDatabase(query);
+
+    const result = await learnTool.handler(
+      {
+        edge: {
+          source: "doc:a",
+          target: "doc:b",
+          label: "REFERENCES",
+          weight: 0.8,
+          relation_properties: [
+            { property_key: "weight_bp", value_type: "percentage_bp", value_number: 8000 }
+          ]
+        }
+      },
+      createToolContext(database)
+    );
+
+    expect(readStructured(result)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_learn",
+      edge: {
+        learned: true,
+        updated: true,
+        id: "7",
+        relation_properties_count: 1
+      }
+    });
+    expect(sqlCalls.some((s) => s.includes("UPDATE graph_relation"))).toBe(true);
+    expect(sqlCalls.some((s) => s.includes("INSERT INTO relation_properties_raw"))).toBe(true);
+    expect(sqlCalls.some((s) => s.includes("INSERT INTO graph_relation_property"))).toBe(true);
+  });
+
+  it("ghostcrab_graph_reindex projects relation_properties_raw into graph_relation_property", async () => {
+    const sqlCalls: string[] = [];
+    const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
+      sqlCalls.push(sql);
+
+      if (sql.includes("FROM entities_raw") && sql.includes("COUNT(*)")) return [{ count: 1 }];
+      if (sql.includes("FROM entity_aliases_raw") && sql.includes("COUNT(*)")) return [{ count: 0 }];
+      if (sql.includes("FROM relations_raw") && sql.includes("COUNT(*)")) return [{ count: 2 }];
+      if (sql.includes("FROM relation_properties_raw") && sql.includes("COUNT(*)")) return [{ count: 3 }];
+      if (sql.includes("FROM entity_chunks_raw") && sql.includes("COUNT(*)")) return [{ count: 0 }];
+      return [];
+    });
+
+    const result = await graphReindexTool.handler(
+      { workspace_id: "ws-test" },
+      createToolContext(createMockDatabase(query))
+    );
+
+    expect(readStructured(result)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_graph_reindex",
+      relation_count: 2,
+      relation_property_count: 3,
+      projected_count: 6
+    });
+    expect(sqlCalls.some((s) => s.includes("FROM relation_properties_raw"))).toBe(true);
+    expect(sqlCalls.some((s) => s.includes("INSERT OR REPLACE INTO graph_relation_property"))).toBe(true);
+  });
+
+  it("ghostcrab_graph_search returns typed relation_properties when include_relations is true", async () => {
+    mockGraphSearchFetch([
+      {
+        entity_id: 10,
+        entity_type: "Concept",
+        name: "sprint-planning",
+        confidence: 1.0,
+        metadata_json: "{}",
+        score: 1
+      }
+    ]);
+
+    const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
+      if (sql.includes("FROM graph_relation") && sql.includes("deprecated_at IS NULL")) {
+        return [
+          {
+            relation_id: 20,
+            relation_type: "BLOCKS",
+            source_id: 10,
+            target_id: 11,
+            metadata_json: "{}"
+          }
+        ];
+      }
+      if (sql.includes("FROM graph_relation_property")) {
+        return [
+          {
+            relation_id: 20,
+            property_key: "reason",
+            value_type: "text",
+            value_text: "missing approval",
+            value_number: null,
+            value_integer: null,
+            ref_doc_id: null,
+            currency: null
+          }
+        ];
+      }
+      return [];
+    });
+
+    const result = await graphSearchTool.handler(
+      {
+        workspace_id: "ws-test",
+        query: "sprint",
+        include_relations: true
+      },
+      createToolContext(createMockDatabase(query))
+    );
+
+    const structured = readStructured(result);
+    expect(structured).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_graph_search",
+      returned: 1
+    });
+    const relations = structured.relations as Array<Record<string, unknown>>;
+    expect(relations).toHaveLength(1);
+    expect(relations[0]).toMatchObject({
+      relation_id: 20,
+      relation_type: "BLOCKS",
+      relation_properties: [
+        {
+          property_key: "reason",
+          value_type: "text",
+          value_text: "missing approval"
+        }
+      ]
+    });
+  });
 });
