@@ -329,4 +329,4 @@ Upstream: `github.com/mindflight-orchestrator/mindBrain`.
 
 To start a full project to create your first ontology, you could add this starter kit skills :
 
-`[https://github.com/mindflight-orchestrator/starter-kit-ghostcrab-perso](https://github.com/mindflight-orchestrator/starter-kit-ghostcrab-perso)`.
+[https://github.com/mindflight-orchestrator/starter-kit-ghostcrab-perso](https://github.com/mindflight-orchestrator/starter-kit-ghostcrab-perso)
