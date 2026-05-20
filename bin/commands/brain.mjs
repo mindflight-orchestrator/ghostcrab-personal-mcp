@@ -35,6 +35,12 @@ export async function cmdBrain(args) {
       await cmdLoad(rest);
       break;
     }
+    case "backup":
+    case "export": {
+      const { cmdBrainBackup } = await import("./brain-backup.mjs");
+      await cmdBrainBackup(rest);
+      break;
+    }
     case "db-who": {
       const { runBrainDbWho } = await import("./brain-db-who.mjs");
       await runBrainDbWho(rest);
@@ -111,7 +117,8 @@ async function cmdBrainSetup(args) {
   // config → defaultWorkspace → cwd/data/ghostcrab.sqlite).
   let effectiveDbPath = p.dbPath;
   if (!effectiveDbPath) {
-    const { resolveGhostcrabSqlite } = await import("../lib/resolve-ghostcrab-sqlite.mjs");
+    const { resolveGhostcrabSqlite } =
+      await import("../lib/resolve-ghostcrab-sqlite.mjs");
     const resolved = resolveGhostcrabSqlite({
       workspaceNameFromCli: p.workspace ?? null,
       sqlitePathFromCli: null
@@ -409,15 +416,21 @@ Subcommands:
   db-who [--path] [--workspace]            Which processes have the SQLite file open (lsof)
   document [--workspace] [--db] [--force] <cmd>
                                            Corpus import / normalize / profile (stop MCP first)
-  load <file.jsonl>                       Load a portable JSONL profile into the DB
+  backup [opts]                           Export workspace, collection, or taxonomy backup bundle
+  export [opts]                           Alias for backup
+  load <file.jsonl|backup.json>           Load JSONL profile or restore backup bundle
   setup <cursor|codex|claude> [opts]     User-global MCP: ~/.cursor/mcp.json, codex mcp add, or claude mcp add
 
 Examples:
   gcp brain up --workspace my-app
   gcp brain workspace create my-app
   gcp brain schema pull mindflight/mindbrain
+  gcp brain backup --workspace-id my_ws --output ./backup.json
+  gcp brain backup --workspace-id my_ws --scope taxonomies --output ./taxonomies.json
+  gcp brain export --workspace-id my_ws --scope collection --collection-id my_ws::docs -o ./docs.json
   gcp brain document document-profile-worker --base-url https://api.openai.com/v1 --model gpt-4.1-mini --limit 2
   gcp brain load ./profile.jsonl
+  gcp brain load ./backup.json --dry-run
   gcp brain setup cursor --dry-run
   gcp brain setup claude --runner pnpm
 

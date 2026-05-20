@@ -131,13 +131,30 @@ Inspect the inserted document:
 gcp brain document --force document-by-nanoid --nanoid <doc_nanoid>
 ```
 
-Export the collection for review:
+Export a collection backup for review or restore:
 
 ```bash
-gcp brain document --force collection-export \
+gcp brain backup --force \
   --workspace-id my_ws \
+  --scope collection \
   --collection-id my_ws::docs \
-  --output ./my_ws_docs.export.json
+  --output ./my_ws_docs.backup.json
+```
+
+Export only the workspace taxonomies:
+
+```bash
+gcp brain backup --force \
+  --workspace-id my_ws \
+  --scope taxonomies \
+  --output ./my_ws_taxonomies.backup.json
+```
+
+Validate or restore a backup bundle:
+
+```bash
+gcp brain load ./my_ws_docs.backup.json --dry-run
+gcp brain load ./my_ws_docs.backup.json --force
 ```
 
 ## Workflow 3: Profile And Persist

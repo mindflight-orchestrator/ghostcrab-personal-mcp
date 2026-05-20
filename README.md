@@ -197,6 +197,14 @@ npx gcp brain document --force qualification-vocab-list \
   --workspace-id my_ws --collection-id my_ws::docs
 ```
 
+Backup and restore use the same canonical raw tables:
+
+```bash
+npx gcp brain backup --workspace-id my_ws --output ./my_ws.backup.json
+npx gcp brain backup --workspace-id my_ws --scope taxonomies --output ./my_ws.taxonomies.json
+npx gcp brain load ./my_ws.backup.json --dry-run
+```
+
 The listing output gives the IDs expected by future controlled qualification
 flags: taxonomy IDs for `--taxonomies` and facet IDs such as
 `source.filename` or `topic.category` for `--facets`.
