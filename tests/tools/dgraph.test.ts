@@ -4,8 +4,10 @@ import type { DatabaseClient, Queryable } from "../../src/db/client.js";
 import { createToolContext } from "../helpers/tool-context.js";
 import { coverageTool } from "../../src/tools/dgraph/coverage.js";
 import { entityChunksTool } from "../../src/tools/dgraph/entity-chunks.js";
+import { graphPathTool } from "../../src/tools/dgraph/graph-path.js";
 import { graphReindexTool } from "../../src/tools/dgraph/graph-reindex.js";
 import { graphSearchTool } from "../../src/tools/dgraph/graph-search.js";
+import { graphSubgraphTool } from "../../src/tools/dgraph/graph-subgraph.js";
 import { learnTool } from "../../src/tools/dgraph/learn.js";
 import { traverseTool } from "../../src/tools/dgraph/traverse.js";
 import { GHOSTCRAB_MCP_SURFACE_VERSION } from "../../src/tools/registry.js";
@@ -99,6 +101,17 @@ function mockGraphSearchFetch(rows: Array<Record<string, unknown>>): void {
 describe("dgraph tools", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
+  });
+
+  it("does not advertise workspace_id for graph-path and graph-subgraph until backend scoping exists", () => {
+    const pathProperties = graphPathTool.definition.inputSchema.properties as
+      | Record<string, unknown>
+      | undefined;
+    const subgraphProperties = graphSubgraphTool.definition.inputSchema
+      .properties as Record<string, unknown> | undefined;
+
+    expect(pathProperties).not.toHaveProperty("workspace_id");
+    expect(subgraphProperties).not.toHaveProperty("workspace_id");
   });
 
   it("reports when no ontology exists for a domain", async () => {
@@ -328,6 +341,33 @@ describe("dgraph tools", () => {
     expect(
       query.mock.calls.some(([sql]) => sql.includes("graph_entity_chunk"))
     ).toBe(true);
+  });
+
+  it("ghostcrab_graph_reindex returns native backend errors instead of hiding them with SQL fallback", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        return new Response(JSON.stringify({ error: "Boom" }), {
+          status: 500,
+          statusText: "Internal Server Error",
+          headers: { "content-type": "application/json" }
+        });
+      })
+    );
+    const query = vi.fn<DatabaseClient["query"]>(async () => []);
+
+    const result = await graphReindexTool.handler(
+      { workspace_id: "mindbrain-seo-audit" },
+      createToolContext(createMockDatabase(query))
+    );
+
+    expect(result.isError).toBe(true);
+    expect(query).not.toHaveBeenCalled();
+    expect(result.structuredContent).toMatchObject({
+      ok: false,
+      tool: "ghostcrab_graph_reindex",
+      error: expect.objectContaining({ code: "backend_reindex_failed" })
+    });
   });
 
   it("ghostcrab_entity_chunks returns chunk grounding for graph entities", async () => {
@@ -769,10 +809,15 @@ describe("dgraph tools", () => {
 
       if (
         sql.includes("FROM graph_entity") &&
-        sql.includes("WHERE entity_type =")
+        sql.includes("WHERE workspace_id =") &&
+        sql.includes("AND entity_type =")
       ) {
         return [{ entity_id: 1 }];
       }
+      if (sql.includes("INSERT INTO workspaces")) return [];
+      if (sql.includes("INSERT INTO ontologies")) return [];
+      if (sql.includes("INSERT INTO entities_raw")) return [];
+      if (sql.includes("INSERT INTO relations_raw")) return [];
 
       if (sql.includes("FROM graph_relation") && sql.includes("LIMIT 1")) {
         return [{ relation_id: 1 }];
@@ -820,7 +865,8 @@ describe("dgraph tools", () => {
       if (sql.includes("INSERT OR IGNORE INTO graph_entity_alias")) return [];
       if (
         sql.includes("FROM graph_entity") &&
-        sql.includes("WHERE entity_type =")
+        sql.includes("WHERE workspace_id =") &&
+        sql.includes("AND entity_type =")
       ) {
         return [{ entity_id: 2 }];
       }
@@ -891,7 +937,8 @@ describe("dgraph tools", () => {
       if (sql.includes("INSERT OR IGNORE INTO graph_entity_alias")) return [];
       if (
         sql.includes("FROM graph_entity") &&
-        sql.includes("WHERE entity_type =")
+        sql.includes("WHERE workspace_id =") &&
+        sql.includes("AND entity_type =")
       ) {
         return [{ entity_id: 3 }];
       }

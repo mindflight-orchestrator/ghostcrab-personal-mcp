@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 import { FACETS_SEARCH_TABLE_ID } from "../../db/fact-store.js";
+import { resolveGhostcrabConfig } from "../../config/env.js";
+import { runStandaloneCollectionFacetSearch } from "../../db/standalone-mindbrain.js";
 import { graphSearchTool } from "../dgraph/graph-search.js";
 import { searchTool } from "../facets/search.js";
 import {
@@ -64,7 +66,7 @@ type CombinedFact = {
   facets: Record<string, unknown>;
   id: string;
   linked_entity_ids: number[];
-  match_origin: "linked_graph_fact" | "facet_fallback";
+  match_origin: "linked_graph_fact" | "facet_fallback" | "collection_facet_fallback";
   schema_id: string;
   score: number;
   version: number;
@@ -268,6 +270,52 @@ async function runCombinedSearch(
       });
     } else {
       fallbackFacts = readFallbackFacts(fallbackResult.structuredContent);
+    }
+
+    if (
+      fallbackFacts.length === 0 &&
+      input.collection_id &&
+      input.query.trim().length > 0
+    ) {
+      try {
+        const config = resolveGhostcrabConfig();
+        const collectionFacets = await runStandaloneCollectionFacetSearch({
+          mindbrainUrl: config.mindbrainUrl,
+          timeoutMs: config.mindbrainHttpTimeoutMs,
+          workspaceId,
+          collectionId: input.collection_id,
+          value: input.query,
+          limit: facetLimit
+        });
+        if (collectionFacets.matches.length > 0) {
+          fallbackFacts = collectionFacets.matches.map((match) => ({
+            id: `collection:${match.doc_id}:${match.namespace}.${match.dimension}`,
+            content: `${match.namespace}.${match.dimension}=${match.value}`,
+            score: match.weight,
+            schema_id: "collection:facet_assignment",
+            facets: {
+              doc_id: match.doc_id,
+              chunk_index: match.chunk_index,
+              namespace: match.namespace,
+              dimension: match.dimension,
+              value: match.value
+            },
+            created_at: new Date(0).toISOString(),
+            doc_id: match.doc_id,
+            linked_entity_ids: [],
+            match_origin: "collection_facet_fallback" as const,
+            version: 1
+          }));
+        }
+      } catch (error) {
+        partialErrors.push({
+          layer: "collection_facets",
+          message:
+            error instanceof Error
+              ? error.message
+              : "collection facet search unavailable"
+        });
+      }
     }
   }
 

@@ -27,6 +27,7 @@ export interface StandaloneTraverseParams {
   edgeLabels: string[];
   depth: number;
   target?: string;
+  workspaceId?: string;
 }
 
 export interface StandaloneTraverseRow {
@@ -266,6 +267,9 @@ export async function runStandaloneTraverse(
   }
   for (const edgeLabel of params.edgeLabels) {
     url.searchParams.append("edge_label", edgeLabel);
+  }
+  if (params.workspaceId) {
+    url.searchParams.set("workspace_id", params.workspaceId);
   }
 
   return await fetchJson<StandaloneTraverseResult>(
@@ -688,4 +692,92 @@ function withTimeout(
 
 function normalizeBaseUrl(baseUrl: string): string {
   return baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+}
+
+export interface StandaloneReindexGraphParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  workspaceId: string;
+  documentTableId?: number;
+}
+
+export interface StandaloneReindexGraphResult {
+  workspace_id: string;
+  projected_count: number;
+  document_table_id: number | null;
+  adjacency_rebuilt?: boolean;
+}
+
+export async function runStandaloneReindexGraph(
+  params: StandaloneReindexGraphParams
+): Promise<StandaloneReindexGraphResult> {
+  const url = new URL(
+    "/api/mindbrain/reindex/graph",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  return await fetchJson<StandaloneReindexGraphResult>(
+    url,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        workspace_id: params.workspaceId,
+        document_table_id: params.documentTableId ?? null
+      })
+    },
+    params.timeoutMs
+  );
+}
+
+export interface StandaloneCollectionFacetSearchParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  workspaceId: string;
+  collectionId: string;
+  tableId?: number;
+  namespace?: string;
+  dimension?: string;
+  value?: string;
+  limit?: number;
+}
+
+export interface StandaloneCollectionFacetMatch {
+  doc_id: number;
+  chunk_index: number | null;
+  namespace: string;
+  dimension: string;
+  value: string;
+  weight: number;
+}
+
+export interface StandaloneCollectionFacetSearchResult {
+  workspace_id: string;
+  collection_id: string;
+  returned: number;
+  matches: StandaloneCollectionFacetMatch[];
+  source: string;
+}
+
+export async function runStandaloneCollectionFacetSearch(
+  params: StandaloneCollectionFacetSearchParams
+): Promise<StandaloneCollectionFacetSearchResult> {
+  const url = new URL(
+    "/api/mindbrain/collections/facet-search",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  url.searchParams.set("workspace_id", params.workspaceId);
+  url.searchParams.set("collection_id", params.collectionId);
+  if (params.tableId !== undefined) {
+    url.searchParams.set("table_id", String(params.tableId));
+  }
+  if (params.namespace) url.searchParams.set("namespace", params.namespace);
+  if (params.dimension) url.searchParams.set("dimension", params.dimension);
+  if (params.value) url.searchParams.set("value", params.value);
+  url.searchParams.set("limit", String(params.limit ?? 25));
+
+  return await fetchJson<StandaloneCollectionFacetSearchResult>(
+    url,
+    { method: "GET" },
+    params.timeoutMs
+  );
 }

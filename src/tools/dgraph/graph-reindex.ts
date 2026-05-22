@@ -1,6 +1,10 @@
 import { z } from "zod";
 
+import { resolveGhostcrabConfig } from "../../config/env.js";
+import { runSqlGraphReindex } from "../../db/graph-reindex-sql.js";
+import { runStandaloneReindexGraph } from "../../db/standalone-mindbrain.js";
 import {
+  createToolErrorResult,
   createToolSuccessResult,
   registerTool,
   type ToolHandler
@@ -17,7 +21,7 @@ export const graphReindexTool: ToolHandler = {
   definition: {
     name: "ghostcrab_graph_reindex",
     description:
-      "Write. Rebuild derived graph_entity, graph_relation, graph_entity_document, and graph_entity_chunk rows from MindBrain raw collection graph tables for a workspace.",
+      "Write. Rebuild derived graph_entity, graph_relation, graph_entity_document, and graph_entity_chunk rows from MindBrain raw collection graph tables for a workspace. Prefers native MindBrain reindex (includes adjacency rebuild) with SQL fallback.",
     inputSchema: {
       type: "object",
       properties: {
@@ -50,292 +54,92 @@ export const graphReindexTool: ToolHandler = {
   async handler(args, context) {
     const input = GraphReindexInput.parse(args);
     const workspaceId = input.workspace_id ?? context.session.workspace_id;
+    const config = resolveGhostcrabConfig();
 
-    const report = await context.database.transaction(async (database) => {
-      const [{ count: entityCount } = { count: 0 }] = await database.query<{
-        count: number;
-      }>(
-        `
-          SELECT COUNT(*) AS count
-          FROM entities_raw
-          WHERE workspace_id = ?
-        `,
-        [workspaceId]
-      );
+    try {
+      const native = await runStandaloneReindexGraph({
+        mindbrainUrl: config.mindbrainUrl,
+        timeoutMs: config.mindbrainHttpTimeoutMs,
+        workspaceId,
+        documentTableId: input.document_table_id
+      });
 
-      const [{ count: aliasCount } = { count: 0 }] = await database.query<{
-        count: number;
-      }>(
-        `
-          SELECT COUNT(*) AS count
-          FROM entity_aliases_raw
-          WHERE workspace_id = ?
-        `,
-        [workspaceId]
-      );
-
-      const [{ count: relationCount } = { count: 0 }] = await database.query<{
-        count: number;
-      }>(
-        `
-          SELECT COUNT(*) AS count
-          FROM relations_raw
-          WHERE workspace_id = ?
-        `,
-        [workspaceId]
-      );
-
-      const [{ count: relationPropertyCount } = { count: 0 }] =
-        await database.query<{ count: number }>(
-          `
-            SELECT COUNT(*) AS count
-            FROM relation_properties_raw
-            WHERE workspace_id = ?
-          `,
-          [workspaceId]
-        );
-
-      await database.query(
-        `
-          INSERT OR REPLACE INTO graph_entity (
-            entity_id,
-            workspace_id,
-            entity_type,
-            name,
-            confidence,
-            metadata_json,
-            deprecated_at
-          )
-          SELECT
-            entity_id,
-            workspace_id,
-            entity_type,
-            name,
-            confidence,
-            metadata_json,
-            NULL
-          FROM entities_raw
-          WHERE workspace_id = ?
-        `,
-        [workspaceId]
-      );
-
-      await database.query(
-        `
-          INSERT OR REPLACE INTO graph_entity_alias (term, entity_id, confidence)
-          SELECT term, entity_id, confidence
-          FROM entity_aliases_raw
-          WHERE workspace_id = ?
-        `,
-        [workspaceId]
-      );
-
-      await database.query(
-        `
-          INSERT OR REPLACE INTO graph_relation (
-            relation_id,
-            workspace_id,
-            relation_type,
-            source_id,
-            target_id,
-            valid_from_unix,
-            valid_to_unix,
-            confidence,
-            metadata_json,
-            deprecated_at
-          )
-          SELECT
-            relation_id,
-            workspace_id,
-            edge_type,
-            source_entity_id,
-            target_entity_id,
-            unixepoch(valid_from),
-            unixepoch(valid_to),
-            confidence,
-            metadata_json,
-            NULL
-          FROM relations_raw
-          WHERE workspace_id = ?
-        `,
-        [workspaceId]
-      );
-
-      await database.query(
-        `
-          DELETE FROM graph_relation_property
-          WHERE relation_id IN (
-            SELECT relation_id FROM graph_relation WHERE workspace_id = ?
-          )
-        `,
-        [workspaceId]
-      );
-
-      await database.query(
-        `
-          INSERT OR REPLACE INTO graph_relation_property (
-            relation_id,
-            property_key,
-            value_type,
-            value_text,
-            value_number,
-            value_integer,
-            ref_doc_id,
-            currency
-          )
-          SELECT
-            relation_id,
-            property_key,
-            value_type,
-            value_text,
-            value_number,
-            value_integer,
-            ref_doc_id,
-            currency
-          FROM relation_properties_raw
-          WHERE workspace_id = ?
-        `,
-        [workspaceId]
-      );
-
-      let documentLinkCount = 0;
-      if (
-        input.include_document_links &&
-        input.document_table_id !== undefined
-      ) {
-        await database.query(
-          `
-            DELETE FROM graph_entity_document
-            WHERE table_id = ?
-              AND entity_id IN (
-                SELECT entity_id
-                FROM graph_entity
-                WHERE workspace_id = ?
-              )
-          `,
-          [input.document_table_id, workspaceId]
-        );
-
-        const [{ count = 0 } = { count: 0 }] = await database.query<{
-          count: number;
-        }>(
-          `
-            SELECT COUNT(*) AS count
-            FROM (
-              SELECT entity_id, doc_id
-              FROM entity_documents_raw
-              WHERE workspace_id = ?
-              GROUP BY entity_id, doc_id
-            )
-          `,
-          [workspaceId]
-        );
-        documentLinkCount = Number(count);
-
-        await database.query(
-          `
-            INSERT OR REPLACE INTO graph_entity_document (
-              entity_id,
-              doc_id,
-              table_id,
-              role,
-              confidence
-            )
-            SELECT
-              entity_id,
-              doc_id,
-              ?,
-              role,
-              MAX(confidence)
-            FROM entity_documents_raw
-            WHERE workspace_id = ?
-            GROUP BY entity_id, doc_id
-          `,
-          [input.document_table_id, workspaceId]
+      return createToolSuccessResult("ghostcrab_graph_reindex", {
+        workspace_id: workspaceId,
+        document_table_id: input.document_table_id ?? null,
+        include_document_links: input.include_document_links,
+        include_chunk_links: input.include_chunk_links,
+        backend: "mindbrain/reindex/graph",
+        projected_count: native.projected_count,
+        adjacency_rebuilt: native.adjacency_rebuilt ?? true,
+        entity_count: null,
+        alias_count: null,
+        relation_count: null,
+        relation_property_count: null,
+        document_link_count: null,
+        chunk_link_count: null
+      });
+    } catch (error) {
+      if (!shouldFallbackToSqlReindex(error)) {
+        return createToolErrorResult(
+          "ghostcrab_graph_reindex",
+          error instanceof Error ? error.message : "native graph reindex failed",
+          "backend_reindex_failed"
         );
       }
 
-      let chunkLinkCount = 0;
-      if (input.include_chunk_links) {
-        await database.query(
-          `
-            DELETE FROM graph_entity_chunk
-            WHERE workspace_id = ?
-          `,
-          [workspaceId]
-        );
+      const report = await context.database.transaction(async (database) =>
+        runSqlGraphReindex(database, {
+          workspaceId,
+          documentTableId: input.document_table_id,
+          includeDocumentLinks: input.include_document_links,
+          includeChunkLinks: input.include_chunk_links
+        })
+      );
 
-        const [{ count = 0 } = { count: 0 }] = await database.query<{
-          count: number;
-        }>(
-          `
-            SELECT COUNT(*) AS count
-            FROM (
-              SELECT entity_id, collection_id, doc_id, chunk_index
-              FROM entity_chunks_raw
-              WHERE workspace_id = ?
-              GROUP BY entity_id, collection_id, doc_id, chunk_index
-            )
-          `,
-          [workspaceId]
-        );
-        chunkLinkCount = Number(count);
-
-        await database.query(
-          `
-            INSERT OR REPLACE INTO graph_entity_chunk (
-              entity_id,
-              workspace_id,
-              collection_id,
-              doc_id,
-              chunk_index,
-              role,
-              confidence,
-              metadata_json
-            )
-            SELECT
-              entity_id,
-              workspace_id,
-              collection_id,
-              doc_id,
-              chunk_index,
-              role,
-              MAX(confidence),
-              '{}'
-            FROM entity_chunks_raw
-            WHERE workspace_id = ?
-            GROUP BY entity_id, collection_id, doc_id, chunk_index
-          `,
-          [workspaceId]
-        );
-      }
-
-      return {
-        entity_count: Number(entityCount),
-        alias_count: Number(aliasCount),
-        relation_count: Number(relationCount),
-        relation_property_count: Number(relationPropertyCount),
-        document_link_count: documentLinkCount,
-        chunk_link_count: chunkLinkCount
-      };
-    });
-
-    return createToolSuccessResult("ghostcrab_graph_reindex", {
-      workspace_id: workspaceId,
-      document_table_id: input.document_table_id ?? null,
-      include_document_links: input.include_document_links,
-      include_chunk_links: input.include_chunk_links,
-      backend: "sql",
-      ...report,
-      projected_count:
-        report.entity_count +
-        report.alias_count +
-        report.relation_count +
-        report.relation_property_count +
-        report.document_link_count +
-        report.chunk_link_count
-    });
+      return createToolSuccessResult("ghostcrab_graph_reindex", {
+        workspace_id: workspaceId,
+        document_table_id: input.document_table_id ?? null,
+        include_document_links: input.include_document_links,
+        include_chunk_links: input.include_chunk_links,
+        backend: "sql",
+        adjacency_rebuilt: false,
+        ...report,
+        projected_count:
+          report.entity_count +
+          report.alias_count +
+          report.relation_count +
+          report.relation_property_count +
+          report.document_link_count +
+          report.chunk_link_count
+      });
+    }
   }
 };
 
 registerTool(graphReindexTool);
+
+function shouldFallbackToSqlReindex(error: unknown): boolean {
+  const cause =
+    error instanceof Error &&
+    error.cause &&
+    typeof error.cause === "object"
+      ? (error.cause as { status?: unknown })
+      : null;
+  const status = typeof cause?.status === "number" ? cause.status : null;
+  if (status !== null) {
+    return status === 404 || status === 405;
+  }
+
+  if (!(error instanceof Error)) {
+    return true;
+  }
+
+  const message = error.message.toLowerCase();
+  return (
+    message.includes("fetch failed") ||
+    message.includes("failed to fetch") ||
+    message.includes("econnrefused") ||
+    message.includes("backend unavailable")
+  );
+}

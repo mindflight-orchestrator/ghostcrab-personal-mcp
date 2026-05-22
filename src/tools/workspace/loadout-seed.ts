@@ -13,7 +13,6 @@ import {
 } from "../../db/ontology-loadouts.js";
 import {
   resolveGraphEntityId,
-  setGraphEntityWorkspaceId,
   upsertGraphEntity,
   upsertGraphRelation
 } from "../../db/graph.js";
@@ -133,24 +132,24 @@ export const loadoutSeedTool: ToolHandler = {
               ...node.properties,
               workspace_id: input.workspace_id
             },
-            schemaId: null
+            schemaId: null,
+            workspaceId: input.workspace_id
           });
-
-          const entityId = await resolveGraphEntityId(queryable, node.id);
-          if (entityId !== null) {
-            await setGraphEntityWorkspaceId(
-              queryable,
-              entityId,
-              input.workspace_id
-            );
-          }
 
           seededNodes.push(node.id);
         }
 
         for (const edge of skeleton.edges) {
-          const sourceId = await resolveGraphEntityId(queryable, edge.source);
-          const targetId = await resolveGraphEntityId(queryable, edge.target);
+          const sourceId = await resolveGraphEntityId(
+            queryable,
+            edge.source,
+            input.workspace_id
+          );
+          const targetId = await resolveGraphEntityId(
+            queryable,
+            edge.target,
+            input.workspace_id
+          );
           if (sourceId === null || targetId === null) {
             continue;
           }
@@ -163,7 +162,8 @@ export const loadoutSeedTool: ToolHandler = {
             properties: {
               ...edge.properties,
               workspace_id: input.workspace_id
-            }
+            },
+            workspaceId: input.workspace_id
           });
 
           seededEdges.push({

@@ -225,7 +225,8 @@ export const learnTool: ToolHandler = {
           nodeType: input.node.node_type,
           label: input.node.label,
           properties: input.node.properties,
-          schemaId: null
+          schemaId: null,
+          workspaceId: effectiveWorkspaceId
         });
 
         output.node = {
@@ -241,17 +242,20 @@ export const learnTool: ToolHandler = {
             nodeType: "unknown",
             label: nodeId,
             properties: {},
-            schemaId: null
+            schemaId: null,
+            workspaceId: effectiveWorkspaceId
           });
         }
 
         const sourceId = await resolveGraphEntityId(
           database,
-          input.edge.source
+          input.edge.source,
+          effectiveWorkspaceId
         );
         const targetId = await resolveGraphEntityId(
           database,
-          input.edge.target
+          input.edge.target,
+          effectiveWorkspaceId
         );
 
         if (sourceId === null || targetId === null) {
@@ -267,14 +271,16 @@ export const learnTool: ToolHandler = {
         const existingEdge = await findGraphRelationByEndpoints(database, {
           sourceName: input.edge.source,
           targetName: input.edge.target,
-          label: input.edge.label
+          label: input.edge.label,
+          workspaceId: effectiveWorkspaceId
         });
         const edgeId = await upsertGraphRelation(database, {
           label: input.edge.label,
           properties: meta,
           sourceId,
           targetId,
-          confidence: input.edge.weight
+          confidence: input.edge.weight,
+          workspaceId: effectiveWorkspaceId
         });
 
         if (input.edge.relation_properties?.length) {

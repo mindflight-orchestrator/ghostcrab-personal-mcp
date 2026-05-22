@@ -67,11 +67,19 @@ describe("ghostcrab_loadout_seed", () => {
         }
         if (
           sql.includes("FROM graph_entity") &&
-          sql.includes("WHERE entity_type = ? AND name = ?")
+          sql.includes("WHERE workspace_id =") &&
+          sql.includes("AND entity_type =")
         ) {
-          return Array.isArray(params) && typeof params[1] === "string"
-            ? [{ entity_id: ensureEntityId(String(params[1])) }]
+          return Array.isArray(params) && typeof params[2] === "string"
+            ? [{ entity_id: ensureEntityId(String(params[2])) }]
             : [];
+        }
+        if (sql.includes("INSERT INTO workspaces")) return [];
+        if (sql.includes("INSERT INTO ontologies")) return [];
+        if (sql.includes("INSERT INTO entities_raw")) return [];
+        if (sql.includes("INSERT INTO relations_raw")) return [];
+        if (sql.includes("UPDATE graph_entity") && sql.includes("workspace_id")) {
+          return [];
         }
         if (sql.includes("INSERT INTO graph_entity")) {
           return [];
@@ -145,11 +153,19 @@ describe("ghostcrab_loadout_seed", () => {
         }
         if (
           sql.includes("FROM graph_entity") &&
-          sql.includes("WHERE entity_type = ? AND name = ?")
+          sql.includes("WHERE workspace_id =") &&
+          sql.includes("AND entity_type =")
         ) {
-          return Array.isArray(params) && typeof params[1] === "string"
+          return Array.isArray(params) && typeof params[2] === "string"
             ? [{ entity_id: 301 }]
             : [];
+        }
+        if (sql.includes("INSERT INTO workspaces")) return [];
+        if (sql.includes("INSERT INTO ontologies")) return [];
+        if (sql.includes("INSERT INTO entities_raw")) return [];
+        if (sql.includes("INSERT INTO relations_raw")) return [];
+        if (sql.includes("UPDATE graph_entity") && sql.includes("workspace_id")) {
+          return [];
         }
         if (sql.includes("INSERT INTO graph_entity")) {
           return [];

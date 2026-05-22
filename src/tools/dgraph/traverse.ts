@@ -98,7 +98,8 @@ export const traverseTool: ToolHandler = {
         direction: input.direction,
         edgeLabels: input.edge_labels,
         depth: input.depth,
-        target: input.target
+        target: input.target,
+        workspaceId: input.workspace_id ?? context.session.workspace_id
       });
 
       rows = result.rows.map((row) => ({

@@ -1,0 +1,200 @@
+import type { Queryable } from "./client.js";
+
+export interface GraphReindexReport {
+  entity_count: number;
+  alias_count: number;
+  relation_count: number;
+  relation_property_count: number;
+  document_link_count: number;
+  chunk_link_count: number;
+}
+
+export async function runSqlGraphReindex(
+  database: Queryable,
+  params: {
+    workspaceId: string;
+    documentTableId?: number;
+    includeDocumentLinks: boolean;
+    includeChunkLinks: boolean;
+  }
+): Promise<GraphReindexReport> {
+  const { workspaceId, documentTableId, includeDocumentLinks, includeChunkLinks } =
+    params;
+
+  const [{ count: entityCount } = { count: 0 }] = await database.query<{
+    count: number;
+  }>(
+    `SELECT COUNT(*) AS count FROM entities_raw WHERE workspace_id = ?`,
+    [workspaceId]
+  );
+
+  const [{ count: aliasCount } = { count: 0 }] = await database.query<{
+    count: number;
+  }>(
+    `SELECT COUNT(*) AS count FROM entity_aliases_raw WHERE workspace_id = ?`,
+    [workspaceId]
+  );
+
+  const [{ count: relationCount } = { count: 0 }] = await database.query<{
+    count: number;
+  }>(
+    `SELECT COUNT(*) AS count FROM relations_raw WHERE workspace_id = ?`,
+    [workspaceId]
+  );
+
+  const [{ count: relationPropertyCount } = { count: 0 }] =
+    await database.query<{ count: number }>(
+      `SELECT COUNT(*) AS count FROM relation_properties_raw WHERE workspace_id = ?`,
+      [workspaceId]
+    );
+
+  await database.query(
+    `
+      INSERT OR REPLACE INTO graph_entity (
+        entity_id, workspace_id, entity_type, name, confidence, metadata_json, deprecated_at
+      )
+      SELECT entity_id, workspace_id, entity_type, name, confidence, metadata_json, NULL
+      FROM entities_raw
+      WHERE workspace_id = ?
+    `,
+    [workspaceId]
+  );
+
+  await database.query(
+    `
+      INSERT OR REPLACE INTO graph_entity_alias (term, entity_id, confidence)
+      SELECT term, entity_id, confidence
+      FROM entity_aliases_raw
+      WHERE workspace_id = ?
+    `,
+    [workspaceId]
+  );
+
+  await database.query(
+    `
+      INSERT OR REPLACE INTO graph_relation (
+        relation_id, workspace_id, relation_type, source_id, target_id,
+        valid_from_unix, valid_to_unix, confidence, metadata_json, deprecated_at
+      )
+      SELECT
+        relation_id, workspace_id, edge_type, source_entity_id, target_entity_id,
+        unixepoch(valid_from), unixepoch(valid_to), confidence, metadata_json, NULL
+      FROM relations_raw
+      WHERE workspace_id = ?
+    `,
+    [workspaceId]
+  );
+
+  await database.query(
+    `
+      DELETE FROM graph_relation_property
+      WHERE relation_id IN (
+        SELECT relation_id FROM graph_relation WHERE workspace_id = ?
+      )
+    `,
+    [workspaceId]
+  );
+
+  await database.query(
+    `
+      INSERT OR REPLACE INTO graph_relation_property (
+        relation_id, property_key, value_type, value_text, value_number,
+        value_integer, ref_doc_id, currency
+      )
+      SELECT
+        relation_id, property_key, value_type, value_text, value_number,
+        value_integer, ref_doc_id, currency
+      FROM relation_properties_raw
+      WHERE workspace_id = ?
+    `,
+    [workspaceId]
+  );
+
+  let documentLinkCount = 0;
+  if (includeDocumentLinks && documentTableId !== undefined) {
+    await database.query(
+      `
+        DELETE FROM graph_entity_document
+        WHERE table_id = ?
+          AND entity_id IN (
+            SELECT entity_id FROM graph_entity WHERE workspace_id = ?
+          )
+      `,
+      [documentTableId, workspaceId]
+    );
+
+    const [{ count = 0 } = { count: 0 }] = await database.query<{ count: number }>(
+      `
+        SELECT COUNT(*) AS count
+        FROM (
+          SELECT entity_id, doc_id
+          FROM entity_documents_raw
+          WHERE workspace_id = ?
+          GROUP BY entity_id, doc_id
+        )
+      `,
+      [workspaceId]
+    );
+    documentLinkCount = Number(count);
+
+    await database.query(
+      `
+        INSERT OR REPLACE INTO graph_entity_document (
+          entity_id, doc_id, table_id, role, confidence
+        )
+        SELECT entity_id, doc_id, ?, role, MAX(confidence)
+        FROM entity_documents_raw
+        WHERE workspace_id = ?
+        GROUP BY entity_id, doc_id
+      `,
+      [documentTableId, workspaceId]
+    );
+  }
+
+  let chunkLinkCount = 0;
+  if (includeChunkLinks) {
+    await database.query(
+      `DELETE FROM graph_entity_chunk WHERE workspace_id = ?`,
+      [workspaceId]
+    );
+
+    const [{ count = 0 } = { count: 0 }] = await database.query<{ count: number }>(
+      `
+        SELECT COUNT(*) AS count
+        FROM (
+          SELECT entity_id, collection_id, doc_id, chunk_index
+          FROM entity_chunks_raw
+          WHERE workspace_id = ?
+          GROUP BY entity_id, collection_id, doc_id, chunk_index
+        )
+      `,
+      [workspaceId]
+    );
+    chunkLinkCount = Number(count);
+
+    await database.query(
+      `
+        INSERT OR REPLACE INTO graph_entity_chunk (
+          entity_id, workspace_id, collection_id, doc_id, chunk_index,
+          role, confidence, metadata_json
+        )
+        SELECT
+          entity_id, workspace_id, collection_id, doc_id, chunk_index,
+          role, MAX(confidence), '{}'
+        FROM entity_chunks_raw
+        WHERE workspace_id = ?
+        GROUP BY entity_id, collection_id, doc_id, chunk_index
+      `,
+      [workspaceId]
+    );
+  }
+
+  return {
+    entity_count: Number(entityCount),
+    alias_count: Number(aliasCount),
+    relation_count: Number(relationCount),
+    relation_property_count: Number(relationPropertyCount),
+    document_link_count: documentLinkCount,
+    chunk_link_count: chunkLinkCount
+  };
+}
