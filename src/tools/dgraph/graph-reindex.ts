@@ -104,6 +104,9 @@ export const graphReindexTool: ToolHandler = {
         include_chunk_links: input.include_chunk_links,
         backend: "sql",
         adjacency_rebuilt: false,
+        warnings: [
+          "SQL fallback reindex did not rebuild graph_lj_out/graph_lj_in; graph_path and graph_subgraph may be stale until native reindex succeeds."
+        ],
         ...report,
         projected_count:
           report.entity_count +

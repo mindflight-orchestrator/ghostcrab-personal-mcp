@@ -41,7 +41,7 @@ describe.sequential("MCP server contract", () => {
     );
   });
 
-  it("discovers hidden tools via ghostcrab_tool_search", async () => {
+  it("discovers hidden workspace tools via ghostcrab_tool_search", async () => {
     await withMcpStdioClient("contract-tool-search", async ({ client }) => {
       const payload = await callToolJson(client, "ghostcrab_tool_search", {
         query: "workspace list inspect export model",
@@ -54,6 +54,28 @@ describe.sequential("MCP server contract", () => {
         expect.arrayContaining([
           expect.objectContaining({ name: "ghostcrab_workspace_list" }),
           expect.objectContaining({ name: "ghostcrab_workspace_inspect" })
+        ])
+      );
+    });
+  });
+
+  it("discovers ghostcrab_workspace_use via extended session tool search", async () => {
+    await withMcpStdioClient("contract-tool-search-use", async ({ client }) => {
+      const payload = await callToolJson(client, "ghostcrab_tool_search", {
+        query: "",
+        name_prefix: "ghostcrab_workspace_use",
+        subsystem: ["session"],
+        visibility: ["extended"]
+      });
+
+      expect(payload.ok).toBe(true);
+      expect(payload.results).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: "ghostcrab_workspace_use",
+            visibility: "extended",
+            subsystem: "session"
+          })
         ])
       );
     });

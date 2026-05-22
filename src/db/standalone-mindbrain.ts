@@ -223,6 +223,7 @@ export interface StandaloneFactWriteResponse {
 export interface StandaloneGraphPathParams {
   mindbrainUrl: string;
   timeoutMs?: number;
+  workspaceId?: string;
   source: string;
   target: string;
   maxDepth?: number;
@@ -232,6 +233,7 @@ export interface StandaloneGraphPathParams {
 export interface StandaloneGraphSubgraphParams {
   mindbrainUrl: string;
   timeoutMs?: number;
+  workspaceId?: string;
   seedIds: number[];
   hops?: number;
   edgeTypes?: string[];
@@ -487,6 +489,9 @@ export async function runStandaloneGraphPath(
   );
   url.searchParams.set("source", params.source);
   url.searchParams.set("target", params.target);
+  if (params.workspaceId) {
+    url.searchParams.set("workspace_id", params.workspaceId);
+  }
   if (params.maxDepth !== undefined) {
     url.searchParams.set("max_depth", String(params.maxDepth));
   }
@@ -505,6 +510,9 @@ export async function runStandaloneGraphSubgraph(
   );
   url.searchParams.set("seed_ids", params.seedIds.join(","));
   url.searchParams.set("format", "json");
+  if (params.workspaceId) {
+    url.searchParams.set("workspace_id", params.workspaceId);
+  }
   if (params.hops !== undefined) {
     url.searchParams.set("hops", String(params.hops));
   }
@@ -778,6 +786,45 @@ export async function runStandaloneCollectionFacetSearch(
   return await fetchJson<StandaloneCollectionFacetSearchResult>(
     url,
     { method: "GET" },
+    params.timeoutMs
+  );
+}
+
+export interface StandaloneReindexAllParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  workspaceId: string;
+  collectionId: string;
+  tableId: number;
+}
+
+export interface StandaloneReindexAllResult {
+  workspace_id: string;
+  collection_id: string;
+  table_id: number;
+  graph_projected: number;
+  facet_assignments: number;
+  bm25_documents: number;
+}
+
+export async function runStandaloneReindexAll(
+  params: StandaloneReindexAllParams
+): Promise<StandaloneReindexAllResult> {
+  const url = new URL(
+    "/api/mindbrain/reindex/all",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  return await fetchJson<StandaloneReindexAllResult>(
+    url,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        workspace_id: params.workspaceId,
+        collection_id: params.collectionId,
+        table_id: params.tableId
+      })
+    },
     params.timeoutMs
   );
 }

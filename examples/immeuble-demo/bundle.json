@@ -3,13 +3,15 @@
   "schema_version": "2",
   "scope": {
     "kind": "workspace",
-    "workspace_id": "immeuble-demo"
+    "workspace_id": "immeuble-demo",
+    "collection_id": null
   },
   "workspaces": [
     {
       "workspace_id": "immeuble-demo",
       "label": "Immeuble demo",
-      "description": "Copropriété de référence"
+      "description": "Copropriété de référence",
+      "domain_profile": null
     }
   ],
   "collections": [],
@@ -19,7 +21,7 @@
       "workspace_id": "immeuble-demo",
       "name": "core",
       "version": "1.0.0",
-      "frozen": 0,
+      "frozen": false,
       "source_kind": "constructed",
       "metadata_json": "{}"
     }
@@ -75,44 +77,58 @@
     {
       "ontology_id": "immeuble-demo::core",
       "edge_type": "contains",
-      "directed": 1,
-      "metadata_json": "{}"
+      "directed": true,
+      "metadata_json": "{}",
+      "source_entity_type": null,
+      "target_entity_type": null
     },
     {
       "ontology_id": "immeuble-demo::core",
       "edge_type": "owns",
-      "directed": 1,
-      "metadata_json": "{}"
+      "directed": true,
+      "metadata_json": "{}",
+      "source_entity_type": null,
+      "target_entity_type": null
     },
     {
       "ontology_id": "immeuble-demo::core",
       "edge_type": "occupies",
-      "directed": 1,
-      "metadata_json": "{}"
+      "directed": true,
+      "metadata_json": "{}",
+      "source_entity_type": null,
+      "target_entity_type": null
     },
     {
       "ontology_id": "immeuble-demo::core",
       "edge_type": "has_member",
-      "directed": 1,
-      "metadata_json": "{}"
+      "directed": true,
+      "metadata_json": "{}",
+      "source_entity_type": null,
+      "target_entity_type": null
     },
     {
       "ontology_id": "immeuble-demo::core",
       "edge_type": "spouse_of",
-      "directed": 1,
-      "metadata_json": "{}"
+      "directed": true,
+      "metadata_json": "{}",
+      "source_entity_type": null,
+      "target_entity_type": null
     },
     {
       "ontology_id": "immeuble-demo::core",
       "edge_type": "assigned_garage",
-      "directed": 1,
-      "metadata_json": "{}"
+      "directed": true,
+      "metadata_json": "{}",
+      "source_entity_type": null,
+      "target_entity_type": null
     },
     {
       "ontology_id": "immeuble-demo::core",
       "edge_type": "assigned_cellar",
-      "directed": 1,
-      "metadata_json": "{}"
+      "directed": true,
+      "metadata_json": "{}",
+      "source_entity_type": null,
+      "target_entity_type": null
     }
   ],
   "ontology_entities": [],
@@ -429,7 +445,9 @@
       "source_entity_id": 1,
       "target_entity_id": 2,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -439,7 +457,9 @@
       "source_entity_id": 1,
       "target_entity_id": 3,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -449,7 +469,9 @@
       "source_entity_id": 1,
       "target_entity_id": 4,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -459,7 +481,9 @@
       "source_entity_id": 1,
       "target_entity_id": 5,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -469,7 +493,9 @@
       "source_entity_id": 1,
       "target_entity_id": 6,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -479,7 +505,9 @@
       "source_entity_id": 1,
       "target_entity_id": 7,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -489,7 +517,9 @@
       "source_entity_id": 1,
       "target_entity_id": 8,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -499,7 +529,9 @@
       "source_entity_id": 1,
       "target_entity_id": 9,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -509,7 +541,9 @@
       "source_entity_id": 5,
       "target_entity_id": 10,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -519,7 +553,9 @@
       "source_entity_id": 5,
       "target_entity_id": 15,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -529,7 +565,9 @@
       "source_entity_id": 6,
       "target_entity_id": 11,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -539,7 +577,9 @@
       "source_entity_id": 6,
       "target_entity_id": 16,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -549,7 +589,9 @@
       "source_entity_id": 7,
       "target_entity_id": 12,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -559,7 +601,9 @@
       "source_entity_id": 7,
       "target_entity_id": 17,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -569,7 +613,9 @@
       "source_entity_id": 8,
       "target_entity_id": 13,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -579,7 +625,9 @@
       "source_entity_id": 8,
       "target_entity_id": 18,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -589,7 +637,9 @@
       "source_entity_id": 9,
       "target_entity_id": 14,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -599,7 +649,9 @@
       "source_entity_id": 9,
       "target_entity_id": 19,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -609,7 +661,9 @@
       "source_entity_id": 20,
       "target_entity_id": 1,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -619,7 +673,9 @@
       "source_entity_id": 21,
       "target_entity_id": 1,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -629,7 +685,9 @@
       "source_entity_id": 20,
       "target_entity_id": 21,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -639,7 +697,9 @@
       "source_entity_id": 22,
       "target_entity_id": 20,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -649,7 +709,9 @@
       "source_entity_id": 22,
       "target_entity_id": 21,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -659,7 +721,9 @@
       "source_entity_id": 28,
       "target_entity_id": 5,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -669,7 +733,9 @@
       "source_entity_id": 28,
       "target_entity_id": 23,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -679,7 +745,9 @@
       "source_entity_id": 29,
       "target_entity_id": 6,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -689,7 +757,9 @@
       "source_entity_id": 29,
       "target_entity_id": 24,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -699,7 +769,9 @@
       "source_entity_id": 30,
       "target_entity_id": 7,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -709,7 +781,9 @@
       "source_entity_id": 30,
       "target_entity_id": 25,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -719,7 +793,9 @@
       "source_entity_id": 31,
       "target_entity_id": 8,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -729,7 +805,9 @@
       "source_entity_id": 31,
       "target_entity_id": 26,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -739,7 +817,9 @@
       "source_entity_id": 32,
       "target_entity_id": 9,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     },
     {
       "workspace_id": "immeuble-demo",
@@ -749,7 +829,9 @@
       "source_entity_id": 32,
       "target_entity_id": 27,
       "confidence": 1,
-      "metadata_json": "{}"
+      "metadata_json": "{}",
+      "valid_from": null,
+      "valid_to": null
     }
   ],
   "relation_properties_raw": [],

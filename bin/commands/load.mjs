@@ -12,9 +12,10 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { resolveGhostcrabSqlite } from "../lib/resolve-ghostcrab-sqlite.mjs";
 import { slugifyWorkspace } from "../lib/workspace-slug.mjs";
+import { assertBackendSqliteAlignedOrExit } from "../lib/backend-sqlite-alignment.mjs";
 import {
   preflightBrainDatabaseOrExit,
-  runNativeEngineOrExit
+  runNativeEngineSync
 } from "../lib/brain-engine-runner.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -26,7 +27,7 @@ export async function cmdLoad(args) {
       `Usage: gcp load <path/to/profile.jsonl|backup.json>\n` +
         `       gcp load --file <path/to/profile.jsonl|backup.json>\n\n` +
         `Loads a portable JSONL demo profile, or restores a ghostcrab_backup_bundle JSON object.\n` +
-        `Backup bundles accept --workspace/--db/--force/--dry-run/--reindex/--document-table-id/--collection-id/--table-id and use the native MindBrain loader.\n` +
+        `Backup bundles default to --reindex graph. Use --reindex none for raw-only import.\n` +
         `JSONL profiles require a built package (dist/cli/demo-load.js). Run: pnpm run build`
     );
     return;
@@ -59,11 +60,29 @@ export async function cmdLoad(args) {
     if (!parsed.dryRun) {
       await preflightBrainDatabaseOrExit(sqlitePathResolved, parsed.force);
     }
-    runNativeEngineOrExit(
+    const loadResult = runNativeEngineSync(
       pkgRoot,
       buildBackupLoadEngineArgs(parsed, sqlitePathResolved, resolved),
       { preferDev: true }
     );
+    if (!loadResult.ok) {
+      if (loadResult.stderr) {
+        console.error(loadResult.stderr);
+      }
+      if (loadResult.stdout) {
+        process.stdout.write(loadResult.stdout);
+      }
+      process.exit(loadResult.status ?? 1);
+    }
+    if (loadResult.stdout) {
+      process.stdout.write(loadResult.stdout);
+    }
+    if (!parsed.dryRun) {
+      await assertBackendSqliteAlignedOrExit({
+        sqlitePathResolved,
+        bundlePath: resolved
+      });
+    }
     return;
   }
 
@@ -85,7 +104,7 @@ export function parseLoadArgs(args) {
   let sqlitePathFromCli = null;
   let force = false;
   let dryRun = false;
-  let reindex = "none";
+  let reindex = "graph";
   let documentTableId = null;
   let collectionId = null;
   let tableId = null;

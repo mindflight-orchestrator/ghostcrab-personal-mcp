@@ -3,8 +3,10 @@ import { describe, expect, it } from "vitest";
 import {
   buildToolCatalog,
   getBasicToolNames,
-  listBasicRegisteredTools
+  listBasicRegisteredTools,
+  searchToolCatalog
 } from "../../src/tools/catalog.js";
+import { workspaceUseTool } from "../../src/tools/workspace/use.js";
 
 describe("tool catalog", () => {
   it("lists combined search as basic and csearch as extended", () => {
@@ -54,5 +56,26 @@ describe("tool catalog", () => {
       name: "ghostcrab_entity_chunks",
       subsystem: "graph"
     });
+  });
+
+  it("discovers ghostcrab_workspace_use via extended session search", () => {
+    const catalog = buildToolCatalog([workspaceUseTool.definition]);
+    const matches = searchToolCatalog(
+      catalog,
+      "",
+      { subsystem: ["session"], visibility: ["extended"] },
+      5
+    );
+
+    expect(matches).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: "ghostcrab_workspace_use",
+          subsystem: "session",
+          visibility: "extended",
+          access: "session"
+        })
+      ])
+    );
   });
 });

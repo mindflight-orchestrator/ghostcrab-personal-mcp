@@ -34,11 +34,30 @@ describe("gcp load helpers", () => {
       sqlitePathFromCli: "/tmp/brain.sqlite",
       force: true,
       dryRun: true,
-      reindex: "none",
+      reindex: "graph",
       documentTableId: null,
       collectionId: null,
       tableId: null
     });
+  });
+
+  it("defaults backup reindex to graph", () => {
+    expect(__private__.parseLoadArgs(["backup.json"]).reindex).toBe("graph");
+    expect(
+      __private__.buildBackupLoadEngineArgs(
+        __private__.parseLoadArgs(["backup.json"]),
+        "/tmp/brain.sqlite",
+        "/tmp/backup.json"
+      )
+    ).toEqual([
+      "backup-load",
+      "--db",
+      "/tmp/brain.sqlite",
+      "--bundle",
+      "/tmp/backup.json",
+      "--reindex",
+      "graph"
+    ]);
   });
 
   it("builds native backup-load args", () => {

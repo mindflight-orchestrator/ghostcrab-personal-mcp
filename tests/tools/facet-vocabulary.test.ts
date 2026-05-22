@@ -145,4 +145,62 @@ describe("facet vocabulary tools", () => {
       facet_name: "domain"
     });
   });
+
+  it("uses session workspace_id when registering facet definitions", async () => {
+    const query = vi
+      .fn<DatabaseClient["query"]>()
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    const database = createMockDatabase(query);
+    const context = createToolContext(database);
+    context.session.workspace_id = "immeuble-demo";
+
+    await facetRegisterTool.handler(
+      {
+        definition: {
+          facet_name: "domain",
+          description: "Domain classification"
+        }
+      },
+      context
+    );
+
+    const insertCall = query.mock.calls.find((call) =>
+      String(call[0]).includes("INSERT INTO")
+    );
+    expect(insertCall?.[1]).toEqual(
+      expect.arrayContaining(["immeuble-demo"])
+    );
+  });
+
+  it("uses session workspace_id when inspecting facet definitions", async () => {
+    const query = vi.fn<DatabaseClient["query"]>().mockResolvedValueOnce([
+      {
+        id: "facet:def:domain",
+        content: JSON.stringify({ facet_name: "domain" }),
+        facets_json: JSON.stringify({ facet_name: "domain" }),
+        created_at_unix: 1_700_000_000
+      }
+    ]);
+    const database = createMockDatabase(query);
+    const context = createToolContext(database);
+    context.session.workspace_id = "immeuble-demo";
+
+    const result = await facetInspectTool.handler(
+      { facet_name: "domain" },
+      context
+    );
+
+    expect(readStructured(result)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_facet_inspect",
+      workspace_id: "immeuble-demo",
+      persisted_definition: {
+        id: "facet:def:domain"
+      }
+    });
+    expect(query.mock.calls[0]?.[1]).toEqual(
+      expect.arrayContaining(["immeuble-demo", "domain"])
+    );
+  });
 });
