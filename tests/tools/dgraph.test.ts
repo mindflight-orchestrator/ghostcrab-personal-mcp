@@ -6,6 +6,7 @@ import { coverageTool } from "../../src/tools/dgraph/coverage.js";
 import { entityChunksTool } from "../../src/tools/dgraph/entity-chunks.js";
 import { graphPathTool } from "../../src/tools/dgraph/graph-path.js";
 import { graphReindexTool } from "../../src/tools/dgraph/graph-reindex.js";
+import { collectionReindexTool } from "../../src/tools/dgraph/collection-reindex.js";
 import { graphSearchTool } from "../../src/tools/dgraph/graph-search.js";
 import { graphSubgraphTool } from "../../src/tools/dgraph/graph-subgraph.js";
 import { learnTool } from "../../src/tools/dgraph/learn.js";
@@ -103,15 +104,94 @@ describe("dgraph tools", () => {
     vi.unstubAllGlobals();
   });
 
-  it("does not advertise workspace_id for graph-path and graph-subgraph until backend scoping exists", () => {
+  it("advertises workspace_id for graph-path and graph-subgraph", () => {
     const pathProperties = graphPathTool.definition.inputSchema.properties as
       | Record<string, unknown>
       | undefined;
     const subgraphProperties = graphSubgraphTool.definition.inputSchema
       .properties as Record<string, unknown> | undefined;
 
-    expect(pathProperties).not.toHaveProperty("workspace_id");
-    expect(subgraphProperties).not.toHaveProperty("workspace_id");
+    expect(pathProperties).toHaveProperty("workspace_id");
+    expect(subgraphProperties).toHaveProperty("workspace_id");
+  });
+
+  it("passes workspace_id to graph-path backend", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      expect(url).toContain("workspace_id=immeuble-demo");
+      return new Response("path: ok", {
+        status: 200,
+        headers: { "content-type": "text/plain; charset=utf-8" }
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const database = createMockDatabase(vi.fn());
+    const context = createToolContext(database);
+    context.session.workspace_id = "default";
+
+    const result = await graphPathTool.handler(
+      {
+        source: "A",
+        target: "B",
+        workspace_id: "immeuble-demo"
+      },
+      context
+    );
+
+    expect(readStructured(result)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_graph_path",
+      workspace_id: "immeuble-demo"
+    });
+    expect(fetchMock).toHaveBeenCalled();
+  });
+
+  it("calls native reindexAll for ghostcrab_collection_reindex", async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      expect(init?.method).toBe("POST");
+      expect(JSON.parse(String(init?.body))).toEqual({
+        workspace_id: "immeuble-demo",
+        collection_id: "immeuble-demo::main",
+        table_id: 1
+      });
+      return new Response(
+        JSON.stringify({
+          workspace_id: "immeuble-demo",
+          collection_id: "immeuble-demo::main",
+          table_id: 1,
+          graph_projected: 32,
+          facet_assignments: 10,
+          bm25_documents: 5
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        }
+      );
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const database = createMockDatabase(vi.fn());
+    const context = createToolContext(database);
+    context.session.workspace_id = "immeuble-demo";
+
+    const result = await collectionReindexTool.handler(
+      {
+        collection_id: "immeuble-demo::main",
+        table_id: 1
+      },
+      context
+    );
+
+    expect(readStructured(result)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_collection_reindex",
+      workspace_id: "immeuble-demo",
+      collection_id: "immeuble-demo::main",
+      table_id: 1,
+      backend: "mindbrain/reindex/all"
+    });
   });
 
   it("reports when no ontology exists for a domain", async () => {

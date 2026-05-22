@@ -19,6 +19,7 @@ import {
 import { FACET_CATALOG, isKnownFacetName } from "../../db/facet-catalog.js";
 
 const FacetInspectInput = z.object({
+  workspace_id: z.string().trim().min(1).optional(),
   facet_name: z.string().min(1)
 });
 
@@ -35,6 +36,7 @@ const FacetValidateInput = z.object({
 });
 
 const FacetRegisterInput = z.object({
+  workspace_id: z.string().trim().min(1).optional(),
   definition: z
     .object({
       facet_name: z.string().min(1),
@@ -109,6 +111,11 @@ export const facetInspectTool: ToolHandler = {
       type: "object",
       required: ["facet_name"],
       properties: {
+        workspace_id: {
+          type: "string",
+          description:
+            "Target workspace id. Overrides session context for this call only."
+        },
         facet_name: {
           type: "string",
           minLength: 1
@@ -118,13 +125,15 @@ export const facetInspectTool: ToolHandler = {
   },
   async handler(args, context) {
     const input = FacetInspectInput.parse(args);
+    const workspaceId = input.workspace_id ?? context.session.workspace_id;
     const catalogEntry = FACET_CATALOG.find(
       (entry) => entry.facetName === input.facet_name
     );
 
     const persisted = await loadPersistedFacetDefinition(
       context.database,
-      input.facet_name
+      input.facet_name,
+      workspaceId
     );
 
     if (!catalogEntry && !persisted) {
@@ -136,6 +145,7 @@ export const facetInspectTool: ToolHandler = {
     }
 
     return createToolSuccessResult("ghostcrab_facet_inspect", {
+      workspace_id: workspaceId,
       facet_name: input.facet_name,
       declared: Boolean(catalogEntry),
       native: Boolean(catalogEntry?.native),
@@ -254,6 +264,11 @@ export const facetRegisterTool: ToolHandler = {
       type: "object",
       required: ["definition"],
       properties: {
+        workspace_id: {
+          type: "string",
+          description:
+            "Target workspace id. Overrides session context for this call only."
+        },
         definition: {
           type: "object",
           required: ["facet_name"],
@@ -286,6 +301,7 @@ export const facetRegisterTool: ToolHandler = {
   },
   async handler(args, context) {
     const input = FacetRegisterInput.parse(args);
+    const workspaceId = input.workspace_id ?? context.session.workspace_id;
     const catalogEntry = FACET_CATALOG.find(
       (entry) => entry.facetName === input.definition.facet_name
     );
@@ -345,7 +361,8 @@ export const facetRegisterTool: ToolHandler = {
 
     const { id, created } = await upsertFacetDefinitionRecord(
       context.database,
-      record
+      record,
+      workspaceId
     );
 
     return createToolSuccessResult("ghostcrab_facet_register", {
@@ -353,6 +370,7 @@ export const facetRegisterTool: ToolHandler = {
       created,
       id,
       facet_name: record.facet_name,
+      workspace_id: workspaceId,
       cataloged: Boolean(catalogEntry)
     });
   }

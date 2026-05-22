@@ -13,7 +13,8 @@ export const GraphPathInput = z.object({
   source: z.string().trim().min(1),
   target: z.string().trim().min(1),
   max_depth: z.coerce.number().int().min(1).max(20).default(4),
-  edge_labels: z.array(z.string().trim().min(1)).max(20).default([])
+  edge_labels: z.array(z.string().trim().min(1)).max(20).default([]),
+  workspace_id: z.string().trim().min(1).optional()
 });
 
 export const graphPathTool: ToolHandler = {
@@ -25,6 +26,11 @@ export const graphPathTool: ToolHandler = {
       type: "object",
       required: ["source", "target"],
       properties: {
+        workspace_id: {
+          type: "string",
+          description:
+            "Target workspace id. Overrides session context for this call only."
+        },
         source: {
           type: "string",
           description: "Source node ID (graph_entity.node_id or entity_id)."
@@ -50,8 +56,9 @@ export const graphPathTool: ToolHandler = {
       }
     }
   },
-  async handler(args, _context) {
+  async handler(args, context) {
     const input = GraphPathInput.parse(args);
+    const workspaceId = input.workspace_id ?? context.session.workspace_id;
     const config = resolveGhostcrabConfig();
 
     let pathText: string;
@@ -59,6 +66,7 @@ export const graphPathTool: ToolHandler = {
       pathText = await runStandaloneGraphPath({
         mindbrainUrl: config.mindbrainUrl,
         timeoutMs: config.mindbrainHttpTimeoutMs,
+        workspaceId,
         source: input.source,
         target: input.target,
         maxDepth: input.max_depth,
@@ -75,6 +83,7 @@ export const graphPathTool: ToolHandler = {
     }
 
     return createToolSuccessResult("ghostcrab_graph_path", {
+      workspace_id: workspaceId,
       source: input.source,
       target: input.target,
       max_depth: input.max_depth,

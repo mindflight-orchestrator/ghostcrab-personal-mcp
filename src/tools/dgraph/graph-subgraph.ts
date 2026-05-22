@@ -12,7 +12,8 @@ import {
 export const GraphSubgraphInput = z.object({
   seed_ids: z.array(z.coerce.number().int().positive()).min(1).max(100),
   hops: z.coerce.number().int().min(1).max(10).default(2),
-  edge_types: z.array(z.string().trim().min(1)).max(20).default([])
+  edge_types: z.array(z.string().trim().min(1)).max(20).default([]),
+  workspace_id: z.string().trim().min(1).optional()
 });
 
 export const graphSubgraphTool: ToolHandler = {
@@ -24,6 +25,11 @@ export const graphSubgraphTool: ToolHandler = {
       type: "object",
       required: ["seed_ids"],
       properties: {
+        workspace_id: {
+          type: "string",
+          description:
+            "Target workspace id. Overrides session context for this call only."
+        },
         seed_ids: {
           type: "array",
           items: { type: "integer", minimum: 1 },
@@ -48,8 +54,9 @@ export const graphSubgraphTool: ToolHandler = {
       }
     }
   },
-  async handler(args, _context) {
+  async handler(args, context) {
     const input = GraphSubgraphInput.parse(args);
+    const workspaceId = input.workspace_id ?? context.session.workspace_id;
     const config = resolveGhostcrabConfig();
 
     let events;
@@ -57,6 +64,7 @@ export const graphSubgraphTool: ToolHandler = {
       events = await runStandaloneGraphSubgraph({
         mindbrainUrl: config.mindbrainUrl,
         timeoutMs: config.mindbrainHttpTimeoutMs,
+        workspaceId,
         seedIds: input.seed_ids,
         hops: input.hops,
         edgeTypes: input.edge_types.length > 0 ? input.edge_types : undefined
@@ -77,6 +85,7 @@ export const graphSubgraphTool: ToolHandler = {
     const edgeCount = events.filter((e) => e.kind === "edge").length;
 
     return createToolSuccessResult("ghostcrab_graph_subgraph", {
+      workspace_id: workspaceId,
       seed_ids: input.seed_ids,
       hops: input.hops,
       edge_types: input.edge_types,

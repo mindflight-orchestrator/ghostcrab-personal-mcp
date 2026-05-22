@@ -38,13 +38,59 @@ export function resolveNativeEngineOrExit(pkgRoot, options = {}) {
   return resolved.path;
 }
 
-export function runNativeEngineOrExit(pkgRoot, childArgs, options = {}) {
-  const enginePath = resolveNativeEngineOrExit(pkgRoot, options);
-  const r = spawnSync(enginePath, childArgs, {
-    stdio: "inherit",
+export function resolveNativeEnginePath(pkgRoot, options = {}) {
+  if (options.preferDev) {
+    const devPath = resolveDevNativeEnginePath(pkgRoot);
+    if (devPath) return devPath;
+  }
+
+  const resolved = resolveDocumentEnginePath(pkgRoot);
+  if (!resolved.ok) {
+    return null;
+  }
+
+  const ex = ensureUnixExecuteBit(resolved.path);
+  if (!ex.ok) {
+    return null;
+  }
+  return resolved.path;
+}
+
+export function runNativeEngineSync(pkgRoot, childArgs, options = {}) {
+  const enginePath = resolveNativeEnginePath(pkgRoot, options);
+  if (!enginePath) {
+    return {
+      ok: false,
+      status: null,
+      stdout: "",
+      stderr: "native MindBrain engine binary not found"
+    };
+  }
+
+  const result = spawnSync(enginePath, childArgs, {
+    encoding: "utf8",
     env: { ...process.env }
   });
-  process.exit(r.status ?? 1);
+
+  return {
+    ok: result.status === 0,
+    status: result.status,
+    stdout: result.stdout ?? "",
+    stderr: result.stderr ?? ""
+  };
+}
+
+export function runNativeEngineOrExit(pkgRoot, childArgs, options = {}) {
+  const result = runNativeEngineSync(pkgRoot, childArgs, options);
+  if (result.stdout) {
+    process.stdout.write(result.stdout);
+  }
+  if (result.stderr) {
+    process.stderr.write(result.stderr);
+  }
+  if (!result.ok) {
+    process.exit(result.status ?? 1);
+  }
 }
 
 function resolveDevNativeEnginePath(pkgRoot) {
@@ -178,10 +224,13 @@ export function formatWriteStatus(writeStatus) {
     return null;
   }
   const status =
-    /** @type {{ active_session_id?: unknown, busy_timeout_ms?: unknown, completed?: unknown, failed?: unknown }} */ (
+    /** @type {{ active_session_id?: unknown, busy_timeout_ms?: unknown, completed?: unknown, failed?: unknown, sqlite_path?: unknown }} */ (
       writeStatus
     );
   const parts = [];
+  if ("sqlite_path" in status && status.sqlite_path) {
+    parts.push(`sqlite_path=${String(status.sqlite_path)}`);
+  }
   if ("active_session_id" in status) {
     parts.push(`active_session_id=${String(status.active_session_id)}`);
   }

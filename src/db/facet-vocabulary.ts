@@ -350,7 +350,8 @@ export async function loadPersistedFacetDefinitionRecords(
 
 export async function loadPersistedFacetDefinition(
   database: DatabaseClient,
-  facetName: string
+  facetName: string,
+  workspaceId = "default"
 ): Promise<{
   content: string;
   facets: Record<string, unknown>;
@@ -367,10 +368,11 @@ export async function loadPersistedFacetDefinition(
       SELECT id, content, facets_json, created_at_unix
       FROM ${SQLITE_FACT_STORE_TABLE}
       WHERE schema_id = ?
+        AND workspace_id = ?
         AND ${sqliteFacetJsonExtractClause("facet_name")} = ?
       LIMIT 1
     `,
-    [FACET_DEFINITION_SCHEMA_ID, facetName]
+    [FACET_DEFINITION_SCHEMA_ID, workspaceId, facetName]
   );
 
   if (!row) {
@@ -387,14 +389,16 @@ export async function loadPersistedFacetDefinition(
 
 export async function upsertFacetDefinitionRecord(
   database: DatabaseClient,
-  definition: FacetDefinitionRecord
+  definition: FacetDefinitionRecord,
+  workspaceId = "default"
 ): Promise<{
   id: string;
   created: boolean;
 }> {
   const existing = await loadPersistedFacetDefinition(
     database,
-    definition.facet_name
+    definition.facet_name,
+    workspaceId
   );
   const serializedContent = JSON.stringify(definition, null, 2);
   const serializedFacets = JSON.stringify({
@@ -441,7 +445,7 @@ export async function upsertFacetDefinitionRecord(
       FACET_DEFINITION_SCHEMA_ID,
       serializedContent,
       serializedFacets,
-      "default"
+      workspaceId
     ]
   );
 
