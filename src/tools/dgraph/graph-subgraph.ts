@@ -12,8 +12,7 @@ import {
 export const GraphSubgraphInput = z.object({
   seed_ids: z.array(z.coerce.number().int().positive()).min(1).max(100),
   hops: z.coerce.number().int().min(1).max(10).default(2),
-  edge_types: z.array(z.string().trim().min(1)).max(20).default([]),
-  workspace_id: z.string().trim().min(1).optional()
+  edge_types: z.array(z.string().trim().min(1)).max(20).default([])
 });
 
 export const graphSubgraphTool: ToolHandler = {

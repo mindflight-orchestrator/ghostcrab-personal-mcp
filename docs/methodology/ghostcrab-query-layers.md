@@ -188,6 +188,11 @@ Precomputed analytical snapshots built by ingest pipelines or recipes (e.g. SEO 
 - **Confusing the two "projection" concepts.** Working memory projections (`mb_pragma.projections`) ≠ materialized `ProjectionResult` entities in the graph. Different stores, different tools.
 - **Expecting `ghostcrab_pack` to include graph data.** It doesn't. Pack = pragma projections + facet facts only.
 - **Using `ghostcrab_search` as a catch-all.** Use `ghostcrab_combined_search` when graph and facets should both be considered.
+- **Skipping reindex after collection/graph import.** Reindex is mandatory after `gcp brain load` backup bundles — not an optimization. Raw tables (`entities_raw`) are invisible to graph tools until `ghostcrab_graph_reindex`.
+- **Confusing agent `facets` with collection `facet_assignments_raw`.** `ghostcrab_remember` writes agent facts; collection import writes `facet_assignments_raw`. After reindex, collection facet reads use Roaring `facet_postings` via `ghostcrab_collection_facet_search` (pass `namespace`, `dimension`, and optional `table_id`); raw SQL fallback applies when postings are absent or namespace/dimension are omitted.
+- **`ghostcrab_learn` vs import path.** Learn writes runtime graph + raw mirror; import writes raw only. Both converge after reindex, but learn requires matching workspace context.
+- **`ghostcrab_traverse` workspace scoping.** Pass `workspace_id` (defaults to session). Graph search and traverse both filter by workspace column.
+- **`document_table_id` for entity→fact links.** Required on `ghostcrab_graph_reindex` when using `entity_documents_raw` so `ghostcrab_combined_search` can return `linked_facts`.
 
 ---
 

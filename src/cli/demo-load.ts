@@ -2,9 +2,14 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { resolveGhostcrabConfig } from "../config/env.js";
+import { resolveGhostcrabConfig, type GhostcrabConfig } from "../config/env.js";
 import { createDatabaseClient, type Queryable } from "../db/client.js";
-import { resolveGraphEntityId, upsertGraphEntity } from "../db/graph.js";
+import {
+  resolveGraphEntityId,
+  upsertGraphEntity,
+  upsertGraphRelation
+} from "../db/graph.js";
+import { runStandaloneFactWrite } from "../db/standalone-mindbrain.js";
 
 type DemoSeedEntry =
   | DemoProfileEntry
@@ -164,7 +169,9 @@ function inferProfileIdFromEntries(
 }
 
 async function ensureRememberEntry(
+  config: GhostcrabConfig,
   queryable: Queryable,
+  workspaceId: string,
   entry: DemoRememberEntry
 ): Promise<boolean> {
   const [existing] = await queryable.query<{ id: string }>(
@@ -183,29 +190,33 @@ async function ensureRememberEntry(
     return false;
   }
 
-  await queryable.query(
-    `
-      INSERT INTO mb_pragma.facets (schema_id, content, facets_json)
-      VALUES ($1, $2, $3::jsonb)
-    `,
-    [entry.schema_id, entry.content, JSON.stringify(entry.facets)]
-  );
+  const result = await runStandaloneFactWrite({
+    mindbrainUrl: config.mindbrainUrl,
+    timeoutMs: config.mindbrainHttpTimeoutMs,
+    schemaId: entry.schema_id,
+    content: entry.content,
+    facetsJson: JSON.stringify(entry.facets),
+    workspaceId
+  });
 
-  return true;
+  return result.created || result.updated;
 }
 
 async function ensureNodeEntry(
   queryable: Queryable,
+  workspaceId: string,
   entry: DemoLearnNodeEntry["node"]
 ): Promise<boolean> {
-  const [existing] = await queryable.query<{ id: string }>(
+  const [existing] = await queryable.query<{ entity_id: number }>(
     `
-      SELECT id::text
-      FROM graph.entity
-      WHERE type = 'entity' AND name = $1
+      SELECT entity_id
+      FROM graph_entity
+      WHERE workspace_id = $1
+        AND entity_type = 'entity'
+        AND name = $2
       LIMIT 1
     `,
-    [entry.id]
+    [workspaceId, entry.id]
   );
 
   if (existing) {
@@ -218,9 +229,11 @@ async function ensureNodeEntry(
     label: entry.label,
     properties: {
       ...(entry.properties ?? {}),
-      mastery: entry.mastery ?? null
+      mastery: entry.mastery ?? null,
+      workspace_id: workspaceId
     },
-    schemaId: null
+    schemaId: null,
+    workspaceId
   });
 
   return true;
@@ -228,63 +241,74 @@ async function ensureNodeEntry(
 
 async function ensureNodePlaceholder(
   queryable: Queryable,
+  workspaceId: string,
   nodeId: string
 ): Promise<void> {
   await upsertGraphEntity(queryable, {
     nodeId,
     nodeType: "unknown",
     label: nodeId,
-    properties: {},
-    schemaId: null
+    properties: { workspace_id: workspaceId },
+    schemaId: null,
+    workspaceId
   });
 }
 
 async function ensureEdgeEntry(
   queryable: Queryable,
+  workspaceId: string,
   entry: DemoLearnEdgeEntry["edge"]
 ): Promise<boolean> {
-  const [existing] = await queryable.query<{ id: string }>(
+  const [existing] = await queryable.query<{ relation_id: number }>(
     `
-      SELECT r.id::text
-      FROM graph.relation r
-      JOIN graph.entity s ON s.id = r.source_id AND s.type = 'entity'
-      JOIN graph.entity t ON t.id = r.target_id AND t.type = 'entity'
-      WHERE s.name = $1
-        AND t.name = $2
-        AND r.type = $3
+      SELECT r.relation_id
+      FROM graph_relation r
+      JOIN graph_entity s ON s.entity_id = r.source_id
+      JOIN graph_entity t ON t.entity_id = r.target_id
+      WHERE s.workspace_id = $1
+        AND t.workspace_id = $1
+        AND s.name = $2
+        AND t.name = $3
+        AND r.relation_type = $4
         AND r.deprecated_at IS NULL
       LIMIT 1
     `,
-    [entry.source, entry.target, entry.label]
+    [workspaceId, entry.source, entry.target, entry.label]
   );
 
   if (existing) {
     return false;
   }
 
-  await ensureNodePlaceholder(queryable, entry.source);
-  await ensureNodePlaceholder(queryable, entry.target);
+  await ensureNodePlaceholder(queryable, workspaceId, entry.source);
+  await ensureNodePlaceholder(queryable, workspaceId, entry.target);
 
-  const sourceId = await resolveGraphEntityId(queryable, entry.source);
-  const targetId = await resolveGraphEntityId(queryable, entry.target);
+  const sourceId = await resolveGraphEntityId(
+    queryable,
+    entry.source,
+    workspaceId
+  );
+  const targetId = await resolveGraphEntityId(
+    queryable,
+    entry.target,
+    workspaceId
+  );
 
   if (sourceId === null || targetId === null) {
     return false;
   }
 
-  await queryable.query(
-    `
-      INSERT INTO graph.relation (type, source_id, target_id, confidence, metadata)
-      VALUES ($1, $2::bigint, $3::bigint, $4::real, $5::jsonb)
-    `,
-    [
-      entry.label,
-      sourceId.toString(),
-      targetId.toString(),
-      entry.weight ?? 1,
-      JSON.stringify(entry.properties ?? {})
-    ]
-  );
+  await upsertGraphRelation(queryable, {
+    label: entry.label,
+    sourceId,
+    targetId,
+    confidence: entry.weight ?? 1,
+    properties: {
+      ...(entry.properties ?? {}),
+      workspace_id: workspaceId
+    },
+    workspaceId
+  });
 
   return true;
 }
@@ -335,10 +359,12 @@ async function ensureProjectionEntry(
 }
 
 async function loadDemoProfile(
+  config: GhostcrabConfig,
   queryable: Queryable,
   entries: DemoSeedEntry[],
   profileId: string
 ): Promise<DemoLoadSummary> {
+  const workspaceId = profileId;
   const summary: DemoLoadSummary = {
     insertedEdges: 0,
     insertedFacts: 0,
@@ -353,21 +379,23 @@ async function loadDemoProfile(
       case "profile":
         break;
       case "remember":
-        if (await ensureRememberEntry(queryable, entry)) {
+        if (
+          await ensureRememberEntry(config, queryable, workspaceId, entry)
+        ) {
           summary.insertedFacts += 1;
         } else {
           summary.skipped += 1;
         }
         break;
       case "learn_node":
-        if (await ensureNodeEntry(queryable, entry.node)) {
+        if (await ensureNodeEntry(queryable, workspaceId, entry.node)) {
           summary.insertedNodes += 1;
         } else {
           summary.skipped += 1;
         }
         break;
       case "learn_edge":
-        if (await ensureEdgeEntry(queryable, entry.edge)) {
+        if (await ensureEdgeEntry(queryable, workspaceId, entry.edge)) {
           summary.insertedEdges += 1;
         } else {
           summary.skipped += 1;
@@ -409,7 +437,7 @@ export async function runDemoLoad(argv: string[]): Promise<void> {
       `[ghostcrab] Loading demo profile ${resolvedProfileId} from ${profileFile ?? path.join(skillsRepoRoot, "shared", "demo-profiles", `${profileId}.jsonl`)} against ${config.mindbrainUrl}`
     );
     const summary = await database.transaction((queryable) =>
-      loadDemoProfile(queryable, entries, resolvedProfileId)
+      loadDemoProfile(config, queryable, entries, resolvedProfileId)
     );
 
     console.error(

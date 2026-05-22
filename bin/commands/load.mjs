@@ -26,7 +26,7 @@ export async function cmdLoad(args) {
       `Usage: gcp load <path/to/profile.jsonl|backup.json>\n` +
         `       gcp load --file <path/to/profile.jsonl|backup.json>\n\n` +
         `Loads a portable JSONL demo profile, or restores a ghostcrab_backup_bundle JSON object.\n` +
-        `Backup bundles accept --workspace/--db/--force/--dry-run and use the native MindBrain loader.\n` +
+        `Backup bundles accept --workspace/--db/--force/--dry-run/--reindex/--document-table-id/--collection-id/--table-id and use the native MindBrain loader.\n` +
         `JSONL profiles require a built package (dist/cli/demo-load.js). Run: pnpm run build`
     );
     return;
@@ -85,6 +85,10 @@ export function parseLoadArgs(args) {
   let sqlitePathFromCli = null;
   let force = false;
   let dryRun = false;
+  let reindex = "none";
+  let documentTableId = null;
+  let collectionId = null;
+  let tableId = null;
 
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
@@ -113,6 +117,34 @@ export function parseLoadArgs(args) {
       dryRun = true;
       continue;
     }
+    if (a === "--reindex") {
+      if (!args[i + 1])
+        return { error: "gcp load: --reindex requires none|graph|all." };
+      const mode = args[++i];
+      if (!["none", "graph", "all"].includes(mode)) {
+        return { error: "gcp load: --reindex must be none, graph, or all." };
+      }
+      reindex = mode;
+      continue;
+    }
+    if (a === "--document-table-id") {
+      if (!args[i + 1])
+        return { error: "gcp load: --document-table-id requires an integer." };
+      documentTableId = args[++i];
+      continue;
+    }
+    if (a === "--collection-id") {
+      if (!args[i + 1])
+        return { error: "gcp load: --collection-id requires a value." };
+      collectionId = args[++i];
+      continue;
+    }
+    if (a === "--table-id") {
+      if (!args[i + 1])
+        return { error: "gcp load: --table-id requires an integer." };
+      tableId = args[++i];
+      continue;
+    }
     if (!a.startsWith("-") && !file) {
       file = a;
       continue;
@@ -120,7 +152,17 @@ export function parseLoadArgs(args) {
     return { error: `gcp load: unknown argument "${a}".` };
   }
 
-  return { file, workspaceName, sqlitePathFromCli, force, dryRun };
+  return {
+    file,
+    workspaceName,
+    sqlitePathFromCli,
+    force,
+    dryRun,
+    reindex,
+    documentTableId,
+    collectionId,
+    tableId
+  };
 }
 
 export function detectLoadKind(filePath) {
@@ -154,6 +196,18 @@ export function buildBackupLoadEngineArgs(
     bundlePath
   ];
   if (parsed.dryRun) args.push("--dry-run");
+  if (parsed.reindex && parsed.reindex !== "none") {
+    args.push("--reindex", parsed.reindex);
+  }
+  if (parsed.documentTableId) {
+    args.push("--document-table-id", parsed.documentTableId);
+  }
+  if (parsed.collectionId) {
+    args.push("--collection-id", parsed.collectionId);
+  }
+  if (parsed.tableId) {
+    args.push("--table-id", parsed.tableId);
+  }
   return args;
 }
 

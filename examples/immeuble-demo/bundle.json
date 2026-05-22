@@ -1,0 +1,760 @@
+{
+  "kind": "ghostcrab_backup_bundle",
+  "schema_version": "2",
+  "scope": {
+    "kind": "workspace",
+    "workspace_id": "immeuble-demo"
+  },
+  "workspaces": [
+    {
+      "workspace_id": "immeuble-demo",
+      "label": "Immeuble demo",
+      "description": "Copropriété de référence"
+    }
+  ],
+  "collections": [],
+  "ontologies": [
+    {
+      "ontology_id": "immeuble-demo::core",
+      "workspace_id": "immeuble-demo",
+      "name": "core",
+      "version": "1.0.0",
+      "frozen": 0,
+      "source_kind": "constructed",
+      "metadata_json": "{}"
+    }
+  ],
+  "ontology_namespaces": [],
+  "ontology_dimensions": [],
+  "ontology_values": [],
+  "ontology_entity_types": [
+    {
+      "ontology_id": "immeuble-demo::core",
+      "entity_type": "building",
+      "label": "building",
+      "metadata_json": "{}"
+    },
+    {
+      "ontology_id": "immeuble-demo::core",
+      "entity_type": "unit",
+      "label": "unit",
+      "metadata_json": "{}"
+    },
+    {
+      "ontology_id": "immeuble-demo::core",
+      "entity_type": "shared_space",
+      "label": "shared_space",
+      "metadata_json": "{}"
+    },
+    {
+      "ontology_id": "immeuble-demo::core",
+      "entity_type": "parking_space",
+      "label": "parking_space",
+      "metadata_json": "{}"
+    },
+    {
+      "ontology_id": "immeuble-demo::core",
+      "entity_type": "cellar",
+      "label": "cellar",
+      "metadata_json": "{}"
+    },
+    {
+      "ontology_id": "immeuble-demo::core",
+      "entity_type": "person",
+      "label": "person",
+      "metadata_json": "{}"
+    },
+    {
+      "ontology_id": "immeuble-demo::core",
+      "entity_type": "household",
+      "label": "household",
+      "metadata_json": "{}"
+    }
+  ],
+  "ontology_edge_types": [
+    {
+      "ontology_id": "immeuble-demo::core",
+      "edge_type": "contains",
+      "directed": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "ontology_id": "immeuble-demo::core",
+      "edge_type": "owns",
+      "directed": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "ontology_id": "immeuble-demo::core",
+      "edge_type": "occupies",
+      "directed": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "ontology_id": "immeuble-demo::core",
+      "edge_type": "has_member",
+      "directed": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "ontology_id": "immeuble-demo::core",
+      "edge_type": "spouse_of",
+      "directed": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "ontology_id": "immeuble-demo::core",
+      "edge_type": "assigned_garage",
+      "directed": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "ontology_id": "immeuble-demo::core",
+      "edge_type": "assigned_cellar",
+      "directed": 1,
+      "metadata_json": "{}"
+    }
+  ],
+  "ontology_entities": [],
+  "ontology_relations": [],
+  "ontology_triples": [],
+  "collection_ontologies": [],
+  "workspace_settings": [
+    {
+      "workspace_id": "immeuble-demo",
+      "default_ontology_id": "immeuble-demo::core",
+      "metadata_json": "{}"
+    }
+  ],
+  "documents_raw": [],
+  "chunks_raw": [],
+  "facet_assignments_raw": [],
+  "entities_raw": [
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 1,
+      "entity_type": "building",
+      "name": "Résidence Les Tilleuls",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 2,
+      "entity_type": "shared_space",
+      "name": "Hall d'entrée",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 3,
+      "entity_type": "shared_space",
+      "name": "Ascenseur A",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 4,
+      "entity_type": "shared_space",
+      "name": "Buanderie",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 5,
+      "entity_type": "unit",
+      "name": "Appartement 1",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 6,
+      "entity_type": "unit",
+      "name": "Appartement 2",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 7,
+      "entity_type": "unit",
+      "name": "Appartement 3",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 8,
+      "entity_type": "unit",
+      "name": "Appartement 4",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 9,
+      "entity_type": "unit",
+      "name": "Appartement 5",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 10,
+      "entity_type": "parking_space",
+      "name": "Garage 1",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 11,
+      "entity_type": "parking_space",
+      "name": "Garage 2",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 12,
+      "entity_type": "parking_space",
+      "name": "Garage 3",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 13,
+      "entity_type": "parking_space",
+      "name": "Garage 4",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 14,
+      "entity_type": "parking_space",
+      "name": "Garage 5",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 15,
+      "entity_type": "cellar",
+      "name": "Cave 1",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 16,
+      "entity_type": "cellar",
+      "name": "Cave 2",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 17,
+      "entity_type": "cellar",
+      "name": "Cave 3",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 18,
+      "entity_type": "cellar",
+      "name": "Cave 4",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 19,
+      "entity_type": "cellar",
+      "name": "Cave 5",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 20,
+      "entity_type": "person",
+      "name": "Jean Dupont",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 21,
+      "entity_type": "person",
+      "name": "Marie Dupont",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 22,
+      "entity_type": "household",
+      "name": "Foyer Dupont",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 23,
+      "entity_type": "person",
+      "name": "Locataire A1",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 24,
+      "entity_type": "person",
+      "name": "Locataire A2",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 25,
+      "entity_type": "person",
+      "name": "Locataire A3",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 26,
+      "entity_type": "person",
+      "name": "Locataire A4",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 27,
+      "entity_type": "person",
+      "name": "Locataire A5",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 28,
+      "entity_type": "household",
+      "name": "Foyer locataire A1",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 29,
+      "entity_type": "household",
+      "name": "Foyer locataire A2",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 30,
+      "entity_type": "household",
+      "name": "Foyer locataire A3",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 31,
+      "entity_type": "household",
+      "name": "Foyer locataire A4",
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "entity_id": 32,
+      "entity_type": "household",
+      "name": "Foyer locataire A5",
+      "confidence": 1,
+      "metadata_json": "{}"
+    }
+  ],
+  "entity_aliases_raw": [],
+  "relations_raw": [
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 1,
+      "edge_type": "contains",
+      "source_entity_id": 1,
+      "target_entity_id": 2,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 2,
+      "edge_type": "contains",
+      "source_entity_id": 1,
+      "target_entity_id": 3,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 3,
+      "edge_type": "contains",
+      "source_entity_id": 1,
+      "target_entity_id": 4,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 4,
+      "edge_type": "contains",
+      "source_entity_id": 1,
+      "target_entity_id": 5,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 5,
+      "edge_type": "contains",
+      "source_entity_id": 1,
+      "target_entity_id": 6,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 6,
+      "edge_type": "contains",
+      "source_entity_id": 1,
+      "target_entity_id": 7,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 7,
+      "edge_type": "contains",
+      "source_entity_id": 1,
+      "target_entity_id": 8,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 8,
+      "edge_type": "contains",
+      "source_entity_id": 1,
+      "target_entity_id": 9,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 9,
+      "edge_type": "assigned_garage",
+      "source_entity_id": 5,
+      "target_entity_id": 10,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 10,
+      "edge_type": "assigned_cellar",
+      "source_entity_id": 5,
+      "target_entity_id": 15,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 11,
+      "edge_type": "assigned_garage",
+      "source_entity_id": 6,
+      "target_entity_id": 11,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 12,
+      "edge_type": "assigned_cellar",
+      "source_entity_id": 6,
+      "target_entity_id": 16,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 13,
+      "edge_type": "assigned_garage",
+      "source_entity_id": 7,
+      "target_entity_id": 12,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 14,
+      "edge_type": "assigned_cellar",
+      "source_entity_id": 7,
+      "target_entity_id": 17,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 15,
+      "edge_type": "assigned_garage",
+      "source_entity_id": 8,
+      "target_entity_id": 13,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 16,
+      "edge_type": "assigned_cellar",
+      "source_entity_id": 8,
+      "target_entity_id": 18,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 17,
+      "edge_type": "assigned_garage",
+      "source_entity_id": 9,
+      "target_entity_id": 14,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 18,
+      "edge_type": "assigned_cellar",
+      "source_entity_id": 9,
+      "target_entity_id": 19,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 19,
+      "edge_type": "owns",
+      "source_entity_id": 20,
+      "target_entity_id": 1,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 20,
+      "edge_type": "owns",
+      "source_entity_id": 21,
+      "target_entity_id": 1,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 21,
+      "edge_type": "spouse_of",
+      "source_entity_id": 20,
+      "target_entity_id": 21,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 22,
+      "edge_type": "has_member",
+      "source_entity_id": 22,
+      "target_entity_id": 20,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 23,
+      "edge_type": "has_member",
+      "source_entity_id": 22,
+      "target_entity_id": 21,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 24,
+      "edge_type": "occupies",
+      "source_entity_id": 28,
+      "target_entity_id": 5,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 25,
+      "edge_type": "has_member",
+      "source_entity_id": 28,
+      "target_entity_id": 23,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 26,
+      "edge_type": "occupies",
+      "source_entity_id": 29,
+      "target_entity_id": 6,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 27,
+      "edge_type": "has_member",
+      "source_entity_id": 29,
+      "target_entity_id": 24,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 28,
+      "edge_type": "occupies",
+      "source_entity_id": 30,
+      "target_entity_id": 7,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 29,
+      "edge_type": "has_member",
+      "source_entity_id": 30,
+      "target_entity_id": 25,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 30,
+      "edge_type": "occupies",
+      "source_entity_id": 31,
+      "target_entity_id": 8,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 31,
+      "edge_type": "has_member",
+      "source_entity_id": 31,
+      "target_entity_id": 26,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 32,
+      "edge_type": "occupies",
+      "source_entity_id": 32,
+      "target_entity_id": 9,
+      "confidence": 1,
+      "metadata_json": "{}"
+    },
+    {
+      "workspace_id": "immeuble-demo",
+      "ontology_id": "immeuble-demo::core",
+      "relation_id": 33,
+      "edge_type": "has_member",
+      "source_entity_id": 32,
+      "target_entity_id": 27,
+      "confidence": 1,
+      "metadata_json": "{}"
+    }
+  ],
+  "relation_properties_raw": [],
+  "entity_documents_raw": [],
+  "entity_chunks_raw": [],
+  "document_links_raw": [],
+  "external_links_raw": []
+}

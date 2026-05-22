@@ -33,14 +33,24 @@ describe("gcp load helpers", () => {
       workspaceName: "my-app",
       sqlitePathFromCli: "/tmp/brain.sqlite",
       force: true,
-      dryRun: true
+      dryRun: true,
+      reindex: "none",
+      documentTableId: null,
+      collectionId: null,
+      tableId: null
     });
   });
 
   it("builds native backup-load args", () => {
     expect(
       __private__.buildBackupLoadEngineArgs(
-        { dryRun: true },
+        {
+          dryRun: true,
+          reindex: "all",
+          documentTableId: "7",
+          collectionId: "ws::main",
+          tableId: "9"
+        },
         "/tmp/brain.sqlite",
         "/tmp/backup.json"
       )
@@ -50,7 +60,15 @@ describe("gcp load helpers", () => {
       "/tmp/brain.sqlite",
       "--bundle",
       "/tmp/backup.json",
-      "--dry-run"
+      "--dry-run",
+      "--reindex",
+      "all",
+      "--document-table-id",
+      "7",
+      "--collection-id",
+      "ws::main",
+      "--table-id",
+      "9"
     ]);
   });
 });

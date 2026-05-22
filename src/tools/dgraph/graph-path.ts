@@ -13,8 +13,7 @@ export const GraphPathInput = z.object({
   source: z.string().trim().min(1),
   target: z.string().trim().min(1),
   max_depth: z.coerce.number().int().min(1).max(20).default(4),
-  edge_labels: z.array(z.string().trim().min(1)).max(20).default([]),
-  workspace_id: z.string().trim().min(1).optional()
+  edge_labels: z.array(z.string().trim().min(1)).max(20).default([])
 });
 
 export const graphPathTool: ToolHandler = {
