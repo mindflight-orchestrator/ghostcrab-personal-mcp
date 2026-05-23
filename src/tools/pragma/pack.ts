@@ -4,6 +4,7 @@ import {
   runStandaloneGhostcrabPack,
   runStandaloneGhostcrabSearch
 } from "../../db/standalone-mindbrain.js";
+import { FACETS_SEARCH_TABLE_ID } from "../../db/fact-store.js";
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import {
   createToolSuccessResult,
@@ -150,6 +151,7 @@ export const packTool: ToolHandler = {
       const searchResponse = await runStandaloneGhostcrabSearch({
         mindbrainUrl: config.mindbrainUrl,
         workspaceId: effectiveWorkspaceId,
+        tableId: FACETS_SEARCH_TABLE_ID,
         query: input.query,
         embedding: queryEmbedding,
         vectorWeight: context.retrieval.hybridVectorWeight,

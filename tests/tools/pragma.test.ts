@@ -39,65 +39,64 @@ describe("pragma tools", () => {
   });
 
   it("builds a pack with blocking constraints and facts", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (url: string | URL) => {
-        const path =
-          typeof url === "string"
-            ? url
-            : ((url as URL).pathname ?? url.toString());
+    const fetchMock = vi.fn(async (url: string | URL, init?: RequestInit) => {
+      const path =
+        typeof url === "string"
+          ? url
+          : ((url as URL).pathname ?? url.toString());
+      void init;
 
-        if (String(path).includes("pack-projections")) {
-          return new Response(
-            JSON.stringify({
-              rows: [
-                {
-                  id: "proj-constraint-1",
-                  proj_type: "CONSTRAINT",
-                  content: "Do not break public API",
-                  weight: 1,
-                  source_ref: null,
-                  status: "blocking"
-                },
-                {
-                  id: "proj-goal-1",
-                  proj_type: "GOAL",
-                  content: "Ship phase 2 tools",
-                  weight: 0.8,
-                  source_ref: null,
-                  status: "active"
-                }
-              ]
-            }),
-            { status: 200, headers: { "content-type": "application/json" } }
-          );
-        }
+      if (String(path).includes("pack-projections")) {
+        return new Response(
+          JSON.stringify({
+            rows: [
+              {
+                id: "proj-constraint-1",
+                proj_type: "CONSTRAINT",
+                content: "Do not break public API",
+                weight: 1,
+                source_ref: null,
+                status: "blocking"
+              },
+              {
+                id: "proj-goal-1",
+                proj_type: "GOAL",
+                content: "Ship phase 2 tools",
+                weight: 0.8,
+                source_ref: null,
+                status: "active"
+              }
+            ]
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        );
+      }
 
-        if (String(path).includes("ghostcrab/search")) {
-          return new Response(
-            JSON.stringify({
-              workspace_id: "default",
-              query: "phase 2 project-delivery board",
-              returned: 1,
-              matches: [
-                {
-                  doc_id: 42,
-                  bm25_score: 0.9,
-                  vector_score: 0,
-                  combined_score: 0.9
-                }
-              ]
-            }),
-            { status: 200, headers: { "content-type": "application/json" } }
-          );
-        }
+      if (String(path).includes("ghostcrab/search")) {
+        return new Response(
+          JSON.stringify({
+            workspace_id: "default",
+            query: "phase 2 project-delivery board",
+            returned: 1,
+            matches: [
+              {
+                doc_id: 42,
+                bm25_score: 0.9,
+                vector_score: 0,
+                combined_score: 0.9
+              }
+            ]
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        );
+      }
 
-        return new Response("{}", {
-          status: 200,
-          headers: { "content-type": "application/json" }
-        });
-      })
-    );
+      return new Response("{}", {
+        status: 200,
+        headers: { "content-type": "application/json" }
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
 
     const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
       if (sql.includes("FROM mb_pragma.facets") && sql.includes("doc_id IN")) {
@@ -147,6 +146,16 @@ describe("pragma tools", () => {
     expect(readStructured(result).kpi_snapshots).toEqual([]);
     expect(readStructured(result).pack_text).toContain("CONSTRAINT[blocking]");
     expect(readStructured(result).pack_text).toContain("FACT:");
+    const searchCall = fetchMock.mock.calls.find(([url]) =>
+      String(url).includes("ghostcrab/search")
+    );
+    expect(searchCall).toBeDefined();
+    const searchBody = JSON.parse(searchCall?.[1]?.body as string) as Record<
+      string,
+      unknown
+    >;
+    expect(searchBody.table_id).toBe(1);
+    expect(searchBody.workspace_id).toBe("default");
   });
 
   it("returns status directives from health, gaps, and blocking constraints", async () => {
