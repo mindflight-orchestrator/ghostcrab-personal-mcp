@@ -106,7 +106,7 @@ npm install -g @mindflight/ghostcrab-personal-mcp@latest
 
 ```bash
 > pnpm add --allow-build=@mindflight/ghostcrab-personal-mcp @mindflight/ghostcrab-personal-mcp@latest
-> ```
+```
 
 After install, postinstall creates a `./data/` directory, copies `.env.example` → `.env` if no `.env` exists, and adds symlinks to key docs at your project root.
 
