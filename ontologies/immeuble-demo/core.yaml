@@ -1,0 +1,117 @@
+id: https://ghostcrab.be/ontology/immeuble-demo/core
+name: immeuble_demo_core
+title: Immeuble demo core ontology
+description: Copropriété reference model — buildings, units, persons, households.
+license: https://ghostcrab.be/Licence.md
+version: 1.0.0
+
+prefixes:
+  linkml: https://w3id.org/linkml/
+  ghostcrab: https://ghostcrab.be/ontology/
+  immeuble: https://ghostcrab.be/ontology/immeuble-demo/
+  foaf: http://xmlns.com/foaf/0.1/
+  org: http://www.w3.org/ns/org#
+
+default_prefix: immeuble
+default_range: string
+
+imports:
+  - linkml:types
+  - ../ghostcrab/profile.yaml
+
+classes:
+  building:
+    is_a: Asset
+    class_uri: immeuble:Building
+    description: Residential or mixed building in a copropriété.
+    annotations:
+      ghostcrab.native_entity_type: building
+
+  unit:
+    is_a: Asset
+    class_uri: immeuble:Unit
+    description: Private lot (apartment, office) within a building.
+    annotations:
+      ghostcrab.native_entity_type: unit
+
+  shared_space:
+    is_a: Asset
+    class_uri: immeuble:SharedSpace
+    description: Common area (hall, elevator, garden).
+    annotations:
+      ghostcrab.native_entity_type: shared_space
+
+  parking_space:
+    is_a: Asset
+    class_uri: immeuble:ParkingSpace
+    annotations:
+      ghostcrab.native_entity_type: parking_space
+
+  cellar:
+    is_a: Asset
+    class_uri: immeuble:Cellar
+    annotations:
+      ghostcrab.native_entity_type: cellar
+
+  person:
+    is_a: Person
+    class_uri: foaf:Person
+    annotations:
+      ghostcrab.native_entity_type: person
+
+  household:
+    is_a: Group
+    class_uri: immeuble:Household
+    description: Billing or cohabitation group.
+    annotations:
+      ghostcrab.native_entity_type: household
+
+slots:
+  contains:
+    domain: building
+    range: Asset
+    slot_uri: immeuble:contains
+    annotations:
+      ghostcrab.native_edge_type: contains
+
+  owns:
+    domain: person
+    range: Asset
+    slot_uri: immeuble:owns
+    annotations:
+      ghostcrab.native_edge_type: owns
+
+  occupies:
+    domain: person
+    range: unit
+    slot_uri: immeuble:occupies
+    annotations:
+      ghostcrab.native_edge_type: occupies
+
+  has_member:
+    domain: household
+    range: person
+    slot_uri: org:hasMember
+    annotations:
+      ghostcrab.native_edge_type: has_member
+
+  spouse_of:
+    domain: person
+    range: person
+    slot_uri: immeuble:spouseOf
+    annotations:
+      ghostcrab.native_edge_type: spouse_of
+
+  assigned_garage:
+    domain: unit
+    range: parking_space
+    slot_uri: immeuble:assignedGarage
+    annotations:
+      ghostcrab.native_edge_type: assigned_garage
+
+  assigned_cellar:
+    domain: unit
+    range: cellar
+    slot_uri: immeuble:assignedCellar
+    annotations:
+      ghostcrab.native_edge_type: assigned_cellar

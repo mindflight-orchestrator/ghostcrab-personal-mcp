@@ -1,0 +1,253 @@
+id: https://ghostcrab.be/ontology/profile
+name: ghostcrab_profile
+title: GhostCrab core ontology patterns
+description: >
+  Layer-1 reusable patterns for temporal, event-driven, document-backed knowledge
+  graphs. Aligns with PROV-O, OWL-Time, SKOS, and SHACL via LinkML generators.
+license: https://ghostcrab.be/Licence.md
+version: 1.0.0
+
+prefixes:
+  linkml: https://w3id.org/linkml/
+  ghostcrab: https://ghostcrab.be/ontology/
+  rdfs: http://www.w3.org/2000/01/rdf-schema#
+  owl: http://www.w3.org/2002/07/owl#
+  skos: http://www.w3.org/2004/02/skos/core#
+  prov: http://www.w3.org/ns/prov#
+  time: http://www.w3.org/2006/time#
+  sh: http://www.w3.org/ns/shacl#
+  org: http://www.w3.org/ns/org#
+  foaf: http://xmlns.com/foaf/0.1/
+  xsd: http://www.w3.org/2001/XMLSchema#
+
+default_prefix: ghostcrab
+default_range: string
+
+imports:
+  - linkml:types
+
+enums:
+  LifecycleStatus:
+    description: Generic lifecycle states for relations and entities.
+    permissible_values:
+      confirmed:
+        meaning: skos:Concept
+        annotations:
+          skos:prefLabel: confirmed
+      pending_verification:
+        meaning: skos:Concept
+        annotations:
+          skos:prefLabel: pending verification
+      contested:
+        meaning: skos:Concept
+        annotations:
+          skos:prefLabel: contested
+      closed:
+        meaning: skos:Concept
+        annotations:
+          skos:prefLabel: closed
+
+classes:
+  Entity:
+    class_uri: ghostcrab:Entity
+    description: Root domain entity.
+    abstract: true
+    annotations:
+      ghostcrab.pattern: entity
+      ghostcrab.layer: core
+
+  Agent:
+    is_a: Entity
+    class_uri: foaf:Agent
+    description: Actor capable of holding roles and initiating events.
+    annotations:
+      ghostcrab.pattern: agent
+      ghostcrab.layer: core
+
+  Role:
+    is_a: Entity
+    class_uri: ghostcrab:Role
+    description: Contextual capacity played by an agent.
+    annotations:
+      ghostcrab.pattern: role
+      ghostcrab.layer: core
+
+  Event:
+    is_a: Entity
+    class_uri: ghostcrab:Event
+    description: Occurrence that explains a state transition.
+    annotations:
+      ghostcrab.pattern: event
+      ghostcrab.layer: core
+
+  Document:
+    is_a: Entity
+    class_uri: prov:Entity
+    description: Evidence-bearing artifact.
+    annotations:
+      ghostcrab.pattern: document
+      ghostcrab.layer: core
+
+  Group:
+    is_a: Entity
+    class_uri: org:Organization
+    description: Collection with temporal membership.
+    annotations:
+      ghostcrab.pattern: group
+      ghostcrab.layer: core
+
+  Location:
+    is_a: Entity
+    class_uri: ghostcrab:Location
+    annotations:
+      ghostcrab.pattern: location
+      ghostcrab.layer: core
+
+  TimeInterval:
+    class_uri: time:Interval
+    description: Temporal extent for validity or observation.
+    annotations:
+      ghostcrab.pattern: temporal
+      ghostcrab.layer: core
+    slots:
+      hasBeginning:
+        range: date
+        slot_uri: time:hasBeginning
+      hasEnd:
+        range: date
+        slot_uri: time:hasEnd
+
+  QualifiedRelationship:
+    is_a: Entity
+    class_uri: ghostcrab:QualifiedRelationship
+    mixin: true
+    description: Reified relationship between two entities.
+    annotations:
+      ghostcrab.pattern: qualified_relation
+      ghostcrab.layer: core
+    slots:
+      validFrom:
+        range: date
+        slot_uri: time:hasBeginning
+        description: Start of relation validity.
+      validTo:
+        range: date
+        slot_uri: time:hasEnd
+        description: End of relation validity; null if open.
+      endReason:
+        range: string
+        description: Business reason the relation ended.
+      status:
+        range: LifecycleStatus
+        required: true
+      confirmedByDocument:
+        range: Document
+        slot_uri: prov:wasDerivedFrom
+        description: Document that proves this relation.
+
+  TemporalEntity:
+    is_a: Entity
+    mixin: true
+    description: Entity with explicit validity window.
+    annotations:
+      ghostcrab.pattern: temporal
+      ghostcrab.layer: core
+    slots:
+      validFrom:
+        range: date
+        slot_uri: time:hasBeginning
+      validTo:
+        range: date
+        slot_uri: time:hasEnd
+
+  Person:
+    is_a: Agent
+    class_uri: foaf:Person
+    description: Natural person.
+    annotations:
+      ghostcrab.layer: generic_business
+
+  Organization:
+    is_a: Agent
+    class_uri: org:Organization
+    description: Legal or informal organization.
+    annotations:
+      ghostcrab.layer: generic_business
+
+  Asset:
+    is_a: Entity
+    class_uri: ghostcrab:Asset
+    annotations:
+      ghostcrab.layer: generic_business
+
+  Contract:
+    is_a: Document
+    class_uri: ghostcrab:Contract
+    annotations:
+      ghostcrab.layer: generic_business
+
+  Invoice:
+    is_a: Document
+    class_uri: ghostcrab:Invoice
+    annotations:
+      ghostcrab.layer: generic_business
+
+  Case:
+    is_a: Entity
+    class_uri: ghostcrab:Case
+    annotations:
+      ghostcrab.layer: generic_business
+
+slots:
+  hasRole:
+    domain: Agent
+    range: Role
+    slot_uri: ghostcrab:hasRole
+    annotations:
+      ghostcrab.pattern: role
+
+  memberOf:
+    domain: Agent
+    range: Group
+    slot_uri: org:memberOf
+    annotations:
+      ghostcrab.pattern: group
+
+  triggeredBy:
+    domain: Entity
+    range: Event
+    slot_uri: ghostcrab:triggeredBy
+    annotations:
+      ghostcrab.pattern: event
+
+  derivedFrom:
+    domain: Entity
+    range: Document
+    slot_uri: prov:wasDerivedFrom
+    annotations:
+      ghostcrab.pattern: provenance
+
+  titulaireDe:
+    domain: Agent
+    range: QualifiedRelationship
+    annotations:
+      ghostcrab.pattern: qualified_relation
+
+  porteSur:
+    domain: QualifiedRelationship
+    range: Asset
+    annotations:
+      ghostcrab.pattern: qualified_relation
+
+  confirméPar:
+    domain: QualifiedRelationship
+    range: Document
+    slot_uri: prov:wasDerivedFrom
+    annotations:
+      ghostcrab.pattern: provenance
+
+  impactéPar:
+    domain: QualifiedRelationship
+    range: Event
+    annotations:
+      ghostcrab.pattern: event

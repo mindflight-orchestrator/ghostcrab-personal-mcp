@@ -3,6 +3,106 @@ import { describe, expect, it } from "vitest";
 import { __private__ } from "../../bin/commands/brain-ontology.mjs";
 
 describe("gcp brain ontology helpers", () => {
+  it("parses ontology compile flags", () => {
+    expect(
+      __private__.parseOntologyCompileArgs([
+        "--workspace-id",
+        "immeuble-demo",
+        "--ontology-id",
+        "immeuble-demo::core",
+        "--input",
+        "core.yaml",
+        "--output",
+        "slice.json",
+        "--import-db"
+      ])
+    ).toEqual({
+      workspaceName: null,
+      sqlitePathFromCli: null,
+      workspaceId: "immeuble-demo",
+      ontologyId: "immeuble-demo::core",
+      inputPath: "core.yaml",
+      outputPath: "slice.json",
+      ntriplesPath: null,
+      importToDb: true,
+      force: false
+    });
+  });
+
+  it("parses ontology export-linkml flags", () => {
+    expect(
+      __private__.parseOntologyExportLinkmlArgs([
+        "--ontology-id",
+        "immeuble-demo::core",
+        "--input",
+        "bundle.json",
+        "-o",
+        "exported.yaml"
+      ])
+    ).toEqual({
+      workspaceName: null,
+      sqlitePathFromCli: null,
+      ontologyId: "immeuble-demo::core",
+      bundlePath: "bundle.json",
+      outputPath: "exported.yaml"
+    });
+  });
+
+  it("builds native ontology-compile-linkml args", () => {
+    const parsed = __private__.parseOntologyCompileArgs([
+      "--workspace-id",
+      "immeuble-demo",
+      "--ontology-id",
+      "immeuble-demo::core",
+      "--input",
+      "core.yaml",
+      "--output",
+      "slice.json",
+      "--ntriples",
+      "slice.nt",
+      "--import-db"
+    ]);
+
+    expect(
+      __private__.buildOntologyCompileLinkmlEngineArgs(parsed, "/tmp/brain.sqlite")
+    ).toEqual([
+      "ontology-compile-linkml",
+      "--workspace-id",
+      "immeuble-demo",
+      "--ontology-id",
+      "immeuble-demo::core",
+      "--input",
+      "core.yaml",
+      "--output",
+      "slice.json",
+      "--ntriples",
+      "slice.nt",
+      "--db",
+      "/tmp/brain.sqlite"
+    ]);
+  });
+
+  it("builds native ontology-export-linkml args", () => {
+    const parsed = __private__.parseOntologyExportLinkmlArgs([
+      "--ontology-id",
+      "immeuble-demo::core",
+      "--input",
+      "bundle.json",
+      "-o",
+      "exported.yaml"
+    ]);
+
+    expect(__private__.buildOntologyExportLinkmlEngineArgs(parsed)).toEqual([
+      "ontology-export-linkml",
+      "--ontology-id",
+      "immeuble-demo::core",
+      "--input-bundle",
+      "bundle.json",
+      "--output",
+      "exported.yaml"
+    ]);
+  });
+
   it("parses ontology import flags", () => {
     expect(
       __private__.parseOntologyImportArgs([
