@@ -94,6 +94,8 @@
     "beta:smoke": "node scripts/smoke-beta-install.mjs",
     "beta:smoke:ide": "node scripts/smoke-beta-ide-install.mjs",
     "verify:e2e": "node scripts/verify-e2e.mjs",
+    "ontology:compile": "node bin/gcp.mjs brain ontology compile",
+    "ontology:export-linkml": "node bin/gcp.mjs brain ontology export-linkml",
     "publish:npm-split": "node scripts/publish-npm-split.mjs"
   },
   "devDependencies": {
