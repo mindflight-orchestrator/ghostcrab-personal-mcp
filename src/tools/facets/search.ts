@@ -197,6 +197,7 @@ export const searchTool: ToolHandler = {
           mindbrainUrl: config.mindbrainUrl,
           timeoutMs: config.mindbrainHttpTimeoutMs,
           workspaceId: effectiveWorkspaceId,
+          tableId: FACETS_SEARCH_TABLE_ID,
           query: normalizedQuery,
           embedding: queryVector,
           vectorWeight: context.retrieval.hybridVectorWeight / totalWeight,

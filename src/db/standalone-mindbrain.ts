@@ -175,6 +175,8 @@ export interface StandaloneGhostcrabSearchParams {
   mindbrainUrl: string;
   timeoutMs?: number;
   workspaceId: string;
+  collectionId?: string;
+  tableId?: number;
   query: string;
   embedding: number[];
   vectorWeight: number;
@@ -190,7 +192,11 @@ export interface StandaloneGhostcrabSearchMatch {
 
 export interface StandaloneGhostcrabSearchResponse {
   workspace_id: string;
+  collection_id?: string | null;
+  table_id?: number;
   query: string;
+  retrieval_mode?: string;
+  candidate_limit?: number;
   returned: number;
   matches: StandaloneGhostcrabSearchMatch[];
 }
@@ -433,6 +439,8 @@ export async function runStandaloneGhostcrabSearch(
       method: "POST",
       body: JSON.stringify({
         workspace_id: params.workspaceId,
+        collection_id: params.collectionId,
+        table_id: params.tableId,
         query: params.query,
         embedding: params.embedding,
         vector_weight: params.vectorWeight,

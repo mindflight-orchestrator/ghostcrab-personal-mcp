@@ -259,6 +259,10 @@ function inferSemanticType(column: ColumnSemantic): SemanticType | null {
   }
 }
 
+function tableLookupKey(schemaName: string, tableName: string): string {
+  return `${schemaName}.${tableName}`.toLowerCase();
+}
+
 function inferGraphUsage(column: ColumnSemantic): GraphUsage | null {
   switch (column.column_role) {
     case "id":
@@ -487,6 +491,36 @@ export const workspaceExportModelTool: ToolHandler = {
     const tableNames = new Set(
       catalogTables.map((tableName) => tableName.toLowerCase())
     );
+    const catalogColumnsByTable = new Map<string, typeof catalogColumns>();
+    for (const column of catalogColumns) {
+      const key = column.table_name.toLowerCase();
+      const bucket = catalogColumnsByTable.get(key);
+      if (bucket) {
+        bucket.push(column);
+      } else {
+        catalogColumnsByTable.set(key, [column]);
+      }
+    }
+    const internalColumnsByTable = new Map<string, ColumnSemantic[]>();
+    for (const column of internalColumns) {
+      const key = tableLookupKey(column.table_schema, column.table_name);
+      const bucket = internalColumnsByTable.get(key);
+      if (bucket) {
+        bucket.push(column);
+      } else {
+        internalColumnsByTable.set(key, [column]);
+      }
+    }
+    const internalRelationsByFromTable = new Map<string, RelationSemantic[]>();
+    for (const relation of internalRelations) {
+      const key = tableLookupKey(relation.from_schema, relation.from_table);
+      const bucket = internalRelationsByFromTable.get(key);
+      if (bucket) {
+        bucket.push(relation);
+      } else {
+        internalRelationsByFromTable.set(key, [relation]);
+      }
+    }
     const existingTables = new Set<string>();
     const existingColumns = new Set<string>();
     const nullableLookup = new Map<string, boolean>();
@@ -497,16 +531,12 @@ export const workspaceExportModelTool: ToolHandler = {
         continue;
       }
 
-      const key = `${table.table_schema}.${table.table_name}`.toLowerCase();
+      const key = tableLookupKey(table.table_schema, table.table_name);
       existingTables.add(key);
 
-      for (const column of catalogColumns) {
-        if (
-          column.table_name.toLowerCase() !== table.table_name.toLowerCase()
-        ) {
-          continue;
-        }
-
+      for (const column of catalogColumnsByTable.get(
+        table.table_name.toLowerCase()
+      ) ?? []) {
         const columnKey =
           `${table.table_schema}.${table.table_name}.${column.column_name}`.toLowerCase();
         existingColumns.add(columnKey);
@@ -525,9 +555,14 @@ export const workspaceExportModelTool: ToolHandler = {
       columnSemantics: internalColumns
     });
 
-    const publicTables: TableExport[] = internalTables.map((table) =>
-      toPublicTable(table, internalColumns, internalRelations)
-    );
+    const publicTables: TableExport[] = internalTables.map((table) => {
+      const key = tableLookupKey(table.table_schema, table.table_name);
+      return toPublicTable(
+        table,
+        internalColumnsByTable.get(key) ?? [],
+        internalRelationsByFromTable.get(key) ?? []
+      );
+    });
     const publicColumns: ColumnExport[] = internalColumns.map((column) => {
       const key =
         `${column.table_schema}.${column.table_name}.${column.column_name}`.toLowerCase();
