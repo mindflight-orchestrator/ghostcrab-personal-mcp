@@ -84,6 +84,8 @@ pub fn build(b: *std.Build) void {
     const install_document_tool = b.addInstallArtifact(document_tool, .{});
     const document_tool_step = b.step("document-tool", "Build ghostcrab-document (import/normalize/profile corpus CLI)");
     document_tool_step.dependOn(&install_document_tool.step);
+
+    b.getInstallStep().dependOn(&install_document_tool.step);
 }
 
 /// Add the sqlite3 amalgamation (deps/sqlite3/) to the module.

@@ -68,12 +68,25 @@ you supply mock JSON.
 Use the live LLM path when you want corpus-aware profiling, legal/document
 splitter choices, contextual retrieval, or taxonomy/facet qualification.
 
-Common provider flags:
+Common provider flags can be passed explicitly:
 
 ```bash
-export OPENAI_API_KEY="..."
---base-url https://api.openai.com/v1 --api-key "$OPENAI_API_KEY" --model gpt-4.1-mini
+--base-url https://api.openai.com/v1 --api-key "$MB_DOCUMENTS_LLM_API_KEY" --model gpt-4.1-mini
 ```
+
+For `gcp brain document`, the wrapper also reads local `.env` defaults before
+spawning the native engine. Explicit CLI flags keep priority over `.env`.
+
+```bash
+MB_DOCUMENTS_LLM_MODE=live
+MB_DOCUMENTS_LLM_BASE_URL=https://api.openai.com/v1
+MB_DOCUMENTS_LLM_MODEL=gpt-4.1-mini
+MB_DOCUMENTS_LLM_API_KEY=...
+MB_DOCUMENTS_LLM_TIMEOUT_MS=30000
+```
+
+Use `MB_DOCUMENTS_LLM_MODE=mock` for deterministic mock-profile or
+mock-qualification runs. Do not commit API keys.
 
 ## Workflow 1: Normalize Only
 
@@ -189,9 +202,9 @@ One-shot live profile:
 ```bash
 gcp brain document document-profile \
   --content-file ./out/source.md \
-  --base-url https://api.openai.com/v1 \
-  --api-key "$OPENAI_API_KEY" \
-  --model gpt-4.1-mini
+  --base-url "$MB_DOCUMENTS_LLM_BASE_URL" \
+  --api-key "$MB_DOCUMENTS_LLM_API_KEY" \
+  --model "$MB_DOCUMENTS_LLM_MODEL"
 ```
 
 No-LLM profile inspection:
@@ -225,9 +238,6 @@ Process queued jobs with a live LLM:
 
 ```bash
 gcp brain document --force document-profile-worker \
-  --base-url https://api.openai.com/v1 \
-  --api-key "$OPENAI_API_KEY" \
-  --model gpt-4.1-mini \
   --limit 4
 ```
 
@@ -243,9 +253,6 @@ Optional contextual retrieval needs both an LLM and embeddings:
 
 ```bash
 gcp brain document --force document-profile-worker \
-  --base-url https://api.openai.com/v1 \
-  --api-key "$OPENAI_API_KEY" \
-  --model gpt-4.1-mini \
   --contextual-retrieval \
   --contextual-search-table-id 1 \
   --embedding-model text-embedding-3-small
@@ -312,10 +319,7 @@ gcp brain document --force document-qualify \
   --workspace-id my_ws \
   --collection-id my_ws::docs \
   --taxonomies my_ws::core \
-  --facets topic.category \
-  --base-url https://api.openai.com/v1 \
-  --api-key "$OPENAI_API_KEY" \
-  --model gpt-4.1-mini
+  --facets topic.category
 ```
 
 No-LLM qualification fallback when `document-qualify` is available:
@@ -344,10 +348,8 @@ gcp brain document --force document-qualify \
 Accepted qualification rows are written to `facet_assignments_raw`. Chunk
 assignments are persisted directly and aggregated to document-level assignments.
 
-Current boundary: `qualification-vocab-list` is part of this package's native
-document engine. Full controlled LLM qualification through `document-qualify`
-is a separate engine capability; verify it with `gcp brain document --help`
-before relying on it in an install.
+`document-qualify` writes accepted rows to `facet_assignments_raw`. Use dry-run
+first to inspect the prompt envelope, then a mock JSON fixture, then live mode.
 
 ## Fallbacks And Troubleshooting
 

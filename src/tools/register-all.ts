@@ -1,4 +1,5 @@
 import "./dgraph/coverage.js";
+import "./dgraph/diagnostics.js";
 import "./dgraph/entity-chunks.js";
 import "./dgraph/graph-path.js";
 import "./dgraph/graph-reindex.js";

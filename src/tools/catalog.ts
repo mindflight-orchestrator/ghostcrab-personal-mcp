@@ -188,6 +188,7 @@ function classifyAccess(name: string): ToolAccess {
     name.includes("_seed") ||
     name.includes("_instantiate") ||
     name.includes("_checkpoint") ||
+    name.includes("_import") ||
     name.includes("_bridge")
   ) {
     return "write";

@@ -1,0 +1,20 @@
+{
+  "assignments": [
+    {
+      "target_kind": "doc",
+      "doc_id": 1,
+      "namespace": "source",
+      "dimension": "document_type",
+      "value": "statuts_copropriete",
+      "weight": 1
+    },
+    {
+      "target_kind": "doc",
+      "doc_id": 4,
+      "namespace": "source",
+      "dimension": "document_type",
+      "value": "composition_menage",
+      "weight": 1
+    }
+  ]
+}

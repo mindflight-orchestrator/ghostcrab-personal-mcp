@@ -251,6 +251,75 @@ export interface StandaloneGraphSubgraphEvent {
   payload: unknown;
 }
 
+export interface StandaloneGraphDiagnosticsParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  workspaceId: string;
+  ontologyId?: string;
+  limit?: number;
+  componentSmallMax?: number;
+}
+
+export interface StandaloneGraphDiagnosticsIssue {
+  kind: string;
+  severity: string;
+  label: string;
+  suggested_action: string;
+  entity_id?: number | null;
+  relation_id?: number | null;
+  rule_id?: string | null;
+  observed_count?: number | null;
+  expected_min?: number | null;
+  expected_max?: number | null;
+}
+
+export interface StandaloneGraphDiagnosticsResponse {
+  kind: "graph_diagnostics_report";
+  summary: Record<string, unknown>;
+  issues: StandaloneGraphDiagnosticsIssue[];
+}
+
+export interface StandaloneGraphGapRulesParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  workspaceId?: string;
+  ontologyId?: string;
+}
+
+export interface StandaloneGraphGapRule {
+  rule_id: string;
+  ontology_id: string;
+  workspace_id?: string | null;
+  entity_type: string;
+  relation_type: string;
+  direction: "out" | "in" | "either";
+  target_entity_type?: string | null;
+  min_count: number;
+  max_count?: number | null;
+  severity: string;
+  label: string;
+  enabled: boolean;
+  metadata?: Record<string, unknown>;
+}
+
+export interface StandaloneGraphGapRulesResponse {
+  kind: "graph_gap_rules";
+  ontology_id: string;
+  workspace_id?: string | null;
+  rules: StandaloneGraphGapRule[];
+}
+
+export interface StandaloneGraphGapRulesImportParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  payload: Record<string, unknown>;
+}
+
+export interface StandaloneGraphGapRulesImportResponse {
+  ok: true;
+  imported: number;
+}
+
 export interface StandaloneMindbrainSqlParams {
   mindbrainUrl: string;
   timeoutMs?: number;
@@ -530,6 +599,71 @@ export async function runStandaloneGraphSubgraph(
   return await fetchJson<StandaloneGraphSubgraphEvent[]>(
     url,
     { method: "GET" },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneGraphDiagnostics(
+  params: StandaloneGraphDiagnosticsParams
+): Promise<StandaloneGraphDiagnosticsResponse> {
+  const url = new URL(
+    "/api/mindbrain/graph/diagnostics",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  url.searchParams.set("workspace_id", params.workspaceId);
+  if (params.ontologyId) {
+    url.searchParams.set("ontology_id", params.ontologyId);
+  }
+  if (params.limit !== undefined) {
+    url.searchParams.set("limit", String(params.limit));
+  }
+  if (params.componentSmallMax !== undefined) {
+    url.searchParams.set(
+      "component_small_max",
+      String(params.componentSmallMax)
+    );
+  }
+  return await fetchJson<StandaloneGraphDiagnosticsResponse>(
+    url,
+    { method: "GET" },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneGraphGapRules(
+  params: StandaloneGraphGapRulesParams
+): Promise<StandaloneGraphGapRulesResponse> {
+  const url = new URL(
+    "/api/mindbrain/graph/gap-rules",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  if (params.workspaceId) {
+    url.searchParams.set("workspace_id", params.workspaceId);
+  }
+  if (params.ontologyId) {
+    url.searchParams.set("ontology_id", params.ontologyId);
+  }
+  return await fetchJson<StandaloneGraphGapRulesResponse>(
+    url,
+    { method: "GET" },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneGraphGapRulesImport(
+  params: StandaloneGraphGapRulesImportParams
+): Promise<StandaloneGraphGapRulesImportResponse> {
+  const url = new URL(
+    "/api/mindbrain/graph/gap-rules/import",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  return await fetchJson<StandaloneGraphGapRulesImportResponse>(
+    url,
+    {
+      method: "POST",
+      body: JSON.stringify(params.payload),
+      headers: { "content-type": "application/json" }
+    },
     params.timeoutMs
   );
 }

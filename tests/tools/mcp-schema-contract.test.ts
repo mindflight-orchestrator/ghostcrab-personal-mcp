@@ -5,6 +5,14 @@ import {
   CoverageInput
 } from "../../src/tools/dgraph/coverage.js";
 import {
+  GraphDiagnosticsInput,
+  graphDiagnosticsTool,
+  GraphGapRulesImportInput,
+  graphGapRulesImportTool,
+  GraphGapRulesInput,
+  graphGapRulesTool
+} from "../../src/tools/dgraph/diagnostics.js";
+import {
   graphSearchTool,
   GraphSearchInput
 } from "../../src/tools/dgraph/graph-search.js";
@@ -442,6 +450,66 @@ describe("MCP inputSchema contract (drift guard)", () => {
       expect(parsed.success).toBe(true);
       if (parsed.success) {
         expect(parsed.data.collection_id).toBeUndefined();
+      }
+    });
+  });
+
+  describe("graph gap diagnostics tools", () => {
+    it("documents bounded diagnostics controls", () => {
+      const schema = graphDiagnosticsTool.definition.inputSchema as {
+        properties: {
+          component_small_max: { maximum?: number; minimum?: number };
+          limit: { maximum?: number; minimum?: number };
+        };
+      };
+      expect(schema.properties.limit.minimum).toBe(1);
+      expect(schema.properties.limit.maximum).toBe(500);
+      expect(schema.properties.component_small_max.minimum).toBe(1);
+      expect(schema.properties.component_small_max.maximum).toBe(20);
+    });
+
+    it("documents gap rule list and import contracts", () => {
+      const listSchema = graphGapRulesTool.definition.inputSchema as {
+        properties: Record<string, unknown>;
+      };
+      const importSchema = graphGapRulesImportTool.definition.inputSchema as {
+        required?: string[];
+        properties: {
+          rules: { maxItems?: number; minItems?: number };
+        };
+      };
+      expect(listSchema.properties).toHaveProperty("workspace_id");
+      expect(listSchema.properties).toHaveProperty("ontology_id");
+      expect(importSchema.required).toEqual(
+        expect.arrayContaining(["ontology_id", "rules"])
+      );
+      expect(importSchema.properties.rules.minItems).toBe(1);
+      expect(importSchema.properties.rules.maxItems).toBe(200);
+    });
+
+    it("Zod defaults diagnostics and rules import values", () => {
+      const diagnostics = GraphDiagnosticsInput.parse({});
+      expect(diagnostics.limit).toBe(200);
+      expect(diagnostics.component_small_max).toBe(2);
+
+      expect(GraphGapRulesInput.safeParse({}).success).toBe(true);
+
+      const importParsed = GraphGapRulesImportInput.safeParse({
+        ontology_id: "immeuble-demo::core",
+        rules: [
+          {
+            rule_id: "unit-one-building",
+            entity_type: "unit",
+            relation_type: "part_of",
+            label: "Unit must belong to one building"
+          }
+        ]
+      });
+      expect(importParsed.success).toBe(true);
+      if (importParsed.success) {
+        expect(importParsed.data.replace).toBe(false);
+        expect(importParsed.data.rules[0]?.direction).toBe("out");
+        expect(importParsed.data.rules[0]?.min_count).toBe(1);
       }
     });
   });

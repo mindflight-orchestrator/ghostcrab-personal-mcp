@@ -90,7 +90,7 @@ export async function mirrorGraphNodeToRaw(
         metadata_json
       FROM graph_entity
       WHERE entity_id = ?
-      ON CONFLICT(workspace_id, entity_id) DO UPDATE SET
+      ON CONFLICT(entity_id) DO UPDATE SET
         ontology_id = excluded.ontology_id,
         entity_type = excluded.entity_type,
         name = excluded.name,
@@ -130,7 +130,7 @@ export async function mirrorGraphEdgeToRaw(
         metadata_json
       )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      ON CONFLICT(workspace_id, relation_id) DO UPDATE SET
+      ON CONFLICT(relation_id) DO UPDATE SET
         ontology_id = excluded.ontology_id,
         edge_type = excluded.edge_type,
         source_entity_id = excluded.source_entity_id,
@@ -301,7 +301,12 @@ export async function upsertGraphRelation(
         AND relation_type = ?
       LIMIT 1
     `,
-    [workspaceId, Number(params.sourceId), Number(params.targetId), params.label]
+    [
+      workspaceId,
+      Number(params.sourceId),
+      Number(params.targetId),
+      params.label
+    ]
   );
   if (existing) {
     await database.query(

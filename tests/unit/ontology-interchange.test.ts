@@ -51,23 +51,66 @@ describe("ontology interchange", () => {
     };
 
     expect(sortedEntityTypes(slice.ontology_entity_types)).toEqual([
+      "bank_account",
+      "billing_group",
+      "block",
       "building",
       "cellar",
+      "charge_call",
+      "coda_entry",
+      "decision",
+      "document",
+      "event",
       "household",
+      "lease_contract",
+      "organization",
+      "ownership_group",
       "parking_space",
+      "payment_allocation",
       "person",
+      "private_garden",
+      "receipt",
+      "reminder",
+      "role",
+      "shared_equipment",
       "shared_space",
       "unit"
     ]);
 
     expect(sortedEdgeTypes(slice.ontology_edge_types)).toEqual([
+      "allocated_to",
       "assigned_cellar",
       "assigned_garage",
-      "contains",
+      "bills_to",
+      "block_contains_unit",
+      "building_contains_block",
+      "building_contains_cellar",
+      "building_contains_parking_space",
+      "building_contains_private_garden",
+      "building_contains_shared_equipment",
+      "building_contains_shared_space",
+      "building_contains_unit",
+      "closed",
+      "created",
+      "decided_by",
       "has_member",
+      "household_member",
+      "leases",
+      "manages",
+      "matched_to",
       "occupies",
       "owns",
-      "spouse_of"
+      "part_of",
+      "primary_residence_of",
+      "records",
+      "rented_to",
+      "represents",
+      "requires_review",
+      "shared_space_contains_equipment",
+      "superseded_by",
+      "triggered",
+      "uses_common",
+      "uses_exclusive"
     ]);
 
     expect(slice.ontology_triples.length).toBeGreaterThan(0);
@@ -99,7 +142,10 @@ describe("ontology interchange", () => {
 
   it("round-trips bundle entity and edge types through LinkML compile", () => {
     const bundle = JSON.parse(readFileSync(demoBundlePath, "utf8")) as {
-      ontology_entity_types: Array<{ entity_type: string; ontology_id: string }>;
+      ontology_entity_types: Array<{
+        entity_type: string;
+        ontology_id: string;
+      }>;
       ontology_edge_types: Array<{ edge_type: string; ontology_id: string }>;
     };
 
@@ -148,7 +194,9 @@ describe("ontology interchange", () => {
     expect(sortedEntityTypes(compiled.ontology_entity_types)).toEqual(
       expectedEntities
     );
-    expect(sortedEdgeTypes(compiled.ontology_edge_types)).toEqual(expectedEdges);
+    expect(sortedEdgeTypes(compiled.ontology_edge_types)).toEqual(
+      expectedEdges
+    );
 
     unlinkSync(exportedPath);
     unlinkSync(compiledPath);

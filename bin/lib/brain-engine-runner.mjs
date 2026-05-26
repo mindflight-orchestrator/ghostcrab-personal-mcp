@@ -7,6 +7,9 @@ import {
 } from "./prebuild-permissions.mjs";
 
 export function resolveNativeEngineOrExit(pkgRoot, options = {}) {
+  const overridePath = resolveEnvNativeEnginePath(pkgRoot);
+  if (overridePath) return overridePath;
+
   if (options.preferDev) {
     const devPath = resolveDevNativeEnginePath(pkgRoot);
     if (devPath) return devPath;
@@ -39,6 +42,9 @@ export function resolveNativeEngineOrExit(pkgRoot, options = {}) {
 }
 
 export function resolveNativeEnginePath(pkgRoot, options = {}) {
+  const overridePath = resolveEnvNativeEnginePath(pkgRoot);
+  if (overridePath) return overridePath;
+
   if (options.preferDev) {
     const devPath = resolveDevNativeEnginePath(pkgRoot);
     if (devPath) return devPath;
@@ -91,6 +97,15 @@ export function runNativeEngineOrExit(pkgRoot, childArgs, options = {}) {
   if (!result.ok) {
     process.exit(result.status ?? 1);
   }
+}
+
+function resolveEnvNativeEnginePath(pkgRoot) {
+  if (!process.env.GHOSTCRAB_DOCUMENT_ENGINE?.trim()) return null;
+  const resolved = resolveDocumentEnginePath(pkgRoot);
+  if (!resolved.ok) return null;
+  const ex = ensureUnixExecuteBit(resolved.path);
+  if (!ex.ok) return null;
+  return resolved.path;
 }
 
 function resolveDevNativeEnginePath(pkgRoot) {
