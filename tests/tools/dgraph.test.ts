@@ -3,6 +3,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { DatabaseClient, Queryable } from "../../src/db/client.js";
 import { createToolContext } from "../helpers/tool-context.js";
 import { coverageTool } from "../../src/tools/dgraph/coverage.js";
+import {
+  graphDiagnosticsTool,
+  graphGapRulesImportTool,
+  graphGapRulesTool
+} from "../../src/tools/dgraph/diagnostics.js";
 import { entityChunksTool } from "../../src/tools/dgraph/entity-chunks.js";
 import { graphPathTool } from "../../src/tools/dgraph/graph-path.js";
 import { graphReindexTool } from "../../src/tools/dgraph/graph-reindex.js";
@@ -99,6 +104,89 @@ function mockGraphSearchFetch(rows: Array<Record<string, unknown>>): void {
   );
 }
 
+function mockDiagnosticsFetch(): ReturnType<typeof vi.fn> {
+  const fetchMock = vi.fn(
+    async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes("/api/mindbrain/graph/diagnostics")) {
+        expect(url).toContain("workspace_id=immeuble-demo");
+        expect(url).toContain("limit=25");
+        return new Response(
+          JSON.stringify({
+            kind: "graph_diagnostics_report",
+            summary: {
+              workspace_id: "immeuble-demo",
+              ontology_id: "immeuble-demo::core",
+              issues_total: 1
+            },
+            issues: [
+              {
+                kind: "too_many_relations",
+                severity: "error",
+                label: "Unit must belong to one building",
+                suggested_action: "review_duplicate_or_conflicting_relations",
+                entity_id: 7,
+                rule_id: "unit-one-building",
+                observed_count: 2,
+                expected_min: 1,
+                expected_max: 1
+              }
+            ]
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        );
+      }
+
+      if (url.includes("/api/mindbrain/graph/gap-rules/import")) {
+        expect(init?.method).toBe("POST");
+        const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+        expect(body).toMatchObject({
+          ontology_id: "immeuble-demo::core",
+          workspace_id: "immeuble-demo",
+          replace: true
+        });
+        return new Response(JSON.stringify({ ok: true, imported: 1 }), {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        });
+      }
+
+      if (url.includes("/api/mindbrain/graph/gap-rules")) {
+        expect(url).toContain("workspace_id=immeuble-demo");
+        return new Response(
+          JSON.stringify({
+            kind: "graph_gap_rules",
+            ontology_id: "immeuble-demo::core",
+            workspace_id: "immeuble-demo",
+            rules: [
+              {
+                rule_id: "unit-one-building",
+                ontology_id: "immeuble-demo::core",
+                workspace_id: "immeuble-demo",
+                entity_type: "unit",
+                relation_type: "part_of",
+                direction: "out",
+                target_entity_type: "building",
+                min_count: 1,
+                max_count: 1,
+                severity: "error",
+                label: "Unit must belong to one building",
+                enabled: true,
+                metadata: {}
+              }
+            ]
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        );
+      }
+
+      throw new Error(`Unexpected fetch: ${url}`);
+    }
+  );
+  vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
+}
+
 describe("dgraph tools", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -148,28 +236,30 @@ describe("dgraph tools", () => {
   });
 
   it("calls native reindexAll for ghostcrab_collection_reindex", async () => {
-    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
-      expect(init?.method).toBe("POST");
-      expect(JSON.parse(String(init?.body))).toEqual({
-        workspace_id: "immeuble-demo",
-        collection_id: "immeuble-demo::main",
-        table_id: 1
-      });
-      return new Response(
-        JSON.stringify({
+    const fetchMock = vi.fn(
+      async (_input: RequestInfo | URL, init?: RequestInit) => {
+        expect(init?.method).toBe("POST");
+        expect(JSON.parse(String(init?.body))).toEqual({
           workspace_id: "immeuble-demo",
           collection_id: "immeuble-demo::main",
-          table_id: 1,
-          graph_projected: 32,
-          facet_assignments: 10,
-          bm25_documents: 5
-        }),
-        {
-          status: 200,
-          headers: { "content-type": "application/json" }
-        }
-      );
-    });
+          table_id: 1
+        });
+        return new Response(
+          JSON.stringify({
+            workspace_id: "immeuble-demo",
+            collection_id: "immeuble-demo::main",
+            table_id: 1,
+            graph_projected: 32,
+            facet_assignments: 10,
+            bm25_documents: 5
+          }),
+          {
+            status: 200,
+            headers: { "content-type": "application/json" }
+          }
+        );
+      }
+    );
     vi.stubGlobal("fetch", fetchMock);
 
     const database = createMockDatabase(vi.fn());
@@ -343,6 +433,89 @@ describe("dgraph tools", () => {
         })
       ]
     });
+  });
+
+  it("wraps MindBrain graph diagnostics", async () => {
+    mockDiagnosticsFetch();
+    const context = createToolContext(createMockDatabase(vi.fn()));
+    context.session.workspace_id = "default";
+
+    const result = await graphDiagnosticsTool.handler(
+      {
+        workspace_id: "immeuble-demo",
+        limit: 25
+      },
+      context
+    );
+
+    expect(readStructured(result)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_graph_diagnostics",
+      backend: "mindbrain/graph/diagnostics",
+      workspace_id: "immeuble-demo",
+      summary: expect.objectContaining({
+        issues_total: 1
+      }),
+      issues: [
+        expect.objectContaining({
+          kind: "too_many_relations",
+          rule_id: "unit-one-building"
+        })
+      ]
+    });
+  });
+
+  it("lists and imports MindBrain graph gap rules", async () => {
+    const fetchMock = mockDiagnosticsFetch();
+    const context = createToolContext(createMockDatabase(vi.fn()));
+    context.session.workspace_id = "immeuble-demo";
+
+    const rules = await graphGapRulesTool.handler({}, context);
+    expect(readStructured(rules)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_graph_gap_rules",
+      backend: "mindbrain/graph/gap-rules",
+      workspace_id: "immeuble-demo",
+      ontology_id: "immeuble-demo::core",
+      rules: [
+        expect.objectContaining({
+          rule_id: "unit-one-building",
+          entity_type: "unit",
+          relation_type: "part_of"
+        })
+      ]
+    });
+
+    const imported = await graphGapRulesImportTool.handler(
+      {
+        ontology_id: "immeuble-demo::core",
+        replace: true,
+        rules: [
+          {
+            rule_id: "unit-one-building",
+            entity_type: "unit",
+            relation_type: "part_of",
+            direction: "out",
+            target_entity_type: "building",
+            min_count: 1,
+            max_count: 1,
+            severity: "error",
+            label: "Unit must belong to one building"
+          }
+        ]
+      },
+      context
+    );
+
+    expect(readStructured(imported)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_graph_gap_rules_import",
+      backend: "mindbrain/graph/gap-rules/import",
+      workspace_id: "immeuble-demo",
+      ontology_id: "immeuble-demo::core",
+      imported: 1
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("returns backend_unavailable when MindBrain graph-search endpoint is offline", async () => {

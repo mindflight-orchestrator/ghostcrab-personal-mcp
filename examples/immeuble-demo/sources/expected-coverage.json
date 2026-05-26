@@ -1,0 +1,76 @@
+{
+  "workspace_id": "immeuble-demo-llm",
+  "golden_workspace_id": "immeuble-demo",
+  "buildings": [
+    {
+      "name": "Résidence Les Tilleuls",
+      "blocks": 1,
+      "units": 5,
+      "quota_total": 1000
+    },
+    {
+      "name": "Résidence Les Érables",
+      "blocks": 2,
+      "units": 8,
+      "quota_total": 1000
+    }
+  ],
+  "counts": {
+    "buildings": 2,
+    "blocks": 3,
+    "units": 13,
+    "households": 13,
+    "cellars": 13,
+    "private_gardens": 6,
+    "lease_contracts": 5,
+    "coda_entries": 3
+  },
+  "unit_checks": {
+    "all_units_have_cellar": true,
+    "ground_floor_units_have_private_garden": true,
+    "garage_units": [
+      "Tilleuls Appartement A1",
+      "Tilleuls Appartement A3",
+      "Tilleuls Appartement A5",
+      "Érables Appartement A1",
+      "Érables Appartement A4",
+      "Érables Appartement B1",
+      "Érables Appartement B4"
+    ]
+  },
+  "relation_edges": [
+    "contains",
+    "owns",
+    "occupies",
+    "household_member",
+    "primary_residence_of",
+    "leases",
+    "rented_to",
+    "assigned_cellar",
+    "assigned_garage",
+    "uses_exclusive",
+    "uses_common",
+    "matched_to",
+    "allocated_to",
+    "requires_review"
+  ],
+  "search_terms": [
+    "appartement",
+    "Dupont",
+    "bail",
+    "CODA",
+    "jardin"
+  ],
+  "document_facets": {
+    "source.document_type": [
+      "statuts_copropriete",
+      "statuts_copropriete",
+      "registre_coproprietaires",
+      "composition_menage",
+      "bail",
+      "pv_ag",
+      "extrait_coda",
+      "annexe_lot"
+    ]
+  }
+}

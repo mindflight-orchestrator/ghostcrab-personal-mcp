@@ -138,6 +138,98 @@ describe("gcp brain document helpers", () => {
     ]);
   });
 
+  it("adds live LLM defaults from MB_DOCUMENTS_LLM env when flags are absent", () => {
+    expect(
+      __private__.buildDocumentEngineArgs(
+        [
+          "document-qualify",
+          "--workspace-id",
+          "ws",
+          "--collection-id",
+          "ws::docs",
+          "--taxonomies",
+          "ws::core",
+          "--facets",
+          "topic.category"
+        ],
+        "/tmp/docs.sqlite",
+        {
+          MB_DOCUMENTS_LLM_MODE: "live",
+          MB_DOCUMENTS_LLM_BASE_URL: "https://api.example.test/v1",
+          MB_DOCUMENTS_LLM_MODEL: "model-test",
+          MB_DOCUMENTS_LLM_API_KEY: "secret-value"
+        }
+      )
+    ).toEqual([
+      "document-qualify",
+      "--db",
+      "/tmp/docs.sqlite",
+      "--workspace-id",
+      "ws",
+      "--collection-id",
+      "ws::docs",
+      "--taxonomies",
+      "ws::core",
+      "--facets",
+      "topic.category",
+      "--base-url",
+      "https://api.example.test/v1",
+      "--model",
+      "model-test",
+      "--api-key",
+      "secret-value"
+    ]);
+  });
+
+  it("does not add live LLM defaults in mock mode or when explicit flags exist", () => {
+    expect(
+      __private__.applyDocumentLlmDefaults(
+        ["document-profile-worker", "--limit", "1"],
+        {
+          MB_DOCUMENTS_LLM_MODE: "mock",
+          MB_DOCUMENTS_LLM_BASE_URL: "https://api.example.test/v1",
+          MB_DOCUMENTS_LLM_MODEL: "model-test",
+          MB_DOCUMENTS_LLM_API_KEY: "secret-value"
+        }
+      )
+    ).toEqual(["document-profile-worker", "--limit", "1"]);
+
+    expect(
+      __private__.applyDocumentLlmDefaults(
+        ["document-profile-worker", "--limit", "1", "--model", "explicit"],
+        {
+          MB_DOCUMENTS_LLM_MODE: "live",
+          MB_DOCUMENTS_LLM_BASE_URL: "https://api.example.test/v1",
+          MB_DOCUMENTS_LLM_MODEL: "model-test",
+          MB_DOCUMENTS_LLM_API_KEY: "secret-value"
+        }
+      )
+    ).toEqual([
+      "document-profile-worker",
+      "--limit",
+      "1",
+      "--model",
+      "explicit"
+    ]);
+  });
+
+  it("parses simple .env values for document LLM defaults", () => {
+    expect(
+      __private__.parseEnvFile(`
+        # comment
+        MB_DOCUMENTS_LLM_MODE=live
+        MB_DOCUMENTS_LLM_BASE_URL="https://api.example.test/v1"
+        MB_DOCUMENTS_LLM_MODEL='model-test'
+        MB_DOCUMENTS_LLM_API_KEY=secret-value
+      `)
+    ).toEqual({
+      MB_DOCUMENTS_LLM_MODE: "live",
+      MB_DOCUMENTS_LLM_BASE_URL: "https://api.example.test/v1",
+      MB_DOCUMENTS_LLM_MODEL: "model-test",
+      MB_DOCUMENTS_LLM_API_KEY: "secret-value"
+    });
+  });
+
   it("formats backend lock diagnostics with writer status details", () => {
     const message = __private__.formatBackendRunningMessage(
       "/tmp/docs.sqlite",

@@ -1,0 +1,1 @@
+La résidence Les Tilleuls comprend un bloc A, cinq appartements, une buanderie, un jardin commun et des jardins privatifs au rez-de-chaussée. Chaque lot possède une cave; certains lots disposent d'un garage.

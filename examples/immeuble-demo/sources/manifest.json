@@ -1,0 +1,58 @@
+{
+  "workspace_id": "immeuble-demo-llm",
+  "collection_id": "immeuble-demo-llm::docs",
+  "ontology_id": "immeuble-demo::core",
+  "language": "fr",
+  "source_kind": "fictional_realistic_belgian_syndic",
+  "generated_from": "scripts/generate-immeuble-demo.mjs",
+  "files": [
+    {
+      "doc_id": 1,
+      "filename": "statuts-tilleuls.md",
+      "title": "Statuts fictifs - ACP Residence Les Tilleuls",
+      "document_type": "statuts_copropriete"
+    },
+    {
+      "doc_id": 2,
+      "filename": "statuts-erables.md",
+      "title": "Statuts fictifs - ACP Residence Les Erables",
+      "document_type": "statuts_copropriete"
+    },
+    {
+      "doc_id": 3,
+      "filename": "registre-coproprietaires.md",
+      "title": "Registre fictif des coproprietaires",
+      "document_type": "registre_coproprietaires"
+    },
+    {
+      "doc_id": 4,
+      "filename": "composition-occupants.md",
+      "title": "Composition fictive des occupants",
+      "document_type": "composition_menage"
+    },
+    {
+      "doc_id": 5,
+      "filename": "baux-locatifs.md",
+      "title": "Synthese fictive des baux locatifs",
+      "document_type": "bail"
+    },
+    {
+      "doc_id": 6,
+      "filename": "pv-ag-budget-2026.md",
+      "title": "Proces-verbal fictif AG budget 2026",
+      "document_type": "pv_ag"
+    },
+    {
+      "doc_id": 7,
+      "filename": "coda-janvier-2026.md",
+      "title": "Extrait CODA fictif janvier 2026",
+      "document_type": "extrait_coda"
+    },
+    {
+      "doc_id": 8,
+      "filename": "annexes-caves-garages-jardins.md",
+      "title": "Inventaire fictif des annexes et parties communes",
+      "document_type": "annexe_lot"
+    }
+  ]
+}
