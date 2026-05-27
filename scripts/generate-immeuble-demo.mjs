@@ -15,12 +15,56 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..");
 
+function parseTrainingArgs(argv) {
+  const opts = { training: false, emit: ["draft", "resolved"] };
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    if (arg === "--training") {
+      opts.training = true;
+    } else if (arg === "--emit") {
+      opts.emit = (argv[++i] ?? "").split(",").filter(Boolean);
+    } else if (arg.startsWith("--emit=")) {
+      opts.emit = arg.slice("--emit=".length).split(",").filter(Boolean);
+    } else if (arg === "-h" || arg === "--help") {
+      console.error(`Usage:
+  node scripts/generate-immeuble-demo.mjs
+  node scripts/generate-immeuble-demo.mjs --training --emit draft,resolved
+
+Flags:
+  --training              Emit immeuble/training draft/golden bundles
+  --emit draft,resolved   Comma-separated training outputs (default: draft,resolved)
+`);
+      process.exit(0);
+    } else if (arg.startsWith("-")) {
+      console.error(`Unknown argument: ${arg}`);
+      process.exit(1);
+    }
+  }
+  return opts;
+}
+
+const trainingOpts = parseTrainingArgs(process.argv.slice(2));
+if (trainingOpts.training) {
+  const want = new Set(trainingOpts.emit);
+  if (!want.has("draft") && !want.has("resolved")) {
+    console.error("error: --emit must include draft and/or resolved");
+    process.exit(1);
+  }
+  const result = spawnSync(
+    "python3",
+    [join(REPO_ROOT, "scripts/generate-immeuble-training-bundles.py")],
+    { cwd: REPO_ROOT, stdio: "inherit" }
+  );
+  process.exit(result.status ?? 1);
+}
+
 const WS = "immeuble-demo";
 const ONT = "immeuble-demo::core";
 const COLL = "immeuble-demo::docs";
 const FACET_TABLE_ID = 77001;
-const DOCS_DIR = join(process.cwd(), "examples/immeuble-demo/documents");
-const SOURCES_DIR = join(process.cwd(), "examples/immeuble-demo/sources");
+const REFERENCE_DIR = join(REPO_ROOT, "examples/immeuble/reference");
+const DOCS_DIR = join(REFERENCE_DIR, "documents");
+const SOURCES_DIR = join(REPO_ROOT, "examples/immeuble/mcp-lab/corpus");
 
 mkdirSync(DOCS_DIR, { recursive: true });
 mkdirSync(SOURCES_DIR, { recursive: true });
@@ -286,7 +330,7 @@ function moneyProp(
 }
 
 function document(doc_id, filename, title, content, facets) {
-  const source_ref = `examples/immeuble-demo/documents/${filename}`;
+  const source_ref = `examples/immeuble/reference/documents/${filename}`;
   writeFileSync(join(DOCS_DIR, filename), `${content.trim()}\n`);
   rows.docs.push({
     workspace_id: WS,
@@ -1465,8 +1509,10 @@ writeFileSync(
 
 This directory is the raw-ish source corpus for reconstructing the syndic demo
 through the document import and LLM qualification path. It is intentionally
-separate from ../documents, which is the already-qualified golden corpus
-embedded in ../bundle.json.
+separate from ../../reference/documents, which is the already-qualified golden
+corpus embedded in ../../reference/bundle.json.
+
+Agent workflow: start at ../README.md and follow ../prompts/00-prerequisites.md.
 
 ## Import target
 
@@ -1513,12 +1559,12 @@ node bin/gcp.mjs brain ontology compile \\
 
 while read -r doc_id filename; do
   node bin/gcp.mjs brain document --force document-profile-enqueue \\
-    --content-file "examples/immeuble-demo/sources/$filename" \\
+    --content-file "examples/immeuble/mcp-lab/corpus/$filename" \\
     --workspace-id immeuble-demo-llm \\
     --collection-id immeuble-demo-llm::docs \\
     --doc-id "$doc_id" \\
     --language fr
-done < <(node -e 'const m=require("./examples/immeuble-demo/sources/manifest.json"); for (const f of m.files) console.log(f.doc_id, f.filename)')
+done < <(node -e 'const m=require("./examples/immeuble/mcp-lab/corpus/manifest.json"); for (const f of m.files) console.log(f.doc_id, f.filename)')
 
 node bin/gcp.mjs brain document --force document-profile-worker --limit 20
 
@@ -1695,7 +1741,7 @@ const bundle = {
 };
 
 writeFileSync(
-  "examples/immeuble-demo/bundle.json",
+  join(REFERENCE_DIR, "bundle.json"),
   `${JSON.stringify(bundle, null, 2)}\n`
 );
 
@@ -1732,7 +1778,7 @@ const scenarios = [
   ]
 ];
 writeFileSync(
-  "examples/immeuble-demo/scenarios.yaml",
+  join(REFERENCE_DIR, "scenarios.yaml"),
   [
     `workspace_id: ${WS}`,
     `ontology_id: ${ONT}`,
@@ -1784,6 +1830,6 @@ const projections = [
   }
 ];
 writeFileSync(
-  "examples/immeuble-demo/projections.seed.jsonl",
+  join(REFERENCE_DIR, "projections.seed.jsonl"),
   `${projections.map((projection) => JSON.stringify(projection)).join("\n")}\n`
 );

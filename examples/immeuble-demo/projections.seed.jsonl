@@ -1,4 +1,1 @@
-{"scope":"immeuble-demo","proj_type":"FACT","status":"active","weight":0.9,"source_ref":"scenario:tilleuls-family-stack","content":"Les Tilleuls A1 sont occupés par le couple Henri et Madeleine Dupont; leur fils Nicolas vit avec Pauline et deux enfants dans Tilleuls A3."}
-{"scope":"immeuble-demo","proj_type":"FACT","status":"active","weight":0.85,"source_ref":"scenario:tenant-lease","content":"Les lots Tilleuls A4, Érables A2, Érables B2, Érables B3 et Érables B4 ont un bail actif."}
-{"scope":"immeuble-demo","proj_type":"CONSTRAINT","status":"blocking","weight":0.95,"source_ref":"scenario:quota-check","content":"Les quotités de chaque immeuble doivent totaliser exactement 1000."}
-{"scope":"immeuble-demo","proj_type":"STEP","status":"active","weight":0.75,"source_ref":"document:extrait-coda-janvier-2026","content":"Qualifier une écriture CODA inconnue en vérifiant montant, communication, lot, groupe de facturation puis appel de charges."}
+../immeuble/reference/projections.seed.jsonl

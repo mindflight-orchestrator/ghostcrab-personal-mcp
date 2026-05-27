@@ -4,6 +4,7 @@ import { resolveGhostcrabConfig } from "../../config/env.js";
 import {
   runStandaloneGraphDiagnostics,
   runStandaloneGraphGapRules,
+  runStandaloneGraphGapRulesDelete,
   runStandaloneGraphGapRulesImport
 } from "../../db/standalone-mindbrain.js";
 import {
@@ -50,23 +51,29 @@ export const GraphGapRulesImportInput = z.object({
   rules: z.array(GapRuleInput).min(1).max(200)
 });
 
+export const GraphGapRulesDeleteInput = z.object({
+  rule_ids: z.array(z.string().trim().min(1)).min(1).max(200),
+  ontology_id: z.string().trim().min(1).optional(),
+  workspace_id: z.string().trim().min(1).optional()
+});
+
 export const graphDiagnosticsTool: ToolHandler = {
   definition: {
     name: "ghostcrab_graph_diagnostics",
     description:
-      "Read. Run MindBrain graph gap diagnostics for missing required relations, cardinality violations, isolated entities, small components, ontology edge-type mismatches, evidence gaps, and ontology coverage gaps.",
+      "Read. Unified graph gap report after closed-world rules are loaded. Evaluates imported gap rules (missing_required_relation, too_many_relations) plus native checks: isolated_entity, small_component, relation_type_mismatch, entity_without_evidence, relation_without_evidence, ontology_coverage_gap. Not a substitute for ghostcrab_coverage (schema instantiation) or ghostcrab_graph_gap_rules (rule audit). Workflow: import rules → list rules → run diagnostics. Example: { \"workspace_id\": \"immeuble-demo\" }.",
     inputSchema: {
       type: "object",
       properties: {
         workspace_id: {
           type: "string",
           description:
-            "Target workspace id. Defaults to the current MCP session workspace."
+            "Target workspace id. Defaults to the current MCP session workspace. Example: immeuble-demo."
         },
         ontology_id: {
           type: "string",
           description:
-            "Optional ontology id. When omitted, MindBrain uses the workspace default ontology."
+            "Optional ontology id. When omitted, MindBrain uses the workspace default ontology (e.g. immeuble-demo::core)."
         },
         limit: {
           type: "integer",
@@ -124,18 +131,19 @@ export const graphGapRulesTool: ToolHandler = {
   definition: {
     name: "ghostcrab_graph_gap_rules",
     description:
-      "Read. List MindBrain closed-world graph gap rules for an ontology or workspace default ontology.",
+      "Read. List active closed-world gap rules (rule_id, entity/relation types, direction, min/max counts, severity, enabled, metadata). Use before and after ghostcrab_graph_gap_rules_import to audit the contract. Returns global rules (workspace_id null) plus workspace-scoped rules. Example: { \"workspace_id\": \"immeuble-demo\" }. Pair with ghostcrab_graph_diagnostics to see violations.",
     inputSchema: {
       type: "object",
       properties: {
         workspace_id: {
           type: "string",
           description:
-            "Workspace id used to resolve the default ontology and include workspace-scoped rules."
+            "Workspace id used to resolve the default ontology and include workspace-scoped rules. Example: immeuble-demo."
         },
         ontology_id: {
           type: "string",
-          description: "Ontology id to inspect directly."
+          description:
+            "Ontology id to inspect directly. When omitted, uses the workspace default ontology."
         }
       }
     }
@@ -175,51 +183,94 @@ export const graphGapRulesImportTool: ToolHandler = {
   definition: {
     name: "ghostcrab_graph_gap_rules_import",
     description:
-      "Write. Import MindBrain closed-world graph gap rules for required relations and cardinality checks.",
+      "Write. Import closed-world gap rules: unary cardinality checks per entity_type and relation_type (e.g. each unit must have exactly one assigned_cellar). Upserts by rule_id; set replace:true to delete all rules in the ontology+workspace scope before import (use when switching rule packs L0→L2). Disable a rule with enabled:false instead of deleting. Then list via ghostcrab_graph_gap_rules and validate via ghostcrab_graph_diagnostics. Accepts the full gap-rules JSON envelope (ontology_id, workspace_id, replace, rules).",
     inputSchema: {
       type: "object",
       required: ["ontology_id", "rules"],
       properties: {
         ontology_id: {
           type: "string",
-          description: "Ontology id the rules belong to."
+          description:
+            "Ontology id the rules belong to. Example: immeuble-demo::core."
         },
         workspace_id: {
           type: "string",
           description:
-            "Optional workspace scope. Use this for workspace-specific closed-world rules."
+            "Optional workspace scope for workspace-specific rules. Example: immeuble-demo. Defaults to MCP session workspace."
         },
         replace: {
           type: "boolean",
           default: false,
           description:
-            "When true, replace existing rules for the ontology and workspace scope before importing."
+            "When true, delete all existing rules for this ontology_id and workspace_id scope before importing. When false (default), upsert each rule_id without removing omitted rules."
         },
         rules: {
           type: "array",
           minItems: 1,
           maxItems: 200,
+          description:
+            "Closed-world rules. Each rule checks relation counts for entities of entity_type.",
           items: {
             type: "object",
             required: ["rule_id", "entity_type", "relation_type", "label"],
             properties: {
-              rule_id: { type: "string" },
+              rule_id: {
+                type: "string",
+                description: "Stable rule identifier, e.g. unit-one-cellar."
+              },
               ontology_id: { type: "string" },
               workspace_id: { type: "string" },
-              entity_type: { type: "string" },
-              relation_type: { type: "string" },
+              entity_type: {
+                type: "string",
+                description: "Entity type to evaluate, e.g. unit."
+              },
+              relation_type: {
+                type: "string",
+                description: "Relation type to count, e.g. assigned_cellar."
+              },
               direction: {
                 type: "string",
                 enum: ["out", "in", "either"],
-                default: "out"
+                default: "out",
+                description:
+                  "Count outgoing (out), incoming (in), or either direction relations."
               },
-              target_entity_type: { type: ["string", "null"] },
-              min_count: { type: "integer", minimum: 0, default: 1 },
-              max_count: { type: ["integer", "null"], minimum: 0 },
-              severity: { type: "string", default: "warning" },
-              label: { type: "string" },
-              enabled: { type: "boolean", default: true },
-              metadata_json: { type: "string", default: "{}" }
+              target_entity_type: {
+                type: ["string", "null"],
+                description:
+                  "Optional endpoint entity type filter when counting relations."
+              },
+              min_count: {
+                type: "integer",
+                minimum: 0,
+                default: 1,
+                description: "Minimum required relation count."
+              },
+              max_count: {
+                type: ["integer", "null"],
+                minimum: 0,
+                description: "Maximum allowed relation count (cardinality upper bound)."
+              },
+              severity: {
+                type: "string",
+                enum: ["error", "warning", "info"],
+                default: "warning"
+              },
+              label: {
+                type: "string",
+                description: "Human-readable business label for diagnostics issues."
+              },
+              enabled: {
+                type: "boolean",
+                default: true,
+                description: "When false, rule is stored but not evaluated."
+              },
+              metadata_json: {
+                type: "string",
+                default: "{}",
+                description:
+                  'Optional JSON string. Use entity_filter.metadata.{field}.{one_of|not_one_of|eq} to restrict which entities are evaluated, e.g. {"entity_filter":{"metadata":{"usage_status":{"not_one_of":["vacant","vacant_works"]}}}}.'
+              }
             }
           }
         }
@@ -261,6 +312,70 @@ export const graphGapRulesImportTool: ToolHandler = {
   }
 };
 
+export const graphGapRulesDeleteTool: ToolHandler = {
+  definition: {
+    name: "ghostcrab_graph_gap_rules_delete",
+    description:
+      "Write. Delete one or more closed-world gap rules by rule_id. Prefer enabled:false on ghostcrab_graph_gap_rules_import to disable without deleting. For bulk replacement of a rule pack, use replace:true on import instead. Optional ontology_id and workspace_id scope the delete for safety.",
+    inputSchema: {
+      type: "object",
+      required: ["rule_ids"],
+      properties: {
+        rule_ids: {
+          type: "array",
+          minItems: 1,
+          maxItems: 200,
+          items: { type: "string" },
+          description: "Rule ids to delete, e.g. [\"leased-unit-has-lease\"]."
+        },
+        ontology_id: {
+          type: "string",
+          description:
+            "Optional ontology scope. When set, only rules for this ontology are deleted."
+        },
+        workspace_id: {
+          type: "string",
+          description:
+            "Optional workspace scope. When set with ontology_id, restricts deletion to that workspace."
+        }
+      }
+    }
+  },
+  async handler(args, context) {
+    const input = GraphGapRulesDeleteInput.parse(args);
+    const config = resolveGhostcrabConfig();
+    const workspaceId = input.workspace_id ?? context.session.workspace_id;
+
+    try {
+      const response = await runStandaloneGraphGapRulesDelete({
+        mindbrainUrl: config.mindbrainUrl,
+        timeoutMs: config.mindbrainHttpTimeoutMs,
+        payload: {
+          rule_ids: input.rule_ids,
+          ontology_id: input.ontology_id,
+          workspace_id: workspaceId
+        }
+      });
+
+      return createToolSuccessResult("ghostcrab_graph_gap_rules_delete", {
+        workspace_id: workspaceId ?? null,
+        ontology_id: input.ontology_id ?? null,
+        backend: "mindbrain/graph/gap-rules/delete",
+        deleted: response.deleted
+      });
+    } catch (error) {
+      return createToolErrorResult(
+        "ghostcrab_graph_gap_rules_delete",
+        error instanceof Error
+          ? error.message
+          : "MindBrain graph gap rules delete backend unavailable",
+        "backend_unavailable"
+      );
+    }
+  }
+};
+
 registerTool(graphDiagnosticsTool);
 registerTool(graphGapRulesTool);
 registerTool(graphGapRulesImportTool);
+registerTool(graphGapRulesDeleteTool);

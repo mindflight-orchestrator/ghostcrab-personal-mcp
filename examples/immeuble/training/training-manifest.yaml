@@ -1,0 +1,69 @@
+version: 1
+source_bundle: examples/immeuble/reference/bundle.json
+ontology_id: immeuble-training::core
+workspaces:
+  draft: immeuble-training-draft
+  golden: immeuble-training-golden
+errors:
+- id: E01
+  label: Missing occupies on owner-occupied Tilleuls A1
+  rule_id: occupied-unit-has-occupant
+  entity_name: Tilleuls Appartement A1
+  removed_relation_ids:
+  - 102
+  - 104
+- id: E02
+  label: Missing leases on tenant-occupied / owner-abroad units
+  rule_id: tenant-occupied-has-lease
+  removed_relation_ids:
+  - 240
+  - 243
+  - 246
+  - 249
+  - 252
+- id: E03
+  label: Marie Lambert isolated (no graph relations)
+  kind: isolated_entity
+  entity_name: Marie Lambert
+  golden_fix:
+    edge_type: represents
+    source_entity_id: 100210
+    target_entity_id: 100200
+    relation_id: 190001
+modules:
+  A1:
+    rules: gap-rules/L0-patrimoine.json
+    workspace: draft
+    expect_summary:
+      missing_required_relations: 0
+  A2:
+    rules: gap-rules/L2-syndic-filtered.json
+    workspace: draft
+    expect_summary:
+      missing_required_relations_min: 6
+    expect_rule_ids:
+    - occupied-unit-has-occupant
+    - tenant-occupied-has-lease
+  A3:
+    rules: gap-rules/L2-syndic-filtered.json
+    workspace: golden
+    expect_summary:
+      missing_required_relations: 0
+  B1:
+    rules: gap-rules/L1-syndic-naive.json
+    workspace: golden
+    expect_rule_ids:
+    - occupied-unit-has-occupant
+    expect_entity_name: Érables Appartement A4
+  B2:
+    rules: gap-rules/L2-syndic-filtered.json
+    workspace: golden
+    expect_summary:
+      missing_required_relations: 0
+counts:
+  draft:
+    entities: 131
+    relations: 258
+  golden:
+    entities: 131
+    relations: 266

@@ -5,6 +5,7 @@ import { createToolContext } from "../helpers/tool-context.js";
 import { coverageTool } from "../../src/tools/dgraph/coverage.js";
 import {
   graphDiagnosticsTool,
+  graphGapRulesDeleteTool,
   graphGapRulesImportTool,
   graphGapRulesTool
 } from "../../src/tools/dgraph/diagnostics.js";
@@ -146,6 +147,20 @@ function mockDiagnosticsFetch(): ReturnType<typeof vi.fn> {
           replace: true
         });
         return new Response(JSON.stringify({ ok: true, imported: 1 }), {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        });
+      }
+
+      if (url.includes("/api/mindbrain/graph/gap-rules/delete")) {
+        expect(init?.method).toBe("POST");
+        const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+        expect(body).toMatchObject({
+          rule_ids: ["leased-unit-has-lease"],
+          ontology_id: "immeuble-demo::core",
+          workspace_id: "immeuble-demo"
+        });
+        return new Response(JSON.stringify({ ok: true, deleted: 1 }), {
           status: 200,
           headers: { "content-type": "application/json" }
         });
@@ -516,6 +531,30 @@ describe("dgraph tools", () => {
       imported: 1
     });
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("deletes MindBrain graph gap rules by rule_id", async () => {
+    const fetchMock = mockDiagnosticsFetch();
+    const context = createToolContext(createMockDatabase(vi.fn()));
+    context.session.workspace_id = "immeuble-demo";
+
+    const result = await graphGapRulesDeleteTool.handler(
+      {
+        rule_ids: ["leased-unit-has-lease"],
+        ontology_id: "immeuble-demo::core"
+      },
+      context
+    );
+
+    expect(readStructured(result)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_graph_gap_rules_delete",
+      backend: "mindbrain/graph/gap-rules/delete",
+      workspace_id: "immeuble-demo",
+      ontology_id: "immeuble-demo::core",
+      deleted: 1
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("returns backend_unavailable when MindBrain graph-search endpoint is offline", async () => {
