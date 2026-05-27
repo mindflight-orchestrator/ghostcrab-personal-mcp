@@ -4,12 +4,14 @@ import { describe, expect, it } from "vitest";
 
 const bundlePath = join(
   import.meta.dirname,
-  "../../examples/immeuble-demo/bundle.json"
+  "../../examples/immeuble/reference/bundle.json"
 );
-const sourcesDir = join(
+const corpusDir = join(
   import.meta.dirname,
-  "../../examples/immeuble-demo/sources"
+  "../../examples/immeuble/mcp-lab/corpus"
 );
+const immeubleRoot = join(import.meta.dirname, "../../examples/immeuble");
+const trainingDir = join(immeubleRoot, "training");
 
 describe("immeuble-demo bundle", () => {
   it("matches the syndic demo reference shape", () => {
@@ -285,7 +287,7 @@ describe("immeuble-demo bundle", () => {
 
   it("ships a realistic source corpus for LLM reconstruction", () => {
     const manifest = JSON.parse(
-      readFileSync(join(sourcesDir, "manifest.json"), "utf8")
+      readFileSync(join(corpusDir, "manifest.json"), "utf8")
     ) as {
       workspace_id: string;
       collection_id: string;
@@ -293,7 +295,7 @@ describe("immeuble-demo bundle", () => {
       files: Array<{ filename: string; document_type: string }>;
     };
     const expectedCoverage = JSON.parse(
-      readFileSync(join(sourcesDir, "expected-coverage.json"), "utf8")
+      readFileSync(join(corpusDir, "expected-coverage.json"), "utf8")
     ) as {
       workspace_id: string;
       golden_workspace_id: string;
@@ -318,11 +320,82 @@ describe("immeuble-demo bundle", () => {
     );
 
     for (const file of manifest.files) {
-      const path = join(sourcesDir, file.filename);
+      const path = join(corpusDir, file.filename);
       expect(existsSync(path)).toBe(true);
       const content = readFileSync(path, "utf8");
       expect(content).toContain("# ");
       expect(content.length).toBeGreaterThan(200);
     }
+  });
+});
+
+describe("immeuble training fixtures", () => {
+  it("ships draft and golden bundles with catalogued errors", () => {
+    const manifest = JSON.parse(
+      readFileSync(join(trainingDir, "training-manifest.json"), "utf8")
+    ) as {
+      source_bundle: string;
+      workspaces: { draft: string; golden: string };
+      errors: Array<{ id: string }>;
+      modules: Record<string, unknown>;
+    };
+
+    expect(manifest.source_bundle).toBe("examples/immeuble/reference/bundle.json");
+    expect(manifest.workspaces.draft).toBe("immeuble-training-draft");
+    expect(manifest.workspaces.golden).toBe("immeuble-training-golden");
+    expect(manifest.errors.map((e) => e.id)).toEqual(["E01", "E02", "E03"]);
+    expect(manifest.modules.A2).toBeTruthy();
+    expect(manifest.modules.A3).toBeTruthy();
+
+    for (const name of ["draft.json", "resolved.json"]) {
+      const path = join(trainingDir, "bundles", name);
+      expect(existsSync(path)).toBe(true);
+      const bundle = JSON.parse(readFileSync(path, "utf8")) as {
+        scope: { workspace_id: string };
+      };
+      expect(bundle.scope.workspace_id).toMatch(/immeuble-training-/);
+    }
+
+    for (const rule of [
+      "L0-patrimoine.json",
+      "L1-syndic-naive.json",
+      "L2-syndic-filtered.json",
+      "L3-full.json",
+      "motifs.json"
+    ]) {
+      expect(existsSync(join(trainingDir, "gap-rules", rule))).toBe(true);
+    }
+  });
+});
+
+describe("immeuble mcp-lab fixtures", () => {
+  it("ships workspace config, success criteria, and prompt pack", () => {
+    const mcpLabDir = join(immeubleRoot, "mcp-lab");
+    const workspace = JSON.parse(
+      readFileSync(join(mcpLabDir, "workspace.json"), "utf8")
+    ) as { workspace_id: string; golden_workspace_id: string };
+
+    expect(workspace.workspace_id).toBe("immeuble-demo-llm");
+    expect(workspace.golden_workspace_id).toBe("immeuble-demo");
+    expect(existsSync(join(mcpLabDir, "success-criteria.yaml"))).toBe(true);
+
+    for (const prompt of [
+      "00-prerequisites.md",
+      "01-discovery-and-model-proposal.md",
+      "02-ontology-register.md",
+      "03-gap-rules-design.md",
+      "04-document-ingest.md",
+      "05-graph-extraction.md",
+      "06-validate-and-compare.md"
+    ]) {
+      expect(existsSync(join(mcpLabDir, "prompts", prompt))).toBe(true);
+    }
+  });
+
+  it("keeps legacy shim paths reachable", () => {
+    const legacyBundle = join(import.meta.dirname, "../../examples/immeuble-demo/bundle.json");
+    const legacySources = join(import.meta.dirname, "../../examples/immeuble-demo/sources/manifest.json");
+    expect(existsSync(legacyBundle)).toBe(true);
+    expect(existsSync(legacySources)).toBe(true);
   });
 });

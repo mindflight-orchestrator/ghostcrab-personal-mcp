@@ -54,13 +54,14 @@ const reportDir = resolve(
 );
 const manifestPath = join(
   repoRoot,
-  "examples/immeuble-demo/sources/manifest.json"
+  "examples/immeuble/mcp-lab/corpus/manifest.json"
 );
 const expectedPath = join(
   repoRoot,
-  "examples/immeuble-demo/sources/expected-coverage.json"
+  "examples/immeuble/mcp-lab/corpus/expected-coverage.json"
 );
-const bundlePath = join(repoRoot, "examples/immeuble-demo/bundle.json");
+const bundlePath = join(repoRoot, "examples/immeuble/reference/bundle.json");
+const corpusDir = join(repoRoot, "examples/immeuble/mcp-lab/corpus");
 const ontologyPath = join(repoRoot, "ontologies/immeuble-demo/core.yaml");
 
 main().catch((error) => {
@@ -191,11 +192,7 @@ async function main() {
     ]);
 
     for (const file of selectedFiles) {
-      const sourcePath = join(
-        repoRoot,
-        "examples/immeuble-demo/sources",
-        file.filename
-      );
+      const sourcePath = join(corpusDir, file.filename);
       runDoc([
         "document-ingest",
         "--workspace-id",
@@ -1162,11 +1159,7 @@ function buildComparisonReport({
 
 function buildQualificationPromptFallback({ selectedFiles, manifest }) {
   const documents = selectedFiles.map((file) => {
-    const sourcePath = join(
-      repoRoot,
-      "examples/immeuble-demo/sources",
-      file.filename
-    );
+    const sourcePath = join(corpusDir, file.filename);
     return [
       `doc_id=${file.doc_id}`,
       `source_ref=${sourcePath}`,

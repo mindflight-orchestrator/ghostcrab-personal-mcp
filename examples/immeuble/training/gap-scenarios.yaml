@@ -1,0 +1,88 @@
+# Immeuble training — gap diagnostics fixture profiles
+# Draft vs golden workspaces for curriculum modules A1–A4 and B1–B3.
+
+ontology_id: immeuble-training::core
+workspaces:
+  draft: immeuble-training-draft
+  golden: immeuble-training-golden
+manifest: examples/immeuble-training/training-manifest.json
+source_narrative: examples/immeuble-demo/bundle.json
+
+profiles:
+  - id: training-a1-patrimoine
+    description: Track A module A1 — patrimoine rules on draft (structure OK)
+    workspace: immeuble-training-draft
+    load: scripts/load-immeuble-training.sh --draft
+    rules: examples/immeuble-training/gap-rules/L0-patrimoine.json
+    module: A1
+    expect_summary:
+      missing_required_relations: 0
+
+  - id: training-a2-syndic-gaps
+    description: Track A module A2 — syndic filtered rules on draft (catalogued E01–E02)
+    workspace: immeuble-training-draft
+    rules: examples/immeuble-training/gap-rules/L2-syndic-filtered.json
+    module: A2
+    expect_summary:
+      missing_required_relations_min: 6
+    expect_rule_ids:
+      - occupied-unit-has-occupant
+      - tenant-occupied-has-lease
+
+  - id: training-a3-golden-clean
+    description: Track A module A3 — same syndic rules on resolved golden graph
+    workspace: immeuble-training-golden
+    rules: examples/immeuble-training/gap-rules/L2-syndic-filtered.json
+    module: A3
+    expect_summary:
+      missing_required_relations: 0
+
+  - id: training-b1-naive-fp
+    description: Track B module B1 — naive owner rule false positive on vacant_works unit
+    workspace: immeuble-training-golden
+    rules: examples/immeuble-training/gap-rules/L1-syndic-naive.json
+    module: B1
+    expect_rule_ids:
+      - occupied-unit-has-occupant
+    expect_entity_name: Érables Appartement A4
+
+  - id: training-b2-filtered
+    description: Track B module B2 — filtered syndic rules on golden
+    workspace: immeuble-training-golden
+    rules: examples/immeuble-training/gap-rules/L2-syndic-filtered.json
+    module: B2
+    expect_summary:
+      missing_required_relations: 0
+
+  - id: training-b3-full
+    description: Track B module B3 — L3 rules + motifs on golden
+    workspace: immeuble-training-golden
+    rules: examples/immeuble-training/gap-rules/L3-full.json
+    motifs: examples/immeuble-training/gap-rules/motifs.json
+    module: B3
+
+  - id: training-coverage-with-seeds
+    description: Coverage workshop — entity types + catalogue-facets.seed.json on golden
+    workspace: immeuble-training-golden
+    load: scripts/load-immeuble-training.sh --golden
+    inject: scripts/sync-immeuble-training-catalogue.sh
+    seed: examples/immeuble-training/catalogue-facets.seed.json
+    expect_summary:
+      catalogue_available: true
+
+ci_profiles:
+  - id: ci-training-a2-draft
+    test: immeuble_training_test.sql
+    module: A2
+  - id: ci-training-a3-golden
+    test: immeuble_training_test.sql
+    module: A3
+  - id: ci-training-b1-fp
+    test: immeuble_training_test.sql
+    module: B1
+  - id: ci-training-b2-clean
+    test: immeuble_training_test.sql
+    module: B2
+
+ci_test_files:
+  - test/sql/graph/immeuble_training_test.sql

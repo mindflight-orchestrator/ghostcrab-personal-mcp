@@ -320,6 +320,17 @@ export interface StandaloneGraphGapRulesImportResponse {
   imported: number;
 }
 
+export interface StandaloneGraphGapRulesDeleteParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  payload: Record<string, unknown>;
+}
+
+export interface StandaloneGraphGapRulesDeleteResponse {
+  ok: true;
+  deleted: number;
+}
+
 export interface StandaloneMindbrainSqlParams {
   mindbrainUrl: string;
   timeoutMs?: number;
@@ -658,6 +669,24 @@ export async function runStandaloneGraphGapRulesImport(
     normalizeBaseUrl(params.mindbrainUrl)
   );
   return await fetchJson<StandaloneGraphGapRulesImportResponse>(
+    url,
+    {
+      method: "POST",
+      body: JSON.stringify(params.payload),
+      headers: { "content-type": "application/json" }
+    },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneGraphGapRulesDelete(
+  params: StandaloneGraphGapRulesDeleteParams
+): Promise<StandaloneGraphGapRulesDeleteResponse> {
+  const url = new URL(
+    "/api/mindbrain/graph/gap-rules/delete",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  return await fetchJson<StandaloneGraphGapRulesDeleteResponse>(
     url,
     {
       method: "POST",

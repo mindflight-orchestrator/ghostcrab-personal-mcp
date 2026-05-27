@@ -1,0 +1,38 @@
+{
+  "ontology_id": "immeuble-training::core",
+  "replace": true,
+  "motifs": [
+    {
+      "motif_id": "building-unit-cellar",
+      "label": "Immeuble → lot → cave",
+      "severity": "error",
+      "path": [
+        { "entity_type": "building" },
+        { "relation_type": "contains", "direction": "out", "require_all_targets": true },
+        { "entity_type": "unit" },
+        { "relation_type": "assigned_cellar", "direction": "out" },
+        { "entity_type": "cellar" }
+      ]
+    },
+    {
+      "motif_id": "lease-to-rented-unit",
+      "label": "Bail lié au lot loué",
+      "severity": "warning",
+      "path": [
+        { "entity_type": "lease_contract" },
+        { "relation_type": "leases", "direction": "out" },
+        { "entity_type": "unit" }
+      ]
+    },
+    {
+      "motif_id": "billing-group-bills-unit",
+      "label": "Groupe facturation → lot",
+      "severity": "info",
+      "path": [
+        { "entity_type": "billing_group" },
+        { "relation_type": "bills_to", "direction": "out" },
+        { "entity_type": "unit" }
+      ]
+    }
+  ]
+}

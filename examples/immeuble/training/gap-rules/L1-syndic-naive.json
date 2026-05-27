@@ -1,0 +1,36 @@
+{
+  "ontology_id": "immeuble-training::core",
+  "replace": true,
+  "rules": [
+    {
+      "rule_id": "unit-has-owner",
+      "entity_type": "unit",
+      "relation_type": "owns",
+      "direction": "in",
+      "target_entity_type": "person",
+      "min_count": 1,
+      "severity": "error",
+      "label": "Chaque lot doit avoir un copropriétaire (owns entrant) — sans filtre statut"
+    },
+    {
+      "rule_id": "occupied-unit-has-occupant",
+      "entity_type": "unit",
+      "relation_type": "occupies",
+      "direction": "in",
+      "target_entity_type": "person",
+      "min_count": 1,
+      "severity": "error",
+      "label": "Lot occupé sans occupant déclaré — sans filtre statut"
+    },
+    {
+      "rule_id": "tenant-occupied-has-lease",
+      "entity_type": "unit",
+      "relation_type": "leases",
+      "direction": "in",
+      "target_entity_type": "lease_contract",
+      "min_count": 1,
+      "severity": "warning",
+      "label": "Lot en location sans contrat de bail lié — sans filtre statut"
+    }
+  ]
+}

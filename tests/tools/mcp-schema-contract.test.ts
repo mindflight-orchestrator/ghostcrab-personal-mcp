@@ -7,7 +7,9 @@ import {
 import {
   GraphDiagnosticsInput,
   graphDiagnosticsTool,
+  GraphGapRulesDeleteInput,
   GraphGapRulesImportInput,
+  graphGapRulesDeleteTool,
   graphGapRulesImportTool,
   GraphGapRulesInput,
   graphGapRulesTool
@@ -760,16 +762,160 @@ describe("MCP inputSchema contract (drift guard)", () => {
   describe("ghostcrab_coverage", () => {
     const schema = coverageTool.definition.inputSchema as {
       required?: string[];
+      properties: {
+        domain: { description?: string };
+      };
     };
 
     it("requires domain", () => {
       expect(schema.required).toEqual(expect.arrayContaining(["domain"]));
     });
 
+    it("documents domain as workspace or domain id", () => {
+      expect(schema.properties.domain.description).toContain("Required");
+    });
+
     it("Zod rejects empty domain", () => {
       expect(CoverageInput.safeParse({ domain: "  " }).success).toBe(false);
       expect(
         CoverageInput.safeParse({ domain: "ghostcrab-product" }).success
+      ).toBe(true);
+    });
+  });
+
+  describe("ghostcrab_graph_diagnostics", () => {
+    const schema = graphDiagnosticsTool.definition.inputSchema as {
+      properties: {
+        limit: { minimum?: number; maximum?: number; default?: number };
+        component_small_max: { minimum?: number; maximum?: number };
+      };
+    };
+
+    it("documents limit and component_small_max bounds", () => {
+      expect(schema.properties.limit.minimum).toBe(1);
+      expect(schema.properties.limit.maximum).toBe(500);
+      expect(schema.properties.limit.default).toBe(200);
+      expect(schema.properties.component_small_max.minimum).toBe(1);
+      expect(schema.properties.component_small_max.maximum).toBe(20);
+    });
+
+    it("Zod parses minimal diagnostics args", () => {
+      expect(
+        GraphDiagnosticsInput.safeParse({ workspace_id: "immeuble-demo" })
+          .success
+      ).toBe(true);
+    });
+  });
+
+  describe("ghostcrab_graph_gap_rules", () => {
+    it("has no required arguments", () => {
+      const schema = graphGapRulesTool.definition.inputSchema as {
+        required?: string[];
+      };
+      expect(schema.required ?? []).toHaveLength(0);
+    });
+
+    it("Zod accepts workspace_id only", () => {
+      expect(
+        GraphGapRulesInput.safeParse({ workspace_id: "immeuble-demo" }).success
+      ).toBe(true);
+    });
+  });
+
+  describe("ghostcrab_graph_gap_rules_import", () => {
+    const schema = graphGapRulesImportTool.definition.inputSchema as {
+      required?: string[];
+      properties: {
+        rules: {
+          minItems?: number;
+          maxItems?: number;
+          items: {
+            required?: string[];
+            properties: {
+              direction: { enum?: string[] };
+              severity: { enum?: string[] };
+              metadata_json: { description?: string };
+            };
+          };
+        };
+      };
+    };
+
+    it("requires ontology_id and rules", () => {
+      expect(schema.required).toEqual(
+        expect.arrayContaining(["ontology_id", "rules"])
+      );
+    });
+
+    it("documents rule shape and metadata_json entity_filter", () => {
+      expect(schema.properties.rules.minItems).toBe(1);
+      expect(schema.properties.rules.maxItems).toBe(200);
+      expect(schema.properties.rules.items.required).toEqual(
+        expect.arrayContaining([
+          "rule_id",
+          "entity_type",
+          "relation_type",
+          "label"
+        ])
+      );
+      expect(schema.properties.rules.items.properties.direction.enum).toEqual([
+        "out",
+        "in",
+        "either"
+      ]);
+      expect(schema.properties.rules.items.properties.severity.enum).toEqual([
+        "error",
+        "warning",
+        "info"
+      ]);
+      expect(
+        schema.properties.rules.items.properties.metadata_json.description
+      ).toContain("entity_filter");
+    });
+
+    it("Zod parses immeuble-demo style import payload", () => {
+      expect(
+        GraphGapRulesImportInput.safeParse({
+          ontology_id: "immeuble-demo::core",
+          workspace_id: "immeuble-demo",
+          replace: true,
+          rules: [
+            {
+              rule_id: "unit-one-cellar",
+              entity_type: "unit",
+              relation_type: "assigned_cellar",
+              direction: "out",
+              label: "Each unit must have one cellar"
+            }
+          ]
+        }).success
+      ).toBe(true);
+    });
+  });
+
+  describe("ghostcrab_graph_gap_rules_delete", () => {
+    const schema = graphGapRulesDeleteTool.definition.inputSchema as {
+      required?: string[];
+      properties: {
+        rule_ids: { minItems?: number; maxItems?: number };
+      };
+    };
+
+    it("requires rule_ids", () => {
+      expect(schema.required).toEqual(expect.arrayContaining(["rule_ids"]));
+      expect(schema.properties.rule_ids.minItems).toBe(1);
+      expect(schema.properties.rule_ids.maxItems).toBe(200);
+    });
+
+    it("Zod rejects empty rule_ids", () => {
+      expect(GraphGapRulesDeleteInput.safeParse({ rule_ids: [] }).success).toBe(
+        false
+      );
+      expect(
+        GraphGapRulesDeleteInput.safeParse({
+          rule_ids: ["leased-unit-has-lease"],
+          ontology_id: "immeuble-demo::core"
+        }).success
       ).toBe(true);
     });
   });

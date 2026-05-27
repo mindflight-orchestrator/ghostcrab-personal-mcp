@@ -27,13 +27,15 @@ export const coverageTool: ToolHandler = {
   definition: {
     name: "ghostcrab_coverage",
     description:
-      "Check epistemic coverage for a domain against its registered ontology.",
+      "Read. Ontology/taxonomy instantiation coverage: which schema nodes are not yet reflected as graph instances. Complements ghostcrab_graph_diagnostics (instance invariants + native checks) and ghostcrab_graph_gap_rules (closed-world contract). Requires domain (workspace id or domain name). Example: { \"domain\": \"immeuble-demo\" }. Returns coverage_score, gap_nodes, can_proceed_autonomously, recommended_action.",
     inputSchema: {
       type: "object",
       required: ["domain"],
       properties: {
         domain: {
-          type: "string"
+          type: "string",
+          description:
+            "Domain or workspace id to check. Required. Example: immeuble-demo or ghostcrab-product."
         },
         agent_id: {
           type: "string",
@@ -42,7 +44,7 @@ export const coverageTool: ToolHandler = {
         workspace_id: {
           type: "string",
           description:
-            "Target workspace id. Overrides session context for this call only."
+            "Optional session override. domain is still required; this only adjusts response context."
         },
         entity_type: {
           type: "array",

@@ -1,0 +1,21 @@
+workspace_id: immeuble-demo
+ontology_id: immeuble-demo::core
+scenarios:
+  - id: scenario:tilleuls-family-stack
+    title: "Famille multi-génération Tilleuls"
+    competency_question: "Quels liens existent entre le vieux couple du rez-de-chaussée et le ménage du fils au premier étage ?"
+  - id: scenario:tenant-lease
+    title: "Baux et locataires"
+    competency_question: "Quels appartements sont loués, à qui, depuis quelle date et par quel bailleur ?"
+  - id: scenario:quota-check
+    title: "Quotités par immeuble"
+    competency_question: "Les quotités de chaque immeuble totalisent-elles 1000 ?"
+  - id: scenario:annexes
+    title: "Annexes privatives et communes"
+    competency_question: "Quelle cave, garage, jardin privatif et partie commune est accessible depuis chaque lot ?"
+  - id: scenario:coda-complete-payment
+    title: "Paiement CODA complet"
+    competency_question: "Quel paiement CODA a soldé l'appel de charges Tilleuls janvier 2026 ?"
+  - id: scenario:coda-partial-reminder
+    title: "Paiement partiel et relance"
+    competency_question: "Quel paiement partiel déclenche une relance ?"
