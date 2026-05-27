@@ -23,6 +23,7 @@ Companion files:
 - `bundle.json`: importable `ghostcrab_backup_bundle`.
 - `documents/*.md`: source documents mirrored in `documents_raw` / `chunks_raw`.
 - `scenarios.yaml`: competency-question scenarios.
+- `gap-rules.demo.json`: closed-world graph gap rules for MindBrain diagnostics demo.
 - `projections.seed.jsonl`: projection rows to create with `ghostcrab_project`
   after import; projections are intentionally not part of the backup bundle.
 - `../../scripts/generate-immeuble-demo.mjs`: deterministic generator for the
@@ -175,3 +176,118 @@ See [`docs/audit/2026-05-23-mcp-import-storage-coherence-audit-post-fix.md`](../
 | `ghostcrab_learn` + reindex | learn nodes preserved via raw mirror                                                    |
 
 See [`docs/audit/2026-05-23-mcp-import-storage-coherence-audit-post-fix.md`](../../docs/audit/2026-05-23-mcp-import-storage-coherence-audit-post-fix.md) §5.
+
+## Graph gap diagnostics (roadmap §9 / §9b)
+
+Closed-world business rules and MindBrain graph diagnostics on this workspace.
+Use after `gcp load … --reindex all` so `graph_entity` is populated.
+
+**Full guide (tools, findings, remediation):**
+[`mindbrain/docs/methodology/graphing/immeuble-gap-diagnostics-demo.md`](../../../mindbrain/docs/methodology/graphing/immeuble-gap-diagnostics-demo.md)
+and Studio copy
+[`mindbrain-personal-studio/docs/methodology/graphing/immeuble-gap-diagnostics-demo.md`](../../../mindbrain-personal-studio/docs/methodology/graphing/immeuble-gap-diagnostics-demo.md).
+
+### Files
+
+- [`gap-rules.demo.json`](gap-rules.demo.json) — ad hoc `graph_gap_rules` aligned with
+  [`scenarios.yaml`](scenarios.yaml) (annexes, structure, garages).
+- MindBrain script: `mindbrain/scripts/demo-immeuble-gaps.sh` (sibling checkout).
+
+### Quick demo
+
+```bash
+# From mindbrain-personal-studio (or mindbrain repo with data/immeuble-demo.sqlite)
+pnpm load:immeuble
+pnpm backend:immeuble   # terminal 1 — http://127.0.0.1:8092
+
+# terminal 2
+bash ../mindbrain/scripts/demo-immeuble-gaps.sh
+# or with load + simulated anomaly (act 3):
+bash ../mindbrain/scripts/demo-immeuble-gaps.sh --load --simulate-anomaly
+```
+
+Without a running backend, use CLI-only (build once: `zig build standalone-tool` in mindbrain):
+
+```bash
+bash ../mindbrain/scripts/demo-immeuble-gaps.sh --cli-only
+```
+
+### Import rules manually
+
+HTTP (backend on 8092):
+
+```bash
+curl -sf -X POST 'http://127.0.0.1:8092/api/mindbrain/graph/gap-rules/import' \
+  -H 'Content-Type: application/json' \
+  -d @examples/immeuble-demo/gap-rules.demo.json
+```
+
+MCP: `ghostcrab_graph_gap_rules_import` with the same JSON body.
+
+### Run diagnostics
+
+```bash
+curl -sf 'http://127.0.0.1:8092/api/mindbrain/graph/diagnostics?workspace_id=immeuble-demo' | jq .summary
+```
+
+MCP: `ghostcrab_graph_diagnostics` with `workspace_id: immeuble-demo`.
+
+On golden data after import, expect `rules_evaluated >= 3`,
+`missing_required_relations: 0`, `cardinality_violations: 0`.
+
+### Act 3 — simulate a syndic anomaly
+
+Remove the `assigned_cellar` link for **Tilleuls Appartement A3**, then re-run diagnostics.
+Expect `missing_required_relation` with `rule_id: unit-one-cellar`.
+
+One-liner (soft-deprecate via `deprecated_at`):
+
+```bash
+export GHOSTCRAB_SQLITE_PATH="$PWD/data/immeuble-demo.sqlite"
+
+sqlite3 "$GHOSTCRAB_SQLITE_PATH" <<'SQL'
+UPDATE graph_relation
+SET deprecated_at = datetime('now')
+WHERE relation_id = (
+  SELECT r.relation_id
+  FROM graph_relation r
+  JOIN graph_entity src ON src.entity_id = r.source_id
+  JOIN graph_entity tgt ON tgt.entity_id = r.target_id
+  WHERE r.workspace_id = 'immeuble-demo'
+    AND r.relation_type = 'assigned_cellar'
+    AND r.deprecated_at IS NULL
+    AND src.name = 'Tilleuls Appartement A3'
+    AND tgt.entity_type = 'cellar'
+  LIMIT 1
+);
+SELECT changes() AS deprecated_edges;
+SQL
+```
+
+Or use the demo script:
+
+```bash
+bash ../mindbrain/scripts/demo-immeuble-gaps.sh --simulate-anomaly
+```
+
+Restore: reload the bundle with `--force` on `gcp load`, or re-insert the relation from backup.
+
+### Scenario mapping
+
+| Rule ID | `scenarios.yaml` | Check |
+| -------- | ----------------- | ----- |
+| `unit-one-cellar` | `scenario:annexes` | each unit → exactly one cellar |
+| `unit-in-building` | `scenario:quota-check` (structure) | each unit → ≥1 inbound `contains` from building/block |
+| `garage-at-most-one-unit` | `scenario:annexes` | parking not shared across units |
+| `leased-unit-has-lease` | `scenario:tenant-lease` | disabled by default (enable when filtering rented units) |
+
+### MCP tools (no new tools for §9b)
+
+| Tool | Role |
+| ---- | ---- |
+| `ghostcrab_graph_gap_rules_import` | write — import rules |
+| `ghostcrab_graph_gap_rules` | read — list rules |
+| `ghostcrab_graph_diagnostics` | read — full gap report |
+| `ghostcrab_traverse` / `ghostcrab_graph_search` | drill-down after an issue |
+
+Set `MINDBRAIN_HTTP_URL=http://127.0.0.1:8092` when using the immeuble backend port.
