@@ -58,7 +58,8 @@ and return to intake.
 ### How to elicit competency questions — the narrative approach
 
 Asking "what questions do you need answered?" is too abstract. The live-course
-workshop method (documented in [`methodology-immo/`](methodology-immo/)) is
+workshop method (see §12 immeuble MCP lab example and the narrative
+approach below) is
 more reliable: give a concrete 90-second scenario anchored in a routine event
 from the domain, then ask the team to narrate what happens.
 
@@ -176,8 +177,8 @@ fulfilment, a regulatory audit) is typically a *consumer* that traverses
 several peripheral ontologies, each modelling a stable layer of the business
 world.
 
-The property management sinistre case (see
-[`methodology-immo/`](methodology-immo/)) shows a canonical layering:
+The property management sinistre case (see §12 immeuble MCP lab and
+[`examples/immeuble/reference/scenarios.yaml`](../../examples/immeuble/reference/scenarios.yaml)) shows a canonical layering:
 
 | Layer | Examples in syndic domain | Modelling rule |
 |---|---|---|
@@ -588,10 +589,10 @@ Run this checklist at the end of every loop pass. Adapted from doc 1
 
 Source documents this methodology bridges and depends on:
 
-- [`docs/architecture/ontology_dev_for_llm.md`](ontology_dev_for_llm.md) —
+- [`docs/methodology/ontology_dev_for_llm.md`](ontology_dev_for_llm.md) —
   generic ontology engineering theory (competency questions, "is-a" test,
   quality checklist, common mistakes). The theory ground.
-- [`docs/architecture/ontology_story2doc_example.md`](ontology_story2doc_example.md)
+- [`docs/methodology/ontology_story2doc_example.md`](ontology_story2doc_example.md)
   — worked SaaS application example covering snapshot → graph → projection →
   artefact, including the blind-spot identification step and the "one graph,
   many outputs" principle.
@@ -609,11 +610,56 @@ Source documents this methodology bridges and depends on:
 - [`docs/setup/document-import.md`](../setup/document-import.md) — operator
   runbook for the document import path (`gcp brain document`), including the
   no-LLM fallbacks this methodology relies on for Phase 3 wiring validation.
-- [`docs/architecture/methodology-immo/`](methodology-immo/) — real estate /
-  syndic live-course workshop pack. Contains: the 5-act card game methodology
-  (narrative approach, competency question elicitation, Miro colour-coding
-  system); the sinistre claim declaration ontology (multi-graph architecture,
-  dimensional facet naming, state machine, cross-graph projections); and the
-  master ontology for a property management firm (`Ontologie Maître —
-  Gestionnaire de Syndic`). The primary source for the narrative approach in
-  §1 and the multi-ontology awareness section in §4.
+- [`docs/methodology/ghostcrab-query-layers.md`](ghostcrab-query-layers.md) —
+  facets vs graph vs projections; escalation ladder for empty results.
+- [`docs/explanation/README.md`](../explanation/README.md) (FR) ·
+  [`docs/explanation/en/README.md`](../explanation/en/README.md) (EN) —
+  short synthesis of the immeuble MCP lab (golden target vs process).
+- [`docs/mcp-explanation/README.md`](../mcp-explanation/README.md) (FR) ·
+  [`docs/mcp-explanation/en/README.md`](../mcp-explanation/en/README.md) (EN) —
+  pedagogical detail for the immeuble MCP lab track.
+- [`examples/immeuble/mcp-lab/`](../../examples/immeuble/mcp-lab/) — agent
+  lab prompts, corpus, success criteria (worked example in §12).
+
+> **Note:** References to `docs/architecture/methodology-immo/` in earlier
+> drafts pointed at a workshop pack not present in this repository. Use the
+> narrative 5-act approach in §1 and the immeuble MCP lab (§12) as in-repo
+> syndic examples instead.
+
+## 12. Worked Example — Immeuble MCP Lab
+
+The [`examples/immeuble/mcp-lab/`](../../examples/immeuble/mcp-lab/) track is an **end-to-end integration exercise** for the Belgian syndic domain (Résidence Les Tilleuls + Les Érables). It validates that an agent can rebuild ontology, qualified documents, gap-rules, and a business graph from a raw corpus, then compare against a golden reference.
+
+Documentation:
+
+- Short synthesis: [`docs/explanation/README.md`](../explanation/README.md) (FR) · [`docs/explanation/en/README.md`](../explanation/en/README.md) (EN)
+- Pedagogical detail: [`docs/mcp-explanation/`](../mcp-explanation/README.md) (FR) · [`docs/mcp-explanation/en/`](../mcp-explanation/en/README.md) (EN)
+
+### Golden target vs process
+
+[`examples/immeuble/reference/bundle.json`](../../examples/immeuble/reference/bundle.json) is the **comparison target** loaded into workspace `immeuble-demo` — not the process to reproduce. The process runs in `immeuble-demo-llm` from [`mcp-lab/corpus/`](../../examples/immeuble/mcp-lab/corpus/).
+
+### Crosswalk: universal 4 phases ↔ MCP lab prompts
+
+| Universal methodology | MCP lab (prompts) | Alignment |
+|-----------------------|-------------------|-----------|
+| ONBOARDING precondition + Model Proposal | 00–01 | Aligned |
+| Phase 1 — Facets / ontology | 02 (`ontology compile` / `schema_register`) | Aligned |
+| Phase 2 — Projections (read contract) | *(absent from lab)* | **Intentional gap** — see note below |
+| Phase 3 — Import | 04 (qualified docs via CLI) + 05 (graph via `learn` / extract) | Partial — full domain import, not thin slice |
+| Phase 4 — Reports / validation | 06 (`graph_search`, `graph_diagnostics`, `success-criteria.yaml`) | Partial — graph + gap-rules validation, not `ghostcrab_pack` |
+| Lab extension | 03 gap-rules | Outside core 4 phases — Wave 4 CONSTRAINT / diagnostics equivalent |
+
+### Documented deviations
+
+1. **Projections before import.** This methodology requires designing projections (Phase 2) before ingestion. The immeuble lab validates **structural reconstruction** (ontology + docs + instance graph). The golden bundle contains no `ProjectionResult` entities; validation uses [`success-criteria.yaml`](../../examples/immeuble/mcp-lab/success-criteria.yaml) and graph tools, not `ghostcrab_pack`. For strict alignment, add an optional **phase 02-bis**: seed [`projections.seed.jsonl`](../../examples/immeuble/reference/projections.seed.jsonl) via `ghostcrab_project` — documented only; lab prompts unchanged.
+
+2. **Thin slices vs full domain.** Wave 1 of this methodology completes one competency question end to end. The immeuble lab targets the **full syndic domain at once** — closer to a regression/integration test than a first thin slice.
+
+3. **Gap-rules (phase 03).** Closed-world cardinality invariants on the instance graph are not a core universal phase. They map to Wave 4 CONSTRAINT discipline and post-import diagnostics.
+
+4. **Mock CI persistence.** `node scripts/import-immeuble-demo-llm.mjs --mode mock --reset` validates the comparison pipeline in-memory but **does not automatically persist** the extracted graph into `immeuble-demo-llm`. For MCP query parity on the lab workspace, load a partial bundle manually or rerun in `--mode live`.
+
+### Competency questions source
+
+Human-readable competency questions live in [`examples/immeuble/reference/scenarios.yaml`](../../examples/immeuble/reference/scenarios.yaml). They align with scenario ids used in optional Type A projection seeds — see [`ontology_dev_for_llm.md`](ontology_dev_for_llm.md) Applied example.

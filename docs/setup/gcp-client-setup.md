@@ -1,5 +1,7 @@
 # GhostCrab CLI (`gcp`) and MCP client setup
 
+> **Local dev workflow** (MindBrain sibling repo, vendor submodule, beta zip reinstall): see [`.cursor/skills/ghostcrab-mindbrain-dev/SKILL.md`](../../.cursor/skills/ghostcrab-mindbrain-dev/SKILL.md).
+
 This document covers the **`gcp` / `ghostcrab` launchers** shipped with **`@mindflight/ghostcrab-personal-mcp`**, how to wire them into **Cursor**, **Claude Code**, and **Codex-style** setups, and how that relates to **`ghostcrab-skills`** (and similar starter kits).
 
 ## Package and binaries
@@ -76,6 +78,7 @@ See the root [README.md](../../README.md) for the full table. Typical SQLite def
 
 - `GHOSTCRAB_SQLITE_PATH` — SQLite file (default: `./data/ghostcrab.sqlite` in the current working directory unless overridden).
 - `GHOSTCRAB_BACKEND_ADDR` / `GHOSTCRAB_MINDBRAIN_URL` — backend HTTP address (defaults documented in README).
+- `GHOSTCRAB_BACKEND_BIN` — absolute path to a self-built `ghostcrab-backend` (overrides optionalDependency/prebuild resolution; useful after `pnpm run prebuild:local`).
 - `GHOSTCRAB_DOCUMENT_ENGINE` — optional explicit path to the `ghostcrab-document` binary (otherwise resolved from the platform package, `prebuilds/`, or a local `zig build document-tool` output).
 
 ### Document import (`gcp brain document`)

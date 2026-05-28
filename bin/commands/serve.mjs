@@ -30,6 +30,13 @@ import {
   resolveNativeBackendPath,
   SUPPORTED_PREBUILD_TARGETS
 } from "../lib/prebuild-permissions.mjs";
+import {
+  backendHasGraphDiagnostics,
+  fingerprintBackendBinary,
+  formatPidFile,
+  needsUpgrade,
+  parsePidFile
+} from "../lib/backend-pid.mjs";
 import { resolveGhostcrabSqlite } from "../lib/resolve-ghostcrab-sqlite.mjs";
 import { slugifyWorkspace } from "../lib/workspace-slug.mjs";
 import { maybeInstallIdeSkills } from "../lib/install-ide-skills.mjs";
@@ -134,6 +141,7 @@ export async function runServe(args) {
     process.exit(1);
   }
   const backendBin = backend.path;
+  const backendFingerprint = fingerprintBackendBinary(backendBin);
 
   // ── Resolve configuration (shared with gcp brain db-who) ──────────────────
   const {
@@ -162,20 +170,20 @@ export async function runServe(args) {
   }
 
   // ── Check if a backend is already running (before port resolution) ─────────
-  // PID file format: "<pid>:<port>:<version>\n"
+  // PID file format: "<pid>:<port>:<version>[:<binary-fingerprint>]\n"
   // The version field was added in 0.2.23; files written by older versions have
   // only two fields and are treated as "unknown" version → upgrade path triggers.
+  // The optional fingerprint field (0.4.1+) forces restart when the binary changes
+  // at the same package version; a capabilities probe catches stale route sets.
   let backendAlreadyRunning = false;
   let resolvedPort;
   let mindbrainUrl = process.env.GHOSTCRAB_MINDBRAIN_URL ?? null;
 
   if (!mindbrainUrl && existsSync(pidFile)) {
     try {
-      const parts = readFileSync(pidFile, "utf8").trim().split(":");
-      const existingPid = parseInt(parts[0], 10);
-      const existingPort = parseInt(parts[1], 10);
-      const storedVersion = parts[2] ?? "unknown";
-      if (!isNaN(existingPid) && !isNaN(existingPort)) {
+      const parsed = parsePidFile(readFileSync(pidFile, "utf8"));
+      if (parsed) {
+        const { pid: existingPid, port: existingPort, version: storedVersion, fingerprint: storedFingerprint } = parsed;
         try {
           process.kill(existingPid, 0); // signal 0 = liveness probe
           const url = `http://127.0.0.1:${existingPort}`;
@@ -183,12 +191,22 @@ export async function runServe(args) {
             signal: AbortSignal.timeout(1000)
           }).catch(() => null);
           if (healthCheck?.ok) {
-            if (storedVersion !== PKG_VERSION) {
-              // Version mismatch — kill the old backend and start fresh.
+            const graphRoutesOk = await backendHasGraphDiagnostics(url);
+            const upgrade =
+              needsUpgrade(
+                storedVersion,
+                PKG_VERSION,
+                storedFingerprint,
+                backendFingerprint
+              ) || !graphRoutesOk;
+            if (upgrade) {
+              const reason = !graphRoutesOk
+                ? "missing graph diagnostics routes"
+                : `v${storedVersion}${storedFingerprint ? `@${storedFingerprint}` : ""} → v${PKG_VERSION}${backendFingerprint ? `@${backendFingerprint}` : ""}`;
               process.stderr.write(
-                `[ghostcrab] upgrade: old backend v${storedVersion} (pid ${existingPid}, port ${existingPort}) is still running\n` +
+                `[ghostcrab] upgrade: old backend (${reason}, pid ${existingPid}, port ${existingPort}) is still running\n` +
                   `[ghostcrab] upgrade: sqlite dir → ${dataDir}\n` +
-                  `[ghostcrab] upgrade: stopping old backend and starting v${PKG_VERSION}…\n`
+                  `[ghostcrab] upgrade: stopping old backend and starting fresh binary…\n`
               );
               try {
                 process.kill(existingPid, "SIGTERM");
@@ -318,11 +336,16 @@ export async function runServe(args) {
             signal: AbortSignal.timeout(1000)
           });
           if (res.ok) {
-            // Write pid:port:version so the next gcp serve can detect upgrades
+            // Write pid:port:version[:fingerprint] so the next gcp serve can detect upgrades
             try {
               writeFileSync(
                 pidFile,
-                `${backendProcess.pid}:${resolvedPort}:${PKG_VERSION}\n`,
+                formatPidFile(
+                  backendProcess.pid,
+                  resolvedPort,
+                  PKG_VERSION,
+                  backendFingerprint
+                ),
                 "utf8"
               );
             } catch {

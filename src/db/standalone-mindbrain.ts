@@ -340,6 +340,70 @@ export interface StandaloneMindbrainSqlParams {
   commit?: boolean;
 }
 
+export interface MindbrainCapabilitiesResponse {
+  kind: string;
+  mindbrain_version?: string;
+  features: {
+    graph_diagnostics?: boolean;
+    graph_gap_rules?: boolean;
+    graph_gap_rules_import?: boolean;
+    graph_gap_rules_delete?: boolean;
+    [key: string]: boolean | undefined;
+  };
+}
+
+export async function probeMindbrainCapabilities(
+  mindbrainUrl: string,
+  timeoutMs = 1500
+): Promise<
+  | { ok: true; capabilities: MindbrainCapabilitiesResponse }
+  | { ok: false; reason: string }
+> {
+  const url = new URL(
+    "/api/mindbrain/capabilities",
+    normalizeBaseUrl(mindbrainUrl)
+  );
+  try {
+    const response = await fetch(url, withTimeout({ method: "GET" }, timeoutMs));
+    if (response.ok) {
+      const capabilities = (await response.json()) as MindbrainCapabilitiesResponse;
+      return { ok: true, capabilities };
+    }
+  } catch {
+    // fall through to legacy route probe
+  }
+
+  try {
+    const fallback = new URL(
+      "/api/mindbrain/graph/gap-rules",
+      normalizeBaseUrl(mindbrainUrl)
+    );
+    fallback.searchParams.set("ontology_id", "__capability_probe__");
+    const response = await fetch(
+      fallback,
+      withTimeout({ method: "GET" }, timeoutMs)
+    );
+    if (response.status === 404 || response.status === 405) {
+      return { ok: false, reason: "missing_graph_gap_routes" };
+    }
+    return {
+      ok: true,
+      capabilities: {
+        kind: "mindbrain_capabilities",
+        features: {
+          graph_diagnostics: true,
+          graph_gap_rules: true
+        }
+      }
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: error instanceof Error ? error.message : String(error)
+    };
+  }
+}
+
 export async function runStandaloneTraverse(
   params: StandaloneTraverseParams
 ): Promise<StandaloneTraverseResult> {
