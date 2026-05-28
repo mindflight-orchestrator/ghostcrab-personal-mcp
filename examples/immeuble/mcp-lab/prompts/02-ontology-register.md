@@ -19,6 +19,7 @@ Option A — LinkML :
     --workspace-id immeuble-demo-llm \
     --ontology-id immeuble-demo::core \
     --input ontologies/immeuble-demo/core.yaml \
+    --profile syndic \
     --import-db --force
 
 Option B — MCP schema :
