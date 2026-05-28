@@ -1,5 +1,7 @@
 # GhostCrab Query Layers
 
+> English version — version française : [`fr/ghostcrab-query-layers.md`](fr/ghostcrab-query-layers.md)
+
 GhostCrab stores data in three separate layers. Each has dedicated tools. Mixing them up is the most common source of empty results.
 
 ## Overview
@@ -196,6 +198,23 @@ Precomputed analytical snapshots built by ingest pipelines or recipes (e.g. SEO 
 
 ---
 
+## Immeuble MCP lab validation path
+
+The [`examples/immeuble/mcp-lab/`](../../examples/immeuble/mcp-lab/) track validates domain reconstruction using **graph layer tools**, not working-memory projections:
+
+| Validation check | Tool | Layer |
+|------------------|------|-------|
+| Find units, persons, leases | `ghostcrab_graph_search` | Graph |
+| Walk ownership / occupancy | `ghostcrab_traverse` | Graph |
+| Closed-world invariants | `ghostcrab_graph_diagnostics` + gap-rules | Graph |
+| Entity/relation counts | SQL or compare script | Graph raw |
+
+The lab does **not** use `ghostcrab_pack` or `ghostcrab_projection_get` for pass/fail — the golden bundle has no `ProjectionResult` entities. Optional Type A seeds live in [`projections.seed.jsonl`](../../examples/immeuble/reference/projections.seed.jsonl).
+
+Detail: [`docs/mcp-explanation/en/03-projections-explained.md`](../mcp-explanation/en/03-projections-explained.md) · [`universal_methodology.md`](universal_methodology.md) §12.
+
+---
+
 ## Related
 
 - [`ghostcrab-skills/shared/QUERY_PATTERNS.md`](../../ghostcrab-skills/shared/QUERY_PATTERNS.md) — escalation ladder and retrieval habits
@@ -203,3 +222,5 @@ Precomputed analytical snapshots built by ingest pipelines or recipes (e.g. SEO 
 - [`vendor/mindbrain/docs/projections.md`](../../vendor/mindbrain/docs/projections.md) — projection internals
 - [`vendor/mindbrain/docs/graph.md`](../../vendor/mindbrain/docs/graph.md) — graph layer internals and `graph_relation_property` schema
 - [`docs/plan/2026-05-19-mindbrain-v1.4.2-edge-properties.md`](../plan/2026-05-19-mindbrain-v1.4.2-edge-properties.md) — implementation notes for typed edge properties
+- [`docs/mcp-explanation/en/03-projections-explained.md`](../mcp-explanation/en/03-projections-explained.md) — projections vs graph queries (immeuble lab)
+- [`docs/methodology/universal_methodology.md`](universal_methodology.md) §12 — immeuble MCP lab crosswalk

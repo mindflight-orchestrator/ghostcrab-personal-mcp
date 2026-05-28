@@ -53,6 +53,31 @@ fi
 
 echo "[smoke] ✓ GET /health"
 
+capabilities_result=$(curl -sf "$BACKEND_URL/api/mindbrain/capabilities")
+echo "[smoke] ✓ GET /api/mindbrain/capabilities → $capabilities_result"
+if ! printf '%s' "$capabilities_result" | grep -q '"graph_diagnostics":true'; then
+    echo "[smoke] ERROR: capabilities missing graph_diagnostics=true" >&2
+    exit 1
+fi
+
+diagnostics_status=$(curl -s -o /dev/null -w '%{http_code}' \
+    "$BACKEND_URL/api/mindbrain/graph/diagnostics")
+if [ "$diagnostics_status" = "404" ] || [ "$diagnostics_status" = "405" ]; then
+    echo "[smoke] ERROR: GET /api/mindbrain/graph/diagnostics returned $diagnostics_status (route missing?)" >&2
+    exit 1
+fi
+echo "[smoke] ✓ GET /api/mindbrain/graph/diagnostics → HTTP $diagnostics_status"
+
+gap_import_status=$(curl -s -o /dev/null -w '%{http_code}' \
+    -X POST "$BACKEND_URL/api/mindbrain/graph/gap-rules/import" \
+    -H 'content-type: application/json' \
+    -d '{"ontology_id":"smoke","rules":[]}')
+if [ "$gap_import_status" = "404" ] || [ "$gap_import_status" = "405" ]; then
+    echo "[smoke] ERROR: POST /api/mindbrain/graph/gap-rules/import returned $gap_import_status" >&2
+    exit 1
+fi
+echo "[smoke] ✓ POST /api/mindbrain/graph/gap-rules/import → HTTP $gap_import_status"
+
 # Test autocommit SQL
 result=$(curl -sf -X POST "$BACKEND_URL/api/mindbrain/sql" \
     -H 'content-type: application/json' \

@@ -89,7 +89,7 @@ $GCP brain document document-business-extract \
   --expected-coverage-json "$REPO/examples/immeuble/mcp-lab/corpus/expected-coverage.json" \
   --output "$LOG_DIR/business-extraction.parsed.json" \
   --raw-output "$LOG_DIR/business-extraction.raw.json" \
-  --reindex graph --limit 9 --force 2>&1 | tee "$LOG_DIR/extract.log"
+  --reindex graph --limit 9 --batch-size 1 --llm-parallel 2 --force 2>&1 | tee "$LOG_DIR/extract.log"
 
 echo "=== counts ==="
 sqlite3 "$DB" <<SQL

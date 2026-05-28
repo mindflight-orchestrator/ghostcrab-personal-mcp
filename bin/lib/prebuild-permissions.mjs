@@ -10,7 +10,8 @@
  * - Windows: .exe is run directly; no chmod (nothing to do here).
  */
 import { spawnSync } from "node:child_process";
-import { chmodSync, existsSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { chmodSync, existsSync, readFileSync, statSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 import { dirname } from "node:path";
@@ -89,13 +90,116 @@ export function getNativeBackendPath(pkgRoot) {
   };
 }
 
+function sha256Prefix(targetPath) {
+  try {
+    const hash = createHash("sha256");
+    hash.update(readFileSync(targetPath));
+    return hash.digest("hex").slice(0, 12);
+  } catch {
+    return null;
+  }
+}
+
+function pickNewerBackendPath(installedPath, bundledPath, platformKey, binaryName, packageName) {
+  const installedMtime = statSync(installedPath).mtimeMs;
+  const bundledMtime = statSync(bundledPath).mtimeMs;
+  if (bundledMtime > installedMtime) {
+    if (process.env.GHOSTCRAB_VERBOSE === "1") {
+      process.stderr.write(
+        `[ghostcrab] backend resolution: bundled-prebuild is newer than optionalDependency\n` +
+          `  bundled: ${bundledPath}\n` +
+          `  optionalDependency: ${installedPath}\n`
+      );
+    }
+    return {
+      ok: true,
+      path: bundledPath,
+      platformKey,
+      binaryName,
+      source: "bundled-prebuild",
+      packageName
+    };
+  }
+  if (installedMtime > bundledMtime) {
+    if (process.env.GHOSTCRAB_VERBOSE === "1") {
+      process.stderr.write(
+        `[ghostcrab] backend resolution: optionalDependency is newer than bundled-prebuild\n` +
+          `  optionalDependency: ${installedPath}\n` +
+          `  bundled: ${bundledPath}\n`
+      );
+    }
+    return {
+      ok: true,
+      path: installedPath,
+      platformKey,
+      binaryName,
+      source: "optionalDependency",
+      packageName
+    };
+  }
+
+  const installedHash = sha256Prefix(installedPath);
+  const bundledHash = sha256Prefix(bundledPath);
+  if (bundledHash && installedHash && bundledHash !== installedHash) {
+    if (process.env.GHOSTCRAB_VERBOSE === "1") {
+      process.stderr.write(
+        `[ghostcrab] backend resolution: equal mtime, bundled-prebuild sha256 differs\n` +
+          `  bundled: ${bundledPath}\n` +
+          `  optionalDependency: ${installedPath}\n`
+      );
+    }
+    return {
+      ok: true,
+      path: bundledPath,
+      platformKey,
+      binaryName,
+      source: "bundled-prebuild",
+      packageName
+    };
+  }
+
+  if (process.env.GHOSTCRAB_VERBOSE === "1") {
+    process.stderr.write(
+      `[ghostcrab] backend resolution: optionalDependency (same mtime/content)\n` +
+        `  ${installedPath}\n`
+    );
+  }
+  return {
+    ok: true,
+    path: installedPath,
+    platformKey,
+    binaryName,
+    source: "optionalDependency",
+    packageName
+  };
+}
+
 /**
  * @param {string} pkgRoot
- * @returns {{ ok: true, path: string, platformKey: string, binaryName: string, source: "optionalDependency" | "bundled-prebuild", packageName: string | null } | { ok: false, path: string, platformKey: string, binaryName: string, source: "missing", packageName: string | null }}
+ * @returns {{ ok: true, path: string, platformKey: string, binaryName: string, source: "env" | "optionalDependency" | "bundled-prebuild", packageName: string | null } | { ok: false, path: string, platformKey: string, binaryName: string, source: "missing", packageName: string | null }}
  */
 export function resolveNativeBackendPath(pkgRoot) {
   const bundled = getNativeBackendPath(pkgRoot);
+  const override = process.env.GHOSTCRAB_BACKEND_BIN?.trim();
+  if (override) {
+    if (existsSync(override)) {
+      if (process.env.GHOSTCRAB_VERBOSE === "1") {
+        process.stderr.write(
+          `[ghostcrab] backend resolution: GHOSTCRAB_BACKEND_BIN override\n  ${override}\n`
+        );
+      }
+      return {
+        ok: true,
+        path: override,
+        platformKey: bundled.platformKey,
+        binaryName: bundled.binaryName,
+        source: "env",
+        packageName: bundled.packageName
+      };
+    }
+  }
 
+  let installedPath = null;
   if (bundled.packageName) {
     try {
       const packageJsonPath = require.resolve(
@@ -104,27 +208,48 @@ export function resolveNativeBackendPath(pkgRoot) {
           paths: [pkgRoot]
         }
       );
-      const installedPath = join(
+      installedPath = join(
         dirname(packageJsonPath),
         "bin",
         bundled.binaryName
       );
-      if (existsSync(installedPath)) {
-        return {
-          ok: true,
-          path: installedPath,
-          platformKey: bundled.platformKey,
-          binaryName: bundled.binaryName,
-          source: "optionalDependency",
-          packageName: bundled.packageName
-        };
-      }
     } catch {
-      // fall through to bundled fallback
+      installedPath = null;
     }
   }
 
+  if (installedPath && existsSync(installedPath) && existsSync(bundled.path)) {
+    return pickNewerBackendPath(
+      installedPath,
+      bundled.path,
+      bundled.platformKey,
+      bundled.binaryName,
+      bundled.packageName
+    );
+  }
+
+  if (installedPath && existsSync(installedPath)) {
+    if (process.env.GHOSTCRAB_VERBOSE === "1") {
+      process.stderr.write(
+        `[ghostcrab] backend resolution: optionalDependency\n  ${installedPath}\n`
+      );
+    }
+    return {
+      ok: true,
+      path: installedPath,
+      platformKey: bundled.platformKey,
+      binaryName: bundled.binaryName,
+      source: "optionalDependency",
+      packageName: bundled.packageName
+    };
+  }
+
   if (existsSync(bundled.path)) {
+    if (process.env.GHOSTCRAB_VERBOSE === "1") {
+      process.stderr.write(
+        `[ghostcrab] backend resolution: bundled-prebuild\n  ${bundled.path}\n`
+      );
+    }
     return {
       ok: true,
       path: bundled.path,

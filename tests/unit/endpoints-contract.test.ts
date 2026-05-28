@@ -5,6 +5,14 @@ import { describe, expect, it } from "vitest";
 
 const repoRoot = process.cwd();
 
+const REQUIRED_MCP_GRAPH_ROUTES = [
+  "GET /api/mindbrain/capabilities",
+  "GET /api/mindbrain/graph/diagnostics",
+  "GET /api/mindbrain/graph/gap-rules",
+  "POST /api/mindbrain/graph/gap-rules/import",
+  "POST /api/mindbrain/graph/gap-rules/delete"
+] as const;
+
 function normalizeWhitespace(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
@@ -89,6 +97,20 @@ function extractMindbrainDispatchRoutes(source: string): string[] {
 }
 
 describe("endpoint contract drift guard", () => {
+  it("keeps required MCP graph routes in vendor mindbrain dispatch", async () => {
+    const mindbrainSource = await readFile(
+      path.resolve(repoRoot, "vendor/mindbrain/src/standalone/http_app.zig"),
+      "utf8"
+    );
+    const mindbrainDispatchRoutes = new Set(
+      extractMindbrainDispatchRoutes(mindbrainSource)
+    );
+
+    for (const route of REQUIRED_MCP_GRAPH_ROUTES) {
+      expect(mindbrainDispatchRoutes.has(route)).toBe(true);
+    }
+  });
+
   it("keeps backend docs and CLI usage aligned with the Zig route dispatcher", async () => {
     const source = await readFile(
       path.resolve(repoRoot, "cmd/backend/http_server.zig"),
