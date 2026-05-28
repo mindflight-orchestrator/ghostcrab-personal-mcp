@@ -66,6 +66,7 @@ export function buildOntologyCompileLinkmlEngineArgs(parsed, sqlitePathResolved 
     "--input",
     parsed.inputPath
   ];
+  if (parsed.profile) args.push("--profile", parsed.profile);
   if (parsed.outputPath) args.push("--output", parsed.outputPath);
   if (parsed.ntriplesPath) args.push("--ntriples", parsed.ntriplesPath);
   if (sqlitePathResolved) args.push("--db", sqlitePathResolved);
@@ -150,6 +151,7 @@ export function parseOntologyCompileArgs(args) {
   let ntriplesPath = null;
   let importToDb = false;
   let force = false;
+  let profile = null;
 
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
@@ -210,6 +212,13 @@ export function parseOntologyCompileArgs(args) {
       force = true;
       continue;
     }
+    if (a === "--profile") {
+      if (!args[i + 1]) {
+        return { error: "gcp brain ontology compile: --profile requires a name (e.g. syndic)." };
+      }
+      profile = args[++i];
+      continue;
+    }
     return { error: `gcp brain ontology compile: unknown argument "${a}".` };
   }
 
@@ -232,7 +241,8 @@ export function parseOntologyCompileArgs(args) {
     outputPath,
     ntriplesPath,
     importToDb,
-    force
+    force,
+    profile
   };
 }
 

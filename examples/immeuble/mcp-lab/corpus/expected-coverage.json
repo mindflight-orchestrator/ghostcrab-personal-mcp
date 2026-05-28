@@ -23,7 +23,10 @@
     "cellars": 13,
     "private_gardens": 6,
     "lease_contracts": 5,
-    "coda_entries": 3
+    "coda_entries": 3,
+    "billing_group": 13,
+    "shared_space": 6,
+    "shared_equipment": 4
   },
   "unit_checks": {
     "all_units_have_cellar": true,
@@ -70,7 +73,8 @@
       "bail",
       "pv_ag",
       "extrait_coda",
-      "annexe_lot"
+      "annexe_lot",
+      "registre_facturation"
     ]
   }
 }

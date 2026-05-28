@@ -53,6 +53,12 @@
       "filename": "annexes-caves-garages-jardins.md",
       "title": "Inventaire fictif des annexes et parties communes",
       "document_type": "annexe_lot"
+    },
+    {
+      "doc_id": 9,
+      "filename": "groupes-facturation.md",
+      "title": "Registre fictif des groupes de facturation",
+      "document_type": "registre_facturation"
     }
   ]
 }
