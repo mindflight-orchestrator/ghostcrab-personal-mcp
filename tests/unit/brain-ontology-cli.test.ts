@@ -25,8 +25,66 @@ describe("gcp brain ontology helpers", () => {
       outputPath: "slice.json",
       ntriplesPath: null,
       importToDb: true,
-      force: false
+      force: false,
+      profile: null
     });
+  });
+
+  it("parses ontology compile --profile syndic", () => {
+    expect(
+      __private__.parseOntologyCompileArgs([
+        "--workspace-id",
+        "test-immo-mcp3",
+        "--ontology-id",
+        "test-immo-mcp3::core",
+        "--input",
+        "core.yaml",
+        "--profile",
+        "syndic",
+        "--import-db"
+      ])
+    ).toEqual({
+      workspaceName: null,
+      sqlitePathFromCli: null,
+      workspaceId: "test-immo-mcp3",
+      ontologyId: "test-immo-mcp3::core",
+      inputPath: "core.yaml",
+      outputPath: null,
+      ntriplesPath: null,
+      importToDb: true,
+      force: false,
+      profile: "syndic"
+    });
+  });
+
+  it("forwards --profile syndic to native compile args", () => {
+    const parsed = __private__.parseOntologyCompileArgs([
+      "--workspace-id",
+      "test-immo-mcp3",
+      "--ontology-id",
+      "test-immo-mcp3::core",
+      "--input",
+      "core.yaml",
+      "--profile",
+      "syndic",
+      "--import-db"
+    ]);
+
+    expect(
+      __private__.buildOntologyCompileLinkmlEngineArgs(parsed, "/tmp/brain.sqlite")
+    ).toEqual([
+      "ontology-compile-linkml",
+      "--workspace-id",
+      "test-immo-mcp3",
+      "--ontology-id",
+      "test-immo-mcp3::core",
+      "--input",
+      "core.yaml",
+      "--profile",
+      "syndic",
+      "--db",
+      "/tmp/brain.sqlite"
+    ]);
   });
 
   it("parses ontology export-linkml flags", () => {

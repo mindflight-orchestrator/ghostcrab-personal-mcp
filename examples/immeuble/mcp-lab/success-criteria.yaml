@@ -12,6 +12,13 @@ entity_counts:
   lease_contracts: 5
   coda_entries: 3
 
+# Aspirational vs golden (not blocking L0/L2 core counts)
+golden_stretch:
+  billing_group: 13
+  shared_space: 6
+  shared_equipment: 4
+  bills_to_edges: 13
+
 quota_totals:
   "Résidence Les Tilleuls": 1000
   "Résidence Les Érables": 1000
@@ -56,6 +63,7 @@ document_facets:
     - pv_ag
     - extrait_coda
     - annexe_lot
+    - registre_facturation
 
 diagnostics:
   rules_pack: ../training/gap-rules/L2-syndic-filtered.json

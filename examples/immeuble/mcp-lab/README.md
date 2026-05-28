@@ -2,6 +2,8 @@
 
 Agent entry point for rebuilding the syndic domain from **raw documents** into workspace `immeuble-demo-llm`, then comparing against the golden reference.
 
+**Variant:** workspace `immo-mcp` vs golden `immeuble-demo` in the **same SQLite as Cursor MCP** — see [`prompts/00-prerequisites-immo-mcp.md`](prompts/00-prerequisites-immo-mcp.md), [`prompts/06-validate-and-compare-immo-mcp.md`](prompts/06-validate-and-compare-immo-mcp.md), [`workspace-immo-mcp.json`](workspace-immo-mcp.json).
+
 ## Start here
 
 1. Read [`workspace.json`](workspace.json) and [`success-criteria.yaml`](success-criteria.yaml)
