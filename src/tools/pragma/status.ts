@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 import { buildStatusPreamble } from "../../mcp/agent-brief.js";
+import { resolveGhostcrabConfig } from "../../config/env.js";
+import { probeMindbrainCapabilities } from "../../db/standalone-mindbrain.js";
 import { isFactsFtsReady } from "../../runtime/facets-fts-state.js";
 import {
   createToolSuccessResult,
@@ -82,6 +84,10 @@ export const statusTool: ToolHandler = {
       graph_traversal: sqliteReadiness.dgraph.entityNeighborhood,
       graph_marketplace_search: sqliteReadiness.dgraph.marketplace,
       graph_confidence_decay: sqliteReadiness.dgraph.confidenceDecay,
+      graph_gap_diagnostics: false,
+      graph_gap_rules: false,
+      graph_gap_rules_import: false,
+      graph_gap_rules_delete: false,
       pragma_pack: sqliteReadiness.pragma.pack,
       mb_ontology_available: sqliteReadiness.ontology.available,
       mb_ontology: {
@@ -105,6 +111,34 @@ export const statusTool: ToolHandler = {
         checkpoint_project: sqliteReadiness.ontology.checkpointProject
       }
     } as const;
+
+    const config = resolveGhostcrabConfig();
+    const capabilityProbe = await probeMindbrainCapabilities(
+      config.mindbrainUrl
+    );
+    const runtimeCapabilities = {
+      ...sqliteCapabilities,
+      graph_gap_diagnostics:
+        capabilityProbe.ok === true &&
+        capabilityProbe.capabilities.features.graph_diagnostics === true,
+      graph_gap_rules:
+        capabilityProbe.ok === true &&
+        capabilityProbe.capabilities.features.graph_gap_rules === true,
+      graph_gap_rules_import:
+        capabilityProbe.ok === true &&
+        capabilityProbe.capabilities.features.graph_gap_rules_import === true,
+      graph_gap_rules_delete:
+        capabilityProbe.ok === true &&
+        capabilityProbe.capabilities.features.graph_gap_rules_delete === true
+    };
+
+    const directives: string[] = [];
+    if (!runtimeCapabilities.graph_gap_diagnostics) {
+      directives.push(
+        "Backend missing graph diagnostics routes — rebuild ghostcrab-backend (pnpm run prebuild:local) and restart."
+      );
+    }
+
     const [stateRow] = await context.database.query<{
       health: string;
       metrics_json: string;
@@ -182,14 +216,25 @@ export const statusTool: ToolHandler = {
           hybrid_vector_weight: context.retrieval.hybridVectorWeight
         },
         sqlite_readiness: sqliteReadiness,
-        capabilities: sqliteCapabilities,
+        capabilities: runtimeCapabilities,
+        mindbrain_capabilities_probe: capabilityProbe.ok
+          ? {
+              ok: true,
+              mindbrain_version:
+                capabilityProbe.capabilities.mindbrain_version ?? null,
+              features: capabilityProbe.capabilities.features
+            }
+          : {
+              ok: false,
+              reason: capabilityProbe.reason
+            },
         backends: {
           facets: "sql",
           graph: "mindbrain",
           pragma: "mindbrain"
         }
       },
-      directives: [],
+      directives,
       next_actions: [],
       operational: {
         health: state.health,

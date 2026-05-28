@@ -43,7 +43,7 @@ Si l'une de ces conditions manque, vous êtes encore en Phase A/B/C du contrat. 
 
 ### Comment éliciter les questions de compétence — l'approche narrative
 
-Demander « quelles questions voulez-vous voir répondues ? » est trop abstrait. La méthode des ateliers live (documentée dans [`methodology-immo/`](../methodology-immo/)) est plus fiable : proposer un scénario concret de 90 secondes ancré dans un événement routinier du domaine, puis demander à l'équipe de narrer ce qui se passe.
+Demander « quelles questions voulez-vous voir répondues ? » est trop abstrait. La méthode des ateliers live (voir §12 exemple MCP lab immeuble et l'approche narrative ci-dessous) est plus fiable : proposer un scénario concret de 90 secondes ancré dans un événement routinier du domaine, puis demander à l'équipe de narrer ce qui se passe.
 
 **Exemple (gestion immobilière / syndic) :**
 
@@ -124,7 +124,7 @@ Avant de concevoir votre premier schéma de facette, répondre à : **ce domaine
 
 Un **domaine autonome** (corpus documentaire, liste de contacts, gestionnaire de tâches) peut être modélisé de manière isolée. Un **domaine de processus** (déclaration de sinistre, exécution de commande, audit réglementaire) est typiquement un *consommateur* qui traverse plusieurs ontologies périphériques, chacune modélisant une couche stable du monde métier.
 
-L'exemple sinistre dans la gestion immobilière (voir [`methodology-immo/`](../methodology-immo/)) montre une stratification canonique :
+L'exemple sinistre dans la gestion immobilière (voir §12 MCP lab immeuble et [`examples/immeuble/reference/scenarios.yaml`](../../../examples/immeuble/reference/scenarios.yaml)) montre une stratification canonique :
 
 | Couche | Exemples dans le domaine syndic | Règle de modélisation |
 |---|---|---|
@@ -430,9 +430,9 @@ Exécuter cette checklist à la fin de chaque passage de boucle. Adaptée de la 
 
 Documents sources que cette méthodologie relie et dont elle dépend :
 
-- [`docs/architecture/ontology_dev_for_llm.md`](../ontology_dev_for_llm.md) —
+- [`docs/methodology/ontology_dev_for_llm.md`](../ontology_dev_for_llm.md) —
   théorie générale du génie ontologique (questions de compétence, test « est-un », checklist qualité, erreurs courantes). Le socle théorique.
-- [`docs/architecture/ontology_story2doc_example.md`](../ontology_story2doc_example.md)
+- [`docs/methodology/ontology_story2doc_example.md`](../ontology_story2doc_example.md)
   — exemple d'application SaaS couvrant snapshot → graphe → projection →
   artefact, incluant l'étape d'identification des angles morts et le principe « un graphe, plusieurs sorties ».
 - [`ghostcrab-skills/shared/ONBOARDING_CONTRACT.md`](../../../ghostcrab-skills/shared/ONBOARDING_CONTRACT.md)
@@ -444,4 +444,56 @@ Documents sources que cette méthodologie relie et dont elle dépend :
 - [`vendor/mindbrain/docs/projections.md`](../../../vendor/mindbrain/docs/projections.md)
   — types de projections, poids, cycle de vie des statuts, politique de création LLM, contrat source de vérité.
 - [`docs/setup/document-import.md`](../../setup/document-import.md) — runbook opérateur pour le chemin d'import de documents (`gcp brain document`), incluant les solutions de repli sans LLM sur lesquelles cette méthodologie s'appuie pour la validation du câblage en Phase 3.
-- [`docs/architecture/methodology-immo/`](../methodology-immo/) — pack d'ateliers live immobilier / syndic. Contient : la méthodologie du jeu de cartes en 5 actes (approche narrative, élicitation des questions de compétence, système de codage couleur Miro) ; l'ontologie de déclaration de sinistre (architecture multi-graphe, nommage de facettes dimensionnel, machine à états, projections inter-graphes) ; et l'ontologie maître pour un cabinet de gestion immobilière. Source principale pour l'approche narrative du §1 et la section de conscience multi-ontologies du §4.
+- [`docs/methodology/ghostcrab-query-layers.md`](../ghostcrab-query-layers.md) —
+  facettes vs graphe vs projections ; échelle d'escalade en cas de résultats vides.
+- [`docs/explanation/README.md`](../../explanation/README.md) (FR) ·
+  [`docs/explanation/en/README.md`](../../explanation/en/README.md) (EN) —
+  synthèse courte du MCP lab immeuble (cible golden vs processus).
+- [`docs/mcp-explanation/README.md`](../../mcp-explanation/README.md) (FR) ·
+  [`docs/mcp-explanation/en/README.md`](../../mcp-explanation/en/README.md) (EN) —
+  détail pédagogique de la piste MCP lab immeuble.
+- [`examples/immeuble/mcp-lab/`](../../../examples/immeuble/mcp-lab/) — prompts
+  agent, corpus, critères de succès (exemple travaillé au §12).
+
+> **Note :** Les références à `docs/architecture/methodology-immo/` dans des
+> versions antérieures pointaient vers un pack d'ateliers absent de ce dépôt.
+> Utiliser l'approche narrative en 5 actes du §1 et le MCP lab immeuble (§12)
+> comme exemples syndic in-repo.
+
+## 12. Exemple travaillé — MCP lab immeuble
+
+La piste [`examples/immeuble/mcp-lab/`](../../../examples/immeuble/mcp-lab/) est un **exercice d'intégration bout en bout** pour le domaine syndic belge (Résidence Les Tilleuls + Les Érables). Elle valide qu'un agent peut reconstruire ontologie, documents qualifiés, gap-rules et graphe métier depuis un corpus brut, puis comparer à une référence golden.
+
+Documentation :
+
+- Synthèse courte : [`docs/explanation/README.md`](../../explanation/README.md) (FR) · [`docs/explanation/en/README.md`](../../explanation/en/README.md) (EN)
+- Détail pédagogique : [`docs/mcp-explanation/`](../../mcp-explanation/README.md) (FR) · [`docs/mcp-explanation/en/`](../../mcp-explanation/en/README.md) (EN)
+
+### Cible golden vs processus
+
+[`examples/immeuble/reference/bundle.json`](../../../examples/immeuble/reference/bundle.json) est la **cible de comparaison** chargée dans le workspace `immeuble-demo` — pas le processus à reproduire. Le processus s'exécute dans `immeuble-demo-llm` depuis [`mcp-lab/corpus/`](../../../examples/immeuble/mcp-lab/corpus/).
+
+### Correspondance : 4 phases universelles ↔ prompts MCP lab
+
+| Méthodologie universelle | MCP lab (prompts) | Alignement |
+|--------------------------|-------------------|------------|
+| Précondition ONBOARDING + Model Proposal | 00–01 | Conforme |
+| Phase 1 — Facettes / ontologie | 02 (`ontology compile` / `schema_register`) | Conforme |
+| Phase 2 — Projections (contrat de lecture) | *(absent du lab)* | **Écart volontaire** — voir note ci-dessous |
+| Phase 3 — Import | 04 (docs qualifiés CLI) + 05 (graphe via `learn` / extract) | Partiel — import domaine complet, pas thin slice |
+| Phase 4 — Rapports / validation | 06 (`graph_search`, `graph_diagnostics`, `success-criteria.yaml`) | Partiel — validation graphe + gap-rules, pas `ghostcrab_pack` |
+| Extension lab | 03 gap-rules | Hors 4 phases centrales — équivalent Vague 4 CONSTRAINT / diagnostics |
+
+### Écarts documentés
+
+1. **Projections avant import.** Cette méthodologie exige de concevoir les projections (Phase 2) avant l'ingestion. Le lab immeuble valide la **reconstruction structurelle** (ontologie + docs + graphe instance). Le bundle golden ne contient pas d'entités `ProjectionResult` ; la validation utilise [`success-criteria.yaml`](../../../examples/immeuble/mcp-lab/success-criteria.yaml) et les outils graphe, pas `ghostcrab_pack`. Pour un alignement strict, ajouter une **phase 02-bis** optionnelle : seed [`projections.seed.jsonl`](../../../examples/immeuble/reference/projections.seed.jsonl) via `ghostcrab_project` — documenté seulement ; prompts lab inchangés.
+
+2. **Tranches fines vs domaine complet.** La Vague 1 de cette méthodologie complète une question de compétence de bout en bout. Le lab immeuble vise le **domaine syndic complet d'un coup** — plus proche d'un test d'intégration/régression que d'une première tranche fine.
+
+3. **Gap-rules (phase 03).** Les invariants closed-world sur le graphe instance ne sont pas une phase centrale universelle. Ils correspondent à la discipline CONSTRAINT Vague 4 et aux diagnostics post-import.
+
+4. **Persistance mock CI.** `node scripts/import-immeuble-demo-llm.mjs --mode mock --reset` valide le pipeline de comparaison in-memory mais **ne persiste pas** automatiquement le graphe extrait dans `immeuble-demo-llm`. Pour parité requête MCP sur le workspace lab, charger manuellement un bundle partiel ou relancer en `--mode live`.
+
+### Source des questions de compétence
+
+Les questions de compétence lisibles par un humain sont dans [`examples/immeuble/reference/scenarios.yaml`](../../../examples/immeuble/reference/scenarios.yaml). Elles s'alignent sur les ids de scénario des seeds de projections Type A optionnelles — voir [`ontology_dev_for_llm.md`](../ontology_dev_for_llm.md) Exemple appliqué.

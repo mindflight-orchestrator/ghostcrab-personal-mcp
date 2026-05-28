@@ -73,8 +73,13 @@ export function runNativeEngineSync(pkgRoot, childArgs, options = {}) {
     };
   }
 
+  const stdio = options.inheritStdio
+    ? "inherit"
+    : /** @type {const} */ (["pipe", "pipe", "inherit"]);
+
   const result = spawnSync(enginePath, childArgs, {
     encoding: "utf8",
+    stdio,
     env: { ...process.env }
   });
 
