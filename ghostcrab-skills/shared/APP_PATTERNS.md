@@ -88,3 +88,21 @@ Across demo profiles, favor a simple progression:
 1. facts that can be searched and counted
 2. graph structure that can be traversed
 3. one projection that demonstrates compact working context
+
+## Starterkit Reference
+
+When a user asks for concrete project artifacts, source imports, ontology templates, mapping contracts, or consumer-readiness gates, use the GhostCrab Personal StarterKit instead of duplicating templates in the skill.
+
+Canonical clone URL:
+
+```bash
+git clone https://gitlab.com/webigniter/starter-kit-ghostcrab-perso.git
+```
+
+Load from the starterkit as needed:
+
+- `starterkit/QUICKSTART.md`
+- `starterkit/SOP2_obsidian_ontologie.md`
+- `starterkit/SOP3_parsing_pipeline.md`
+- `starterkit/SOP5_source_import_compiler.md`
+- `starterkit/templates/`
