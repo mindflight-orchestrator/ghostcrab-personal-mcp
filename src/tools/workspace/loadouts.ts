@@ -7,6 +7,7 @@ import {
   type ToolExecutionContext,
   type ToolHandler
 } from "../registry.js";
+import { workspaceNotFoundMessage } from "./errors.js";
 import {
   buildOntologyLoadoutSkeleton,
   getOntologyLoadoutCatalogSnapshot,
@@ -204,7 +205,7 @@ export const loadoutApplyTool: ToolHandler = {
     if (!workspace) {
       return createToolErrorResult(
         "ghostcrab_loadout_apply",
-        `Workspace '${input.workspace_id}' does not exist.`,
+        workspaceNotFoundMessage(input.workspace_id),
         "workspace_not_found"
       );
     }

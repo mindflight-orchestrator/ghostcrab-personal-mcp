@@ -58,24 +58,21 @@ describe("tool catalog", () => {
     });
   });
 
-  it("discovers ghostcrab_workspace_use via extended session search", () => {
+  it("lists workspace session tools as basic defaults", () => {
     const catalog = buildToolCatalog([workspaceUseTool.definition]);
+    expect(catalog[0]).toMatchObject({
+      name: "ghostcrab_workspace_use",
+      subsystem: "session",
+      visibility: "basic",
+      access: "session"
+    });
+
     const matches = searchToolCatalog(
       catalog,
       "",
-      { subsystem: ["session"], visibility: ["extended"] },
+      { subsystem: ["session"], visibility: ["basic"] },
       5
     );
-
-    expect(matches).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          name: "ghostcrab_workspace_use",
-          subsystem: "session",
-          visibility: "extended",
-          access: "session"
-        })
-      ])
-    );
+    expect(matches.map((m) => m.name)).toContain("ghostcrab_workspace_use");
   });
 });

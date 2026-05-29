@@ -6,6 +6,7 @@ import {
   registerTool,
   type ToolHandler
 } from "../registry.js";
+import { workspaceNotFoundMessage } from "./errors.js";
 import { WorkspaceIdSchema } from "../../types/workspace.js";
 
 const WorkspaceInspectInput = z.object({
@@ -55,7 +56,7 @@ export const workspaceInspectTool: ToolHandler = {
     if (!ws) {
       return createToolErrorResult(
         "ghostcrab_workspace_inspect",
-        `Workspace '${input.workspace_id}' does not exist.`,
+        workspaceNotFoundMessage(input.workspace_id),
         "workspace_not_found"
       );
     }

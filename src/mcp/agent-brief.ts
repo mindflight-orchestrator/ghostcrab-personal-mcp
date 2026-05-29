@@ -1,9 +1,9 @@
+import { WORKSPACE_CONTEXT_DISCIPLINE } from "./workspace-context-status.js";
+
 /**
  * Single source of truth for GhostCrab product framing: MCP instructions,
  * ghostcrab_status preamble, static readme resource, and human-facing docs.
  */
-
-/** URI advertised via resources/list and resources/read. */
 export const GHOSTCRAB_README_URI = "ghostcrab://readme";
 
 const ROLE_LINES = [
@@ -12,7 +12,7 @@ const ROLE_LINES = [
 ] as const;
 
 const NON_GOAL_LINE =
-  "Non-goal: MCP is the ontology and query surface — high-throughput ingestion belongs on direct SQL, not MCP streaming.";
+  "Non-goal: MCP is the ontology and query surface — high-throughput ingestion uses direct SQL (operator pipelines only; agents must use MCP tools, not SQLite shell access).";
 
 /** First-turn fuzzy onboarding: question count (aligned with ONBOARDING_CONTRACT.md). */
 const FIRST_TURN_QUESTION_DISCIPLINE = [
@@ -62,9 +62,12 @@ function firstCallChecklistStandalone(): string {
 
 /** Same narrative block as ghostcrab_status.preamble (optimized for the status JSON payload). */
 export function buildStatusPreamble(): string {
-  return [...ROLE_LINES, NON_GOAL_LINE, firstCallChecklistForStatus()].join(
-    "\n"
-  );
+  return [
+    ...ROLE_LINES,
+    NON_GOAL_LINE,
+    WORKSPACE_CONTEXT_DISCIPLINE,
+    firstCallChecklistForStatus()
+  ].join("\n");
 }
 
 /** Markdown body for the ghostcrab://readme resource. */
@@ -87,7 +90,7 @@ ${NON_GOAL_LINE}
 | Model     | \`project\` |
 | Guide     | \`modeling_guidance\` — natural-language domain goals |
 
-The MCP default list exposes every registered tool via \`tools/list\`. Twelve tools are **recommended defaults** for routine work; the rest are **extended** (annotated \`ghostcrab_visibility: extended\`). Use \`ghostcrab_tool_search\` to filter the catalog by subsystem or visibility. All tools are directly invocable by name once listed.
+The MCP default list exposes every registered tool via \`tools/list\`. Fourteen tools are **recommended defaults** for routine work; the rest are **extended** (annotated \`ghostcrab_visibility: extended\`). Use \`ghostcrab_tool_search\` to filter the catalog by subsystem or visibility. All tools are directly invocable by name once listed.
 
 ## First-call checklist
 
@@ -124,11 +127,14 @@ For local ingest (email, messages, calendar, search results): skip \`ghostcrab_s
 
 ## Workspace scope
 
+- \`ghostcrab_status\` echoes \`active_workspace_id\`, \`active_schema_id\`, and \`workspace_context\` — verify before every write.
+- CLI \`--workspace\` selects the SQLite file; MindBrain \`workspace_id\` is the logical partition inside that file (often \`default\`).
+- Intentional switch: \`ghostcrab_workspace_list\` → announce to user → \`ghostcrab_workspace_use\` → re-read status.
+- Do not switch workspace on empty reads, tool errors, or backend failures.
+- Agents must not open SQLite files or run SQL shell (\`sqlite3\`, \`gcp brain document\`) to read data — MCP tools only.
 - Call \`ghostcrab_workspace_use\` with a \`workspace_id\` (and optionally \`schema_id\`) to set session defaults for this MCP server process.
 - After calling \`ghostcrab_workspace_use\`, all subsequent tool calls use that workspace/schema unless they pass explicit \`workspace_id\` / \`schema_id\` overrides.
-- \`ghostcrab_status\` always echoes \`active_workspace_id\` and \`active_schema_id\` so you can verify the current session context.
 - Scope writes to a workspace before calling upsert/remember/learn.
-- Stay inside one workspace unless you explicitly announce a switch.
 - If the user already chose GhostCrab, do not reopen the storage decision.
 - Session context is shared across all chats in the same MCP server process. For parallel-chat isolation, pass explicit \`workspace_id\` / \`schema_id\` per call, or use separate MCP server entries.
 
@@ -188,7 +194,8 @@ export function buildMcpInstructions(params: McpInstructionsParams): string {
     `Product role: persistent fact store with schemas, knowledge graph, facets, ` +
     `and projections. Use it for workflow tracking, CRM pipelines, compliance, ` +
     `knowledge bases, and domain modeling. MCP is the ontology and query surface; ` +
-    `high-throughput ingestion uses direct SQL.\n\n` +
+    `high-throughput ingestion uses direct SQL (operator pipelines only — agents must use MCP tools).\n\n` +
+    `${WORKSPACE_CONTEXT_DISCIPLINE}\n\n` +
     `${firstCallChecklistStandalone()}\n\n` +
     `${onboardingDisciplineBlock}\n\n` +
     `Tool classification:\n` +
@@ -197,7 +204,7 @@ export function buildMcpInstructions(params: McpInstructionsParams): string {
     `  Model — project\n` +
     `  Guide — modeling_guidance (natural-language domain goals)\n` +
     `  Bootstrap — status (call first)\n\n` +
-    `The MCP tools/list surface includes every registered tool. Twelve are recommended defaults (title: GhostCrab recommended default); extended tools use title: GhostCrab extended tool. Use ghostcrab_tool_search to filter the catalog on demand. All listed tools are directly invocable by name.\n\n` +
+    `The MCP tools/list surface includes every registered tool. Fourteen are recommended defaults (title: GhostCrab recommended default); extended tools use title: GhostCrab extended tool. Use ghostcrab_tool_search to filter the catalog on demand. All listed tools are directly invocable by name.\n\n` +
     `Backend: ${backendUrlRedacted}. Backend is reachable. ${listedToolCount} tools are listed by default; ${extendedToolCount} tools are registered in the full catalog.`
   );
 }

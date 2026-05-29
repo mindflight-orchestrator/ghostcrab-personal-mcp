@@ -104,7 +104,7 @@ describe("apply permissions on disk", () => {
     }
   });
 
-  it("applyCursorPermissions writes 12 basic tools to HOME/.cursor/permissions.json", async () => {
+  it("applyCursorPermissions writes 14 basic tools to HOME/.cursor/permissions.json", async () => {
     const { applyCursorPermissions } =
       await import("../../bin/lib/mcp-permissions-adapters.mjs");
     prevHome = process.env.HOME;
@@ -119,12 +119,12 @@ describe("apply permissions on disk", () => {
       dryRun: false
     });
     expect(result.ok).toBe(true);
-    expect(result.allowCount).toBe(12);
+    expect(result.allowCount).toBe(14);
 
     const doc = JSON.parse(
       readFileSync(join(fakeHome, ".cursor", "permissions.json"), "utf8")
     );
-    expect(doc.mcpAllowlist).toHaveLength(12);
+    expect(doc.mcpAllowlist).toHaveLength(14);
     expect(doc.mcpAllowlist[0]).toMatch(/^ghostcrab-personal-mcp:ghostcrab_/);
   });
 
@@ -142,12 +142,12 @@ describe("apply permissions on disk", () => {
       dryRun: false
     });
     expect(result.ok).toBe(true);
-    expect(result.allowCount).toBe(12);
+    expect(result.allowCount).toBe(14);
 
     const settings = JSON.parse(
       readFileSync(join(cwd, ".claude", "settings.json"), "utf8")
     );
-    expect(settings.permissions.allow).toHaveLength(12);
+    expect(settings.permissions.allow).toHaveLength(14);
     expect(settings.permissions.allow[0]).toMatch(
       /^mcp__ghostcrab-personal-mcp__ghostcrab_/
     );
@@ -186,7 +186,7 @@ describe("apply permissions on disk", () => {
     const settings = JSON.parse(
       readFileSync(join(cwd, ".claude", "settings.json"), "utf8")
     );
-    expect(settings.permissions.allow).toHaveLength(13);
+    expect(settings.permissions.allow).toHaveLength(15);
     expect(settings.permissions.allow).not.toContain(
       "mcp__ghostcrab-personal-mcp__ghostcrab_workspace_delete"
     );
@@ -194,7 +194,7 @@ describe("apply permissions on disk", () => {
     const ghostcrabRules = settings.permissions.allow.filter((r: string) =>
       r.startsWith("mcp__ghostcrab-personal-mcp__")
     );
-    expect(ghostcrabRules).toHaveLength(12);
+    expect(ghostcrabRules).toHaveLength(14);
   });
 });
 

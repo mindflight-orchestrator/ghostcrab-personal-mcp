@@ -192,6 +192,7 @@ async function cmdBrainSetup(args) {
         process.exit(1);
       }
       for (const m of post.messages ?? []) console.log(m);
+      printWorkspacePinHint(p);
     }
     return;
   }
@@ -220,6 +221,7 @@ async function cmdBrainSetup(args) {
         process.exit(1);
       }
       for (const m of post.messages ?? []) console.log(m);
+      printWorkspacePinHint(p);
     }
     return;
   }
@@ -253,6 +255,7 @@ async function cmdBrainSetup(args) {
         process.exit(1);
       }
       for (const m of post.messages ?? []) console.log(m);
+      printWorkspacePinHint(p);
     }
     return;
   }
@@ -298,6 +301,7 @@ function parseSetupArgs(args) {
     scope: /** @type {"local" | "user" | "project"} */ ("user"),
     permissionsPreset: "basic",
     permissionsScope: /** @type {"user" | "project"} */ ("user"),
+    mindbrainWorkspaceId: null,
     noPermissions: false,
     noSkills: false,
     allowTools: /** @type {string[]} */ ([]),
@@ -390,12 +394,10 @@ function parseSetupArgs(args) {
       out.permissionsPreset = "custom";
       continue;
     }
-    if (a === "--permissions-ask-tool" && rest[i + 1]) {
-      out.askTools.push(rest[++i]);
-      out.permissionsPreset = "custom";
+    if (a === "--mindbrain-workspace-id" && rest[i + 1]) {
+      out.mindbrainWorkspaceId = rest[++i];
       continue;
     }
-    return { error: `gcp brain setup: unexpected argument "${a}"` };
   }
 
   const validPresets = [
@@ -418,6 +420,10 @@ function parseSetupArgs(args) {
 
   if (out.scope === "project" && !rest.some((a, i) => a === "--permissions-scope" && rest[i + 1])) {
     out.permissionsScope = "project";
+  }
+
+  if (out.mindbrainWorkspaceId) {
+    out.extraEnv.GHOSTCRAB_ACTIVE_WORKSPACE_ID = out.mindbrainWorkspaceId;
   }
 
   if (!["gcp", "pnpm", "npx", "node", "auto"].includes(out.runner)) {
@@ -447,7 +453,8 @@ Usage: gcp brain setup <cursor|codex|claude> [options]
                                   - absolute path to a global gcp on PATH
                                   - npx -y --package=<pkg>@latest gcp brain up
   --package <npm-name>          default: this package (see package.json "name")
-  --workspace <name>            optional gcp --workspace
+  --workspace <name>            optional gcp --workspace (SQLite file selection)
+  --mindbrain-workspace-id <id> pin MindBrain workspace_id (writes GHOSTCRAB_ACTIVE_WORKSPACE_ID)
   --db <path>                   add gcp brain up --db <path> to the MCP launch
   --name, --server-name <name>  MCP server key (default: ghostcrab-personal-mcp)
   --env KEY=value              repeat for extra MCP process env
@@ -645,6 +652,21 @@ function cmdWorkspaceList() {
     const def = config.defaultWorkspace === n ? "  (default)" : "";
     const p = ws[n]?.sqlitePath ?? "?";
     console.log(`${n.padEnd(max)}${def}\n  ${p}`);
+  }
+}
+
+/**
+ * @param {{ mindbrainWorkspaceId?: string | null, workspace?: string | null }} p
+ */
+function printWorkspacePinHint(p) {
+  if (p.mindbrainWorkspaceId) {
+    console.log(
+      `  MindBrain workspace_id pinned via GHOSTCRAB_ACTIVE_WORKSPACE_ID=${p.mindbrainWorkspaceId}`
+    );
+  } else if (p.workspace) {
+    console.log(
+      `  CLI workspace "${p.workspace}" selects the SQLite file; MindBrain workspace_id falls back to the slug if it exists in DB, else default (see ghostcrab_status.workspace_context).`
+    );
   }
 }
 

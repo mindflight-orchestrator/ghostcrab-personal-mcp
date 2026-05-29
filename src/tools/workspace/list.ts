@@ -15,7 +15,7 @@ export const workspaceListTool: ToolHandler = {
   definition: {
     name: "ghostcrab_workspace_list",
     description:
-      "List all workspaces with live statistics (facets count, entities count). Filter by status to see only active or archived workspaces.",
+      "List all MindBrain workspace_ids in this database with live statistics. Call before switching workspace context; echo the chosen workspace_id to the user when changing context.",
     inputSchema: {
       type: "object",
       properties: {

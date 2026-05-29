@@ -411,8 +411,8 @@ try {
   );
   assert.equal(
     permissionsDoc.mcpAllowlist.length,
-    12,
-    `[mcp-setup] expected 12 basic mcpAllowlist entries, got ${permissionsDoc.mcpAllowlist.length}`
+    14,
+    `[mcp-setup] expected 14 basic mcpAllowlist entries, got ${permissionsDoc.mcpAllowlist.length}`
   );
   for (const entry of permissionsDoc.mcpAllowlist) {
     assert.match(
