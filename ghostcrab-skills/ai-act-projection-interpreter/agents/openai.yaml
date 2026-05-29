@@ -1,0 +1,3 @@
+display_name: AI Act Projection Interpreter
+short_description: Render MindCLI AI Act projection JSON into cited human answers.
+default_prompt: Interpret this AI Act MindCLI projection result for a human user. Preserve the returned facts, cite the returned legal basis, group the answer actionably, and flag missing sources or semantic inconsistencies.

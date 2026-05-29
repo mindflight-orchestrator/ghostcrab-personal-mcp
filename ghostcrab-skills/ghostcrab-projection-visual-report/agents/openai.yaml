@@ -1,0 +1,3 @@
+display_name: GhostCrab Projection Visual Report
+short_description: Turns GhostCrab projection responses into visual, demo-ready reports.
+default_prompt: Transform this GhostCrab projection response into a clear visual report with timeline, KPI cards, deltas, evidence, recommendations, and provenance.
