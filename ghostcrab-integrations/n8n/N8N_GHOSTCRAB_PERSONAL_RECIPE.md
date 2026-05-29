@@ -157,8 +157,3 @@ gcp brain up
 
 If the workspace is missing, call `ghostcrab_workspace_list` first, then
 `ghostcrab_workspace_create` only for the missing workspace.
-
-## Short PRO Note
-
-This recipe focuses on GhostCrab Personal SQLite. MCP GhostCrab PRO /
-mindBrain Pro is the PostgreSQL-based option for centralized team deployment.

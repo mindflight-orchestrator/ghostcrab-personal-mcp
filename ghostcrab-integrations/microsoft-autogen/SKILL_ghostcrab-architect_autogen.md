@@ -10,8 +10,6 @@ Personal defaults:
 - Transport: stdio
 - AutoGen MCP path: `McpWorkbench` plus `StdioServerParams`
 
-PRO note: MCP GhostCrab PRO / mindBrain Pro can centralize a mature model later. This skill starts with Personal SQLite and provisional workspace modeling.
-
 ## Architecture Boundary
 
 AutoGen runs the architect conversation. GhostCrab stores the workspace model, facts, graph links, and recovery context. GhostCrab does not decide which AutoGen agent speaks next.

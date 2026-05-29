@@ -90,6 +90,20 @@ Alternatively, pass `--db <path>` directly in the `args` list of the MCP entry i
 
 When both are present, `GHOSTCRAB_SQLITE_PATH` takes precedence over `--db`.
 
+#### MindBrain workspace_id vs CLI workspace
+
+- **`--workspace my-project`** in `args` selects which **SQLite file** to open (CLI config).
+- **`GHOSTCRAB_ACTIVE_WORKSPACE_ID`** in `env` pins the **MindBrain workspace_id** inside that file (logical partition, e.g. `default`, `immeuble-demo`).
+- Without `GHOSTCRAB_ACTIVE_WORKSPACE_ID`, the server tries the CLI workspace slug as `workspace_id` if it exists in the database, else `default`. Verify via `ghostcrab_status.workspace_context`.
+
+```json
+"env": {
+  "GHOSTCRAB_ACTIVE_WORKSPACE_ID": "immeuble-demo"
+}
+```
+
+Setup helper: `gcp brain setup cursor --mindbrain-workspace-id immeuble-demo`
+
 ## Verify
 
 Run the process manually first:

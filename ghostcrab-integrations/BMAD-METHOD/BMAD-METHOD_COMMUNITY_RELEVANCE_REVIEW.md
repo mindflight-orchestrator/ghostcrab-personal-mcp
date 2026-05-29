@@ -10,7 +10,7 @@ The goal is not to run BMAD or GhostCrab live. The goal is to check whether the 
 - SQLite-backed MindBrain Personal runtime
 - `stdio` as the default MCP integration path
 - public `ghostcrab_*` tools exposed to agent clients
-- PostgreSQL mentioned only as a short pointer to **MCP GhostCrab PRO - mindBrain Pro**
+- SQLite mentioned only as a short pointer to **
 
 ## 2. Documents Reviewed
 
@@ -109,13 +109,13 @@ These should be rewritten around the real public MCP tools:
 - `ghostcrab_schema_inspect`
 - `ghostcrab_workspace_export_model`
 
-### 6.2 Stop presenting PostgreSQL as the default
+### 6.2 SQLite as default (applied)
 
-The BMAD drafts still present PostgreSQL as a production or canonical backend. For this community push, the default should be GhostCrab Personal SQLite.
+The BMAD drafts still present SQLite as a production or canonical backend. For this community push, the default should be GhostCrab Personal SQLite.
 
 Acceptable wording:
 
-> GhostCrab Personal runs locally with SQLite. A PostgreSQL-based PRO edition, MCP GhostCrab PRO - mindBrain Pro, exists for teams that later need server-grade deployment.
+> GhostCrab Personal runs locally with SQLite. A SQLite-based PRO edition, 
 
 That should remain anecdotal and short.
 
@@ -159,7 +159,7 @@ What needs correction:
 
 - replace `gc_*` ontology tools with public `ghostcrab_*` tools
 - make SQLite Personal the default
-- make PostgreSQL a short PRO note
+- keep SQLite as the default storage path in all examples
 - avoid implying schema registration must happen before practical use
 - add a small BMAD demo flow based on `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_learn`, and `ghostcrab_pack`
 
@@ -218,7 +218,7 @@ What works:
 
 What needs correction:
 
-- reduce PostgreSQL and internal ontology implementation details
+- reduce SQLite and internal ontology implementation details
 - make the first demo local and SQLite-based
 - keep the SOP as maintainer documentation, not the first public artifact
 
@@ -264,9 +264,9 @@ Show a BMAD project before a phase transition. Use GhostCrab to list unresolved 
 
 Keep this short:
 
-> This review focuses on GhostCrab Personal SQLite. Teams that later need centralized PostgreSQL deployment can look at MCP GhostCrab PRO - mindBrain Pro.
+> This review focuses on GhostCrab Personal SQLite. Teams that later need centralized SQLite deployment can look at 
 
-No PostgreSQL-first examples should appear in the community-facing BMAD skills.
+No SQLite-first examples should appear in the community-facing BMAD skills.
 
 ## JTBD Agent Analysis (Re-audit v2)
 

@@ -69,7 +69,7 @@ from agno.memory.v2.schema import UserMemory
 class MindBrainMemoryDb(MemoryDb):
     def __init__(self, mindbrain_dsn: str, namespace: str):
         self.namespace = namespace
-        # connexion via pg_dgraph / pg_facets
+        # connexion via graph via `ghostcrab_learn` / `ghostcrab_traverse` / faceted search via `ghostcrab_search`
 
     def upsert_memory(self, memory: UserMemory) -> UserMemory:
         # Ontology graph push
@@ -83,7 +83,7 @@ class MindBrainMemoryDb(MemoryDb):
 memory = Memory(
     model=Claude(id="claude-haiku-3-5"),
     db=MindBrainMemoryDb(
-        mindbrain_dsn="postgresql://...",
+        ghostcrab via `gcp brain up`,
         namespace="team_alpha"
     )
 )
@@ -92,7 +92,7 @@ agent = Agent(
     model=Claude(id="claude-sonnet-4-5"),
     memory=memory,
     enable_user_memories=True,
-    storage=PostgresStorage(...)  # peut aussi pointer MindBrain
+    storage=MCPTools(transport="stdio", command="gcp", args=["brain", "up"])  # peut aussi pointer MindBrain
 )
 ```
 
@@ -101,8 +101,7 @@ agent = Agent(
 | Agno scenario                                           | Problem                            | What MindBrain adds                                                          |
 | :------------------------------------------------------ | :--------------------------------- | :--------------------------------------------------------------------------- |
 | Team of five agents, each with its own `SqliteMemoryDb` | No agent sees other agents’ facts  | Shared namespace; all entities co-visible                                    |
-| Agent A learns `client_X = enterprise`                  | Only Agent A knows                 | MindBrain propagates the relationship via the graph                          |
-| `agno_memories` stores unstructured strings             | No typing, no semantic query       | `pg_facets` + `pg_dgraph`: typed entities, named relations, queryable facets |
+| Agent A learns `client_X = enterprise`                  | Only Agent A knows                 | | `agno_memories` stores unstructured strings             | No typing, no semantic query       | `ghostcrab_search` (faceted search) + `ghostcrab_traverse` / `ghostcrab_learn`: typed entities, named relations, queryable facets |
 | Recovery after crash → session lost                     | Memory tied to session, not domain | Ontology persistence decoupled from agent lifecycle                          |
 
 ## Recommended integration order
@@ -187,7 +186,7 @@ The MCPTools entry point is enough for a working POC in under a day, since Agno 
 ## Prerequisites
 
 - GhostCrab MCP is running and reachable (`http://localhost:8080/mcp` or stdio)
-- MindBrain PostgreSQL is connected and extensions `pg_dgraph`, `pg_facets`, `pg_pragma` are enabled
+- GhostCrab Personal SQLite is connected and extensions `ghostcrab_traverse` / `ghostcrab_learn`, `ghostcrab_search` (faceted search), `ghostcrab_project` / `ghostcrab_pack` are enabled
 - Target namespace is defined (e.g. `project_alpha`)
 - Agno `>=0.7` installed (`pip install agno`)
 
@@ -199,7 +198,6 @@ The MCPTools entry point is enough for a working POC in under a day, since Agno 
 from agno.agent import Agent
 from agno.models.anthropic import Claude
 from agno.tools.mcp import MCPTools
-from agno.storage.postgres import PostgresStorage
 
 # Transport: streamable-http (recommended), or stdio when GhostCrab runs locally
 ghostcrab_tools = MCPTools(
@@ -215,10 +213,7 @@ architect_agent = Agent(
     tools=[ghostcrab_tools],
     # Disable local memory: MindBrain is the single registry
     enable_user_memories=False,
-    storage=PostgresStorage(
-        table_name="architect_sessions",
-        db_url="postgresql://user:pass@localhost:5432/mindbrain",
-    ),
+    storage=MCPTools(transport="stdio", command="gcp", args=["brain", "up"]),
     instructions=[
         "You are an ontology architect. Use only GhostCrab tools.",
         "Always check that a type exists before creating one (call `ontology_type_get`).",
@@ -319,7 +314,7 @@ from agno.memory.v2.schema import UserMemory
 import psycopg2, json
 
 class MindBrainMemoryDb(MemoryDb):
-    """Agno MemoryDb backend wired to MindBrain via pg_facets."""
+    """Agno MemoryDb backend wired to MindBrain via faceted search via `ghostcrab_search`."""
 
     def __init__(self, dsn: str, namespace: str):
         self.conn = psycopg2.connect(dsn)

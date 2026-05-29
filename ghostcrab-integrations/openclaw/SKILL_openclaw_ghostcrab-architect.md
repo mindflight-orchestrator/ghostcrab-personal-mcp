@@ -173,8 +173,3 @@ Then run a dry modeling pass:
 2. Search prior decisions with `ghostcrab_search`.
 3. Inspect schemas with `ghostcrab_schema_list`.
 4. Record one architecture note with `ghostcrab_remember`.
-
-## Short PRO Note
-
-This skill focuses on GhostCrab Personal SQLite. MCP GhostCrab PRO /
-mindBrain Pro is the PostgreSQL-based option for centralized team deployment.

@@ -141,7 +141,7 @@ Use these points when they fit the article:
 
 - MindBrain can manage multiple ontologies in one workspace, then connect them through meta-ontologies instead of forcing one universal schema.
 - This makes cross-silo queries possible across ERP, CRM, project management, HR, email, legal, financial, and knowledge systems.
-- MindBrain DDL means Domain Definition Language: SQL DDL defines physical storage, while MindBrain DDL defines what things mean, how they relate, and how `pg_facets`, `pg_dgraph`, and projections should operate.
+- MindBrain DDL means Domain Definition Language: SQL DDL defines physical storage, while MindBrain DDL defines what things mean, how they relate, and how facets, graph, and projections should operate through the MindBrain SQLite backend and GhostCrab MCP.
 - GhostCrab can help create, inspect, and verify the taxonomy/model through modeling guidance, loadouts, schema/ontology registration, guarded DDL proposals, and workspace model export.
 - MindBrain Studio or an import pipeline should be described as the qualification path that maps source data into the workspace model, not as the agent query surface itself.
 - Facets let agents sort large domains deterministically in milliseconds, without spending large token budgets to rediscover the right records or API endpoints.

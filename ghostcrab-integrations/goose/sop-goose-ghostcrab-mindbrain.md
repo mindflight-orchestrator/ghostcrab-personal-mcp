@@ -12,7 +12,7 @@ MindBrain is a structured agentic database that makes any domain navigable in re
 
 Goose can orchestrate sessions, recipes, and sub-agents, but project context still needs a durable place to survive between runs. mindBrain, exposed to Goose through GhostCrab Personal, becomes that structured memory layer: agents can check workspace readiness, load a compact context pack, record decisions, update current task state, and link dependencies without rereading the full conversation or repository history.
 
-The integration stays aligned with Goose's local model: no PostgreSQL, Docker, initial migration, or mandatory remote server for a first trial. The recommended path starts with the `@mindflight/ghostcrab-personal-mcp` package, the `gcp brain up` command, SQLite storage managed by GhostCrab Personal, `stdio` MCP transport, and a public `ghostcrab_*` tool surface.
+The integration stays aligned with Goose's local model: no Docker, separate database server, initial migration, or mandatory remote server for a first trial. The recommended path starts with the `@mindflight/ghostcrab-personal-mcp` package, the `gcp brain up` command, SQLite storage managed by GhostCrab Personal, `stdio` MCP transport, and a public `ghostcrab_*` tool surface.
 
 ## SKILLS available in this repo
 

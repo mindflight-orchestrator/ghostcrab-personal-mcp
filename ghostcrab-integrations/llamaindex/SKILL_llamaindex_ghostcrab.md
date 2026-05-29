@@ -10,8 +10,6 @@ This skill is Personal-first:
 - Transport: stdio by default
 - Public MCP tools: `ghostcrab_status`, `ghostcrab_workspace_list`, `ghostcrab_workspace_create`, `ghostcrab_remember`, `ghostcrab_search`, `ghostcrab_upsert`, `ghostcrab_count`, `ghostcrab_learn`, `ghostcrab_traverse`, `ghostcrab_project`, `ghostcrab_pack`, `ghostcrab_schema_list`, `ghostcrab_schema_inspect`, `ghostcrab_workspace_export_model`
 
-PRO note: teams that later need centralized deployment can evaluate MCP GhostCrab PRO / mindBrain Pro. This guide keeps PostgreSQL out of the Personal path.
-
 ## Boundary
 
 LlamaIndex retrieves documents. GhostCrab retrieves operational facts.
@@ -62,7 +60,6 @@ GHOSTCRAB_TOOLS = [
     "ghostcrab_learn",
     "ghostcrab_traverse",
 ]
-
 
 async def build_agent() -> FunctionAgent:
     mcp_client = BasicMCPClient("gcp", args=["brain", "up"])

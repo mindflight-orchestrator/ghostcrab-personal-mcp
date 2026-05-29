@@ -162,7 +162,7 @@ STEP:
 "Run the minimal shared-memory scenario with ghostcrab_status, ghostcrab_workspace_create, ghostcrab_remember, and ghostcrab_search."
 
 CONSTRAINT:
-"Do not require PostgreSQL for the first trial."
+"Use GhostCrab Personal SQLite and MCPTools for the first trial."
 ```
 
 The next orchestrator run should recover these with `ghostcrab_pack`.
@@ -210,9 +210,3 @@ If the information should remain as evidence, use `ghostcrab_remember`.
 | Target record missing before `ghostcrab_learn` | Create or identify stable records first.                                           |
 | Search returns no result                       | Continue and optionally write new context.                                         |
 | Write fails                                    | Report the failure instead of claiming persistence.                                |
-
----
-
-## PRO Note
-
-This runtime skill focuses on GhostCrab Personal SQLite. **MCP GhostCrab PRO - mindBrain Pro** is the PostgreSQL-based path for teams that later need centralized deployment.

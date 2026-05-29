@@ -226,8 +226,3 @@ Verify tool availability, then run:
 3. `ghostcrab_remember` a test finding.
 4. `ghostcrab_search` for the finding.
 5. `ghostcrab_count` grouped by `status` if task-state facets are present.
-
-## Short PRO Note
-
-This skill focuses on GhostCrab Personal SQLite. MCP GhostCrab PRO /
-mindBrain Pro is the PostgreSQL-based option for centralized team deployment.

@@ -150,5 +150,3 @@ Use `ghostcrab_workspace_export_model` for synthetic data generators, documentat
 | Schema list is empty or irrelevant | Continue with provisional records and examples.                                                     |
 | Exported model is too thin         | Add more real examples with `ghostcrab_remember` and current-state records with `ghostcrab_upsert`. |
 | GhostCrab is unavailable           | Start `gcp brain up` separately and verify with `ghostcrab_status`.                                 |
-
-**PRO note:** mindBrain Pro can support centralized team modeling on PostgreSQL. This advanced Personal skill remains local-first and SQLite-backed.

@@ -82,7 +82,7 @@ MindBrain's affirmative case:
 MindBrain lets one workspace hold several ontologies at once, then connect them with meta-ontologies. That is the basis for queries across application silos, such as CRM relationship warmth intersected with ERP invoices, project blockers, HR ownership, emails, legal obligations, and financial filings.
 
 MindBrain DDL:
-Treat DDL as Domain Definition Language. SQL DDL defines tables, columns, and physical storage; MindBrain DDL defines meaning, relations, lifecycle states, facet dimensions, graph edges, and projections that drive `pg_facets`, `pg_dgraph`, and the MindBrain stack.
+Treat DDL as Domain Definition Language. SQL DDL defines tables, columns, and physical storage; MindBrain DDL defines meaning, relations, lifecycle states, facet dimensions, graph edges, and projections that drive faceted search, graph traversal, and the MindBrain SQLite stack via GhostCrab MCP.
 
 Deterministic advantage:
 Facets and graph traversal let agents select the right records or endpoints in milliseconds. Use the endpoint example when helpful: if 10,000 endpoints are registered across 20 active MCP servers, the agent should find the four endpoints needed for email and calendar work through facets and graph relations, not by burning tokens over a giant tool catalog.

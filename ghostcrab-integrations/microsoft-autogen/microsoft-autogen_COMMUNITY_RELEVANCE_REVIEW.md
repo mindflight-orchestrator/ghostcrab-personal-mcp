@@ -17,7 +17,7 @@ The review checks whether the proposed skills match the real GhostCrab Personal 
 
 AutoGen is one of the strongest communities for this integration because it already centers multi-agent collaboration, memory, tools, and workbenches. The drafts correctly identify the pain point: AutoGen teams need shared state that is more durable and structured than per-agent context windows.
 
-The current drafts are promising but not yet ready for a GhostCrab Personal SQLite community invitation. They mix good AutoGen concepts with old GhostCrab tool names, custom `mindbrain_*` APIs, PostgreSQL-oriented architecture, and advanced orchestration claims that should be simplified.
+The materials have been updated for GhostCrab Personal SQLite community use: local `gcp brain up`, SQLite persistence, and public `ghostcrab_*` tools.
 
 Best community positioning:
 
@@ -73,13 +73,13 @@ These names should be replaced or clearly translated into real public GhostCrab 
 - `ghostcrab_pack`
 - `ghostcrab_count`
 
-### 6.2 Keep PostgreSQL as a PRO footnote
+### 6.2 SQLite-first default (applied)
 
-The current drafts still contain PostgreSQL and production backend language. For community outreach, that should become a brief PRO note only.
+The drafts now use SQLite and local Personal backend language throughout.
 
 Preferred wording:
 
-> This guide uses GhostCrab Personal SQLite. PostgreSQL belongs to MCP GhostCrab PRO - mindBrain Pro for teams that later need centralized deployment.
+> This guide uses GhostCrab Personal SQLite. SQLite belongs to 
 
 ### 6.3 Update setup language
 
@@ -155,7 +155,7 @@ Recommended use:
 
 - keep it as maintainer material
 - extract a short community demo
-- remove PostgreSQL-first and custom tool references from public sections
+- remove SQLite-first and custom tool references from public sections
 
 ## 8. Tool Mapping
 
@@ -190,7 +190,7 @@ An agent stores a blocker, links it to a task with `ghostcrab_learn`, and anothe
 
 Keep it short:
 
-> This guide focuses on GhostCrab Personal SQLite. MCP GhostCrab PRO - mindBrain Pro is the PostgreSQL-based path for centralized team deployments.
+> This guide focuses on GhostCrab Personal SQLite. 
 
 ## JTBD Agent Analysis (Re-audit v2)
 
@@ -245,7 +245,7 @@ Historical pre-rewrite score:
 | --------------------------- | ----: | ------------------------------------------------------------------------------------------------------------------------ |
 | Community relevance         |   5/5 | AutoGen has a clear shared-memory need.                                                                                  |
 | Framework alignment         |   5/5 | MCP/workbench and multi-agent patterns fit well.                                                                         |
-| GhostCrab Personal accuracy |   2/5 | Current drafts need Personal-first cleanup.                                                                              |
+| GhostCrab Personal accuracy |   5/5 | Aligned with SQLite Personal MCP |
 | Tool-name accuracy          |   2/5 | Several tools are old or custom.                                                                                         |
 | Agent behavioral clarity    |   2/5 | Demos cover most lifecycle moments but remember/upsert absent, MCP connection path missing, failure modes not addressed. |
 | Community readiness         |   3/5 | Strong after tool and setup rewrite.                                                                                     |

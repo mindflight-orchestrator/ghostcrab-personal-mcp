@@ -226,7 +226,7 @@ OpenClaw stores memory in two layers: Markdown files (`MEMORY.md`, `memory/YYYY-
 **What MindBrain adds that native SQLite does not:**
 
 - **Faceted memory** — memories are tagged and filterable by facets (project, entity, timeline), whereas raw SQLite is only indexed text
-- **Relationship graph** — stored entities link via `pg_dgraph`, enabling queries like _“all decisions tied to this project, by whom and when”_ — impossible with a flat index
+- **Relationship graph** — stored entities link via `ghostcrab_traverse` / `ghostcrab_learn`, enabling queries like _“all decisions tied to this project, by whom and when”_ — impossible with a flat index
 - **Structured cross-agent persistence** — memory is no longer siloed in `agentId.sqlite` but shareable across agents under one ontology schema
 
 Straightforward wording for your `SKILL.md`:
@@ -406,7 +406,7 @@ Two intentional placeholders: `<your-org>` in `repository:`, and your MindBrain 
 
 ---
 
-# Now write a general-purpose `skill.md` for OpenClaw agent activity — e.g. project management or knowledge graph implementation — where agents record and manage status on item progress; where the OpenClaw orchestrator uses PG_Pragma projections to organize and steer agents, know when to restart them, stop them, or move to the next project phase, etc. ghostcrab-runtime
+# Now write a general-purpose `skill.md` for OpenClaw agent activity — e.g. project management or knowledge graph implementation — where agents record and manage status on item progress; where the OpenClaw orchestrator uses `ghostcrab_project` projections to organize and steer agents, know when to restart them, stop them, or move to the next project phase, etc. ghostcrab-runtime
 
 456 lines. What structures the file.
 
@@ -416,9 +416,9 @@ Two intentional placeholders: `<your-org>` in `repository:`, and your MindBrain 
 
 `role: both` in frontmatter tells OpenClaw this Skill installs on both sides. It is not two separate Skills — tools are grouped by usage profile in the docs, but every agent loads the same Skill and uses the tools that match its role.[^5_1]
 
-### pg_pragma signals as coordination vocabulary
+### `ghostcrab_project` / `ghostcrab_pack` signals as coordination vocabulary
 
-The **pg_pragma Signal Reference** table is central for the orchestrator. Eight signals cover the coordination states that matter:[^5_2]
+The **`ghostcrab_project` / `ghostcrab_pack` Signal Reference** table is central for the orchestrator. Eight signals cover the coordination states that matter:[^5_2]
 
 | Signal             | Trigger                   | Orchestrator action        |
 | :----------------- | :------------------------ | :------------------------- |

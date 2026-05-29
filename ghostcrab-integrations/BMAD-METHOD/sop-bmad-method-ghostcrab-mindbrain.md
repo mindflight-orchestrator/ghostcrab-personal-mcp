@@ -243,7 +243,7 @@ GhostCrab MCP must be running and accessible. Configure it in your project's MCP
   "mcpServers": {
     "ghostcrab": {
       "command": "ghostcrab-mcp",
-      "args": ["--db", "postgresql://localhost/mindbrain"],
+      "args": ["--db", "./data/ghostcrab.sqlite"],
       "env": { "MINDBRAIN_SCHEMA": "project_ontology" }
     }
   }
@@ -341,7 +341,7 @@ The delivered SQLite has **8 tables + 2 views** covering the four BMAD phases [^
 | `relation`      | 50 edges               | Phase-to-phase graph                                                                                          |
 | `agent_role`    | 6 BMAD roles           | Analyst, PM, Architect, SM, Dev, QA with `produces[]` and `consumes[]`                                        |
 | `agent_entity`  | 30 ownership rows      | Who authored / consumes / reviewed each entity                                                                |
-| `decision`      | 3 ADRs                 | PostgreSQL choice, API design, WAL mode — context / rationale / status                                        |
+| `decision`      | 3 ADRs                 | SQLite choice, API design, WAL mode — context / rationale / status                                        |
 | `facet`         | 37 indexes             | Facets `epic`, `sprint`, `component`, `agent_role`, `tech`, `layer` per entity                                |
 
 ### Ready-made views
@@ -398,53 +398,13 @@ The script bundles full DDL + seeds: entity types, relation types, agent roles, 
 
 ---
 
-## Migrating to PostgreSQL + MindBrain
+## Scaling locally with SQLite
 
-The SQLite schema mirrors the target MindBrain layout 1:1 [^3_2]. Migration is straightforward:
+- Keep one workspace per project in GhostCrab Personal SQLite.
+- Use WAL mode and explicit `GHOSTCRAB_SQLITE_PATH` when the default cwd path is not stable.
+- Split large efforts across workspaces rather than provisioning a separate database server.
 
-- `entity` → MindBrain tables + `pg_facets` indexes over `facet`.
-- `relation` → `pg_dgraph` for recursive traversals.
-- `facet` → faceted search index.
-- `decision` → durable ADR rows queryable by `entity_id`.
-
-SQLite acts as a **local seed** for BMAD bootstrapping without a server — the SM agent can read the file directly through GhostCrab MCP in SQLite mode, then migrate to PostgreSQL as the project scales.
-<span style="display:none">[^3_10][^3_11][^3_12][^3_13][^3_14][^3_15][^3_3][^3_4][^3_5][^3_6][^3_7][^3_8][^3_9]</span>
-
-<div align="center">⁂</div>
-
-[^3_1]: https://docs.bmad-method.org/reference/workflow-map/
-
-[^3_2]: https://blogs.infosys.com/digital-experience/emerging-technologies/bmad-the-framework-for-controlled-and-structured-ai-coding.html
-
-[^3_3]: https://reenbit.com/the-bmad-method-how-structured-ai-agents-turn-vibe-coding-into-production-ready-software/
-
-[^3_4]: https://bmad-builder-docs.bmad-method.org/explanation/what-are-workflows/
-
-[^3_5]: https://dev.to/jacktt/bmad-standard-workflow-2kma
-
-[^3_6]: https://www.reddit.com/r/vibecoding/comments/1m3b02m/anyone_here_seriously_using_the_bmad_method_for/
-
-[^3_7]: https://martinelli.ch/bmad-vs-spec-driven-development-why-ai-needs-better-specifications/
-
-[^3_8]: https://buildmode.dev/blog/mastering-bmad-method-2025/
-
-[^3_9]: https://github.com/Ricoledan/bmad-architecture-agent
-
-[^3_10]: https://docs.bmad-method.org/tutorials/getting-started/
-
-[^3_11]: https://www.reddit.com/r/BMAD_Method/comments/1mge1hz/the_official_bmadmethod_masterclass_the_complete/
-
-[^3_12]: https://www.scribd.com/document/913367681/Architect
-
-[^3_13]: https://recruit.group.gmo/engineer/jisedai/blog/the-bmad-method-a-framework-for-spec-oriented-ai-driven-development/
-
-[^3_14]: https://github.com/bmad-code-org/BMAD-METHOD/issues/1638
-
-[^3_15]: https://devlabs.angelhack.com/blog/bmad-method/
-
----
-
-# Meta-layer analysis: facets, semantic edges, and DDL projections (`pg_pragma`) for project management — as if an orchestrator agent had to query that structure to know how inner agents progress, where they stall, where work finished, and when downstream agents can start once prerequisite phases complete.
+# Meta-layer analysis: facets, semantic edges, and DDL projections (`ghostcrab_project` / `ghostcrab_pack`) for project management — as if an orchestrator agent had to query that structure to know how inner agents progress, where they stall, where work finished, and when downstream agents can start once prerequisite phases complete.
 
 Solid meta-layer question — that is precisely the workflow-orchestration problem space. Structural analysis follows.
 
@@ -567,7 +527,7 @@ Agents **author** these edges during execution; they are not pre-seeded. The orc
 
 ---
 
-## DDL projections (`pg_pragma` / materialized views)
+## DDL projections (`ghostcrab_project` / `ghostcrab_pack` / materialized views)
 
 Projections are **first-class queries** the orchestrator calls — precompiled views or functions answering the four foundational questions.
 
@@ -647,7 +607,7 @@ ORDER BY
     e.created_at;
 ```
 
-Poll this view (or subscribe via PostgreSQL LISTEN/NOTIFY) to dispatch agents whenever an entity becomes eligible.
+Poll this view (or subscribe via `ghostcrab_pack` polling) to dispatch agents whenever an entity becomes eligible.
 
 ---
 
@@ -673,9 +633,9 @@ When `pending_count = 0`, the orchestrator **sets `qg.status → passed`** and c
 
 ---
 
-### Projection 5 — Critical-path computation (`pg_dgraph`)
+### Projection 5 — Critical-path computation (`ghostcrab_traverse` / `ghostcrab_learn`)
 
-With PostgreSQL `pg_dgraph`, recursive traversal becomes native:
+With `ghostcrab_traverse`, recursive traversal is available over the SQLite graph store:
 
 ```sql
 -- Critical path: longest weighted path by story points

@@ -86,7 +86,8 @@ The `--package=<scoped>@latest` form is **required** for scoped packages whose n
 
 ### Optional: workspace, SQLite path, env file
 
-- **Named workspace** — append to `args` after `up` (or `brain`, `up`), e.g. `"brain", "up", "--workspace", "my-project"`. Legacy: `"serve", "--workspace", "…"`.
+- **Named workspace** — append to `args` after `up` (or `brain`, `up`), e.g. `"brain", "up", "--workspace", "my-project"`. Legacy: `"serve", "--workspace", "…"`. This selects the **SQLite file**, not necessarily the MindBrain `workspace_id` inside it.
+- **MindBrain workspace pin** — set `GHOSTCRAB_ACTIVE_WORKSPACE_ID` in `env`, or run `gcp brain setup cursor --mindbrain-workspace-id <id>`. See `ghostcrab_status.workspace_context` to verify the active partition.
 - **Fixed SQLite file (via `args`)** — append `"--db", "/absolute/path/to/ghostcrab.sqlite"` to `args`. This is the simplest way to hard-code the database file directly in `mcp.json` without touching `env`. See precedence rules below.
 - **Fixed SQLite file (via `env`)** — set `GHOSTCRAB_SQLITE_PATH` in `env` to an absolute path, or use interpolation (see below). The env variable takes precedence over `--db` when both are set.
 - **Extra variables from a file** — for stdio servers, Cursor supports `envFile` (for example `".env"` or `"${workspaceFolder}/.env"`). See [Cursor docs — STDIO server configuration](https://cursor.com/docs/mcp).

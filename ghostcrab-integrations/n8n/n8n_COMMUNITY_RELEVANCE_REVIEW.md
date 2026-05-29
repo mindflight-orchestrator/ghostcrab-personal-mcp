@@ -76,7 +76,7 @@ The current SOP can remain internal strategy.
 
 ### 6.3 Replace backend-heavy language
 
-PostgreSQL, server deployment, and enterprise backend details should be reduced. The first community message should be local SQLite.
+SQLite, server deployment, and enterprise backend details should be reduced. The first community message should be local SQLite.
 
 Use:
 
@@ -114,7 +114,7 @@ What needs correction:
 
 - distinguish n8n workflow state from agent memory
 - avoid implying direct local MCP `stdio` support inside n8n
-- reduce PostgreSQL and server architecture language
+- reduce SQLite and server architecture language
 - use actual GhostCrab Personal tools
 - add a connection requirement section
 
@@ -154,7 +154,7 @@ A workflow stores a durable note when it makes a routing decision, then later re
 
 Suggested wording:
 
-> This recipe focuses on GhostCrab Personal SQLite. MCP GhostCrab PRO - mindBrain Pro is the PostgreSQL-based option for teams that later need centralized deployment.
+> This recipe focuses on GhostCrab Personal SQLite. 
 
 Keep this note short.
 
@@ -223,4 +223,3 @@ Do not publish this as an agent skill. Rewrite it as an n8n recipe with an expli
 1. GhostCrab Personal runs locally with SQLite.
 2. n8n needs a bridge, custom node, or external MCP runner.
 3. The first workflow stores and retrieves enrichment memory.
-4. PRO PostgreSQL is mentioned only as a later team deployment path.

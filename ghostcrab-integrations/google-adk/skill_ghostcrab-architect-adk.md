@@ -240,9 +240,3 @@ End an architect pass with:
 - durable observation categories chosen
 - first `ghostcrab_pack` result, including whether it was empty
 - any unresolved modeling question
-
-## PRO Note
-
-This skill targets GhostCrab Personal SQLite. PostgreSQL belongs to the PRO path
-for teams that later need centralized deployment or higher-throughput shared
-infrastructure.

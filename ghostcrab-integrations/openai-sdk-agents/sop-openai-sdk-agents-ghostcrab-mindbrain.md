@@ -12,8 +12,7 @@ MindBrain is a structured agentic database that makes any domain navigable in re
 
 The Agents SDK has clear primitives for local context, model-visible context, sessions, and MCP tools, but durable shared memory across multiple agents and runs still has to be designed by the application. mindBrain fills that gap as a structured ontology registry that every SDK agent can reach through GhostCrab MCP tools.
 
-With mindBrain attached through the SDK's MCP server support, agents can load compact workspace context at run start, query typed relationships on demand, and update current state without embedding persistence logic in each tool. The SDK keeps orchestrating agents and tool calls; mindBrain provides shared, queryable memory and zero-inference projections across runs.
-
+With mindBrain attached through the SDK's MCP server support, agents can load compact workspace context at run start, query typed relationships on demand, and update current state without embedding persistence logic in each tool. The SDK keeps orchestrating agents and tool calls; 
 ## SKILLS available in this repo
 
 - [`SKILL_ghostcrab-openai-agents-sdk.md`](SKILL_ghostcrab-openai-agents-sdk.md) helps Claude Code or Codex connect the OpenAI Agents SDK to GhostCrab Personal as a local MCP memory layer.
@@ -84,7 +83,7 @@ Solves cold start: agents begin with ontology context preload [^1_3].
 Handle faceted lookups or traversals lazily via GhostCrab. The SDK routes tool calls straight to MCP. Typical tools :
 
 - `search_entities(facets, filters)` → faceted MindBrain query
-- `get_relationships(entity_id, depth)` → pg_dgraph traversal
+- `get_relationships(entity_id, depth)` → graph via `ghostcrab_learn` / `ghostcrab_traverse` traversal
 - `upsert_entity(type, properties)` → ontology writes
 
 ### 3. `tool_meta_resolver` for tenant/session scoping
@@ -139,7 +138,7 @@ writer_server = MCPServerStreamableHttp(
 
 | Native SDK gaps                            | GhostCrab fix                               |
 | :----------------------------------------- | :------------------------------------------ |
-| Local `RunContext`, lost post-run [^1_3]   | PostgreSQL state survives runs              |
+| Local `RunContext`, lost post-run [^1_3]   | SQLite state survives runs              |
 | In-memory sessions siloed per agent [^1_2] | Shared registry across heterogeneous agents |
 | No structured querying on memory           | Faceted search + traversal via MindBrain    |
 | Untyped context blobs                      | Explicit ontology schemas                   |
@@ -237,7 +236,7 @@ Placeholder: _Answer skipped._
 
 # General `ghostcrab-runtime` skill for OpenAI Agents SDK agents
 
-Project management, collaborative KGs, PG_Pragma-driven supervision, etc.
+Project management, collaborative KGs, `ghostcrab_project`-driven supervision, etc.
 
 Delivered as `ghostcrab-runtime-openai-agents-sdk.md` (~442 lines).
 
@@ -247,7 +246,7 @@ Delivered as `ghostcrab-runtime-openai-agents-sdk.md` (~442 lines).
 
 **Two starter ontologies** — PM rails (`Project → Phase → Task → Agent`) and KG rails (`Concept → Claim → Source → Tag`) with confidence fields.
 
-**pg_pragma as orchestrator cortex** — four projections with illustrative payloads (`project_dashboard`, `agent_health`, `phase_readiness`, `knowledge_graph_coverage`).
+**`ghostcrab_project` / `ghostcrab_pack` as orchestrator cortex** — four projections with illustrative payloads (`project_dashboard`, `agent_health`, `phase_readiness`, `knowledge_graph_coverage`).
 
 **Six supervisory branches** — restart stale workers, unblock work, redeploy idle agents, advance phases, mark completion, deadlock pause.
 
@@ -269,22 +268,12 @@ Delivered as `ghostcrab-runtime-openai-agents-sdk.md` (~442 lines).
 
 [^3_5]: https://www.themoonlight.io/fr/review/ontology-to-tools-compilation-for-executable-semantic-constraint-enforcement-in-llm-agents
 
-[^3_6]: https://dev.to/farooquememon385/popular-graph-extensions-to-postgresql-49kd
-
 [^3_7]: https://dev.to/aws-heroes/mcp-tool-design-why-your-ai-agent-is-failing-and-how-to-fix-it-40fc
-
-[^3_8]: https://dev.to/tigerdata/postgresql-extensions-what-they-are-and-how-to-use-them-4i76
 
 [^3_9]: https://modelcontextprotocol.io/specification/draft/server/tools
 
-[^3_10]: https://grafbase.com/extensions/postgres
-
 [^3_11]: https://towardsai.net/p/l/i-used-mcp-for-3-months-everything-you-need-to-know-24-best-servers-new-anthropic-dtx-extensions
 
-[^3_12]: https://www.postgresql.org/docs/current/extend-extensions.html
-
 [^3_13]: https://www.anthropic.com/engineering/code-execution-with-mcp
-
-[^3_14]: https://wiki.postgresql.org/wiki/Extensions
 
 [^3_15]: https://openai.github.io/openai-agents-python/mcp/

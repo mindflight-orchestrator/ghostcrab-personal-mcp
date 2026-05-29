@@ -110,6 +110,4 @@ Each CrewAI task should leave a small, structured GhostCrab trace:
 | Concurrent agents update the same entity                   | Use `ghostcrab_upsert` with stable `record_id`; keep durable findings in separate `ghostcrab_remember` records. |
 | Schema type missing                                        | Do not block first use. Write with clear facets and inspect schema later.                                       |
 
-## Later PRO Path
-
-For larger multi-team deployments, a PostgreSQL-backed PRO path may be useful. It is not required for the local CrewAI community trial.
+GhostCrab Personal SQLite is sufficient for the local CrewAI community trial.

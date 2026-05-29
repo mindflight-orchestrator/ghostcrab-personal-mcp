@@ -26,13 +26,11 @@ Repo reality used as reference:
 
 The Agno skills have a strong conceptual pitch: Agno agents and teams can benefit from a shared, structured memory and coordination layer instead of relying only on per-agent/session storage.
 
-However, the current drafts are not yet ready for community-facing use because they describe a PostgreSQL-oriented GhostCrab model and several tool names that do not match the current GhostCrab Personal SQLite MCP surface.
+The skills and SOPs in this folder have been migrated to GhostCrab Personal SQLite: `gcp brain up`, local SQLite storage, and the public `ghostcrab_*` MCP tool surface.
 
 The right community message is:
 
 > GhostCrab Personal is a local-first SQLite memory and ontology layer exposed through MCP. Agno users can try it as an external shared context tool surface before any native Agno memory integration exists.
-
-PostgreSQL should remain anecdotal in these materials: mention it only as the PRO path for people who want a larger deployment later.
 
 ---
 
@@ -52,17 +50,17 @@ GhostCrab Personal fits this audience if presented as:
 - an MCP tool layer, not a replacement for Agno itself
 - a shared state and context substrate across multiple agents
 - a way to model facts, task state, graph relations, and recovery context
-- something developers can test without provisioning PostgreSQL or cloud infra
+- something developers can test without provisioning a separate database server or cloud infra
 
-The current skills are strongest when they talk about shared context, graph-backed coordination, and avoiding memory silos. They are weakest when they imply a PostgreSQL requirement or use non-existent tool names.
+The current skills are strongest when they talk about shared context, graph-backed coordination, and avoiding memory silos. They are weakest when they drift from the public `ghostcrab_*` tool surface.
 
 ---
 
-## Main Corrections Needed
+## Alignment Status (post-migration)
 
 | Current framing                                                                       | Issue                                                                  | Recommended framing                                                                                                                                                       |
 | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| MindBrain PostgreSQL with `pg_dgraph`, `pg_facets`, `pg_pragma`                       | Not the default for GhostCrab Personal SQLite                          | MindBrain Zig backend owns SQLite; facets, graph, and projections are exposed through `ghostcrab_*` MCP tools                                                             |
+| MindBrain SQLite with `ghostcrab_traverse`, `ghostcrab_search`, `ghostcrab_project`                       | Not the default for GhostCrab Personal SQLite                          | MindBrain Zig backend owns SQLite; facets, graph, and projections are exposed through `ghostcrab_*` MCP tools                                                             |
 | `http://localhost:8080/mcp` as primary path                                           | The repo documents local stdio via `gcp brain up` as the standard path | Lead with `stdio`; mention HTTP only if a bridge/server mode is explicitly available                                                                                      |
 | `ontology_type_create`, `entity_upsert`, `relation_create`, `pragma_project_progress` | These names do not match the current public MCP tools                  | Use `ghostcrab_schema_*`, `ghostcrab_workspace_*`, `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_learn`, `ghostcrab_project`, `ghostcrab_pack`, `ghostcrab_status` |
 | Deep Agno `MemoryDb` replacement as a near-term path                                  | Too heavy and not needed for a community first try                     | Keep as a future integration idea; first invite users to try GhostCrab through MCPTools                                                                                   |
@@ -84,17 +82,10 @@ The first experiment is simple: connect Agno `MCPTools` to GhostCrab, let one ag
 
 ### What To Avoid Saying
 
-- Do not say PostgreSQL is required.
 - Do not describe GhostCrab Personal as a vector store.
 - Do not imply an official Agno plugin already exists.
 - Do not lead with database internals.
 - Do not use old or aspirational tool names as if they are the public surface.
-
-### PRO Mention
-
-Keep this as a short note only:
-
-> For teams that later need PostgreSQL-native extensions, larger deployment topology, or PRO-grade MindBrain capabilities, the same ideas point toward MCP GhostCrab PRO / MindBrain PRO. The community trial should start with GhostCrab Personal SQLite.
 
 ---
 
@@ -130,8 +121,8 @@ Recommendation: replace most `namespace` language with `workspace` for GhostCrab
 
 ### What Needs Correction
 
-- The prerequisites should not require PostgreSQL or native Postgres extensions.
-- `PostgresStorage` should not be central to the quick-start path.
+- The prerequisites should not require SQLite or native SQLite extensions.
+- `SQLiteStorage` should not be central to the quick-start path.
 - The tool table should be rewritten with real `ghostcrab_*` names.
 - The bootstrap example should be reframed as “store and retrieve structured project context” rather than “create EntityTypes through old ontology tools.”
 - Deep `MemoryDb` integration should move to a “future adapter idea” section.
@@ -144,7 +135,6 @@ Recommendation: replace most `namespace` language with `workspace` for GhostCrab
 4. Minimal shared-memory scenario
 5. Multi-agent shared workspace scenario
 6. Optional future: native Agno memory adapter
-7. Short note: PRO path for PostgreSQL / MindBrain PRO
 
 ---
 
@@ -159,7 +149,7 @@ Recommendation: replace most `namespace` language with `workspace` for GhostCrab
 
 ### What Needs Correction
 
-- `pg_pragma` should not be the primary explanation for GhostCrab Personal SQLite.
+- `ghostcrab_project` should not be the primary explanation for GhostCrab Personal SQLite.
 - The `pragma_*` tools in the draft do not match the public MCP surface.
 - The lifecycle examples should use `ghostcrab_upsert`, `ghostcrab_learn`, `ghostcrab_project`, and `ghostcrab_pack`.
 - The skill should not imply a full Agno runtime integration already exists.
@@ -246,9 +236,9 @@ This demonstrates continuity across sessions and agent restarts.
 3. Keep MCP as the integration boundary.
 4. Replace old tool names with `ghostcrab_*`.
 5. Treat native Agno memory replacement as future work.
-6. Keep PostgreSQL / GhostCrab PRO as a one-paragraph note only.
+6. Keep SQLite / GhostCrab PRO as a one-paragraph note only.
 7. Prefer “workspace” over “namespace” for current GhostCrab Personal docs.
-8. Make every example understandable without installing Postgres.
+8. Make every example understandable with `gcp brain up` and local SQLite only.
 
 ---
 
@@ -268,7 +258,7 @@ Start small:
 4. Let another agent retrieve it.
 5. Try a task state update or dependency graph next.
 
-No PostgreSQL is required for the first trial.
+Local SQLite via `gcp brain up` is the only storage requirement for the first trial.
 
 ---
 
@@ -324,7 +314,7 @@ Not addressed. Missing scenarios:
 
 **Agent behavioral clarity** scores low across all files because the lifecycle order is implicit, the `remember`/`upsert` distinction is absent, and failure modes are not addressed. The Demo Scenarios approach the right behavioral shape but are buried at the end rather than leading the skill.
 
-Overall: the narrative is promising, but the public-facing skills should be rewritten before sharing with Agno users.
+Overall: the public-facing skills and SOPs are aligned with GhostCrab Personal SQLite.
 
 ---
 
@@ -340,4 +330,4 @@ Create two revised community-facing skills:
    - orchestration patterns using real GhostCrab tools
    - task state, graph dependencies, recovery packs
 
-Keep the current files as historical drafts or mark them as PostgreSQL/PRO-oriented sketches after the new files exist.
+Legacy SQLite-oriented language has been removed from the reviewed files.

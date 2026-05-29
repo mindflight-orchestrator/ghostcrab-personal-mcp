@@ -189,5 +189,3 @@ Never create a workspace before listing existing workspaces.
 | Empty recovery pack              | Expected for a new workspace. Start with `agent.memory.steps=[]`.                                  |
 | Latest state duplicated          | Use a stable `record_id` under `match.facets`.                                                     |
 | Durable facts mixed with state   | Move durable evidence to `ghostcrab_remember`; keep only latest status in `ghostcrab_upsert`.      |
-
-**PRO note:** mindBrain Pro is the centralized PostgreSQL-backed option for teams. The runtime path here stays GhostCrab Personal, SQLite, and `gcp brain up`.

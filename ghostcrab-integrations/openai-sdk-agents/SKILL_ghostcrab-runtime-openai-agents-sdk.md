@@ -172,5 +172,3 @@ For workspace setup:
 | `ghostcrab_upsert` cannot find a record | Use `create_if_missing=True` with a stable `record_id` facet.                                                            |
 | A write fails mid-run                   | Continue the SDK task if safe, mention the persistence failure in final output, and retry once after `ghostcrab_status`. |
 | Search is noisy                         | Add exact facets and prefer stable `record_id` matches for state records.                                                |
-
-**PRO note:** Centralized PostgreSQL deployment belongs to MCP GhostCrab PRO / mindBrain Pro. Keep Personal runtime guidance on local SQLite and stdio.

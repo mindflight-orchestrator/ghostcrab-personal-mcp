@@ -130,7 +130,7 @@ async with McpWorkbench(ghostcrab_params) as workbench:
 | Semantic querying              | Vector similarity only           | Faceted + graph + vector          |
 | Ontology model                 | None                             | Types, relationships, constraints |
 | Structured queryability        | No                               | SQL-like graph queries            |
-| Cross-session without re-index | ❌                               | ✅ PostgreSQL persistence         |
+| Cross-session without re-index | ❌                               | ✅ SQLite persistence         |
 
 [^1_5][^1_1]
 
@@ -191,7 +191,7 @@ AutoGen handles memory per agent via its `Memory` protocol
 there is no shared registry across agents on the same team by default.
 
 **MindBrain** replaces those backends with a shared context layer:
-a structured, persistent (PostgreSQL), queryable (facets + graph) ontology registry.
+a structured, persistent (SQLite), queryable (facets + graph) ontology registry.
 **GhostCrab** is the MCP server that exposes that registry to agents over MCP.
 
 Integration rests on three pillars:
@@ -210,7 +210,7 @@ Integration rests on three pillars:
 | `autogen-ext`        | 0.4.6+          | `McpWorkbench`, `SseServerParams`        |
 | `autogen-core`       | 0.4.6+          | `MemoryContent`, `MemoryQueryResult`     |
 | GhostCrab MCP Server | —               | SSE at `http://localhost:8080/mcp`       |
-| MindBrain            | —               | PostgreSQL backend, pg_facets, pg_dgraph |
+| MindBrain            | —               | SQLite backend, faceted search via `ghostcrab_search`, graph via `ghostcrab_learn` / `ghostcrab_traverse` |
 | Python               | 3.11+           |                                          |
 
 Python dependencies:
@@ -249,9 +249,9 @@ mcp>=1.0.0
                       │
            ┌──────────▼──────────┐
            │   MindBrain         │
-           │   PostgreSQL        │
-           │   pg_facets         │
-           │   pg_dgraph         │
+           │   SQLite            │
+           │   faceted search via ghostcrab_search │
+           │   graph via ghostcrab_learn / ghostcrab_traverse │
            └─────────────────────┘
 ```
 
@@ -281,7 +281,6 @@ from autogen_core.memory import (
     UpdateContextResult,
 )
 from autogen_core.model_context import ChatCompletionContext
-
 
 class MindBrainMemory(Memory):
     """
@@ -404,7 +403,6 @@ class MindBrainMemory(Memory):
 # mindbrain/autogen/client.py
 from autogen_ext.tools.mcp import McpWorkbench, SseServerParams
 
-
 def ghostcrab_sse_params(host: str = "localhost", port: int = 8080) -> SseServerParams:
     return SseServerParams(url=f"http://{host}:{port}/mcp")
 ```
@@ -413,7 +411,6 @@ def ghostcrab_sse_params(host: str = "localhost", port: int = 8080) -> SseServer
 
 ```python
 from autogen_ext.tools.mcp import McpWorkbench, StdioServerParams
-
 
 def ghostcrab_stdio_params(binary_path: str = "./ghostcrab") -> StdioServerParams:
     return StdioServerParams(
@@ -437,7 +434,6 @@ from autogen_ext.tools.mcp import McpWorkbench
 
 from mindbrain.autogen.client import ghostcrab_sse_params
 from mindbrain.autogen.memory import MindBrainMemory
-
 
 async def main() -> None:
     ghostcrab_params = ghostcrab_sse_params()
@@ -487,7 +483,6 @@ async def main() -> None:
         )
 
         await team.run(task="Design a faceted indexing module.")
-
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -580,24 +575,22 @@ from unittest.mock import AsyncMock
 from mindbrain.autogen.memory import MindBrainMemory
 from autogen_core.memory import MemoryContent, MemoryMimeType
 
-
 @pytest.fixture
 def mock_client():
     client = AsyncMock()
     client.call_tool.return_value = {
         "entries": [
-            {"content": "Decision: use pg_facets", "metadata": {"agent": "planner"}}
+            {"content": "Decision: use faceted search via `ghostcrab_search`", "metadata": {"agent": "planner"}}
         ]
     }
     return client
-
 
 @pytest.mark.asyncio
 async def test_query_returns_results(mock_client):
     mem = MindBrainMemory(mock_client, namespace="test")
     result = await mem.query("indexation")
     assert len(result.results) == 1
-    assert "pg_facets" in result.results[0]
+    assert "faceted search via `ghostcrab_search`" in result.results[0]
 ```
 
 ---
@@ -660,7 +653,7 @@ Here's what it covers:
 # SKILL: ghostcrab-runtime
 
 **Target:** Claude Code · Codex  
-**Goal:** General-purpose runtime for AutoGen multi-agent systems — project management, knowledge graph lifecycle, task progression tracking, and orchestrator-driven phase control using GhostCrab MCP and MindBrain pg_pragma projections.  
+**Goal:** General-purpose runtime for AutoGen multi-agent systems — project management, knowledge graph lifecycle, task progression tracking, and orchestrator-driven phase control using GhostCrab MCP and MindBrain `ghostcrab_project` / `ghostcrab_pack` projections.  
 **Language:** Python 3.11+ · AutoGen 0.4.6+
 
 ---
@@ -672,7 +665,7 @@ This skill covers **two complementary responsibilities**:
 | Layer                  | Who uses it                      | What it does                                                                                              |
 | ---------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | **Worker layer**       | Any AutoGen agent                | Records task status, progression, and knowledge into MindBrain via GhostCrab tools                        |
-| **Orchestrator layer** | `SelectorGroupChat` orchestrator | Reads pg_pragma projections to decide which agent to activate, when to change project phase, when to stop |
+| **Orchestrator layer** | `SelectorGroupChat` orchestrator | Reads `ghostcrab_project` / `ghostcrab_pack` projections to decide which agent to activate, when to change project phase, when to stop |
 
 The key insight: **MindBrain is the single source of truth for runtime state**. Agents write their progress into it. The orchestrator reads aggregated projections from it to make control decisions — without relying on conversation history alone.
 
@@ -735,11 +728,11 @@ CLOSED    → project complete
 
 ```
 
-### pg_pragma Projections
+### `ghostcrab_project` / `ghostcrab_pack` Projections
 
-pg_pragma is MindBrain's projection layer: it materializes aggregated views
-of the ontology graph into read-optimized PostgreSQL tables.
-The orchestrator calls `ghostcrab_pragma_query` to read these projections
+`ghostcrab_project` / `ghostcrab_pack` is MindBrain's projection layer: it materializes aggregated views
+of the ontology graph into compact projections via `ghostcrab_project`.
+The orchestrator calls `ghostcrab_project` to read these projections
 without scanning the full graph — low latency, high signal.
 
 Built-in projections used in this skill:
@@ -772,7 +765,7 @@ Built-in projections used in this skill:
 
 | Tool                         | Required params                        | Optional params | Description                             |
 | ---------------------------- | -------------------------------------- | --------------- | --------------------------------------- |
-| `ghostcrab_pragma_query`     | `namespace`, `projection`              | `filters?`      | Reads a pg_pragma projection            |
+| `ghostcrab_project`     | `namespace`, `projection`              | `filters?`      | Reads a `ghostcrab_project` / `ghostcrab_pack` projection            |
 | `ghostcrab_phase_transition` | `namespace`, `project_id`, `to_phase`  | `reason?`       | Transitions project phase               |
 | `ghostcrab_agent_signal`     | `namespace`, `agent_name`, `signal`    | `context?`      | Sends RESUME / PAUSE / STOP to an agent |
 | `ghostcrab_task_reassign`    | `namespace`, `task_id`, `new_assignee` | —               | Reassigns a task                        |
@@ -799,10 +792,8 @@ RESTART → stop and re-initialize an agent
 # ghostcrab/autogen/connection.py
 from autogen_ext.tools.mcp import McpWorkbench, SseServerParams, StdioServerParams
 
-
 def sse_params(host: str = "localhost", port: int = 8080) -> SseServerParams:
     return SseServerParams(url=f"http://{host}:{port}/mcp")
-
 
 def stdio_params(binary: str = "./ghostcrab") -> StdioServerParams:
     return StdioServerParams(command=binary, args=["serve", "--stdio"])
@@ -848,7 +839,6 @@ Your assigned task type: {task_type}.
 - Never transition phases — that is the orchestrator's role.
 - Keep knowledge notes concise (< 200 words).
 """
-
 
 def worker_prompt(
     agent_name: str,
@@ -915,7 +905,6 @@ OR: PROJECT_COMPLETE (if project is CLOSED)
 - Do not do implementation work yourself.
 """
 
-
 def orchestrator_prompt(
     project_id: str,
     namespace: str,
@@ -944,7 +933,6 @@ from autogen_ext.tools.mcp import McpWorkbench
 from ghostcrab.autogen.connection import sse_params
 from ghostcrab.autogen.worker_prompt import worker_prompt
 from ghostcrab.autogen.orchestrator_prompt import orchestrator_prompt
-
 
 async def run_project(
     project_id: str,
@@ -1016,8 +1004,7 @@ async def run_project(
             model_client=model,
             selector_prompt=(
                 "You are managing a project team.\n"
-                "The orchestrator analyzes MindBrain projections and says "
-                "ACTIVATE: <agent_name>. Select that agent next.\n"
+                "The orchestrator analyzes                 "ACTIVATE: <agent_name>. Select that agent next.\n"
                 "If the orchestrator says WAIT or PROJECT_COMPLETE, select the orchestrator again.\n"
                 "Participants: {participants}\n"
                 "Recent conversation:\n{history}\n"
@@ -1056,7 +1043,7 @@ but the entity/relation model is domain-specific.
 # Worker agent recording a decision:
 await workbench.call_tool("ghostcrab_knowledge_add", {
     "namespace": namespace,
-    "content": "Use pg_facets for faceted search — PostgreSQL-native, no external index.",
+    "content": "Use faceted search via `ghostcrab_search` for faceted search — SQLite-native faceted search via GhostCrab MCP.",
     "source_task_id": "task-arch-001",
     "tags": ["architecture", "database", "search"],
 })
@@ -1211,7 +1198,6 @@ import asyncio
 from autogen_ext.tools.mcp import McpWorkbench
 from ghostcrab.autogen.connection import sse_params
 
-
 async def setup_project(
     namespace: str,
     project_id: str,
@@ -1293,7 +1279,6 @@ import json
 from unittest.mock import AsyncMock
 from autogen_core.tools import ToolResult, TextResultContent
 
-
 def make_workbench(projection_data: dict) -> AsyncMock:
     wb = AsyncMock()
 
@@ -1312,7 +1297,6 @@ def make_workbench(projection_data: dict) -> AsyncMock:
     wb.call_tool.side_effect = call_tool
     return wb
 
-
 @pytest.mark.asyncio
 async def test_phase_transition_when_ready():
     wb = make_workbench({
@@ -1330,7 +1314,6 @@ async def test_phase_transition_when_ready():
     })
     calls = [c.args[0] for c in wb.call_tool.call_args_list]
     assert "ghostcrab_phase_transition" in calls
-
 
 @pytest.mark.asyncio
 async def test_agent_signal_on_blocked_tasks():
@@ -1368,10 +1351,7 @@ async def test_agent_signal_on_blocked_tasks():
 
 [^4_11]: https://www.cohorte.co/blog/autogen-v0-4-ag2-crash-course-build-event-driven-observable-ai-agents-that-scale
 
-[^4_12]: https://www.reddit.com/r/PostgreSQL/comments/rm2zmx/is_this_an_appropriate_use_case_for_a/
-
 [^4_13]: https://deepfa.ir/en/blog/autogen-microsoft-multi-agent-ai-framework
 
 [^4_14]: https://microsoft.github.io/autogen/0.4.2/user-guide/agentchat-user-guide/tutorial/teams.html
 
-[^4_15]: https://www.postgresql.org/docs/current/rules-materializedviews.html

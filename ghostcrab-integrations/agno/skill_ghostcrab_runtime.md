@@ -1,21 +1,21 @@
 # skill.md — GhostCrab Runtime: Agentic Orchestration with MindBrain
 
-> **Scope**: general-purpose skill for any Agno agent (worker, orchestrator, specialist) operating inside an ontology-driven workflow. Covers project management, knowledge graph evolution, progress tracking, and team control via `pg_pragma` projections.
+> **Scope**: general-purpose skill for any Agno agent (worker, orchestrator, specialist) operating inside an ontology-driven workflow. Covers project management, knowledge graph evolution, progress tracking, and team control via `ghostcrab_project` and `ghostcrab_pack` projections.
 >
-> **Prerequisites**: GhostCrab MCP live, MindBrain PostgreSQL reachable with `pg_dgraph`, `pg_facets`, `pg_pragma` enabled; namespace declared.
+> **Prerequisites**: GhostCrab Personal MCP live via `gcp brain up`; workspace declared.
 
 ---
 
 ## Universal data model (runtime ontology)
 
-Before any run the namespace must include these entity types—they form runtime foundation.
+Before any run the workspace must include these schema families—they form the runtime foundation.
 
 ### Entity types
 
-| EntityType      | Required facets                                      | Optional facets                          |
+| Schema          | Required facets                                      | Optional facets                          |
 | --------------- | ---------------------------------------------------- | ---------------------------------------- |
 | `Project`       | `name`, `status`, `phase`, `created_at`              | `description`, `deadline`, `owner_agent` |
-| `Task`          | `title`, `status`, `priority`, `phase`, `project_id` | `assignee`, `depends_on[]`, `result_ref` |
+| `ghostcrab:task`| `title`, `status`, `priority`, `phase`, `project_id` | `assignee`, `depends_on[]`, `result_ref` |
 | `Agent`         | `name`, `role`, `status`, `framework`                | `capabilities[]`, `current_task_id`      |
 | `KnowledgeNode` | `label`, `domain`, `content`                         | `source_ref`, `confidence`, `verified`   |
 | `Checkpoint`    | `phase`, `project_id`, `status`, `evaluated_at`      | `blocking_tasks[]`, `next_phase`         |
@@ -59,20 +59,19 @@ Phase transitions are **always** triggered by orchestrator Checkpoint evaluation
 
 ---
 
-## Step 1 — Runtime bootstrap (run once per namespace)
+## Step 1 — Runtime bootstrap (run once per workspace)
 
 ```python
 from agno.agent import Agent
 from agno.models.anthropic import Claude
 from agno.tools.mcp import MCPTools
-from agno.storage.postgres import PostgresStorage
 
-MINDBRAIN_DSN = "postgresql://user:pass@localhost:5432/mindbrain"
-NAMESPACE = "my_project"
+WORKSPACE = "my_project"
 
 ghostcrab = MCPTools(
-    transport="streamable-http",
-    url="http://localhost:8080/mcp",
+    transport="stdio",
+    command="gcp",
+    args=["brain", "up"],
     timeout=120,
 )
 
@@ -81,37 +80,30 @@ orchestrator = Agent(
     model=Claude(id="claude-sonnet-4-5"),
     tools=[ghostcrab],
     enable_user_memories=False,
-    storage=PostgresStorage(table_name="orchestrator_sessions", db_url=MINDBRAIN_DSN),
     instructions=[
-        f"The active namespace is {NAMESPACE}. Never omit it in tool calls.",
-        "Check existence before any create operation (idempotence).",
-        "Create entities before relations that involve them.",
+        f"The active workspace is {WORKSPACE}. Never omit it in tool calls.",
+        "Call ghostcrab_status and ghostcrab_workspace_list before writes.",
+        "Use ghostcrab_remember for durable facts and ghostcrab_upsert for mutable state.",
         "After each phase transition: emit an Event of type 'phase_transition'.",
     ],
     markdown=True,
 )
 
 BOOTSTRAP_PROMPT = f"""
-Bootstrap the full runtime for namespace='{NAMESPACE}'.
+Bootstrap the full runtime for workspace='{WORKSPACE}'.
 
-PHASE 0 — Schema :
-Create EntityTypes : Project, Task, Agent, KnowledgeNode, Checkpoint, Event
-with facets as described in this skill.
-
-Create RelationTypes : ASSIGNED_TO, DEPENDS_ON, BELONGS_TO,
-PRODUCED, REFERENCES, TRIGGERS, RELATED_TO.
+PHASE 0 — Workspace :
+Call ghostcrab_status.
+Ensure workspace '{WORKSPACE}' exists with ghostcrab_workspace_create if needed.
 
 PHASE 0 — Seed :
-Create master project :
+Create master project with ghostcrab_remember:
   Project name='main', status='draft', phase='planning', created_at=now()
 
-Register available agents :
-  Agent name='ResearchAgent', role='researcher', status='idle', framework='agno'
-  Agent name='WriterAgent',   role='writer',     status='idle', framework='agno'
-  Agent name='ReviewAgent',   role='reviewer',   status='idle', framework='agno'
-  Agent name='Orchestrator',  role='orchestrator', status='running', framework='agno'
+Register available agents with ghostcrab_remember:
+  ResearchAgent, WriterAgent, ReviewAgent, Orchestrator
 
-Validate via ontology_schema_get and return the schema formatted in Markdown.
+Validate via ghostcrab_schema_list and ghostcrab_search, return schema summary in Markdown.
 """
 
 orchestrator.run(BOOTSTRAP_PROMPT)
@@ -125,33 +117,22 @@ orchestrator.run(BOOTSTRAP_PROMPT)
 
 ```python
 PLANNING_PROMPT = f"""
-Namespace='{NAMESPACE}'. Phase: planning.
+Workspace='{WORKSPACE}'. Phase: planning.
 
-Create the following tasks and link them to project 'main' with BELONGS_TO :
+Create tasks with ghostcrab_upsert and link them with ghostcrab_learn:
 
   Task T1 : title='Collect sources', status='pending', priority=1, phase='execution'
   Task T2 : title='Analyze data',    status='pending', priority=2, phase='execution'
   Task T3 : title='Write report',   status='pending', priority=3, phase='execution'
   Task T4 : title='Final review',    status='pending', priority=4, phase='review'
 
-Dependencies (DEPENDS_ON) :
-  T2 → T1   (T2 starts only once T1 is done)
-  T3 → T2
-  T4 → T3
+Dependencies (DEPENDS_ON via ghostcrab_learn):
+  T2 → T1, T3 → T2, T4 → T3
 
-Assignments (ASSIGNED_TO) :
-  T1 → ResearchAgent
-  T2 → ResearchAgent
-  T3 → WriterAgent
-  T4 → ReviewAgent
+Assignments: store assignee on each task record.
 
-Create end-of-phase Checkpoint for phase 'execution' :
-  Checkpoint phase='execution', project_id=<main_id>,
-  status='pending', blocking_tasks=[T1,T2,T3], next_phase='review'
-
-Update Project 'main': status='active', phase='execution'.
-Emit Event: type='phase_transition', source_agent='Orchestrator',
-  payload={{'from':'planning','to':'execution'}}, project_id=<main_id>.
+Create Checkpoint for phase 'execution' with ghostcrab_remember.
+Update Project 'main': status='active', phase='execution' with ghostcrab_upsert.
 """
 
 orchestrator.run(PLANNING_PROMPT)
@@ -162,38 +143,34 @@ orchestrator.run(PLANNING_PROMPT)
 Each worker invokes this pattern after completing work:
 
 ```python
-def report_task_done(agent: Agent, task_id: str, result_summary: str, namespace: str):
-    agent_name = agent.name  # interpolated into LLM-facing instructions below
+def report_task_done(agent: Agent, task_id: str, result_summary: str, workspace: str):
+    agent_name = agent.name
     agent.run(f"""
-    Namespace='{namespace}'.
+    Workspace='{workspace}'.
 
-    1. Update Task id='{task_id}': status='done', result_ref='{result_summary}'
-    2. Update Agent name='{agent_name}': status='idle', current_task_id=null
-    3. Create KnowledgeNode :
-         label='Result:{task_id}', domain='task_output',
-         content='{result_summary}', confidence=0.9
-       Link this KnowledgeNode to the Task via REFERENCES (alternate convention: Task PRODUCED KnowledgeNode).
-    4. Emit Event: type='task_done', source_agent='{agent_name}',
-         payload={{'task_id':'{task_id}','status':'done'}}.
+    1. ghostcrab_upsert Task id='{task_id}': status='done', result_ref='{result_summary}'
+    2. ghostcrab_upsert Agent name='{agent_name}': status='idle', current_task_id=null
+    3. ghostcrab_remember KnowledgeNode for result summary
+    4. ghostcrab_learn to link KnowledgeNode to Task (REFERENCES)
     """)
 ```
 
 ---
 
-## Step 3 — Orchestrator control loop via `pg_pragma`
+## Step 3 — Orchestrator control loop via projections
 
-`pg_pragma` publishes **computed projections** over graph state. The orchestrator queries them rather than traversing manually.
+Use `ghostcrab_pack`, `ghostcrab_count`, and `ghostcrab_project` instead of custom projection APIs. The orchestrator queries compact views rather than traversing manually.
 
-### 3.1 Available `pg_pragma` projections
+### 3.1 Available projection patterns
 
-| Projection                     | Returned signal                                              |
-| ------------------------------ | ------------------------------------------------------------ |
-| `pragma_project_progress`      | % tasks done vs total per phase plus blocking backlog        |
-| `pragma_agent_availability`    | idle agents, errored agents, current load                    |
-| `pragma_dependency_readiness`  | Tasks whose dependencies are satisfied (`done`)              |
-| `pragma_checkpoint_evaluation` | Whether Checkpoint can flip to `passed` given blocking tasks |
-| `pragma_critical_path`         | Ordered critical-path task slice                             |
-| `pragma_knowledge_coverage`    | produced vs expected KnowledgeNodes, uncovered domains       |
+| Pattern                  | GhostCrab tool(s)                                    | Returned signal                          |
+| ------------------------ | ---------------------------------------------------- | ---------------------------------------- |
+| Project progress         | `ghostcrab_count` by task status                     | pending / in_progress / done counts      |
+| Agent availability       | `ghostcrab_search` on Agent records                  | idle, running, error roster              |
+| Dependency readiness     | `ghostcrab_traverse` from blocked tasks              | runnable backlog                         |
+| Checkpoint evaluation    | `ghostcrab_pack` with phase question                 | whether phase can advance                |
+| Recovery context         | `ghostcrab_pack`                                     | active goals, blockers, next steps       |
+| Active orchestration     | `ghostcrab_project`                                  | GOAL / STEP / CONSTRAINT projections     |
 
 ### 3.2 Control loop skeleton
 
@@ -201,44 +178,21 @@ def report_task_done(agent: Agent, task_id: str, result_summary: str, namespace:
 import time
 
 ORCHESTRATION_LOOP_PROMPT = f"""
-Namespace='{NAMESPACE}'. You are orchestrator — run one control cycle.
+Workspace='{WORKSPACE}'. You are orchestrator — run one control cycle.
 
 STEP 1 — CURRENT STATE :
-  Call pragma_project_progress(namespace='{NAMESPACE}', project='main').
-  Call pragma_agent_availability(namespace='{NAMESPACE}').
-  Call pragma_dependency_readiness(namespace='{NAMESPACE}', project='main').
+  Call ghostcrab_count for task records grouped by status.
+  Call ghostcrab_pack: "Summarize agent availability and blocked tasks."
+  Call ghostcrab_search for pending tasks ready to run.
 
-STEP 2 — DECISIONS (apply sequentially) :
-
-  RULE A — Restart stuck agent :
-    If any Agent.status='error' longer than ~5 minutes :
-      → entity_upsert Agent status='idle'
-      → emit Event type='agent_restart', payload={{agent, reason='error_recovery'}}
-
-  RULE B — Assign eligible tasks :
-    For each pending task surfaced by pragma_dependency_readiness :
-      If an idle Agent with matching role exists :
-        → entity_upsert Task status='in_progress'
-        → entity_upsert Agent status='running', current_task_id=<task_id>
-        → emit Event type='task_assigned', payload={{task_id, agent_name}}
-
-  RULE C — Evaluate checkpoints :
-    Call pragma_checkpoint_evaluation for the active phase checkpoint.
-    If returned status = 'can_pass' :
-      → entity_upsert Checkpoint status='passed'
-      → trigger phase transition (see Step 4)
-
-  RULE D — Detect blocked phase :
-    If pragma_project_progress.blocked_tasks > 0
-    AND no assignable task remains :
-      → emit Event type='phase_blocked', payload={{blocking_tasks, reason}}
-      → entity_upsert Project status='paused'
+STEP 2 — DECISIONS :
+  RULE A — Restart stuck agent: ghostcrab_upsert Agent status='idle' after errors.
+  RULE B — Assign eligible tasks: ghostcrab_upsert task to in_progress, assign agent.
+  RULE C — Evaluate checkpoints: use ghostcrab_pack to decide phase advance.
+  RULE D — Detect blocked phase: ghostcrab_project CONSTRAINT if no assignable work remains.
 
 STEP 3 — REPORT :
-  Return Markdown summary :
-  - Current phase, progress %
-  - Actions taken this cycle
-  - Recommended next action
+  Return Markdown summary: current phase, progress %, actions taken, next action.
 """
 
 def orchestration_loop(max_cycles: int = 20, interval_s: int = 30):
@@ -248,12 +202,11 @@ def orchestration_loop(max_cycles: int = 20, interval_s: int = 30):
         print(result.content)
 
         check = orchestrator.run(f"""
-            Call pragma_project_progress namespace='{NAMESPACE}' project='main'.
-            If Project.status='completed', respond exactly: PROJECT_FINISHED
+            Call ghostcrab_search for Project 'main' status.
+            If status='completed', respond exactly: PROJECT_FINISHED
             Otherwise respond: CONTINUE
         """)
         if "PROJECT_FINISHED" in check.content:
-            print("Project finished. Stopping loop.")
             break
         time.sleep(interval_s)
 ```
@@ -262,65 +215,38 @@ def orchestration_loop(max_cycles: int = 20, interval_s: int = 30):
 
 ## Step 4 — Phase transitions
 
-Trigger transitions only after `pragma_checkpoint_evaluation` returns `can_pass`.
+Trigger transitions only after `ghostcrab_pack` confirms checkpoint readiness.
 
 ```python
 def transition_phase(orchestrator: Agent, project_id: str,
-                     current_phase: str, next_phase: str, namespace: str):
+                     current_phase: str, next_phase: str, workspace: str):
     orchestrator.run(f"""
-    Namespace='{namespace}'. Phase transition for project_id='{project_id}'.
+    Workspace='{workspace}'. Phase transition for project_id='{project_id}'.
 
-    1. entity_upsert Checkpoint (phase='{current_phase}') : status='passed', evaluated_at=now()
-    2. entity_upsert Project id='{project_id}' : phase='{next_phase}'
-    3. Create Checkpoint for new phase '{next_phase}' :
-         status='pending', project_id='{project_id}',
-         blocking_tasks=<task list belonging to '{next_phase}'>
-    4. For Tasks in '{next_phase}' with status='pending' :
-         Call pragma_dependency_readiness → assign ready tasks.
-    5. Emit Event: type='phase_transition',
-         source_agent='Orchestrator',
-         payload={{'from':'{current_phase}','to':'{next_phase}'}},
-         project_id='{project_id}',
-         timestamp=now()
+    1. ghostcrab_upsert Checkpoint (phase='{current_phase}'): status='passed'
+    2. ghostcrab_upsert Project id='{project_id}': phase='{next_phase}'
+    3. ghostcrab_remember new Checkpoint for phase '{next_phase}'
+    4. ghostcrab_search for pending tasks in '{next_phase}' and assign ready tasks
+    5. ghostcrab_project refresh with updated GOAL and STEP
     """)
-```
-
-### Standard phase sequence
-
-```
-planning → execution    : tasks exist, assignments ready
-execution → review      : execution checkpoint cleared (T1+T2+T3 complete)
-review → consolidation  : review checkpoint cleared (T4 complete)
-consolidation → completed : pragma_knowledge_coverage >= 0.8 AND no blocking backlog
 ```
 
 ---
 
 ## Step 5 — Knowledge graph continual enrichment
 
-Workers extend the graph while executing; orchestrator audits coverage via `pragma_knowledge_coverage`.
+Workers extend the graph while executing; orchestrator audits coverage via `ghostcrab_search` and `ghostcrab_count`.
 
 ### Worker enrichment pattern
 
 ```python
 ENRICH_KNOWLEDGE_PROMPT = """
-Namespace='{namespace}'.
+Workspace='{workspace}'.
 
-You produced an output — enrich knowledge graph :
-
-1. Create KnowledgeNode :
-     label='{label}', domain='{domain}', content='{content}',
-     source_ref='{source}', confidence={confidence}, verified=false
-
-2. Find semantically neighboring KnowledgeNodes
-   via entity_search filter={{type:'KnowledgeNode', domain:'{domain}'}}.
-
-3. For similar nodes (similarity > 0.7) :
-     RELATE newly created node RELATED_TO legacy node.
-
-4. Link fresh node → current Task with REFERENCES.
-
-5. entity_upsert Agent '{agent_name}': emit PRODUCED edge → new KnowledgeNode.
+1. ghostcrab_remember KnowledgeNode with label, domain, content, confidence
+2. ghostcrab_search for similar KnowledgeNodes in the same domain
+3. ghostcrab_learn RELATED_TO edges between similar nodes
+4. ghostcrab_learn REFERENCES edge from Task to KnowledgeNode
 """
 ```
 
@@ -328,19 +254,12 @@ You produced an output — enrich knowledge graph :
 
 ```python
 COVERAGE_PROMPT = f"""
-Namespace='{NAMESPACE}'.
+Workspace='{WORKSPACE}'.
 
-1. Call pragma_knowledge_coverage(namespace='{NAMESPACE}', project='main').
-   Return domains covered, missing domains, aggregate score.
-
-2. If score < 0.6 :
-   Locate Tasks lacking result_ref / produced KnowledgeNodes.
-   Reassign idle agents to those Tasks.
-
-3. If score >= 0.8 :
-   Mark uncovered KnowledgeNodes for review :
-   entity_search filter={{type:'KnowledgeNode', verified:false}}
-   → emit Event type='review_needed' for each hit.
+1. ghostcrab_count KnowledgeNode records by domain.
+2. ghostcrab_search for tasks lacking result_ref.
+3. If coverage is low, reassign idle agents to incomplete tasks.
+4. ghostcrab_pack: "Summarize knowledge coverage gaps."
 """
 ```
 
@@ -350,25 +269,14 @@ Namespace='{NAMESPACE}'.
 
 ```python
 SHUTDOWN_PROMPT = f"""
-Namespace='{NAMESPACE}'. Orderly shutdown of project 'main'.
+Workspace='{WORKSPACE}'. Orderly shutdown of project 'main'.
 
-1. Confirm no Task has status='in_progress' :
-   entity_search filter={{type:'Task', status:'in_progress'}}.
-   While tasks remain active: defer shutdown.
-
-2. entity_upsert every Agent status='terminated'.
-
-3. entity_upsert Project 'main' : status='completed', phase='completed'.
-
-4. Call pragma_project_progress for final delta.
-   Call pragma_knowledge_coverage for knowledge summary.
-
-5. Create rollup KnowledgeNode :
-     label='ProjectSummary:main', domain='project_output',
-     content=<results digest>, verified=true
-
-6. Emit Event: type='project_completed', source_agent='Orchestrator',
-     payload={{total_tasks, total_nodes, final_coverage_score}}.
+1. ghostcrab_search for Task status='in_progress' — defer shutdown while any remain.
+2. ghostcrab_upsert every Agent status='terminated'.
+3. ghostcrab_upsert Project 'main': status='completed', phase='completed'.
+4. ghostcrab_count final task and knowledge totals.
+5. ghostcrab_remember rollup KnowledgeNode with project summary.
+6. ghostcrab_project final GOAL: "Project completed."
 """
 
 orchestrator.run(SHUTDOWN_PROMPT)
@@ -381,36 +289,31 @@ orchestrator.run(SHUTDOWN_PROMPT)
 ### Worker agents (ResearchAgent, WriterAgent, …)
 
 ```
-entity_get          → read assigned Task
-entity_upsert       → update Task.status, Agent.status
-ontology_type_get   → sanity-check schema before novelty
-entity_upsert       → create KnowledgeNode
-relation_create     → wire KnowledgeNode to Task (REFERENCES), Agent (PRODUCED)
-context_push        → share intermediate cues with orchestrator
+ghostcrab_search    → read assigned Task
+ghostcrab_upsert    → update Task.status, Agent.status
+ghostcrab_remember  → create KnowledgeNode
+ghostcrab_learn     → wire KnowledgeNode to Task (REFERENCES)
+ghostcrab_pack      → share intermediate cues with orchestrator
 ```
 
 ### Orchestrator
 
 ```
-pragma_project_progress      → global progress telemetry
-pragma_agent_availability    → idle/error roster
-pragma_dependency_readiness  → runnable backlog
-pragma_checkpoint_evaluation → phase transition guard
-pragma_critical_path         → prioritization signal
-pragma_knowledge_coverage    → KG health
-entity_upsert                → Task / Agent / Project / Checkpoint edits
-entity_search                → situational dashboards
-graph_traverse               → pivot exploration
+ghostcrab_count     → progress telemetry by status
+ghostcrab_pack      → recovery and checkpoint evaluation
+ghostcrab_search    → situational dashboards
+ghostcrab_traverse  → dependency and blocker exploration
+ghostcrab_project   → active GOAL / STEP / CONSTRAINT
+ghostcrab_upsert    → Task / Agent / Project / Checkpoint edits
 ```
 
 ---
 
 ## Invariants
 
-1. **One namespace per project** — never relate entities spanning namespaces.
-2. **Idempotence** — probe with `entity_get` / `ontology_type_get` ahead of inserts.
-3. **Operation ordering** — Entities → Relations → Events. Never mint edges before endpoints exist.
-4. **Canonical statuses only** — statuses must match `"Canonical statuses"` table; no freestyle literals.
-5. **Event journaling** — any meaningful lifecycle move (phase, completion, outage) emits an Event (audit backbone).
-6. **No conflicting local memory** — when MindBrain is truth, workers keep `enable_user_memories=False`. Only orchestrators may enable user memory alongside `MindBrainMemoryDb`.
-7. **Consult pragma before act** — orchestrator always reads a `pg_pragma` projection before steering; never rely on conversational guesswork alone.
+1. **One workspace per project** — never relate records spanning workspaces.
+2. **Read before write** — use `ghostcrab_search` / `ghostcrab_schema_inspect` before inserts.
+3. **Operation ordering** — records → relations → projections. Never mint edges before endpoints exist.
+4. **Canonical statuses only** — statuses must match the table above; no freestyle literals.
+5. **Single SQLite registry** — workers keep `enable_user_memories=False`; GhostCrab MCP is the shared store.
+6. **Consult pack before act** — orchestrator always reads `ghostcrab_pack` or `ghostcrab_count` before steering.
