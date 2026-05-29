@@ -37,6 +37,7 @@ switch (cmd) {
   case "smoke":
   case "status":
   case "tools":
+  case "workspace":
   case "maintenance": {
     const { runCli } = await import("../dist/cli/runner.js");
     await runCli([cmd, ...rest]);
@@ -106,7 +107,8 @@ Usage: gcp <command> [options]
   brain up [--workspace <name>]     Start MindBrain (Zig) + MCP on stdio
   smoke                            Read-only backend/tool registration check
   status                           Read-only operational snapshot
-  tools list                       List MCP tools and schemas
+  tools list                       List MCP tools (recommended + full catalog metadata)
+  tools verify                     Verify full MCP catalog list + call smoke
   maintenance ddl-approve|ddl-execute
                                     Human DDL approval/execution controls
   brain workspace create [name]   Create / register a workspace

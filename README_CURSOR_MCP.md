@@ -184,6 +184,17 @@ If you self-host a GhostCrab-compatible endpoint over **HTTP** or **SSE** later,
 2. **Logs** — **Output** panel (e.g. **Cmd/Ctrl+Shift+U**), select **MCP Logs**, to see connection and runtime errors.
 3. **Approval** — by default, Cursor asks before running MCP tools; you can adjust auto-run in Cursor settings and `permissions.json` if needed.
 
+## Verify tools after install
+
+After installing or upgrading the package, confirm the full MCP catalog is listed and callable:
+
+```bash
+pnpm run build && pnpm run verify:mcp-tools   # from a dev checkout
+gcp tools verify                              # from an installed package (backend must be up)
+```
+
+This checks that `tools/list` returns all 50 registered tools and runs a short `tools/call` smoke per subsystem.
+
 ## Install from a local pack (development)
 
 If you built a tarball (for example with `pnpm run pack:local` and a file under `dist-pack/`), install that package in a project, then set `command` to `pnpm` and `args` to `["exec", "gcp", "brain", "up", ...]`, or use `node` with an absolute path to `node_modules/@mindflight/ghostcrab-personal-mcp/bin/gcp.mjs` and `args` like `["brain", "up", "--workspace", "dev"]` (or legacy `serve`).

@@ -361,6 +361,10 @@ Subcommands:
   create [name]     Create / register a workspace (default name: default)
                       Same flags as gcp init: --no-skills, --force-skills
   list                List registered workspaces and SQLite paths
+  reset --id <id> --confirm
+                      Wipe workspace-scoped MindBrain data (MCP mirror)
+  delete --id <id> --confirm [--mode hard|soft]
+                      Remove or archive a workspace after data wipe
 
 Aliases:  gcp init [name]  →  gcp brain workspace create [name]
 `.trim()
@@ -376,6 +380,12 @@ Aliases:  gcp init [name]  →  gcp brain workspace create [name]
 
   if (sub === "list" || sub === "ls") {
     cmdWorkspaceList();
+    return;
+  }
+
+  if (sub === "reset" || sub === "delete") {
+    const { runCli } = await import("../../dist/cli/runner.js");
+    await runCli(["workspace", sub, ...rest]);
     return;
   }
 

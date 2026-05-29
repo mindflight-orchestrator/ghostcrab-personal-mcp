@@ -61,3 +61,14 @@ export const ListWorkspacesInputSchema = z.object({
 });
 
 export type ListWorkspacesInput = z.infer<typeof ListWorkspacesInputSchema>;
+
+export const ResetWorkspaceInputSchema = z.object({
+  workspace_id: WorkspaceIdSchema,
+  confirm: z.literal(true)
+});
+
+export const DeleteWorkspaceInputSchema = z.object({
+  workspace_id: WorkspaceIdSchema,
+  confirm: z.literal(true),
+  mode: z.enum(["hard", "soft"]).optional().default("hard")
+});

@@ -205,6 +205,17 @@ try {
     `gcp authorize failed (exit ${authz.status ?? "null"}).\n${authz.stderr}\n${authz.stdout}`
   );
 
+  const toolsVerify = run(
+    process.execPath,
+    [join(pathUnderConsumer(consumerDir, pkgName), "bin", "gcp.mjs"), "tools", "verify"],
+    { cwd: consumerDir }
+  );
+  assert.equal(
+    toolsVerify.status,
+    0,
+    `gcp tools verify failed (exit ${toolsVerify.status ?? "null"}).\n${toolsVerify.stderr}\n${toolsVerify.stdout}`
+  );
+
   // ── Host bootstrap assertions: .env, data/, doc symlinks must exist after install ──
   const installedPkgDir = pathUnderConsumer(consumerDir, pkgName);
   const envExamplePath = join(installedPkgDir, ".env.example");
@@ -448,7 +459,7 @@ try {
   rmSync(fakeCursorDir, { recursive: true, force: true });
 
   console.error(
-    `[verify-local-install] OK — installer + ${platformPackageName}, gcp --help, gcp authorize, host bootstrap (.env / data/ / doc symlinks), and gcp brain setup cursor (new key + absolute node path + legacy pruning) all succeeded.`
+    `[verify-local-install] OK — installer + ${platformPackageName}, gcp --help, gcp authorize, gcp tools verify, host bootstrap (.env / data/ / doc symlinks), and gcp brain setup cursor (new key + absolute node path + legacy pruning) all succeeded.`
   );
 } finally {
   rmSync(packDest, { recursive: true, force: true });

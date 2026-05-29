@@ -66,7 +66,10 @@ export const workspaceListTool: ToolHandler = {
             (SELECT COUNT(*) FROM facets f WHERE f.workspace_id = w.id),
             0
           ) AS facets_count,
-          0 AS entities_count
+          COALESCE(
+            (SELECT COUNT(*) FROM graph_entity ge WHERE ge.workspace_id = w.id),
+            0
+          ) AS entities_count
         FROM workspaces w
         ${whereClause}
         ORDER BY w.created_at ASC

@@ -23,7 +23,10 @@ import {
   buildReadmeMarkdown,
   GHOSTCRAB_README_URI
 } from "./mcp/agent-brief.js";
-import { listBasicRegisteredTools } from "./tools/catalog.js";
+import {
+  listAllRegisteredToolsForMcp,
+  listBasicRegisteredTools
+} from "./tools/catalog.js";
 import { registerAllTools } from "./tools/register-all.js";
 import {
   createToolErrorResult,
@@ -175,7 +178,7 @@ export async function startMcpServer(): Promise<void> {
 
     server.setRequestHandler(ListToolsRequestSchema, async () => {
       return {
-        tools: listBasicRegisteredTools(listRegisteredTools())
+        tools: listAllRegisteredToolsForMcp(listRegisteredTools())
       };
     });
 

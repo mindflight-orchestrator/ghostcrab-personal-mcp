@@ -96,6 +96,24 @@ try {
     `gcp authorize failed (exit ${authorize.status ?? "null"}).\n${authorize.stderr}\n${authorize.stdout}`
   );
 
+  const toolsVerify = run(process.execPath, [
+    join(
+      consumerDir,
+      "node_modules",
+      "@mindflight",
+      "ghostcrab-personal-mcp",
+      "bin",
+      "gcp.mjs"
+    ),
+    "tools",
+    "verify"
+  ]);
+  assert.equal(
+    toolsVerify.status,
+    0,
+    `gcp tools verify failed (exit ${toolsVerify.status ?? "null"}).\n${toolsVerify.stderr}\n${toolsVerify.stdout}`
+  );
+
   console.error(`[beta-smoke] OK for ${platformKey}`);
 } finally {
   rmSync(consumerDir, { recursive: true, force: true });

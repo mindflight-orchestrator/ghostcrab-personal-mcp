@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 
+import { loadToolManifestFromDist } from "./load-tool-manifest.mjs";
 import {
   assertToolSuccess,
   assertPathContainsNode,
@@ -8,6 +9,8 @@ import {
   withSmokeClient
 } from "./mcp-smoke-shared.mjs";
 
+const { manifest } = loadToolManifestFromDist();
+
 await withSmokeClient(
   "ghostcrab-smoke-client",
   async ({ client, getStderrOutput }) => {
@@ -15,9 +18,9 @@ await withSmokeClient(
     const stderrOutput = getStderrOutput();
 
     assert.equal(
-      toolNames.length >= 20,
+      toolNames.length >= manifest.total,
       true,
-      `Expected at least 20 registered GhostCrab tools. stderr:\n${stderrOutput}`
+      `Expected at least ${manifest.total} registered GhostCrab tools. stderr:\n${stderrOutput}`
     );
     assert.ok(
       toolNames.includes("ghostcrab_search") &&
