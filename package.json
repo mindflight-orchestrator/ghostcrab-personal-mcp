@@ -33,6 +33,8 @@
     "scripts/verify-mcp-tools.mjs",
     "scripts/mcp-smoke-shared.mjs",
     "scripts/load-tool-manifest.mjs",
+    "scripts/sync-ide-skill-bundles.mjs",
+    "bin/ide-skills",
     "dist",
     "ghostcrab-skills",
     "installations",
@@ -58,7 +60,8 @@
   },
   "scripts": {
     "postinstall": "node ./bin/lib/postinstall-prebuilds.mjs",
-    "build": "tsc --project tsconfig.json && node scripts/copy-sql.mjs",
+    "build": "tsc --project tsconfig.json && node scripts/copy-sql.mjs && node scripts/sync-ide-skill-bundles.mjs",
+    "sync:ide-skills": "node scripts/sync-ide-skill-bundles.mjs",
     "clean": "rm -rf coverage dist",
     "dev": "tsx src/index.ts",
     "demo:load": "tsx src/cli/demo-load.ts",

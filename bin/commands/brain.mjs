@@ -71,6 +71,10 @@ export async function cmdBrain(args) {
       await cmdBrainSetup(r);
       break;
     }
+    case "permissions": {
+      await cmdBrainPermissions(rest);
+      break;
+    }
     default:
       console.error(
         `gcp brain: unknown subcommand "${sub}". Run "gcp brain --help".`
@@ -136,10 +140,25 @@ async function cmdBrainSetup(args) {
     runner: p.runner,
     workspace: p.workspace,
     dbPath: effectiveDbPath,
-    serverName: p.serverName,
+    serverName: p.serverName ?? "ghostcrab-personal-mcp",
     extraEnv: p.extraEnv,
     dryRun: p.dryRun,
     cwd: process.cwd()
+  };
+
+  const postOpts = {
+    target: p.target,
+    cwd: process.cwd(),
+    pkgRoot: PKG_ROOT,
+    serverName: base.serverName,
+    permissionsPreset: p.permissionsPreset,
+    permissionsScope: p.permissionsScope,
+    skipPermissions: p.noPermissions,
+    skipSkills: p.noSkills,
+    force: p.force,
+    dryRun: p.dryRun,
+    allowTools: p.allowTools,
+    askTools: p.askTools
   };
 
   if (p.target === "cursor") {
@@ -165,6 +184,15 @@ async function cmdBrainSetup(args) {
       console.log(JSON.stringify(out.doc, null, 2));
     }
     if (!out.ok) process.exit(out.code ?? EX_ERR);
+    if (out.ok) {
+      const { runSetupPostInstall } = await import("../lib/mcp-setup-post.mjs");
+      const post = await runSetupPostInstall(postOpts);
+      if (!post.ok) {
+        console.error(post.message ?? "Post-setup failed.");
+        process.exit(1);
+      }
+      for (const m of post.messages ?? []) console.log(m);
+    }
     return;
   }
 
@@ -183,6 +211,15 @@ async function cmdBrainSetup(args) {
       if (out.shell) console.error("Equivalent shell:\n" + out.shell);
       if (out.toml) console.error("\n" + out.toml);
       process.exit(out.code ?? EX_ERR);
+    }
+    if (out.ok) {
+      const { runSetupPostInstall } = await import("../lib/mcp-setup-post.mjs");
+      const post = await runSetupPostInstall(postOpts);
+      if (!post.ok) {
+        console.error(post.message ?? "Post-setup failed.");
+        process.exit(1);
+      }
+      for (const m of post.messages ?? []) console.log(m);
     }
     return;
   }
@@ -204,6 +241,18 @@ async function cmdBrainSetup(args) {
         console.error(String(out.shell));
       }
       process.exit(out.code ?? EX_ERR);
+    }
+    if (out.ok) {
+      const { runSetupPostInstall } = await import("../lib/mcp-setup-post.mjs");
+      const post = await runSetupPostInstall({
+        ...postOpts,
+        permissionsScope: p.permissionsScope
+      });
+      if (!post.ok) {
+        console.error(post.message ?? "Post-setup failed.");
+        process.exit(1);
+      }
+      for (const m of post.messages ?? []) console.log(m);
     }
     return;
   }
@@ -246,7 +295,13 @@ function parseSetupArgs(args) {
     dryRun: false,
     force: false,
     extraEnv: /** @type {Record<string, string>} */ ({}),
-    scope: /** @type {"local" | "user" | "project"} */ ("user")
+    scope: /** @type {"local" | "user" | "project"} */ ("user"),
+    permissionsPreset: "basic",
+    permissionsScope: /** @type {"user" | "project"} */ ("user"),
+    noPermissions: false,
+    noSkills: false,
+    allowTools: /** @type {string[]} */ ([]),
+    askTools: /** @type {string[]} */ ([])
   };
 
   for (let i = 0; i < rest.length; i++) {
@@ -303,7 +358,66 @@ function parseSetupArgs(args) {
       out.scope = scope;
       continue;
     }
+    if (a === "--permissions" && rest[i + 1]) {
+      out.permissionsPreset = rest[++i];
+      continue;
+    }
+    if (a === "--no-permissions") {
+      out.noPermissions = true;
+      out.permissionsPreset = "none";
+      continue;
+    }
+    if (a === "--permissions-scope" && rest[i + 1]) {
+      const ps = rest[++i];
+      if (ps !== "user" && ps !== "project") {
+        return {
+          error: `gcp brain setup: --permissions-scope must be user or project (got ${ps})`
+        };
+      }
+      out.permissionsScope = ps;
+      continue;
+    }
+    if (a === "--no-skills") {
+      out.noSkills = true;
+      continue;
+    }
+    if (a === "--force-skills") {
+      out.force = true;
+      continue;
+    }
+    if (a === "--permissions-tool" && rest[i + 1]) {
+      out.allowTools.push(rest[++i]);
+      out.permissionsPreset = "custom";
+      continue;
+    }
+    if (a === "--permissions-ask-tool" && rest[i + 1]) {
+      out.askTools.push(rest[++i]);
+      out.permissionsPreset = "custom";
+      continue;
+    }
     return { error: `gcp brain setup: unexpected argument "${a}"` };
+  }
+
+  const validPresets = [
+    "none",
+    "all",
+    "basic",
+    "read",
+    "balanced",
+    "custom"
+  ];
+  if (!validPresets.includes(out.permissionsPreset)) {
+    return {
+      error: `gcp brain setup: --permissions must be one of ${validPresets.join(", ")} (got ${out.permissionsPreset})`
+    };
+  }
+
+  if (out.allowTools.length > 0 || out.askTools.length > 0) {
+    out.permissionsPreset = "custom";
+  }
+
+  if (out.scope === "project" && !rest.some((a, i) => a === "--permissions-scope" && rest[i + 1])) {
+    out.permissionsScope = "project";
   }
 
   if (!["gcp", "pnpm", "npx", "node", "auto"].includes(out.runner)) {
@@ -340,12 +454,131 @@ Usage: gcp brain setup <cursor|codex|claude> [options]
   --dry-run                    do not run CLIs or write files; print the result
   --force, --replace           replace existing entry where supported
   --scope local|user|project   (claude only; default: user)
+  --permissions <preset>       MCP auto-approve preset (default: basic)
+  --no-permissions             skip MCP permission rules (same as --permissions none)
+  --permissions-scope user|project
+                               Claude settings scope (default: user)
+  --no-skills                  skip IDE skill bundle install
+  --force-skills               overwrite existing skill files (alias: --force)
+  --permissions-tool <name>    repeat for custom preset allow list
+  --permissions-ask-tool <name> repeat for custom preset ask list (Claude)
 
 Aliases:  gcp brain setup_cursor | setup_codex | setup_claude | setup_claudecode
 
 Per-IDE details:  README_CURSOR_MCP.md, README_CODEX_MCP.md, README_CLAUDE_CODE_MCP.md
 `.trim()
   );
+}
+
+/**
+ * @param {string[]} args
+ */
+async function cmdBrainPermissions(args) {
+  const sub = args[0];
+  if (!sub || sub === "--help" || sub === "-h") {
+    console.log(
+      `
+Usage: gcp brain permissions <print|apply> [options]
+
+  --preset none|all|basic|read|balanced|custom   default: basic
+  --client claude|cursor|all                     default: all for apply
+  --server-name <name>                           default: ghostcrab-personal-mcp
+  --permissions-scope user|project               Claude only (default: user)
+  --permissions-tool <name>                      repeat (custom preset)
+  --force                                        replace ghostcrab rules in target file
+  --dry-run
+
+Examples:
+  gcp brain permissions print --preset basic --client all
+  gcp brain permissions apply --preset balanced --client cursor --force
+`.trim()
+    );
+    return;
+  }
+
+  const { runPermissionsPrint, runPermissionsApply } =
+    await import("../lib/mcp-setup-post.mjs");
+
+  let preset = "basic";
+  let client = sub === "print" ? "all" : "all";
+  let serverName = "ghostcrab-personal-mcp";
+  let permissionsScope = "user";
+  let force = false;
+  let dryRun = false;
+  /** @type {string[]} */
+  const allowTools = [];
+
+  const rest = args.slice(1);
+  for (let i = 0; i < rest.length; i++) {
+    const a = rest[i];
+    if (a === "--preset" && rest[i + 1]) {
+      preset = rest[++i];
+      continue;
+    }
+    if (a === "--client" && rest[i + 1]) {
+      client = rest[++i];
+      continue;
+    }
+    if ((a === "--name" || a === "--server-name") && rest[i + 1]) {
+      serverName = rest[++i];
+      continue;
+    }
+    if (a === "--permissions-scope" && rest[i + 1]) {
+      permissionsScope = rest[++i];
+      continue;
+    }
+    if (a === "--permissions-tool" && rest[i + 1]) {
+      allowTools.push(rest[++i]);
+      preset = "custom";
+      continue;
+    }
+    if (a === "--force") {
+      force = true;
+      continue;
+    }
+    if (a === "--dry-run") {
+      dryRun = true;
+      continue;
+    }
+    console.error(`gcp brain permissions: unknown argument "${a}"`);
+    process.exit(1);
+  }
+
+  if (sub === "print") {
+    const r = await runPermissionsPrint({
+      preset,
+      client,
+      serverName,
+      cwd: process.cwd(),
+      permissionsScope,
+      dryRun,
+      allowTools
+    });
+    if (!r.ok) process.exit(1);
+    return;
+  }
+
+  if (sub === "apply") {
+    const r = await runPermissionsApply({
+      preset,
+      client,
+      serverName,
+      cwd: process.cwd(),
+      permissionsScope,
+      force,
+      dryRun,
+      allowTools
+    });
+    if (!r.ok) {
+      console.error(r.message ?? "permissions apply failed");
+      process.exit(1);
+    }
+    for (const m of r.messages ?? []) console.log(m);
+    return;
+  }
+
+  console.error(`gcp brain permissions: unknown subcommand "${sub}"`);
+  process.exit(1);
 }
 
 async function cmdBrainWorkspace(args) {
@@ -436,6 +669,7 @@ Subcommands:
   export [opts]                           Alias for backup
   load <file.jsonl|backup.json>           Load JSONL profile or restore backup bundle
   setup <cursor|codex|claude> [opts]     User-global MCP: ~/.cursor/mcp.json, codex mcp add, or claude mcp add
+  permissions <print|apply> [opts]       MCP tool permission presets (Claude / Cursor)
 
 Examples:
   gcp brain up --workspace my-app

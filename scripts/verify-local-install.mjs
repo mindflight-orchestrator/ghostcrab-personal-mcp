@@ -396,6 +396,50 @@ try {
     "[mcp-setup] generator must not write the legacy 'ghostcrab' key"
   );
 
+  // Post-setup: basic MCP permissions + IDE skill bundle in consumer project.
+  const permissionsPath = join(fakeCursorDir, ".cursor", "permissions.json");
+  assert.equal(
+    existsSync(permissionsPath),
+    true,
+    `[mcp-setup] expected Cursor permissions at ${permissionsPath}`
+  );
+  const permissionsDoc = JSON.parse(readFileSync(permissionsPath, "utf8"));
+  assert.equal(
+    Array.isArray(permissionsDoc?.mcpAllowlist),
+    true,
+    `[mcp-setup] permissions.json missing mcpAllowlist:\n${JSON.stringify(permissionsDoc, null, 2)}`
+  );
+  assert.equal(
+    permissionsDoc.mcpAllowlist.length,
+    12,
+    `[mcp-setup] expected 12 basic mcpAllowlist entries, got ${permissionsDoc.mcpAllowlist.length}`
+  );
+  for (const entry of permissionsDoc.mcpAllowlist) {
+    assert.match(
+      String(entry),
+      /^ghostcrab-personal-mcp:ghostcrab_/,
+      `[mcp-setup] unexpected allowlist entry: ${entry}`
+    );
+  }
+
+  const sharedOnboarding = join(
+    consumerDir,
+    ".ghostcrab",
+    "skills",
+    "shared",
+    "ONBOARDING_CONTRACT.md"
+  );
+  assert.equal(
+    existsSync(sharedOnboarding),
+    true,
+    `[mcp-setup] expected skill bundle shared docs at ${sharedOnboarding}`
+  );
+  assert.equal(
+    existsSync(join(consumerDir, ".cursor", "rules", "ghostcrab-memory.mdc")),
+    true,
+    "[mcp-setup] expected .cursor/rules/ghostcrab-memory.mdc in consumer project"
+  );
+
   // Pruning round-trip: seed the legacy block at the correct path, re-run with --force,
   // and assert the legacy entry is removed while unrelated servers are preserved.
   writeFileSync(
@@ -459,7 +503,7 @@ try {
   rmSync(fakeCursorDir, { recursive: true, force: true });
 
   console.error(
-    `[verify-local-install] OK — installer + ${platformPackageName}, gcp --help, gcp authorize, gcp tools verify, host bootstrap (.env / data/ / doc symlinks), and gcp brain setup cursor (new key + absolute node path + legacy pruning) all succeeded.`
+    `[verify-local-install] OK — installer + ${platformPackageName}, gcp --help, gcp authorize, gcp tools verify, host bootstrap (.env / data/ / doc symlinks), gcp brain setup cursor (mcp.json + permissions basic + skill bundle + legacy pruning) all succeeded.`
   );
 } finally {
   rmSync(packDest, { recursive: true, force: true });

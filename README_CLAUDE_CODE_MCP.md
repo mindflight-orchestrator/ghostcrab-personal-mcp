@@ -21,6 +21,8 @@ npx gcp brain setup claude --scope project   # write to project-scoped .mcp.json
 
 When a local `node_modules/@mindflight/ghostcrab-personal-mcp/bin/gcp.mjs` is reachable from the current directory, the generator uses `node` + the absolute path to avoid any PATH dependency. Otherwise it falls back to `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up`.
 
+By default, setup also applies **MCP permissions preset `basic`** and installs the **GhostCrab skill bundle** (rules + shared onboarding contract). Opt out with `--no-permissions` / `--no-skills`. Details: [README_MCP_PERMISSIONS.md](README_MCP_PERMISSIONS.md).
+
 ## Quick add: `claude mcp add`
 
 Options such as `--transport`, `--env`, and `--scope` go **before** the server name. After `--`, everything is the server command and its arguments. See the [Claude Code MCP documentation](https://code.claude.com/docs/en/mcp).

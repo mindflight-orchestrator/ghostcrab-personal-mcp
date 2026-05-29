@@ -847,9 +847,9 @@ function extractProductContext() {
       if (packageName) {
         addInfo(`Detected sibling package ${packageName}.`);
       }
-      if (strictMode && packageName !== "@mindflight/ghostcrab") {
+      if (strictMode && packageName !== "@mindflight/ghostcrab-personal-mcp") {
         addError(
-          `Strict mode expected sibling ghostcrab package name @mindflight/ghostcrab, got ${packageName ?? "unknown"}.`
+          `Strict mode expected sibling ghostcrab package name @mindflight/ghostcrab-personal-mcp, got ${packageName ?? "unknown"}.`
         );
       }
     } catch (error) {

@@ -1,0 +1,58 @@
+{
+  "generated_at": "2026-05-29T08:57:06.816Z",
+  "source": "ghostcrab-skills",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "4a6cff04e576cea188b05f1ea6c24ea7b1c61ecf3c0fe561fb4763b67e183d74"
+    },
+    {
+      "path": "claude-code/self-memory/CLAUDE.md",
+      "sha256": "ff48ce71b204f882a0203fbc5c1cd114a78fb9e7eff421bd132e438747669462"
+    },
+    {
+      "path": "claude-code/self-memory/README.install.md",
+      "sha256": "955361cf149829012b37b5d4e928ba617ba5a0f4e5f126c7d7884a0a551abfaf"
+    },
+    {
+      "path": "claude-code/self-memory/settings.fragment.json",
+      "sha256": "7c7dbdb8e310b7066fc81967f7a93f99c8ae0543b9f4e3fb2dbab30effbc6509"
+    },
+    {
+      "path": "codex/ghostcrab-memory/SKILL.md",
+      "sha256": "dd913a9a6f1866fd32192225d817ef0d6c3f32081b53536aa03e75a94183f324"
+    },
+    {
+      "path": "cursor/rules/ghostcrab-memory.mdc",
+      "sha256": "c09f485e745f9eebb0dba8d4a66b9fea670ddf2432dc1b92cdab63c65680e455"
+    },
+    {
+      "path": "shared/APP_PATTERNS.md",
+      "sha256": "ebd7791dcbd1db2a0e76bf3c7d82c71e8c3cdda695bec73f6eb4b0b6293b05cc"
+    },
+    {
+      "path": "shared/CAPABILITIES.md",
+      "sha256": "3ba9cb329b719bfd9b02ef17c2a30c52c5cfa0f3640a590f1201dfa2b133d077"
+    },
+    {
+      "path": "shared/ONBOARDING_CONTRACT.md",
+      "sha256": "c6a26c6951aaa5342d11e96350aaddc475f6199608ee18be9befd31fca0bc94f"
+    },
+    {
+      "path": "shared/QUERY_PATTERNS.md",
+      "sha256": "7f30606428b8316adafe7fbaa60730d65909ec06b80b40ec18bba71c4d82863a"
+    },
+    {
+      "path": "shared/SCHEMA_DESIGN.md",
+      "sha256": "a15ea23c66dafd474eb841b3f18dcbdc7ba5294363860009269014bab575b915"
+    },
+    {
+      "path": "shared/SERVER_INSTRUCTIONS.md",
+      "sha256": "b618f64b51709c294f8f80a7595a05112fc2d02866be45c801abfb764ed7229e"
+    },
+    {
+      "path": "shared/TRANSITION_LOGGING.md",
+      "sha256": "d96be3bc0d8262a9f82b196363bda99d30af15295948c23b472f9a7aa8dd4171"
+    }
+  ]
+}
