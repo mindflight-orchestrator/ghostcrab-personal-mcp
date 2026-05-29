@@ -87,7 +87,7 @@ ${NON_GOAL_LINE}
 | Model     | \`project\` |
 | Guide     | \`modeling_guidance\` — natural-language domain goals |
 
-The MCP default list is intentionally compact. Use \`ghostcrab_tool_search\` to discover hidden specialized tools such as workspace, ontology, loadout, graph, or DDL operations on demand.
+The MCP default list exposes every registered tool via \`tools/list\`. Twelve tools are **recommended defaults** for routine work; the rest are **extended** (annotated \`ghostcrab_visibility: extended\`). Use \`ghostcrab_tool_search\` to filter the catalog by subsystem or visibility. All tools are directly invocable by name once listed.
 
 ## First-call checklist
 
@@ -107,7 +107,7 @@ For normal work (after intake is clear):
 2. Call \`ghostcrab_search\` with explicit \`schema_id\` and exact filters when the entity family is recognizable.
 3. Call \`ghostcrab_combined_search\` when the storage layer is unclear and both graph structure and facet facts may matter.
 4. Call \`ghostcrab_pack\` before heavy reasoning — only after at least one factual read.
-5. Call \`ghostcrab_tool_search\` when the compact list does not expose the specialized tool family you need.
+5. Call \`ghostcrab_tool_search\` when you need to filter the catalog to a specialized tool family (workspace, graph, loadout, DDL).
 
 For local ingest (email, messages, calendar, search results): skip \`ghostcrab_status\`; follow ingest-specific patterns; store summaries, not raw payloads.
 
@@ -197,7 +197,7 @@ export function buildMcpInstructions(params: McpInstructionsParams): string {
     `  Model — project\n` +
     `  Guide — modeling_guidance (natural-language domain goals)\n` +
     `  Bootstrap — status (call first)\n\n` +
-    `The default list is intentionally compact. Use ghostcrab_tool_search to discover specialized hidden tools on demand.\n\n` +
+    `The MCP tools/list surface includes every registered tool. Twelve are recommended defaults (title: GhostCrab recommended default); extended tools use title: GhostCrab extended tool. Use ghostcrab_tool_search to filter the catalog on demand. All listed tools are directly invocable by name.\n\n` +
     `Backend: ${backendUrlRedacted}. Backend is reachable. ${listedToolCount} tools are listed by default; ${extendedToolCount} tools are registered in the full catalog.`
   );
 }

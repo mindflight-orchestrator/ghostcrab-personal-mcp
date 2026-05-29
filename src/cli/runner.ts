@@ -7,8 +7,10 @@ import { executeTool, EXIT_ERROR, EXIT_UNKNOWN_TOOL } from "./execute.js";
 import { HelpRequested, parseCliInput } from "./parse-input.js";
 import {
   buildToolCatalog,
+  listAllRegisteredToolsForMcp,
   listBasicRegisteredTools
 } from "../tools/catalog.js";
+import { getExpectedToolManifest } from "../tools/tool-manifest.js";
 import { registerAllTools } from "../tools/register-all.js";
 import { listRegisteredTools } from "../tools/registry.js";
 import { getPackageVersion } from "../version.js";
@@ -90,8 +92,11 @@ function printGlobalHelp(): void {
     "  smoke              Verify local config, backend reachability, and tool registration",
     "  status             Return a read-only operational snapshot",
     "  tools list         List available MCP tools and schemas",
+    "  tools verify       Verify full MCP catalog list + call smoke",
     "  maintenance ddl-approve         Approve a pending DDL migration",
     "  maintenance ddl-execute         Execute an approved DDL migration",
+    "  workspace reset                 Wipe workspace-scoped data (keep row)",
+    "  workspace delete                Reset data and remove/archive workspace",
     "",
     "MCP is the canonical product surface. Commands such as search, remember,",
     "upsert, schema, learn, project, and pack are MCP tools, not CLI commands."
@@ -418,15 +423,107 @@ export async function runCli(argv: string[]): Promise<void> {
     return;
   }
 
+  if (firstArg === "workspace" && (argv[1] === "reset" || argv[1] === "delete")) {
+    registerAllTools();
+    const action = argv[1];
+    const { values } = parseArgs({
+      args: argv.slice(2),
+      options: {
+        id: { type: "string" },
+        confirm: { type: "boolean", default: false },
+        mode: { type: "string" }
+      },
+      strict: true
+    });
+
+    if (!values.id) {
+      console.error(`workspace ${action} requires --id <workspace_id>`);
+      process.exit(EXIT_ERROR);
+      return;
+    }
+
+    if (values.confirm !== true) {
+      console.error(`workspace ${action} requires --confirm`);
+      process.exit(EXIT_ERROR);
+      return;
+    }
+
+    const toolName =
+      action === "reset"
+        ? "ghostcrab_workspace_reset"
+        : "ghostcrab_workspace_delete";
+    const payload: Record<string, unknown> = {
+      workspace_id: values.id,
+      confirm: true
+    };
+    if (action === "delete" && values.mode) {
+      payload.mode = values.mode;
+    }
+
+    const { toolContext, cleanup } = await initToolContext({
+      verbose: argv.includes("--verbose") || argv.includes("-v")
+    });
+
+    try {
+      const { result, exitCode } = await executeTool(
+        toolName,
+        payload,
+        toolContext
+      );
+      process.stdout.write(`${JSON.stringify(extractStructuredJson(result))}\n`);
+      await cleanup();
+      process.exit(exitCode);
+    } catch (error) {
+      await cleanup();
+      console.error(
+        `Fatal: ${error instanceof Error ? error.message : String(error)}`
+      );
+      process.exit(EXIT_ERROR);
+    }
+    return;
+  }
+
+  if (firstArg === "tools" && argv[1] === "verify") {
+    const { spawnSync } = await import("node:child_process");
+    const { dirname, join } = await import("node:path");
+    const { fileURLToPath } = await import("node:url");
+
+    const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "../..");
+    const scriptPath = join(packageRoot, "scripts/verify-mcp-tools.mjs");
+    const json = argv.includes("--json");
+    const result = spawnSync(
+      process.execPath,
+      [scriptPath, ...(json ? ["--json"] : [])],
+      {
+        cwd: packageRoot,
+        stdio: "inherit",
+        env: process.env
+      }
+    );
+    process.exit(result.status ?? 1);
+    return;
+  }
+
   if (firstArg === "tools" && argv[1] === "list") {
     registerAllTools();
     const tools = listRegisteredTools();
     const basicTools = listBasicRegisteredTools(tools);
     const toolCatalog = buildToolCatalog(tools);
+    const manifest = getExpectedToolManifest();
     const output = {
       ok: true,
+      recommended_default_tools: basicTools.map((t) => t.name),
       listed_by_default: basicTools.map((t) => t.name),
       full_catalog_size: tools.length,
+      mcp_list_size: manifest.total,
+      all_tools: listAllRegisteredToolsForMcp(tools).map((t) => ({
+        name: t.name,
+        description: t.description,
+        title: t.title ?? null,
+        visibility:
+          t.title === "GhostCrab recommended default" ? "basic" : "extended",
+        cli_command: cliLabelForMcpTool(t.name)
+      })),
       tools: basicTools.map((t) => ({
         name: t.name,
         description: t.description,

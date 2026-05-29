@@ -16,6 +16,7 @@ runCommand(npmCommand(), ["run", "verify:pack"], { env: sharedEnv });
 assertBackendHealthy(mindbrainUrl);
 runCommand(npmCommand(), ["run", "migrate"], { env: sharedEnv });
 runCommand(npmCommand(), ["run", "test:integration"], { env: sharedEnv });
+runCommand(npmCommand(), ["run", "verify:mcp-tools"], { env: sharedEnv });
 runCommand(npmCommand(), ["run", "smoke:mcp"], { env: sharedEnv });
 runCommand(npmCommand(), ["run", "smoke:mcp:incomplete-graph"], {
   env: sharedEnv

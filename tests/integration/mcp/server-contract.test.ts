@@ -1,44 +1,53 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  BASIC_TOOL_NAMES,
+  EXPECTED_TOOL_NAMES,
+  getExpectedToolManifest
+} from "../../../src/tools/tool-manifest.js";
+import {
   callToolJson,
   listToolNames,
   withMcpStdioClient
 } from "../../helpers/mcp-stdio.js";
 
 describe.sequential("MCP server contract", () => {
-  it("starts on stdio and lists the critical tool surface", async () => {
+  it("starts on stdio and lists the full tool catalog", async () => {
     await withMcpStdioClient(
       "contract-list-tools",
       async ({ client, getStderrOutput }) => {
         const tools = await listToolNames(client);
+        const manifest = getExpectedToolManifest();
 
-        expect(tools).toEqual(
-          expect.arrayContaining([
-            "ghostcrab_status",
-            "ghostcrab_search",
-            "ghostcrab_count",
-            "ghostcrab_combined_search",
-            "ghostcrab_remember",
-            "ghostcrab_upsert",
-            "ghostcrab_schema_list",
-            "ghostcrab_schema_inspect",
-            "ghostcrab_pack",
-            "ghostcrab_project",
-            "ghostcrab_modeling_guidance",
-            "ghostcrab_tool_search"
-          ])
-        );
-        expect(tools).toHaveLength(12);
-        expect(tools).not.toContain("ghostcrab_csearch");
-        expect(tools).not.toContain("ghostcrab_workspace_list");
-        expect(tools).not.toContain("ghostcrab_workspace_use");
+        expect(tools).toHaveLength(manifest.total);
+        expect(tools).toEqual([...EXPECTED_TOOL_NAMES].sort());
+        expect(tools).toEqual(expect.arrayContaining([...BASIC_TOOL_NAMES]));
+        expect(tools).toContain("ghostcrab_workspace_create");
+        expect(tools).toContain("ghostcrab_workspace_delete");
+        expect(tools).toContain("ghostcrab_csearch");
 
         const stderr = getStderrOutput();
         expect(stderr).toContain("Starting MCP server");
         expect(stderr).toContain("MCP server connected on stdio");
       }
     );
+  });
+
+  it("labels listed tools with basic vs extended titles", async () => {
+    await withMcpStdioClient("contract-tool-titles", async ({ client }) => {
+      const toolsResult = await client.listTools();
+      const basic = toolsResult.tools.filter(
+        (tool) => tool.title === "GhostCrab recommended default"
+      );
+      const extended = toolsResult.tools.filter(
+        (tool) => tool.title === "GhostCrab extended tool"
+      );
+
+      expect(basic).toHaveLength(BASIC_TOOL_NAMES.length);
+      expect(extended).toHaveLength(
+        EXPECTED_TOOL_NAMES.length - BASIC_TOOL_NAMES.length
+      );
+    });
   });
 
   it("discovers hidden workspace tools via ghostcrab_tool_search", async () => {
@@ -56,6 +65,16 @@ describe.sequential("MCP server contract", () => {
           expect.objectContaining({ name: "ghostcrab_workspace_inspect" })
         ])
       );
+    });
+  });
+
+  it("calls an extended workspace tool via tools/call", async () => {
+    await withMcpStdioClient("contract-call-extended", async ({ client }) => {
+      const payload = await callToolJson(client, "ghostcrab_workspace_list", {});
+
+      expect(payload.ok).toBe(true);
+      expect(payload.tool).toBe("ghostcrab_workspace_list");
+      expect(Array.isArray(payload.workspaces)).toBe(true);
     });
   });
 

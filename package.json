@@ -30,7 +30,9 @@
     "mindbrain"
   ],
   "files": [
-    "bin",
+    "scripts/verify-mcp-tools.mjs",
+    "scripts/mcp-smoke-shared.mjs",
+    "scripts/load-tool-manifest.mjs",
     "dist",
     "ghostcrab-skills",
     "installations",
@@ -76,6 +78,7 @@
     "lint": "eslint .",
     "migrate": "tsx src/cli/migrate.ts",
     "smoke:mcp": "node scripts/mcp-smoke.mjs",
+    "verify:mcp-tools": "node scripts/verify-mcp-tools.mjs",
     "smoke:mcp:embeddings-fake": "node scripts/mcp-smoke-embeddings-fake.mjs",
     "smoke:mcp:embeddings-real": "node scripts/mcp-smoke-embeddings-real.mjs",
     "smoke:mcp:incomplete-graph": "node scripts/mcp-smoke-incomplete-graph.mjs",

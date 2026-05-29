@@ -69,6 +69,30 @@ export function listBasicRegisteredTools(tools: Tool[]): Tool[] {
   });
 }
 
+export function getToolVisibility(name: string): ToolVisibility {
+  return BASIC_LISTED_TOOL_SET.has(name) ? "basic" : "extended";
+}
+
+export function annotateToolForMcpList(tool: Tool): Tool {
+  const visibility = getToolVisibility(tool.name);
+
+  return {
+    ...tool,
+    title:
+      visibility === "basic"
+        ? "GhostCrab recommended default"
+        : "GhostCrab extended tool"
+  } as Tool;
+}
+
+/** Full MCP tools/list surface: every registered tool, annotated basic vs extended. */
+export function listAllRegisteredToolsForMcp(tools: Tool[]): Tool[] {
+  return tools
+    .slice()
+    .sort((left, right) => left.name.localeCompare(right.name))
+    .map(annotateToolForMcpList);
+}
+
 export function buildToolCatalog(tools: Tool[]): ToolCatalogEntry[] {
   return tools.map((tool) => {
     const access = classifyAccess(tool.name);
@@ -160,8 +184,8 @@ export function searchToolCatalog(
   return scored.slice(0, limit);
 }
 
-export function getBasicToolNames(): string[] {
-  return [...BASIC_LISTED_TOOL_NAMES];
+export function getBasicToolNames(): readonly string[] {
+  return BASIC_LISTED_TOOL_NAMES;
 }
 
 function classifyAccess(name: string): ToolAccess {
