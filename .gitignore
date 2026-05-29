@@ -47,8 +47,11 @@ packages/prebuild-*/*
 .codex/
 
 data/
-doc_ext/
+docs/audit/
 docs/dev/
+docs/plan/
+docs/mcp-explanation/
+
 logs/
 *.log
 
