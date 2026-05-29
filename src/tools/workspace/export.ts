@@ -6,6 +6,7 @@ import {
   registerTool,
   type ToolHandler
 } from "../registry.js";
+import { workspaceNotFoundMessage } from "./errors.js";
 import { WorkspaceIdSchema } from "../../types/workspace.js";
 import {
   ExportDepthSchema,
@@ -440,7 +441,7 @@ export const workspaceExportModelTool: ToolHandler = {
     if (wsRows.length === 0) {
       return createToolErrorResult(
         "ghostcrab_workspace_export_model",
-        `Workspace '${input.workspace_id}' does not exist.`,
+        workspaceNotFoundMessage(input.workspace_id),
         "workspace_not_found"
       );
     }

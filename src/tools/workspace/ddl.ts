@@ -7,6 +7,7 @@ import {
   registerTool,
   type ToolHandler
 } from "../registry.js";
+import { workspaceNotFoundMessage } from "./errors.js";
 import { WorkspaceIdSchema } from "../../types/workspace.js";
 import { SyncFieldSpecSchema } from "../../types/facets.js";
 import { validateProposedSql } from "../../db/trigger-generator.js";
@@ -230,7 +231,7 @@ export const ddlProposeTool: ToolHandler = {
     if (workspace.length === 0) {
       return createToolErrorResult(
         "ghostcrab_ddl_propose",
-        `Workspace '${input.workspace_id}' does not exist. Create it first with ghostcrab_workspace_create.`,
+        workspaceNotFoundMessage(input.workspace_id),
         "workspace_not_found"
       );
     }

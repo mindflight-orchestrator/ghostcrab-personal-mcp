@@ -18,6 +18,7 @@ import { EmbeddingProviderError } from "./embeddings/errors.js";
 import { createEmbeddingProvider } from "./embeddings/provider.js";
 import { ensureBootstrapData } from "./bootstrap/seed.js";
 import { getSessionContext } from "./mcp/session-context.js";
+import { resolveInitialSessionContext } from "./mcp/session-context-init.js";
 import {
   buildMcpInstructions,
   buildReadmeMarkdown,
@@ -378,6 +379,19 @@ export async function startMcpServer(): Promise<void> {
       serverState.bootstrapComplete = true;
       console.error(
         "[ghostcrab] bootstrap seed skipped by GHOSTCRAB_BOOTSTRAP_SEED=0"
+      );
+    }
+
+    if (serverState.databaseReady) {
+      const pinResult = await resolveInitialSessionContext({
+        activeWorkspaceIdFromEnv: config.activeWorkspaceId,
+        cliWorkspaceName: config.cliWorkspaceName,
+        database
+      });
+      console.error(
+        `[ghostcrab] session workspace pinned: ${pinResult.resolved_workspace_id} ` +
+          `(source=${pinResult.pin_source}, status=${pinResult.pin_status}` +
+          `${pinResult.requested_workspace_id ? `, requested=${pinResult.requested_workspace_id}` : ""})`
       );
     }
   } catch (error) {

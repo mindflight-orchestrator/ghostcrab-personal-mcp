@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { workspaceNotFoundMessage } from "./errors.js";
 import {
   getSessionContext,
   setSessionContext
@@ -20,7 +21,7 @@ export const workspaceUseTool: ToolHandler = {
   definition: {
     name: "ghostcrab_workspace_use",
     description:
-      "Set the active workspace and/or schema filter for this MCP server session. All subsequent tool calls will use these defaults unless they pass explicit workspace_id / schema_id overrides. Call ghostcrab_workspace_list first to see available workspaces. Note: session context is shared across all chats in the same MCP server process — use per-call overrides or separate MCP server entries for isolation between parallel chats.",
+      "Set the active MindBrain workspace_id and/or schema filter for this MCP server session. Use when the user asked to work in another workspace or after ghostcrab_workspace_list and confirming the target — announce the switch to the user. Do not call reactively on empty reads or tool errors. All subsequent tool calls use these defaults unless they pass explicit workspace_id / schema_id overrides. Session context is shared across all chats in the same MCP server process.",
     inputSchema: {
       type: "object",
       properties: {
@@ -63,7 +64,7 @@ export const workspaceUseTool: ToolHandler = {
       if (!ws) {
         return createToolErrorResult(
           "ghostcrab_workspace_use",
-          `Workspace '${input.workspace_id}' does not exist. Call ghostcrab_workspace_list to see available workspaces, or ghostcrab_workspace_create to create a new one.`,
+          workspaceNotFoundMessage(input.workspace_id),
           "workspace_not_found",
           { workspace_id: input.workspace_id }
         );

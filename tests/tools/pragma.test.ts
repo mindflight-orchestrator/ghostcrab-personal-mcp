@@ -326,7 +326,15 @@ describe("pragma tools", () => {
         mb_ontology_available: true
       }
     });
-    expect(payload.directives).toEqual([]);
+    expect(payload.workspace_context).toMatchObject({
+      pin_source: expect.any(String),
+      switch_policy: "intentional_switch_allowed"
+    });
+    expect(payload.directives).toEqual(
+      expect.arrayContaining([
+        "Backend missing graph diagnostics routes — rebuild ghostcrab-backend (pnpm run prebuild:local) and restart."
+      ])
+    );
   });
 
   it("exposes embeddings degradation directives when runtime failed", async () => {

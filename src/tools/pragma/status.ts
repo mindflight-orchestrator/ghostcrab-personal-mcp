@@ -1,6 +1,10 @@
 import { z } from "zod";
 
 import { buildStatusPreamble } from "../../mcp/agent-brief.js";
+import {
+  buildWorkspaceContextDirectives,
+  buildWorkspaceContextStatus
+} from "../../mcp/workspace-context-status.js";
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import { probeMindbrainCapabilities } from "../../db/standalone-mindbrain.js";
 import { isFactsFtsReady } from "../../runtime/facets-fts-state.js";
@@ -132,7 +136,7 @@ export const statusTool: ToolHandler = {
         capabilityProbe.capabilities.features.graph_gap_rules_delete === true
     };
 
-    const directives: string[] = [];
+    const directives: string[] = [...buildWorkspaceContextDirectives()];
     if (!runtimeCapabilities.graph_gap_diagnostics) {
       directives.push(
         "Backend missing graph diagnostics routes — rebuild ghostcrab-backend (pnpm run prebuild:local) and restart."
@@ -191,6 +195,7 @@ export const statusTool: ToolHandler = {
       snapshot_at: new Date().toISOString(),
       active_workspace_id: context.session.workspace_id,
       active_schema_id: context.session.schema_id,
+      workspace_context: buildWorkspaceContextStatus(),
       summary: {
         attention_required: {
           health: state.health !== "GREEN" ? state.health : null,

@@ -39,6 +39,10 @@ export interface GhostcrabConfig {
   mindbrainHttpTimeoutMs: number;
   mindbrainUrl: string;
   sqlitePath: string;
+  /** Explicit MindBrain workspace_id pin from GHOSTCRAB_ACTIVE_WORKSPACE_ID. */
+  activeWorkspaceId?: string;
+  /** CLI workspace name from GHOSTCRAB_WORKSPACE_NAME (selects SQLite file; may map to workspace_id). */
+  cliWorkspaceName?: string;
   agentHost?: TelemetryAgentHost;
   agentHostSource?: TelemetryAgentHostSource;
   executionMode?: TelemetryExecutionMode;
@@ -257,6 +261,14 @@ export function resolveGhostcrabConfig(
       env.GHOSTCRAB_SQLITE_PATH ??
       fileEnv.GHOSTCRAB_SQLITE_PATH ??
       DEFAULT_SQLITE_PATH,
+    activeWorkspaceId:
+      env.GHOSTCRAB_ACTIVE_WORKSPACE_ID?.trim() ||
+      fileEnv.GHOSTCRAB_ACTIVE_WORKSPACE_ID?.trim() ||
+      undefined,
+    cliWorkspaceName:
+      env.GHOSTCRAB_WORKSPACE_NAME?.trim() ||
+      fileEnv.GHOSTCRAB_WORKSPACE_NAME?.trim() ||
+      undefined,
     agentHost,
     agentHostSource,
     executionMode

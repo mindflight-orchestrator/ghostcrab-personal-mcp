@@ -34,7 +34,7 @@ describe("runSetupPostInstall", () => {
     process.env.USERPROFILE = fakeHome;
   }
 
-  it("dry-run cursor reports basic permissions (12 tools) and skill bundle", async () => {
+  it("dry-run cursor reports basic permissions (14 tools) and skill bundle", async () => {
     cwd = mkdtempSync(join(tmpdir(), "gc-setup-post-cwd-"));
     useFakeHome();
 
@@ -53,7 +53,7 @@ describe("runSetupPostInstall", () => {
 
     expect(result.ok).toBe(true);
     const text = (result.messages ?? []).join("\n");
-    expect(text).toMatch(/Would write Cursor mcpAllowlist \(basic, 12 tools\)/);
+    expect(text).toMatch(/Would write Cursor mcpAllowlist \(basic, 14 tools\)/);
     expect(text).toMatch(/Would install cursor skill bundle from bin\/ide-skills/);
   });
 
@@ -99,7 +99,7 @@ describe("runSetupPostInstall", () => {
 
     expect(result.ok).toBe(true);
     const text = (result.messages ?? []).join("\n");
-    expect(text).toMatch(/mcpAllowlist \(basic, 12 tools\)/);
+    expect(text).toMatch(/mcpAllowlist \(basic, 14 tools\)/);
     expect(text).not.toMatch(/skill bundle/);
   });
 
@@ -151,7 +151,7 @@ describe("runSetupPostInstall", () => {
     const doc = JSON.parse(readFileSync(permissionsPath, "utf8")) as {
       mcpAllowlist: string[];
     };
-    expect(doc.mcpAllowlist).toHaveLength(12);
+    expect(doc.mcpAllowlist).toHaveLength(14);
     expect(existsSync(join(cwd, ".ghostcrab", "skills", "shared", "ONBOARDING_CONTRACT.md"))).toBe(
       true
     );

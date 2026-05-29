@@ -17,6 +17,7 @@ import {
   upsertGraphRelation
 } from "../../db/graph.js";
 import { persistSemanticProposal } from "./semantic-persist.js";
+import { workspaceNotFoundMessage } from "./errors.js";
 import { WorkspaceIdSchema } from "../../types/workspace.js";
 
 const LoadoutSeedInput = z.object({
@@ -92,7 +93,7 @@ export const loadoutSeedTool: ToolHandler = {
     if (!workspace) {
       return createToolErrorResult(
         "ghostcrab_loadout_seed",
-        `Workspace '${input.workspace_id}' does not exist.`,
+        workspaceNotFoundMessage(input.workspace_id),
         "workspace_not_found"
       );
     }
