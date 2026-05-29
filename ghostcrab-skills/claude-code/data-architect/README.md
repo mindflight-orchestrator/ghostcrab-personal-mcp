@@ -17,9 +17,26 @@ Use it when you want Claude Code to:
 - propose graph models
 - scaffold migration files
 - generate TypeScript types from agreed schema shapes
+- compile external CSV/API/JSON/app exports through a reusable source-import procedure
 
 This starter is additive with:
 
 - [claude-code/self-memory/](../self-memory)
 
 The expectation is that a project may combine both fragments.
+
+## Starterkit Resource
+
+For concrete SOPs, templates, source profiles, mapping contracts, consumer contracts, and import manifests, use the GhostCrab Personal StarterKit as the canonical project artifact source:
+
+```bash
+git clone https://gitlab.com/webigniter/starter-kit-ghostcrab-perso.git
+```
+
+For non-Obsidian imports, load:
+
+- `starterkit/SOP5_source_import_compiler.md`
+- `starterkit/templates/source_profile.yaml`
+- `starterkit/templates/mapping_external_to_canonical.yaml`
+- `starterkit/templates/consumer_contract.yaml`
+- `starterkit/templates/import_manifest.yaml`

@@ -134,6 +134,13 @@ If your Codex version documents a single skills root directory, point it at the 
 - **First fuzzy onboarding** is **intake-only**: follow [ONBOARDING_CONTRACT.md](../shared/ONBOARDING_CONTRACT.md) in full.
 - **Product language first** in skills; avoid leading with low-level mechanics unless the user asks.
 - **Demo data** (optional): portable profiles live under [shared/demo-profiles/](../shared/demo-profiles/); loading them uses product-side tooling, not Codex itself.
+- **Project artifacts**: use the GhostCrab Personal StarterKit for clonable SOPs and templates.
+
+```bash
+git clone https://gitlab.com/webigniter/starter-kit-ghostcrab-perso.git
+```
+
+For source imports, load `starterkit/SOP5_source_import_compiler.md` plus the templates under `starterkit/templates/`.
 
 ## See also
 

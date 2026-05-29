@@ -36,6 +36,26 @@ After clarification:
 4. define the smallest model that supports the retrieval jobs
 5. keep the first design provisional until the naming and retrieval contract is stable
 
+## Starterkit Resource
+
+When the user wants concrete project files, import templates, source-to-canonical mappings, or consumer validation gates, use the GhostCrab Personal StarterKit as the canonical artifact source instead of inventing project-local templates from scratch.
+
+Canonical clone URL:
+
+```bash
+git clone https://gitlab.com/webigniter/starter-kit-ghostcrab-perso.git
+```
+
+Load only what is needed:
+
+- `starterkit/QUICKSTART.md` for phase selection
+- `starterkit/SOP2_obsidian_ontologie.md` for ontology modeling
+- `starterkit/SOP5_source_import_compiler.md` for CSV/API/JSON/app exports
+- `starterkit/templates/source_profile.yaml`
+- `starterkit/templates/mapping_external_to_canonical.yaml`
+- `starterkit/templates/consumer_contract.yaml`
+- `starterkit/templates/import_manifest.yaml`
+
 ## Freeze Policy
 
 - provisional model first
