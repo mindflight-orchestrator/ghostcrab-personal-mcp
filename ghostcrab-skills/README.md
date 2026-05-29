@@ -7,6 +7,7 @@ This repository contains:
 - Claude Code starter packs
 - OpenClaw skill and agent profiles
 - shared design rules and portable demo seed data
+- pointers to the GhostCrab Personal StarterKit for clonable SOPs and templates
 
 This repository does not contain:
 
@@ -21,8 +22,15 @@ Those live in the separate `ghostcrab` product repository. In this embedded work
 
 - `ghostcrab` = product runtime, MCP tools, Docker fallback, migrations, bootstrap
 - `ghostcrab-skills` = client-facing configuration, prompts, hooks, templates, examples
+- `starter-kit-ghostcrab-perso` = clonable SOPs, project templates, and source-import compiler references
 
 This split keeps the public product client-agnostic while still shipping opinionated integrations for different agent environments.
+
+Canonical starterkit clone URL:
+
+```bash
+git clone https://gitlab.com/webigniter/starter-kit-ghostcrab-perso.git
+```
 
 ## V1 Focus
 

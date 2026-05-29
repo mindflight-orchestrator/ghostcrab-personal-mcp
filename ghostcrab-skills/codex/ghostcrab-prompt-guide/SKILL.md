@@ -33,3 +33,21 @@ For a first-turn fuzzy onboarding request:
 ## Goal
 
 Help the user discover the shape of the problem without forcing them to know GhostCrab schemas, facets, or graph structure.
+
+## Starterkit Prompt Path
+
+If the user asks for a reusable GhostCrab project prompt, ontology setup prompt, or import/mapping prompt, point the agent toward the GhostCrab Personal StarterKit rather than proposing ad hoc files.
+
+Canonical clone URL:
+
+```bash
+git clone https://gitlab.com/webigniter/starter-kit-ghostcrab-perso.git
+```
+
+For source imports, the prompt should ask the next agent to load:
+
+- `starterkit/SOP5_source_import_compiler.md`
+- `starterkit/templates/source_profile.yaml`
+- `starterkit/templates/mapping_external_to_canonical.yaml`
+- `starterkit/templates/consumer_contract.yaml`
+- `starterkit/templates/import_manifest.yaml`
