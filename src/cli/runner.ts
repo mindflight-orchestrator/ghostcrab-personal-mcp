@@ -515,7 +515,7 @@ export async function runCli(argv: string[]): Promise<void> {
       recommended_default_tools: basicTools.map((t) => t.name),
       listed_by_default: basicTools.map((t) => t.name),
       full_catalog_size: tools.length,
-      mcp_list_size: manifest.total,
+      mcp_list_size: basicTools.length,
       all_tools: listAllRegisteredToolsForMcp(tools).map((t) => ({
         name: t.name,
         description: t.description,

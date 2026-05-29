@@ -72,9 +72,12 @@ await withSmokeClient("verify-mcp-tools", async ({ client }) => {
   const toolNames = await listTools(client);
   report.listed_count = toolNames.length;
 
-  if (JSON.stringify([...toolNames].sort()) !== JSON.stringify([...registered].sort())) {
+  if (
+    JSON.stringify([...toolNames].sort()) !==
+    JSON.stringify([...manifest.basic_names].sort())
+  ) {
     throw new Error(
-      `tools/list mismatch. Listed ${toolNames.length}, expected ${manifest.total}.`
+      `tools/list mismatch. Listed ${toolNames.length}, expected ${manifest.basic} basic tools.`
     );
   }
 

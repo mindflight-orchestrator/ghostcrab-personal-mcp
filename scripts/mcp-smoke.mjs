@@ -18,9 +18,9 @@ await withSmokeClient(
     const stderrOutput = getStderrOutput();
 
     assert.equal(
-      toolNames.length >= manifest.total,
-      true,
-      `Expected at least ${manifest.total} registered GhostCrab tools. stderr:\n${stderrOutput}`
+      toolNames.length,
+      manifest.basic,
+      `Expected ${manifest.basic} basic GhostCrab tools in tools/list. stderr:\n${stderrOutput}`
     );
     assert.ok(
       toolNames.includes("ghostcrab_search") &&
@@ -28,9 +28,13 @@ await withSmokeClient(
         toolNames.includes("ghostcrab_upsert") &&
         toolNames.includes("ghostcrab_count") &&
         toolNames.includes("ghostcrab_status") &&
-        toolNames.includes("ghostcrab_workspace_create") &&
-        toolNames.includes("ghostcrab_ddl_propose"),
-      `Missing expected tools. Registered tools: ${toolNames.join(", ")}`
+        toolNames.includes("ghostcrab_tool_search"),
+      `Missing expected basic tools. Listed tools: ${toolNames.join(", ")}`
+    );
+    assert.equal(
+      toolNames.includes("ghostcrab_workspace_create"),
+      false,
+      "Extended tools must not appear in the compact tools/list surface."
     );
 
     const rememberPayload = await callToolJson(

@@ -187,14 +187,14 @@ If you self-host a GhostCrab-compatible endpoint over **HTTP** or **SSE** later,
 
 ## Verify tools after install
 
-After installing or upgrading the package, confirm the full MCP catalog is listed and callable:
+After installing or upgrading the package, confirm the compact MCP list and extended-tool callability:
 
 ```bash
 pnpm run build && pnpm run verify:mcp-tools   # from a dev checkout
 gcp tools verify                              # from an installed package (backend must be up)
 ```
 
-This checks that `tools/list` returns all 50 registered tools and runs a short `tools/call` smoke per subsystem.
+This checks that `tools/list` returns the 12 default tools, that all 50 remain registered and callable by name, and runs a short `tools/call` smoke per subsystem (including extended tools not in the default list). Use `ghostcrab_tool_search` to discover extended tools.
 
 ## Install from a local pack (development)
 

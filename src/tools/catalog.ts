@@ -49,9 +49,7 @@ const BASIC_LISTED_TOOL_NAMES = [
   "ghostcrab_pack",
   "ghostcrab_project",
   "ghostcrab_modeling_guidance",
-  "ghostcrab_tool_search",
-  "ghostcrab_workspace_list",
-  "ghostcrab_workspace_use"
+  "ghostcrab_tool_search"
 ] as const;
 
 const BASIC_LISTED_TOOL_SET = new Set<string>(BASIC_LISTED_TOOL_NAMES);

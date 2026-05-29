@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   BASIC_TOOL_NAMES,
-  EXPECTED_TOOL_NAMES,
   getExpectedToolManifest
 } from "../../../src/tools/tool-manifest.js";
 import {
@@ -12,19 +11,18 @@ import {
 } from "../../helpers/mcp-stdio.js";
 
 describe.sequential("MCP server contract", () => {
-  it("starts on stdio and lists the full tool catalog", async () => {
+  it("starts on stdio and lists the compact default tool set", async () => {
     await withMcpStdioClient(
       "contract-list-tools",
       async ({ client, getStderrOutput }) => {
         const tools = await listToolNames(client);
         const manifest = getExpectedToolManifest();
 
-        expect(tools).toHaveLength(manifest.total);
-        expect(tools).toEqual([...EXPECTED_TOOL_NAMES].sort());
-        expect(tools).toEqual(expect.arrayContaining([...BASIC_TOOL_NAMES]));
-        expect(tools).toContain("ghostcrab_workspace_create");
-        expect(tools).toContain("ghostcrab_workspace_delete");
-        expect(tools).toContain("ghostcrab_csearch");
+        expect(tools).toHaveLength(manifest.basic);
+        expect(tools).toEqual([...BASIC_TOOL_NAMES].sort());
+        expect(tools).not.toContain("ghostcrab_workspace_create");
+        expect(tools).not.toContain("ghostcrab_workspace_list");
+        expect(tools).not.toContain("ghostcrab_csearch");
 
         const stderr = getStderrOutput();
         expect(stderr).toContain("Starting MCP server");
@@ -33,7 +31,7 @@ describe.sequential("MCP server contract", () => {
     );
   });
 
-  it("labels listed tools with basic vs extended titles", async () => {
+  it("labels all listed tools as recommended defaults", async () => {
     await withMcpStdioClient("contract-tool-titles", async ({ client }) => {
       const toolsResult = await client.listTools();
       const basic = toolsResult.tools.filter(
@@ -44,9 +42,7 @@ describe.sequential("MCP server contract", () => {
       );
 
       expect(basic).toHaveLength(BASIC_TOOL_NAMES.length);
-      expect(extended).toHaveLength(
-        EXPECTED_TOOL_NAMES.length - BASIC_TOOL_NAMES.length
-      );
+      expect(extended).toHaveLength(0);
     });
   });
 

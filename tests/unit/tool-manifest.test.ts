@@ -27,9 +27,9 @@ describe("tool manifest", () => {
     expect(registered).toHaveLength(EXPECTED_TOOL_NAMES.length);
   });
 
-  it("reports 14 basic and the rest extended", () => {
+  it("reports 12 basic and the rest extended", () => {
     const manifest = getExpectedToolManifest();
-    expect(manifest.basic).toBe(14);
+    expect(manifest.basic).toBe(12);
     expect(manifest.basic_names).toEqual([...BASIC_TOOL_NAMES]);
     expect(manifest.total).toBe(manifest.basic + manifest.extended);
   });

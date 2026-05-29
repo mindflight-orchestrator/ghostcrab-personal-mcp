@@ -118,11 +118,27 @@ assert.equal(
   "Did not expect prebuilds/ files in the installer tarball."
 );
 
-for (const forbiddenPrefix of ["src/", "tests/", "scripts/"]) {
+const allowedScriptPaths = new Set([
+  "scripts/verify-mcp-tools.mjs",
+  "scripts/mcp-smoke-shared.mjs",
+  "scripts/load-tool-manifest.mjs",
+  "scripts/sync-ide-skill-bundles.mjs"
+]);
+
+for (const forbiddenPrefix of ["src/", "tests/"]) {
   assert.equal(
     [...filePaths].some((filePath) => filePath.startsWith(forbiddenPrefix)),
     false,
     `Did not expect ${forbiddenPrefix} files in the npm tarball.`
+  );
+}
+
+for (const filePath of filePaths) {
+  if (!filePath.startsWith("scripts/")) continue;
+  assert.equal(
+    allowedScriptPaths.has(filePath),
+    true,
+    `Unexpected scripts/ file in the npm tarball: ${filePath}`
   );
 }
 
