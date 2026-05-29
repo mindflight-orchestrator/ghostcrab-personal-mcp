@@ -68,13 +68,13 @@ Recommended first step:
 - show one durable memory use case
 - then mention that a deeper CrewAI storage backend could come later
 
-### 6.2 Replace PostgreSQL-first language
+### 6.2 SQLite-first language (applied)
 
-The drafts repeatedly describe GhostCrab as a PostgreSQL ontology graph or PostgreSQL-backed memory. For this community review, that should be rewritten.
+The drafts repeatedly describe GhostCrab as a SQLite ontology graph or SQLite-backed memory. For this community review, that should be rewritten.
 
 Preferred framing:
 
-> GhostCrab Personal runs locally with SQLite and exposes memory tools over MCP. PostgreSQL belongs only in a short note about MCP GhostCrab PRO - mindBrain Pro.
+> GhostCrab Personal runs locally with SQLite and exposes memory tools over MCP. SQLite belongs only in a short note about 
 
 ### 6.3 Replace old commands and transports
 
@@ -173,7 +173,7 @@ Recommended use:
 
 - keep it as internal architecture thinking
 - extract a small public demo from it
-- remove PostgreSQL-first setup from public-facing sections
+- remove SQLite-first setup from public-facing sections
 
 ## 8. Tool Mapping
 
@@ -208,7 +208,7 @@ An analyst agent writes a project summary. A writer agent starts a later run and
 
 Suggested wording:
 
-> This CrewAI guide focuses on GhostCrab Personal SQLite. Teams that need centralized PostgreSQL deployment can later explore MCP GhostCrab PRO - mindBrain Pro.
+> This CrewAI guide focuses on GhostCrab Personal SQLite. Teams that need centralized SQLite deployment can later explore 
 
 Keep this as a single short note.
 

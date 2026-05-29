@@ -40,7 +40,7 @@ npm install -g @mindflight/ghostcrab-personal-mcp
 gcp brain up
 ```
 
-Do not require PostgreSQL, Docker, direct database imports, migrations, or a remote MCP server for a Personal trial.
+Do not require Docker, direct database imports, migrations, or a remote MCP server for a Personal trial.
 
 ## Phase B - Ask Before Modeling
 
@@ -142,7 +142,7 @@ For larger PRO deployments, direct database ingestion can be documented separate
 ## Hard Rules
 
 - GhostCrab Personal SQLite is the default community path.
-- Do not present PostgreSQL or MindBrain PRO as required.
+- Do not present a separate database server as required.
 - Do not register schemas before the user's real retrieval jobs are clear.
 - Do not use private or invented tool names.
 - Do not update current state with `ghostcrab_remember`; use `ghostcrab_upsert`.

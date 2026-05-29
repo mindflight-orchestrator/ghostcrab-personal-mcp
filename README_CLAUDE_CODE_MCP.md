@@ -64,7 +64,7 @@ claude mcp add --transport stdio --scope project \
 
 ### Optional flags and environment
 
-- **Workspace name:** add `gcp` args after `up` (or `brain`, `up`), e.g. `gcp brain up --workspace my-project` (legacy: `gcp serve …`).
+- **Workspace name:** add `gcp` args after `up` (or `brain`, `up`), e.g. `gcp brain up --workspace my-project` (legacy: `gcp serve …`). This selects the SQLite file; use `GHOSTCRAB_ACTIVE_WORKSPACE_ID` or `gcp brain setup claude --mindbrain-workspace-id <id>` to pin the MindBrain workspace_id.
 - **SQLite file path:** if you do not want the default file under the process working directory, set `GHOSTCRAB_SQLITE_PATH` to an absolute path.
 - **Embeddings:** for hybrid search with an API, configure `GHOSTCRAB_EMBEDDINGS_MODE` and related settings as described in the main README.
 

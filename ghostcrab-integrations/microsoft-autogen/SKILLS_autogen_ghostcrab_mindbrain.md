@@ -11,8 +11,6 @@ This skill is Personal-first:
 - AutoGen MCP class: `autogen_ext.tools.mcp.McpWorkbench`
 - Server params: `autogen_ext.tools.mcp.StdioServerParams`
 
-PRO note: MCP GhostCrab PRO / mindBrain Pro is the centralized team path for later. Keep this guide focused on Personal SQLite.
-
 ## Boundary
 
 AutoGen orchestrates agents. GhostCrab stores shared state. GhostCrab does not dispatch agents, set priorities, decide who speaks, or replace `RoundRobinGroupChat`, `SelectorGroupChat`, or other AutoGen team logic.
@@ -41,7 +39,6 @@ Use `McpWorkbench` with `StdioServerParams` for the local Personal path.
 ```python
 from autogen_ext.tools.mcp import McpWorkbench, StdioServerParams
 
-
 def ghostcrab_stdio_params() -> StdioServerParams:
     return StdioServerParams(command="gcp", args=["brain", "up"])
 ```
@@ -64,13 +61,11 @@ GHOSTCRAB_TOOLS = {
     "ghostcrab_project",
 }
 
-
 async def verify_ghostcrab_tools(workbench: McpWorkbench) -> None:
     tool_names = {tool["name"] for tool in await workbench.list_tools()}
     missing = GHOSTCRAB_TOOLS - tool_names
     if missing:
         raise RuntimeError(f"GhostCrab Personal tools missing: {sorted(missing)}")
-
 
 def build_agent(
     name: str,
@@ -175,7 +170,6 @@ from autogen_agentchat.conditions import MaxMessageTermination
 from autogen_agentchat.ui import Console
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 from autogen_ext.tools.mcp import McpWorkbench
-
 
 async def run_team(task: str) -> None:
     model = OpenAIChatCompletionClient(model="gpt-5-mini")

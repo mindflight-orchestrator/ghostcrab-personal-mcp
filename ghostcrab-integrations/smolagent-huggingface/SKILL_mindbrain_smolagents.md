@@ -225,5 +225,3 @@ Use `ghostcrab_pack` for compact recovery and `ghostcrab_search` for a specific 
 | `ghostcrab_pack` returns empty | Treat it as first run; leave `agent.memory.steps=[]`.                                        |
 | Upsert duplicates latest state | Match with `match={"facets": {"record_id": RUN_ID}}`.                                        |
 | HTTP bridge dies               | Restart the bridge, or switch to direct stdio if supported. Verify with `ghostcrab_status`.  |
-
-**PRO note:** Centralized team deployment can use MCP GhostCrab PRO / mindBrain Pro. This skill is for GhostCrab Personal with local SQLite.

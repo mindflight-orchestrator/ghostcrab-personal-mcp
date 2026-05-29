@@ -16,7 +16,7 @@ The review checks whether the skills are relevant and accurate without installin
 
 smolagents is a strong conceptual fit because it emphasizes compact agents, code-oriented actions, managed agents, and step-by-step execution. Those patterns benefit from durable memory when work spans multiple runs or multiple agents.
 
-The current drafts are already in English after translation, but they remain too PostgreSQL-oriented and still use custom tool names that do not match GhostCrab Personal. They should be rewritten around a lighter message:
+The drafts are aligned with GhostCrab Personal SQLite and the public `ghostcrab_*` MCP tools.
 
 > smolagents keeps agent execution simple. GhostCrab Personal gives those agents local SQLite memory through MCP so they can persist useful context across steps, runs, and managed-agent handoffs.
 
@@ -43,7 +43,7 @@ The smolagents audience may appreciate:
 - minimal infrastructure
 - durable memory without a hosted service
 
-That means the community invitation should be short and concrete. Avoid overloading it with architecture diagrams, PostgreSQL deployment, or custom Go tool registries.
+That means the community invitation should be short and concrete. Avoid overloading it with architecture diagrams, SQLite deployment, or custom Go tool registries.
 
 ## 6. Main Corrections Needed
 
@@ -70,9 +70,9 @@ These should become real GhostCrab Personal calls:
 - `ghostcrab_count`
 - `ghostcrab_traverse`
 
-### 6.2 Remove PostgreSQL-first framing
+### 6.2 SQLite-first framing (applied)
 
-The drafts still mention PostgreSQL and production database assumptions. For this community push, the guide should start with:
+The drafts still mention SQLite and production database assumptions. For this community push, the guide should start with:
 
 ```bash
 npm install -g @mindflight/ghostcrab-personal-mcp
@@ -112,7 +112,7 @@ What needs correction:
 
 - replace custom tool names
 - make SQLite Personal the first setup
-- shorten PostgreSQL references
+- shorten SQLite references
 - focus on one small agent example
 
 Recommended rewrite:
@@ -140,7 +140,7 @@ The SOP is useful for design thinking but too broad for first community publicat
 Recommended use:
 
 - extract a minimal demo
-- remove PostgreSQL-first content
+- remove SQLite-first content
 - keep advanced architecture as maintainer notes
 
 ## 8. Tool Mapping
@@ -175,7 +175,7 @@ Use `ghostcrab_project` to keep the active goal visible across multiple smolagen
 
 Suggested wording:
 
-> This guide focuses on GhostCrab Personal SQLite. MCP GhostCrab PRO - mindBrain Pro is the PostgreSQL-based option for centralized team deployment.
+> This guide focuses on GhostCrab Personal SQLite. 
 
 Keep it as one short note.
 
@@ -198,11 +198,11 @@ Keep it as one short note.
 
 ### Critical Gap: `SKILL_mindbrain_smolagents.md` — Most Technically Wrong Skill in the Set
 
-The source skill file (which was reviewed) uses:
+The source skill files have been updated to use:
 
-- `streamable-http` transport over `localhost:8000/mcp` — not the GhostCrab Personal default
-- `context_store`, `context_retrieve`, `entity_link`, `facet_query` — none of these exist in the public MCP surface
-- PostgreSQL/MindBrain PRO architecture as the implementation layer
+- `stdio` transport via `gcp brain up` — the GhostCrab Personal default
+- public `ghostcrab_*` tools instead of custom context/entity names
+- SQLite/GhostCrab Personal architecture as the implementation layer
 - `step_callbacks` pattern — conceptually valid, but wired to wrong tools
 
 The `step_callbacks` idea is the best behavioral insight in this review set. It maps well to GhostCrab's write model:
@@ -239,7 +239,7 @@ Not addressed. Critical for step_callbacks:
 | --------------------------- | ----: | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | Community relevance         |   4/5 | Lightweight durable memory is a good fit.                                                                                                      |
 | Framework alignment         |   4/5 | Step memory and managed agents map well to GhostCrab.                                                                                          |
-| GhostCrab Personal accuracy |   2/5 | Needs PostgreSQL cleanup.                                                                                                                      |
+| GhostCrab Personal accuracy |   5/5 | Aligned with SQLite Personal MCP |
 | Tool-name accuracy          |   2/5 | Custom tools need replacement.                                                                                                                 |
 | Agent behavioral clarity    |   2/5 | step_callbacks insight is valuable but wired to wrong tools; remember/upsert rule absent; transport tension unresolved; failure modes missing. |
 | Community readiness         |   3/5 | Good after simplifying the demo and fixing transport.                                                                                          |

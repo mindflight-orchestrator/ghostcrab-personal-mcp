@@ -66,7 +66,7 @@ Then show how an MCP client points to the local GhostCrab server.
 
 ### 6.2 Make SQLite Personal the default
 
-The architect skill mentions SQLite paths and PostgreSQL as alternatives. For community outreach, SQLite must be the default and PostgreSQL should only appear as a short PRO reference.
+The architect skill mentions SQLite paths and SQLite as alternatives. For community outreach, SQLite must be the default and SQLite should only appear as a short PRO reference.
 
 ### 6.3 Normalize terminology
 
@@ -109,7 +109,7 @@ What needs correction:
 
 - update install and server command examples
 - replace older tool or capability names with `ghostcrab_*`
-- keep PostgreSQL as a short PRO mention
+- keep SQLite as a short PRO mention
 - tighten the first demo to a small local workflow
 
 Recommended rewrite:
@@ -128,7 +128,7 @@ What needs correction:
 
 - make it secondary to the basic MCP skill
 - reduce backend configuration complexity
-- avoid PostgreSQL-first architecture language
+- avoid SQLite-first architecture language
 - replace custom startup commands
 
 Recommended position:
@@ -168,7 +168,7 @@ Ask Hermes-Agent to search prior decisions with `ghostcrab_search` before making
 
 Suggested wording:
 
-> This guide focuses on GhostCrab Personal SQLite. MCP GhostCrab PRO - mindBrain Pro is the PostgreSQL-based path for teams that later need centralized deployment.
+> This guide focuses on GhostCrab Personal SQLite. 
 
 Keep this note brief.
 

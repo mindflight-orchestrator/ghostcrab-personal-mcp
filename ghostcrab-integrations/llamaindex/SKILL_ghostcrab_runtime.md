@@ -10,8 +10,6 @@ GhostCrab Personal runtime defaults:
 - Transport: stdio
 - Runtime tools: `ghostcrab_pack`, `ghostcrab_project`, `ghostcrab_upsert`, `ghostcrab_remember`, `ghostcrab_search`, `ghostcrab_count`, `ghostcrab_learn`, `ghostcrab_traverse`
 
-PRO note: centralized team deployments can use MCP GhostCrab PRO / mindBrain Pro later. Keep the Personal runtime path SQLite-first.
-
 ## Runtime Boundary
 
 LlamaIndex runs the workflow. GhostCrab stores shared operational state.

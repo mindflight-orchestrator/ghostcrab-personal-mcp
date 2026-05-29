@@ -90,9 +90,9 @@ Replace with:
 - `ghostcrab_project`
 - `ghostcrab_count`
 
-### 6.3 Keep PostgreSQL secondary
+### 6.3 Keep SQLite secondary
 
-The drafts already do a better job than many others at centering Personal SQLite. Keep that, and limit PostgreSQL to a short PRO note.
+The drafts center Personal SQLite as the default storage path for all community examples.
 
 ### 6.4 Simplify the public pack
 
@@ -194,7 +194,7 @@ The agent updates task state with `ghostcrab_upsert` and links a dependency with
 
 Suggested wording:
 
-> This guide focuses on GhostCrab Personal SQLite. MCP GhostCrab PRO - mindBrain Pro is the PostgreSQL-based option for centralized team deployment.
+> This guide focuses on GhostCrab Personal SQLite. 
 
 ## JTBD Agent Analysis (Re-audit v2)
 
@@ -264,6 +264,6 @@ Rewrite the main OpenClaw skill around a tested connection claim:
 1. if OpenClaw supports local `stdio` MCP, show that path
 2. if it requires HTTP, state that an MCP-to-HTTP bridge is required
 3. use only actual `ghostcrab_*` tools
-4. keep PRO PostgreSQL as one short note
+4. keep PRO SQLite as one short note
 
 This will prevent the strongest folder from being weakened by a transport promise that may not match GhostCrab Personal.

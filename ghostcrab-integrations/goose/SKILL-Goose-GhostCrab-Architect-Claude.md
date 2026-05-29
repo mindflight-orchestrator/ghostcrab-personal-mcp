@@ -30,7 +30,7 @@ npm install -g @mindflight/ghostcrab-personal-mcp
 gcp brain up
 ```
 
-Do not require Docker, PostgreSQL, migrations, direct database imports, or a remote MCP endpoint for the Personal path.
+Do not require Docker, migrations, direct database imports, or a remote MCP endpoint for the Personal path.
 
 ## Phase B - Understand the Goose Project
 
@@ -134,7 +134,7 @@ Add `ghostcrab_workspace_create`, `ghostcrab_upsert`, `ghostcrab_learn`, and `gh
 
 ## Hard Rules
 
-- Do not propose PostgreSQL as the default path.
+- Do not propose a separate database server as the default path.
 - Do not freeze schemas on a vague first turn.
 - Do not use `ghostcrab_remember` to update mutable task state; use `ghostcrab_upsert`.
 - Do not pass a full graph dump to Goose; use `ghostcrab_pack`.

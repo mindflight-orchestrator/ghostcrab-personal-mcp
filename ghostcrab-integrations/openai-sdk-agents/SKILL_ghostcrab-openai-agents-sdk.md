@@ -225,5 +225,3 @@ Schema registration and ontology design are advanced moves. Prefer provisional w
 OpenAI Agents SDK does not need HTTP for GhostCrab Personal. Use `MCPServerStdio` by default.
 
 HTTP is only a bridge option when another component requires network MCP, or when a hosted/pro deployment is deliberately introduced. Keep that path outside the Personal quickstart and document the bridge boundary explicitly.
-
-**PRO note:** MCP GhostCrab PRO / mindBrain Pro is the centralized PostgreSQL-backed deployment path for teams that need a shared remote service. It is not required for the Personal SQLite workflow above.

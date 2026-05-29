@@ -207,9 +207,3 @@ ghostcrab_upsert(
 | Search is empty           | Continue with current task, but record uncertainty or ask a targeted question.                                              |
 | Schema is missing         | Use stable facets and provisional `schema_id` names; inspect schemas later with `ghostcrab_schema_list`.                    |
 | Conflicting updates       | Prefer stable `record_id` and `ghostcrab_upsert` for current state. Preserve important rationale with `ghostcrab_remember`. |
-
-## PRO Note
-
-This runtime guide targets GhostCrab Personal SQLite. PostgreSQL is only the PRO
-path for centralized multi-user infrastructure after a local ADK workflow is
-validated.

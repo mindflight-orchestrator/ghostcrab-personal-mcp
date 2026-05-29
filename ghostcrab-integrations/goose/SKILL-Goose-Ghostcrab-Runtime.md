@@ -17,7 +17,7 @@ Before using this runtime flow:
 3. A Goose project name is known.
 4. A GhostCrab workspace either exists or the user has confirmed that one should be created.
 
-Do not require PostgreSQL, Docker, direct database imports, or a remote MCP endpoint for this runtime.
+Do not require Docker, direct database imports, or a remote MCP endpoint for this runtime.
 
 ## Validation State
 
@@ -259,7 +259,7 @@ Only move to full task orchestration after that path works.
 
 - Goose orchestrates agents; GhostCrab stores shared state.
 - GhostCrab Personal SQLite is the default community path.
-- Do not require PostgreSQL or MindBrain PRO for the first trial.
+- Do not require a separate database server for the first trial.
 - Do not update task state with `ghostcrab_remember`; use `ghostcrab_upsert`.
 - Do not invent private APIs; use public `ghostcrab_*` tools.
 - Do not pass full graph dumps to sub-agents.

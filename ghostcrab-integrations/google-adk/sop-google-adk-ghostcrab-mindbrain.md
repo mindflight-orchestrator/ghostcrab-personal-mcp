@@ -111,7 +111,7 @@ Differentiator vs `VertexAiMemoryBankService`: store typed ontology entities ins
 
 | Capability                      | InMemoryMemoryService | VertexAiMemoryBankService | **MindBrain via GhostCrab** |
 | :------------------------------ | :-------------------- | :------------------------ | :-------------------------- |
-| Cross-session persistence       | ✗                     | ✓ (cloud)                 | ✓ (PostgreSQL)              |
+| Cross-session persistence       | ✗                     | ✓ (cloud)                 | ✓ (SQLite)              |
 | Structured / faceted search     | ✗                     | ✗                         | ✓                           |
 | Ontology-typed entities         | ✗                     | ✗                         | ✓                           |
 | Shared multi-agent context      | ✗ (silo)              | partial                   | ✓ (single registry)         |
@@ -129,7 +129,7 @@ ADK Agent (LlmAgent)
     │
     ├── PreloadMemoryTool → search_memory(query)
     │       └── MindBrainMemoryService.search_memory()
-    │               └── GhostCrab MCP → pg_facets + pg_dgraph query
+    │               └── GhostCrab MCP → faceted search via `ghostcrab_search` + graph via `ghostcrab_learn` / `ghostcrab_traverse` query
     │
     ├── [Tool execution] → after_tool_callback
     │       └── capture context → incremental ontology enrichment
@@ -399,12 +399,12 @@ The skill spans the bootstrap lifecycle in six sequential phases:
 **Design notes:**
 
 - GhostCrab error taxonomy (`TYPE_ALREADY_EXISTS`, `DB_LOCKED`, etc.) yields deterministic retries without extra prompts
-- SQLite vs PostgreSQL limits documented — users understand local vs migrated behavior
+- SQLite limits documented — users understand local Personal behavior
 - System instructions enforce ordering: types → attributes → relations, avoiding slug errors inside `add_relation`
 
 ---
 
-# General-purpose `skill.md` for ADK agent operations — e.g. project management or knowledge graphs — where agents record/manage status on progressing items (project case), orchestrators consume **PG_Pragma** projections to organize agents, restart/stop them, advance project phases, etc.
+# General-purpose `skill.md` for ADK agent operations — e.g. project management or knowledge graphs — where agents record/manage status on progressing items (project case), orchestrators consume **`ghostcrab_project`** projections to organize agents, restart/stop them, advance project phases, etc.
 
 File ready.
 
@@ -413,7 +413,7 @@ This skill differs fundamentally from the prior one: **`ghostcrab-architect`** b
 **Worker vs orchestrator split**  
 Separate MCP surfaces. Workers cannot call `advance_phase()` or `suspend_agent()` — enforced by GhostCrab, not prompting — preventing accidental supervisory actions from subordinate agents.
 
-**`pg_pragma` as orchestrator nervous system**  
+**`ghostcrab_project` / `ghostcrab_pack` as orchestrator nervous system**  
 Projections (`phase_readiness`, `agent_load`, `critical_path`, `health_score`) drive decisions; the orchestrator reads pre-materialized views instead of recomputing from scratch. Difference between an LLM “thinking” and an orchestrator **reading a registry and deciding**. SQLite projection limits are spelled out with manual fallbacks.
 
 **Normalized statuses as an inter-agent protocol**  

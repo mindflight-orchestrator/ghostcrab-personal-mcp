@@ -206,8 +206,3 @@ to make the model look complete.
 | Search misses expected records                 | Broaden query or inspect facets; one miss does not prove absence.                      |
 | Relationship direction is unclear              | Ask the user before calling `ghostcrab_learn`.                                         |
 | Current state would overwrite useful rationale | Store rationale with `ghostcrab_remember`, then update with `ghostcrab_upsert`.        |
-
-## PRO Note
-
-This advanced skill targets GhostCrab Personal SQLite. PostgreSQL is only the PRO
-path for later centralized deployments.

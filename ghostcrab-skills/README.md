@@ -11,7 +11,7 @@ This repository contains:
 This repository does not contain:
 
 - the GhostCrab MCP server runtime
-- PostgreSQL migrations
+- SQLite schema (product repo)
 - Docker images
 - npm package code
 
@@ -114,7 +114,7 @@ The current integration direction also treats these as first-class long-running 
 
 - multi-phase delivery projects
 - external API integration
-- external PostgreSQL integration
+- external database integration
 - environment-specific deployment and recovery
 
 Across all surfaces, the shared V1 onboarding contract is:

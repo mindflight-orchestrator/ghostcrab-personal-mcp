@@ -18,8 +18,6 @@ It helps when agents need:
 - graph links between blockers, decisions, tasks, and evidence
 - recovery context after a run or session restart
 
-No PostgreSQL setup is required for the first trial.
-
 ---
 
 ## 2. What GhostCrab Personal Adds
@@ -204,9 +202,3 @@ A future native adapter could map Agno memory events into GhostCrab Personal aut
 For now, the right invitation is simpler:
 
 > Try GhostCrab Personal as an MCP tool surface first. Use the real `ghostcrab_*` tools and tell us what a native Agno memory adapter should feel like.
-
----
-
-## 10. PRO Note
-
-This guide focuses on GhostCrab Personal SQLite. Teams that later need centralized PostgreSQL infrastructure can explore **MCP GhostCrab PRO - mindBrain Pro**.

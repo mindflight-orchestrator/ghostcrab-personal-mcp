@@ -100,19 +100,17 @@ class MindBrainOntologyBlock(BaseMemoryBlock):
 
 ```
 
-
 ***
 
 ## What changes in practice
 
 | Native LlamaIndex memory | With MindBrain / GhostCrab |
 | :-- | :-- |
-| SQLite in-memory per agent [^1_3] | Shared persisted PostgreSQL |
+| SQLite in-memory per agent [^1_3] | Shared persisted SQLite |
 | LLM-extracted facts (token cost) | Structurally asserted ontology facts |
 | Vector-only retrieval | Faceted retrieval: subject + predicate + context + semantics |
 | Context lost across separate workflows | Pipeline-wide registry all agents query |
 | No knowledge typing | Explicit ontology ties (`observed`, `owns`, `depends_on`) |
-
 
 ***
 
@@ -159,7 +157,6 @@ Precise, doc-backed, tackles real multi-agent friction [^1_5][^1_2].
 
 [^1_15]: https://developers.llamaindex.ai/python/framework/module_guides/storing/save_load/
 
-
 ---
 
 # Write `Skill.md` for LlamaIndex (Claude Code + Codex). American English.
@@ -197,7 +194,7 @@ Codex can mount the file straight into prompt context; Claude Code users can sta
 
 In a standard LlamaIndex `AgentWorkflow`, the orchestrator has no shared, queryable state about what agents have done, what remains, or whether a phase gate has been reached. Each agent reports back via message passing, and the orchestrator must re-derive state from conversation history.
 
-GhostCrab Runtime inverts this. The orchestrator does not track state — it **reads state from MindBrain**. Every agent writes its progress as structured facts. The orchestrator queries `pg_pragma` projections to decide what to do next: spawn, halt, retry, or advance.
+GhostCrab Runtime inverts this. The orchestrator does not track state — it **reads state from MindBrain**. Every agent writes its progress as structured facts. The orchestrator queries `ghostcrab_project` / `ghostcrab_pack` projections to decide what to do next: spawn, halt, retry, or advance.
 
 ```
 
@@ -213,7 +210,7 @@ GhostCrab Runtime inverts this. The orchestrator does not track state — it **r
 │ │ │
 │ ┌─────────▼──────────┐ │
 │ │ MindBrain Store │ │
-│ │ (pg_pragma proj.) │ │
+│ │ (`ghostcrab_project` / `ghostcrab_pack` proj.) │ │
 │ └─────────┬──────────┘ │
 │ │ query_projection │
 │ ┌─────────▼──────────┐ │
@@ -223,7 +220,6 @@ GhostCrab Runtime inverts this. The orchestrator does not track state — it **r
 └───────────────────────────────────────────────────────────────┘
 
 ````
-
 
 ***
 
@@ -266,9 +262,9 @@ await client.assert_fact(
 
 ---
 
-### 2.2 `pg_pragma` Projections
+### 2.2 `ghostcrab_project` / `ghostcrab_pack` Projections
 
-`pg_pragma` is MindBrain's projection engine. It computes derived views over the fact store — percentages, phase readiness checks, agent liveness scores — without the orchestrator needing to re-query raw facts.
+`ghostcrab_project` / `ghostcrab_pack` is MindBrain's projection engine. It computes derived views over the fact store — percentages, phase readiness checks, agent liveness scores — without the orchestrator needing to re-query raw facts.
 
 The orchestrator queries projections, not raw facts. Projections are declared once and reused across all runs.
 
@@ -341,7 +337,6 @@ Every worker agent follows the same three-step contract: **claim → work → re
 ```python
 from llama_index.core.agent.workflow import FunctionAgent
 from ghostcrab_runtime import MindBrainMemory, RuntimeClient
-
 
 class WorkerAgent:
     """Base pattern for all worker agents in a GhostCrab-orchestrated workflow."""
@@ -416,17 +411,15 @@ class WorkerAgent:
 
 ## 4. Orchestrator Agent Pattern
 
-The orchestrator never does work. It **reads projections, evaluates gate conditions, and dispatches decisions**. All decisions are driven by `pg_pragma` projections.
+The orchestrator never does work. It **reads projections, evaluates gate conditions, and dispatches decisions**. All decisions are driven by `ghostcrab_project` / `ghostcrab_pack` projections.
 
 ```python
 from ghostcrab_runtime import RuntimeClient, PhaseGate
 from llama_index.core.agent.workflow import AgentWorkflow
 
-
 class GhostCrabOrchestrator:
     """
-    Orchestrator that drives an AgentWorkflow based on MindBrain projections.
-    Uses pg_pragma to evaluate phase gates and agent health.
+    Orchestrator that drives an AgentWorkflow based on     Uses `ghostcrab_project` / `ghostcrab_pack` to evaluate phase gates and agent health.
     """
 
     PHASE_ORDER = ["planning", "implementation", "review", "delivery"]

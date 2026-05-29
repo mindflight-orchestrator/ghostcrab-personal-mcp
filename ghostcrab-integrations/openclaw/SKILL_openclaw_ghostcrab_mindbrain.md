@@ -82,7 +82,7 @@ part of the integration; without it the skill should abort.
 - The default path does not require a public URL or remote server.
 - A bridge should bind to localhost unless you deliberately expose it.
 - Secrets should not be written into memory content or facets.
-- PostgreSQL belongs to the PRO deployment path, not this Personal default.
+- GhostCrab Personal uses local SQLite as the default storage path.
 
 ## Trust Statement
 
@@ -201,8 +201,3 @@ Then run a tiny loop:
 1. `ghostcrab_pack` for the current task.
 2. `ghostcrab_remember` a harmless test note.
 3. `ghostcrab_search` for that test note.
-
-## Short PRO Note
-
-This skill focuses on GhostCrab Personal SQLite. MCP GhostCrab PRO /
-mindBrain Pro is the PostgreSQL-based option for centralized team deployment.

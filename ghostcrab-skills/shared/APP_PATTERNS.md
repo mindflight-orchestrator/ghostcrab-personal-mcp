@@ -33,6 +33,15 @@ At session start:
 3. load a small fact slice with `ghostcrab_search`
 4. if the task is non-trivial and at least one factual read already happened, call `ghostcrab_pack`
 
+## Workspace context
+
+See [WORKSPACE_CONTEXT.md](./WORKSPACE_CONTEXT.md).
+
+- Verify `active_workspace_id` in `ghostcrab_status` before writes.
+- Intentional switch: `ghostcrab_workspace_list` → announce to user → `ghostcrab_workspace_use` → re-read status.
+- Do not switch workspace on empty reads, tool errors, or backend failures.
+- Agents must not open SQLite files or run SQL shell to read GhostCrab data.
+
 ## Write-Back Discipline
 
 Write back durable knowledge when you discover:

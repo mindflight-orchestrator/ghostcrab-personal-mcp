@@ -253,9 +253,3 @@ the current objective.
 GhostCrab Personal keeps the first trial local in SQLite. This is useful when the
 agent is working with private project context, internal decisions, or personal
 organization data.
-
-## PRO Note
-
-This skill focuses on GhostCrab Personal SQLite. PostgreSQL is the PRO path for
-teams that later need centralized deployment, shared infrastructure, or higher
-throughput.

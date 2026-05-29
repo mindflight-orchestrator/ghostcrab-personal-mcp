@@ -100,9 +100,9 @@ The writing should be concise and implementation-oriented:
 - demo flow
 - limitations
 
-### 6.4 Move PostgreSQL to a short PRO note
+### 6.4 SQLite runtime (applied)
 
-Remove `pg_pragma`, PostgreSQL runtime, and production backend framing from the Personal guide. Keep only one short mention of **MCP GhostCrab PRO - mindBrain Pro**.
+Remove `ghostcrab_project`, SQLite runtime, and production backend framing from the Personal guide. Keep only one short mention of **
 
 ## 7. Skill-by-Skill Review
 
@@ -156,7 +156,7 @@ What works:
 
 What needs correction:
 
-- remove PostgreSQL and `pg_pragma` from the Personal path
+- remove SQLite and `ghostcrab_project` from the Personal path
 - translate to English if needed
 - map runtime state to `ghostcrab_upsert` and `ghostcrab_project`
 - avoid overclaiming orchestration behavior
@@ -204,7 +204,7 @@ Have the agent update a task or workflow record with `ghostcrab_upsert` and retr
 
 Recommended wording:
 
-> This guide focuses on GhostCrab Personal SQLite. MCP GhostCrab PRO - mindBrain Pro is the PostgreSQL-based path for centralized team deployment.
+> This guide focuses on GhostCrab Personal SQLite. 
 
 Keep this as a footnote, not a setup path.
 

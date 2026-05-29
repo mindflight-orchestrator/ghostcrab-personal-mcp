@@ -12,7 +12,7 @@ This skill is for **GhostCrab Personal SQLite**:
 - MCP transport: local `stdio` by default
 - Public tools: `ghostcrab_*`
 
-PostgreSQL belongs only to a later PRO deployment path. Do not require it for a community trial.
+GhostCrab Personal uses local SQLite. No separate database server is required for a community trial.
 
 ## Activation
 

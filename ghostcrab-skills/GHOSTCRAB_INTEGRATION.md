@@ -16,7 +16,7 @@ The client integrations in this repo assume a GhostCrab MCP server that exposes 
 Typical local dev flow:
 
 1. build and validate GhostCrab in the product repo
-2. start PostgreSQL and run migrations
+2. start GhostCrab with `gcp brain up` (SQLite is created automatically on first run)
 3. point `.mcp.json` or OpenClaw MCP config at that GhostCrab server
 4. load one demo project from `shared/demo-profiles/*.jsonl`
 5. use `shared/bootstrap_seed.jsonl` only if you explicitly want the aggregate combined view
@@ -43,15 +43,16 @@ This local copy is embedded inside the product repo, so the product root is `..`
 ```bash
 cd ..
 npm run build
-DATABASE_URL=postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab node dist/index.js
+npx gcp brain up
 ```
 
 If you later move this integration repo back out as a sibling checkout, update the relative links and validator path resolution accordingly.
 
-If GhostCrab is later published as a package, the client configs in this repo can also be switched to:
+Client configs in this repo can also use the published package:
 
 ```bash
-npx -y @mindflight/ghostcrab
+npm install -g @mindflight/ghostcrab-personal-mcp
+gcp brain up
 ```
 
 ## Versioning Guidance
@@ -88,11 +89,12 @@ In this repo:
 
 The current starter files assume:
 
-- local PostgreSQL at `localhost:5432`
-- database name `ghostcrab`
+- local SQLite at `./data/ghostcrab.sqlite` (or `GHOSTCRAB_SQLITE_PATH` when set)
+- `GHOSTCRAB_DATABASE_KIND=sqlite` when env vars are used explicitly
 - public MCP server name `ghostcrab`
+- `gcp brain up` as the default stdio entrypoint
 
-Adjust `DATABASE_URL` and the command path as needed for your environment.
+Adjust `GHOSTCRAB_SQLITE_PATH` and the command path as needed for your environment.
 
 ## V1 Cross-Surface Contract
 

@@ -9,4 +9,5 @@ alwaysApply: false
 - **Canonical contract:** follow `.ghostcrab/skills/shared/ONBOARDING_CONTRACT.md` (§2 naive callers; §3–§8 first-turn fuzzy + hard gate; §9 domain modeling gate before writes; French or locale closing lines in §4).
 - **Persona:** user-facing language first; no schema names, MCP tool names, facets, or graph jargon unless the user asked how GhostCrab works internally.
 - **Non-onboarding:** read before write — count → search → pack; prefer canonical schemas and seeded recipes; checkpoint long-running work; preserve transition rationale before overwriting current-state records.
+- **Workspace context:** follow `.ghostcrab/skills/shared/WORKSPACE_CONTEXT.md` — verify `active_workspace_id` in status before writes; intentional switch only (`workspace_list` → announce → `workspace_use`); never switch on errors/empty reads; never open SQLite directly.
 - **Cursor-specific:** MCP tool lists can be large; prefer explicit `schema_id` and filters in tool arguments to avoid broad exploratory calls.

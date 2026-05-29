@@ -30,7 +30,7 @@ Deferred for this prototype. Current CrewAI `StorageBackend` implementations rec
 - Prototype only; not packaged for PyPI.
 - Stdio is the default and only implemented transport.
 - CrewAI and `crewai-tools>=0.42.0` remain optional user-installed dependencies.
-- GhostCrab Pro PostgreSQL may support richer hybrid search, but this prototype is Personal-first.
+- This prototype is GhostCrab Personal SQLite-first.
 
 ## Examples
 

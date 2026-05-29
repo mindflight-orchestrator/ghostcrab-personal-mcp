@@ -118,6 +118,4 @@ Use `ghostcrab_learn` for:
 | No schema                               | Continue with well-named facets; inspect later.                                              |
 | Concurrent agents write the same entity | Use stable `record_id` upserts for current state and separate remembered facts for evidence. |
 
-## Later PRO Path
-
-If the crew outgrows local Personal SQLite, mention PostgreSQL only as a short PRO deployment option. Keep the community default local-first.
+Keep the community default local-first with GhostCrab Personal SQLite.

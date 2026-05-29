@@ -1,14 +1,13 @@
 # skill.md — Bootstrapping an Ontology with GhostCrab Architect (Agno Agent)
 
-> **Execution context**: this skill targets an Agno agent (Python), Codex, or Claude Code implementing Agno. It describes the full sequence to create and populate a MindBrain ontology via GhostCrab MCP, from type definitions through populated entities and persisted relations.
+> **Execution context**: this skill targets an Agno agent (Python), Codex, or Claude Code implementing Agno. It describes the full sequence to create and populate a MindBrain ontology via GhostCrab Personal MCP (SQLite), from schema registration through populated entities and persisted relations.
 
 ---
 
 ## Prerequisites
 
-- GhostCrab MCP is running and reachable (`http://localhost:8080/mcp` or stdio)
-- MindBrain PostgreSQL is connected and extensions `pg_dgraph`, `pg_facets`, `pg_pragma` are enabled
-- Target namespace is defined (e.g. `project_alpha`)
+- GhostCrab Personal is reachable via `gcp brain up` (stdio MCP)
+- Target workspace is defined (e.g. `project_alpha`)
 - Agno `>=0.7` installed (`pip install agno`)
 
 ---
@@ -19,13 +18,11 @@
 from agno.agent import Agent
 from agno.models.anthropic import Claude
 from agno.tools.mcp import MCPTools
-from agno.storage.postgres import PostgresStorage
 
-# Transport: streamable-http (recommended), or stdio when GhostCrab runs locally
 ghostcrab_tools = MCPTools(
-    transport="streamable-http",
-    url="http://localhost:8080/mcp",
-    # Timeout in seconds for long operations (full bootstrap)
+    transport="stdio",
+    command="gcp",
+    args=["brain", "up"],
     timeout=120,
 )
 
@@ -33,17 +30,12 @@ architect_agent = Agent(
     name="GhostCrabArchitect",
     model=Claude(id="claude-sonnet-4-5"),
     tools=[ghostcrab_tools],
-    # Disable local memory: MindBrain is the single registry
     enable_user_memories=False,
-    storage=PostgresStorage(
-        table_name="architect_sessions",
-        db_url="postgresql://user:pass@localhost:5432/mindbrain",
-    ),
     instructions=[
-        "You are an ontology architect. Use only GhostCrab tools.",
-        "Always check that a type exists before creating one (call `ontology_type_get`).",
-        "Always pass the supplied namespace on every tool invocation.",
-        "After each type or entity creation, confirm persistence with a read-back call.",
+        "You are an ontology architect. Use only GhostCrab MCP tools.",
+        "Call ghostcrab_status first, then ghostcrab_workspace_list before selecting a workspace.",
+        "Get explicit user confirmation before ghostcrab_schema_register or bulk writes.",
+        "After each write, confirm persistence with ghostcrab_search or ghostcrab_schema_inspect.",
     ],
     markdown=True,
 )
@@ -53,28 +45,22 @@ architect_agent = Agent(
 
 ## Step 2 — Ontology bootstrap sequence
 
-### 2.1 Create types (EntityTypes)
+### 2.1 Create workspace and schema
 
 The agent must invoke tools in this strict order:
 
 ```python
 bootstrap_prompt = """
-Bootstrap the ontology for namespace 'project_alpha' with this sequence:
+Bootstrap the ontology for workspace 'project_alpha' with this sequence:
 
-1. CREATE ENTITY TYPES :
-   - Type: Agent        | facets: [name, role, status, framework]
-   - Type: Task         | facets: [title, status, priority, assignee_id]
-   - Type: Document     | facets: [title, content_hash, source_url, created_at]
-   - Type: Concept      | facets: [label, domain, definition]
-
-2. CREATE RELATION TYPES :
-   - Relation: ASSIGNED_TO   | from: Task   → to: Agent
-   - Relation: REFERENCES    | from: Task   → to: Document
-   - Relation: RELATED_TO    | from: Concept → to: Concept  | bidirectional: true
-   - Relation: KNOWS_ABOUT   | from: Agent  → to: Concept
-
-3. VALIDATE: call ontology_schema_get for namespace='project_alpha'
-   and return the full schema as JSON.
+1. Call ghostcrab_status.
+2. Call ghostcrab_workspace_list, then ghostcrab_workspace_create for 'project_alpha' if missing.
+3. Call ghostcrab_modeling_guidance with the domain goal: multi-agent project with Agent, Task, Document, Concept types.
+4. After user confirmation, register schemas for:
+   - ghostcrab:task (title, status, priority, assignee_id)
+   - ghostcrab:note (title, content, source_url, created_at)
+   - agent:observation (label, domain, definition)
+5. Call ghostcrab_schema_list and ghostcrab_schema_inspect to validate registration.
 """
 
 result = architect_agent.run(bootstrap_prompt)
@@ -85,25 +71,23 @@ print(result.content)
 
 ```python
 seed_prompt = """
-In namespace 'project_alpha', create the following seed entities:
+In workspace 'project_alpha', create the following seed records:
 
-AGENTS :
-- name='ResearchAgent', role='researcher', status='active', framework='agno'
-- name='WriterAgent',   role='writer',     status='active', framework='agno'
-- name='OrchestratorAgent', role='orchestrator', status='active', framework='agno'
+AGENTS (ghostcrab_remember):
+- ResearchAgent: role=researcher, status=active, framework=agno
+- WriterAgent: role=writer, status=active, framework=agno
+- OrchestratorAgent: role=orchestrator, status=active, framework=agno
 
-CONCEPTS :
-- label='Context Sharing', domain='agentic_systems',
-  definition='How multiple agents read and write one shared knowledge registry.'
-- label='Ontological Persistence', domain='agentic_systems',
-  definition='Persistence of entities and relations beyond agent session lifecycle.'
+CONCEPTS (ghostcrab_remember):
+- Context Sharing: domain=agentic_systems, definition=How multiple agents read and write one shared knowledge registry.
+- Ontological Persistence: domain=agentic_systems, definition=Persistence of entities and relations beyond agent session lifecycle.
 
-Then create relations :
-- ResearchAgent  KNOWS_ABOUT  'Context Sharing'
-- WriterAgent    KNOWS_ABOUT  'Context Sharing'
-- 'Context Sharing' RELATED_TO 'Ontological Persistence'
+Then create graph links with ghostcrab_learn:
+- ResearchAgent KNOWS_ABOUT Context Sharing
+- WriterAgent KNOWS_ABOUT Context Sharing
+- Context Sharing RELATED_TO Ontological Persistence
 
-Confirm each created entity via entity_get.
+Confirm each record via ghostcrab_search.
 """
 
 architect_agent.run(seed_prompt)
@@ -115,10 +99,10 @@ architect_agent.run(seed_prompt)
 
 ```python
 verify_prompt = """
-For namespace 'project_alpha' :
-1. Call ontology_schema_get → list every defined type and relation.
-2. Call entity_search with filter={type:'Agent'} → list every agent.
-3. Call graph_traverse from entity 'ResearchAgent', depth=2.
+For workspace 'project_alpha':
+1. Call ghostcrab_schema_list → list every registered schema.
+2. Call ghostcrab_search for agent-related records.
+3. Call ghostcrab_traverse from ResearchAgent with depth=2.
 Return a structured Markdown report with all three results.
 """
 
@@ -128,72 +112,29 @@ print(verification.content)
 
 ---
 
-## Step 4 — Deep memory integration (optional)
+## Step 4 — Agno memory through MCP (optional)
 
-To have native Agno memory write into MindBrain automatically after each run:
+Do not connect Agno memory directly to SQLite. Route durable facts through GhostCrab MCP:
 
 ```python
-from agno.memory.v2.db.base import MemoryDb
-from agno.memory.v2.memory import Memory
-from agno.memory.v2.schema import UserMemory
-import psycopg2, json
-
-class MindBrainMemoryDb(MemoryDb):
-    """Agno MemoryDb backend wired to MindBrain via pg_facets."""
-
-    def __init__(self, dsn: str, namespace: str):
-        self.conn = psycopg2.connect(dsn)
-        self.namespace = namespace
-
-    def upsert_memory(self, memory: UserMemory) -> UserMemory:
-        with self.conn.cursor() as cur:
-            cur.execute(
-                """
-                SELECT mindbrain.entity_upsert(%s, 'AgentMemory', %s::jsonb)
-                """,
-                (self.namespace, json.dumps({
-                    "agent_id": memory.user_id,
-                    "content":  memory.memory,
-                    "topics":   memory.topics or [],
-                }))
-            )
-            self.conn.commit()
-        return memory
-
-    def search_memories(self, query: str, user_id: str, limit: int = 5):
-        with self.conn.cursor() as cur:
-            cur.execute(
-                """
-                SELECT mindbrain.facet_search(%s, 'AgentMemory', %s, %s)
-                """,
-                (self.namespace, query, limit)
-            )
-            rows = cur.fetchall()
-        return [UserMemory(memory=r[0]['content'], user_id=user_id) for r in rows]
-
-# Attach to agent
-memory_backend = Memory(
-    model=Claude(id="claude-haiku-3-5"),
-    db=MindBrainMemoryDb(
-        dsn="postgresql://user:pass@localhost:5432/mindbrain",
-        namespace="project_alpha",
-    ),
-)
-
-architect_agent_with_memory = Agent(
+memory_agent = Agent(
     name="GhostCrabArchitect",
     model=Claude(id="claude-sonnet-4-5"),
     tools=[ghostcrab_tools],
-    memory=memory_backend,
-    enable_user_memories=True,  # auto extraction after each run
+    enable_user_memories=False,
+    instructions=[
+        "After each run, store durable findings with ghostcrab_remember.",
+        "Store mutable task state with ghostcrab_upsert.",
+        "Never write to a separate local memory table for shared project facts.",
+    ],
 )
 ```
 
 ---
 
-## Step 5 — Multi-agent with shared namespace
+## Step 5 — Multi-agent with shared workspace
 
-Pattern for an Agno team where every agent reads/writes one MindBrain registry:
+Pattern for an Agno team where every agent reads/writes one GhostCrab workspace:
 
 ```python
 from agno.team import Team
@@ -216,15 +157,12 @@ team = Team(
     name="OntologyTeam",
     agents=[research_agent, writer_agent],
     model=Claude(id="claude-sonnet-4-5"),
-    # Orchestrator uses GhostCrab for coordination too
     tools=[ghostcrab_tools],
 )
 
-# Each agent may call entity_get / entity_upsert on the same namespace
-# → no silos: facts discovered by ResearchAgent are visible to WriterAgent
 team.run(
-    "ResearchAgent : find Concept entities in namespace='project_alpha'. "
-    "WriterAgent : summarize the concepts discovered."
+    "ResearchAgent: search workspace='project_alpha' for Concept records. "
+    "WriterAgent: summarize the concepts discovered."
 )
 ```
 
@@ -232,28 +170,32 @@ team.run(
 
 ## GhostCrab tools exposed via MCP
 
-| MCP tool                   | Purpose                                            | Key parameters                          |
-| -------------------------- | -------------------------------------------------- | --------------------------------------- |
-| `ontology_type_create`     | Define an EntityType with facets                   | `namespace`, `type_name`, `facets[]`    |
-| `ontology_type_get`        | Fetch an existing type (idempotence check)         | `namespace`, `type_name`                |
-| `ontology_relation_create` | Define a directed RelationType between EntityTypes | `namespace`, `name`, `from`, `to`       |
-| `ontology_schema_get`      | Full namespace schema                              | `namespace`                             |
-| `entity_upsert`            | Create or update an entity                         | `namespace`, `type`, `facets{}`         |
-| `entity_get`               | Fetch by id or unique facet slice                  | `namespace`, `id` or `filter{}`         |
-| `entity_search`            | Multi-criteria faceted search                      | `namespace`, `filter{}`, `limit`        |
-| `relation_create`          | Link two entities                                  | `namespace`, `from_id`, `to_id`, `type` |
-| `graph_traverse`           | Traverse graph from a node (BFS/DFS)               | `namespace`, `from_id`, `depth`         |
-| `context_push`             | Inject structured context into current session     | `namespace`, `session_id`, `payload{}`  |
+| MCP tool                    | Purpose                               | Key parameters                    |
+| --------------------------- | ------------------------------------- | --------------------------------- |
+| `ghostcrab_status`          | Runtime health and routing            | —                                 |
+| `ghostcrab_workspace_list`  | List workspaces                       | —                                 |
+| `ghostcrab_workspace_create`| Create workspace                      | `workspace_id`                    |
+| `ghostcrab_modeling_guidance` | Domain modeling guidance            | natural-language goal             |
+| `ghostcrab_schema_register` | Register a schema                     | `schema_id`, fields               |
+| `ghostcrab_schema_list`     | List registered schemas               | `workspace_id`                    |
+| `ghostcrab_schema_inspect`  | Inspect one schema                    | `schema_id`                       |
+| `ghostcrab_remember`        | Create durable fact                   | `schema_id`, facets               |
+| `ghostcrab_upsert`          | Update mutable current state          | `record_id`, facets               |
+| `ghostcrab_search`          | Faceted / BM25 search                 | `schema_id`, filters              |
+| `ghostcrab_learn`           | Create graph relation                 | source, target, label             |
+| `ghostcrab_traverse`        | Traverse graph from a node            | `from_id`, depth                  |
+| `ghostcrab_pack`            | Compact recovery context              | query, `workspace_id`             |
+| `ghostcrab_project`         | Active run projections                | goal, step, constraint            |
 
 ---
 
 ## Usage rules for the agent
 
-1. **Idempotence**: always call `ontology_type_get` before `ontology_type_create`. Skip creation if type exists.
-2. **Namespace isolation**: never omit the `namespace` argument.
-3. **Confirmation**: after every `entity_upsert`, call `entity_get` to verify persistence.
-4. **Relations after entities**: create entities before edges that reference them.
-5. **No duplicate local registry**: unless `MindBrainMemoryDb` is wired, keep `enable_user_memories=False` to avoid split sources of truth.
+1. **Confirmation**: get user confirmation before `ghostcrab_schema_register` or bulk ontology changes.
+2. **Workspace isolation**: select or create the workspace before writes.
+3. **Read-back**: after every `ghostcrab_remember`, call `ghostcrab_search` to verify persistence.
+4. **Relations after entities**: create records before graph edges that reference them.
+5. **Single source of truth**: keep `enable_user_memories=False`; route shared facts through GhostCrab MCP.
 
 ---
 
@@ -261,22 +203,19 @@ team.run(
 
 ```python
 full_bootstrap = """
-You are GhostCrabArchitect. Run the complete bootstrap for ontology 'project_alpha'.
+You are GhostCrabArchitect. Run the complete bootstrap for workspace 'project_alpha'.
 
-Phase 1 – Schema :
-  Create types Agent, Task, Document, Concept with their facets.
-  Create relations ASSIGNED_TO, REFERENCES, RELATED_TO, KNOWS_ABOUT.
+Phase 1 – Schema:
+  Register task, note, and observation schemas after modeling guidance and user confirmation.
 
-Phase 2 – Seed :
-  Create 3 agents (ResearchAgent, WriterAgent, OrchestratorAgent).
-  Create 2 concepts (Context Sharing, Ontological Persistence).
-  Link agents to concepts via KNOWS_ABOUT.
-  Link concepts via RELATED_TO.
+Phase 2 – Seed:
+  Create 3 agents and 2 concepts with ghostcrab_remember.
+  Link agents to concepts via ghostcrab_learn.
 
-Phase 3 – Validation :
-  Call ontology_schema_get.
-  Call graph_traverse from OrchestratorAgent depth=2.
-  Return Markdown report : types created, entities created, relations created, graph excerpt.
+Phase 3 – Validation:
+  Call ghostcrab_schema_list.
+  Call ghostcrab_traverse from OrchestratorAgent depth=2.
+  Return Markdown report: schemas registered, records created, relations created, graph excerpt.
 """
 
 final_report = architect_agent.run(full_bootstrap)
@@ -287,7 +226,7 @@ print(final_report.content)
 
 ## Implementation notes
 
-- **Preferred transport**: `streamable-http` for multi-agent setups (concurrent sessions). Use `stdio` for single-agent local testing.
+- **Preferred transport**: `stdio` with `gcp brain up` for local SQLite Personal workflows.
 - **Timeout**: set at least 120s for full bootstrap (seed + edges = many sequential calls).
-- **Logging**: enable Agno debug (`export AGNO_LOG_LEVEL=debug`) to trace MCP tool traffic and troubleshoot GhostCrab connectivity.
-- **Rollback**: MindBrain supports PostgreSQL transactions. After a partial failure, invoke `ontology_schema_reset(namespace)` (GhostCrab admin tooling; not necessarily part of baseline MCP expose).
+- **Logging**: enable Agno debug (`export AGNO_LOG_LEVEL=debug`) to trace MCP tool traffic.
+- **Storage**: GhostCrab Personal persists to local SQLite automatically; no DSN or migration step is required.

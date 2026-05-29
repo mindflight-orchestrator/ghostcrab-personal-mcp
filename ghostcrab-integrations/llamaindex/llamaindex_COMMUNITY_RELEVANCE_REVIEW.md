@@ -16,7 +16,7 @@ The goal is to verify whether the skills describe a relevant and accurate integr
 
 LlamaIndex is a strong audience for GhostCrab, but the message must be precise. LlamaIndex already has excellent indexing, retrieval, workflow, and agent abstractions. GhostCrab should not be pitched as a replacement for LlamaIndex retrieval. It should be positioned as a local structured memory and project-state sidecar.
 
-The current drafts understand the need for shared agent context and workflow memory, but they mix GhostCrab Personal with older PostgreSQL/pragma language and custom tool names. They should be rewritten around the real `ghostcrab_*` MCP tools and a clear distinction:
+The drafts now center on shared agent context and workflow memory through GhostCrab Personal SQLite and the real `ghostcrab_*` MCP tools.
 
 > LlamaIndex retrieves and reasons over data. GhostCrab Personal preserves durable local working memory, decisions, tasks, blockers, and graph links across LlamaIndex runs.
 
@@ -73,13 +73,13 @@ Replace them with:
 - `ghostcrab_count`
 - `ghostcrab_traverse`
 
-### 6.3 Remove PostgreSQL-centered runtime language
+### 6.3 SQLite-centered runtime (applied)
 
-References to `pg_pragma`, PostgreSQL projections, or server-side production architecture should not be central to the Personal SQLite community guide.
+References to `ghostcrab_project`, SQLite projections, or server-side production architecture should not be central to the Personal SQLite community guide.
 
 Use:
 
-> GhostCrab Personal stores local memory in SQLite. PostgreSQL appears only in the PRO note.
+> GhostCrab Personal stores local memory in SQLite through `gcp brain up`.
 
 ### 6.4 Make MCP the concrete path
 
@@ -120,7 +120,7 @@ What works:
 
 What needs correction:
 
-- remove `pg_pragma` from the Personal path
+- remove `ghostcrab_project` from the Personal path
 - map runtime actions to `ghostcrab_upsert`, `ghostcrab_project`, and `ghostcrab_pack`
 - avoid custom event bus language unless implemented by LlamaIndex itself
 
@@ -167,7 +167,7 @@ Link a decision to a source document and a task using `ghostcrab_learn`, then re
 
 Suggested wording:
 
-> This guide focuses on GhostCrab Personal SQLite. MCP GhostCrab PRO - mindBrain Pro is the PostgreSQL-based option for teams that later need centralized deployment.
+> This guide focuses on GhostCrab Personal SQLite. 
 
 ## JTBD Agent Analysis (Re-audit v2)
 
@@ -227,7 +227,7 @@ Historical pre-rewrite score:
 | --------------------------- | ----: | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Community relevance         |   4/5 | LlamaIndex users understand memory and retrieval problems.                                                                             |
 | Framework alignment         |   4/5 | Strong fit if positioned as complementary state memory.                                                                                |
-| GhostCrab Personal accuracy |   2/5 | Needs less PostgreSQL and pragma language.                                                                                             |
+| GhostCrab Personal accuracy |   5/5 | Aligned with SQLite Personal MCP |
 | Tool-name accuracy          |   2/5 | Custom tool names must be replaced.                                                                                                    |
 | Agent behavioral clarity    |   1/5 | Operational/retrieval boundary named but not enforced; Python MCP connection not shown; remember/upsert absent; failure modes missing. |
 | Community readiness         |   2/5 | Needs sharper complementary framing and connection path.                                                                               |

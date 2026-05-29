@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-29T08:57:06.816Z",
+  "generated_at": "2026-05-29T09:39:30.252Z",
   "source": "ghostcrab-skills",
   "files": [
     {
@@ -24,11 +24,11 @@
     },
     {
       "path": "cursor/rules/ghostcrab-memory.mdc",
-      "sha256": "c09f485e745f9eebb0dba8d4a66b9fea670ddf2432dc1b92cdab63c65680e455"
+      "sha256": "e5f454066c63f988e07dd2ee422e49206f8a8c62cf16bb972d93c1a8056764ab"
     },
     {
       "path": "shared/APP_PATTERNS.md",
-      "sha256": "ebd7791dcbd1db2a0e76bf3c7d82c71e8c3cdda695bec73f6eb4b0b6293b05cc"
+      "sha256": "00df7383b442673b9acd2ec18c5dab0464613c395ef2212a816fb8ba0aa9e17c"
     },
     {
       "path": "shared/CAPABILITIES.md",
@@ -36,7 +36,7 @@
     },
     {
       "path": "shared/ONBOARDING_CONTRACT.md",
-      "sha256": "c6a26c6951aaa5342d11e96350aaddc475f6199608ee18be9befd31fca0bc94f"
+      "sha256": "12f977779354d8ac815f2fe8673e518ea6b4589e50f8f4a569314b54a11faf54"
     },
     {
       "path": "shared/QUERY_PATTERNS.md",
@@ -53,6 +53,10 @@
     {
       "path": "shared/TRANSITION_LOGGING.md",
       "sha256": "d96be3bc0d8262a9f82b196363bda99d30af15295948c23b472f9a7aa8dd4171"
+    },
+    {
+      "path": "shared/WORKSPACE_CONTEXT.md",
+      "sha256": "b1405a5969302780151acebcb1b50eba5ce0d14fd912442d893745f5c752007e"
     }
   ]
 }

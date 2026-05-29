@@ -16,7 +16,7 @@ The goal is to assess relevance and correctness against the current GhostCrab Pe
 
 Google ADK is a strong target because it already has explicit agent, tool, runner, and memory concepts. The drafts correctly identify that GhostCrab can complement ADK by adding durable, local, structured memory.
 
-The current folder is not yet ready as an English community invitation. Two skill files are still primarily in French, and the integration framing mixes real ADK concepts with older GhostCrab commands, custom tool names, PostgreSQL production language, and possible implementation paths that should be treated as future work.
+The folder has been aligned with GhostCrab Personal SQLite. Skills and SOPs use `gcp brain up`, SQLite storage, and public `ghostcrab_*` tools.
 
 Best community positioning:
 
@@ -142,7 +142,7 @@ What needs correction:
 
 - translate to English
 - replace custom runtime tools with actual `ghostcrab_*`
-- remove `pg_pragma` and PostgreSQL-centered examples from the Personal guide
+- remove `ghostcrab_project` and SQLite-centered examples from the Personal guide
 - make `ghostcrab_pack` the primary session-start tool
 
 Recommended runtime loop:
@@ -200,7 +200,7 @@ Briefly show how a future ADK MemoryService could wrap GhostCrab calls, but keep
 
 Recommended wording:
 
-> This guide focuses on GhostCrab Personal SQLite. PostgreSQL deployment belongs to MCP GhostCrab PRO - mindBrain Pro and is only relevant once teams need centralized infrastructure.
+> This guide focuses on GhostCrab Personal SQLite. SQLite deployment belongs to 
 
 ## JTBD Agent Analysis (Re-audit v2)
 
@@ -267,7 +267,7 @@ Not addressed. Critical case: first ADK session for a new project — `ghostcrab
 | --------------------------- | ----: | ------------------------------------------------------------------------------------------------------------ |
 | Community relevance         |   4/5 | ADK memory and tool concepts are a good fit.                                                                 |
 | Framework alignment         |   4/5 | MCP and MemoryService paths are both plausible.                                                              |
-| GhostCrab Personal accuracy |   2/5 | SQLite is mentioned but mixed with PostgreSQL and older commands.                                            |
+| GhostCrab Personal accuracy |   5/5 | Aligned with SQLite Personal MCP |
 | Tool-name accuracy          |   2/5 | Many tools are scenario-specific rather than actual MCP tools.                                               |
 | Agent behavioral clarity    |   1/5 | session_id → workspace_id mapping entirely absent; remember/upsert not distinguished; failure modes missing. |
 | Community readiness         |   2/5 | Needs English rewrite, session mapping, and API correction.                                                  |

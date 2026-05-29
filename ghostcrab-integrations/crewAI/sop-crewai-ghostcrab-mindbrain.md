@@ -614,7 +614,7 @@ Each type declares **a set of facets** — typed, indexed attributes.
 | `float`    | Numeric, range-filterable     | `0.95`                  |
 | `int`      | Integer, range-filterable     | `42`                    |
 | `bool`     | Boolean flag                  | `true`                  |
-| `list`     | Ordered list of items (typed) | `["postgresql", "mcp"]` |
+| `list`     | Ordered list of items (typed) | `["sqlite", "mcp"]` |
 | `date`     | ISO 8601 date                 | `"2026-05-10"`          |
 
 ### Rules
@@ -760,7 +760,7 @@ and all `required` facets must be provided.
       {
         "type_name": "Component",
         "slug": "mindbrain-core",
-        "content": "MindBrain PostgreSQL ontological database",
+        "content": "GhostCrab Personal SQLite ontological database",
         "facets": { "status": "active", "layer": "data", "language": "Go" }
       },
       {
@@ -977,7 +977,6 @@ import json
 import httpx
 import sys
 
-
 def mcp_call(client: httpx.Client, endpoint: str, method: str, params: dict) -> dict:
     payload = {"jsonrpc": "2.0", "method": method, "params": params, "id": 1}
     response = client.post(f"{endpoint}/mcp", json=payload, timeout=15.0)
@@ -986,7 +985,6 @@ def mcp_call(client: httpx.Client, endpoint: str, method: str, params: dict) -> 
     if "error" in data:
         raise RuntimeError(f"GhostCrab error [{method}]: {data['error']}")
     return data.get("result", {})
-
 
 def onboard(namespace: str, endpoint: str) -> None:
     with httpx.Client() as client:
@@ -1060,7 +1058,7 @@ def onboard(namespace: str, endpoint: str) -> None:
         nodes = [
             {
                 "type_name": "Component", "slug": "mindbrain-core",
-                "content": "MindBrain PostgreSQL ontological database — structured, queryable, persistent context store",
+                "content": "GhostCrab Personal SQLite ontological database — structured, queryable, persistent context store",
                 "facets": {"status": "active", "layer": "data", "language": "Go", "version": "0.5.0"},
             },
             {
@@ -1144,7 +1142,7 @@ MindBrain is the single source of truth at all times.
 ```
                         ┌─────────────────────────────────┐
                         │         MindBrain               │
-                        │   (PostgreSQL ontology graph)   │
+                        │   (SQLite-backed ontology graph)   │
                         │                                 │
                         │  Project → Tasks → Findings     │
                         │  Agents  → Outputs → Decisions  │
@@ -1381,7 +1379,6 @@ from typing import Any
 from crewai import Agent, Crew, Task
 from ghostcrab_crewai import GhostCrabMCPClient, shared_ontology_memory
 from ghostcrab_crewai.exceptions import GhostCrabConnectionError
-
 
 class MindBrainOrchestrator:
     """

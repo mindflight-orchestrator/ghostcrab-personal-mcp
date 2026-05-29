@@ -39,7 +39,7 @@ These are the main compact views V1 expects to reuse:
 - `mini-heartbeat` for simple workflow tracking
 - `phase-heartbeat` for multi-phase long-running work
 - `deployment-brief` for environment-specific rollout follow-through
-- `integration-health-brief` for external API or PostgreSQL integration work
+- `integration-health-brief` for external API or database integration work
 - `knowledge-snapshot` for research and knowledge memory
 
 ## Canonical Primitives V1
