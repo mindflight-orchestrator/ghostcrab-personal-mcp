@@ -60,7 +60,7 @@ npx gcp brain setup claude
 npx gcp brain setup codex
 ```
 
-Those commands write the client config with the most reliable local command form available from the current directory. If a specific client is not supported yet, use [universal-mcp-client.md](universal-mcp-client.md) and add a new adapter guide.
+Those commands write the client config with the most reliable local command form available from the current directory. They also apply MCP permission preset **`basic`** by default and install the matching **GhostCrab IDE skill bundle** from `bin/ide-skills/`. See [README_MCP_PERMISSIONS.md](../README_MCP_PERMISSIONS.md). If a specific client is not supported yet, use [universal-mcp-client.md](universal-mcp-client.md) and add a new adapter guide.
 
 Codex is not a JSON `mcpServers` client. `gcp brain setup codex` calls `codex mcp add` and the manual fallback is TOML `[mcp_servers.<name>]`, not Cursor-style JSON. If you need a dedicated Codex entry and database file, use:
 

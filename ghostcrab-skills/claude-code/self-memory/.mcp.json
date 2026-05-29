@@ -1,11 +1,8 @@
 {
   "mcpServers": {
     "ghostcrab": {
-      "command": "${GHOSTCRAB_COMMAND:-npx}",
-      "args": ["-y", "@mindflight/ghostcrab"],
-      "env": {
-        "DATABASE_URL": "${DATABASE_URL:-postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab}"
-      }
+      "command": "gcp",
+      "args": ["brain", "up"]
     }
   }
 }

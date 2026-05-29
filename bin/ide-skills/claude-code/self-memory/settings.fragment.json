@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c 'import json; print(json.dumps({\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"Use ghostcrab_status first. If the task is non-trivial, call ghostcrab_pack before reasoning. Persist durable discoveries before session end.\"}}))'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c 'import json; print(json.dumps({\"systemMessage\": \"Consider whether this edit revealed durable knowledge worth storing with ghostcrab_remember or ghostcrab_learn.\"}))'",
+            "async": true,
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -182,7 +182,7 @@ If you self-host a GhostCrab-compatible endpoint over **HTTP** or **SSE** later,
 
 1. **Chat / Agent** — GhostCrab tools should appear under available MCP tools when relevant. You can ask the agent to use a specific `ghostcrab_*` tool by name (see the main README for the tool surface).
 2. **Logs** — **Output** panel (e.g. **Cmd/Ctrl+Shift+U**), select **MCP Logs**, to see connection and runtime errors.
-3. **Approval** — by default, Cursor asks before running MCP tools; you can adjust auto-run in Cursor settings and `permissions.json` if needed.
+3. **Approval** — by default, Cursor asks before running MCP tools. `gcp brain setup cursor` applies the **`basic`** preset (12 tools) to `~/.cursor/permissions.json` and installs the GhostCrab skill bundle. See [README_MCP_PERMISSIONS.md](README_MCP_PERMISSIONS.md). Enable auto-run in Cursor settings for allowlists to take effect.
 
 ## Verify tools after install
 
