@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-29T09:39:30.252Z",
+  "generated_at": "2026-05-29T15:34:32.121Z",
   "source": "ghostcrab-skills",
   "files": [
     {
@@ -28,7 +28,7 @@
     },
     {
       "path": "shared/APP_PATTERNS.md",
-      "sha256": "00df7383b442673b9acd2ec18c5dab0464613c395ef2212a816fb8ba0aa9e17c"
+      "sha256": "08249a9c6a343d4bd06102730f4d1a2e90afc1115dec895bde2eb7a4fbbede0b"
     },
     {
       "path": "shared/CAPABILITIES.md",

@@ -5,7 +5,7 @@ GhostCrab setup registers the MCP server, applies **MCP tool permission presets*
 ## Quick start
 
 ```bash
-# Default: MCP + permissions basic (14 tools) + skill bundle
+# Default: MCP + permissions basic (12 tools) + skill bundle
 npx gcp brain setup cursor
 npx gcp brain setup claude --scope project
 npx gcp brain setup codex
@@ -18,7 +18,7 @@ npx gcp brain setup cursor --no-permissions --no-skills
 
 | Preset | Behavior |
 |--------|----------|
-| `basic` (default) | Auto-approve the 14 recommended GhostCrab tools |
+| `basic` (default) | Auto-approve the 12 recommended GhostCrab tools |
 | `none` | No permission rules (`--no-permissions`) |
 | `all` | Auto-approve every tool on the server |
 | `read` | Allow read/bootstrap/guide/session; ask on write/model |
