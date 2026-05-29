@@ -25,6 +25,30 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
 
+/** Load NODE_AUTH_TOKEN / NPM_TOKEN from repo .env when not already in the environment. */
+function loadDotEnvAuth() {
+  const envPath = join(repoRoot, ".env");
+  if (!existsSync(envPath)) return;
+  const text = readFileSync(envPath, "utf8");
+  for (const line of text.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eq = trimmed.indexOf("=");
+    if (eq < 0) continue;
+    const key = trimmed.slice(0, eq).trim();
+    if (key !== "NODE_AUTH_TOKEN" && key !== "NPM_TOKEN") continue;
+    if (process.env[key]?.trim()) continue;
+    let value = trimmed.slice(eq + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    process.env[key] = value;
+  }
+}
+
 function ensureNpmAuthToken() {
   const fromNode = process.env.NODE_AUTH_TOKEN?.trim();
   const fromNpm = process.env.NPM_TOKEN?.trim();
@@ -34,14 +58,14 @@ function ensureNpmAuthToken() {
   if (!process.env.NODE_AUTH_TOKEN?.trim()) {
     console.error(
       "[publish-npm-split] Missing NODE_AUTH_TOKEN (or NPM_TOKEN).\n" +
-        "  Load .env into the shell: export $(grep NODE_AUTH_TOKEN .env)\n" +
-        "  Or: npx dotenv-cli -e .env -- node scripts/publish-npm-split.mjs\n" +
+        "  Add NODE_AUTH_TOKEN=npm_... to .env at repo root (read automatically), or export it in the shell.\n" +
         "  npm publishes use NODE_AUTH_TOKEN for https://registry.npmjs.org/"
     );
     process.exit(1);
   }
 }
 
+loadDotEnvAuth();
 ensureNpmAuthToken();
 
 const PLATFORM_DIRS = [
@@ -131,6 +155,11 @@ function createPublishUserconfig() {
 /** Provenance needs a supported CI (e.g. GitHub Actions + OIDC/trusted publishing). Local/token-only runs fail with "provider: null". */
 function npmPublishArgs() {
   const args = ["publish", "--access", "public"];
+  const otp = process.env.NPM_OTP?.trim();
+  if (otp) {
+    args.push("--otp", otp);
+    console.error("[publish-npm-split] using NPM_OTP for 2FA.");
+  }
   const ci = process.env.GITHUB_ACTIONS === "true";
   const noProv = process.env.NPM_PUBLISH_NO_PROVENANCE === "1";
   if (ci && !noProv) {

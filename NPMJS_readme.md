@@ -66,12 +66,19 @@ pnpm run beta:smoke
 
 2. **Build** — `prebuilds/` populated, then `npm ci` + `npm run build` (same idea as CI).
 
-3. **Authenticate for non-interactive publish** — Set an npm **access token** (not your account password):
+3. **Authenticate for non-interactive publish** — Set an npm **access token** (not your account password). Use a **publish** token with rights on the **`@mindflight`** scope (granular: Packages and scopes → Read and write).
 
    ```bash
    export NODE_AUTH_TOKEN=npm_xxxxxxxx   # granular or classic publish token from npmjs.com
    npm run publish:npm-split
    # equivalent: node scripts/publish-npm-split.mjs
+   ```
+
+   If the token lives in repo **`.env`** as `NODE_AUTH_TOKEN=...`, either export it without sourcing the whole file (some `.env` lines are not valid shell), or rely on the script (it reads `NODE_AUTH_TOKEN` / `NPM_TOKEN` from `.env` when not already exported):
+
+   ```bash
+   export NODE_AUTH_TOKEN="$(grep '^NODE_AUTH_TOKEN=' .env | cut -d= -f2- | tr -d '\r' | sed 's/^["'\'']//; s/["'\'']$//')"
+   npm run publish:npm-split
    ```
 
    The script runs **`npm publish --provenance --access public`** in order:
@@ -83,6 +90,15 @@ pnpm run beta:smoke
    6. repository **root** (`@mindflight/ghostcrab-personal-mcp`)
 
    Publishing the **root before** the platform packages breaks installs that rely on `optionalDependencies`.
+
+   **2FA on publish** — If npm returns **403** (or sometimes **404**) mentioning two-factor authentication, either:
+   - create a granular **Publish** token with **“Bypass two-factor authentication for automation”** enabled, or
+   - pass a one-time code from your authenticator app:
+
+   ```bash
+   export NPM_OTP=123456   # 6 digits from 2FA app; valid ~30s
+   npm run publish:npm-split
+   ```
 
 4. **Interactive alternative** — If you prefer not to use `NODE_AUTH_TOKEN`, run **`npm login`** once; npm stores a token in `~/.npmrc`. Then run `npm run publish:npm-split` in the same environment where `npm whoami` succeeds.
 
