@@ -411,7 +411,7 @@ async function loadLinkedFacetFacts(args: {
         f.version,
         f.doc_id
       FROM graph_entity_document AS ged
-      JOIN facets AS f
+      JOIN agent_facts AS f
         ON f.doc_id = ged.doc_id
       WHERE ged.table_id = ?
         AND ged.entity_id IN (${args.entityIds.map(() => "?").join(", ")})

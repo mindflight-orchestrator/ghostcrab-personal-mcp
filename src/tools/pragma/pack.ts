@@ -262,7 +262,7 @@ async function fetchFacetsByDocIds(
     content: string;
     doc_id: number;
   }>(
-    `SELECT id, content, doc_id FROM mb_pragma.facets WHERE ${whereClauses.join(" AND ")}`,
+    `SELECT id, content, doc_id FROM mb_pragma.agent_facts WHERE ${whereClauses.join(" AND ")}`,
     sqlParams
   );
 

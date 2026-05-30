@@ -349,7 +349,7 @@ describe("facet tools", () => {
     );
 
     const facetsCalls = query.mock.calls.filter((call) =>
-      call[0].includes("FROM facets")
+      call[0].includes("FROM agent_facts")
     );
     expect(facetsCalls.length).toBeGreaterThanOrEqual(1);
     expect(readStructured(result)).toMatchObject({
@@ -510,7 +510,7 @@ describe("facet tools", () => {
     );
 
     expect(query).toHaveBeenCalledOnce();
-    expect(query.mock.calls[0]?.[0]).toContain("FROM facets");
+    expect(query.mock.calls[0]?.[0]).toContain("FROM agent_facts");
     expect(query.mock.calls[0]?.[0]).not.toContain("facets.bm25_search");
     expect(readStructured(result)).toMatchObject({
       ok: true,
@@ -586,7 +586,7 @@ describe("facet tools", () => {
 
     expect(query).toHaveBeenCalledOnce();
     expect(query.mock.calls[0]?.[0]).not.toContain("facets.bm25_search");
-    expect(query.mock.calls[0]?.[0]).toContain("FROM facets");
+    expect(query.mock.calls[0]?.[0]).toContain("FROM agent_facts");
     expect(readStructured(result)).toMatchObject({
       ok: true,
       tool: "ghostcrab_search",
@@ -659,7 +659,7 @@ describe("facet tools", () => {
     );
 
     expect(query).toHaveBeenCalledTimes(1);
-    expect(query.mock.calls[0]?.[0]).toContain("FROM facets");
+    expect(query.mock.calls[0]?.[0]).toContain("FROM agent_facts");
     expect(query.mock.calls[0]?.[0]).not.toContain("facets.get_facet_counts");
     expect(readStructured(result)).toMatchObject({
       ok: true,
@@ -859,7 +859,7 @@ describe("facet tools", () => {
         if (sql.includes("search_fts MATCH")) {
           throw new Error("malformed MATCH expression");
         }
-        if (sql.includes("FROM facets")) {
+        if (sql.includes("FROM agent_facts")) {
           return [
             {
               id: "facet-fallback-1",
@@ -899,7 +899,7 @@ describe("facet tools", () => {
     it("stays on keyword_sql when FTS is not ready", async () => {
       setFactsFtsReady(false);
       const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
-        if (sql.includes("FROM facets")) {
+        if (sql.includes("FROM agent_facts")) {
           return [
             {
               id: "facet-keyword-only",

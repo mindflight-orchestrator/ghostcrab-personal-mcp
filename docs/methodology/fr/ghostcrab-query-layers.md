@@ -8,7 +8,7 @@ GhostCrab stocke les données dans trois couches distinctes. Chacune dispose d'o
 
 ```mermaid
 flowchart LR
-  subgraph facetsLayer ["Couche facettes (mb_pragma.facets)"]
+  subgraph facetsLayer ["Couche facettes (mb_pragma.agent_facts)"]
     S[ghostcrab_search]
     CS[ghostcrab_combined_search]
     C[ghostcrab_count]
@@ -38,7 +38,7 @@ flowchart LR
 
 ## Couche 1 — Facettes
 
-**Stockage :** `mb_pragma.facets`
+**Stockage :** `mb_pragma.agent_facts`
 
 Enregistrements de domaine structurés, écrits via `ghostcrab_remember` / `ghostcrab_upsert`. Chaque ligne possède un `schema_id`, un `content` en texte libre et un sac JSON `facets`.
 

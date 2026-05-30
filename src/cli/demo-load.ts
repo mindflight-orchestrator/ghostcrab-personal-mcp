@@ -177,7 +177,7 @@ async function ensureRememberEntry(
   const [existing] = await queryable.query<{ id: string }>(
     `
       SELECT id
-      FROM mb_pragma.facets
+      FROM mb_pragma.agent_facts
       WHERE schema_id = $1
         AND content = $2
         AND facets_json = $3::jsonb

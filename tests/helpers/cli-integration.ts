@@ -99,7 +99,7 @@ export async function cleanupTestDatabase(
   await database.query("DELETE FROM pending_migrations");
   await database.query("DELETE FROM projections");
   await database.query("DELETE FROM agent_state");
-  await database.query("DELETE FROM facets");
+  await database.query("DELETE FROM agent_facts");
   await database.query("DELETE FROM workspaces WHERE id <> 'default'");
 }
 
@@ -231,7 +231,7 @@ export async function seedActiveProjectDataset(
   );
   await database.query(
     `
-      INSERT INTO facets (
+      INSERT INTO agent_facts (
         id,
         schema_id,
         content,

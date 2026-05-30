@@ -123,17 +123,17 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
 
   it("source_ref contract: two historical rows (source_ref=NULL) are allowed", async () => {
     await harness.database.query(
-      `INSERT INTO facets (schema_id, content, facets, workspace_id, source_ref)
+      `INSERT INTO agent_facts (schema_id, content, facets, workspace_id, source_ref)
        VALUES ($1, 'hist1', '{}', 'default', NULL),
               ($1, 'hist2', '{}', 'default', NULL)`,
       [sourceRefSchemaId]
     );
     const rows = await harness.database.query<{ content: string }>(
-      `SELECT content FROM facets WHERE schema_id = $1 ORDER BY content`,
+      `SELECT content FROM agent_facts WHERE schema_id = $1 ORDER BY content`,
       [sourceRefSchemaId]
     );
     expect(rows.length).toBeGreaterThanOrEqual(2);
-    await harness.database.query(`DELETE FROM facets WHERE schema_id = $1`, [
+    await harness.database.query(`DELETE FROM agent_facts WHERE schema_id = $1`, [
       sourceRefSchemaId
     ]);
   });
@@ -141,18 +141,18 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   it("source_ref contract: two synced rows with same (source_ref, workspace_id) are rejected", async () => {
     const refDup = `ref:contract-test:${RUN_ID}`;
     await harness.database.query(
-      `INSERT INTO facets (schema_id, content, facets, workspace_id, source_ref)
+      `INSERT INTO agent_facts (schema_id, content, facets, workspace_id, source_ref)
        VALUES ($1, 'synced1', '{}', 'default', $2)`,
       [sourceRefSchemaId, refDup]
     );
     await expect(
       harness.database.query(
-        `INSERT INTO facets (schema_id, content, facets, workspace_id, source_ref)
+        `INSERT INTO agent_facts (schema_id, content, facets, workspace_id, source_ref)
          VALUES ($1, 'synced2', '{}', 'default', $2)`,
         [sourceRefSchemaId, refDup]
       )
     ).rejects.toThrow();
-    await harness.database.query(`DELETE FROM facets WHERE schema_id = $1`, [
+    await harness.database.query(`DELETE FROM agent_facts WHERE schema_id = $1`, [
       sourceRefSchemaId
     ]);
   });
@@ -167,17 +167,17 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
     );
     const refCross = `ref:crossws:${RUN_ID}`;
     await harness.database.query(
-      `INSERT INTO facets (schema_id, content, facets, workspace_id, source_ref)
+      `INSERT INTO agent_facts (schema_id, content, facets, workspace_id, source_ref)
        VALUES ($1, 'cross1', '{}', $2, $4),
               ($1, 'cross2', '{}', $3, $4)`,
       [sourceRefSchemaId, ws1, ws2, refCross]
     );
     const rows = await harness.database.query<{ source_ref: string }>(
-      `SELECT source_ref FROM facets WHERE schema_id = $1 AND source_ref = $2`,
+      `SELECT source_ref FROM agent_facts WHERE schema_id = $1 AND source_ref = $2`,
       [sourceRefSchemaId, refCross]
     );
     expect(rows).toHaveLength(2);
-    await harness.database.query(`DELETE FROM facets WHERE schema_id = $1`, [
+    await harness.database.query(`DELETE FROM agent_facts WHERE schema_id = $1`, [
       sourceRefSchemaId
     ]);
     await harness.database.query(
@@ -276,7 +276,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
     const result = await ddlProposeTool.handler(
       {
         workspace_id: "default",
-        sql: "DROP TABLE facets"
+        sql: "DROP TABLE agent_facts"
       },
       ctx
     );

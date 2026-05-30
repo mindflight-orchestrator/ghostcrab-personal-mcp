@@ -235,7 +235,7 @@ async function cleanupImmeubleWorkspace(
     `DELETE FROM documents_raw WHERE workspace_id = ?`,
     [WS_ID]
   );
-  await safeDelete(database, `DELETE FROM facets WHERE workspace_id = ?`, [
+  await safeDelete(database, `DELETE FROM agent_facts WHERE workspace_id = ?`, [
     WS_ID
   ]);
   await safeDelete(

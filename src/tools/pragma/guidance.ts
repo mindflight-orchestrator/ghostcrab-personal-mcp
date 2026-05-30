@@ -1156,7 +1156,7 @@ export const guidanceTool: ToolHandler = {
           facets_json->>'title' AS title,
           facets_json->>'default_projection' AS default_projection,
           facets_json->'keywords' AS keywords
-        FROM mb_pragma.facets
+        FROM mb_pragma.agent_facts
         WHERE schema_id = 'ghostcrab:activity-family'
           AND (valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))
       `
@@ -1187,7 +1187,7 @@ export const guidanceTool: ToolHandler = {
           content,
           facets_json->'examples' AS examples,
           facets_json->'candidate_activity_families' AS candidate_activity_families
-        FROM mb_pragma.facets
+        FROM mb_pragma.agent_facts
         WHERE schema_id = 'ghostcrab:signal-pattern'
           AND (valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))
       `
@@ -1274,7 +1274,7 @@ export const guidanceTool: ToolHandler = {
             facets_json->>'fact_schema_hint' AS fact_schema_hint,
             facets_json->>'graph_node_hint' AS graph_node_hint,
             facets_json->'graph_edge_labels' AS graph_edge_labels
-          FROM mb_pragma.facets
+          FROM mb_pragma.agent_facts
           WHERE schema_id = 'ghostcrab:modeling-recipe'
             AND facets_json->>'activity_family' = $1
             AND (valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))

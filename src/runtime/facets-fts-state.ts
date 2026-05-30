@@ -1,6 +1,6 @@
 /**
  * Process-wide cache of whether the MindBrain FTS5 surface is wired and
- * registered for the GhostCrab `facets` table.
+ * registered for the GhostCrab `agent_facts` table.
  *
  * Set once by the server-startup bootstrap (`ensureFactsFtsSync` in
  * `src/db/facets-fts-sync.ts`); consulted by `ghostcrab_search`,

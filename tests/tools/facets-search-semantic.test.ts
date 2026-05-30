@@ -125,7 +125,7 @@ describe("ghostcrab_search semantic and hybrid (fake embeddings)", () => {
       if (sql.includes("embedding_blob IS NOT NULL")) {
         return [];
       }
-      if (sql.includes("FROM facets")) {
+      if (sql.includes("FROM agent_facts")) {
         return [{ ...noEmbedding, score: 0.42 }];
       }
       return [];
@@ -253,7 +253,7 @@ describe("ghostcrab_search semantic and hybrid (fake embeddings)", () => {
     const seedNoFts = seedRow("facet-x", "filler text content");
 
     const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
-      if (sql.includes("FROM facets")) {
+      if (sql.includes("FROM agent_facts")) {
         return [{ ...seedNoFts, score: 0.5 }];
       }
       return [];

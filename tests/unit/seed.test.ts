@@ -15,7 +15,7 @@ function createMockDatabase(): {
   let lastEdgeLookupKey: string | null = null;
 
   const queryImpl: Queryable["query"] = async (sql, params = []) => {
-    if (sql.includes("SELECT id") && sql.includes("FROM mb_pragma.facets")) {
+    if (sql.includes("SELECT id") && sql.includes("FROM mb_pragma.agent_facts")) {
       const schemaId = String(params[0]);
       const lookup =
         schemaId === "mindbrain:system"
@@ -70,7 +70,7 @@ function createMockDatabase(): {
         : [];
     }
 
-    if (sql.includes("INSERT INTO mb_pragma.facets")) {
+    if (sql.includes("INSERT INTO mb_pragma.agent_facts")) {
       const schemaId = String(params[0]);
       const facets = JSON.parse(String(params[2])) as Record<string, unknown>;
       const lookup =

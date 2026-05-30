@@ -169,9 +169,9 @@ export async function resetWorkspaceData(
     `DELETE FROM documents_raw WHERE workspace_id = ?`
   );
   await clear(
-    "facets",
-    `SELECT COUNT(*) AS count FROM facets WHERE workspace_id = ?`,
-    `DELETE FROM facets WHERE workspace_id = ?`
+    "agent_facts",
+    `SELECT COUNT(*) AS count FROM agent_facts WHERE workspace_id = ?`,
+    `DELETE FROM agent_facts WHERE workspace_id = ?`
   );
   await clear(
     "collection_ontologies",

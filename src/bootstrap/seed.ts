@@ -4552,7 +4552,7 @@ async function ensureFacetEntry(
   }>(
     `
       SELECT id, content, facets_json
-      FROM mb_pragma.facets
+      FROM mb_pragma.agent_facts
       WHERE schema_id = ?
         ${jsonExtractClauses.length > 0 ? `AND ${jsonExtractClauses.join(" AND ")}` : ""}
       LIMIT 1
@@ -4575,7 +4575,7 @@ async function ensureFacetEntry(
     ) {
       await queryable.query(
         `
-          UPDATE mb_pragma.facets
+          UPDATE mb_pragma.agent_facts
           SET content = ?,
               facets_json = ?
           WHERE id = ?
@@ -4589,7 +4589,7 @@ async function ensureFacetEntry(
 
   await queryable.query(
     `
-      INSERT INTO mb_pragma.facets (schema_id, content, facets_json)
+      INSERT INTO mb_pragma.agent_facts (schema_id, content, facets_json)
       VALUES (?, ?, ?)
     `,
     [entry.schemaId, serializedContent, serializedFacets]

@@ -450,7 +450,7 @@ async function runFtsSearch(
       f.created_at_unix,
       f.version,
       bm25(search_fts) AS score
-    FROM facets AS f
+    FROM agent_facts AS f
     JOIN search_fts_docs AS sd
       ON sd.table_id = ? AND sd.doc_id = f.doc_id
     JOIN search_fts AS sf
@@ -487,7 +487,7 @@ async function runFtsCandidatePool(
       f.version,
       f.embedding_blob AS embedding_blob,
       bm25(search_fts) AS score
-    FROM facets AS f
+    FROM agent_facts AS f
     JOIN search_fts_docs AS sd
       ON sd.table_id = ? AND sd.doc_id = f.doc_id
     JOIN search_fts AS sf
@@ -539,7 +539,7 @@ async function runSemanticCandidatePool(
       version,
       embedding_blob AS embedding_blob,
       0.0 AS score
-    FROM facets
+    FROM agent_facts
     WHERE ${whereClauses.join(" AND ")}
     LIMIT ?
   `;
@@ -639,7 +639,7 @@ async function fetchFacetsByDocIds(
         version,
         doc_id,
         0.0 AS score
-      FROM facets
+      FROM agent_facts
       WHERE ${whereClauses.join(" AND ")}
     `,
     params
@@ -817,7 +817,7 @@ async function runKeywordSqlSearch(
         created_at_unix,
         version,
         ${scoreSql} AS score
-      FROM facets
+      FROM agent_facts
       WHERE ${whereClauses.join(" AND ")}
       ORDER BY score DESC, created_at_unix DESC
       LIMIT ?

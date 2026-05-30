@@ -77,7 +77,7 @@ export async function ensureSearchFtsCaughtUp(
       `
         INSERT OR IGNORE INTO search_documents (table_id, doc_id, content, language)
         SELECT ?, doc_id, content, 'english'
-        FROM facets
+        FROM agent_facts
         WHERE doc_id IS NOT NULL
           AND NOT EXISTS (
             SELECT 1 FROM search_documents
@@ -90,7 +90,7 @@ export async function ensureSearchFtsCaughtUp(
       `
         INSERT OR IGNORE INTO search_fts_docs (table_id, doc_id)
         SELECT ?, doc_id
-        FROM facets
+        FROM agent_facts
         WHERE doc_id IS NOT NULL
           AND NOT EXISTS (
             SELECT 1 FROM search_fts_docs
@@ -104,7 +104,7 @@ export async function ensureSearchFtsCaughtUp(
         INSERT INTO search_fts (rowid, content)
         SELECT sd.fts_rowid, f.content
         FROM search_fts_docs sd
-        JOIN facets f ON f.doc_id = sd.doc_id
+        JOIN agent_facts f ON f.doc_id = sd.doc_id
         WHERE sd.table_id = ?
           AND NOT EXISTS (
             SELECT 1 FROM search_fts WHERE rowid = sd.fts_rowid

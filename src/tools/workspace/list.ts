@@ -63,7 +63,7 @@ export const workspaceListTool: ToolHandler = {
           w.status,
           w.created_at,
           COALESCE(
-            (SELECT COUNT(*) FROM facets f WHERE f.workspace_id = w.id),
+            (SELECT COUNT(*) FROM agent_facts f WHERE f.workspace_id = w.id),
             0
           ) AS facets_count,
           COALESCE(

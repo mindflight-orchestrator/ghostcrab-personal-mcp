@@ -113,7 +113,7 @@ async function verifyLayer2(
   const facetsResult = await client
     .query<{
       count: string;
-    }>(`SELECT COUNT(*)::text AS count FROM facets WHERE workspace_id = $1`, [
+    }>(`SELECT COUNT(*)::text AS count FROM agent_facts WHERE workspace_id = $1`, [
       workspaceId
     ])
     .catch(() => ({ rows: [{ count: "0" }] }));
@@ -170,7 +170,7 @@ async function verifySearchability(
   for (const term of terms) {
     try {
       const result = await client.query<{ count: string }>(
-        `SELECT COUNT(*)::text AS count FROM facets
+        `SELECT COUNT(*)::text AS count FROM agent_facts
          WHERE workspace_id = $1
            AND (content ILIKE $2 OR facets::text ILIKE $2)`,
         [workspaceId, `%${term}%`]
@@ -207,7 +207,7 @@ async function seedFacetsFromLayer1(
     for (const p of players.rows) {
       await client
         .query(
-          `INSERT INTO facets (content, facets, schema_id, source_ref, workspace_id)
+          `INSERT INTO agent_facts (content, facets, schema_id, source_ref, workspace_id)
          VALUES ($1, $2, $3, $4, $5)
          ON CONFLICT (source_ref, workspace_id) WHERE source_ref IS NOT NULL DO UPDATE
            SET content = EXCLUDED.content, facets = EXCLUDED.facets`,

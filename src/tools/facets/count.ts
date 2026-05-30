@@ -96,7 +96,7 @@ export const countTool: ToolHandler = {
           SELECT
             json_extract(facets_json, '$.${dimension}') AS val,
             COUNT(*) AS count
-          FROM facets
+          FROM agent_facts
           WHERE ${whereClauses.join(" AND ")}
           GROUP BY val
           ORDER BY count DESC, val ASC
