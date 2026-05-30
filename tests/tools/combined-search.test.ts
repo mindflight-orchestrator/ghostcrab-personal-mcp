@@ -127,7 +127,7 @@ describe("combined search tools", () => {
   it("falls back to facets when graph search returns no entities", async () => {
     mockGraphSearchFetch([]);
     const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
-      if (sql.includes("FROM facets")) {
+      if (sql.includes("FROM agent_facts")) {
         return [
           {
             id: "fact-2",
@@ -176,7 +176,7 @@ describe("combined search tools", () => {
       })
     );
     const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
-      if (sql.includes("FROM facets")) {
+      if (sql.includes("FROM agent_facts")) {
         return [
           {
             id: "fact-3",

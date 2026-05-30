@@ -99,7 +99,7 @@ describe("pragma tools", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
-      if (sql.includes("FROM mb_pragma.facets") && sql.includes("doc_id IN")) {
+      if (sql.includes("FROM mb_pragma.agent_facts") && sql.includes("doc_id IN")) {
         return [
           {
             id: "facet-1",
@@ -573,7 +573,7 @@ describe("pragma tools", () => {
         ];
       }
 
-      if (sql.includes("COUNT(*) AS count FROM mb_pragma.facets")) {
+      if (sql.includes("COUNT(*) AS count FROM mb_pragma.agent_facts")) {
         return [{ count: 12 }];
       }
 

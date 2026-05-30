@@ -47,11 +47,11 @@ describe("sqlite database client SQL rewrite", () => {
     const { createDatabaseClient } = await import("../../src/db/client.js");
     const database = createDatabaseClient(testConfig);
 
-    await database.query("SELECT COUNT(*) AS count FROM mb_pragma.facets");
+    await database.query("SELECT COUNT(*) AS count FROM mb_pragma.agent_facts");
 
     expect(mocks.runStandaloneMindbrainSql).toHaveBeenCalledWith(
       expect.objectContaining({
-        sql: "SELECT COUNT(*) AS count FROM facets",
+        sql: "SELECT COUNT(*) AS count FROM agent_facts",
         params: [],
         timeoutMs: 30_000
       })
@@ -65,7 +65,7 @@ describe("sqlite database client SQL rewrite", () => {
     await database.query(
       `
         SELECT facets->>'activity_family' AS activity_family
-        FROM mb_pragma.facets
+        FROM mb_pragma.agent_facts
         WHERE facets @> $1::jsonb
       `,
       ['{"activity_family":"workflow-tracking"}']
@@ -83,7 +83,7 @@ describe("sqlite database client SQL rewrite", () => {
     const [{ sql }] = mocks.runStandaloneMindbrainSql.mock.calls.at(-1) as [
       { sql: string }
     ];
-    expect(sql).toContain("FROM facets");
+    expect(sql).toContain("FROM agent_facts");
     expect(sql).not.toContain("FROM facets_json");
     expect(sql).toContain("WHERE facets_json @> ?");
   });

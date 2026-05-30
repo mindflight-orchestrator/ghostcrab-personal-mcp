@@ -25,7 +25,7 @@ describe("ensureFactsFtsSync", () => {
   it("skips and reports an error when the FTS surface is missing", async () => {
     const query = vi
       .fn<DatabaseClient["query"]>()
-      .mockResolvedValueOnce([{ name: "facets" }]); // sqlite_master probe — only facets, no FTS tables
+      .mockResolvedValueOnce([{ name: "agent_facts" }]); // sqlite_master probe — only agent_facts, no FTS tables
     const database = createMockDatabase(query);
 
     const summary = await ensureFactsFtsSync(database);

@@ -18,20 +18,20 @@ export interface FactsFtsSyncSummary {
 
 /**
  * One-shot, idempotent bootstrap that lights up MindBrain FTS5 BM25 search for
- * GhostCrab's `facets` table.
+ * GhostCrab's `agent_facts` table.
  *
  * Required because the MindBrain v1.2.1 baseline ships `search_fts`,
  * `search_fts_docs`, and `bm25_sync_triggers`, but the only call sites of
  * `bm25CreateSyncTrigger` are the document-import pipeline and tests — never
- * the `facets` table. So fresh GhostCrab installs land with `search_fts`
- * empty for facets even though every `remember`/`upsert` row has a `doc_id`.
+ * the `agent_facts` table. So fresh GhostCrab installs land with `search_fts`
+ * empty for agent facts even though every `remember`/`upsert` row has a `doc_id`.
  *
  * The bootstrap:
  * 1. Verifies that the MindBrain FTS5 surface is present (search_fts virtual
  *    table, search_fts_docs, bm25_sync_triggers).
- * 2. Inserts `facets` into `bm25_sync_triggers` (idempotent).
+ * 2. Inserts `agent_facts` into `bm25_sync_triggers` (idempotent).
  * 3. Backfills `search_documents`, `search_fts_docs`, and `search_fts` for
- *    every `facets` row with a non-null `doc_id` that is missing from the
+ *    every `agent_facts` row with a non-null `doc_id` that is missing from the
  *    search artifacts. Re-runs are safe and cheap thanks to `INSERT OR IGNORE`.
  *
  * Failures are non-fatal: the function returns `ready: false` with an error
@@ -133,7 +133,7 @@ async function backfillSearchDocuments(
     `
       INSERT OR IGNORE INTO search_documents (table_id, doc_id, content, language)
       SELECT ?, doc_id, content, 'english'
-      FROM facets
+      FROM agent_facts
       WHERE doc_id IS NOT NULL
     `,
     [tableId]
@@ -159,7 +159,7 @@ async function backfillSearchFtsDocs(
     `
       INSERT OR IGNORE INTO search_fts_docs (table_id, doc_id)
       SELECT ?, doc_id
-      FROM facets
+      FROM agent_facts
       WHERE doc_id IS NOT NULL
     `,
     [tableId]
@@ -192,7 +192,7 @@ async function backfillSearchFtsRows(
       INSERT INTO search_fts (rowid, content)
       SELECT sd.fts_rowid, f.content
       FROM search_fts_docs sd
-      JOIN facets f ON f.doc_id = sd.doc_id
+      JOIN agent_facts f ON f.doc_id = sd.doc_id
       WHERE sd.table_id = ?
         AND NOT EXISTS (
           SELECT 1 FROM search_fts WHERE rowid = sd.fts_rowid

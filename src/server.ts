@@ -305,9 +305,9 @@ export async function startMcpServer(): Promise<void> {
     );
 
     if (serverState.databaseReady) {
-      // FTS-sync bootstrap: register `facets` in MindBrain's `bm25_sync_triggers`
+      // FTS-sync bootstrap: register `agent_facts` in MindBrain's `bm25_sync_triggers`
       // and backfill `search_fts` from existing rows. Required because the
-      // v1.2.1 baseline does not auto-register `facets` for sync. Failures are
+      // v1.2.1 baseline does not auto-register `agent_facts` for sync. Failures are
       // non-fatal — the search path falls back to keyword_sql until this
       // succeeds.
       try {

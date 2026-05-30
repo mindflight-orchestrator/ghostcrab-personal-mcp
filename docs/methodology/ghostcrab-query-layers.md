@@ -8,7 +8,7 @@ GhostCrab stores data in three separate layers. Each has dedicated tools. Mixing
 
 ```mermaid
 flowchart LR
-  subgraph facetsLayer ["Facets layer (mb_pragma.facets)"]
+  subgraph facetsLayer ["Facets layer (mb_pragma.agent_facts)"]
     S[ghostcrab_search]
     CS[ghostcrab_combined_search]
     C[ghostcrab_count]
@@ -38,7 +38,7 @@ flowchart LR
 
 ## Layer 1 — Facets
 
-**Store:** `mb_pragma.facets`
+**Store:** `mb_pragma.agent_facts`
 
 Structured domain records written via `ghostcrab_remember` / `ghostcrab_upsert`. Each row has a `schema_id`, free-text `content`, and a `facets` JSON bag.
 

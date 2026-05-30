@@ -24,13 +24,13 @@ describe("sqlite_mindbrain--1.0.0.sql — facets sync contract", () => {
 
   it("creates a plain index on source_ref WHERE NOT NULL", async () => {
     const sql = await loadCanonicalSql();
-    expect(sql).toContain("facets_source_ref_idx");
+    expect(sql).toContain("agent_facts_source_ref_idx");
     expect(sql).toContain("WHERE source_ref IS NOT NULL");
   });
 
   it("creates a UNIQUE partial index on (source_ref, workspace_id)", async () => {
     const sql = await loadCanonicalSql();
-    expect(sql).toContain("facets_source_ref_workspace_uniq");
+    expect(sql).toContain("agent_facts_source_ref_workspace_uniq");
     expect(sql).toContain("UNIQUE INDEX");
     expect(sql).toContain("(source_ref, workspace_id)");
   });
@@ -38,7 +38,7 @@ describe("sqlite_mindbrain--1.0.0.sql — facets sync contract", () => {
   it("partial unique index only applies to synced rows (WHERE source_ref IS NOT NULL)", async () => {
     const sql = await loadCanonicalSql();
     const uniqueIndexBlock = sql.slice(
-      sql.indexOf("facets_source_ref_workspace_uniq")
+      sql.indexOf("agent_facts_source_ref_workspace_uniq")
     );
     expect(uniqueIndexBlock).toContain("WHERE source_ref IS NOT NULL");
   });
@@ -46,7 +46,7 @@ describe("sqlite_mindbrain--1.0.0.sql — facets sync contract", () => {
   it("does NOT use NOT NULL on source_ref column (historical rows compat)", async () => {
     const sql = await loadCanonicalSql();
     const facetsTableBlock = sql.match(
-      /CREATE TABLE IF NOT EXISTS facets \([\s\S]*?\n\);/
+      /CREATE TABLE IF NOT EXISTS agent_facts \([\s\S]*?\n\);/
     )?.[0];
     expect(facetsTableBlock).toBeDefined();
     expect(facetsTableBlock).not.toMatch(/source_ref\s+TEXT\s+NOT\s+NULL/i);

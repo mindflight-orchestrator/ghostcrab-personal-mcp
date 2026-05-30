@@ -156,7 +156,7 @@ export const statusTool: ToolHandler = {
       [input.agent_id]
     );
     const [facetCountRow] = await context.database.query<{ count: number }>(
-      `SELECT COUNT(*) AS count FROM mb_pragma.facets`
+      `SELECT COUNT(*) AS count FROM mb_pragma.agent_facts`
     );
     const [projectionCountRow] = await context.database.query<{
       count: number;

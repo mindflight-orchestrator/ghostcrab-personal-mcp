@@ -105,6 +105,7 @@ const RelationSemanticInput = z
  * GhostCrab / mindbrain system tables.
  */
 const PROTECTED_TABLES = new Set([
+  "agent_facts",
   "facets",
   "projections",
   "mindbrain.workspaces",

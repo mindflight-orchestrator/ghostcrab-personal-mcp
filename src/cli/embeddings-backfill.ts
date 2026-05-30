@@ -81,7 +81,7 @@ export async function runBackfill(
     }>(
       `
         SELECT id, doc_id, content
-        FROM facets
+        FROM agent_facts
         ${whereClause}
         ORDER BY created_at_unix ASC
         LIMIT ?

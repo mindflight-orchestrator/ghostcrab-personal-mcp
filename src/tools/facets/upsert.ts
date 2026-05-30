@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import {
   FACETS_SEARCH_TABLE_ID,
+  SQLITE_FACT_STORE_TABLE,
   SQLITE_NEXT_FACT_DOC_ID_EXPR
 } from "../../db/fact-store.js";
 import { encodeEmbedding } from "../../embeddings/blob.js";
@@ -147,7 +148,7 @@ export const upsertTool: ToolHandler = {
             valid_until_unix,
             created_at_unix,
             version
-          FROM facets
+          FROM ${SQLITE_FACT_STORE_TABLE}
           WHERE schema_id = ?
             AND workspace_id = ?
           ORDER BY updated_at_unix DESC, created_at_unix DESC
@@ -273,7 +274,7 @@ export const upsertTool: ToolHandler = {
         }>(
           `
             SELECT id, doc_id, updated_at_unix, version
-            FROM facets
+            FROM ${SQLITE_FACT_STORE_TABLE}
             WHERE id = ?
           `,
           [existing.id]
@@ -311,7 +312,7 @@ export const upsertTool: ToolHandler = {
 
       await queryable.query(
         `
-          INSERT INTO facets (
+          INSERT INTO ${SQLITE_FACT_STORE_TABLE} (
             id,
             schema_id,
             content,
@@ -343,7 +344,7 @@ export const upsertTool: ToolHandler = {
 
       if (rawEmbedding !== null) {
         const [inserted] = await queryable.query<{ doc_id: number }>(
-          "SELECT doc_id FROM facets WHERE id = ?",
+          `SELECT doc_id FROM ${SQLITE_FACT_STORE_TABLE} WHERE id = ?`,
           [id]
         );
         if (inserted?.doc_id) {

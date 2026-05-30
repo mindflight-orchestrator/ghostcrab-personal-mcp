@@ -135,7 +135,7 @@ describe("embeddings backfill", () => {
     });
 
     const selectCalls = query.mock.calls.filter((call) =>
-      call[0].includes("FROM facets")
+      call[0].includes("FROM agent_facts")
     );
     expect(selectCalls.length).toBeGreaterThan(0);
     for (const call of selectCalls) {
