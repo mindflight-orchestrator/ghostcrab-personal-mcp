@@ -159,6 +159,11 @@ describe("pragma tools", () => {
   });
 
   it("returns status directives from health, gaps, and blocking constraints", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("not found", { status: 404 }))
+    );
+
     const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
       if (sql.includes("FROM mb_pragma.agent_state")) {
         return [

@@ -65,7 +65,7 @@ export function listBasicRegisteredTools(tools: Tool[]): Tool[] {
   const byName = new Map(tools.map((tool) => [tool.name, tool]));
   return BASIC_LISTED_TOOL_NAMES.flatMap((name) => {
     const tool = byName.get(name);
-    return tool ? [tool] : [];
+    return tool ? [annotateToolForMcpList(tool)] : [];
   });
 }
 

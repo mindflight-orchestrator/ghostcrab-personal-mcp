@@ -43,6 +43,7 @@ pub fn main(init: std.process.Init) !void {
         .sqlite_busy_timeout_ms = options.sqlite_busy_timeout_ms,
         .service_name = "ghostcrab-backend",
         .warn_on_empty_graph = false,
+        .enable_lab_routes = false,
         .default_workspace = .{
             .id = "default",
             .domain_profile_json = "{\"domain\":\"ghostcrab\"}",
