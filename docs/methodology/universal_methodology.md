@@ -614,10 +614,7 @@ Source documents this methodology bridges and depends on:
   facets vs graph vs projections; escalation ladder for empty results.
 - [`docs/explanation/README.md`](../explanation/README.md) (FR) ·
   [`docs/explanation/en/README.md`](../explanation/en/README.md) (EN) —
-  short synthesis of the immeuble MCP lab (golden target vs process).
-- [`docs/mcp-explanation/README.md`](../mcp-explanation/README.md) (FR) ·
-  [`docs/mcp-explanation/en/README.md`](../mcp-explanation/en/README.md) (EN) —
-  pedagogical detail for the immeuble MCP lab track.
+  lab synthesis (golden target vs process) and architecture hub (03→04→05).
 - [`examples/immeuble/mcp-lab/`](../../examples/immeuble/mcp-lab/) — agent
   lab prompts, corpus, success criteria (worked example in §12).
 
@@ -632,8 +629,8 @@ The [`examples/immeuble/mcp-lab/`](../../examples/immeuble/mcp-lab/) track is an
 
 Documentation:
 
-- Short synthesis: [`docs/explanation/README.md`](../explanation/README.md) (FR) · [`docs/explanation/en/README.md`](../explanation/en/README.md) (EN)
-- Pedagogical detail: [`docs/mcp-explanation/`](../mcp-explanation/README.md) (FR) · [`docs/mcp-explanation/en/`](../mcp-explanation/en/README.md) (EN)
+- Lab synthesis: [`docs/explanation/README.md`](../explanation/README.md) (FR) · [`docs/explanation/en/README.md`](../explanation/en/README.md) (EN)
+- Architecture (FR): [03](../explanation/03-memoire-mcp-facettes-graphe-projections.md) → [04](../explanation/04-reindexation-ghostcrab.md) → [05](../explanation/05-projections-expliquees.md)
 
 ### Golden target vs process
 

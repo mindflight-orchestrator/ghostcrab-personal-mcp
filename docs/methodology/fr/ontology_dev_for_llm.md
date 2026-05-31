@@ -379,4 +379,4 @@ Pour un jeu concret de questions de compétence dans un domaine corpus documenta
 
 Ces questions ont été élicitées via l'approche narrative en 5 actes décrite dans [`universal_methodology.md`](../universal_methodology.md) §1 (scénario comptable le 5 du mois). Elles correspondent aux ids `scenario:*` des projections Type A optionnelles dans [`projections.seed.jsonl`](../../../examples/immeuble/reference/projections.seed.jsonl).
 
-Exécution GhostCrab bout en bout sur ce domaine : [`docs/explanation/README.md`](../../explanation/README.md) (synthèse FR) · [`docs/mcp-explanation/README.md`](../../mcp-explanation/README.md) (détail FR) · [`universal_methodology.md`](../universal_methodology.md) §12.
+Exécution GhostCrab bout en bout sur ce domaine : [`docs/explanation/README.md`](../../explanation/README.md) (hub lab + architecture) · [`universal_methodology.md`](../universal_methodology.md) §12.

@@ -587,6 +587,12 @@ describe("dgraph tools", () => {
   });
 
   it("ghostcrab_graph_reindex projects raw graph grounding tables", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new Error("fetch failed");
+      })
+    );
     const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
       if (sql.includes("FROM entities_raw") && sql.includes("COUNT(*)")) {
         return [{ count: 2 }];
@@ -1293,6 +1299,12 @@ describe("dgraph tools", () => {
   });
 
   it("ghostcrab_graph_reindex projects relation_properties_raw into graph_relation_property", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new Error("fetch failed");
+      })
+    );
     const sqlCalls: string[] = [];
     const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
       sqlCalls.push(sql);

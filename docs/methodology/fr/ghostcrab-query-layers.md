@@ -211,7 +211,7 @@ Le parcours [`examples/immeuble/mcp-lab/`](../../../examples/immeuble/mcp-lab/) 
 
 Le lab n'utilise **pas** `ghostcrab_pack` ni `ghostcrab_projection_get` pour le succès/échec — le bundle golden n'a pas d'entités `ProjectionResult`. Les graines Type A optionnelles se trouvent dans [`projections.seed.jsonl`](../../../examples/immeuble/reference/projections.seed.jsonl).
 
-Détail : [`docs/mcp-explanation/03-projections-expliquees.md`](../../../docs/mcp-explanation/03-projections-expliquees.md) · [`universal_methodology.md`](universal_methodology.md) §12.
+Détail : [`docs/explanation/05-projections-expliquees.md`](../../explanation/05-projections-expliquees.md) · [`universal_methodology.md`](universal_methodology.md) §12.
 
 ---
 
@@ -222,5 +222,5 @@ Détail : [`docs/mcp-explanation/03-projections-expliquees.md`](../../../docs/mc
 - [`vendor/mindbrain/docs/projections.md`](../../../vendor/mindbrain/docs/projections.md) — internals des projections
 - [`vendor/mindbrain/docs/graph.md`](../../../vendor/mindbrain/docs/graph.md) — internals de la couche graphe et schéma `graph_relation_property`
 - [`docs/plan/2026-05-19-mindbrain-v1.4.2-edge-properties.md`](../../../docs/plan/2026-05-19-mindbrain-v1.4.2-edge-properties.md) — notes d'implémentation pour les propriétés d'arêtes typées
-- [`docs/mcp-explanation/03-projections-expliquees.md`](../../../docs/mcp-explanation/03-projections-expliquees.md) — projections vs requêtes graphe (lab immeuble)
+- [`docs/explanation/05-projections-expliquees.md`](../../explanation/05-projections-expliquees.md) — projections Type A/B vs requêtes graphe
 - [`docs/methodology/universal_methodology.md`](universal_methodology.md) §12 — table de correspondance lab MCP immeuble

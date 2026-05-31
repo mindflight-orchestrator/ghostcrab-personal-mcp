@@ -3,14 +3,14 @@ import { FACETS_SEARCH_TABLE_ID } from "./fact-store.js";
 
 /**
  * Helpers for the per-request usage of MindBrain's FTS5 surface against the
- * GhostCrab `facets` table. The one-shot bootstrap that registers `facets`
- * with `bm25_sync_triggers` and seeds historical rows lives in
+ * GhostCrab `agent_facts` table. The one-shot bootstrap that registers
+ * `agent_facts` with `bm25_sync_triggers` and seeds historical rows lives in
  * `./facets-fts-sync.ts`. This module only does the per-request work:
  *
  *  - normalising free-text into an FTS5 MATCH expression that survives FTS5's
  *    grammar (no caller can crash the search by typing punctuation),
- *  - catching up `search_fts` for any `facets.doc_id` that landed since the
- *    bootstrap (cheap: one INSERT … SELECT … NOT EXISTS).
+ *  - catching up `search_fts` for any `agent_facts.doc_id` that landed since
+ *    the bootstrap (cheap: one INSERT … SELECT … NOT EXISTS).
  *
  * The catch-up is the Phase 2 interim. Once an upstream MindBrain release
  * exposes a typed `POST /api/mindbrain/search-sync` (see "Upstream follow-up
@@ -60,13 +60,13 @@ export function buildFtsMatchExpression(query: string): string | null {
 }
 
 /**
- * Idempotent incremental sync for `search_fts` from `facets`. Inserts any
+ * Idempotent incremental sync for `search_fts` from `agent_facts`. Inserts any
  * `(table_id, doc_id)` mapping missing from `search_fts_docs`, then inserts
  * the corresponding row into the FTS5 virtual table.
  *
- * Runs inside the caller's transaction (or queryable) and never throws —
- * silent best-effort. The caller decides whether to fall back to keyword_sql
- * if the sync fails.
+ * Runs inside the caller's transaction (or queryable). Best-effort: on failure
+ * it logs the reason on stderr (it no longer swallows errors silently) and the
+ * caller falls back to keyword_sql for that call.
  */
 export async function ensureSearchFtsCaughtUp(
   queryable: Queryable,
@@ -76,12 +76,12 @@ export async function ensureSearchFtsCaughtUp(
     await queryable.query(
       `
         INSERT OR IGNORE INTO search_documents (table_id, doc_id, content, language)
-        SELECT ?, doc_id, content, 'english'
-        FROM agent_facts
-        WHERE doc_id IS NOT NULL
+        SELECT ?, f.doc_id, f.content, 'english'
+        FROM agent_facts AS f
+        WHERE f.doc_id IS NOT NULL
           AND NOT EXISTS (
-            SELECT 1 FROM search_documents
-            WHERE table_id = ? AND doc_id = facets.doc_id
+            SELECT 1 FROM search_documents sd
+            WHERE sd.table_id = ? AND sd.doc_id = f.doc_id
           )
       `,
       [tableId, tableId]
@@ -89,12 +89,12 @@ export async function ensureSearchFtsCaughtUp(
     await queryable.query(
       `
         INSERT OR IGNORE INTO search_fts_docs (table_id, doc_id)
-        SELECT ?, doc_id
-        FROM agent_facts
-        WHERE doc_id IS NOT NULL
+        SELECT ?, f.doc_id
+        FROM agent_facts AS f
+        WHERE f.doc_id IS NOT NULL
           AND NOT EXISTS (
-            SELECT 1 FROM search_fts_docs
-            WHERE table_id = ? AND doc_id = facets.doc_id
+            SELECT 1 FROM search_fts_docs sfd
+            WHERE sfd.table_id = ? AND sfd.doc_id = f.doc_id
           )
       `,
       [tableId, tableId]
@@ -112,8 +112,14 @@ export async function ensureSearchFtsCaughtUp(
       `,
       [tableId]
     );
-  } catch {
-    // Sync is best-effort. Search falls back to keyword_sql if the FTS path
-    // proves unavailable per call.
+  } catch (error) {
+    // Sync is best-effort: search falls back to keyword_sql if the FTS path
+    // proves unavailable per call. We still surface the reason on stderr so a
+    // broken catch-up (e.g. a schema/column mismatch) cannot fail silently and
+    // leave freshly written facts invisible to BM25.
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(
+      `[ghostcrab] ensureSearchFtsCaughtUp failed (table_id=${tableId}) — keyword_sql fallback active for this call. Reason: ${message}`
+    );
   }
 }

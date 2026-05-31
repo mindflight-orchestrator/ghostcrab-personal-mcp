@@ -211,7 +211,7 @@ The [`examples/immeuble/mcp-lab/`](../../examples/immeuble/mcp-lab/) track valid
 
 The lab does **not** use `ghostcrab_pack` or `ghostcrab_projection_get` for pass/fail — the golden bundle has no `ProjectionResult` entities. Optional Type A seeds live in [`projections.seed.jsonl`](../../examples/immeuble/reference/projections.seed.jsonl).
 
-Detail: [`docs/mcp-explanation/en/03-projections-explained.md`](../mcp-explanation/en/03-projections-explained.md) · [`universal_methodology.md`](universal_methodology.md) §12.
+Detail: [`docs/explanation/05-projections-expliquees.md`](../explanation/05-projections-expliquees.md) · [`universal_methodology.md`](universal_methodology.md) §12.
 
 ---
 
@@ -222,5 +222,5 @@ Detail: [`docs/mcp-explanation/en/03-projections-explained.md`](../mcp-explanati
 - [`vendor/mindbrain/docs/projections.md`](../../vendor/mindbrain/docs/projections.md) — projection internals
 - [`vendor/mindbrain/docs/graph.md`](../../vendor/mindbrain/docs/graph.md) — graph layer internals and `graph_relation_property` schema
 - [`docs/plan/2026-05-19-mindbrain-v1.4.2-edge-properties.md`](../plan/2026-05-19-mindbrain-v1.4.2-edge-properties.md) — implementation notes for typed edge properties
-- [`docs/mcp-explanation/en/03-projections-explained.md`](../mcp-explanation/en/03-projections-explained.md) — projections vs graph queries (immeuble lab)
+- [`docs/explanation/en/05-projections-explained.md`](../explanation/en/05-projections-explained.md) — projections Type A/B vs graph queries (EN stub; FR detail in [`05-projections-expliquees.md`](../explanation/05-projections-expliquees.md))
 - [`docs/methodology/universal_methodology.md`](universal_methodology.md) §12 — immeuble MCP lab crosswalk

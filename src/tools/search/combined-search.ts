@@ -33,6 +33,9 @@ export const CombinedSearchInput = z.object({
   facet_schema_id: z.string().trim().min(1).optional(),
   facet_filters: z.record(z.string(), z.unknown()).default({}),
   facet_mode: z.enum(["hybrid", "bm25", "semantic"]).default("hybrid"),
+  collection_facet_table_id: z.coerce.number().int().positive().optional(),
+  collection_facet_namespace: z.string().trim().min(1).optional(),
+  collection_facet_dimension: z.string().trim().min(1).optional(),
   include_relations: z.boolean().default(false),
   include_chunks: z.boolean().default(false),
   chunk_limit: z.coerce.number().int().min(1).max(200).optional()
@@ -152,6 +155,22 @@ const combinedSearchInputSchema = {
       default: "hybrid",
       description: "Ranking mode used by the facet fallback search."
     },
+    collection_facet_table_id: {
+      type: "integer",
+      minimum: 1,
+      description:
+        "Optional facet_tables.table_id for the collection-facet fallback. Provide with collection_facet_namespace + collection_facet_dimension to force the facet_postings (Roaring) path. When omitted, the fallback tries to auto-resolve a single posting-backed dimension for the collection, else scans facet_assignments_raw."
+    },
+    collection_facet_namespace: {
+      type: "string",
+      description:
+        "Optional ontology namespace for the collection-facet fallback. Required (with collection_facet_dimension) to hit facet_postings explicitly."
+    },
+    collection_facet_dimension: {
+      type: "string",
+      description:
+        "Optional facet dimension for the collection-facet fallback. Required (with collection_facet_namespace) to hit facet_postings explicitly."
+    },
     include_relations: {
       type: "boolean",
       default: false,
@@ -251,6 +270,13 @@ async function runCombinedSearch(
       : [];
 
   let fallbackFacts: CombinedFact[] = [];
+  let collectionFacetFallback: {
+    source: string;
+    resolution: "explicit" | "auto" | "none";
+    table_id: number | null;
+    namespace: string | null;
+    dimension: string | null;
+  } | null = null;
   if (graphEntities.length === 0 || linkedFacts.length === 0) {
     const fallbackResult = await searchTool.handler(
       {
@@ -278,15 +304,38 @@ async function runCombinedSearch(
       input.query.trim().length > 0
     ) {
       try {
+        // Hybrid resolution of the Roaring (facet_postings) target:
+        //   - explicit: caller supplied namespace + dimension (+ optional table_id),
+        //   - auto: exactly one posting-backed dimension exists for the collection,
+        //   - none: ambiguous/absent -> backend scans facet_assignments_raw.
+        const facetTarget = await resolveCollectionFacetTarget({
+          context,
+          collectionId: input.collection_id,
+          explicit: {
+            tableId: input.collection_facet_table_id,
+            namespace: input.collection_facet_namespace,
+            dimension: input.collection_facet_dimension
+          }
+        });
         const config = resolveGhostcrabConfig();
         const collectionFacets = await runStandaloneCollectionFacetSearch({
           mindbrainUrl: config.mindbrainUrl,
           timeoutMs: config.mindbrainHttpTimeoutMs,
           workspaceId,
           collectionId: input.collection_id,
+          tableId: facetTarget.tableId,
+          namespace: facetTarget.namespace,
+          dimension: facetTarget.dimension,
           value: input.query,
           limit: facetLimit
         });
+        collectionFacetFallback = {
+          source: collectionFacets.source,
+          resolution: facetTarget.resolution,
+          table_id: facetTarget.tableId ?? null,
+          namespace: facetTarget.namespace ?? null,
+          dimension: facetTarget.dimension ?? null
+        };
         if (collectionFacets.matches.length > 0) {
           fallbackFacts = collectionFacets.matches.map((match) => ({
             id: `collection:${match.doc_id}:${match.namespace}.${match.dimension}`,
@@ -360,7 +409,8 @@ async function runCombinedSearch(
       linked_returned: linkedFacts.length,
       fallback_returned: fallbackFacts.length,
       linked_facts: linkedFacts,
-      fallback_facts: fallbackFacts
+      fallback_facts: fallbackFacts,
+      collection_fallback: collectionFacetFallback
     },
     chunks: {
       included: input.include_chunks,
@@ -459,6 +509,105 @@ async function loadLinkedFacetFacts(args: {
   return [...byFact.values()]
     .sort((left, right) => right.score - left.score)
     .slice(0, args.limit);
+}
+
+interface ResolvedCollectionFacetTarget {
+  resolution: "explicit" | "auto" | "none";
+  tableId: number | undefined;
+  namespace: string | undefined;
+  dimension: string | undefined;
+}
+
+/**
+ * Resolve the facet_postings (Roaring) target for the collection-facet
+ * fallback. Hybrid strategy:
+ *  - explicit: caller passed namespace + dimension -> use them (with optional
+ *    caller table_id, otherwise resolved from facet_tables.table_name).
+ *  - auto: no explicit params -> if exactly one posting-backed facet
+ *    (namespace.dimension) exists for the collection, use it.
+ *  - none: ambiguous (several posting-backed facets) or none -> leave
+ *    namespace/dimension undefined so the backend scans facet_assignments_raw.
+ *
+ * Never throws: resolution errors degrade to "none" (raw scan).
+ */
+async function resolveCollectionFacetTarget(args: {
+  context: ToolExecutionContext;
+  collectionId: string;
+  explicit: {
+    tableId: number | undefined;
+    namespace: string | undefined;
+    dimension: string | undefined;
+  };
+}): Promise<ResolvedCollectionFacetTarget> {
+  const { explicit } = args;
+  if (explicit.namespace && explicit.dimension) {
+    let tableId = explicit.tableId;
+    if (tableId === undefined) {
+      tableId = await resolveFacetTableId(args.context, args.collectionId);
+    }
+    return {
+      resolution: "explicit",
+      tableId,
+      namespace: explicit.namespace,
+      dimension: explicit.dimension
+    };
+  }
+
+  try {
+    const tableId = await resolveFacetTableId(args.context, args.collectionId);
+    if (tableId === undefined) {
+      return { resolution: "none", tableId: undefined, namespace: undefined, dimension: undefined };
+    }
+
+    const rows = await args.context.database.query<{ facet_name: string }>(
+      `
+        SELECT DISTINCT d.facet_name
+        FROM facet_definitions AS d
+        JOIN facet_postings AS p
+          ON p.table_id = d.table_id AND p.facet_id = d.facet_id
+        WHERE d.table_id = ?
+      `,
+      [tableId]
+    );
+
+    if (rows.length !== 1) {
+      // Ambiguous (multiple posting-backed dimensions) or none: do not guess.
+      return { resolution: "none", tableId, namespace: undefined, dimension: undefined };
+    }
+
+    const facetName = String(rows[0]?.facet_name ?? "");
+    const dot = facetName.indexOf(".");
+    if (dot <= 0 || dot >= facetName.length - 1) {
+      return { resolution: "none", tableId, namespace: undefined, dimension: undefined };
+    }
+
+    return {
+      resolution: "auto",
+      tableId,
+      namespace: facetName.slice(0, dot),
+      dimension: facetName.slice(dot + 1)
+    };
+  } catch {
+    return { resolution: "none", tableId: undefined, namespace: undefined, dimension: undefined };
+  }
+}
+
+async function resolveFacetTableId(
+  context: ToolExecutionContext,
+  collectionId: string
+): Promise<number | undefined> {
+  try {
+    const rows = await context.database.query<{ table_id: number }>(
+      `SELECT table_id FROM facet_tables WHERE table_name = ? LIMIT 1`,
+      [collectionId]
+    );
+    const tableId = rows[0]?.table_id;
+    return tableId === undefined || tableId === null
+      ? undefined
+      : Number(tableId);
+  } catch {
+    return undefined;
+  }
 }
 
 async function loadChunkEvidence(

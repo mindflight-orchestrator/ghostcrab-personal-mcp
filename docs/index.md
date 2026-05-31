@@ -4,10 +4,17 @@ Start here when you need the project documentation map.
 
 ## MCP Explanation
 
-- [Explications GhostCrab — immeuble MCP lab (FR synthèse)](explanation/README.md) — contexte du lab, cartographie 3 pistes, correspondance méthodologie.
-- [GhostCrab MCP lab overview (EN synthesis)](explanation/en/README.md) — short hub, three tracks, methodology crosswalk.
-- [GhostCrab MCP — explication pédagogique (FR détail)](mcp-explanation/README.md) — référence golden, ontologie, gap-rules, projections.
-- [GhostCrab MCP — pedagogical detail (EN)](mcp-explanation/en/README.md) — golden target, ontology, gap-rules, projections.
+Single hub: [GhostCrab MCP — explications (architecture + lab)](explanation/README.md)
+
+| Chapitre | Document |
+|----------|----------|
+| 03 — Mémoire, facettes, graphe | [03-memoire-mcp-facettes-graphe-projections.md](explanation/03-memoire-mcp-facettes-graphe-projections.md) |
+| 04 — Réindexation | [04-reindexation-ghostcrab.md](explanation/04-reindexation-ghostcrab.md) |
+| 05 — Projections Type A/B | [05-projections-expliquees.md](explanation/05-projections-expliquees.md) |
+| StarterKit audit | [methode-starterkit/README.md](explanation/methode-starterkit/README.md) |
+| Lab immeuble (FR) | [explanation/README.md § Lab](explanation/README.md#lab-immeuble-illustration-optionnelle) |
+| Lab immeuble (EN) | [explanation/en/README.md](explanation/en/README.md) |
+| Projections (EN) | [explanation/en/05-projections-explained.md](explanation/en/05-projections-explained.md) |
 
 ## Methodology
 

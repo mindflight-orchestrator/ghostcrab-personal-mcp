@@ -72,7 +72,7 @@ strictement le MCP lab documenté.
 
 ## Documentation de référence (lire en premier)
 
-1. docs/mcp-explanation/mcp-lab-context.md — contexte, phases 00→06, critères
+1. docs/explanation/mcp-lab-context.md — contexte, phases 00→06, critères
 2. examples/immeuble/mcp-lab/README.md — point d'entrée opérationnel
 3. examples/immeuble/mcp-lab/prompts/00-prerequisites-immo-mcp.md — démarrage (ce fichier)
 
@@ -165,9 +165,9 @@ Model Proposal textuel (entités, arêtes, facettes, competency questions couver
 
 | Topic | File |
 |-------|------|
-| MCP vs CLI per phase | [`docs/mcp-explanation/how-ghostcrab-mcp-achieves-it.md`](../../../docs/mcp-explanation/how-ghostcrab-mcp-achieves-it.md) |
-| Ontology + gap-rules | [`docs/mcp-explanation/02-mcp-ontologie-gap-rules.md`](../../../docs/mcp-explanation/02-mcp-ontologie-gap-rules.md) |
-| Projections vs graph | [`docs/mcp-explanation/03-projections-expliquees.md`](../../../docs/mcp-explanation/03-projections-expliquees.md) |
+| MCP vs CLI per phase | [`docs/explanation/how-ghostcrab-mcp-achieves-it.md`](../../../docs/explanation/how-ghostcrab-mcp-achieves-it.md) |
+| Ontology + gap-rules | [`docs/explanation/02-mcp-ontologie-gap-rules.md`](../../../docs/explanation/02-mcp-ontologie-gap-rules.md) |
+| Projections vs graph | [`docs/explanation/05-projections-expliquees.md`](../../../docs/explanation/05-projections-expliquees.md) |
 
 ## Next
 

@@ -1,9 +1,11 @@
 import { existsSync, readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { runAudit } from "../../scripts/audit-corpus-coverage.mjs";
 
 const repoRoot = join(import.meta.dirname, "..", "..");
+const require = createRequire(import.meta.url);
 const manifestPath = join(
   repoRoot,
   "examples/immeuble/mcp-lab/corpus/manifest.json"
@@ -36,6 +38,11 @@ describe("audit-corpus-coverage.mjs", () => {
 
   it("runAudit produces markdown for test-immo-mcp3 when install DB exists", () => {
     if (!existsSync(installDb)) {
+      return;
+    }
+    try {
+      require("node:sqlite");
+    } catch {
       return;
     }
 

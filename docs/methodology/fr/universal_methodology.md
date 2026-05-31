@@ -448,10 +448,7 @@ Documents sources que cette méthodologie relie et dont elle dépend :
   facettes vs graphe vs projections ; échelle d'escalade en cas de résultats vides.
 - [`docs/explanation/README.md`](../../explanation/README.md) (FR) ·
   [`docs/explanation/en/README.md`](../../explanation/en/README.md) (EN) —
-  synthèse courte du MCP lab immeuble (cible golden vs processus).
-- [`docs/mcp-explanation/README.md`](../../mcp-explanation/README.md) (FR) ·
-  [`docs/mcp-explanation/en/README.md`](../../mcp-explanation/en/README.md) (EN) —
-  détail pédagogique de la piste MCP lab immeuble.
+  synthèse lab (cible golden vs processus) et hub architecture (03→04→05).
 - [`examples/immeuble/mcp-lab/`](../../../examples/immeuble/mcp-lab/) — prompts
   agent, corpus, critères de succès (exemple travaillé au §12).
 
@@ -466,8 +463,8 @@ La piste [`examples/immeuble/mcp-lab/`](../../../examples/immeuble/mcp-lab/) est
 
 Documentation :
 
-- Synthèse courte : [`docs/explanation/README.md`](../../explanation/README.md) (FR) · [`docs/explanation/en/README.md`](../../explanation/en/README.md) (EN)
-- Détail pédagogique : [`docs/mcp-explanation/`](../../mcp-explanation/README.md) (FR) · [`docs/mcp-explanation/en/`](../../mcp-explanation/en/README.md) (EN)
+- Synthèse lab : [`docs/explanation/README.md`](../../explanation/README.md) (FR) · [`docs/explanation/en/README.md`](../../explanation/en/README.md) (EN)
+- Architecture (FR) : [03](../../explanation/03-memoire-mcp-facettes-graphe-projections.md) → [04](../../explanation/04-reindexation-ghostcrab.md) → [05](../../explanation/05-projections-expliquees.md)
 
 ### Cible golden vs processus
 
