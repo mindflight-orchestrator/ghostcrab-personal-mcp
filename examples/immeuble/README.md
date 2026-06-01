@@ -1,9 +1,10 @@
 # Immeuble syndic examples
 
-Three tracks, three workspaces, one narrative (Belgian fictional syndic demo).
+Four tracks, four workspaces, one narrative (Belgian fictional syndic demo).
 
 | Track | Folder | Workspace(s) | Purpose |
 |-------|--------|--------------|---------|
+| **Structured import** | [`structured-import/`](structured-import/) | `immeuble-structured-import` | Tabular CSV → semantics → apply / Phase D `ws_*` smoke |
 | **Reference** | [`reference/`](reference/) | `immeuble-demo` | Golden bundle, Studio smoke, comparison target |
 | **Training** | [`training/`](training/) | `immeuble-training-draft`, `immeuble-training-golden` | Gap diagnostics curriculum (E01–E03, modules A1–B3) |
 | **MCP lab** | [`mcp-lab/`](mcp-lab/) | `immeuble-demo-llm` | Agent reconstructs ontology + graph from raw corpus |
@@ -20,6 +21,13 @@ flowchart LR
   golden --> wsTrainGolden[immeuble-training-golden]
   corpus --> wsLlm[immeuble-demo-llm]
   wsLlm -->|compare| wsDemo
+```
+
+## Quick start — structured import
+
+```bash
+npm run structured-import:smoke
+STRUCTURED_IMPORT_PHASE_D=1 npm run structured-import:smoke
 ```
 
 ## Quick start — reference

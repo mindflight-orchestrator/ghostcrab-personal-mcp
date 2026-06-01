@@ -1,0 +1,26 @@
+workspace_id: immeuble-structured-import
+
+orphan_entities:
+  max_ratio: 0.50
+  exempt_entity_types: [personne]
+
+facet_queries:
+  - name: search_copropriete
+    tool: ghostcrab_search
+    schema_id: immeuble-structured-import:core:copropriete
+    min_rows: 1
+  - name: search_lot
+    tool: ghostcrab_search
+    schema_id: immeuble-structured-import:core:lot
+    min_rows: 1
+  - name: 
+graph_traversals:
+  - name: copropriete_to_lots
+    start_entity_type: immeuble-structured-import:copropriete
+    edge_label: CONTAINS
+    min_edges: 1
+  - name:   - name: 
+projections:
+  - name: annuaire_coproprietes
+    scope: immeuble-structured-import
+    min_items: 1

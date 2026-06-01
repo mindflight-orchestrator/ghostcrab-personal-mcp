@@ -1,0 +1,48 @@
+{
+  "workspace_id": "immeuble-structured-import",
+  "ontology_id": "immeuble-structured-import::core",
+  "source_tag": "structured_import",
+  "data_plane": "ws",
+  "import_ready": {
+    "facets_csv": "import_ready/mfo_facets_import.csv",
+    "edges_csv": "import_ready/graph_edges_import.csv"
+  },
+  "entities": {
+    "copropriete": {
+      "csv": "fake_data/copropriete.csv",
+      "schema_id": "immeuble-structured-import:core:copropriete",
+      "record_id_column": "record_id",
+      "content_columns": [
+        "nom_usuel",
+        "code_abrege"
+      ]
+    },
+    "personne": {
+      "csv": "fake_data/personne.csv",
+      "schema_id": "immeuble-structured-import:core:personne",
+      "record_id_column": "record_id",
+      "content_columns": [
+        "nom",
+        "prenom"
+      ]
+    },
+    "lot": {
+      "csv": "fake_data/lot.csv",
+      "schema_id": "immeuble-structured-import:core:lot",
+      "record_id_column": "record_id",
+      "content_columns": [
+        "numero_lot"
+      ]
+    }
+  },
+  "contract_relations": [
+    {
+      "source_type": "copropriete",
+      "target_type": "lot",
+      "edge_label": "CONTAINS",
+      "source_ref_column": "copropriete_id"
+    }
+  ],
+  "edges_mode": "derived",
+  "notes": "Immeuble syndic structured-import demo (OSS). YAML twin available."
+}

@@ -1,0 +1,310 @@
+{
+  "workspace_id": "immeuble-structured-import",
+  "label": "Immeuble structured-import demo",
+  "version": "2026-06-01",
+  "closed_edge_labels": [
+    "BELONGS_TO",
+    "CONTAINS",
+    "HAS_ACCOUNT",
+    "HAS_MEMBER",
+    "HAS_OWNER",
+    "HAS_OCCUPANT",
+    "REPRESENTS",
+    "USES_KEY",
+    "HAS_BUDGET",
+    "ADDRESSED_TO",
+    "RESULTS_FROM",
+    "TRIGGERS",
+    "CLOSES",
+    "OPENS",
+    "DOCUMENTS",
+    "VOTED_ON",
+    "RECORDED_IN",
+    "APPOINTS",
+    "VERIFIES",
+    "LINKED_TO",
+    "REFERENCES"
+  ],
+  "entity_types": [
+    {
+      "name": "copropriete",
+      "label": "Copropriete",
+      "schema_id": "immeuble-structured-import:core:copropriete",
+      "ontology": "core",
+      "node_type": "copropriete",
+      "record_id_pattern": "copropriete:<stable-key>",
+      "facets": [
+        {
+          "name": "record_id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "code_abrege",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "nom_usuel",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "numero_bce",
+          "type": "string"
+        },
+        {
+          "name": "adresse_siege",
+          "type": "string"
+        },
+        {
+          "name": "nombre_lots",
+          "type": "integer"
+        },
+        {
+          "name": "date_creation_acp",
+          "type": "date"
+        },
+        {
+          "name": "date_personnalite_juridique",
+          "type": "date"
+        },
+        {
+          "name": "langue_gestion",
+          "type": "enum",
+          "values": [
+            "fr",
+            "nl",
+            "de"
+          ]
+        },
+        {
+          "name": "email_copropriete",
+          "type": "string"
+        },
+        {
+          "name": "site_internet",
+          "type": "url"
+        },
+        {
+          "name": "dossier_annexes_mutation",
+          "type": "url"
+        },
+        {
+          "name": "statut",
+          "type": "enum",
+          "values": [
+            "en gestion active",
+            "en transition entrante",
+            "en transition sortante",
+            "archive"
+          ]
+        },
+        {
+          "name": "date_debut_gestion",
+          "type": "date"
+        },
+        {
+          "name": "date_fin_gestion",
+          "type": "date"
+        },
+        {
+          "name": "exercice_comptable_standard",
+          "type": "enum",
+          "values": [
+            "1er janvier",
+            "1er juillet"
+          ]
+        },
+        {
+          "name": "reglement_copropriete_doc",
+          "type": "document"
+        },
+        {
+          "name": "acte_base_doc",
+          "type": "document"
+        },
+        {
+          "name": "roi_doc",
+          "type": "document"
+        },
+        {
+          "name": "banque_id",
+          "type": "ref",
+          "target": "personne"
+        },
+        {
+          "name": "compte_bancaire_principal_iban",
+          "type": "iban"
+        },
+        {
+          "name": "prestataire_decompte_energie_id",
+          "type": "ref",
+          "target": "personne"
+        },
+        {
+          "name": "associations_partielles",
+          "type": "boolean"
+        },
+        {
+          "name": "periode_ag_ordinaire",
+          "type": "string",
+          "owner": "decisionnel"
+        },
+        {
+          "name": "date_prochaine_ag",
+          "type": "date",
+          "owner": "decisionnel"
+        },
+        {
+          "name": "conseil_copropriete_obligatoire",
+          "type": "boolean",
+          "owner": "decisionnel"
+        }
+      ]
+    },
+    {
+      "name": "personne",
+      "label": "Personne",
+      "schema_id": "immeuble-structured-import:core:personne",
+      "ontology": "core",
+      "node_type": "personne",
+      "record_id_pattern": "personne:<stable-key>",
+      "facets": [
+        {
+          "name": "record_id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "enum",
+          "required": true,
+          "values": [
+            "personne physique",
+            "personne morale"
+          ]
+        },
+        {
+          "name": "civilite",
+          "type": "string"
+        },
+        {
+          "name": "nom",
+          "type": "string"
+        },
+        {
+          "name": "prenom",
+          "type": "string"
+        },
+        {
+          "name": "denomination_sociale",
+          "type": "string"
+        },
+        {
+          "name": "representant_legal_id",
+          "type": "ref",
+          "target": "personne"
+        },
+        {
+          "name": "numero_registre_national",
+          "type": "string"
+        },
+        {
+          "name": "numero_bce",
+          "type": "string"
+        },
+        {
+          "name": "adresse_domicile",
+          "type": "string"
+        },
+        {
+          "name": "telephone",
+          "type": "string"
+        },
+        {
+          "name": "email",
+          "type": "string"
+        },
+        {
+          "name": "langue",
+          "type": "enum",
+          "values": [
+            "fr",
+            "nl",
+            "de"
+          ]
+        },
+        {
+          "name": "statut",
+          "type": "enum",
+          "values": [
+            "actif",
+            "ancien"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "lot",
+      "label": "Lot",
+      "schema_id": "immeuble-structured-import:core:lot",
+      "ontology": "core",
+      "node_type": "lot",
+      "record_id_pattern": "lot:<stable-key>",
+      "facets": [
+        {
+          "name": "record_id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "numero_lot",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "enum",
+          "values": [
+            "appartement",
+            "cave",
+            "parking",
+            "parking PMR",
+            "garage",
+            "carport",
+            "emplacement velo",
+            "local commercial",
+            "bureau"
+          ]
+        },
+        {
+          "name": "copropriete_id",
+          "type": "ref",
+          "required": true,
+          "target": "copropriete"
+        },
+        {
+          "name": "statut_occupation",
+          "type": "enum",
+          "values": [
+            "occupe proprietaire",
+            "occupe locataire",
+            "vacant",
+            "condamne"
+          ]
+        },
+        {
+          "name": "destination_actuelle",
+          "type": "enum",
+          "values": [
+            "residentiel",
+            "commercial",
+            "mixte"
+          ]
+        }
+      ]
+    }
+  ],
+  "contract_relations": []
+}

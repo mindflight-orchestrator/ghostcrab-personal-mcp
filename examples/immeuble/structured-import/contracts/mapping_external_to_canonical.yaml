@@ -1,0 +1,21 @@
+workspace_id: immeuble-structured-import
+ontology_id: immeuble-structured-import::core
+source_tag: structured_import
+data_plane: import_ready
+
+import_ready:
+  facets_csv: import_ready/mfo_facets_import.csv
+  edges_csv: import_ready/graph_edges_import.csv
+
+entities:
+  copropriete:
+    csv: fake_data/copropriete.csv
+    schema_id: immeuble-structured-import:core:copropriete
+  personne:
+    csv: fake_data/personne.csv
+    schema_id: immeuble-structured-import:core:personne
+  lot:
+    csv: fake_data/lot.csv
+    schema_id: immeuble-structured-import:core:lot
+
+edges_mode: derived

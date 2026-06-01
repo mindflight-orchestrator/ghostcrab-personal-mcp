@@ -56,6 +56,11 @@ export async function cmdBrain(args) {
       await cmdBrainDocument(rest);
       break;
     }
+    case "structured-import": {
+      const { cmdBrainStructuredImport } = await import("./brain-structured-import.mjs");
+      await cmdBrainStructuredImport(rest);
+      break;
+    }
     case "setup":
     case "setup_cursor":
     case "setup_codex":
@@ -687,6 +692,8 @@ Subcommands:
   db-who [--path] [--workspace]            Which processes have the SQLite file open (lsof)
   document [--workspace] [--db] [--force] <cmd>
                                            Corpus import / normalize / profile (stop MCP first)
+  structured-import [--workspace] [--db] [--force] <cmd>
+                                           Tabular CSV/JSON import (stop MCP first)
   backup [opts]                           Export workspace, collection, or taxonomy backup bundle
   export [opts]                           Alias for backup
   load <file.jsonl|backup.json>           Load JSONL profile or restore backup bundle
