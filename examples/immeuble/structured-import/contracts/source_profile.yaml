@@ -1,0 +1,24 @@
+workspace_id: immeuble-structured-import
+ontology_id: immeuble-structured-import
+source_tag: structured_import
+
+import_ready:
+  facets_csv: import_ready/mfo_facets_import.csv
+  edges_csv: import_ready/graph_edges_import.csv
+
+sources:
+  - id: fake_data_copropriete
+    kind: csv
+    path: fake_data/copropriete.csv
+    entity: copropriete
+  - id: import_ready_facets
+    kind: csv
+    path: import_ready/mfo_facets_import.csv
+    role: facets_bundle
+  - id: import_ready_edges
+    kind: csv
+    path: import_ready/graph_edges_import.csv
+    role: graph_bundle
+
+notes: >
+  Human-readable profile. The engine reads mapping_external_to_canonical.json at runtime.

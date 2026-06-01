@@ -1,0 +1,6 @@
+record_id,type,civilite,nom,prenom,denomination_sociale,telephone,email,langue,statut
+personne:0001,personne physique,Monsieur,Nom1,Prenom1,,+32 2 000 0001,personne1@example.test,fr,actif
+personne:0002,personne physique,Maître,Nom2,Prenom2,,+32 2 000 0002,personne2@example.test,fr,actif
+personne:0003,personne morale,Madame,Nom3,,Societe 3 SRL,+32 2 000 0003,personne3@example.test,fr,actif
+personne:0004,personne physique,Monsieur,Nom4,Prenom4,,+32 2 000 0004,personne4@example.test,de,actif
+personne:0005,personne physique,Monsieur,Nom5,Prenom5,,+32 2 000 0005,personne5@example.test,de,actif

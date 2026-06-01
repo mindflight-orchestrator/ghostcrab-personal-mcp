@@ -1,0 +1,6 @@
+record_id,numero_lot,type,copropriete_id,statut_occupation,destination_actuelle
+lot:0001,2.24,local commercial,copropriete:0003,vacant,commercial
+lot:0002,3.08,cave,copropriete:0004,occupe proprietaire,residentiel
+lot:0003,2.21,cave,copropriete:0004,occupe locataire,commercial
+lot:0004,5.15,local commercial,copropriete:0003,vacant,mixte
+lot:0005,1.22,local commercial,copropriete:0003,occupe proprietaire,commercial

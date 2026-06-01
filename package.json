@@ -90,6 +90,8 @@
     "smoke:mcp:long-running": "node scripts/mcp-smoke-long-running.mjs",
     "smoke:mcp:memory-workflow": "node scripts/mcp-smoke-memory-workflow.mjs",
     "smoke:example-client": "node scripts/example-client-smoke.mjs",
+    "structured-import:smoke": "node scripts/structured-import-smoke.mjs",
+    "verify:semantic-golden": "node scripts/verify-semantic-proposal-golden.mjs",
     "start": "node dist/index.js",
     "test": "vitest run",
     "test:integration": "vitest run --config vitest.integration.config.ts",
@@ -127,6 +129,7 @@
     "@mindflight/ghostcrab-personal-mcp-darwin-x64": "0.4.3",
     "@mindflight/ghostcrab-personal-mcp-linux-arm64": "0.4.3",
     "@mindflight/ghostcrab-personal-mcp-linux-x64": "0.4.3",
-    "@mindflight/ghostcrab-personal-mcp-win32-x64": "0.4.3"
+    "@mindflight/ghostcrab-personal-mcp-win32-x64": "0.4.3",
+    "@mindflight/ghostcrab-personal-mcp-win32-arm64": "0.4.3"
   }
 }
