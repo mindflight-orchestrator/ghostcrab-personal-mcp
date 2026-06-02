@@ -61,7 +61,7 @@ On **`gcp brain workspace create`** (alias **`gcp init`**) and explicit **`gcp b
 |-----|--------|
 | **Cursor** | `cursor/skills/<skill>/` → `~/.cursor/skills/<skill>/` by default; `shared/` → `~/.cursor/skills/ghostcrab-shared/` and `.ghostcrab/skills/shared/` |
 | **Claude Code** | `claude-code/skills/<skill>/` → `~/.claude/skills/<skill>/` by default; `shared/` → `~/.claude/skills/ghostcrab-shared/`; `claude-code/self-memory/CLAUDE.md` → `.ghostcrab/claude-self-memory.md` |
-| **Codex** | `codex/skills/<skill>/` → `~/.agents/skills/<skill>/` by default; `shared/` → `~/.agents/skills/ghostcrab-shared/`, with `SKILL.md` links rewritten to `../ghostcrab-shared/` |
+| **Codex** | `codex/skills/<skill>/` → `~/.codex/skills/<skill>/` by default; `shared/` → `~/.codex/skills/ghostcrab-shared/`, with `SKILL.md` links rewritten to `../ghostcrab-shared/` |
 | **Generic** | `codex/skills/<skill>/` → `~/.agents/skills/<skill>/` by default; `shared/` → `~/.agents/skills/ghostcrab-shared/`; MCP JSON/TOML snippets are printed, not written |
 
 Each install also writes `.ghostcrab/skills/installed.json`, `.ghostcrab/skills/README.md`, and `.ghostcrab/skills/current` (or `.ghostcrab/skills/current.txt` if the platform cannot create a symlink).
@@ -141,7 +141,7 @@ The JSON examples in this section are for clients that explicitly read JSON MCP 
 
 ### Codex
 
-Codex consumes **skills** from agent skill directories. `gcp brain setup codex` installs all GhostCrab mirrors under `~/.agents/skills/` and writes shared references under `~/.agents/skills/ghostcrab-shared/`.
+Codex consumes **skills** from `$CODEX_HOME/skills` (default `~/.codex/skills`). `gcp brain setup codex` installs all GhostCrab mirrors under `~/.codex/skills/` and writes shared references under `~/.codex/skills/ghostcrab-shared/`.
 
 Codex MCP wiring is **not** the JSON above. Use:
 

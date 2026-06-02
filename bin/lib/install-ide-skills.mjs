@@ -112,6 +112,9 @@ function resolveInstallRoots(cwd, target, scope) {
     if (target === "claude-code") {
       return { skillRoot: join(home, ".claude", "skills") };
     }
+    if (target === "codex") {
+      return { skillRoot: join(home, ".codex", "skills") };
+    }
     return { skillRoot: join(home, ".agents", "skills") };
   }
   if (target === "cursor") {
@@ -119,6 +122,9 @@ function resolveInstallRoots(cwd, target, scope) {
   }
   if (target === "claude-code") {
     return { skillRoot: join(cwd, ".claude", "skills") };
+  }
+  if (target === "codex") {
+    return { skillRoot: join(cwd, ".codex", "skills") };
   }
   return { skillRoot: join(cwd, ".agents", "skills") };
 }
