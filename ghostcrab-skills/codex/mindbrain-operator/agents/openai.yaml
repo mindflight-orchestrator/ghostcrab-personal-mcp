@@ -1,0 +1,4 @@
+interface:
+  display_name: "MindBrain Operator"
+  short_description: "Convert natural requests into mindCLI workflows"
+  default_prompt: "Use $mindbrain-operator to answer a business question through mindCLI on a MindBrain workspace."

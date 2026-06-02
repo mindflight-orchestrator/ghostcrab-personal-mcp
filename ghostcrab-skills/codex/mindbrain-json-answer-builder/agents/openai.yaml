@@ -1,0 +1,4 @@
+interface:
+  display_name: "MindBrain JSON Answer Builder"
+  short_description: "Build stable JSON answers from mindCLI outputs"
+  default_prompt: "Use $mindbrain-json-answer-builder to turn mindCLI outputs into a stable JSON answer."
