@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-02T17:21:34.807Z",
+  "generated_at": "2026-06-02T17:55:57.481Z",
   "source": "ghostcrab-skills",
   "skill_names": [
     "ghostcrab-memory",
@@ -27,7 +27,7 @@
     },
     {
       "path": "claude-code/skills/ghostcrab-data-architect/SKILL.md",
-      "sha256": "864a09c4d4a79c877039c84ea7b4f5486443aeb115ff387ea5a21c7440de7232"
+      "sha256": "d26e83bef441013d6acce0ac6afbfd7381e663ef8e46f08deae0af05cd065e31"
     },
     {
       "path": "claude-code/skills/ghostcrab-integration-sop-editor/SKILL.md",
@@ -39,7 +39,7 @@
     },
     {
       "path": "claude-code/skills/ghostcrab-prompt-guide/SKILL.md",
-      "sha256": "e113b439288872a3df137fae8ff2848aac10b7d7eb6dab754b74eeda3b91088e"
+      "sha256": "b11b497f841a16369dd0bd7bba3fe9566a52223a920ef68f9289962937a97e94"
     },
     {
       "path": "claude-code/skills/mindbrain-comparison-writer/SKILL.md",
@@ -51,7 +51,7 @@
     },
     {
       "path": "codex/skills/ghostcrab-data-architect/SKILL.md",
-      "sha256": "864a09c4d4a79c877039c84ea7b4f5486443aeb115ff387ea5a21c7440de7232"
+      "sha256": "d26e83bef441013d6acce0ac6afbfd7381e663ef8e46f08deae0af05cd065e31"
     },
     {
       "path": "codex/skills/ghostcrab-data-architect/agents/openai.yaml",
@@ -75,7 +75,7 @@
     },
     {
       "path": "codex/skills/ghostcrab-prompt-guide/SKILL.md",
-      "sha256": "e113b439288872a3df137fae8ff2848aac10b7d7eb6dab754b74eeda3b91088e"
+      "sha256": "b11b497f841a16369dd0bd7bba3fe9566a52223a920ef68f9289962937a97e94"
     },
     {
       "path": "codex/skills/ghostcrab-prompt-guide/agents/openai.yaml",
@@ -95,7 +95,7 @@
     },
     {
       "path": "cursor/skills/ghostcrab-data-architect/SKILL.md",
-      "sha256": "864a09c4d4a79c877039c84ea7b4f5486443aeb115ff387ea5a21c7440de7232"
+      "sha256": "d26e83bef441013d6acce0ac6afbfd7381e663ef8e46f08deae0af05cd065e31"
     },
     {
       "path": "cursor/skills/ghostcrab-integration-sop-editor/SKILL.md",
@@ -107,7 +107,7 @@
     },
     {
       "path": "cursor/skills/ghostcrab-prompt-guide/SKILL.md",
-      "sha256": "e113b439288872a3df137fae8ff2848aac10b7d7eb6dab754b74eeda3b91088e"
+      "sha256": "b11b497f841a16369dd0bd7bba3fe9566a52223a920ef68f9289962937a97e94"
     },
     {
       "path": "cursor/skills/mindbrain-comparison-writer/SKILL.md",
@@ -119,7 +119,7 @@
     },
     {
       "path": "shared/APP_PATTERNS.md",
-      "sha256": "08249a9c6a343d4bd06102730f4d1a2e90afc1115dec895bde2eb7a4fbbede0b"
+      "sha256": "d309967598fd87b8107adc318287aa731c5e85aa1899850f90463bffd9087675"
     },
     {
       "path": "shared/CAPABILITIES.md",

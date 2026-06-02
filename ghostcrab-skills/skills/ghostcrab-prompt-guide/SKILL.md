@@ -45,10 +45,21 @@ Canonical clone URL:
 git clone https://gitlab.com/webigniter/starter-kit-ghostcrab-perso.git
 ```
 
-For source imports, the prompt should ask the next agent to load:
+For ontology setup prompts, ask the next agent to load:
 
-- `starterkit/SOP5_source_import_compiler.md`
+- `starterkit/SOP0_import_path_choices.md`
+- `starterkit/SOP2_obsidian_ontologie.md` (§6 bis LinkML default, or §7 MCP Voie A)
+- `starterkit/templates/linkml_ontology.stub.yaml`
+- `starterkit/templates/import_path_choices.yaml`
+
+For tabular source imports, ask the next agent to load:
+
+- `starterkit/SOP0_import_path_choices.md` (§4 tabular choice)
+- `starterkit/SOP5_source_import_compiler.md` (§1 bis structured-import CLI default, or §3 scripts Voie A)
+- `docs/setup/structured-import.md` (Personal CLI runbook)
 - `starterkit/templates/source_profile.yaml`
 - `starterkit/templates/mapping_external_to_canonical.yaml`
 - `starterkit/templates/consumer_contract.yaml`
 - `starterkit/templates/import_manifest.yaml`
+
+When drafting prompts, always offer both paths as numbered choices; recommend LinkML for ontology and structured-import CLI for tabular on Personal SQLite.
