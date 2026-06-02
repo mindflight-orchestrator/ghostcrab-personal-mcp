@@ -1,0 +1,4 @@
+interface:
+  display_name: "MindBrain Projection Reviewer"
+  short_description: "Review declared projections and explain readiness"
+  default_prompt: "Use $mindbrain-projection-reviewer to review a MindBrain projection by workspace and scope."
