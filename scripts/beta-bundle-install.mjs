@@ -9,7 +9,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { spawnSync } from "node:child_process";
+import { formatSpawnFailure, spawnNpm } from "./lib/spawn-npm.mjs";
 
 const bundleRoot = dirname(fileURLToPath(import.meta.url));
 const manifestPath = join(bundleRoot, "pack-manifest.json");
@@ -21,11 +21,8 @@ function detectPlatformKey() {
   if (platform === "darwin" && arch === "x64") return "darwin-x64";
   if (platform === "darwin" && arch === "arm64") return "darwin-arm64";
   if (platform === "win32" && arch === "x64") return "win32-x64";
+  if (platform === "win32" && arch === "arm64") return "win32-arm64";
   return null;
-}
-
-function npmCmd() {
-  return process.platform === "win32" ? "npm.cmd" : "npm";
 }
 
 function runNpmInstall(tgzBasename, { noPackageLock = false } = {}) {
@@ -40,14 +37,17 @@ function runNpmInstall(tgzBasename, { noPackageLock = false } = {}) {
   const extraFlags = noPackageLock ? ["--no-package-lock"] : [];
   const args = ["install", rel, ...extraFlags];
   console.error(`[install-beta] npm ${args.join(" ")}`);
-  const r = spawnSync(npmCmd(), args, {
+  const r = spawnNpm(args, {
     cwd: bundleRoot,
     encoding: "utf8",
     stdio: "inherit",
     env: process.env
   });
-  if (r.status !== 0) {
-    console.error(`[install-beta] npm failed (exit ${r.status ?? "null"})`);
+  if (r.status !== 0 || r.error) {
+    console.error(`[install-beta] npm failed (${formatSpawnFailure(r)})`);
+    if (r.error) {
+      console.error(`[install-beta] spawn error: ${r.error.message}`);
+    }
     process.exit(r.status ?? 1);
   }
 }

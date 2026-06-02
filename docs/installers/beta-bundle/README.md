@@ -7,16 +7,16 @@
 | **macOS** | Yes | `make` is Xcode CLT / default build tools. |
 | **Linux** | Yes | `make`, `uname`, `grep` from distro packages. |
 | **Windows (WSL2)** | Yes | Use Linux workflow; `uname` → `linux-x64` or `linux-arm64`. |
-| **Windows (Git Bash / MSYS2)** | Yes* | GNU `make` + Unix tools required. `uname` reports `MINGW*/*MSYS*` → Makefile maps to **`win32-x64`**. |
-| **Windows (PowerShell only)** | No | No POSIX shell for recipes. Use **`node install-beta.mjs`** or install WSL / Git Bash + make. |
+| **Windows (Git Bash / MSYS2)** | Yes* | GNU `make` + Unix tools required. `uname` reports `MINGW*/*MSYS*` → **`win32-x64`** or **`win32-arm64`** (aarch64). |
+| **Windows (PowerShell only)** | Yes (install) | No POSIX shell for `make`. Use **`.\install-beta.ps1`** or **`node install-beta.mjs`**. |
 
-\*If auto-detect ever fails on Windows, run: `make PLATFORM=win32-x64`.
+\*If auto-detect ever fails on Windows, run: `make PLATFORM=win32-x64` or `make PLATFORM=win32-arm64`.
 
 For the full guide (three install paths, npm, `.env`, IDE), see **[INSTALL.md](../../../INSTALL.md)** in the repository root (also shipped in the beta zip).
 
 ## Bundle layout
 
-After unzip, a **flat** folder should contain the `.tgz` files, `install-beta.mjs`, `Makefile`, `INSTALL.md`, etc. Default **`BUNDLE_DIR=.`** (current directory).
+After unzip, a **flat** folder should contain the `.tgz` files, `install-beta.mjs`, `install-beta.ps1`, `lib/spawn-npm.mjs`, `Makefile`, `INSTALL.md`, etc. Default **`BUNDLE_DIR=.`** (current directory).
 
 ## Quick install
 
@@ -25,6 +25,14 @@ After unzip, a **flat** folder should contain the `.tgz` files, `install-beta.mj
 ```bash
 node install-beta.mjs
 ```
+
+**PowerShell (Windows):**
+
+```powershell
+.\install-beta.ps1
+```
+
+Or: `node install-beta.mjs` (same script; uses Windows-safe npm spawn internally).
 
 **Makefile (macOS / Linux / WSL / Git Bash + make):**
 
@@ -62,6 +70,9 @@ See [README_CURSOR_MCP.md](../../../README_CURSOR_MCP.md), [README_CODEX_MCP.md]
 
 | Issue | Fix |
 |-------|-----|
-| Windows: `uname` / `make` not found | Use `node install-beta.mjs` or WSL. |
-| Windows Git Bash: wrong platform tarball | `make PLATFORM=win32-x64` |
+| Windows: `uname` / `make` not found | Use `.\install-beta.ps1`, `node install-beta.mjs`, or WSL. |
+| Windows Git Bash: wrong platform tarball | `make PLATFORM=win32-x64` or `make PLATFORM=win32-arm64` |
+| PowerShell: `npm.ps1` / script execution disabled | Use `install-beta.ps1` or `node install-beta.mjs` — do not rely on bare `npm` in PowerShell. |
+| `spawnSync npm.cmd EINVAL` / `npm failed (exit null)` | Re-run with a current zip (`install-beta.mjs` uses `node` + `npm-cli.js`). Manual fallback: `cmd /c npm install .\mindflight-ghostcrab-personal-mcp-<ver>.tgz` then platform `.tgz` with `--no-package-lock`. |
 | `Invalid Version` on second npm install | Stale lockfile — `make clean && make` or rely on `install-beta.mjs`. |
+| After install, `npx gcp` fails in PowerShell | Use `node .\node_modules\@mindflight\ghostcrab-personal-mcp\bin\gcp.mjs` or `npx.cmd gcp`. |

@@ -14,6 +14,7 @@ import {
 import { tmpdir } from "node:os";
 import { isAbsolute, join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawnNpm, spawnPnpm } from "./lib/spawn-npm.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
@@ -25,7 +26,8 @@ const platformPackageMap = {
   "linux-arm64": "@mindflight/ghostcrab-personal-mcp-linux-arm64",
   "darwin-x64": "@mindflight/ghostcrab-personal-mcp-darwin-x64",
   "darwin-arm64": "@mindflight/ghostcrab-personal-mcp-darwin-arm64",
-  "win32-x64": "@mindflight/ghostcrab-personal-mcp-win32-x64"
+  "win32-x64": "@mindflight/ghostcrab-personal-mcp-win32-x64",
+  "win32-arm64": "@mindflight/ghostcrab-personal-mcp-win32-arm64"
 };
 
 function currentPlatformKey() {
@@ -49,8 +51,9 @@ function run(cmd, args, opts) {
 }
 
 function shPnpm(args, opts) {
-  const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
-  return run(pnpm, args, {
+  return spawnPnpm(args, {
+    encoding: "utf8",
+    stdio: "pipe",
     ...opts,
     env: {
       ...process.env,
@@ -68,8 +71,9 @@ function shPnpm(args, opts) {
 // ("Ignored build scripts"), which would silently skip the host bootstrap. npm matches the
 // real-user flow we want to gate (`npm install @mindflight/ghostcrab-personal-mcp`).
 function shNpm(args, opts) {
-  const npm = process.platform === "win32" ? "npm.cmd" : "npm";
-  return run(npm, args, {
+  return spawnNpm(args, {
+    encoding: "utf8",
+    stdio: "pipe",
     ...opts,
     env: {
       ...process.env,

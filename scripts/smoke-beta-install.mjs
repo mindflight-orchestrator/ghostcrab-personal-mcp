@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { formatSpawnFailure, spawnNpm } from "./lib/spawn-npm.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
@@ -18,8 +19,8 @@ assert.ok(platformEntry, `No platform tarball found for ${platformKey}`);
 
 const consumerDir = mkdtempSync(join(tmpdir(), "ghostcrab-beta-smoke-"));
 
-function run(cmd, args, opts = {}) {
-  return spawnSync(cmd, args, {
+function runNpm(args, opts = {}) {
+  return spawnNpm(args, {
     cwd: opts.cwd ?? consumerDir,
     encoding: "utf8",
     stdio: "pipe",
@@ -29,6 +30,15 @@ function run(cmd, args, opts = {}) {
         process.env.npm_config_cache ?? join(tmpdir(), "ghostcrab-npm-cache"),
       ...(opts.env ?? {})
     }
+  });
+}
+
+function runNode(args, opts = {}) {
+  return spawnSync(process.execPath, args, {
+    cwd: opts.cwd ?? consumerDir,
+    encoding: "utf8",
+    stdio: "pipe",
+    env: opts.env ?? process.env
   });
 }
 
@@ -49,7 +59,7 @@ try {
   const rootTarball = join(distPackDir, manifest.root.filename);
   const platformTarball = join(distPackDir, platformEntry.filename);
 
-  const install = run("npm", [
+  const install = runNpm([
     "install",
     "--no-audit",
     "--no-fund",
@@ -59,10 +69,10 @@ try {
   assert.equal(
     install.status,
     0,
-    `npm install root + platform tarballs failed (exit ${install.status ?? "null"}).\n${install.stderr}\n${install.stdout}`
+    `npm install root + platform tarballs failed (${formatSpawnFailure(install)}).\n${install.stderr}\n${install.stdout}`
   );
 
-  const gcp = run(process.execPath, [
+  const gcp = runNode([
     join(
       consumerDir,
       "node_modules",
@@ -79,7 +89,7 @@ try {
     `gcp --help failed (exit ${gcp.status ?? "null"}).\n${gcp.stderr}\n${gcp.stdout}`
   );
 
-  const authorize = run(process.execPath, [
+  const authorize = runNode([
     join(
       consumerDir,
       "node_modules",
@@ -96,7 +106,7 @@ try {
     `gcp authorize failed (exit ${authorize.status ?? "null"}).\n${authorize.stderr}\n${authorize.stdout}`
   );
 
-  const toolsVerify = run(process.execPath, [
+  const toolsVerify = runNode([
     join(
       consumerDir,
       "node_modules",

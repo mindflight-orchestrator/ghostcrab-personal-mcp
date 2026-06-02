@@ -38,7 +38,8 @@ const PACKAGES = [
   "@mindflight/ghostcrab-personal-mcp-darwin-x64",
   "@mindflight/ghostcrab-personal-mcp-linux-arm64",
   "@mindflight/ghostcrab-personal-mcp-linux-x64",
-  "@mindflight/ghostcrab-personal-mcp-win32-x64"
+  "@mindflight/ghostcrab-personal-mcp-win32-x64",
+  "@mindflight/ghostcrab-personal-mcp-win32-arm64"
 ];
 
 function loadDotEnv() {

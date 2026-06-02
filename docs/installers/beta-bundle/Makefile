@@ -23,7 +23,8 @@
 #   darwin-x64     macOS Intel
 #   linux-arm64    Linux ARM64 (incl. Linux on WSL/arm64)
 #   linux-x64      Linux x64 (incl. WSL2 on Intel/AMD)
-#   win32-x64      Windows x64 (prebuild in bundle)
+#   win32-x64      Windows x64 (Intel/AMD)
+#   win32-arm64    Windows ARM64 (Qualcomm / Copilot+ PCs)
 
 VERSION    ?= 0.2.15
 BUNDLE_DIR ?= .
@@ -46,6 +47,8 @@ else
   _OS := $(_RAW_OS)
 endif
 ifeq ($(_ARCH),arm64)
+  _ARCH := arm64
+else ifeq ($(_ARCH),aarch64)
   _ARCH := arm64
 else ifeq ($(_ARCH),x86_64)
   _ARCH := x64

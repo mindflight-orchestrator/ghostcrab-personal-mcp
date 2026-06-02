@@ -47,6 +47,13 @@ const PLATFORM_PACKAGES = [
     packageName: "@mindflight/ghostcrab-personal-mcp-win32-x64",
     binaryName: "ghostcrab-backend.exe",
     documentBinaryName: "ghostcrab-document.exe"
+  },
+  {
+    platformKey: "win32-arm64",
+    packageDir: "packages/prebuild-win32-arm64",
+    packageName: "@mindflight/ghostcrab-personal-mcp-win32-arm64",
+    binaryName: "ghostcrab-backend.exe",
+    documentBinaryName: "ghostcrab-document.exe"
   }
 ];
 

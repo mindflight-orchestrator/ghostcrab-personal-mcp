@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { formatSpawnFailure, spawnNpm } from "./lib/spawn-npm.mjs";
 
 const mindbrainUrl =
   process.env.GHOSTCRAB_MINDBRAIN_URL ?? "http://127.0.0.1:8091";
@@ -9,46 +10,42 @@ const sharedEnv = {
   GHOSTCRAB_EMBEDDINGS_MODE: process.env.GHOSTCRAB_EMBEDDINGS_MODE ?? "disabled"
 };
 
-runCommand(npmCommand(), ["run", "lint"], { env: sharedEnv });
-runCommand(npmCommand(), ["run", "build"], { env: sharedEnv });
-runCommand(npmCommand(), ["run", "test"], { env: sharedEnv });
-runCommand(npmCommand(), ["run", "verify:pack"], { env: sharedEnv });
+runCommand(["run", "lint"], { env: sharedEnv });
+runCommand(["run", "build"], { env: sharedEnv });
+runCommand(["run", "test"], { env: sharedEnv });
+runCommand(["run", "verify:pack"], { env: sharedEnv });
 assertBackendHealthy(mindbrainUrl);
-runCommand(npmCommand(), ["run", "migrate"], { env: sharedEnv });
-runCommand(npmCommand(), ["run", "test:integration"], { env: sharedEnv });
-runCommand(npmCommand(), ["run", "verify:mcp-tools"], { env: sharedEnv });
-runCommand(npmCommand(), ["run", "smoke:mcp"], { env: sharedEnv });
-runCommand(npmCommand(), ["run", "smoke:mcp:incomplete-graph"], {
+runCommand(["run", "migrate"], { env: sharedEnv });
+runCommand(["run", "test:integration"], { env: sharedEnv });
+runCommand(["run", "verify:mcp-tools"], { env: sharedEnv });
+runCommand(["run", "smoke:mcp"], { env: sharedEnv });
+runCommand(["run", "smoke:mcp:incomplete-graph"], {
   env: sharedEnv
 });
-runCommand(npmCommand(), ["run", "smoke:mcp:memory-workflow"], {
+runCommand(["run", "smoke:mcp:memory-workflow"], {
   env: sharedEnv
 });
-runCommand(npmCommand(), ["run", "smoke:mcp:long-running"], {
+runCommand(["run", "smoke:mcp:long-running"], {
   env: sharedEnv
 });
-runCommand(npmCommand(), ["run", "smoke:mcp:embeddings-fake"], {
+runCommand(["run", "smoke:mcp:embeddings-fake"], {
   env: {
     ...sharedEnv,
     GHOSTCRAB_EMBEDDINGS_MODE: "fake"
   }
 });
-runCommand(npmCommand(), ["run", "smoke:example-client"], { env: sharedEnv });
+runCommand(["run", "smoke:example-client"], { env: sharedEnv });
 
-function npmCommand() {
-  return process.platform === "win32" ? "npm.cmd" : "npm";
-}
-
-function runCommand(command, args, options = {}) {
-  const result = spawnSync(command, args, {
+function runCommand(args, options = {}) {
+  const result = spawnNpm(args, {
     stdio: "inherit",
     cwd: process.cwd(),
     env: options.env ?? process.env
   });
 
-  if (result.status !== 0 && !options.allowFailure) {
+  if ((result.status !== 0 || result.error) && !options.allowFailure) {
     throw new Error(
-      `Command failed (${command} ${args.join(" ")}), exit=${result.status ?? "null"}`
+      `Command failed (npm ${args.join(" ")}), ${formatSpawnFailure(result)}`
     );
   }
 }

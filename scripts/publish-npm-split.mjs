@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Publish the split npm packages in registry order: five platform packages, then root.
+ * Publish the split npm packages in registry order: six platform packages, then root.
  * Expects prebuilds/ at repo root (CI: after cross-build). Runs full platform staging first.
  *
  * Usage (from repo root, with NODE_AUTH_TOKEN set):
@@ -73,7 +73,8 @@ const PLATFORM_DIRS = [
   "packages/prebuild-linux-arm64",
   "packages/prebuild-darwin-x64",
   "packages/prebuild-darwin-arm64",
-  "packages/prebuild-win32-x64"
+  "packages/prebuild-win32-x64",
+  "packages/prebuild-win32-arm64"
 ];
 
 function readRootVersion() {
@@ -199,4 +200,4 @@ try {
   cleanup();
 }
 
-console.error("[publish-npm-split] Done (5 platform packages + root).");
+console.error("[publish-npm-split] Done (6 platform packages + root).");

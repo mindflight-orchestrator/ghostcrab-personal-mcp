@@ -7,14 +7,14 @@
 - **Scope / name:** `@mindflight/ghostcrab-personal-mcp` (see root `package.json` for the current **version**).
 - **Binaries:** `gcp`, `ghostcrab` (shim).
 
-### Split architecture (six npm packages)
+### Split architecture (seven npm packages)
 
 The **root** package is a small installer: it does **not** ship `prebuilds/` inside the same tarball.
 
 | Package                                                                         | Role                                                                                                       |
 | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `@mindflight/ghostcrab-personal-mcp`                                            | JS/CLI, docs, skills, `postinstall`; declares **optionalDependencies** on the five platform packages below |
-| `…-linux-x64`, `…-linux-arm64`, `…-darwin-x64`, `…-darwin-arm64`, `…-win32-x64` | One native build each (`ghostcrab-backend` + `ghostcrab-document` where applicable)                        |
+| `@mindflight/ghostcrab-personal-mcp`                                                                                      | JS/CLI, docs, skills, `postinstall`; declares **optionalDependencies** on the six platform packages below |
+| `…-linux-x64`, `…-linux-arm64`, `…-darwin-x64`, `…-darwin-arm64`, `…-win32-x64`, `…-win32-arm64` | One native build each (`ghostcrab-backend` + `ghostcrab-document` where applicable)                        |
 
 At **`npm install`**, the client tries to install the **optional** package matching the current OS/CPU. The root **`postinstall`** ([`bin/lib/postinstall-prebuilds.mjs`](bin/lib/postinstall-prebuilds.mjs)) locates that binary, fixes permissions / quarantine when needed, runs a small smoke (`gcp --help`, backend `--help`). On success it may print **next steps** for IDE wiring (unless `GHOSTCRAB_POSTINSTALL_QUIET=1`):
 
@@ -34,7 +34,7 @@ Aligned with `package.json` **`files`**: `bin/`, `dist/`, `ghostcrab-skills/`, `
 | Channel                               | What users get                                                                                                                                                                                                       |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **npmjs**                             | Install root → optional platform package from registry → `postinstall`                                                                                                                                               |
-| **Beta zip** (`pnpm run beta:bundle`) | Same six `.tgz` files as local [`pack:local`](scripts/pack-local.mjs), plus **`install-beta.mjs`**, tester **README** (from `docs/dev/beta_testers_readme.md`), **`INSTALL.md`**, Makefile helpers, `SHA256SUMS.txt` |
+| **Beta zip** (`pnpm run beta:bundle`) | Same seven `.tgz` files as local [`pack:local`](scripts/pack-local.mjs), plus **`install-beta.mjs`**, **`install-beta.ps1`**, **`lib/spawn-npm.mjs`**, tester **README** (from `docs/dev/beta_testers_readme.md`), **`INSTALL.md`**, Makefile helpers, `SHA256SUMS.txt` |
 
 The zip path stays **separate** from npm: offline testers, pre-registry validation, or teams that avoid the public registry. See [`docs/dev/npm_split_release_process.md`](docs/dev/npm_split_release_process.md).
 
@@ -50,7 +50,7 @@ pnpm run build
 # Assert root tarball contents (no prebuilds/, required docs present)
 pnpm run verify:pack
 
-# Produce dist-pack/*.tgz + pack-manifest.json (root + 5 platform tarballs)
+# Produce dist-pack/*.tgz + pack-manifest.json (root + 6 platform tarballs)
 pnpm run pack:local
 # or reuse existing prebuilds:
 pnpm run pack:local:reuse-prebuilds
@@ -62,7 +62,7 @@ pnpm run beta:smoke
 
 ### Publishing to npmjs (manual)
 
-1. **Align versions (lockstep)** — Root `package.json` **version**, all five **`packages/prebuild-*/package.json`** versions, and root **`optionalDependencies`** must be **identical** for that release. [`scripts/publish-npm-split.mjs`](scripts/publish-npm-split.mjs) aborts if they differ.
+1. **Align versions (lockstep)** — Root `package.json` **version**, all six **`packages/prebuild-*/package.json`** versions, and root **`optionalDependencies`** must be **identical** for that release. [`scripts/publish-npm-split.mjs`](scripts/publish-npm-split.mjs) aborts if they differ.
 
 2. **Build** — `prebuilds/` populated, then `npm ci` + `npm run build` (same idea as CI).
 
@@ -87,7 +87,8 @@ pnpm run beta:smoke
    3. `packages/prebuild-darwin-x64`
    4. `packages/prebuild-darwin-arm64`
    5. `packages/prebuild-win32-x64`
-   6. repository **root** (`@mindflight/ghostcrab-personal-mcp`)
+   6. `packages/prebuild-win32-arm64`
+   7. repository **root** (`@mindflight/ghostcrab-personal-mcp`)
 
    Publishing the **root before** the platform packages breaks installs that rely on `optionalDependencies`.
 
