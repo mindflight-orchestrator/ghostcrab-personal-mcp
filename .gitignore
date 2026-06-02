@@ -69,3 +69,4 @@ vendor/*
 docs/source/
 docs/plan/
 reports/
+.ghostcrab/
