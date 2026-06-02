@@ -13,9 +13,11 @@ Source : [`QUICKSTART.md`](../../../../starter-kit-ghostcrab-perso/starterkit/QU
 | Phase | SOP | Objectif | Signal de succès StarterKit |
 |-------|-----|----------|----------------------------|
 | **A** | SOP4 | Env GhostCrab joignable | `ghostcrab_status` OK, outils visibles |
-| **B** | SOP1 + SOP2 | Modèle / ontologie / workspace | `ghostcrab_workspace_inspect`, `ghostcrab_coverage` baseline |
-| **C** | SOP2 §7 + SOP3 | Vault Obsidian → PostgreSQL COPY | `ghostcrab_coverage` ≥ 80 % schemas cœur |
-| **C2** | SOP5 | CSV/API/JSON → compilation générique | manifest sans exceptions bloquantes + consumers OK |
+| **B0** | SOP0 | Choix voie ontologie | `import_path_choices.yaml` rempli |
+| **B** | SOP1 + SOP2 | Modèle / ontologie / workspace | LinkML compile ou MCP §7 ; `ghostcrab_coverage` baseline |
+| **C** | SOP2 + SOP3 | Vault Obsidian → ingest | `ghostcrab_coverage` ≥ 80 % schemas cœur |
+| **C2.0** | SOP0 | Choix voie tabulaire | `tabular_path` enregistré |
+| **C2** | SOP5 | CSV/API/JSON → import | manifest OK + consumers (§1 bis ou §3) |
 
 **Adaptation Personal :** Phase A = backend SQLite sur `:8091`, pas Docker PostgreSQL. Phase C COPY → remplacer par `gcp brain document`, `backup-load`, ou écriture raw + reindex ([04](../04-reindexation-ghostcrab.md)).
 
@@ -23,7 +25,9 @@ Source : [`QUICKSTART.md`](../../../../starter-kit-ghostcrab-perso/starterkit/QU
 
 ## Pipeline SOP5 (9 gates)
 
-Source : [`SOP5_source_import_compiler.md`](../../../../starter-kit-ghostcrab-perso/starterkit/SOP5_source_import_compiler.md) §3
+Source : [`SOP5_source_import_compiler.md`](../../../../starter-kit-ghostcrab-perso/starterkit/SOP5_source_import_compiler.md) §3 (Voie A) ou §1 bis (Voie B structured-import CLI).
+
+**Voie B Personal (défaut tabulaire) :** remplacer gates 4–6 par `structured-import validate | register-semantics | apply | reindex`. Détail : [06 — Voies import](06-voies-import-ontologie-et-tabulaire.md).
 
 ```text
 Gate 0  runtime / workspace autorisé
@@ -85,7 +89,8 @@ Point de précision : `import_facets.mjs` avec `--write` **lève une erreur** �
 | [`mapping_external_to_canonical.yaml`](../../../../starter-kit-ghostcrab-perso/starterkit/templates/mapping_external_to_canonical.yaml) | 3 | Champ source → `schema_id`, facet, edge, pending |
 | [`consumer_contract.yaml`](../../../../starter-kit-ghostcrab-perso/starterkit/templates/consumer_contract.yaml) | 8 | Par consommateur : facets / projections / native_graph |
 | [`import_manifest.yaml`](../../../../starter-kit-ghostcrab-perso/starterkit/templates/import_manifest.yaml) | 9 | Commandes, counts, exceptions |
-| [`mvp_core_contract.yaml`](../../../../starter-kit-ghostcrab-perso/starterkit/templates/mvp_core_contract.yaml) | 1 | Types entité, arêtes, enums |
+| [`import_path_choices.yaml`](../../../../starter-kit-ghostcrab-perso/starterkit/templates/import_path_choices.yaml) | B0/C2.0 | Voie ontologie + tabulaire choisie |
+| [`linkml_ontology.stub.yaml`](../../../../starter-kit-ghostcrab-perso/starterkit/templates/linkml_ontology.stub.yaml) | B (LinkML) | Squelette ontologie LLM |
 
 Règle [`consumer_contract.yaml`](../../../../starter-kit-ghostcrab-perso/starterkit/templates/consumer_contract.yaml) :
 
@@ -116,4 +121,6 @@ Confusion fréquente : Gate 5 « import facets » ≠ qualification documentaire
 | — | *(absent du StarterKit)* | Type B `ProjectionResult`, qualify → `collection_reindex` |
 | 8 | consommateurs croisés | [05 decision guide](../05-projections-expliquees.md) |
 
-Suite : [03 — Parcours import source](03-parcours-import-source.md)
+| [`mvp_core_contract.yaml`](../../../../starter-kit-ghostcrab-perso/starterkit/templates/mvp_core_contract.yaml) | 1 | Types entité, arêtes, enums (voie MCP) |
+
+Suite : [06 — Voies import ontologie et tabulaire](06-voies-import-ontologie-et-tabulaire.md) · [03 — Parcours import source](03-parcours-import-source.md)

@@ -50,12 +50,45 @@ git clone https://gitlab.com/webigniter/starter-kit-ghostcrab-perso.git
 Load only what is needed:
 
 - `starterkit/QUICKSTART.md` for phase selection
-- `starterkit/SOP2_obsidian_ontologie.md` for ontology modeling
-- `starterkit/SOP5_source_import_compiler.md` for CSV/API/JSON/app exports
+- `starterkit/SOP0_import_path_choices.md` for ontology and tabular path choices (before writes)
+- `starterkit/SOP2_obsidian_ontologie.md` for ontology modeling (§6 bis LinkML or §7 MCP)
+- `starterkit/SOP5_source_import_compiler.md` for CSV/API/JSON/app exports (§1 bis CLI or §3 scripts)
 - `starterkit/templates/source_profile.yaml`
 - `starterkit/templates/mapping_external_to_canonical.yaml`
 - `starterkit/templates/consumer_contract.yaml`
 - `starterkit/templates/import_manifest.yaml`
+- `starterkit/templates/import_path_choices.yaml`
+- `starterkit/templates/linkml_ontology.stub.yaml`
+
+## Import Path Discipline
+
+Before ontology or tabular import writes, follow `SOP0_import_path_choices.md`:
+
+1. Present two numbered options; do not remove the historical path.
+2. **Ontology default (Personal):** LinkML — LLM generates `ontology/core.yaml`, validates with dry-run compile, imports only after user confirmation.
+3. **Ontology alternative:** MCP incremental — `ghostcrab_schema_register` sequence (SOP2 §7 Voie A).
+4. **Tabular default (Personal SQLite):** `gcp brain structured-import` — see `docs/setup/structured-import.md`.
+5. **Tabular alternative:** SOP5 scripts + gates (Voie A).
+6. Record choices in `templates/import_path_choices.yaml`.
+
+LinkML validation loop (mandatory before `--import-db`):
+
+```bash
+gcp brain ontology compile \
+  --workspace-id <ws> --ontology-id <ws>::core \
+  --input ontology/core.yaml \
+  --output output/ontology-slice.json
+```
+
+After exit 0 and user confirmation:
+
+```bash
+gcp brain ontology compile ... --import-db --force
+```
+
+Canonical LinkML examples in this repo: `ontologies/immeuble-demo/core.yaml`, `ontologies/ghostcrab/profile.yaml`.
+
+Personal bridge doc: `docs/explanation/methode-starterkit/06-voies-import-ontologie-et-tabulaire.md`.
 
 ## Freeze Policy
 

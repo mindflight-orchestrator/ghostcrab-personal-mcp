@@ -16,8 +16,8 @@ Ce dossier audite les explications architecture ([03](../03-memoire-mcp-facettes
 D'après [`starterkit/README.md`](../../../../starter-kit-ghostcrab-perso/starterkit/README.md) :
 
 - **Companion repo** — pas un fork GhostCrab, pas un outil de déploiement
-- Fournit **SOP4 → SOP1 → SOP2 → SOP3/SOP5**, templates YAML, scripts Node `starterkit/scripts/*.mjs`
-- Workflow : **Phase A** (env) → **Phase B** (modèle) → **Phase C** (vault Obsidian) / **Phase C2** (source générique SOP5)
+- Fournit **SOP0 → SOP4 → SOP1 → SOP2 → SOP3/SOP5**, templates YAML, scripts Node `starterkit/scripts/*.mjs`
+- Workflow : **Phase A** (env) → **B0** (choix ontologie) → **Phase B** (modèle LinkML ou MCP) → **Phase C** (vault) / **C2.0** (choix tabulaire) / **Phase C2** (structured-import CLI ou scripts SOP5)
 
 Le StarterKit est une **méthode de cadrage et de validation par gates**, pas la source de vérité du runtime `ghostcrab-personal-mcp`.
 
@@ -41,6 +41,7 @@ Série architecture : [03](../03-memoire-mcp-facettes-graphe-projections.md) · 
 |----------|----------|
 | Les explications 03/04/05 sont-elles défendables ? | [01 — Audit](01-audit-explications-actuelles.md) |
 | Quelle méthode apporte le StarterKit (SOP, gates, scripts) ? | [02 — Méthode StarterKit](02-methode-starterkit.md) |
+| LinkML vs MCP et structured-import vs scripts ? | [06 — Voies import](06-voies-import-ontologie-et-tabulaire.md) |
 | Qu'est-ce que le StarterKit confirme ou infirme ? | [03 — Confirmer / infirmer](03-confirmer-infirmer-les-explications.md) |
 | Parcours import source → tables → consommateurs | [04 — Parcours import](04-parcours-import-source.md) |
 | Où le StarterKit trompe ou ne s'applique pas tel quel ? | [05 — Écarts](05-ecarts-starterkit-personal.md) |

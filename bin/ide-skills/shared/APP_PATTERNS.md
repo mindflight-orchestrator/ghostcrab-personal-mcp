@@ -111,7 +111,18 @@ git clone https://gitlab.com/webigniter/starter-kit-ghostcrab-perso.git
 Load from the starterkit as needed:
 
 - `starterkit/QUICKSTART.md`
+- `starterkit/SOP0_import_path_choices.md`
 - `starterkit/SOP2_obsidian_ontologie.md`
 - `starterkit/SOP3_parsing_pipeline.md`
 - `starterkit/SOP5_source_import_compiler.md`
 - `starterkit/templates/`
+
+## Import Path Choice Before Write
+
+Before ontology registration or tabular import, follow `SOP0`:
+
+- Present LinkML vs MCP incremental (ontology) and structured-import CLI vs SOP5 scripts (tabular).
+- Record the user's choice in `import_path_choices.yaml`.
+- Do not mix pipelines in one run.
+- LinkML requires dry-run compile validation before `--import-db`.
+- Aligns with [ONBOARDING_CONTRACT.md](./ONBOARDING_CONTRACT.md): confirm before schema freeze.
