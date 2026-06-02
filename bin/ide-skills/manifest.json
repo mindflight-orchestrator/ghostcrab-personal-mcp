@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-02T14:14:05.117Z",
+  "generated_at": "2026-06-02T14:34:07.722Z",
   "source": "ghostcrab-skills",
   "skill_names": [
     "ghostcrab-memory",
@@ -11,7 +11,7 @@
   "files": [
     {
       "path": "README.md",
-      "sha256": "484959c43f56e696cc46e87838d40534159eceb42cbea238836fe916487ecd01"
+      "sha256": "3c509012978267aab670a579712b9d3776b36813a7caf8130efc6878c13256bc"
     },
     {
       "path": "claude-code/self-memory/CLAUDE.install.md",

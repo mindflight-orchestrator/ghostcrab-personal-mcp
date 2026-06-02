@@ -50,7 +50,7 @@ Authoring source: [`ghostcrab-skills/`](ghostcrab-skills/). Shipped install bund
 |--------------|------------------------|
 | `cursor` | `~/.cursor/skills/<skill>/`, `~/.cursor/skills/ghostcrab-shared/`, `.ghostcrab/skills/shared/` |
 | `claude` | `.claude/skills/<skill>/`, `.claude/skills/ghostcrab-shared/`, `.ghostcrab/claude-self-memory.md`, `.ghostcrab/skills/shared/`, merge `.claude/settings.json` |
-| `codex` | `~/.agents/skills/<skill>/`, `~/.agents/skills/ghostcrab-shared/`, `.ghostcrab/skills/shared/` |
+| `codex` | `~/.codex/skills/<skill>/`, `~/.codex/skills/ghostcrab-shared/`, `.ghostcrab/skills/shared/` |
 | `generic` | `.agents/skills/<skill>/`, `.agents/skills/ghostcrab-shared/`, `.ghostcrab/skills/shared/`; prints MCP JSON/TOML snippets instead of writing client config |
 
 Shared docs include `ONBOARDING_CONTRACT.md` so skills work **without** a checkout of `ghostcrab-skills/` in the user repo.

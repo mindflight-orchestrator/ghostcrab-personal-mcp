@@ -335,7 +335,7 @@ describe("install-ide-skills bundles", () => {
     expect(installed.skills).toContain("mindbrain-comparison-writer");
   });
 
-  it("installs codex bundle globally into .agents skills with patched shared links", () => {
+  it("installs codex bundle globally into .codex skills with patched shared links", () => {
     cwd = mkdtempSync(join(tmpdir(), "gc-skills-codex-"));
     useFakeHome();
     const result = installIdeSkillsBundleForTarget({
@@ -347,25 +347,25 @@ describe("install-ide-skills bundles", () => {
     });
     expect(result.ok).toBe(true);
     const skill = readFileSync(
-      join(fakeHome, ".agents", "skills", "ghostcrab-memory", "SKILL.md"),
+      join(fakeHome, ".codex", "skills", "ghostcrab-memory", "SKILL.md"),
       "utf8"
     );
     expect(skill).toContain("../ghostcrab-shared/ONBOARDING_CONTRACT.md");
     expect(
-      existsSync(join(fakeHome, ".agents", "skills", "ghostcrab-prompt-guide", "SKILL.md"))
+      existsSync(join(fakeHome, ".codex", "skills", "ghostcrab-prompt-guide", "SKILL.md"))
     ).toBe(true);
     expect(
-      existsSync(join(fakeHome, ".agents", "skills", "ghostcrab-memory", "agents", "openai.yaml"))
+      existsSync(join(fakeHome, ".codex", "skills", "ghostcrab-memory", "agents", "openai.yaml"))
     ).toBe(true);
     expect(
       existsSync(
-        join(fakeHome, ".agents", "skills", "ghostcrab-shared", "ONBOARDING_CONTRACT.md")
+        join(fakeHome, ".codex", "skills", "ghostcrab-shared", "ONBOARDING_CONTRACT.md")
       )
     ).toBe(true);
     const installed = JSON.parse(
       readFileSync(join(cwd, ".ghostcrab", "skills", "installed.json"), "utf8")
     );
-    expect(installed.installedSkillRoot).toContain(join(".agents", "skills"));
+    expect(installed.installedSkillRoot).toContain(join(".codex", "skills"));
   });
 
   it("installs generic bundle into .agents skills", () => {

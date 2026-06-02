@@ -130,7 +130,7 @@ describe("runSetupPostInstall", () => {
     expect(text).not.toMatch(/mcpAllowlist/);
     expect(text).not.toMatch(/Claude permissions/);
     expect(text).toMatch(/Would install codex skill bundle/);
-    expect(text).toContain(join(fakeHome, ".agents", "skills"));
+    expect(text).toContain(join(fakeHome, ".codex", "skills"));
   });
 
   it("generic dry-run installs portable skills only", async () => {

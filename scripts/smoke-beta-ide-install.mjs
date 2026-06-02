@@ -143,7 +143,7 @@ try {
   assertIncludes(codex.stdout, "up", "codex dry-run");
   assertIncludes(codex.stdout, "beta-smoke", "codex dry-run");
   assertIncludes(codex.stdout, "ghostcrab-prompt-guide", "codex dry-run skills");
-  assertIncludes(codex.stdout, ".agents/skills", "codex dry-run skill root");
+  assertIncludes(codex.stdout, ".codex/skills", "codex dry-run skill root");
 
   const claude = run(process.execPath, [
     gcpMjs,

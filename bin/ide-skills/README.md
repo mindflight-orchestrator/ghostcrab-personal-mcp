@@ -12,7 +12,7 @@ pnpm run sync:ide-skills
 |---------------------|--------|----------------------------|
 | `cursor` | `cursor/skills/`, `shared/` | `~/.cursor/skills/<skill>/`, `.ghostcrab/skills/shared/` |
 | `claude` | `claude-code/self-memory/`, `claude-code/skills/`, `shared/` | `~/.claude/skills/<skill>/`, `.ghostcrab/claude-self-memory.md`, `.ghostcrab/skills/shared/`, merge Claude settings |
-| `codex` | `codex/skills/`, `shared/` | `~/.agents/skills/<skill>/`, `~/.agents/skills/ghostcrab-shared/` |
+| `codex` | `codex/skills/`, `shared/` | `~/.codex/skills/<skill>/`, `~/.codex/skills/ghostcrab-shared/` |
 | `generic` | `codex/skills/`, `shared/` | `~/.agents/skills/<skill>/`, `~/.agents/skills/ghostcrab-shared/` |
 
 Installed globally by `gcp brain setup` by default (opt-out: `--no-skills`; project install: `--skills-scope project`).
