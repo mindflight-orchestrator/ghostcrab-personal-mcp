@@ -1,0 +1,4 @@
+interface:
+  display_name: "MindBrain Evidence Discovery"
+  short_description: "Map dimensions, facets, graph edges, and evidence"
+  default_prompt: "Use $mindbrain-evidence-discovery to discover which facets and graph edges can support a business answer."

@@ -102,7 +102,7 @@ If the server is listed but no tools appear in chat, start a new Codex session a
 
 ## Part 2 — Install the Codex skill mirrors
 
-This directory contains five skills:
+This directory contains ten skills:
 
 | Folder                                                                 | Role                                                                              |
 | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
@@ -111,6 +111,11 @@ This directory contains five skills:
 | [ghostcrab-data-architect/](ghostcrab-data-architect/)                 | Structured domain modeling patterns                                               |
 | [ghostcrab-integration-sop-editor/](ghostcrab-integration-sop-editor/) | Cleanup and introduction rewrites for GhostCrab/MindBrain integration SOP exports |
 | [mindbrain-comparison-writer/](mindbrain-comparison-writer/)           | Editorial workflow for MindBrain comparison articles                              |
+| [mindbrain-operator/](mindbrain-operator/)                             | Business questions → deterministic mindCLI workflows on workspaces                |
+| [mindbrain-evidence-discovery/](mindbrain-evidence-discovery/)         | Map business questions to facets, edges, projections, and evidence paths          |
+| [mindbrain-gap-auditor/](mindbrain-gap-auditor/)                       | Audit gaps between questions and available mindCLI evidence                       |
+| [mindbrain-json-answer-builder/](mindbrain-json-answer-builder/)       | Stable JSON answers from mindCLI outputs (observed vs inferred vs missing)        |
+| [mindbrain-projection-reviewer/](mindbrain-projection-reviewer/)       | Review projection contracts, readiness, and operational limits                    |
 
 Each skill’s `SKILL.md` links to shared contracts under **`../shared/`** (for example [ONBOARDING_CONTRACT.md](../shared/ONBOARDING_CONTRACT.md)). Those paths assume this layout:
 
