@@ -1,5 +1,5 @@
 /**
- * gcp brain up | gcp serve  [--workspace <name>] [--db <path>] [--install-skills]
+ * gcp brain up | gcp serve  [--workspace <id>] [--db <path>|--default] [--install-skills]
  *
  * Starts the Zig backend (detached, independent process) then the MCP server
  * on this process's stdio. The backend keeps running across MCP reconnections;
@@ -8,8 +8,9 @@
  * SQLite path resolution (highest priority first):
  *   1. GHOSTCRAB_SQLITE_PATH env var (bypasses workspace system entirely)
  *   2. --db <path> CLI flag (useful for hard-coding the path in mcp.json args)
- *   3. Else: workspace from --workspace / config.defaultWorkspace → workspaces[name].sqlitePath
- *   4. Else: ./data/ghostcrab.sqlite under the current working directory
+ *   3. Else: ~/.ghostcrab/databases/ghostcrab.sqlite
+ *
+ * `--workspace` pins the MindBrain workspace_id inside the selected SQLite file.
  */
 
 import { createServer } from "node:net";
@@ -40,6 +41,7 @@ import {
 import { resolveGhostcrabSqlite } from "../lib/resolve-ghostcrab-sqlite.mjs";
 import { slugifyWorkspace } from "../lib/workspace-slug.mjs";
 import { maybeInstallIdeSkills } from "../lib/install-ide-skills.mjs";
+import { readConfig } from "../lib/cli-config.mjs";
 
 const DEFAULT_PORT = 8091;
 const PORT_RANGE = 10; // probe 8091–8100 before giving up
@@ -82,6 +84,7 @@ export async function runServe(args) {
   // Parse flags
   let workspaceName = null;
   let dbPathFromCli = null;
+  let defaultDbFromCli = false;
   for (let i = 0; i < filtered.length; i++) {
     if (
       (filtered[i] === "--workspace" || filtered[i] === "-w") &&
@@ -98,18 +101,28 @@ export async function runServe(args) {
       dbPathFromCli = filtered[++i];
       continue;
     }
+    if (filtered[i] === "--default") {
+      defaultDbFromCli = true;
+      continue;
+    }
     if (filtered[i] === "--help" || filtered[i] === "-h") {
       console.log(
-        `Usage: gcp brain up | gcp serve  [--workspace <name>] [--db <path>] [--install-skills]\n\n` +
+        `Usage: gcp brain up | gcp serve  [--workspace <id>] [--db <path>|--default] [--install-skills]\n\n` +
           `Starts the MindBrain (Zig) backend if needed, then the MCP server on stdio.\n` +
-          `  --workspace <name>  Use this workspace's SQLite path from config\n` +
-          `  --db <path>         Explicit SQLite file path (overrides workspace/default;\n` +
+          `  --workspace <id>    Pin this MindBrain workspace_id inside the selected SQLite DB\n` +
+          `  --db <path>         Explicit SQLite file path (overrides user default;\n` +
           `                      env GHOSTCRAB_SQLITE_PATH still takes precedence)\n` +
+          `  --default           Explicitly use ~/.ghostcrab/databases/ghostcrab.sqlite\n` +
           `  --install-skills    Copy default IDE integration files from ghostcrab-skills into cwd.\n` +
           `  --no-skills         Skip IDE skill installation (negates --install-skills).`
       );
       return;
     }
+  }
+
+  if (dbPathFromCli && defaultDbFromCli) {
+    process.stderr.write("[ghostcrab] use either --db <path> or --default, not both\n");
+    process.exit(1);
   }
 
   if (installIdeSkills) {
@@ -150,13 +163,18 @@ export async function runServe(args) {
     backendAddr: initialBackendAddr,
     portExplicit
   } = resolveGhostcrabSqlite({
-    workspaceNameFromCli: workspaceName,
-    sqlitePathFromCli: dbPathFromCli
+    workspaceNameFromCli: null,
+    sqlitePathFromCli: dbPathFromCli,
+    defaultFromCli: defaultDbFromCli
   });
+  const config = readConfig();
+  const effectiveWorkspaceName =
+    workspaceName ?? config.defaultWorkspace ?? "default";
   let backendAddr = initialBackendAddr;
   process.stderr.write(
     `[ghostcrab] SQLite database: ${sqlitePathResolved}\n` +
-      `  (${sqlitePathSource})\n`
+      `  (${sqlitePathSource})\n` +
+      `[ghostcrab] Requested workspace_id: ${effectiveWorkspaceName}\n`
   );
 
   // ── Derive sidecar file paths ─────────────────────────────────────────────
@@ -273,7 +291,7 @@ export async function runServe(args) {
         ...process.env,
         GHOSTCRAB_BACKEND_ADDR: backendAddr,
         GHOSTCRAB_SQLITE_PATH: sqlitePathResolved,
-        GHOSTCRAB_WORKSPACE_NAME: workspaceName ?? "default"
+        GHOSTCRAB_WORKSPACE_NAME: effectiveWorkspaceName
       },
       stdio: ["ignore", logFd, logFd],
       detached: true
@@ -370,6 +388,7 @@ export async function runServe(args) {
 
   // ── Start MCP server on this process's stdio ──────────────────────────────
   process.env.GHOSTCRAB_MINDBRAIN_URL = mindbrainUrl;
+  process.env.GHOSTCRAB_WORKSPACE_NAME = effectiveWorkspaceName;
   // So server.ts can point users at native `log.err` / sqlite when seed fails.
   process.env.GHOSTCRAB_NATIVE_LOG = logFile;
   const { startMcpServer } = await import("../../dist/server.js");

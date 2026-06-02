@@ -160,7 +160,7 @@ Usage: gcp brain backup [--workspace <name>] [--workspace-id <id>] [--db <path>]
   Export a canonical MindBrain backup bundle. The bundle can be loaded with:
     gcp brain load <bundle.json>
 
-  --workspace <name>     Resolve the SQLite path from GhostCrab config
+  --workspace <name>     Workspace_id fallback when --workspace-id is omitted
   --workspace-id <id>    MindBrain workspace_id to export (defaults to --workspace/config/default)
   --db <path>            Explicit SQLite file path
   --scope taxonomies     Export workspace taxonomies only

@@ -2,8 +2,8 @@
  * gcp init [workspace-name]
  *
  * Initialises a named workspace:
- *   - Registers it in ~/.config/ghostcrab/config.json
- *   - Creates the data directory for the SQLite file
+ *   - Registers the logical workspace_id in ~/.ghostcrab/config.json
+ *   - Creates ~/.ghostcrab/databases for the default SQLite file
  *   - Prints the MCP client config snippet to copy-paste
  *
  * The SQLite database itself is created by the backend on first `gcp brain up` (or `gcp serve`).
@@ -53,14 +53,17 @@ export async function cmdInit(args) {
 
   const config = readConfig();
   const dataDir = getDataDir();
-  const sqlitePath = join(dataDir, "workspaces", `${workspaceName}.sqlite`);
+  const sqlitePath = join(dataDir, "databases", "ghostcrab.sqlite");
 
   // ── Already exists ────────────────────────────────────────────────────────
   if (config.workspaces?.[workspaceName]) {
     const ws = config.workspaces[workspaceName];
     console.log(`Workspace "${workspaceName}" is already initialised.`);
     console.log(`  Config : ${getConfigPath()}`);
-    console.log(`  SQLite : ${ws.sqlitePath}`);
+    console.log(`  SQLite : ${sqlitePath}`);
+    if (ws?.sqlitePath) {
+      console.log(`  Legacy SQLite path ignored for brain up: ${ws.sqlitePath}`);
+    }
     console.log(``);
     printMcpSnippet(workspaceName);
     maybeInstallIdeSkills({
@@ -75,9 +78,7 @@ export async function cmdInit(args) {
 
   // ── Register new workspace ────────────────────────────────────────────────
   if (!config.workspaces) config.workspaces = {};
-  config.workspaces[workspaceName] = {
-    sqlitePath
-  };
+  config.workspaces[workspaceName] = {};
   if (!config.defaultWorkspace) {
     config.defaultWorkspace = workspaceName;
   }
@@ -85,7 +86,7 @@ export async function cmdInit(args) {
   writeConfig(config);
 
   // Ensure the data directory exists (backend creates the .sqlite file itself)
-  const wsDataDir = join(dataDir, "workspaces");
+  const wsDataDir = join(dataDir, "databases");
   if (!existsSync(wsDataDir)) {
     mkdirSync(wsDataDir, { recursive: true });
   }

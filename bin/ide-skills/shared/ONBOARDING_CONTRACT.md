@@ -142,7 +142,7 @@ If any is missing, the reply is incomplete.
 
 - Treat each first-turn fuzzy GhostCrab onboarding request as **independent** unless the user explicitly says it continues an existing workspace.
 - Do **not** merge a new request into an existing GhostCrab scope based only on session context; require **explicit** user confirmation.
-- **MindBrain workspace_id** (logical partition in SQLite) is not the same as CLI `--workspace` (SQLite file selection). See [WORKSPACE_CONTEXT.md](./WORKSPACE_CONTEXT.md).
+- **MindBrain workspace_id** (logical partition in SQLite) is selected by CLI `--workspace`; the SQLite file is selected by `--db` / `GHOSTCRAB_SQLITE_PATH`. See [WORKSPACE_CONTEXT.md](./WORKSPACE_CONTEXT.md).
 - **Intentional switch** is allowed when the user asks: `ghostcrab_workspace_list` → announce → `ghostcrab_workspace_use` → verify in `ghostcrab_status`.
 - **Reactive switch is forbidden:** do not change workspace_id because reads returned zero rows, a tool failed, or the backend was unreachable.
 - **Agents must not** open `.sqlite` files or run SQL shell (`sqlite3`, `gcp brain document`) to read GhostCrab data.

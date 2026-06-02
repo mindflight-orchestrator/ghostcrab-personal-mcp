@@ -290,6 +290,65 @@ try {
     );
   }
 
+  const consumerSkills = join(consumerDir, "ghostcrab-skills");
+  assert.equal(
+    existsSync(consumerSkills),
+    true,
+    `[host-bootstrap] expected ghostcrab-skills symlink missing: ${consumerSkills}`
+  );
+  assert.equal(
+    lstatSync(consumerSkills).isSymbolicLink(),
+    true,
+    "[host-bootstrap] expected ghostcrab-skills to be a symlink/junction"
+  );
+  assert.equal(
+    realpathSync(consumerSkills),
+    realpathSync(join(installedPkgDir, "ghostcrab-skills")),
+    "[host-bootstrap] ghostcrab-skills does not resolve to the installed package"
+  );
+
+  const expectedSkillLinks = [
+    ["ghostcrab-skills", "all", "ghostcrab-memory"],
+    ["ghostcrab-skills", "all", "mindbrain-comparison-writer"],
+    ["ghostcrab-skills", "codex", "ghostcrab-memory"],
+    ["ghostcrab-skills", "cursor", "skills", "ghostcrab-memory"],
+    ["ghostcrab-skills", "claude-code", "skills", "ghostcrab-memory"],
+    ["ghostcrab-skills", "generated", "codex"],
+    ["ghostcrab-skills", "generated", "cursor"],
+    ["ghostcrab-skills", "generated", "claude-code"]
+  ];
+  for (const parts of expectedSkillLinks) {
+    const linkPath = join(installedPkgDir, ...parts);
+    assert.equal(
+      existsSync(linkPath),
+      true,
+      `[skill-links] expected skill reference link missing: ${linkPath}`
+    );
+    const st = lstatSync(linkPath);
+    assert.equal(
+      st.isSymbolicLink(),
+      true,
+      `[skill-links] expected ${parts.join("/")} to be a symlink/junction`
+    );
+    assert.equal(
+      realpathSync(linkPath).startsWith(installedPkgRealPath),
+      true,
+      `[skill-links] ${parts.join("/")} resolves outside installed package`
+    );
+  }
+  for (const parts of [
+    ["all", "ghostcrab-memory"],
+    ["cursor", "skills", "ghostcrab-memory"],
+    ["claude-code", "skills", "ghostcrab-memory"],
+    ["generated", "codex"]
+  ]) {
+    assert.equal(
+      existsSync(join(consumerSkills, ...parts)),
+      true,
+      `[host-bootstrap] exposed ghostcrab-skills missing ${parts.join("/")}`
+    );
+  }
+
   // ── Re-install must NOT overwrite a user-edited .env ──
   const userEnvSentinel =
     "# ghostcrab verify-local-install user edit sentinel\nFOO=user_edit\n";
@@ -531,7 +590,7 @@ try {
   rmSync(fakeCursorDir, { recursive: true, force: true });
 
   console.error(
-    `[verify-local-install] OK — installer + ${platformPackageName}, gcp --help, gcp authorize, gcp tools verify, host bootstrap (.env / data/ / doc symlinks), gcp brain setup cursor (mcp.json + permissions basic + skill bundle + legacy pruning) all succeeded.`
+    `[verify-local-install] OK — installer + ${platformPackageName}, gcp --help, gcp authorize, gcp tools verify, host bootstrap (.env / data/ / doc + skill symlinks), gcp brain setup cursor (mcp.json + permissions basic + skill bundle + legacy pruning) all succeeded.`
   );
 } finally {
   rmSync(packDest, { recursive: true, force: true });

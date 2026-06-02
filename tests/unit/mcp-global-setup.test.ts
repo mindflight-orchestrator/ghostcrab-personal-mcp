@@ -1,8 +1,6 @@
 import {
-  chmodSync,
   mkdirSync,
   mkdtempSync,
-  readFileSync,
   rmSync,
   writeFileSync
 } from "node:fs";
@@ -377,46 +375,22 @@ describe("mcp-global-setup", () => {
   });
 
   it("runSetupClaude force removes the scoped entry before add", () => {
-    const logPath = join(cleanCwd, "claude-args.log");
-    const claudeBin = join(cleanCwd, "claude-fake.mjs");
-    writeFileSync(
-      claudeBin,
-      [
-        "#!/usr/bin/env node",
-        'import { appendFileSync } from "node:fs";',
-        "appendFileSync(process.env.CLAUDE_TEST_LOG, JSON.stringify(process.argv.slice(2)) + '\\n');",
-        "process.exit(0);",
-        ""
-      ].join("\n")
-    );
-    chmodSync(claudeBin, 0o755);
-
-    const previousLogEnv = process.env.CLAUDE_TEST_LOG;
-    process.env.CLAUDE_TEST_LOG = logPath;
-    try {
-      const r = runSetupClaude({
-        packageName: "@mindflight/ghostcrab-personal-mcp",
-        runner: "pnpm",
-        workspace: null,
-        scope: "local",
-        force: true,
-        dryRun: false,
-        claudeBin,
-        cwd: cleanCwd
-      });
-      expect(r.ok).toBe(true);
-    } finally {
-      if (previousLogEnv === undefined) {
-        delete process.env.CLAUDE_TEST_LOG;
-      } else {
-        process.env.CLAUDE_TEST_LOG = previousLogEnv;
+    const calls: string[][] = [];
+    const r = runSetupClaude({
+      packageName: "@mindflight/ghostcrab-personal-mcp",
+      runner: "pnpm",
+      workspace: null,
+      scope: "local",
+      force: true,
+      dryRun: false,
+      claudeBin: "claude",
+      cwd: cleanCwd,
+      spawn: (_bin: string, args: string[]) => {
+        calls.push(args);
+        return { status: 0 };
       }
-    }
-
-    const calls = readFileSync(logPath, "utf8")
-      .trim()
-      .split("\n")
-      .map((line) => JSON.parse(line));
+    });
+    expect(r.ok).toBe(true);
     expect(calls[0]).toEqual(["mcp", "remove", "--scope", "local", SERVER_KEY]);
     expect(calls[1]).toEqual([
       "mcp",
@@ -436,5 +410,36 @@ describe("mcp-global-setup", () => {
       "brain",
       "up"
     ]);
+  });
+
+  it("runSetupClaude force ignores missing server removal noise", () => {
+    const calls: string[][] = [];
+    const r = runSetupClaude({
+      packageName: "@mindflight/ghostcrab-personal-mcp",
+      runner: "pnpm",
+      workspace: null,
+      scope: "user",
+      force: true,
+      dryRun: false,
+      claudeBin: "claude",
+      cwd: cleanCwd,
+      spawn: (_bin: string, args: string[]) => {
+        calls.push(args);
+        if (args[0] === "mcp" && args[1] === "remove") {
+          return {
+            status: 1,
+            stdout:
+              "No user-scoped MCP server found with name: ghostcrab-personal-mcp\n",
+            stderr: ""
+          };
+        }
+        return { status: 0 };
+      }
+    });
+    expect(r.ok).toBe(true);
+    expect(calls).toHaveLength(2);
+    expect(calls[0]).toEqual(["mcp", "remove", "--scope", "user", SERVER_KEY]);
+    expect(calls[1][0]).toBe("mcp");
+    expect(calls[1][1]).toBe("add");
   });
 });

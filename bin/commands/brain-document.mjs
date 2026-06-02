@@ -330,14 +330,14 @@ function printDocumentHelp() {
     `
 Usage: gcp brain document [--workspace <name>] [--db <path>] [--force] <subcommand> [...args]
 
-  Run the bundled GhostCrab document engine against your workspace SQLite file.
+  Run the bundled GhostCrab document engine against the selected SQLite file.
   The engine is the same stack as MindBrain (normalize, profile, ingest, collections, …).
 
   IMPORTANT: Quit MCP / stop ghostcrab-backend first so the database is not locked.
   This command probes /health on GHOSTCRAB_MINDBRAIN_URL (and the pid-file port) and
   refuses to run if the backend responds unless you pass --force.
 
-  --workspace <name>   Resolve the same SQLite path as "gcp brain up" (with -w)
+  --workspace <name>   Workspace_id hint; does not select the SQLite file
   --db <path>          Explicit SQLite file path for database-backed subcommands
   --force              Skip the running-backend check (may hit "database is locked")
 

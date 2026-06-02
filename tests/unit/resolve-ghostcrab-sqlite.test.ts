@@ -38,22 +38,32 @@ function writeWorkspaceConfig(
 
 describe("resolveGhostcrabSqlite — precedence", () => {
   let configDir: string;
+  let dataDir: string;
+  let homeDir: string;
   let savedEnv: Record<string, string | undefined>;
 
   beforeEach(() => {
     configDir = makeEmptyConfigDir();
+    dataDir = mkdtempSync(join(tmpdir(), "gc-sqlite-data-"));
+    homeDir = mkdtempSync(join(tmpdir(), "gc-sqlite-home-"));
     savedEnv = {
       GHOSTCRAB_CONFIG_DIR: process.env.GHOSTCRAB_CONFIG_DIR,
+      GHOSTCRAB_DATA_DIR: process.env.GHOSTCRAB_DATA_DIR,
+      GHOSTCRAB_HOME: process.env.GHOSTCRAB_HOME,
       GHOSTCRAB_SQLITE_PATH: process.env.GHOSTCRAB_SQLITE_PATH,
       GHOSTCRAB_BACKEND_ADDR: process.env.GHOSTCRAB_BACKEND_ADDR
     };
     process.env.GHOSTCRAB_CONFIG_DIR = configDir;
+    process.env.GHOSTCRAB_DATA_DIR = dataDir;
+    delete process.env.GHOSTCRAB_HOME;
     delete process.env.GHOSTCRAB_SQLITE_PATH;
     delete process.env.GHOSTCRAB_BACKEND_ADDR;
   });
 
   afterEach(() => {
     rmSync(configDir, { recursive: true, force: true });
+    rmSync(dataDir, { recursive: true, force: true });
+    rmSync(homeDir, { recursive: true, force: true });
     for (const [k, v] of Object.entries(savedEnv)) {
       if (v === undefined) {
         delete process.env[k];
@@ -63,14 +73,31 @@ describe("resolveGhostcrabSqlite — precedence", () => {
     }
   });
 
-  it("falls back to data/ghostcrab.sqlite in cwd when nothing is set", () => {
+  it("falls back to the user-global ghostcrab.sqlite when nothing is set", () => {
     const r = resolveGhostcrabSqlite({});
     expect(r.sqlitePathResolved).toBe(
-      resolve(process.cwd(), "data", "ghostcrab.sqlite")
+      resolve(dataDir, "databases", "ghostcrab.sqlite")
     );
-    expect(r.sqlitePathSource).toMatch(/fallback/);
+    expect(r.sqlitePathSource).toMatch(/user default/);
     expect(r.backendAddr).toBeUndefined();
     expect(r.portExplicit).toBe(false);
+  });
+
+  it("uses GHOSTCRAB_HOME for the default database when GHOSTCRAB_DATA_DIR is unset", () => {
+    delete process.env.GHOSTCRAB_DATA_DIR;
+    process.env.GHOSTCRAB_HOME = homeDir;
+    const r = resolveGhostcrabSqlite({});
+    expect(r.sqlitePathResolved).toBe(
+      resolve(homeDir, "databases", "ghostcrab.sqlite")
+    );
+  });
+
+  it("--default marks the user-global database as explicitly selected", () => {
+    const r = resolveGhostcrabSqlite({ defaultFromCli: true });
+    expect(r.sqlitePathResolved).toBe(
+      resolve(dataDir, "databases", "ghostcrab.sqlite")
+    );
+    expect(r.sqlitePathSource).toBe("CLI --default");
   });
 
   it("--db (sqlitePathFromCli) wins over cwd default", () => {
@@ -99,7 +126,7 @@ describe("resolveGhostcrabSqlite — precedence", () => {
     expect(r.sqlitePathSource).toBe("GHOSTCRAB_SQLITE_PATH");
   });
 
-  it("GHOSTCRAB_SQLITE_PATH env wins over workspace config", () => {
+  it("GHOSTCRAB_SQLITE_PATH env wins over workspace input", () => {
     writeWorkspaceConfig(configDir, "myapp", "/ws/ghostcrab.sqlite");
     process.env.GHOSTCRAB_SQLITE_PATH = "/tmp/from-env.sqlite";
     const r = resolveGhostcrabSqlite({ workspaceNameFromCli: "myapp" });
@@ -107,7 +134,7 @@ describe("resolveGhostcrabSqlite — precedence", () => {
     expect(r.sqlitePathSource).toBe("GHOSTCRAB_SQLITE_PATH");
   });
 
-  it("--db wins over workspace config when env is unset", () => {
+  it("--db wins over workspace input when env is unset", () => {
     writeWorkspaceConfig(configDir, "myapp", "/ws/ghostcrab.sqlite");
     const r = resolveGhostcrabSqlite({
       workspaceNameFromCli: "myapp",
@@ -117,11 +144,13 @@ describe("resolveGhostcrabSqlite — precedence", () => {
     expect(r.sqlitePathSource).toBe("CLI --db");
   });
 
-  it("workspace sqlitePath is used when neither env nor --db is set", () => {
+  it("workspace input does not select the SQLite file", () => {
     writeWorkspaceConfig(configDir, "myapp", "/ws/ghostcrab.sqlite");
     const r = resolveGhostcrabSqlite({ workspaceNameFromCli: "myapp" });
-    expect(r.sqlitePathResolved).toBe("/ws/ghostcrab.sqlite");
-    expect(r.sqlitePathSource).toMatch(/workspace "myapp"/);
+    expect(r.sqlitePathResolved).toBe(
+      resolve(dataDir, "databases", "ghostcrab.sqlite")
+    );
+    expect(r.sqlitePathSource).toMatch(/user default/);
   });
 
   it("GHOSTCRAB_BACKEND_ADDR is picked up from env under --db branch", () => {

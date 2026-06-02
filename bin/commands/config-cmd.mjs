@@ -116,7 +116,7 @@ Subcommands:
 Common keys:
   registry.url        Registry server URL   (default: https://registry.ghostcrab.io)
   registry.token      API token for private resources
-  defaultWorkspace    Name of the workspace used when --workspace is omitted
+  defaultWorkspace    MindBrain workspace_id used when --workspace is omitted
 
 Examples:
   ${configLabel} set registry.token sk_live_xyz

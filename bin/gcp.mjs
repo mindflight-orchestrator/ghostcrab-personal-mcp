@@ -104,7 +104,7 @@ GhostCrab CLI — durable structured memory for AI agents
 Usage: gcp <command> [options]
 
 ── JTBD (recommended) ──
-  brain up [--workspace <name>]     Start MindBrain (Zig) + MCP on stdio
+  brain up [--workspace <id>]       Start MindBrain (Zig) + MCP on stdio
   smoke                            Read-only backend/tool registration check
   status                           Read-only operational snapshot
   tools list                       List MCP tools (recommended + full catalog metadata)
@@ -126,7 +126,7 @@ Usage: gcp <command> [options]
   bootstrap                          Create .env / data/ / README symlinks in cwd
   agent skills <sub>              Registry skills (agent capabilities)
   agent equip <owner/name>        Shortcut for: agent skills pull
-  env list | show | get | set     GhostCrab config file (~/.config/ghostcrab/…)
+  env list | show | get | set     GhostCrab config file (~/.ghostcrab/…)
   env path
 
   gcp up | gcp start              Same as  gcp brain up

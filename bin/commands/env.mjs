@@ -1,5 +1,5 @@
 /**
- * gcp env — GhostCrab CLI / MCP environment (~/.config/ghostcrab/config.json).
+ * gcp env — GhostCrab CLI / MCP environment (~/.ghostcrab/config.json).
  *
  * Same behaviour as the legacy   gcp config   command, JTBD-friendly naming.
  */

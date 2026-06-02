@@ -92,6 +92,7 @@ for (const requiredPath of [
   "bin/gcp.mjs",
   "bin/lib/postinstall-prebuilds.mjs",
   "bin/lib/postinstall-host-bootstrap.mjs",
+  "bin/lib/postinstall-skill-links.mjs",
   "bin/lib/postinstall-smoke.mjs",
   "dist/index.js",
   "dist/index.d.ts",

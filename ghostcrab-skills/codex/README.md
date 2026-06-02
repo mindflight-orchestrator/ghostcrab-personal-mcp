@@ -9,7 +9,7 @@ For how `ghostcrab-skills` relates to the product repo, see [GHOSTCRAB_INTEGRATI
 - **Node.js** 20+ and a package runner (`pnpm` or `npm`).
 - **GhostCrab MCP** available as a local install, global CLI, or via `pnpm dlx` / `npx` (no global install).
 
-Published package for this SQLite distribution: `@mindflight/ghostcrab-personal-mcp` (binaries: `gcp`, `ghostcrab`). MCP clients should invoke **`gcp brain up`** or legacy **`gcp serve`**, optionally with `--workspace <name>`. See the product [gcp-commands.md](../../docs/reference/gcp-commands.md).
+Published package for this SQLite distribution: `@mindflight/ghostcrab-personal-mcp` (binaries: `gcp`, `ghostcrab`). MCP clients should invoke **`gcp brain up`** or legacy **`gcp serve`**, optionally with `--workspace <id>` to pin a logical MindBrain workspace_id. See the product [gcp-commands.md](../../docs/reference/gcp-commands.md).
 
 Initialize a workspace once if you use a named workspace:
 
@@ -72,7 +72,7 @@ args = ["brain", "up", "--workspace", "my-project"]
 env_vars = ["GHOSTCRAB_SQLITE_PATH", "OPENROUTER_API_KEY"]
 ```
 
-**Working directory:** if you rely on defaults like `./data/ghostcrab.sqlite`, set `cwd` to the directory where that data should live.
+**SQLite path:** if you do not pass `--db`, GhostCrab uses `~/.ghostcrab/databases/ghostcrab.sqlite`. Use `--db <path>` or `GHOSTCRAB_SQLITE_PATH` for a project-local database.
 
 ```toml
 [mcp_servers.ghostcrab]

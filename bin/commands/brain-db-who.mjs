@@ -1,6 +1,6 @@
 /**
  * gcp brain db-who — list processes with this GhostCrab SQLite file open (lsof).
- * Path resolution matches `gcp brain up` (env, config workspace, cwd fallback).
+ * Path resolution matches `gcp brain up` (env, explicit path, user default).
  */
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
@@ -104,8 +104,8 @@ function parseArgs(args) {
 }
 
 /**
- * Same default as gcp brain up: ./data/ghostcrab.sqlite in cwd, unless
- * GHOSTCRAB_SQLITE_PATH or a workspace path in config wins (see resolveGhostcrabSqlite).
+ * Same default as gcp brain up: ~/.ghostcrab/databases/ghostcrab.sqlite,
+ * unless GHOSTCRAB_SQLITE_PATH or an explicit path override wins.
  *
  * @param {{ pathOverride?: string, workspaceName?: string | null }} p
  * @returns {{ pathResolved: string, source: string }}
@@ -129,9 +129,9 @@ function printHelp() {
 Usage: gcp brain db-who [options]
 
   Show which processes have the GhostCrab SQLite file open, using lsof (macOS / Linux).
-  Resolves the DB path the same way as  gcp brain up  (default: data/ghostcrab.sqlite
-  in the current working directory, unless GHOSTCRAB_SQLITE_PATH or a workspace
-  path applies). Use --path to override.
+  Resolves the DB path the same way as  gcp brain up  (default:
+  ~/.ghostcrab/databases/ghostcrab.sqlite, unless GHOSTCRAB_SQLITE_PATH applies).
+  Use --path to override.
 
 Options:
   --path <file>     Inspect this path instead of resolving from config/env/cwd
