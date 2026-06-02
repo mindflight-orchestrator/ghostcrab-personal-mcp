@@ -352,3 +352,31 @@ Override with `GHOSTCRAB_CONFIG_DIR` env var.
 | Windows  | `%APPDATA%\ghostcrab`                                   |
 
 Override with `GHOSTCRAB_DATA_DIR` env var.
+
+
+
+#  Séquence locale recommandée
+
+  # Depuis /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp
+
+  # 1. Refaire les prebuilds + build + dist-pack
+  pnpm run pack:local
+
+  # 2. Refaire le beta zip depuis dist-pack
+  pnpm run beta:bundle
+
+  # 3. Réinstaller le beta dans l'installation locale en préservant data/ + .env
+  .cursor/skills/ghostcrab-mindbrain-dev/scripts/refresh-install.sh
+
+  # 4. Réinstaller les skills Codex globaux depuis le package beta fraîchement installé
+  node /home/dlamotte/Documents/ghostcrab-personal-mcp/node_modules/@mindflight/ghostcrab-personal-mcp/bin/gcp.mjs brain setup codex --force-skills
+
+  Pour publier npmjs ensuite :
+
+  pnpm run publish:npm-split
+
+  Pas besoin d’exporter NODE_AUTH_TOKEN si .env contient déjà NODE_AUTH_TOKEN=... ou NPM_TOKEN=.... Le script le lit automatiquement.
+
+  Si tu ne veux pas recompiler les prebuilds, remplace seulement la première commande par :
+
+  pnpm run pack:local:reuse-prebuilds
