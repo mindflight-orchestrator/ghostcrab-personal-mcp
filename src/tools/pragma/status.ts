@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { buildStatusPreamble } from "../../mcp/agent-brief.js";
+import { buildImportPipelinesStatusPayload } from "../../mcp/import-pipelines.js";
 import {
   buildWorkspaceContextDirectives,
   buildWorkspaceContextStatus
@@ -245,7 +246,8 @@ export const statusTool: ToolHandler = {
         health: state.health,
         state: state.state,
         metrics
-      }
+      },
+      import_pipelines: buildImportPipelinesStatusPayload()
     });
   }
 };

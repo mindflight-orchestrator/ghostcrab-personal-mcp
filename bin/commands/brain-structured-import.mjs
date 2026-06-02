@@ -182,7 +182,9 @@ Examples:
 
   gcp brain structured-import reindex --workspace-id immeuble-structured-import --scope all
 
-See docs/setup/structured-import.md and examples/immeuble/structured-import/README.md.
+Full runbook:  gcp brain docs structured
+CLI subcommands: pass --help after a subcommand to the native engine when supported.
+See examples/immeuble/structured-import/README.md.
 `.trim()
   );
 }

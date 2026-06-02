@@ -119,6 +119,8 @@ Usage: gcp <command> [options]
   brain export [opts]             Alias for brain backup
   brain load <file>               Load JSONL profile or restore backup bundle
   brain document <cmd> [args]     Corpus normalize/profile/ingest (stop MCP first)
+  brain structured-import <cmd>   Tabular CSV/JSON import (stop MCP first)
+  brain docs [topic]              Full import runbooks (structured | document | import)
   brain setup <cursor|codex|claude>  User-global MCP (see README_*_MCP.md)
   bootstrap                          Create .env / data/ / README symlinks in cwd
   agent skills <sub>              Registry skills (agent capabilities)

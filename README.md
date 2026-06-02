@@ -174,62 +174,50 @@ This launches mindBrain, creates `./data/ghostcrab.sqlite`, and holds stdio open
 
 ---
 
-## Document Imports
+## CLI — bulk import and reference
 
-GhostCrab also ships the MindBrain document engine through `gcp brain document`.
-Use it when you want to turn a PDF, HTML page, Markdown folder, or text corpus
-into structured SQLite data before agents query it.
+**MCP** is the ontology and query surface (`ghostcrab_search`, `ghostcrab_remember`, …). **Bulk import** runs through `gcp brain` wrappers around the native MindBrain engine — not MCP streaming. Stop MCP / `ghostcrab-backend` before database-backed import commands (or pass `--force`).
 
-The recommended thin-slice flow is:
+### Discover commands
 
 ```bash
-# 1. Normalize source files into inspectable text/Markdown
-npx gcp brain document document-normalize --input ./source.pdf --output-dir ./out
-
-# 2. Ingest or queue profile-backed persistence into a workspace collection
-npx gcp brain document --force document-ingest \
-  --workspace-id my_ws --collection-id my_ws::docs \
-  --doc-id 1 --source-ref ./out/source.md \
-  --language english --strategy paragraph \
-  --content-file ./out/source.md
-
-# 3. List controlled taxonomy and facet IDs available for qualification
-npx gcp brain document --force qualification-vocab-list \
-  --workspace-id my_ws --collection-id my_ws::docs
+gcp --help
+gcp brain --help
+gcp brain docs --list
+gcp brain docs structured    # full tabular runbook (Markdown)
+gcp brain docs document      # full document runbook (Markdown)
+gcp brain docs import        # both runbooks
+gcp brain structured-import --help
+gcp brain document --help
 ```
 
-Backup and restore use the same canonical raw tables:
+### Import pipelines
+
+| Pipeline | CLI | Full runbook (installed package) |
+| -------- | --- | -------------------------------- |
+| **Tabular** (CSV, JSON, YAML, XLSX, TOON) | `gcp brain structured-import` | `gcp brain docs structured` |
+| **Documents** (PDF, HTML, MD corpus) | `gcp brain document` | `gcp brain docs document` |
+
+Typical tabular order: `register-semantics` → `apply` (or Phase D: `ddl-propose` → `ddl-execute` → `load-ws` → `apply` with mapping `data_plane=ws`) → `reindex --scope all`.
+
+Document flow (thin slice): `document-normalize` → `document-ingest` → `qualification-vocab-list` → optional `document-profile` / `document-qualify`. See `gcp brain docs document` for no-LLM and LLM paths.
+
+After bulk import, agents query via MCP (`ghostcrab_search`, `ghostcrab_graph_search`, `ghostcrab_graph_reindex`, …).
+
+### In-package reference files
+
+- `docs/reference/gcp-commands.md` — JTBD command table
+- `docs/setup/structured-import.md` — tabular operator guide
+- `docs/setup/document-import.md` — document operator guide
+- `docs/architecture/universal_methodology.md` — facets → projections → import → reports
+
+Backup / ontology (same SQLite file):
 
 ```bash
 npx gcp brain backup --workspace-id my_ws --output ./my_ws.backup.json
-npx gcp brain backup --workspace-id my_ws --scope taxonomies --output ./my_ws.taxonomies.json
 npx gcp brain ontology import --workspace-id my_ws --ontology-id my_ws::owl --input ./ontology.nt --materialize-graph
 npx gcp brain load ./my_ws.backup.json --dry-run
 ```
-
-The listing output gives the IDs expected by future controlled qualification
-flags: taxonomy IDs for `--taxonomies` and facet IDs such as
-`source.filename` or `topic.category` for `--facets`.
-
-There are three import levels:
-
-- **No LLM:** normalize and ingest raw documents/chunks with deterministic
-  `source.*` facets.
-- **LLM profiling:** classify document kind/language/structure to choose a
-  deterministic chunking strategy.
-- **Controlled qualification:** map chunks/documents onto known taxonomy/facet
-  values. The vocabulary listing command is available now; full LLM
-  `document-qualify` support depends on the packaged native engine exposing
-  that verb.
-
-Stop MCP / `ghostcrab-backend` before database-backed import commands. The CLI
-will refuse to run against a live backend unless you pass `--force`.
-
-Reference docs:
-
-- `docs/setup/document-import.md` — operator runbook and examples.
-- `docs/architecture/universal_methodology.md` — four-phase methodology:
-  facets → projections → import → reports.
 
 ---
 
@@ -305,7 +293,7 @@ npx gcp brain up --help
 
 ### Native binary
 
-postinstall installs a platform-specific optional dependency automatically (`linux-x64`, `linux-arm64`, `darwin-x64`, `darwin-arm64`, `win32-x64`). If the platform package is absent, mindBrain will not start — add the tarball manually per `INSTALL.md`.
+postinstall installs a platform-specific optional dependency automatically (`linux-x64`, `linux-arm64`, `darwin-x64`, `darwin-arm64`, `win32-x64`, `win32-arm64`). If the platform package is absent, mindBrain will not start — add the tarball manually per `INSTALL.md`.
 
 ### Telemetry
 
