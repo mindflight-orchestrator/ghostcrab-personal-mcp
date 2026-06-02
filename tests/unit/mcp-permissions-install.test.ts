@@ -228,7 +228,22 @@ describe("install-ide-skills bundles", () => {
       true
     );
     expect(
+      existsSync(join(cwd, ".cursor", "rules", "ghostcrab-prompt-guide.mdc"))
+    ).toBe(true);
+    expect(
+      existsSync(join(cwd, ".cursor", "skills", "ghostcrab-memory", "SKILL.md"))
+    ).toBe(true);
+    expect(
+      existsSync(join(cwd, ".cursor", "skills", "mindbrain-comparison-writer", "references", "article-blueprint.md"))
+    ).toBe(true);
+    expect(
+      existsSync(join(cwd, ".cursor", "skills", "ghostcrab-shared", "ONBOARDING_CONTRACT.md"))
+    ).toBe(true);
+    expect(
       existsSync(join(cwd, ".ghostcrab", "skills", "shared", "ONBOARDING_CONTRACT.md"))
+    ).toBe(true);
+    expect(
+      existsSync(join(cwd, ".ghostcrab", "skills", "installed.json"))
     ).toBe(true);
     const rule = readFileSync(
       join(cwd, ".cursor", "rules", "ghostcrab-memory.mdc"),
@@ -261,6 +276,20 @@ describe("install-ide-skills bundles", () => {
     expect(settings.permissions.allow).toContain(
       "mcp__ghostcrab-personal-mcp__ghostcrab_status"
     );
+    expect(
+      existsSync(join(cwd, ".claude", "skills", "ghostcrab-memory", "SKILL.md"))
+    ).toBe(true);
+    expect(
+      existsSync(join(cwd, ".claude", "skills", "ghostcrab-data-architect", "SKILL.md"))
+    ).toBe(true);
+    expect(
+      existsSync(join(cwd, ".claude", "skills", "ghostcrab-shared", "ONBOARDING_CONTRACT.md"))
+    ).toBe(true);
+    const installed = JSON.parse(
+      readFileSync(join(cwd, ".ghostcrab", "skills", "installed.json"), "utf8")
+    );
+    expect(installed.target).toBe("claude-code");
+    expect(installed.skills).toContain("mindbrain-comparison-writer");
   });
 
   it("installs codex bundle with patched shared links", () => {
@@ -279,9 +308,41 @@ describe("install-ide-skills bundles", () => {
     );
     expect(skill).toContain("../ghostcrab-shared/ONBOARDING_CONTRACT.md");
     expect(
+      existsSync(join(cwd, ".codex", "skills", "ghostcrab-prompt-guide", "SKILL.md"))
+    ).toBe(true);
+    expect(
+      existsSync(join(cwd, ".codex", "skills", "mindbrain-comparison-writer", "agents", "openai.yaml"))
+    ).toBe(true);
+    expect(
       existsSync(
         join(cwd, ".codex", "skills", "ghostcrab-shared", "ONBOARDING_CONTRACT.md")
       )
     ).toBe(true);
+    const installed = JSON.parse(
+      readFileSync(join(cwd, ".ghostcrab", "skills", "installed.json"), "utf8")
+    );
+    expect(installed.installedSkillRoot).toContain(join(".codex", "skills"));
+  });
+
+  it("installs generic bundle into .agents skills", () => {
+    cwd = mkdtempSync(join(tmpdir(), "gc-skills-generic-"));
+    const result = installIdeSkillsBundleForTarget({
+      target: "generic",
+      cwd,
+      pkgRoot: PKG_ROOT,
+      force: true,
+      context: "setup"
+    });
+    expect(result.ok).toBe(true);
+    expect(
+      existsSync(join(cwd, ".agents", "skills", "ghostcrab-memory", "SKILL.md"))
+    ).toBe(true);
+    expect(
+      existsSync(join(cwd, ".agents", "skills", "ghostcrab-shared", "ONBOARDING_CONTRACT.md"))
+    ).toBe(true);
+    const installed = JSON.parse(
+      readFileSync(join(cwd, ".ghostcrab", "skills", "installed.json"), "utf8")
+    );
+    expect(installed.target).toBe("generic");
   });
 });

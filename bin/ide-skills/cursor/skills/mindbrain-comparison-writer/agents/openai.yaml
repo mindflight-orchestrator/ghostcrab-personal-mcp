@@ -1,0 +1,4 @@
+interface:
+  display_name: "MindBrain Comparison Writer"
+  short_description: "Draft MindBrain comparison articles"
+  default_prompt: "Use $mindbrain-comparison-writer to draft a MindBrain comparison article for Mem0."

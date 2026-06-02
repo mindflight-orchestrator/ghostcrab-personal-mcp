@@ -13,12 +13,12 @@ This block is for **all agents** (with or without extended reasoning). It is the
 
 | Phase | Name               | Allowed write tools | Forbidden write tools                                                                                                                                       |
 | ----- | ------------------ | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A     | **Intake**         | _(none)_            | ALL: `ghostcrab_workspace_create` `ghostcrab_remember` `ghostcrab_upsert` `ghostcrab_learn` `ghostcrab_patch` `ghostcrab_schema_register` `ghostcrab_ddl_*` |
+| A     | **Intake**         | _(none)_            | ALL: `ghostcrab_workspace_create` `ghostcrab_remember` `ghostcrab_upsert` `ghostcrab_learn` `ghostcrab_project` `ghostcrab_schema_register` `ghostcrab_ddl_propose` `ghostcrab_ddl_execute` `ghostcrab_ddl_list_pending` |
 | B     | **Clarify**        | _(none)_            | Same as A                                                                                                                                                   |
 | C     | **Model Proposal** | _(none)_            | Same as A — output proposal text only, no tool calls                                                                                                        |
 | D     | **Execute**        | All, minimally      | `ghostcrab_schema_register` unless user wrote `APPROVE_SCHEMA_FREEZE`                                                                                       |
 
-**Read tools are always allowed:** `ghostcrab_status` `ghostcrab_search` `ghostcrab_schema_inspect` `ghostcrab_schema_list` `ghostcrab_workspace_list` `ghostcrab_modeling_guidance` `ghostcrab_count` `ghostcrab_pack` `ghostcrab_facet_tree` `ghostcrab_traverse` `ghostcrab_coverage` `ghostcrab_workspace_inspect` `ghostcrab_workspace_export_model`
+**Read tools are always allowed:** `ghostcrab_status` `ghostcrab_search` `ghostcrab_schema_inspect` `ghostcrab_schema_list` `ghostcrab_workspace_list` `ghostcrab_modeling_guidance` `ghostcrab_count` `ghostcrab_pack` `ghostcrab_facet_catalog` `ghostcrab_facet_inspect` `ghostcrab_traverse` `ghostcrab_coverage` `ghostcrab_workspace_inspect` `ghostcrab_workspace_export_model`
 
 ### Phase gate conditions (check in order)
 
@@ -164,7 +164,7 @@ This section applies when the user (human or agent) asks to **create**, **set up
 
 - Restate the goal in user language (one sentence).
 - Ask what they need to **see**, **find later**, and **change over time**.
-- **Forbidden tools this phase:** `ghostcrab_workspace_create` `ghostcrab_remember` `ghostcrab_upsert` `ghostcrab_learn` `ghostcrab_patch` `ghostcrab_schema_register` `ghostcrab_ddl_propose` `ghostcrab_ddl_execute` `ghostcrab_ddl_list_pending`
+- **Forbidden tools this phase:** `ghostcrab_workspace_create` `ghostcrab_remember` `ghostcrab_upsert` `ghostcrab_learn` `ghostcrab_project` `ghostcrab_schema_register` `ghostcrab_ddl_propose` `ghostcrab_ddl_execute` `ghostcrab_ddl_list_pending`
 
 **Phase B — Clarify**
 

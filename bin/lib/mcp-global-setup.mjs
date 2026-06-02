@@ -458,6 +458,48 @@ export function formatCodexTomlBlock(
   return lines.join("\n");
 }
 
+/**
+ * Generic MCP client snippets for clients that accept Cursor-style JSON or Codex-style TOML.
+ * This does not write any client configuration.
+ *
+ * @param {object} opts
+ * @param {string} opts.packageName
+ * @param {'gcp' | 'pnpm' | 'npx' | 'node' | 'auto'} opts.runner
+ * @param {string | null} [opts.workspace]
+ * @param {string | null} [opts.dbPath]
+ * @param {string} [opts.serverName]
+ * @param {Record<string, string>} [opts.extraEnv]
+ * @param {string} [opts.cwd]
+ */
+export function runSetupGeneric(opts) {
+  const env = mergeEnv(getDefaultMcpEnv(), opts.extraEnv ?? {});
+  const serverName = opts.serverName ?? SERVER_KEY;
+  const launch = buildMcpLaunch({
+    runner: opts.runner,
+    packageName: opts.packageName,
+    workspace: opts.workspace ?? null,
+    dbPath: opts.dbPath ?? null,
+    cwd: opts.cwd
+  });
+  const entry = cursorStdioEntryFromLaunch(launch, env);
+  const json = {
+    mcpServers: {
+      [serverName]: entry
+    }
+  };
+  return {
+    ok: true,
+    code: EX_OK,
+    dryRun: true,
+    launch,
+    env,
+    json,
+    toml: formatCodexTomlBlock(launch.command, launch.args, env, serverName),
+    message:
+      "Generic setup does not write MCP client config. Copy one of the snippets below into your client's MCP config."
+  };
+}
+
 function formatTomlKey(key) {
   return /^[A-Za-z0-9_-]+$/.test(key) ? key : JSON.stringify(key);
 }

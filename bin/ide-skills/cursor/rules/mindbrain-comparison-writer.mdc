@@ -1,0 +1,85 @@
+---
+description: MindBrain comparison writer for Cursor - sourced structural articles, not generic marketing copy
+globs:
+alwaysApply: false
+---
+
+# MindBrain Comparison Writer (Cursor)
+
+## When to use
+
+Use this rule when the user asks to draft, rewrite, outline, or review comparisons such as:
+
+- MindBrain vs an AI memory tool
+- MindBrain vs a personal knowledge graph
+- MindBrain vs a PKM or ontology tool
+- MindBrain vs an agent framework with memory
+- GBrain, Mem0, Zep, Cognee, Letta, LangChain Memory, LlamaIndex, Obsidian AI, Protege, or TopBraid comparisons
+
+## Composer 2.5 rule
+
+Do not write claims about a product from memory when freshness matters. Use local drafts or current primary sources first.
+
+## Procedure
+
+1. Identify the comparison shape:
+   - two-way
+   - three-way
+   - category comparison
+2. Gather source facts about the target tool:
+   - core abstraction
+   - storage model
+   - retrieval path
+   - memory model
+   - graph or ontology support
+   - agent interface
+   - lifecycle behavior
+   - likely user
+3. Write one structural thesis sentence.
+4. Explain the target tool fairly before contrasting.
+5. Explain the MindBrain workflow proof.
+6. Add taxonomy cost and expected gain.
+7. Add the comparison table.
+8. Close on the structural difference.
+
+## MindBrain workflow proof
+
+Always include these four steps in some form:
+
+```text
+1. Model the domain.
+2. Register or verify the model only when appropriate.
+3. Import or qualify source data.
+4. Query the imported data through facet, graph, coverage, projection, or pack surfaces.
+```
+
+## Do not
+
+- Do not write generic marketing.
+- Do not say MindBrain replaces every tool.
+- Do not hide the taxonomy cost.
+- Do not claim `ghostcrab_search` searches graph entities directly.
+- Do not use comparison tables as filler.
+- Do not cite weak sources as if they were primary.
+
+## Output template
+
+```text
+Thesis:
+
+What the target tool is:
+
+Architecture:
+
+Memory or data model:
+
+MindBrain parallel:
+
+MindBrain workflow proof:
+
+Taxonomy cost / expected gain:
+
+Comparison table:
+
+Closing structural difference:
+```

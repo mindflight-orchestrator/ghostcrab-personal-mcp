@@ -9,6 +9,7 @@ GhostCrab setup registers the MCP server, applies **MCP tool permission presets*
 npx gcp brain setup cursor
 npx gcp brain setup claude --scope project
 npx gcp brain setup codex
+npx gcp brain setup generic
 
 # Opt out
 npx gcp brain setup cursor --no-permissions --no-skills
@@ -47,11 +48,14 @@ Authoring source: [`ghostcrab-skills/`](ghostcrab-skills/). Shipped install bund
 
 | Setup target | Installed into project |
 |--------------|------------------------|
-| `cursor` | `.cursor/rules/ghostcrab-memory.mdc`, `.ghostcrab/skills/shared/` |
-| `claude` | `.ghostcrab/claude-self-memory.md`, `.ghostcrab/skills/shared/`, merge `.claude/settings.json` |
-| `codex` | `.codex/skills/ghostcrab-memory/`, `.codex/skills/ghostcrab-shared/` |
+| `cursor` | `.cursor/rules/*.mdc`, `.cursor/skills/<skill>/`, `.cursor/skills/ghostcrab-shared/`, `.ghostcrab/skills/shared/` |
+| `claude` | `.claude/skills/<skill>/`, `.claude/skills/ghostcrab-shared/`, `.ghostcrab/claude-self-memory.md`, `.ghostcrab/skills/shared/`, merge `.claude/settings.json` |
+| `codex` | `.codex/skills/<skill>/`, `.codex/skills/ghostcrab-shared/`, `.ghostcrab/skills/shared/` |
+| `generic` | `.agents/skills/<skill>/`, `.agents/skills/ghostcrab-shared/`, `.ghostcrab/skills/shared/`; prints MCP JSON/TOML snippets instead of writing client config |
 
 Shared docs include `ONBOARDING_CONTRACT.md` so skills work **without** a checkout of `ghostcrab-skills/` in the user repo.
+
+Every skills install also writes `.ghostcrab/skills/installed.json`, `.ghostcrab/skills/README.md`, and a best-effort `.ghostcrab/skills/current` shortcut (falling back to `.ghostcrab/skills/current.txt` when symlinks are unavailable).
 
 ## Security notes
 

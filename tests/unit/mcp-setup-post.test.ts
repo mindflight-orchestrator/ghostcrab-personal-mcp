@@ -54,7 +54,10 @@ describe("runSetupPostInstall", () => {
     expect(result.ok).toBe(true);
     const text = (result.messages ?? []).join("\n");
     expect(text).toMatch(/Would write Cursor mcpAllowlist \(basic, 12 tools\)/);
-    expect(text).toMatch(/Would install cursor skill bundle from bin\/ide-skills/);
+    expect(text).toMatch(/Would install cursor skill bundle from .*bin\/ide-skills/);
+    expect(text).toMatch(/ghostcrab-memory/);
+    expect(text).toMatch(/mindbrain-comparison-writer/);
+    expect(text).toMatch(/Would write skill reference/);
   });
 
   it("skipPermissions skips cursor allowlist dry-run line", async () => {
@@ -78,6 +81,7 @@ describe("runSetupPostInstall", () => {
     const text = (result.messages ?? []).join("\n");
     expect(text).not.toMatch(/mcpAllowlist/);
     expect(text).toMatch(/Would install cursor skill bundle/);
+    expect(text).toMatch(/\.cursor\/skills/);
   });
 
   it("skipSkills skips bundle install message", async () => {
@@ -125,6 +129,32 @@ describe("runSetupPostInstall", () => {
     expect(text).not.toMatch(/mcpAllowlist/);
     expect(text).not.toMatch(/Claude permissions/);
     expect(text).toMatch(/Would install codex skill bundle/);
+    expect(text).toMatch(/\.codex\/skills/);
+  });
+
+  it("generic dry-run installs portable skills only", async () => {
+    cwd = mkdtempSync(join(tmpdir(), "gc-setup-post-cwd-"));
+    useFakeHome();
+
+    const result = await runSetupPostInstall({
+      target: "generic",
+      cwd,
+      pkgRoot: PKG_ROOT,
+      serverName: "ghostcrab-personal-mcp",
+      permissionsPreset: "none",
+      permissionsScope: "user",
+      skipPermissions: true,
+      skipSkills: false,
+      force: false,
+      dryRun: true
+    });
+
+    expect(result.ok).toBe(true);
+    const text = (result.messages ?? []).join("\n");
+    expect(text).toMatch(/Would install generic skill bundle/);
+    expect(text).toMatch(/\.agents\/skills/);
+    expect(text).not.toMatch(/mcpAllowlist/);
+    expect(text).not.toMatch(/Claude permissions/);
   });
 
   it("live cursor post-install writes permissions and skill bundle", async () => {
@@ -156,5 +186,7 @@ describe("runSetupPostInstall", () => {
       true
     );
     expect(existsSync(join(cwd, ".cursor", "rules", "ghostcrab-memory.mdc"))).toBe(true);
+    expect(existsSync(join(cwd, ".cursor", "skills", "ghostcrab-memory", "SKILL.md"))).toBe(true);
+    expect(existsSync(join(cwd, ".ghostcrab", "skills", "installed.json"))).toBe(true);
   });
 });

@@ -443,6 +443,35 @@ try {
     true,
     "[mcp-setup] expected .cursor/rules/ghostcrab-memory.mdc in consumer project"
   );
+  assert.equal(
+    existsSync(join(consumerDir, ".cursor", "rules", "ghostcrab-prompt-guide.mdc")),
+    true,
+    "[mcp-setup] expected all Cursor rules in consumer project"
+  );
+  assert.equal(
+    existsSync(join(consumerDir, ".cursor", "skills", "ghostcrab-memory", "SKILL.md")),
+    true,
+    "[mcp-setup] expected .cursor/skills/ghostcrab-memory/SKILL.md in consumer project"
+  );
+  assert.equal(
+    existsSync(
+      join(
+        consumerDir,
+        ".cursor",
+        "skills",
+        "mindbrain-comparison-writer",
+        "references",
+        "article-blueprint.md"
+      )
+    ),
+    true,
+    "[mcp-setup] expected nested Cursor skill references in consumer project"
+  );
+  assert.equal(
+    existsSync(join(consumerDir, ".ghostcrab", "skills", "installed.json")),
+    true,
+    "[mcp-setup] expected installed skill reference manifest in consumer project"
+  );
 
   // Pruning round-trip: seed the legacy block at the correct path, re-run with --force,
   // and assert the legacy entry is removed while unrelated servers are preserved.

@@ -1,14 +1,21 @@
 {
-  "generated_at": "2026-06-02T08:00:00.776Z",
+  "generated_at": "2026-06-02T12:12:20.628Z",
   "source": "ghostcrab-skills",
+  "skill_names": [
+    "ghostcrab-memory",
+    "ghostcrab-prompt-guide",
+    "ghostcrab-data-architect",
+    "ghostcrab-integration-sop-editor",
+    "mindbrain-comparison-writer"
+  ],
   "files": [
     {
       "path": "README.md",
-      "sha256": "4a6cff04e576cea188b05f1ea6c24ea7b1c61ecf3c0fe561fb4763b67e183d74"
+      "sha256": "d114aac80febf419e3589f400ded1916c5038c915a13a2b3c94ff7d5fd2aad08"
     },
     {
       "path": "claude-code/self-memory/CLAUDE.md",
-      "sha256": "ff48ce71b204f882a0203fbc5c1cd114a78fb9e7eff421bd132e438747669462"
+      "sha256": "587ff7a0cfe6fa58c0193cff69d7021b229dab4aab5bf8e13027a798fa48febe"
     },
     {
       "path": "claude-code/self-memory/README.install.md",
@@ -16,15 +23,103 @@
     },
     {
       "path": "claude-code/self-memory/settings.fragment.json",
-      "sha256": "7c7dbdb8e310b7066fc81967f7a93f99c8ae0543b9f4e3fb2dbab30effbc6509"
+      "sha256": "78922a784ee78e9e50587e93628cd3b9d4dfbe49087adc4514e6781cea38cbb9"
     },
     {
-      "path": "codex/ghostcrab-memory/SKILL.md",
+      "path": "claude-code/skills/ghostcrab-data-architect/SKILL.md",
+      "sha256": "aeb8a49eea17d46fa528ed3dc4ccd5f6b5b9cbf8e13f6e9967e7b9170e49ab89"
+    },
+    {
+      "path": "claude-code/skills/ghostcrab-integration-sop-editor/SKILL.md",
+      "sha256": "97387cca8b90c57ead449ff9924006bc65b3ff9650b3cb9e5667d1fc87d6b764"
+    },
+    {
+      "path": "claude-code/skills/ghostcrab-memory/SKILL.md",
+      "sha256": "1c293b02af309aef3f597ffe6aff0a8d9c0f6dc75f28e894b32b8351477cc824"
+    },
+    {
+      "path": "claude-code/skills/ghostcrab-prompt-guide/SKILL.md",
+      "sha256": "346c68cc832362993d6493a8fce53e3de75e0fa579e727b8c876f4e567aa42ed"
+    },
+    {
+      "path": "claude-code/skills/mindbrain-comparison-writer/SKILL.md",
+      "sha256": "08477c037a2a2edd97263b651fc099b04ce89fa1ac9bf54c905128ff6825e0a6"
+    },
+    {
+      "path": "codex/skills/ghostcrab-data-architect/SKILL.md",
+      "sha256": "404626f05c36b9215f5ae5340aff179490b859eba3bc5b2977f047c51097084c"
+    },
+    {
+      "path": "codex/skills/ghostcrab-integration-sop-editor/SKILL.md",
+      "sha256": "10cc5783237d0db7c72b25be7b427968811d4d848b17e6a6231cb68283c1943f"
+    },
+    {
+      "path": "codex/skills/ghostcrab-memory/SKILL.md",
       "sha256": "dd913a9a6f1866fd32192225d817ef0d6c3f32081b53536aa03e75a94183f324"
     },
     {
+      "path": "codex/skills/ghostcrab-prompt-guide/SKILL.md",
+      "sha256": "70bf8ed2551f866c85e2b76ccf8dc58becf2d8521265e48daff0b7d0e61f1890"
+    },
+    {
+      "path": "codex/skills/mindbrain-comparison-writer/SKILL.md",
+      "sha256": "3a807876110eebff799a0a13819e6bc3cecf140043744fd943182681027ed2be"
+    },
+    {
+      "path": "codex/skills/mindbrain-comparison-writer/agents/openai.yaml",
+      "sha256": "fab044681355012ac61a0da27e3e5fbb7be60f229aa9ae779a7db7642a439bf1"
+    },
+    {
+      "path": "codex/skills/mindbrain-comparison-writer/references/article-blueprint.md",
+      "sha256": "73e601d9d088b5eacd48cb20d493466bf22842f02458a1ba082a792eb956b43a"
+    },
+    {
+      "path": "cursor/rules/ghostcrab-data-architect.mdc",
+      "sha256": "e4026c497db33d641db3713f8449dcb736222dffa005a9565430b2717b72e8a1"
+    },
+    {
+      "path": "cursor/rules/ghostcrab-integration-sop-editor.mdc",
+      "sha256": "76f04242192c4df5860f821f66508e50a5c7b240b54ad90632ed479603a3f609"
+    },
+    {
       "path": "cursor/rules/ghostcrab-memory.mdc",
-      "sha256": "e5f454066c63f988e07dd2ee422e49206f8a8c62cf16bb972d93c1a8056764ab"
+      "sha256": "1ea62a2e3efede2fc4a468a118e8a5542ec7bd9a266603f0bf82142bf0184b33"
+    },
+    {
+      "path": "cursor/rules/ghostcrab-prompt-guide.mdc",
+      "sha256": "a29affd46c8be5fa4b2018b43c9023c945c42f3f59bc2bdf0c24cb0c3ac0f31b"
+    },
+    {
+      "path": "cursor/rules/mindbrain-comparison-writer.mdc",
+      "sha256": "96dc2998c67ba84be90afb3498e44ebdc3fd82259f6b8b3db884b9a53698ed06"
+    },
+    {
+      "path": "cursor/skills/ghostcrab-data-architect/SKILL.md",
+      "sha256": "404626f05c36b9215f5ae5340aff179490b859eba3bc5b2977f047c51097084c"
+    },
+    {
+      "path": "cursor/skills/ghostcrab-integration-sop-editor/SKILL.md",
+      "sha256": "10cc5783237d0db7c72b25be7b427968811d4d848b17e6a6231cb68283c1943f"
+    },
+    {
+      "path": "cursor/skills/ghostcrab-memory/SKILL.md",
+      "sha256": "dd913a9a6f1866fd32192225d817ef0d6c3f32081b53536aa03e75a94183f324"
+    },
+    {
+      "path": "cursor/skills/ghostcrab-prompt-guide/SKILL.md",
+      "sha256": "70bf8ed2551f866c85e2b76ccf8dc58becf2d8521265e48daff0b7d0e61f1890"
+    },
+    {
+      "path": "cursor/skills/mindbrain-comparison-writer/SKILL.md",
+      "sha256": "3a807876110eebff799a0a13819e6bc3cecf140043744fd943182681027ed2be"
+    },
+    {
+      "path": "cursor/skills/mindbrain-comparison-writer/agents/openai.yaml",
+      "sha256": "fab044681355012ac61a0da27e3e5fbb7be60f229aa9ae779a7db7642a439bf1"
+    },
+    {
+      "path": "cursor/skills/mindbrain-comparison-writer/references/article-blueprint.md",
+      "sha256": "73e601d9d088b5eacd48cb20d493466bf22842f02458a1ba082a792eb956b43a"
     },
     {
       "path": "shared/APP_PATTERNS.md",
@@ -32,11 +127,19 @@
     },
     {
       "path": "shared/CAPABILITIES.md",
-      "sha256": "3ba9cb329b719bfd9b02ef17c2a30c52c5cfa0f3640a590f1201dfa2b133d077"
+      "sha256": "eb5325728abc562ca2a9d273c3427b900f70a0a087f6d4fff9851adad9cc8e73"
+    },
+    {
+      "path": "shared/DEMO_CHOOSER.md",
+      "sha256": "798cfeddbd42c367922b37cef294f6148cf83782e37c70b04952c90bf14b0af7"
     },
     {
       "path": "shared/ONBOARDING_CONTRACT.md",
-      "sha256": "12f977779354d8ac815f2fe8673e518ea6b4589e50f8f4a569314b54a11faf54"
+      "sha256": "c1464fff3990bf6236aa6872adfeeb78c343b73e76bbed802099f908bf5c3311"
+    },
+    {
+      "path": "shared/PATH_CONTENT_FACETS.md",
+      "sha256": "c328c6f891d69ec61d6c17592cf44efeb2bf820bfcb3e7ec89403134d94258ab"
     },
     {
       "path": "shared/QUERY_PATTERNS.md",

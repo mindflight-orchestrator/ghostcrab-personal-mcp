@@ -1,10 +1,11 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 const repoRoot = join(import.meta.dirname, "../..");
-const bundleRoot = join(repoRoot, "bin/ide-skills");
+let bundleRoot = "";
 
 const EXPECTED_SHARED_FILES = [
   "ONBOARDING_CONTRACT.md",
@@ -32,16 +33,37 @@ function listBundleTextFiles(dir: string, prefix = ""): string[] {
 }
 
 describe("sync-ide-skill-bundles", () => {
-  it("sync script exits 0 and refreshes manifest", () => {
-    const run = spawnSync(process.execPath, ["scripts/sync-ide-skill-bundles.mjs"], {
+  afterEach(() => {
+    if (bundleRoot) {
+      rmSync(bundleRoot, { recursive: true, force: true });
+      bundleRoot = "";
+    }
+  });
+
+  function runSync() {
+    if (!bundleRoot) {
+      bundleRoot = mkdtempSync(join(tmpdir(), "gc-ide-skills-"));
+    }
+    return spawnSync(process.execPath, ["scripts/sync-ide-skill-bundles.mjs"], {
       cwd: repoRoot,
-      encoding: "utf8"
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        GHOSTCRAB_IDE_SKILLS_OUT_ROOT: bundleRoot,
+        GHOSTCRAB_IDE_SKILLS_GENERATED_AT: "2026-01-01T00:00:00.000Z"
+      }
     });
+  }
+
+  it("sync script exits 0 and refreshes manifest", () => {
+    const run = runSync();
     expect(run.status).toBe(0);
-    expect(run.stdout).toMatch(/Wrote \d+ files under bin\/ide-skills/);
+    expect(existsSync(join(bundleRoot, "manifest.json"))).toBe(true);
+    expect(existsSync(join(bundleRoot, "cursor", "rules", "ghostcrab-memory.mdc"))).toBe(true);
   });
 
   it("manifest lists all bundle artifacts including shared subset", () => {
+    runSync();
     const manifestPath = join(bundleRoot, "manifest.json");
     expect(existsSync(manifestPath)).toBe(true);
     const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
@@ -49,10 +71,16 @@ describe("sync-ide-skill-bundles", () => {
       files: { path: string; sha256: string }[];
     };
     expect(manifest.source).toBe("ghostcrab-skills");
-    expect(manifest.files.length).toBeGreaterThanOrEqual(13);
+    expect(manifest.files.length).toBeGreaterThanOrEqual(38);
     for (const name of EXPECTED_SHARED_FILES) {
       expect(manifest.files.some((f) => f.path === `shared/${name}`)).toBe(true);
     }
+    expect(manifest.files.some((f) => f.path === "cursor/rules/ghostcrab-prompt-guide.mdc")).toBe(true);
+    expect(manifest.files.some((f) => f.path === "cursor/skills/ghostcrab-memory/SKILL.md")).toBe(true);
+    expect(manifest.files.some((f) => f.path === "claude-code/skills/ghostcrab-memory/SKILL.md")).toBe(true);
+    expect(manifest.files.some((f) => f.path === "codex/skills/ghostcrab-memory/SKILL.md")).toBe(true);
+    expect(manifest.files.some((f) => f.path === "codex/skills/mindbrain-comparison-writer/references/article-blueprint.md")).toBe(true);
+    expect(manifest.files.some((f) => f.path.includes("SKILL-2.md"))).toBe(false);
     for (const entry of manifest.files) {
       expect(entry.sha256).toMatch(/^[a-f0-9]{64}$/);
       expect(existsSync(join(bundleRoot, entry.path))).toBe(true);
@@ -60,6 +88,7 @@ describe("sync-ide-skill-bundles", () => {
   });
 
   it("bundle text files do not reference ghostcrab-skills/shared paths", () => {
+    runSync();
     const offenders: string[] = [];
     for (const rel of listBundleTextFiles(bundleRoot)) {
       if (rel === "manifest.json" || rel === "README.md") continue;
@@ -75,32 +104,32 @@ describe("sync-ide-skill-bundles", () => {
   });
 
   it("cursor and claude bundles use project-local shared paths", () => {
+    runSync();
     const cursorRule = readFileSync(
       join(bundleRoot, "cursor/rules/ghostcrab-memory.mdc"),
       "utf8"
     );
-    expect(cursorRule).toContain(".ghostcrab/skills/shared/ONBOARDING_CONTRACT.md");
+    expect(cursorRule).not.toContain("ghostcrab-skills/shared");
 
     const claude = readFileSync(
-      join(bundleRoot, "claude-code/self-memory/CLAUDE.md"),
+      join(bundleRoot, "claude-code/skills/ghostcrab-memory/SKILL.md"),
       "utf8"
     );
-    expect(claude).toContain("./skills/shared/ONBOARDING_CONTRACT.md");
+    expect(claude).toContain("../ghostcrab-shared/ONBOARDING_CONTRACT.md");
 
     const codex = readFileSync(
-      join(bundleRoot, "codex/ghostcrab-memory/SKILL.md"),
+      join(bundleRoot, "codex/skills/ghostcrab-memory/SKILL.md"),
       "utf8"
     );
     expect(codex).toContain("../ghostcrab-shared/ONBOARDING_CONTRACT.md");
   });
 
   it("re-running sync is a no-op on manifest paths and checksums", () => {
+    runSync();
     const before = JSON.parse(
       readFileSync(join(bundleRoot, "manifest.json"), "utf8")
     );
-    spawnSync(process.execPath, ["scripts/sync-ide-skill-bundles.mjs"], {
-      cwd: repoRoot
-    });
+    runSync();
     const after = JSON.parse(
       readFileSync(join(bundleRoot, "manifest.json"), "utf8")
     );
