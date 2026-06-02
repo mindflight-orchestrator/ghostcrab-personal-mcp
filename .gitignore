@@ -58,6 +58,10 @@ logs/
 .claude/
 .claude.md
 CLAUDE.md
+!ghostcrab-skills/claude-code/self-memory/.claude/
+!ghostcrab-skills/claude-code/self-memory/.claude/settings.json
+!ghostcrab-skills/claude-code/self-memory/CLAUDE.md
+!ghostcrab-skills/claude-code/data-architect/CLAUDE.md
 
 vendor/*
 !vendor/mindbrain

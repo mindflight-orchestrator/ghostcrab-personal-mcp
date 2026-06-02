@@ -4,6 +4,14 @@
 
 This file is the honest product contract for GhostCrab V1 across Codex, Claude Code, Cursor, and OpenClaw.
 
+## Host-Specific Skill Surfaces
+
+- Codex uses compact `SKILL.md` mirrors under `codex/`.
+- Claude Code uses both persistent starter fragments and on-demand skills under `claude-code/skills/`.
+- Cursor uses `.mdc` rules under `cursor/rules/`; these are more literal and procedural so Composer 2.5 can follow the gates reliably.
+
+The behavior contract is shared, but the wording is adapted to each host's strengths.
+
 ## What GhostCrab V1 Is Good At
 
 - onboarding fuzzy tracking requests without freezing a schema too early

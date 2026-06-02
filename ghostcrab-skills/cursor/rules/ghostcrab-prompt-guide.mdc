@@ -1,0 +1,77 @@
+---
+description: GhostCrab prompt guide for Cursor - convert fuzzy goals into safe GhostCrab prompts
+globs:
+alwaysApply: false
+---
+
+# GhostCrab Prompt Guide (Cursor)
+
+## When to use
+
+Use this rule when the user asks for:
+
+- a GhostCrab prompt
+- help explaining what to ask GhostCrab
+- a reusable setup prompt
+- onboarding help
+- a stricter prompt for another agent
+- a prompt for import, mapping, ontology setup, tracker setup, or recovery
+
+## Composer 2.5 rule
+
+Do not infer hidden requirements. If the goal, durable state, or output view is unclear, ask before drafting the final prompt.
+
+## Procedure
+
+1. Restate the user's goal in one plain sentence.
+2. Choose the likely mode: memory, tracker, domain model, import, recovery, or editorial/reporting.
+3. Ask 2 to 4 clarification questions if the request is fuzzy.
+4. Recommend one compact view.
+5. Draft one starter prompt.
+6. Draft one stricter variant if the task can drift.
+
+## Starter prompt template
+
+```text
+I want to use GhostCrab to {plain-language job}.
+
+Please first do intake only:
+- identify the likely activity family
+- ask the minimum questions needed
+- recommend a compact view
+- do not write records or register schemas yet
+
+What I need to see later:
+- {daily/recovery view}
+
+What changes over time:
+- {status/owner/phase/evidence}
+
+After intake, propose the smallest model before any writes.
+```
+
+## Stricter variant template
+
+```text
+Follow GhostCrab onboarding gates strictly.
+Do not create records, schemas, workspaces, files, or alternate storage until a model proposal has been shown and I explicitly approve it.
+Use product language first.
+If you are unsure, ask questions instead of writing data.
+```
+
+## Do not
+
+- Do not call GhostCrab tools while only writing prompts.
+- Do not expose schema names unless the user asks.
+- Do not suggest local Markdown/YAML/JSON storage if the user already chose GhostCrab.
+- Do not skip the intake phase for "create" or "set up" wording.
+
+## StarterKit prompt path
+
+For source imports, tell the next agent to load:
+
+- `starterkit/SOP5_source_import_compiler.md`
+- `starterkit/templates/source_profile.yaml`
+- `starterkit/templates/mapping_external_to_canonical.yaml`
+- `starterkit/templates/consumer_contract.yaml`
+- `starterkit/templates/import_manifest.yaml`

@@ -86,7 +86,7 @@ When uncertain between an official site and a repository, prefer the page that b
 Include a `## SKILLS available in this repo` section in the introduction when sibling skill files exist.
 
 - Link to two or three skill files, not every file when the folder contains many variants.
-- Use relative Markdown links from the SOP file, for example `[ghostcrab-runtime](SKILL_ghostcrab_runtime.md)`.
+- Use relative Markdown links from the SOP file, for example `ghostcrab-runtime -> SKILL_ghostcrab_runtime.md`.
 - Prefer the most useful public-facing set: one architect/onboarding skill, one runtime/orchestration skill, and one framework-specific/community or personal variant.
 - If the folder has only one or two skill files, include only those.
 - Explain each skill in plain American English with one sentence: role, expected use, and target agent environment.
@@ -98,9 +98,9 @@ Example shape:
 ```markdown
 ## SKILLS available in this repo
 
-- [`ghostcrab-architect`](SKILL_ghostcrab-architect.md) helps Claude Code or Codex shape the mindBrain ontology before implementation work begins.
-- [`ghostcrab-runtime`](SKILL_ghostcrab-runtime.md) describes how an agent uses GhostCrab/MindBrain at runtime to read, write, and project shared state.
-- [`ghostcrab-community`](skill-framework-ghostcrab-community.md) provides a lighter entry point for trying the integration in a framework demo or community workflow.
+- `ghostcrab-architect` helps Claude Code or Codex shape the mindBrain ontology before implementation work begins.
+- `ghostcrab-runtime` describes how an agent uses GhostCrab/MindBrain at runtime to read, write, and project shared state.
+- `ghostcrab-community` provides a lighter entry point for trying the integration in a framework demo or community workflow.
 ```
 
 ## Benefit Patterns
