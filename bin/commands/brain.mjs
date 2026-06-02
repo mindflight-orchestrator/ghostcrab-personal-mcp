@@ -70,12 +70,14 @@ export async function cmdBrain(args) {
     case "setup_cursor":
     case "setup_codex":
     case "setup_claude":
-    case "setup_claudecode": {
+    case "setup_claudecode":
+    case "setup_generic": {
       const aliasFirst = {
         setup_cursor: "cursor",
         setup_codex: "codex",
         setup_claude: "claude",
-        setup_claudecode: "claude"
+        setup_claudecode: "claude",
+        setup_generic: "generic"
       };
       const r = sub === "setup" ? rest : [aliasFirst[sub], ...rest];
       await cmdBrainSetup(r);
@@ -112,6 +114,7 @@ async function cmdBrainSetup(args) {
     runSetupCursor,
     runSetupCodex,
     runSetupClaude,
+    runSetupGeneric,
     EX_ERR,
     PKG_ROOT
   } = await import("../lib/mcp-global-setup.mjs");
@@ -270,6 +273,28 @@ async function cmdBrainSetup(args) {
     return;
   }
 
+  if (p.target === "generic") {
+    const out = runSetupGeneric(base);
+    if (out.message) console.log(out.message);
+    console.log("--- MCP JSON:");
+    console.log(JSON.stringify(out.json, null, 2));
+    console.log("--- TOML fallback:");
+    console.log(out.toml);
+    const { runSetupPostInstall } = await import("../lib/mcp-setup-post.mjs");
+    const post = await runSetupPostInstall({
+      ...postOpts,
+      skipPermissions: true,
+      permissionsPreset: "none"
+    });
+    if (!post.ok) {
+      console.error(post.message ?? "Post-setup failed.");
+      process.exit(1);
+    }
+    for (const m of post.messages ?? []) console.log(m);
+    printWorkspacePinHint(p);
+    return;
+  }
+
   printSetupHelp();
   process.exit(1);
 }
@@ -283,17 +308,20 @@ function parseSetupArgs(args) {
     return "help";
   }
   if (args.length === 0) {
-    return { error: "gcp brain setup: missing target (cursor|codex|claude)." };
+    return { error: "gcp brain setup: missing target (cursor|codex|claude|generic)." };
   }
 
   const targetRaw = args[0];
   const target =
-    targetRaw === "cursor" || targetRaw === "codex" || targetRaw === "claude"
+    targetRaw === "cursor" ||
+    targetRaw === "codex" ||
+    targetRaw === "claude" ||
+    targetRaw === "generic"
       ? targetRaw
       : null;
   if (!target) {
     return {
-      error: `gcp brain setup: invalid target "${targetRaw}". Use: cursor, codex, or claude.`
+      error: `gcp brain setup: invalid target "${targetRaw}". Use: cursor, codex, claude, or generic.`
     };
   }
 
@@ -452,9 +480,10 @@ function parseSetupArgs(args) {
 function printSetupHelp() {
   console.log(
     `
-Usage: gcp brain setup <cursor|codex|claude> [options]
+Usage: gcp brain setup <cursor|codex|claude|generic> [options]
 
-  Register the GhostCrab MCP server in user-scoped config (not project-local rules).
+  Register the GhostCrab MCP server and install the matching GhostCrab skills.
+  The generic target prints MCP snippets and installs portable .agents/skills.
 
   --runner <auto|gcp|pnpm|npx|node>
                                 default: auto. auto picks (in order):
@@ -480,7 +509,7 @@ Usage: gcp brain setup <cursor|codex|claude> [options]
   --permissions-tool <name>    repeat for custom preset allow list
   --permissions-ask-tool <name> repeat for custom preset ask list (Claude)
 
-Aliases:  gcp brain setup_cursor | setup_codex | setup_claude | setup_claudecode
+Aliases:  gcp brain setup_cursor | setup_codex | setup_claude | setup_claudecode | setup_generic
 
 Per-IDE details:  README_CURSOR_MCP.md, README_CODEX_MCP.md, README_CLAUDE_CODE_MCP.md
 `.trim()
@@ -703,7 +732,8 @@ Subcommands:
   backup [opts]                           Export workspace, collection, or taxonomy backup bundle
   export [opts]                           Alias for backup
   load <file.jsonl|backup.json>           Load JSONL profile or restore backup bundle
-  setup <cursor|codex|claude> [opts]     User-global MCP: ~/.cursor/mcp.json, codex mcp add, or claude mcp add
+  setup <cursor|codex|claude|generic> [opts]
+                                           User-global MCP: ~/.cursor/mcp.json, codex mcp add, claude mcp add, or generic snippets
   permissions <print|apply> [opts]       MCP tool permission presets (Claude / Cursor)
 
 Examples:

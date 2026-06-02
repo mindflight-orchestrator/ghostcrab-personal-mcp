@@ -1,0 +1,76 @@
+---
+description: GhostCrab integration SOP editor for Cursor - clean Perplexity-style openings while preserving technical bodies
+globs:
+alwaysApply: false
+---
+
+# GhostCrab Integration SOP Editor (Cursor)
+
+## When to use
+
+Use this rule when editing `ghostcrab-integrations/*/sop*.md` files or when the user asks to clean a GhostCrab/MindBrain integration SOP export.
+
+## Composer 2.5 rule
+
+Edit only the introduction unless the user explicitly asks for a full rewrite.
+
+## Procedure
+
+1. Find SOP files:
+
+```bash
+find ghostcrab-integrations -maxdepth 2 -type f -iname 'sop*.md'
+```
+
+2. Read the first 80 to 160 lines.
+3. Identify the first real technical section to preserve.
+4. Remove only the export opening:
+   - Perplexity logo
+   - raw task prompt
+   - generic pitch
+   - filler sentence
+   - link-only heading
+   - decorative separator immediately after the export prompt
+5. Write a new introduction with the template below.
+6. Place the preserved technical body after the new introduction.
+7. Keep exactly one blank line between Markdown blocks.
+
+## Introduction template
+
+```markdown
+# Integrating mindBrain with {framework_name}
+
+## About {framework_name}
+
+{Two to four concise sentences and one official link.}
+
+## MindBrain
+
+MindBrain is a structured agentic database that makes any domain navigable in real time - its intelligence lives in schema enforcement, typed ontologies, and pre-computed projections that cost zero inference at query time.
+
+## Why integrate mindBrain with {framework_name}
+
+{One or two framework-specific paragraphs.}
+
+## SKILLS available in this repo
+
+{Two or three local skill files when they exist.}
+```
+
+## Do not
+
+- Do not rewrite code blocks.
+- Do not remove citations or footnotes.
+- Do not invent framework capabilities.
+- Do not use third-party sources when an official source is available.
+- Do not claim a local skill is installed automatically.
+
+## Final check
+
+Before finishing, verify:
+
+- raw prompt removed
+- official framework link present
+- MindBrain definition exact
+- technical body preserved
+- local skill list accurate

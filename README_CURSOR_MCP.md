@@ -213,7 +213,7 @@ Cursor enforces a **limit on how many tools** can be active across all MCP serve
 
 ## Agent rules and onboarding (separate from MCP)
 
-For **Cursor rules** (always-on behavior, onboarding) and `CLAUDE.md` at the repo root, see [ghostcrab-skills/cursor/README.md](ghostcrab-skills/cursor/README.md) and the [ONBOARDING_CONTRACT](ghostcrab-skills/shared/ONBOARDING_CONTRACT.md). That is orthogonal to the MCP connection described here.
+`gcp brain setup cursor` also installs the GhostCrab Cursor rules into `.cursor/rules/`, mirrors the skill packages into `.cursor/skills/`, and writes `.ghostcrab/skills/installed.json` so the installed skill folder is easy to find. For the source authoring tree, see [ghostcrab-skills/cursor/README.md](ghostcrab-skills/cursor/README.md) and the [ONBOARDING_CONTRACT](ghostcrab-skills/shared/ONBOARDING_CONTRACT.md).
 
 ## Related documentation
 

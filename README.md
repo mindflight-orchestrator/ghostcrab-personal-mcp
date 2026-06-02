@@ -144,9 +144,12 @@ npx gcp brain setup claude
 
 # Codex
 npx gcp brain setup codex
+
+# Generic MCP client / portable agent skills
+npx gcp brain setup generic
 ```
 
-This writes the correct `mcp.json` entry using absolute paths (no PATH dependency), installs agent-specific skill stubs, and removes any stale legacy `ghostcrab` entries.
+This writes the correct MCP entry using absolute paths where the client supports it, installs the complete GhostCrab skill bundle for that host, and removes any stale legacy `ghostcrab` entries for Cursor. `generic` prints MCP JSON/TOML snippets and installs portable `.agents/skills`.
 
 Detailed config files: `README_CURSOR_MCP.md`, `README_CLAUDE_CODE_MCP.md`, `README_CODEX_MCP.md`.
 
@@ -169,7 +172,7 @@ This launches mindBrain, creates `./data/ghostcrab.sqlite`, and holds stdio open
 | Cursor                                     | `gcp brain setup cursor --force` | `README_CURSOR_MCP.md`      |
 | Claude Code                                | `gcp brain setup claude`         | `README_CLAUDE_CODE_MCP.md` |
 | Codex                                      | `gcp brain setup codex`          | `README_CODEX_MCP.md`       |
-| OpenClaw, Gemini CLI, Hermes-style, custom | —                                | `installations/`            |
+| OpenClaw, Gemini CLI, Hermes-style, custom | `gcp brain setup generic`        | `installations/`            |
 | mindBot (orchestration)                    | —                                | `ghostcrab-skills/`         |
 
 ---
@@ -266,7 +269,7 @@ npx gcp authorize
 timeout 8 npx gcp brain up
 
 # 4. Register MCP entry for your host
-npx gcp brain setup <cursor|claude|codex> --force
+npx gcp brain setup <cursor|claude|codex|generic> --force
 
 # 5. Confirm entry written
 npx gcp brain up --help

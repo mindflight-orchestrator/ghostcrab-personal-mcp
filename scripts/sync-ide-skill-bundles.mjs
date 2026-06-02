@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Sync ghostcrab-skills authoring tree → bin/ide-skills install bundles.
+ * Sync ghostcrab-skills authoring tree -> bin/ide-skills install bundles.
  * Run: pnpm run sync:ide-skills
  */
 
@@ -19,8 +19,20 @@ import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
-const skillsRoot = join(repoRoot, "ghostcrab-skills");
-const outRoot = join(repoRoot, "bin", "ide-skills");
+const skillsRoot =
+  process.env.GHOSTCRAB_SKILLS_SOURCE_ROOT ?? join(repoRoot, "ghostcrab-skills");
+const outRoot =
+  process.env.GHOSTCRAB_IDE_SKILLS_OUT_ROOT ?? join(repoRoot, "bin", "ide-skills");
+const generatedAt =
+  process.env.GHOSTCRAB_IDE_SKILLS_GENERATED_AT ?? new Date().toISOString();
+
+const SKILL_NAMES = [
+  "ghostcrab-memory",
+  "ghostcrab-prompt-guide",
+  "ghostcrab-data-architect",
+  "ghostcrab-integration-sop-editor",
+  "mindbrain-comparison-writer"
+];
 
 const SHARED_FROM_SHARED = [
   "ONBOARDING_CONTRACT.md",
@@ -28,67 +40,103 @@ const SHARED_FROM_SHARED = [
   "TRANSITION_LOGGING.md",
   "SCHEMA_DESIGN.md",
   "APP_PATTERNS.md",
-  "WORKSPACE_CONTEXT.md"
+  "WORKSPACE_CONTEXT.md",
+  "PATH_CONTENT_FACETS.md",
+  "DEMO_CHOOSER.md"
 ];
 
 const SHARED_FROM_ROOT = ["CAPABILITIES.md", "SERVER_INSTRUCTIONS.md"];
 
-/** @param {string} text @param {"cursor" | "claude-code" | "codex"} target */
+/**
+ * @param {string} text
+ * @param {"cursor-rule" | "skill" | "claude-starter"} target
+ */
 function rewriteLinks(text, target) {
   let out = text;
-  const sharedPatterns = [
+  const sharedLinkPatterns = [
     /\]\(\.\.\/\.\.\/shared\//g,
     /\]\(\.\.\/shared\//g,
-    /ghostcrab-skills\/shared\//g,
-    /\]\(\.\/shared\//g
+    /\]\(\.\/shared\//g,
+    /\]\(ghostcrab-skills\/shared\//g
+  ];
+  const bareSharedPatterns = [
+    /\.\.\/\.\.\/shared\//g,
+    /\.\.\/shared\//g,
+    /ghostcrab-skills\/shared\//g
   ];
 
-  if (target === "cursor") {
-    for (const p of sharedPatterns) {
-      out = out.replace(p, (m) =>
-        m.startsWith("](") ? "](../.ghostcrab/skills/shared/" : "../.ghostcrab/skills/shared/"
-      );
+  if (target === "cursor-rule") {
+    for (const p of sharedLinkPatterns) {
+      out = out.replace(p, "](../.ghostcrab/skills/shared/");
+    }
+    for (const p of bareSharedPatterns) {
+      out = out.replace(p, ".ghostcrab/skills/shared/");
     }
     out = out.replace(
       /follow `[^`]*ONBOARDING_CONTRACT\.md`/g,
       "follow `.ghostcrab/skills/shared/ONBOARDING_CONTRACT.md`"
     );
-  } else if (target === "claude-code") {
-    out = out.replace(/\[\.\.\/\.\.\/shared\/([^\]]+)\]/g, "[$1]");
-    out = out.replace(
-      /\]\(\.\.\/\.\.\/shared\/([^)]+)\)/g,
-      "](./skills/shared/$1)"
-    );
-    for (const p of sharedPatterns) {
-      out = out.replace(p, (m) =>
-        m.startsWith("](") ? "](./skills/shared/" : "./skills/shared/"
-      );
+    return out;
+  }
+
+  if (target === "claude-starter") {
+    for (const p of sharedLinkPatterns) {
+      out = out.replace(p, "](.ghostcrab/skills/shared/");
+    }
+    for (const p of bareSharedPatterns) {
+      out = out.replace(p, ".ghostcrab/skills/shared/");
     }
     out = out.replace(
       /\*\*\[ONBOARDING_CONTRACT\.md\]\([^)]+\)\*\*/g,
-      "**[ONBOARDING_CONTRACT.md](./skills/shared/ONBOARDING_CONTRACT.md)**"
+      "**[ONBOARDING_CONTRACT.md](.ghostcrab/skills/shared/ONBOARDING_CONTRACT.md)**"
     );
-  } else if (target === "codex") {
-    for (const p of sharedPatterns) {
-      out = out.replace(p, (m) =>
-        m.startsWith("](") ? "](../ghostcrab-shared/" : "../ghostcrab-shared/"
-      );
-    }
+    return out;
   }
 
+  for (const p of sharedLinkPatterns) {
+    out = out.replace(p, "](../ghostcrab-shared/");
+  }
+  for (const p of bareSharedPatterns) {
+    out = out.replace(p, "../ghostcrab-shared/");
+  }
+  out = out.replace(/\.\.\/\.\.\/ghostcrab-shared\//g, "../ghostcrab-shared/");
   return out;
 }
 
 /**
  * @param {string} src
  * @param {string} dest
- * @param {"cursor" | "claude-code" | "codex" | "shared"} target
+ * @param {"cursor-rule" | "skill" | "claude-starter" | "raw"} target
  */
 function copyTextFile(src, dest, target) {
   mkdirSync(dirname(dest), { recursive: true });
   const raw = readFileSync(src, "utf8");
-  const text = target === "shared" ? raw : rewriteLinks(raw, target);
+  const text = target === "raw" ? raw : rewriteLinks(raw, target);
   writeFileSync(dest, text, "utf8");
+}
+
+/**
+ * @param {string} src
+ * @param {string} dest
+ * @param {"cursor-rule" | "skill" | "claude-starter" | "raw"} target
+ */
+function copyTree(src, dest, target) {
+  if (!existsSync(src)) {
+    throw new Error(`Missing source tree: ${src}`);
+  }
+  rmSync(dest, { recursive: true, force: true });
+  mkdirSync(dest, { recursive: true });
+  for (const rel of collectFiles(src)) {
+    if (/^SKILL-\d+\.md$/i.test(rel)) continue;
+    const from = join(src, rel);
+    const to = join(dest, rel);
+    if (/\.(md|mdc|json|yaml|yml|txt|tpl|sql)$/i.test(rel)) {
+      copyTextFile(from, to, target);
+    } else {
+      mkdirSync(dirname(to), { recursive: true });
+      cpSync(from, to);
+    }
+  }
 }
 
 /** @param {string} path */
@@ -121,39 +169,41 @@ function syncShared() {
 
   for (const name of SHARED_FROM_SHARED) {
     const src = join(skillsRoot, "shared", name);
-    if (!existsSync(src)) {
-      throw new Error(`Missing shared source: ${src}`);
-    }
-    cpSync(src, join(destDir, name));
+    if (!existsSync(src)) throw new Error(`Missing shared source: ${src}`);
+    cpSync(src, join(destDir, name), { recursive: true });
   }
   for (const name of SHARED_FROM_ROOT) {
     const src = join(skillsRoot, name);
-    if (!existsSync(src)) {
-      throw new Error(`Missing root source: ${src}`);
-    }
-    cpSync(src, join(destDir, name));
+    if (!existsSync(src)) throw new Error(`Missing root source: ${src}`);
+    cpSync(src, join(destDir, name), { recursive: true });
   }
 }
 
 function syncCursor() {
-  const destRule = join(outRoot, "cursor", "rules", "ghostcrab-memory.mdc");
   rmSync(join(outRoot, "cursor"), { recursive: true, force: true });
-  copyTextFile(
-    join(skillsRoot, "cursor", "rules", "ghostcrab-memory.mdc"),
-    destRule,
-    "cursor"
-  );
+  for (const name of SKILL_NAMES) {
+    copyTextFile(
+      join(skillsRoot, "cursor", "rules", `${name}.mdc`),
+      join(outRoot, "cursor", "rules", `${name}.mdc`),
+      "cursor-rule"
+    );
+    copyTree(
+      join(skillsRoot, "codex", name),
+      join(outRoot, "cursor", "skills", name),
+      "skill"
+    );
+  }
 }
 
 function syncClaudeCode() {
-  const destDir = join(outRoot, "claude-code", "self-memory");
   rmSync(join(outRoot, "claude-code"), { recursive: true, force: true });
-  mkdirSync(destDir, { recursive: true });
+  const selfMem = join(outRoot, "claude-code", "self-memory");
+  mkdirSync(selfMem, { recursive: true });
 
   copyTextFile(
     join(skillsRoot, "claude-code", "self-memory", "CLAUDE.md"),
-    join(destDir, "CLAUDE.md"),
-    "claude-code"
+    join(selfMem, "CLAUDE.md"),
+    "claude-starter"
   );
 
   const settingsSrc = join(
@@ -164,24 +214,32 @@ function syncClaudeCode() {
     "settings.json"
   );
   if (existsSync(settingsSrc)) {
-    cpSync(settingsSrc, join(destDir, "settings.fragment.json"));
+    cpSync(settingsSrc, join(selfMem, "settings.fragment.json"));
   }
 
   const readmeSrc = join(skillsRoot, "claude-code", "self-memory", "README.md");
   if (existsSync(readmeSrc)) {
-    copyTextFile(readmeSrc, join(destDir, "README.install.md"), "claude-code");
+    copyTextFile(readmeSrc, join(selfMem, "README.install.md"), "claude-starter");
+  }
+
+  for (const name of SKILL_NAMES) {
+    copyTree(
+      join(skillsRoot, "claude-code", "skills", name),
+      join(outRoot, "claude-code", "skills", name),
+      "skill"
+    );
   }
 }
 
 function syncCodex() {
-  const destDir = join(outRoot, "codex", "ghostcrab-memory");
   rmSync(join(outRoot, "codex"), { recursive: true, force: true });
-  mkdirSync(destDir, { recursive: true });
-  copyTextFile(
-    join(skillsRoot, "codex", "ghostcrab-memory", "SKILL.md"),
-    join(destDir, "SKILL.md"),
-    "codex"
-  );
+  for (const name of SKILL_NAMES) {
+    copyTree(
+      join(skillsRoot, "codex", name),
+      join(outRoot, "codex", "skills", name),
+      "skill"
+    );
+  }
 }
 
 function writeManifest() {
@@ -192,8 +250,9 @@ function writeManifest() {
   }));
 
   const manifest = {
-    generated_at: new Date().toISOString(),
+    generated_at: generatedAt,
     source: "ghostcrab-skills",
+    skill_names: SKILL_NAMES,
     files: entries
   };
   writeFileSync(
@@ -216,9 +275,10 @@ pnpm run sync:ide-skills
 
 | \`gcp brain setup\` | Bundle | Installed into user project |
 |---------------------|--------|----------------------------|
-| \`cursor\` | \`cursor/\` + \`shared/\` | \`.cursor/rules/ghostcrab-memory.mdc\`, \`.ghostcrab/skills/shared/\` |
-| \`claude\` | \`claude-code/self-memory/\` + \`shared/\` | \`.ghostcrab/claude-self-memory.md\`, \`.ghostcrab/skills/shared/\`, merge \`.claude/settings.json\` |
-| \`codex\` | \`codex/ghostcrab-memory/\` + \`shared/\` | \`.codex/skills/ghostcrab-memory/\`, \`.codex/skills/ghostcrab-shared/\` |
+| \`cursor\` | \`cursor/rules/\`, \`cursor/skills/\`, \`shared/\` | \`.cursor/rules/*.mdc\`, \`.cursor/skills/<skill>/\`, \`.ghostcrab/skills/shared/\` |
+| \`claude\` | \`claude-code/self-memory/\`, \`claude-code/skills/\`, \`shared/\` | \`.claude/skills/<skill>/\`, \`.ghostcrab/claude-self-memory.md\`, \`.ghostcrab/skills/shared/\`, merge \`.claude/settings.json\` |
+| \`codex\` | \`codex/skills/\`, \`shared/\` | \`.codex/skills/<skill>/\`, \`.codex/skills/ghostcrab-shared/\` |
+| \`generic\` | \`codex/skills/\`, \`shared/\` | \`.agents/skills/<skill>/\`, \`.agents/skills/ghostcrab-shared/\` |
 
 Installed by \`gcp brain setup\` by default (opt-out: \`--no-skills\`).
 `;
@@ -261,8 +321,11 @@ function main() {
   assertNoStaleLinks();
   writeManifest();
 
+  const displayRoot = outRoot.startsWith(repoRoot)
+    ? relative(repoRoot, outRoot)
+    : outRoot;
   console.log(
-    `[sync-ide-skills] Wrote ${collectFiles(outRoot).length} files under ${relative(repoRoot, outRoot)}/`
+    `[sync-ide-skills] Wrote ${collectFiles(outRoot).length} files under ${displayRoot}/`
   );
 }
 

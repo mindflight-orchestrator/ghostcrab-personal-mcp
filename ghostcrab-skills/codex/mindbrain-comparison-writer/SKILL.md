@@ -58,7 +58,7 @@ Use this shape when it fits the article:
 
 2. Register or verify the model
    ghostcrab_schema_list / ghostcrab_schema_inspect
-   ghostcrab_ontology_register_entity_type / ghostcrab_ontology_register_relation_type
+   ghostcrab_schema_register when a schema freeze has been explicitly approved
    ghostcrab_ddl_propose / ghostcrab_ddl_execute when table-backed structures are needed
    ghostcrab_workspace_export_model to verify the workspace semantics
 
@@ -67,7 +67,7 @@ Use this shape when it fits the article:
    relations, facets, and projection signals into the workspace model.
 
 4. Query the imported data
-   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree for facet-indexed records
+   ghostcrab_count / ghostcrab_search / ghostcrab_facet_catalog / ghostcrab_facet_inspect for facet-indexed records
    ghostcrab_graph_search / ghostcrab_traverse / ghostcrab_entity_chunks for graph and entity data
    ghostcrab_coverage for ontology or domain coverage and missing nodes
    ghostcrab_projection_get / ghostcrab_pack for agent-ready working context
@@ -116,7 +116,7 @@ Use a sentence like this when useful:
 
 - `ghostcrab_search` searches the facets layer. Do not claim it directly searches graph entities, relations, or projection rows.
 - Use `ghostcrab_count` before content reads when the article discusses shape-of-data, dashboards, or deterministic narrowing.
-- Use `ghostcrab_facet_tree` when the point is taxonomy-like navigation over facet dimensions.
+- Use `ghostcrab_facet_catalog` and `ghostcrab_facet_inspect` when the point is taxonomy-like navigation over facet dimensions.
 - Use `ghostcrab_graph_search`, `ghostcrab_traverse`, and `ghostcrab_entity_chunks` when the point is imported graph/entity data, dependencies, evidence grounding, or entity-to-source linkage.
 - Use `ghostcrab_projection_get` and `ghostcrab_pack` when the point is compact task context for the agent.
 - Use `ghostcrab_coverage` when the point is whether the model has enough ontology/domain coverage for autonomous action.

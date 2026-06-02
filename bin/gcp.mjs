@@ -121,7 +121,8 @@ Usage: gcp <command> [options]
   brain document <cmd> [args]     Corpus normalize/profile/ingest (stop MCP first)
   brain structured-import <cmd>   Tabular CSV/JSON import (stop MCP first)
   brain docs [topic]              Full import runbooks (structured | document | import)
-  brain setup <cursor|codex|claude>  User-global MCP (see README_*_MCP.md)
+  brain setup <cursor|codex|claude|generic>
+                                    User-global MCP + IDE skills (generic prints snippets)
   bootstrap                          Create .env / data/ / README symlinks in cwd
   agent skills <sub>              Registry skills (agent capabilities)
   agent equip <owner/name>        Shortcut for: agent skills pull

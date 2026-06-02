@@ -9,13 +9,14 @@ import {
   buildPolicy
 } from "./mcp-permissions-adapters.mjs";
 import {
+  describeIdeSkillsBundleForTarget,
   installIdeSkillsBundleForTarget,
   setupTargetToIdeSkillsTarget
 } from "./install-ide-skills.mjs";
 
 /**
  * @param {object} opts
- * @param {"cursor" | "claude" | "codex"} opts.target
+ * @param {"cursor" | "claude" | "codex" | "generic"} opts.target
  * @param {string} opts.cwd
  * @param {string} opts.pkgRoot
  * @param {string} opts.serverName
@@ -118,8 +119,22 @@ export async function runSetupPostInstall(opts) {
       }
       details.skills = skills.paths ?? [];
     } else {
+      const preview = describeIdeSkillsBundleForTarget({
+        target: setupTargetToIdeSkillsTarget(opts.target),
+        cwd: opts.cwd,
+        pkgRoot: opts.pkgRoot
+      });
+      if (!preview.ok) {
+        return {
+          ok: false,
+          message: preview.message ?? "IDE skills preview failed"
+        };
+      }
       messages.push(
-        `[dry-run] Would install ${opts.target} skill bundle from bin/ide-skills`
+        `[dry-run] Would install ${opts.target} skill bundle from ${preview.bundleRoot}: ${preview.skills.join(", ")} -> ${preview.installedSkillRoot}`
+      );
+      messages.push(
+        `[dry-run] Would write skill reference ${preview.referenceManifest} and shortcut ${preview.currentShortcut}`
       );
     }
   }

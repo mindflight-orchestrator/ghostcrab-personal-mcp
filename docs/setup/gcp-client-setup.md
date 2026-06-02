@@ -52,21 +52,24 @@ On **`gcp brain workspace create`** (alias **`gcp init`**) and explicit **`gcp b
 
 **Detection** (unless you override):
 
-- **`GHOSTCRAB_IDE=cursor` \| `claude-code` \| `codex`**
+- **`GHOSTCRAB_IDE=cursor` \| `claude-code` \| `codex` \| `generic`**
 - Or presence of **`.claude`**, **`.cursor`**, or **`.codex`** in the current working directory (and `CURSOR_*` env when spawned by Cursor)
 
 **What gets installed**
 
 | IDE | Files |
 |-----|--------|
-| **Cursor** | `cursor/rules/ghostcrab-memory.mdc` → `.cursor/rules/ghostcrab-memory.mdc` |
-| **Claude Code** | `claude-code/self-memory/CLAUDE.md` → `.ghostcrab/claude-self-memory.md` (merge into your `CLAUDE.md` if needed) |
-| **Codex** | `codex/ghostcrab-memory/` → `.codex/skills/ghostcrab-memory/`, `shared/` → `.codex/skills/ghostcrab-shared/`, with `SKILL.md` links rewritten to `../ghostcrab-shared/` |
+| **Cursor** | `cursor/rules/*.mdc` → `.cursor/rules/`; `cursor/skills/<skill>/` → `.cursor/skills/<skill>/`; `shared/` → `.cursor/skills/ghostcrab-shared/` and `.ghostcrab/skills/shared/` |
+| **Claude Code** | `claude-code/skills/<skill>/` → `.claude/skills/<skill>/`; `shared/` → `.claude/skills/ghostcrab-shared/`; `claude-code/self-memory/CLAUDE.md` → `.ghostcrab/claude-self-memory.md` |
+| **Codex** | `codex/skills/<skill>/` → `.codex/skills/<skill>/`; `shared/` → `.codex/skills/ghostcrab-shared/`, with `SKILL.md` links rewritten to `../ghostcrab-shared/` |
+| **Generic** | `codex/skills/<skill>/` → `.agents/skills/<skill>/`; `shared/` → `.agents/skills/ghostcrab-shared/`; MCP JSON/TOML snippets are printed, not written |
+
+Each install also writes `.ghostcrab/skills/installed.json`, `.ghostcrab/skills/README.md`, and `.ghostcrab/skills/current` (or `.ghostcrab/skills/current.txt` if the platform cannot create a symlink).
 
 **Install / refresh**
 
-- **`gcp init`** / **`gcp brain workspace create`** — install matching IDE stubs when an IDE is detected
-- **`gcp brain up --install-skills`** / **`gcp serve --install-skills`** — explicitly install matching IDE stubs during server startup
+- **`gcp init`** / **`gcp brain workspace create`** — install matching IDE skill bundles when an IDE is detected
+- **`gcp brain up --install-skills`** / **`gcp serve --install-skills`** — explicitly install matching IDE skill bundles during server startup
 - **`GHOSTCRAB_SKIP_IDE_SKILLS=1`** — same globally
 - **`gcp init … --force-skills`** — overwrite existing stubs (`brain up` / `serve` do not take `--force-skills`; use `init` or delete files first)
 
@@ -126,18 +129,18 @@ The JSON examples in this section are for clients that explicitly read JSON MCP 
 ### Cursor
 
 1. Add the MCP server using the JSON above (Cursor’s MCP UI or project/global MCP config, depending on your version).
-2. For **agent rules**, follow [ghostcrab-skills/cursor/README.md](../../ghostcrab-skills/cursor/README.md): copy or symlink `ghostcrab-skills/cursor/rules/ghostcrab-memory.mdc` into your project `.cursor/rules/` (or merge into an existing rule).
+2. For **agent rules and skills**, run `gcp brain setup cursor`: it installs all Cursor `.mdc` rules into `.cursor/rules/` and the native skill mirrors into `.cursor/skills/`.
 
 ### Claude Code
 
 1. Merge an **`mcpServers`** block like the examples above into your project **`.mcp.json`** (or the path Claude Code expects in your layout).
-2. Optional: copy hooks / fragments from **`ghostcrab-skills/claude-code/`** (e.g. `self-memory/`, `data-architect/`) — see each folder’s `README.md`.
+2. Run `gcp brain setup claude`: it installs the Claude Code on-demand skills into `.claude/skills/`, merges `.claude/settings.json`, and writes `.ghostcrab/claude-self-memory.md` for optional root `CLAUDE.md` merge.
 
 **Note:** Some checked-in **`ghostcrab-skills/claude-code/**/.mcp.json`** examples still reference older package names or PostgreSQL `DATABASE_URL`. This **SQLite** product uses **`gcp brain up`** (or legacy **`gcp serve`**) and the **`GHOSTCRAB_*`** variables from the root README; adjust env to match how you run MindBrain.
 
 ### Codex
 
-Codex consumes **skills** from its own skill directories. Use the mirrors under **`ghostcrab-skills/codex/`** (`ghostcrab-memory`, `ghostcrab-prompt-guide`, `ghostcrab-data-architect`) as templates to install or sync into your Codex skill path.
+Codex consumes **skills** from its own skill directories. `gcp brain setup codex` installs all GhostCrab mirrors under `.codex/skills/` and writes shared references under `.codex/skills/ghostcrab-shared/`.
 
 Codex MCP wiring is **not** the JSON above. Use:
 
@@ -174,7 +177,7 @@ OpenClaw uses the same **`mcpServers`** JSON shape; merge the block from **`ghos
 
 ## Are `ghostcrab-skills` (or a personal starter kit) inside the `.tgz` or the SQLite DB by default?
 
-**Short answer:** the **npm tarball ships `ghostcrab-skills/`** so **`gcp init`**, **`gcp brain workspace create`**, or explicit **`gcp brain up --install-skills`** / **`gcp serve --install-skills`** can install IDE stubs (Cursor / Claude Code / Codex). That is separate from what gets loaded into the **SQLite database** (see below).
+**Short answer:** the **npm tarball ships `ghostcrab-skills/`** and generated `bin/ide-skills/` bundles so **`gcp init`**, **`gcp brain workspace create`**, or explicit **`gcp brain up --install-skills`** / **`gcp serve --install-skills`** can install IDE skill bundles (Cursor / Claude Code / Codex / generic). That is separate from what gets loaded into the **SQLite database** (see below).
 
 ### What the **npm tarball** contains
 

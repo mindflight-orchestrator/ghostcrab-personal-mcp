@@ -4,7 +4,7 @@
  *
  * Installs the freshly built root + platform tarballs into a temp consumer
  * project, then verifies installed `gcp brain setup` dry-run paths for Cursor,
- * Codex, and Claude Code without writing real user config files.
+ * Codex, Claude Code, and generic without writing real user config files.
  */
 import assert from "node:assert/strict";
 import {
@@ -120,6 +120,9 @@ try {
   assertIncludes(cursor.stdout, '"up"', "cursor dry-run");
   assertIncludes(cursor.stdout, '"--workspace"', "cursor dry-run");
   assertIncludes(cursor.stdout, '"beta-smoke"', "cursor dry-run");
+  assertIncludes(cursor.stdout, "ghostcrab-memory", "cursor dry-run skills");
+  assertIncludes(cursor.stdout, "mindbrain-comparison-writer", "cursor dry-run skills");
+  assertIncludes(cursor.stdout, ".cursor/skills", "cursor dry-run skill root");
 
   const codex = run(process.execPath, [
     gcpMjs,
@@ -139,6 +142,8 @@ try {
   assertIncludes(codex.stdout, "brain", "codex dry-run");
   assertIncludes(codex.stdout, "up", "codex dry-run");
   assertIncludes(codex.stdout, "beta-smoke", "codex dry-run");
+  assertIncludes(codex.stdout, "ghostcrab-prompt-guide", "codex dry-run skills");
+  assertIncludes(codex.stdout, ".codex/skills", "codex dry-run skill root");
 
   const claude = run(process.execPath, [
     gcpMjs,
@@ -158,6 +163,23 @@ try {
   assertIncludes(claude.stdout, "ghostcrab-personal-mcp --", "claude dry-run");
   assertIncludes(claude.stdout, "brain up", "claude dry-run");
   assertIncludes(claude.stdout, "beta-smoke", "claude dry-run");
+  assertIncludes(claude.stdout, "ghostcrab-data-architect", "claude dry-run skills");
+  assertIncludes(claude.stdout, ".claude/skills", "claude dry-run skill root");
+
+  const generic = run(process.execPath, [
+    gcpMjs,
+    "brain",
+    "setup",
+    "generic",
+    "--dry-run",
+    "--workspace",
+    "beta-smoke"
+  ]);
+  assertRunOk("gcp brain setup generic --dry-run", generic);
+  assertIncludes(generic.stdout, "--- MCP JSON:", "generic dry-run");
+  assertIncludes(generic.stdout, "--- TOML fallback:", "generic dry-run");
+  assertIncludes(generic.stdout, ".agents/skills", "generic dry-run skill root");
+  assertIncludes(generic.stdout, "ghostcrab-memory", "generic dry-run skills");
 
   console.error(`[beta-ide-smoke] OK for ${platformKey}`);
 } finally {

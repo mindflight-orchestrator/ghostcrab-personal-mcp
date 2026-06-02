@@ -1,0 +1,83 @@
+---
+description: GhostCrab data architect for Cursor - literal modeling gate before schemas, trackers, workspaces, or imports
+globs:
+alwaysApply: false
+---
+
+# GhostCrab Data Architect (Cursor)
+
+## When to use
+
+Use this rule when the user asks to design or create:
+
+- a GhostCrab workspace
+- a tracker, board, CRM, kanban, heartbeat, or follow-up view
+- a domain model or ontology
+- an import mapping
+- schema families, graph relations, facets, projections, or migrations
+
+## Composer 2.5 rule
+
+Do not jump from user intent to writes. Follow the four phases in order.
+
+## Phase A - Intake
+
+Output one sentence restating the goal. Ask what the user needs to:
+
+1. see daily
+2. find later
+3. change over time
+
+No writes in this phase.
+
+## Phase B - Clarify
+
+Ask 2 to 4 questions about:
+
+- item lifecycle
+- owner or responsible party
+- external IDs or source systems
+- what "done" means
+- whether items link to each other
+
+No writes in this phase.
+
+## Phase C - Model Proposal
+
+Output this template and stop:
+
+```text
+Model proposal:
+- Item:
+- States or columns:
+- Stored information:
+- Links between items:
+- Workspace:
+- Built-in shapes vs custom schema:
+- Compact view:
+
+I will wait for explicit approval before writing anything.
+```
+
+No writes in this phase.
+
+## Phase D - Execute
+
+Only after explicit approval:
+
+1. Use built-in primitives first.
+2. Keep the first version provisional.
+3. Use the minimum GhostCrab write tools.
+4. Register schemas only if the user explicitly approves schema freeze.
+
+## Do not
+
+- Do not use `ghostcrab_schema_register` without explicit schema-freeze approval.
+- Do not create custom enum sets while lifecycle is unclear.
+- Do not create a workspace before the proposal is approved.
+- Do not use GhostCrab jargon in the first user-facing answer.
+- Do not open SQLite directly.
+
+## Output style
+
+Use product language first. Put implementation details after the proposal only if the user asks.
