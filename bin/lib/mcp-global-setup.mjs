@@ -657,6 +657,7 @@ export function runSetupCodex(opts) {
  * @param {boolean} [opts.force]
  * @param {string} [opts.claudeBin]
  * @param {string} [opts.cwd]
+ * @param {typeof spawnSync} [opts.spawn]
  */
 export function runSetupClaude(opts) {
   const envMap = mergeEnv(getDefaultMcpEnv(), opts.extraEnv ?? {});
@@ -690,12 +691,14 @@ export function runSetupClaude(opts) {
   baseArgs.push("--scope", scope);
 
   const bin = opts.claudeBin ?? "claude";
+  const spawn = opts.spawn ?? spawnSync;
   if (opts.force) {
-    const remove = spawnSync(
+    const remove = spawn(
       bin,
       ["mcp", "remove", "--scope", scope, serverName],
       {
-        stdio: "inherit",
+        stdio: "pipe",
+        encoding: "utf8",
         env: process.env
       }
     );
@@ -708,10 +711,19 @@ export function runSetupClaude(opts) {
         serverName
       );
     }
+    if (remove.status !== 0 && !claudeRemoveMissingIsBenign(remove)) {
+      return claudeNotFound(
+        mcpLine,
+        envMap,
+        scope,
+        `mcp remove failed before replacement: ${remove.stderr || remove.stdout || remove.status}`,
+        serverName
+      );
+    }
   }
   baseArgs.push(serverName, "--", launch.command, ...launch.args);
 
-  const r = spawnSync(bin, baseArgs, { stdio: "inherit", env: process.env });
+  const r = spawn(bin, baseArgs, { stdio: "inherit", env: process.env });
 
   if (r.error) {
     if (r.error.code === "ENOENT") {
@@ -723,6 +735,11 @@ export function runSetupClaude(opts) {
     return { ok: true, code: EX_OK, message: "claude mcp add completed." };
   }
   return claudeNotFound(mcpLine, envMap, scope, r.status, serverName);
+}
+
+function claudeRemoveMissingIsBenign(remove) {
+  const text = `${remove.stdout ?? ""}\n${remove.stderr ?? ""}`;
+  return /No .*scoped MCP server found with name:/i.test(text);
 }
 
 /**

@@ -4,18 +4,23 @@
  * - GHOSTCRAB_SKIP_POSTINSTALL=1 — skip native binary prep + smoke only (host bootstrap still runs unless GHOSTCRAB_SKIP_HOST_BOOTSTRAP=1).
  * - GHOSTCRAB_POSTINSTALL_QUIET=1 — fewer success lines (still warns if the backend is missing).
  * - GHOSTCRAB_SKIP_POSTINSTALL_SMOKE=1 — skip gcp/backend --help verification.
- * - GHOSTCRAB_SKIP_HOST_BOOTSTRAP=1 — skip .env / data/ / doc symlinks in the consumer project.
+ * - GHOSTCRAB_SKIP_HOST_BOOTSTRAP=1 — skip .env / data/ / doc/skill symlinks in the consumer project.
  */
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { preparePrebuildForInstall } from "./prebuild-permissions.mjs";
 import { runHostProjectBootstrap } from "./postinstall-host-bootstrap.mjs";
 import { runPostinstallSmoke } from "./postinstall-smoke.mjs";
+import { ensureGhostcrabSkillLinks } from "./postinstall-skill-links.mjs";
 
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const quiet = process.env.GHOSTCRAB_POSTINSTALL_QUIET === "1";
 
-// Host project .env / data/ / doc symlinks — independent of GHOSTCRAB_SKIP_POSTINSTALL
+// Package-local skill shortcuts must exist before the host project exposes
+// ghostcrab-skills/ at the consumer root.
+ensureGhostcrabSkillLinks({ pkgRoot, quiet });
+
+// Host project .env / data/ / doc/skill symlinks — independent of GHOSTCRAB_SKIP_POSTINSTALL
 // (that env only skips native-binary prep + smoke below).
 // npm 7+ buffers postinstall output unless --foreground-scripts is used, so the user
 // may not see any of these log lines in their terminal. That is why gcp bootstrap exists
@@ -63,7 +68,7 @@ if (
   if (!quiet) {
     console.error("[ghostcrab] Next steps:");
     console.error(
-      "  1. If .env / data/ / README symlinks are missing in your project root, run:"
+      "  1. If .env / data/ / README / ghostcrab-skills links are missing in your project root, run:"
     );
     console.error("       npx gcp bootstrap");
     console.error("  2. Register the MCP server in your IDE:");

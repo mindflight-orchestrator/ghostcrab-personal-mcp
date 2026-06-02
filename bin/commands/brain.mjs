@@ -5,6 +5,7 @@
  */
 
 import { readConfig } from "../lib/cli-config.mjs";
+import { resolve } from "node:path";
 
 export async function cmdBrain(args) {
   const sub = args[0];
@@ -134,16 +135,16 @@ async function cmdBrainSetup(args) {
 
   // Always inject an absolute --db path into the MCP launch args so the MCP
   // host (Cursor, Codex, Claude Code…) uses the correct database regardless of
-  // its working directory.  The user's explicit --db wins; otherwise we resolve
-  // the same path that `gcp brain up` would pick at setup time (workspace
-  // config → defaultWorkspace → cwd/data/ghostcrab.sqlite).
-  let effectiveDbPath = p.dbPath;
+  // its working directory. The user's explicit --db wins; otherwise we resolve
+  // the user-global default (~/.ghostcrab/databases/ghostcrab.sqlite).
+  let effectiveDbPath = p.dbPath ? resolve(p.dbPath) : null;
   if (!effectiveDbPath) {
     const { resolveGhostcrabSqlite } =
       await import("../lib/resolve-ghostcrab-sqlite.mjs");
     const resolved = resolveGhostcrabSqlite({
-      workspaceNameFromCli: p.workspace ?? null,
-      sqlitePathFromCli: null
+      workspaceNameFromCli: null,
+      sqlitePathFromCli: null,
+      defaultFromCli: p.defaultDb
     });
     effectiveDbPath = resolved.sqlitePathResolved;
   }
@@ -333,6 +334,7 @@ function parseSetupArgs(args) {
     package: null,
     workspace: null,
     dbPath: null,
+    defaultDb: false,
     serverName: null,
     dryRun: false,
     force: false,
@@ -359,6 +361,10 @@ function parseSetupArgs(args) {
     }
     if (a === "--db" && rest[i + 1]) {
       out.dbPath = rest[++i];
+      continue;
+    }
+    if (a === "--default") {
+      out.defaultDb = true;
       continue;
     }
     if ((a === "--name" || a === "--server-name") && rest[i + 1]) {
@@ -468,6 +474,10 @@ function parseSetupArgs(args) {
     out.permissionsPreset = "custom";
   }
 
+  if (out.dbPath && out.defaultDb) {
+    return { error: "gcp brain setup: use either --db <path> or --default, not both" };
+  }
+
   if (out.scope === "project" && !rest.some((a, i) => a === "--permissions-scope" && rest[i + 1])) {
     out.permissionsScope = "project";
   }
@@ -504,9 +514,10 @@ Usage: gcp brain setup <cursor|codex|claude|generic> [options]
                                   - absolute path to a global gcp on PATH
                                   - npx -y --package=<pkg>@latest gcp brain up
   --package <npm-name>          default: this package (see package.json "name")
-  --workspace <name>            optional gcp --workspace (SQLite file selection)
+  --workspace <id>              optional MindBrain workspace_id pin for the MCP session
   --mindbrain-workspace-id <id> pin MindBrain workspace_id (writes GHOSTCRAB_ACTIVE_WORKSPACE_ID)
-  --db <path>                   add gcp brain up --db <path> to the MCP launch
+  --db <path>                   add gcp brain up --db <absolute-path> to the MCP launch
+  --default                     explicitly use ~/.ghostcrab/databases/ghostcrab.sqlite
   --name, --server-name <name>  MCP server key (default: ghostcrab-personal-mcp)
   --env KEY=value              repeat for extra MCP process env
   --dry-run                    do not run CLIs or write files; print the result
@@ -652,7 +663,7 @@ Usage: gcp brain workspace <subcommand>
 Subcommands:
   create [name]     Create / register a workspace (default name: default)
                       Same flags as gcp init: --no-skills, --force-skills
-  list                List registered workspaces and SQLite paths
+  list                List registered logical workspace_ids
   reset --id <id> --confirm
                       Wipe workspace-scoped MindBrain data (MCP mirror)
   delete --id <id> --confirm [--mode hard|soft]
@@ -702,8 +713,11 @@ function cmdWorkspaceList() {
   const max = Math.max(...sorted.map((n) => n.length));
   for (const n of sorted) {
     const def = config.defaultWorkspace === n ? "  (default)" : "";
-    const p = ws[n]?.sqlitePath ?? "?";
-    console.log(`${n.padEnd(max)}${def}\n  ${p}`);
+    const legacyPath = ws[n]?.sqlitePath;
+    const suffix = legacyPath
+      ? `\n  legacy sqlitePath ignored: ${legacyPath}`
+      : "";
+    console.log(`${n.padEnd(max)}${def}${suffix}`);
   }
 }
 
@@ -717,7 +731,7 @@ function printWorkspacePinHint(p) {
     );
   } else if (p.workspace) {
     console.log(
-      `  CLI workspace "${p.workspace}" selects the SQLite file; MindBrain workspace_id falls back to the slug if it exists in DB, else default (see ghostcrab_status.workspace_context).`
+      `  CLI workspace "${p.workspace}" pins the MindBrain workspace_id inside the selected SQLite file if it exists, else default (see ghostcrab_status.workspace_context).`
     );
   }
 }
@@ -730,7 +744,7 @@ Usage: gcp brain <subcommand>
 MindBrain (storage + structure) — start the Zig backend, isolate memory, install schema packs.
 
 Subcommands:
-  up [--workspace <name>] [--install-skills]
+  up [--workspace <id>] [--db <path>|--default] [--install-skills]
                                            Start MindBrain backend + MCP on stdio
   workspace create [name]                 Register a workspace & data paths
   workspace list                          List workspaces
@@ -751,6 +765,7 @@ Subcommands:
 
 Examples:
   gcp brain up --workspace my-app
+  gcp brain up --default
   gcp brain workspace create my-app
   gcp brain schema pull mindflight/mindbrain
   gcp brain ontology import --workspace-id my_ws --ontology-id my_ws::owl --input ./ontology.nt --materialize-graph

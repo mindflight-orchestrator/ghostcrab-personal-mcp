@@ -22,8 +22,8 @@ The document flow can write several layers:
 
 `gcp brain document` launches the bundled `ghostcrab-document` engine. For
 database-backed commands, the wrapper injects `--db` automatically from
-`GHOSTCRAB_SQLITE_PATH`, `--workspace`, or an explicit wrapper-level
-`--db <path>`.
+`GHOSTCRAB_SQLITE_PATH`, the user default SQLite file, or an explicit
+wrapper-level `--db <path>`.
 
 ## Prerequisites
 
@@ -37,7 +37,7 @@ node bin/gcp.mjs authorize
 
 For a packaged install, use `gcp authorize`.
 
-Set the database path when you do not want the default `./data/ghostcrab.sqlite`:
+Set the database path when you do not want the default `~/.ghostcrab/databases/ghostcrab.sqlite`:
 
 ```bash
 export GHOSTCRAB_SQLITE_PATH="$PWD/data/ghostcrab.sqlite"

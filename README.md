@@ -74,7 +74,7 @@ mindBrain Backend (Zig)
   Listens on :8091 — owns the SQLite file, schema bootstrap, workspace logic
       │
       ▼
-./data/ghostcrab.sqlite   ← your structured knowledge base
+~/.ghostcrab/databases/ghostcrab.sqlite   ← your structured knowledge base
 ```
 
 The MCP server never touches the SQLite file directly. mindBrain owns it. This separation means you can run multiple agent clients pointing at the same backend.
@@ -161,7 +161,7 @@ Your agent client starts GhostCrab automatically via:
 gcp brain up
 ```
 
-This launches mindBrain, creates `./data/ghostcrab.sqlite`, and holds stdio open for MCP traffic. You do not need to run this manually — your MCP host handles it.
+This launches mindBrain, creates `~/.ghostcrab/databases/ghostcrab.sqlite`, and holds stdio open for MCP traffic. You do not need to run this manually — your MCP host handles it.
 
 ---
 
@@ -281,7 +281,7 @@ npx gcp brain up --help
 
 | Variable                 | Default                   | Purpose                         |
 | ------------------------ | ------------------------- | ------------------------------- |
-| `GHOSTCRAB_SQLITE_PATH`  | `./data/ghostcrab.sqlite` | SQLite file location            |
+| `GHOSTCRAB_SQLITE_PATH`  | `~/.ghostcrab/databases/ghostcrab.sqlite` | SQLite file location            |
 | `GHOSTCRAB_BACKEND_ADDR` | `:8091`                   | mindBrain HTTP listen address   |
 | `MCP_TELEMETRY`          | `1`                       | Set to `0` to disable telemetry |
 

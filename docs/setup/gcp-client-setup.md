@@ -80,7 +80,7 @@ Messages from **`gcp brain up --install-skills`** / **`gcp serve --install-skill
 
 See the root [README.md](../../README.md) for the full table. Typical SQLite defaults:
 
-- `GHOSTCRAB_SQLITE_PATH` — SQLite file (default: `./data/ghostcrab.sqlite` in the current working directory unless overridden).
+- `GHOSTCRAB_SQLITE_PATH` — SQLite file (default: `~/.ghostcrab/databases/ghostcrab.sqlite` unless overridden).
 - `GHOSTCRAB_BACKEND_ADDR` / `GHOSTCRAB_MINDBRAIN_URL` — backend HTTP address (defaults documented in README).
 - `GHOSTCRAB_BACKEND_BIN` — absolute path to a self-built `ghostcrab-backend` (overrides optionalDependency/prebuild resolution; useful after `pnpm run prebuild:local`).
 - `GHOSTCRAB_DOCUMENT_ENGINE` — optional explicit path to the `ghostcrab-document` binary (otherwise resolved from the platform package, `prebuilds/`, or a local `zig build document-tool` output).
@@ -89,7 +89,7 @@ See the root [README.md](../../README.md) for the full table. Typical SQLite def
 
 Use **`gcp brain document`** for PDF/HTML normalization, deterministic ingest, LLM document profiling, enqueue/worker, taxonomy/facet vocabulary listing, and related MindBrain CLI flows. **Quit MCP / stop `ghostcrab-backend` first** so the SQLite file is not locked; the command probes `/health` and refuses to run if the backend is up unless you pass **`--force`**.
 
-Database commands automatically receive **`--db`** matching your **`GHOSTCRAB_SQLITE_PATH`** (and optional **`--workspace`** / `-w` for path resolution), or the explicit **`--db <path>`** you pass to the wrapper. Run **`gcp brain document --help`** for examples. The dedicated runbook is [document-import.md](document-import.md). Full flag reference for subcommands such as `document-profile-worker` lives in the vendored MindBrain docs (`vendor/mindbrain/docs/document-profile.md` in this repo).
+Database commands automatically receive **`--db`** matching your **`GHOSTCRAB_SQLITE_PATH`** or the user default `~/.ghostcrab/databases/ghostcrab.sqlite`; pass **`--db <path>`** for a project-local database or **`--default`** to make the user default explicit. **`--workspace`** / `-w` pins the logical `workspace_id` inside that SQLite file; it does not select the SQLite path. Run **`gcp brain document --help`** for examples. The dedicated runbook is [document-import.md](document-import.md). Full flag reference for subcommands such as `document-profile-worker` lives in the vendored MindBrain docs (`vendor/mindbrain/docs/document-profile.md` in this repo).
 
 For controlled qualification setup, first run **`gcp brain document qualification-vocab-list --workspace-id <id> [--collection-id <id>]`** to list taxonomy IDs and facet IDs. The returned `taxonomies[].id` values are used with `--taxonomies`; the returned `facets[].id` values are used with `--facets`. Full LLM `document-qualify` support depends on the installed native document engine exposing that verb; verify with **`gcp brain document --help`** before relying on it.
 

@@ -9,7 +9,7 @@ For how `ghostcrab-skills` relates to the product repo, see [GHOSTCRAB_INTEGRATI
 - **Node.js** 20+ and a package runner (`pnpm` or `npm`).
 - **GhostCrab MCP** on `PATH` **or** invokable via `pnpm dlx` / `npx`.
 
-Published package: **`@mindflight/ghostcrab-mcp`** (binaries: `gcp`, `ghostcrab`). OpenClaw should start the server with **`gcp brain up`** or **`gcp up`** (legacy: **`gcp serve`**), optionally `--workspace <name>`. See [gcp-commands.md](../../docs/reference/gcp-commands.md).
+Published package: **`@mindflight/ghostcrab-mcp`** (binaries: `gcp`, `ghostcrab`). OpenClaw should start the server with **`gcp brain up`** or **`gcp up`** (legacy: **`gcp serve`**), optionally `--workspace <id>` to pin a logical MindBrain workspace_id. See [gcp-commands.md](../../docs/reference/gcp-commands.md).
 
 Initialize a workspace once if you use a named workspace:
 
@@ -76,7 +76,7 @@ Canonical copy-paste source in this tree: [ghostcrab-memory/mcp.json](ghostcrab-
 }
 ```
 
-If defaults like `./data/ghostcrab.sqlite` matter, ensure OpenClaw starts the MCP process with the right **working directory**, or set `GHOSTCRAB_SQLITE_PATH` explicitly. Full variable list: product [README.md](../../README.md).
+If the SQLite file location matters, pass `--db <path>` or set `GHOSTCRAB_SQLITE_PATH`; otherwise GhostCrab uses `~/.ghostcrab/databases/ghostcrab.sqlite`. Full variable list: product [README.md](../../README.md).
 
 ### Verify
 

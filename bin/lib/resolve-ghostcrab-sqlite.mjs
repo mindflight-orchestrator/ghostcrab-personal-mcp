@@ -1,19 +1,21 @@
 /**
  * Resolves the GhostCrab SQLite file path the same way as `gcp brain up` / `gcp serve`.
  * Used by serve and by `gcp brain db-who` so the default is always
- * ./data/ghostcrab.sqlite in cwd when no GHOSTCRAB_SQLITE_PATH and no per-workspace path.
+ * ~/.ghostcrab/databases/ghostcrab.sqlite when no GHOSTCRAB_SQLITE_PATH and no --db.
  */
 import { resolve, join } from "node:path";
-import { readConfig } from "./cli-config.mjs";
+import { getDataDir } from "./data-dir.mjs";
 
 /**
  * @param {{
  *   workspaceNameFromCli?: string | null;
  *   sqlitePathFromCli?: string | null;
+ *   defaultFromCli?: boolean;
  * }} opts
- *   workspaceNameFromCli — only the `--workspace` / `-w` value when provided; not read from config here.
- *   sqlitePathFromCli    — path supplied via `--db <path>` on the command line; wins over workspace /
- *                          cwd fallback but loses to `GHOSTCRAB_SQLITE_PATH` env var.
+ *   workspaceNameFromCli — accepted for compatibility; never selects the SQLite file.
+ *   sqlitePathFromCli    — path supplied via `--db <path>` on the command line; wins over the
+ *                          user-global default but loses to `GHOSTCRAB_SQLITE_PATH` env var.
+ *   defaultFromCli       — true when the user explicitly supplied `--default`.
  * @returns {{
  *   sqlitePath: string;
  *   sqlitePathResolved: string;
@@ -23,8 +25,7 @@ import { readConfig } from "./cli-config.mjs";
  * }}
  */
 export function resolveGhostcrabSqlite(opts) {
-  const { workspaceNameFromCli = null, sqlitePathFromCli = null } = opts;
-  const config = readConfig();
+  const { sqlitePathFromCli = null, defaultFromCli = false } = opts;
 
   let sqlitePath;
   /** @type {string} */
@@ -47,23 +48,12 @@ export function resolveGhostcrabSqlite(opts) {
       portExplicit = true;
     }
   } else {
-    const wsName = workspaceNameFromCli ?? config.defaultWorkspace ?? null;
-    const ws = wsName ? config.workspaces?.[wsName] : null;
-    sqlitePath =
-      ws?.sqlitePath ?? join(process.cwd(), "data", "ghostcrab.sqlite");
-    if (ws?.sqlitePath) {
-      sqlitePathSource = `workspace "${wsName}" (sqlitePath in config)`;
-    } else if (wsName) {
-      sqlitePathSource = `workspace "${wsName}" (fallback: data/ghostcrab.sqlite in cwd)`;
-    } else {
-      sqlitePathSource =
-        "no workspace selected (fallback: data/ghostcrab.sqlite in cwd)";
-    }
+    sqlitePath = getDefaultGhostcrabSqlitePath();
+    sqlitePathSource = defaultFromCli
+      ? "CLI --default"
+      : "user default (~/.ghostcrab/databases/ghostcrab.sqlite)";
     if (process.env.GHOSTCRAB_BACKEND_ADDR) {
       backendAddr = process.env.GHOSTCRAB_BACKEND_ADDR;
-      portExplicit = true;
-    } else if (ws?.backendAddr) {
-      backendAddr = ws.backendAddr;
       portExplicit = true;
     }
   }
@@ -75,4 +65,8 @@ export function resolveGhostcrabSqlite(opts) {
     backendAddr,
     portExplicit
   };
+}
+
+export function getDefaultGhostcrabSqlitePath() {
+  return join(getDataDir(), "databases", "ghostcrab.sqlite");
 }

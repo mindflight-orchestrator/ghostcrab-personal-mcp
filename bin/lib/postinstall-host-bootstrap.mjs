@@ -1,6 +1,6 @@
 /**
  * When this package is installed as a dependency, drop a starter .env, ensure ./data,
- * and symlink shipped docs into the consumer project root (Linux/macOS; best-effort on Windows).
+ * and symlink shipped docs/skills into the consumer project root (best effort).
  *
  * - GHOSTCRAB_SKIP_HOST_BOOTSTRAP=1 — skip
  *
@@ -60,17 +60,28 @@ export function findConsumerProjectRoot(installDir) {
 
 /**
  * @param {string} dest
- * @param {string} targetRelative POSIX-style relative link target
+ * @param {string} target
+ * @param {"file" | "dir"} type
  * @returns {"created" | "refreshed" | "kept" | "error"}
  */
-function ensureSymlink(dest, targetRelative) {
+function ensureSymlink(dest, target, type = "file") {
+  const targetRelative = relative(dirname(dest), target);
+  const normalized =
+    process.platform === "win32"
+      ? targetRelative.split("\\").join("/")
+      : targetRelative;
+  const linkTarget =
+    process.platform === "win32" && type === "dir" ? target : normalized;
+  const linkType =
+    type === "dir" ? (process.platform === "win32" ? "junction" : "dir") : null;
+
   if (!existsSync(dest)) {
     try {
-      symlinkSync(targetRelative, dest);
+      symlinkSync(linkTarget, dest, linkType ?? undefined);
       return "created";
     } catch (e) {
       console.error(
-        `[ghostcrab] postinstall: could not symlink ${basename(dest)} -> ${targetRelative}: ${e instanceof Error ? e.message : e}`
+        `[ghostcrab] postinstall: could not symlink ${basename(dest)} -> ${normalized}: ${e instanceof Error ? e.message : e}`
       );
       return "error";
     }
@@ -80,7 +91,7 @@ function ensureSymlink(dest, targetRelative) {
     if (st.isSymbolicLink()) {
       try {
         unlinkSync(dest);
-        symlinkSync(targetRelative, dest);
+        symlinkSync(linkTarget, dest, linkType ?? undefined);
         return "refreshed";
       } catch (e) {
         console.error(
@@ -174,12 +185,21 @@ export function runHostProjectBootstrap(opts) {
         continue;
       }
       const dest = join(consumerRoot, name);
-      const targetRelative = relative(dirname(dest), src);
-      const normalized =
-        process.platform === "win32"
-          ? targetRelative.split("\\").join("/")
-          : targetRelative;
-      summary.links[name] = ensureSymlink(dest, normalized);
+      summary.links[name] = ensureSymlink(dest, src, "file");
+    }
+
+    const skillsSrc = join(pkgRoot, "ghostcrab-skills");
+    if (existsSync(skillsSrc)) {
+      summary.links["ghostcrab-skills"] = ensureSymlink(
+        join(consumerRoot, "ghostcrab-skills"),
+        skillsSrc,
+        "dir"
+      );
+    } else {
+      summary.links["ghostcrab-skills"] = "no-source";
+      console.error(
+        `[ghostcrab] postinstall: package directory missing for skill link: ghostcrab-skills`
+      );
     }
 
     if (!quiet) {

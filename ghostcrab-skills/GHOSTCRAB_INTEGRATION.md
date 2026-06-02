@@ -89,7 +89,7 @@ In this repo:
 
 The current starter files assume:
 
-- local SQLite at `./data/ghostcrab.sqlite` (or `GHOSTCRAB_SQLITE_PATH` when set)
+- default SQLite at `~/.ghostcrab/databases/ghostcrab.sqlite` (or `GHOSTCRAB_SQLITE_PATH` / `--db` when set)
 - `GHOSTCRAB_DATABASE_KIND=sqlite` when env vars are used explicitly
 - public MCP server name `ghostcrab`
 - `gcp brain up` as the default stdio entrypoint

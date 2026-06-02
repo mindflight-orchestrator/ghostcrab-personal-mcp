@@ -14,11 +14,11 @@ operations.
 |-----|----------------|--------------|
 | **Start the brain + expose MCP** | `gcp brain up` | Launches the Zig MindBrain backend (if needed) and the MCP server on stdio. Shorthand: `gcp up` / `gcp start`. Legacy: `gcp serve`. |
 | **Local smoke / diagnostics** | `gcp smoke`, `gcp status`, `gcp tools list` | Read-only checks for backend reachability, package/version, MCP tool registration, and operational status. |
-| **Isolate memory (workspace)** | `gcp brain workspace create \| list` | Registers a named SQLite workspace. Legacy: `gcp init`. |
+| **Isolate memory (workspace)** | `gcp brain workspace create \| list` | Registers a logical MindBrain workspace_id. Legacy: `gcp init`. |
 | **Structure in the DB (ontologies)** | `gcp brain schema …` | Registry ontologies (knowledge schema). Legacy: `gcp ontologies …`. |
 | **Ontology source import/export** | `gcp brain ontology import\|export …` | Import normalized OWL2/RDF N-Triples into MindBrain, export preserved N-Triples or a taxonomy bundle. |
 | **Equip agents (skills)** | `gcp agent skills …` | Registry skills (agent capabilities). Shortcut: `gcp agent equip owner/name` = `agent skills pull`. Legacy: `gcp skills …`. |
-| **CLI / MCP environment** | `gcp env …` | Read/write `~/.config/ghostcrab/config.json`. Legacy: `gcp config …`. |
+| **CLI / MCP environment** | `gcp env …` | Read/write `~/.ghostcrab/config.json`. Legacy: `gcp config …`. |
 | **Backup / restore** | `gcp brain backup …`, `gcp brain load …` | Export workspace, collection, or taxonomy backup bundles; restore `ghostcrab_backup_bundle` JSON. `gcp brain export` is an alias for backup. |
 | **Load demo profile** | `gcp brain load …` | JSONL profile into the DB. Legacy: `gcp load …`. |
 | **Corpus import / profiling** | `gcp brain document …` | Normalize, profile, enqueue/worker, ingest, list qualification vocabulary (stop MCP first). See `gcp brain document --help` and [document-import.md](../setup/document-import.md). |

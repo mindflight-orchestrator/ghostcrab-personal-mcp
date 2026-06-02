@@ -1,12 +1,11 @@
 /**
- * Config file: $GHOSTCRAB_CONFIG_DIR/config.json
+ * Config file: ~/.ghostcrab/config.json
+ * Override with GHOSTCRAB_CONFIG_DIR or GHOSTCRAB_HOME.
  *
  * Schema:
  * {
  *   "registry": { "url": "https://...", "token": null },
- *   "workspaces": {
- *     "default": { "sqlitePath": "/abs/path/ghostcrab.sqlite" }
- *   },
+ *   "workspaces": { "default": {} },
  *   "defaultWorkspace": "default"
  * }
  */
