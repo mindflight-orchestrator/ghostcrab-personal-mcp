@@ -26,6 +26,7 @@ import {
  * @param {boolean} opts.skipSkills
  * @param {boolean} opts.force
  * @param {boolean} opts.dryRun
+ * @param {"user" | "project"} [opts.skillsScope]
  * @param {string[]} [opts.allowTools]
  * @param {string[]} [opts.askTools]
  */
@@ -102,6 +103,7 @@ export async function runSetupPostInstall(opts) {
         skip: false,
         force: opts.force,
         context: "setup",
+        scope: opts.skillsScope ?? "user",
         permissionsAllow
       });
       if (!skills.ok && !skills.skipped) {
@@ -122,7 +124,8 @@ export async function runSetupPostInstall(opts) {
       const preview = describeIdeSkillsBundleForTarget({
         target: setupTargetToIdeSkillsTarget(opts.target),
         cwd: opts.cwd,
-        pkgRoot: opts.pkgRoot
+        pkgRoot: opts.pkgRoot,
+        scope: opts.skillsScope ?? "user"
       });
       if (!preview.ok) {
         return {
@@ -134,7 +137,7 @@ export async function runSetupPostInstall(opts) {
         `[dry-run] Would install ${opts.target} skill bundle from ${preview.bundleRoot}: ${preview.skills.join(", ")} -> ${preview.installedSkillRoot}`
       );
       messages.push(
-        `[dry-run] Would write skill reference ${preview.referenceManifest} and shortcut ${preview.currentShortcut}`
+        `[dry-run] Would write skill reference ${preview.referenceManifest}, ${preview.targetReferenceManifest} and shortcut ${preview.currentShortcut}`
       );
     }
   }

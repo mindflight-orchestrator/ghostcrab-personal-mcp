@@ -1,6 +1,7 @@
 ---
 name: ghostcrab-prompt-guide
 description: Use when a user needs help turning plain-language goals into strong GhostCrab prompts.
+disable-model-invocation: true
 ---
 
 # GhostCrab Prompt Guide

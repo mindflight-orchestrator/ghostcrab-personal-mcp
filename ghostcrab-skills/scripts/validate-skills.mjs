@@ -15,7 +15,21 @@ const errors = [];
 const warnings = [];
 const infos = [];
 
+const COMMON_SKILL_NAMES = [
+  "ghostcrab-memory",
+  "ghostcrab-prompt-guide",
+  "ghostcrab-data-architect",
+  "ghostcrab-integration-sop-editor",
+  "mindbrain-comparison-writer"
+];
+
 const REQUIRED_DIRECTORIES = [
+  "skills",
+  "skills/ghostcrab-memory",
+  "skills/ghostcrab-prompt-guide",
+  "skills/ghostcrab-data-architect",
+  "skills/ghostcrab-integration-sop-editor",
+  "skills/mindbrain-comparison-writer",
   "codex",
   "codex/ghostcrab-memory",
   "codex/ghostcrab-prompt-guide",
@@ -40,7 +54,8 @@ const REQUIRED_DIRECTORIES = [
   "openclaw/scenarios",
   "scripts",
   "cursor",
-  "cursor/rules"
+  "cursor/skills",
+  "generated"
 ];
 
 const REQUIRED_FILES = [
@@ -51,12 +66,12 @@ const REQUIRED_FILES = [
   "MCP_TOOL_DESCRIPTION_PATCHES.md",
   "package.json",
   "shared/ONBOARDING_CONTRACT.md",
+  "skills/ghostcrab-memory/SKILL.md",
+  "skills/ghostcrab-prompt-guide/SKILL.md",
+  "skills/ghostcrab-data-architect/SKILL.md",
+  "skills/ghostcrab-integration-sop-editor/SKILL.md",
+  "skills/mindbrain-comparison-writer/SKILL.md",
   "cursor/README.md",
-  "cursor/rules/ghostcrab-memory.mdc",
-  "cursor/rules/ghostcrab-prompt-guide.mdc",
-  "cursor/rules/ghostcrab-data-architect.mdc",
-  "cursor/rules/ghostcrab-integration-sop-editor.mdc",
-  "cursor/rules/mindbrain-comparison-writer.mdc",
   "codex/README.md",
   "codex/ghostcrab-memory/SKILL.md",
   "codex/ghostcrab-prompt-guide/SKILL.md",
@@ -107,7 +122,6 @@ const REQUIRED_FILES = [
   "claude-code/self-memory/.mcp.json",
   "claude-code/self-memory/.claude/settings.json",
   "claude-code/data-architect/README.md",
-  "claude-code/data-architect/CLAUDE.md",
   "claude-code/data-architect/SCHEMA_DESIGN_PROJECT.md",
   "claude-code/data-architect/templates/domain.schema.json",
   "claude-code/data-architect/templates/migration.sql.tpl",
@@ -126,9 +140,7 @@ const PROFILE_ENTRYPOINTS = new Set([
   "claude-code/self-memory",
   "claude-code/data-architect",
   "claude-code/skills/ghostcrab-memory",
-  "claude-code/skills/ghostcrab-data-architect",
-  "cursor/rules/ghostcrab-memory.mdc",
-  "cursor/rules/ghostcrab-data-architect.mdc"
+  "claude-code/skills/ghostcrab-data-architect"
 ]);
 const ENTRYPOINT_CAPABILITIES = new Map([
   [
@@ -206,32 +218,6 @@ const ENTRYPOINT_CAPABILITIES = new Map([
       "ghostcrab_modeling_guidance"
     ])
   ],
-  [
-    "cursor/rules/ghostcrab-memory.mdc",
-    new Set([
-      "ghostcrab_status",
-      "ghostcrab_search",
-      "ghostcrab_pack",
-      "ghostcrab_count",
-      "ghostcrab_remember",
-      "ghostcrab_upsert",
-      "ghostcrab_learn",
-      "ghostcrab_project"
-    ])
-  ],
-  [
-    "cursor/rules/ghostcrab-data-architect.mdc",
-    new Set([
-      "ghostcrab_status",
-      "ghostcrab_search",
-      "ghostcrab_pack",
-      "ghostcrab_count",
-      "ghostcrab_schema_list",
-      "ghostcrab_schema_inspect",
-      "ghostcrab_schema_register",
-      "ghostcrab_modeling_guidance"
-    ])
-  ]
 ]);
 
 const VALID_ENV_TOKEN_PATTERN = /^\$\{[A-Z0-9_]+(?::-?[^}]*)?\}$/;
@@ -320,6 +306,37 @@ function assertRequiredPaths() {
     if (!exists(fullPath) || !fs.statSync(fullPath).isFile()) {
       addError(`Missing required file: ${relativePath}`);
     }
+  }
+}
+
+function assertEditorSkillSymlinks() {
+  for (const name of COMMON_SKILL_NAMES) {
+    const expected = {
+      [`codex/${name}`]: `../skills/${name}`,
+      [`cursor/skills/${name}`]: `../../skills/${name}`,
+      [`claude-code/skills/${name}`]: `../../skills/${name}`
+    };
+    for (const [relativePath, target] of Object.entries(expected)) {
+      const fullPath = path.join(repoRoot, relativePath);
+      if (!exists(fullPath)) {
+        addError(`Missing editor skill link: ${relativePath}`);
+        continue;
+      }
+      const stat = fs.lstatSync(fullPath);
+      if (!stat.isSymbolicLink()) {
+        addError(`${relativePath} must be a symlink to ${target}`);
+        continue;
+      }
+      const actual = fs.readlinkSync(fullPath);
+      if (actual !== target) {
+        addError(`${relativePath} points to ${actual}; expected ${target}`);
+      }
+    }
+  }
+
+  const cursorRules = path.join(repoRoot, "cursor", "rules");
+  if (exists(cursorRules)) {
+    addError("cursor/rules must not exist; Cursor uses selectable skills only.");
   }
 }
 
@@ -1147,6 +1164,7 @@ function extractSeedDomain(entry) {
 
 function main() {
   assertRequiredPaths();
+  assertEditorSkillSymlinks();
   validateJsonFiles();
   validateMarkdownLinks();
   const seedEntries = validatePortableSeedFiles() ?? [];

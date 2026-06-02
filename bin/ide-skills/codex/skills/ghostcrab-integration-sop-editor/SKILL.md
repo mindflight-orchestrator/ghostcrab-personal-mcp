@@ -1,6 +1,7 @@
 ---
 name: ghostcrab-integration-sop-editor
 description: Use when editing GhostCrab/MindBrain integration SOP Markdown exports from Perplexity, especially to replace the generated prompt-like opening with a clean framework introduction, official framework context, MindBrain definition, and integration benefit while preserving the technical body.
+disable-model-invocation: true
 ---
 
 # GhostCrab Integration SOP Editor

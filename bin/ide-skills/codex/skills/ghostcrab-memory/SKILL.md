@@ -1,6 +1,7 @@
 ---
 name: ghostcrab-memory
 description: Use when GhostCrab should hold durable working memory for coding, blockers, follow-up, long-running delivery, integrations, or fuzzy tracking requests.
+disable-model-invocation: true
 ---
 
 # GhostCrab Memory

@@ -59,7 +59,9 @@ describe("sync-ide-skill-bundles", () => {
     const run = runSync();
     expect(run.status).toBe(0);
     expect(existsSync(join(bundleRoot, "manifest.json"))).toBe(true);
-    expect(existsSync(join(bundleRoot, "cursor", "rules", "ghostcrab-memory.mdc"))).toBe(true);
+    expect(existsSync(join(bundleRoot, "cursor", "rules", "ghostcrab-memory.mdc"))).toBe(false);
+    expect(existsSync(join(bundleRoot, "claude-code", "self-memory", "CLAUDE.install.md"))).toBe(true);
+    expect(existsSync(join(bundleRoot, "claude-code", "self-memory", "CLAUDE.md"))).toBe(false);
   });
 
   it("manifest lists all bundle artifacts including shared subset", () => {
@@ -71,14 +73,17 @@ describe("sync-ide-skill-bundles", () => {
       files: { path: string; sha256: string }[];
     };
     expect(manifest.source).toBe("ghostcrab-skills");
-    expect(manifest.files.length).toBeGreaterThanOrEqual(38);
+    expect(manifest.files.length).toBeGreaterThanOrEqual(37);
     for (const name of EXPECTED_SHARED_FILES) {
       expect(manifest.files.some((f) => f.path === `shared/${name}`)).toBe(true);
     }
-    expect(manifest.files.some((f) => f.path === "cursor/rules/ghostcrab-prompt-guide.mdc")).toBe(true);
+    expect(manifest.files.some((f) => f.path.startsWith("cursor/rules/"))).toBe(false);
     expect(manifest.files.some((f) => f.path === "cursor/skills/ghostcrab-memory/SKILL.md")).toBe(true);
+    expect(manifest.files.some((f) => f.path === "claude-code/self-memory/CLAUDE.install.md")).toBe(true);
+    expect(manifest.files.some((f) => f.path === "claude-code/self-memory/CLAUDE.md")).toBe(false);
     expect(manifest.files.some((f) => f.path === "claude-code/skills/ghostcrab-memory/SKILL.md")).toBe(true);
     expect(manifest.files.some((f) => f.path === "codex/skills/ghostcrab-memory/SKILL.md")).toBe(true);
+    expect(manifest.files.some((f) => f.path === "codex/skills/ghostcrab-memory/agents/openai.yaml")).toBe(true);
     expect(manifest.files.some((f) => f.path === "codex/skills/mindbrain-comparison-writer/references/article-blueprint.md")).toBe(true);
     expect(manifest.files.some((f) => f.path.includes("SKILL-2.md"))).toBe(false);
     for (const entry of manifest.files) {
@@ -103,25 +108,48 @@ describe("sync-ide-skill-bundles", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("cursor and claude bundles use project-local shared paths", () => {
+  it("cursor and claude bundles use skill-local shared paths", () => {
     runSync();
-    const cursorRule = readFileSync(
-      join(bundleRoot, "cursor/rules/ghostcrab-memory.mdc"),
+    expect(
+      existsSync(join(bundleRoot, "cursor", "rules", "ghostcrab-memory.mdc"))
+    ).toBe(false);
+
+    const cursorSkill = readFileSync(
+      join(bundleRoot, "cursor", "skills", "ghostcrab-memory", "SKILL.md"),
       "utf8"
     );
-    expect(cursorRule).not.toContain("ghostcrab-skills/shared");
+    expect(cursorSkill).toContain("../ghostcrab-shared/ONBOARDING_CONTRACT.md");
+    expect(cursorSkill).toContain("disable-model-invocation: true");
+    expect(
+      existsSync(
+        join(bundleRoot, "cursor/skills/mindbrain-comparison-writer/agents/openai.yaml")
+      )
+    ).toBe(false);
 
     const claude = readFileSync(
       join(bundleRoot, "claude-code/skills/ghostcrab-memory/SKILL.md"),
       "utf8"
     );
     expect(claude).toContain("../ghostcrab-shared/ONBOARDING_CONTRACT.md");
+    expect(
+      existsSync(
+        join(
+          bundleRoot,
+          "claude-code/skills/mindbrain-comparison-writer/agents/openai.yaml"
+        )
+      )
+    ).toBe(false);
 
     const codex = readFileSync(
       join(bundleRoot, "codex/skills/ghostcrab-memory/SKILL.md"),
       "utf8"
     );
     expect(codex).toContain("../ghostcrab-shared/ONBOARDING_CONTRACT.md");
+    const codexPolicy = readFileSync(
+      join(bundleRoot, "codex/skills/ghostcrab-memory/agents/openai.yaml"),
+      "utf8"
+    );
+    expect(codexPolicy).toContain("allow_implicit_invocation: false");
   });
 
   it("re-running sync is a no-op on manifest paths and checksums", () => {

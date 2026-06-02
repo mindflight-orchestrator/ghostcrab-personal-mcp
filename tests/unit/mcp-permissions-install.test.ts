@@ -200,13 +200,31 @@ describe("apply permissions on disk", () => {
 
 describe("install-ide-skills bundles", () => {
   let cwd = "";
+  let fakeHome = "";
+  let prevHome: string | undefined;
 
   afterEach(() => {
     if (cwd) {
       rmSync(cwd, { recursive: true, force: true });
       cwd = "";
     }
+    if (fakeHome) {
+      rmSync(fakeHome, { recursive: true, force: true });
+      fakeHome = "";
+    }
+    if (prevHome !== undefined) {
+      process.env.HOME = prevHome;
+      process.env.USERPROFILE = prevHome;
+      prevHome = undefined;
+    }
   });
+
+  function useFakeHome() {
+    prevHome = process.env.HOME;
+    fakeHome = mkdtempSync(join(tmpdir(), "gc-skills-home-"));
+    process.env.HOME = fakeHome;
+    process.env.USERPROFILE = fakeHome;
+  }
 
   it("resolves bin/ide-skills bundle root", () => {
     const root = resolveIdeSkillsBundleRoot(PKG_ROOT);
@@ -214,8 +232,11 @@ describe("install-ide-skills bundles", () => {
     expect(existsSync(join(root!, "shared", "ONBOARDING_CONTRACT.md"))).toBe(true);
   });
 
-  it("installs cursor bundle with shared docs", () => {
+  it("installs cursor bundle globally as selectable skills without rules", () => {
     cwd = mkdtempSync(join(tmpdir(), "gc-skills-cursor-"));
+    useFakeHome();
+    mkdirSync(join(cwd, ".cursor", "rules"), { recursive: true });
+    writeFileSync(join(cwd, ".cursor", "rules", "ghostcrab-memory.mdc"), "legacy");
     const result = installIdeSkillsBundleForTarget({
       target: "cursor",
       cwd,
@@ -224,20 +245,17 @@ describe("install-ide-skills bundles", () => {
       context: "setup"
     });
     expect(result.ok).toBe(true);
-    expect(existsSync(join(cwd, ".cursor", "rules", "ghostcrab-memory.mdc"))).toBe(
-      true
-    );
     expect(
-      existsSync(join(cwd, ".cursor", "rules", "ghostcrab-prompt-guide.mdc"))
+      existsSync(join(cwd, ".cursor", "rules", "ghostcrab-memory.mdc"))
+    ).toBe(false);
+    expect(
+      existsSync(join(fakeHome, ".cursor", "skills", "ghostcrab-memory", "SKILL.md"))
     ).toBe(true);
     expect(
-      existsSync(join(cwd, ".cursor", "skills", "ghostcrab-memory", "SKILL.md"))
+      existsSync(join(fakeHome, ".cursor", "skills", "mindbrain-comparison-writer", "references", "article-blueprint.md"))
     ).toBe(true);
     expect(
-      existsSync(join(cwd, ".cursor", "skills", "mindbrain-comparison-writer", "references", "article-blueprint.md"))
-    ).toBe(true);
-    expect(
-      existsSync(join(cwd, ".cursor", "skills", "ghostcrab-shared", "ONBOARDING_CONTRACT.md"))
+      existsSync(join(fakeHome, ".cursor", "skills", "ghostcrab-shared", "ONBOARDING_CONTRACT.md"))
     ).toBe(true);
     expect(
       existsSync(join(cwd, ".ghostcrab", "skills", "shared", "ONBOARDING_CONTRACT.md"))
@@ -245,18 +263,42 @@ describe("install-ide-skills bundles", () => {
     expect(
       existsSync(join(cwd, ".ghostcrab", "skills", "installed.json"))
     ).toBe(true);
-    const rule = readFileSync(
-      join(cwd, ".cursor", "rules", "ghostcrab-memory.mdc"),
+    expect(
+      existsSync(join(cwd, ".ghostcrab", "skills", "installed-cursor.json"))
+    ).toBe(true);
+    const skill = readFileSync(
+      join(fakeHome, ".cursor", "skills", "ghostcrab-memory", "SKILL.md"),
       "utf8"
     );
-    expect(rule).not.toContain("ghostcrab-skills/shared");
+    expect(skill).toContain("disable-model-invocation: true");
   });
 
-  it("installs claude bundle with settings merge", () => {
+  it("can install cursor skills project-locally on explicit scope", () => {
+    cwd = mkdtempSync(join(tmpdir(), "gc-skills-cursor-project-"));
+    useFakeHome();
+    const result = installIdeSkillsBundleForTarget({
+      target: "cursor",
+      cwd,
+      pkgRoot: PKG_ROOT,
+      force: true,
+      context: "setup",
+      scope: "project"
+    });
+    expect(result.ok).toBe(true);
+    expect(
+      existsSync(join(cwd, ".cursor", "skills", "ghostcrab-memory", "SKILL.md"))
+    ).toBe(true);
+    expect(
+      existsSync(join(fakeHome, ".cursor", "skills", "ghostcrab-memory", "SKILL.md"))
+    ).toBe(false);
+  });
+
+  it("installs claude bundle globally with user settings merge", () => {
     cwd = mkdtempSync(join(tmpdir(), "gc-skills-claude-"));
-    mkdirSync(join(cwd, ".claude"), { recursive: true });
+    useFakeHome();
+    mkdirSync(join(fakeHome, ".claude"), { recursive: true });
     writeFileSync(
-      join(cwd, ".claude", "settings.json"),
+      join(fakeHome, ".claude", "settings.json"),
       JSON.stringify({ hooks: { SessionStart: [] } }, null, 2)
     );
 
@@ -270,30 +312,32 @@ describe("install-ide-skills bundles", () => {
     });
     expect(result.ok).toBe(true);
     const settings = JSON.parse(
-      readFileSync(join(cwd, ".claude", "settings.json"), "utf8")
+      readFileSync(join(fakeHome, ".claude", "settings.json"), "utf8")
     );
     expect(settings.hooks.SessionStart).toEqual([]);
     expect(settings.permissions.allow).toContain(
       "mcp__ghostcrab-personal-mcp__ghostcrab_status"
     );
     expect(
-      existsSync(join(cwd, ".claude", "skills", "ghostcrab-memory", "SKILL.md"))
+      existsSync(join(fakeHome, ".claude", "skills", "ghostcrab-memory", "SKILL.md"))
     ).toBe(true);
     expect(
-      existsSync(join(cwd, ".claude", "skills", "ghostcrab-data-architect", "SKILL.md"))
+      existsSync(join(fakeHome, ".claude", "skills", "ghostcrab-data-architect", "SKILL.md"))
     ).toBe(true);
     expect(
-      existsSync(join(cwd, ".claude", "skills", "ghostcrab-shared", "ONBOARDING_CONTRACT.md"))
+      existsSync(join(fakeHome, ".claude", "skills", "ghostcrab-shared", "ONBOARDING_CONTRACT.md"))
     ).toBe(true);
     const installed = JSON.parse(
       readFileSync(join(cwd, ".ghostcrab", "skills", "installed.json"), "utf8")
     );
     expect(installed.target).toBe("claude-code");
+    expect(installed.scope).toBe("user");
     expect(installed.skills).toContain("mindbrain-comparison-writer");
   });
 
-  it("installs codex bundle with patched shared links", () => {
+  it("installs codex bundle globally into .agents skills with patched shared links", () => {
     cwd = mkdtempSync(join(tmpdir(), "gc-skills-codex-"));
+    useFakeHome();
     const result = installIdeSkillsBundleForTarget({
       target: "codex",
       cwd,
@@ -303,29 +347,30 @@ describe("install-ide-skills bundles", () => {
     });
     expect(result.ok).toBe(true);
     const skill = readFileSync(
-      join(cwd, ".codex", "skills", "ghostcrab-memory", "SKILL.md"),
+      join(fakeHome, ".agents", "skills", "ghostcrab-memory", "SKILL.md"),
       "utf8"
     );
     expect(skill).toContain("../ghostcrab-shared/ONBOARDING_CONTRACT.md");
     expect(
-      existsSync(join(cwd, ".codex", "skills", "ghostcrab-prompt-guide", "SKILL.md"))
+      existsSync(join(fakeHome, ".agents", "skills", "ghostcrab-prompt-guide", "SKILL.md"))
     ).toBe(true);
     expect(
-      existsSync(join(cwd, ".codex", "skills", "mindbrain-comparison-writer", "agents", "openai.yaml"))
+      existsSync(join(fakeHome, ".agents", "skills", "ghostcrab-memory", "agents", "openai.yaml"))
     ).toBe(true);
     expect(
       existsSync(
-        join(cwd, ".codex", "skills", "ghostcrab-shared", "ONBOARDING_CONTRACT.md")
+        join(fakeHome, ".agents", "skills", "ghostcrab-shared", "ONBOARDING_CONTRACT.md")
       )
     ).toBe(true);
     const installed = JSON.parse(
       readFileSync(join(cwd, ".ghostcrab", "skills", "installed.json"), "utf8")
     );
-    expect(installed.installedSkillRoot).toContain(join(".codex", "skills"));
+    expect(installed.installedSkillRoot).toContain(join(".agents", "skills"));
   });
 
   it("installs generic bundle into .agents skills", () => {
     cwd = mkdtempSync(join(tmpdir(), "gc-skills-generic-"));
+    useFakeHome();
     const result = installIdeSkillsBundleForTarget({
       target: "generic",
       cwd,
@@ -335,10 +380,10 @@ describe("install-ide-skills bundles", () => {
     });
     expect(result.ok).toBe(true);
     expect(
-      existsSync(join(cwd, ".agents", "skills", "ghostcrab-memory", "SKILL.md"))
+      existsSync(join(fakeHome, ".agents", "skills", "ghostcrab-memory", "SKILL.md"))
     ).toBe(true);
     expect(
-      existsSync(join(cwd, ".agents", "skills", "ghostcrab-shared", "ONBOARDING_CONTRACT.md"))
+      existsSync(join(fakeHome, ".agents", "skills", "ghostcrab-shared", "ONBOARDING_CONTRACT.md"))
     ).toBe(true);
     const installed = JSON.parse(
       readFileSync(join(cwd, ".ghostcrab", "skills", "installed.json"), "utf8")
