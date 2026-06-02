@@ -20,10 +20,18 @@ const REQUIRED_DIRECTORIES = [
   "codex/ghostcrab-memory",
   "codex/ghostcrab-prompt-guide",
   "codex/ghostcrab-data-architect",
+  "codex/ghostcrab-integration-sop-editor",
+  "codex/mindbrain-comparison-writer",
   "shared",
   "shared/demo-profiles",
   "openclaw/ghostcrab-memory",
   "openclaw/ghostcrab-epistemic-agent",
+  "claude-code/skills",
+  "claude-code/skills/ghostcrab-memory",
+  "claude-code/skills/ghostcrab-prompt-guide",
+  "claude-code/skills/ghostcrab-data-architect",
+  "claude-code/skills/ghostcrab-integration-sop-editor",
+  "claude-code/skills/mindbrain-comparison-writer",
   "claude-code/self-memory/.claude",
   "claude-code/data-architect/templates",
   "claude-code/data-architect/examples/project-management",
@@ -45,10 +53,22 @@ const REQUIRED_FILES = [
   "shared/ONBOARDING_CONTRACT.md",
   "cursor/README.md",
   "cursor/rules/ghostcrab-memory.mdc",
+  "cursor/rules/ghostcrab-prompt-guide.mdc",
+  "cursor/rules/ghostcrab-data-architect.mdc",
+  "cursor/rules/ghostcrab-integration-sop-editor.mdc",
+  "cursor/rules/mindbrain-comparison-writer.mdc",
   "codex/README.md",
   "codex/ghostcrab-memory/SKILL.md",
   "codex/ghostcrab-prompt-guide/SKILL.md",
   "codex/ghostcrab-data-architect/SKILL.md",
+  "codex/ghostcrab-integration-sop-editor/SKILL.md",
+  "codex/mindbrain-comparison-writer/SKILL.md",
+  "claude-code/README.md",
+  "claude-code/skills/ghostcrab-memory/SKILL.md",
+  "claude-code/skills/ghostcrab-prompt-guide/SKILL.md",
+  "claude-code/skills/ghostcrab-data-architect/SKILL.md",
+  "claude-code/skills/ghostcrab-integration-sop-editor/SKILL.md",
+  "claude-code/skills/mindbrain-comparison-writer/SKILL.md",
   "shared/SCHEMA_DESIGN.md",
   "shared/PATH_CONTENT_FACETS.md",
   "shared/QUERY_PATTERNS.md",
@@ -104,7 +124,11 @@ const PROFILE_ENTRYPOINTS = new Set([
   "openclaw/ghostcrab-memory",
   "openclaw/ghostcrab-epistemic-agent",
   "claude-code/self-memory",
-  "claude-code/data-architect"
+  "claude-code/data-architect",
+  "claude-code/skills/ghostcrab-memory",
+  "claude-code/skills/ghostcrab-data-architect",
+  "cursor/rules/ghostcrab-memory.mdc",
+  "cursor/rules/ghostcrab-data-architect.mdc"
 ]);
 const ENTRYPOINT_CAPABILITIES = new Map([
   [
@@ -154,6 +178,58 @@ const ENTRYPOINT_CAPABILITIES = new Map([
       "ghostcrab_schema_list",
       "ghostcrab_schema_inspect",
       "ghostcrab_schema_register"
+    ])
+  ],
+  [
+    "claude-code/skills/ghostcrab-memory",
+    new Set([
+      "ghostcrab_status",
+      "ghostcrab_search",
+      "ghostcrab_pack",
+      "ghostcrab_count",
+      "ghostcrab_remember",
+      "ghostcrab_upsert",
+      "ghostcrab_learn",
+      "ghostcrab_project"
+    ])
+  ],
+  [
+    "claude-code/skills/ghostcrab-data-architect",
+    new Set([
+      "ghostcrab_status",
+      "ghostcrab_search",
+      "ghostcrab_pack",
+      "ghostcrab_count",
+      "ghostcrab_schema_list",
+      "ghostcrab_schema_inspect",
+      "ghostcrab_schema_register",
+      "ghostcrab_modeling_guidance"
+    ])
+  ],
+  [
+    "cursor/rules/ghostcrab-memory.mdc",
+    new Set([
+      "ghostcrab_status",
+      "ghostcrab_search",
+      "ghostcrab_pack",
+      "ghostcrab_count",
+      "ghostcrab_remember",
+      "ghostcrab_upsert",
+      "ghostcrab_learn",
+      "ghostcrab_project"
+    ])
+  ],
+  [
+    "cursor/rules/ghostcrab-data-architect.mdc",
+    new Set([
+      "ghostcrab_status",
+      "ghostcrab_search",
+      "ghostcrab_pack",
+      "ghostcrab_count",
+      "ghostcrab_schema_list",
+      "ghostcrab_schema_inspect",
+      "ghostcrab_schema_register",
+      "ghostcrab_modeling_guidance"
     ])
   ]
 ]);

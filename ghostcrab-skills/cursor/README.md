@@ -6,12 +6,18 @@ To register the GhostCrab stdio server in Cursor (`.cursor/mcp.json` or `~/.curs
 
 - [../../README_CURSOR_MCP.md](../../README_CURSOR_MCP.md)
 
-## Rules and `CLAUDE.md`
+## Rules
 
-Cursor picks up [CLAUDE.md](../../CLAUDE.md) at the product repo root. For **agent rules** (e.g. always-apply behavior), copy or symlink:
+For agent rules, copy or symlink the relevant files into your project `.cursor/rules/` directory, or merge their contents into existing rules:
 
-- `rules/ghostcrab-memory.mdc` → your project `.cursor/rules/` (or merge the contents into an existing rule file).
+- `rules/ghostcrab-memory.mdc`
+- `rules/ghostcrab-prompt-guide.mdc`
+- `rules/ghostcrab-data-architect.mdc`
+- `rules/ghostcrab-integration-sop-editor.mdc`
+- `rules/mindbrain-comparison-writer.mdc`
 
 Canonical onboarding and gates: [../shared/ONBOARDING_CONTRACT.md](../shared/ONBOARDING_CONTRACT.md).
 
-Claude Code users should also use the repo root [CLAUDE.md](../../CLAUDE.md) pointer so the full skill stack loads.
+Composer 2.5 is treated as the lower-capability target here, so the Cursor rules are intentionally more literal and procedural than the Codex or Claude Code skills.
+
+Claude Code users should use [../claude-code/README.md](../claude-code/README.md) instead.

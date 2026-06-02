@@ -1,13 +1,88 @@
 ---
-description: GhostCrab MCP memory — product language, onboarding gate, read-before-write
+description: GhostCrab memory for Cursor - onboarding gate, read-before-write, checkpoints
 globs:
 alwaysApply: false
 ---
 
-# GhostCrab (Cursor)
+# GhostCrab Memory (Cursor)
 
-- **Canonical contract:** follow `.ghostcrab/skills/shared/ONBOARDING_CONTRACT.md` (§2 naive callers; §3–§8 first-turn fuzzy + hard gate; §9 domain modeling gate before writes; French or locale closing lines in §4).
-- **Persona:** user-facing language first; no schema names, MCP tool names, facets, or graph jargon unless the user asked how GhostCrab works internally.
-- **Non-onboarding:** read before write — count → search → pack; prefer canonical schemas and seeded recipes; checkpoint long-running work; preserve transition rationale before overwriting current-state records.
-- **Workspace context:** follow `.ghostcrab/skills/shared/WORKSPACE_CONTEXT.md` — verify `active_workspace_id` in status before writes; intentional switch only (`workspace_list` → announce → `workspace_use`); never switch on errors/empty reads; never open SQLite directly.
-- **Cursor-specific:** MCP tool lists can be large; prefer explicit `schema_id` and filters in tool arguments to avoid broad exploratory calls.
+## When to use
+
+Use this rule when the user asks Cursor to:
+
+- remember project facts, decisions, conventions, blockers, or follow-up
+- track work over time
+- create a board, tracker, heartbeat, pipeline, or recovery view
+- use GhostCrab as durable memory
+- continue a long-running GhostCrab-backed task
+
+## Composer 2.5 rule
+
+Follow the numbered steps exactly. If a step is unclear, ask one short clarification question before continuing.
+
+## First fuzzy GhostCrab request
+
+If the request is new and the user has not provided a confirmed model:
+
+1. Do not call GhostCrab tools.
+2. Do not create files.
+3. Do not propose alternate storage.
+4. Do not write records.
+5. Reply with this shape:
+
+```text
+I think you want to {plain-language intent}.
+
+Questions:
+1. {question about what they need to see}
+2. {question about what changes over time}
+3. {question about ownership/status/done}
+
+Likely view: {compact view name} - {one-line benefit}.
+I can draft the next GhostCrab prompt once you answer.
+```
+
+## Non-fuzzy read sequence
+
+When the domain is clear:
+
+1. Use status only if runtime health, workspace, or blockers matter.
+2. Use exact search with `schema_id` and filters when possible.
+3. Use count before broad reads.
+4. Use pack only after at least one factual read.
+
+## Write gate
+
+Before any GhostCrab write:
+
+1. Confirm that a model proposal was shown in this thread.
+2. Confirm the user explicitly approved that proposal.
+3. Confirm workspace intent if workspace context matters.
+4. Use the smallest write tool.
+
+Allowed write meanings:
+
+- durable fact or note: `ghostcrab_remember`
+- current state: `ghostcrab_upsert`
+- stable relation: `ghostcrab_learn`
+- provisional compact view: `ghostcrab_project`
+
+## Do not
+
+- Do not register schemas on a fuzzy request.
+- Do not open SQLite directly.
+- Do not switch workspace because a read returned zero rows.
+- Do not expose schema/facet/graph jargon unless the user asks for internals.
+- Do not treat "create it" before a model proposal as approval to write.
+
+## Checkpoint
+
+For long-running work, end each phase with:
+
+```text
+Checkpoint:
+- Current state:
+- Important decisions:
+- Blockers:
+- Next step:
+```

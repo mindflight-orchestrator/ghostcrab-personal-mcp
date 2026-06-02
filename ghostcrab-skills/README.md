@@ -5,6 +5,8 @@
 This repository contains:
 
 - Claude Code starter packs
+- Claude Code on-demand skills
+- Cursor Composer-oriented rules
 - OpenClaw skill and agent profiles
 - shared design rules and portable demo seed data
 - pointers to the GhostCrab Personal StarterKit for clonable SOPs and templates
@@ -52,8 +54,17 @@ ghostcrab-skills/
 ├── codex/
 │   ├── ghostcrab-memory/
 │   ├── ghostcrab-prompt-guide/
-│   └── ghostcrab-data-architect/
+│   ├── ghostcrab-data-architect/
+│   ├── ghostcrab-integration-sop-editor/
+│   └── mindbrain-comparison-writer/
 ├── claude-code/
+│   ├── README.md
+│   ├── skills/
+│   │   ├── ghostcrab-memory/
+│   │   ├── ghostcrab-prompt-guide/
+│   │   ├── ghostcrab-data-architect/
+│   │   ├── ghostcrab-integration-sop-editor/
+│   │   └── mindbrain-comparison-writer/
 │   ├── self-memory/
 │   └── data-architect/
 ├── cursor/
@@ -83,13 +94,23 @@ ghostcrab-skills/
 1. Start a GhostCrab server from the product repo root. In this embedded workspace, that is [`..`](..).
 2. Pick one integration entrypoint:
    - **Codex (MCP + skills):** [codex/README.md](./codex/README.md)
+   - **Claude Code (skills + starters):** [claude-code/README.md](./claude-code/README.md)
+   - **Cursor (MCP + rules):** [cursor/README.md](./cursor/README.md)
    - **OpenClaw (MCP + skills + scenarios):** [openclaw/README.md](./openclaw/README.md)
    - `codex/ghostcrab-memory/`
    - `codex/ghostcrab-prompt-guide/`
    - `codex/ghostcrab-data-architect/`
+   - `codex/ghostcrab-integration-sop-editor/`
+   - `codex/mindbrain-comparison-writer/`
+   - `claude-code/skills/ghostcrab-memory/`
+   - `claude-code/skills/ghostcrab-prompt-guide/`
+   - `claude-code/skills/ghostcrab-data-architect/`
+   - `claude-code/skills/ghostcrab-integration-sop-editor/`
+   - `claude-code/skills/mindbrain-comparison-writer/`
    - `openclaw/ghostcrab-memory/`
    - `claude-code/self-memory/`
    - `claude-code/data-architect/`
+   - `cursor/rules/`
 3. Apply the client-specific config files.
 4. Pick one demo profile from `shared/demo-profiles/`.
 5. Use `shared/bootstrap_seed.jsonl` only when you want the aggregate view of all demo entries.
@@ -105,6 +126,8 @@ npm run demo:choose
 This initial pass includes:
 
 - Codex-facing skill mirrors with the V1 onboarding contract
+- Claude Code on-demand skill mirrors for the five Codex skills
+- Cursor `.mdc` rules adapted for more literal Composer behavior
 - a minimal OpenClaw memory skill
 - a fuller OpenClaw epistemic agent profile
 - a Claude Code self-memory starter
@@ -196,6 +219,8 @@ It does not replace live validation in Claude Code or OpenClaw. It is the interm
 - [shared/TRANSITION_LOGGING.md](./shared/TRANSITION_LOGGING.md)
 - [shared/DEMO_CHOOSER.md](./shared/DEMO_CHOOSER.md)
 - [codex/README.md](./codex/README.md)
+- [claude-code/README.md](./claude-code/README.md)
+- [cursor/README.md](./cursor/README.md)
 - [openclaw/README.md](./openclaw/README.md)
 - [shared/demo-profiles/compliance-audit.jsonl](./shared/demo-profiles/compliance-audit.jsonl)
 - [shared/demo-profiles/crm-pipeline.jsonl](./shared/demo-profiles/crm-pipeline.jsonl)
