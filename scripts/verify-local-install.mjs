@@ -440,23 +440,18 @@ try {
   );
   assert.equal(
     existsSync(join(consumerDir, ".cursor", "rules", "ghostcrab-memory.mdc")),
-    true,
-    "[mcp-setup] expected .cursor/rules/ghostcrab-memory.mdc in consumer project"
+    false,
+    "[mcp-setup] did not expect Cursor rules in consumer project"
   );
   assert.equal(
-    existsSync(join(consumerDir, ".cursor", "rules", "ghostcrab-prompt-guide.mdc")),
+    existsSync(join(fakeCursorDir, ".cursor", "skills", "ghostcrab-memory", "SKILL.md")),
     true,
-    "[mcp-setup] expected all Cursor rules in consumer project"
-  );
-  assert.equal(
-    existsSync(join(consumerDir, ".cursor", "skills", "ghostcrab-memory", "SKILL.md")),
-    true,
-    "[mcp-setup] expected .cursor/skills/ghostcrab-memory/SKILL.md in consumer project"
+    "[mcp-setup] expected ~/.cursor/skills/ghostcrab-memory/SKILL.md in fake HOME"
   );
   assert.equal(
     existsSync(
       join(
-        consumerDir,
+        fakeCursorDir,
         ".cursor",
         "skills",
         "mindbrain-comparison-writer",
@@ -465,7 +460,7 @@ try {
       )
     ),
     true,
-    "[mcp-setup] expected nested Cursor skill references in consumer project"
+    "[mcp-setup] expected nested Cursor skill references in fake HOME"
   );
   assert.equal(
     existsSync(join(consumerDir, ".ghostcrab", "skills", "installed.json")),

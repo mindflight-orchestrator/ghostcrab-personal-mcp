@@ -170,6 +170,7 @@ async function cmdBrainSetup(args) {
     skipSkills: p.noSkills,
     force: p.force,
     dryRun: p.dryRun,
+    skillsScope: p.skillsScope,
     allowTools: p.allowTools,
     askTools: p.askTools
   };
@@ -301,7 +302,7 @@ async function cmdBrainSetup(args) {
 
 /**
  * @param {string[]} args
- * @returns {"help" | { error: string } | { target: string, runner: string, package: string | null, workspace: string | null, dbPath: string | null, serverName: string | null, dryRun: boolean, force: boolean, extraEnv: Record<string, string>, scope: "local" | "user" | "project" } }
+ * @returns {"help" | { error: string } | { target: string, runner: string, package: string | null, workspace: string | null, dbPath: string | null, serverName: string | null, dryRun: boolean, force: boolean, extraEnv: Record<string, string>, scope: "local" | "user" | "project", skillsScope: "user" | "project" } }
  */
 function parseSetupArgs(args) {
   if (args[0] === "--help" || args[0] === "-h") {
@@ -337,6 +338,7 @@ function parseSetupArgs(args) {
     force: false,
     extraEnv: /** @type {Record<string, string>} */ ({}),
     scope: /** @type {"local" | "user" | "project"} */ ("user"),
+    skillsScope: /** @type {"user" | "project"} */ ("user"),
     permissionsPreset: "basic",
     permissionsScope: /** @type {"user" | "project"} */ ("user"),
     mindbrainWorkspaceId: null,
@@ -398,6 +400,16 @@ function parseSetupArgs(args) {
         };
       }
       out.scope = scope;
+      continue;
+    }
+    if (a === "--skills-scope" && rest[i + 1]) {
+      const skillsScope = rest[++i];
+      if (skillsScope !== "user" && skillsScope !== "project") {
+        return {
+          error: `gcp brain setup: --skills-scope must be user or project (got ${skillsScope})`
+        };
+      }
+      out.skillsScope = skillsScope;
       continue;
     }
     if (a === "--permissions" && rest[i + 1]) {
@@ -504,6 +516,7 @@ Usage: gcp brain setup <cursor|codex|claude|generic> [options]
   --no-permissions             skip MCP permission rules (same as --permissions none)
   --permissions-scope user|project
                                Claude settings scope (default: user)
+  --skills-scope user|project  skill install scope (default: user)
   --no-skills                  skip IDE skill bundle install
   --force-skills               overwrite existing skill files (alias: --force)
   --permissions-tool <name>    repeat for custom preset allow list

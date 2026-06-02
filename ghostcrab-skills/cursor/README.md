@@ -6,18 +6,12 @@ To register the GhostCrab stdio server in Cursor (`.cursor/mcp.json` or `~/.curs
 
 - [../../README_CURSOR_MCP.md](../../README_CURSOR_MCP.md)
 
-## Rules
+## Skills
 
-For agent rules, copy or symlink the relevant files into your project `.cursor/rules/` directory, or merge their contents into existing rules:
-
-- `rules/ghostcrab-memory.mdc`
-- `rules/ghostcrab-prompt-guide.mdc`
-- `rules/ghostcrab-data-architect.mdc`
-- `rules/ghostcrab-integration-sop-editor.mdc`
-- `rules/mindbrain-comparison-writer.mdc`
+Run `gcp brain setup cursor` to install selectable GhostCrab skills globally under `~/.cursor/skills/`.
 
 Canonical onboarding and gates: [../shared/ONBOARDING_CONTRACT.md](../shared/ONBOARDING_CONTRACT.md).
 
-Composer 2.5 is treated as the lower-capability target here, so the Cursor rules are intentionally more literal and procedural than the Codex or Claude Code skills.
+Edit the common skill source under `../skills/<skill>/SKILL.md`. The local `skills/<skill>` paths are symlinks to that source, and `generated/cursor` points to the generated install bundle under `bin/ide-skills/cursor/skills/`.
 
 Claude Code users should use [../claude-code/README.md](../claude-code/README.md) instead.

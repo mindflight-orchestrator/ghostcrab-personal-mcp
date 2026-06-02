@@ -1,6 +1,7 @@
 ---
 name: ghostcrab-data-architect
 description: Use when designing or extending a GhostCrab-backed domain model without freezing a canonical schema too early.
+disable-model-invocation: true
 ---
 
 # GhostCrab Data Architect

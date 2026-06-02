@@ -49,7 +49,7 @@ const SHARED_FROM_ROOT = ["CAPABILITIES.md", "SERVER_INSTRUCTIONS.md"];
 
 /**
  * @param {string} text
- * @param {"cursor-rule" | "skill" | "claude-starter"} target
+ * @param {"skill" | "claude-starter"} target
  */
 function rewriteLinks(text, target) {
   let out = text;
@@ -64,20 +64,6 @@ function rewriteLinks(text, target) {
     /\.\.\/shared\//g,
     /ghostcrab-skills\/shared\//g
   ];
-
-  if (target === "cursor-rule") {
-    for (const p of sharedLinkPatterns) {
-      out = out.replace(p, "](../.ghostcrab/skills/shared/");
-    }
-    for (const p of bareSharedPatterns) {
-      out = out.replace(p, ".ghostcrab/skills/shared/");
-    }
-    out = out.replace(
-      /follow `[^`]*ONBOARDING_CONTRACT\.md`/g,
-      "follow `.ghostcrab/skills/shared/ONBOARDING_CONTRACT.md`"
-    );
-    return out;
-  }
 
   if (target === "claude-starter") {
     for (const p of sharedLinkPatterns) {
@@ -106,7 +92,7 @@ function rewriteLinks(text, target) {
 /**
  * @param {string} src
  * @param {string} dest
- * @param {"cursor-rule" | "skill" | "claude-starter" | "raw"} target
+ * @param {"skill" | "claude-starter" | "raw"} target
  */
 function copyTextFile(src, dest, target) {
   mkdirSync(dirname(dest), { recursive: true });
@@ -118,7 +104,7 @@ function copyTextFile(src, dest, target) {
 /**
  * @param {string} src
  * @param {string} dest
- * @param {"cursor-rule" | "skill" | "claude-starter" | "raw"} target
+ * @param {"skill" | "claude-starter" | "raw"} target
  */
 function copyTree(src, dest, target) {
   if (!existsSync(src)) {
@@ -137,6 +123,29 @@ function copyTree(src, dest, target) {
       cpSync(from, to);
     }
   }
+}
+
+/** @param {string} skillDir */
+function ensureCodexManualInvocation(skillDir) {
+  const agentsDir = join(skillDir, "agents");
+  const openaiPath = join(agentsDir, "openai.yaml");
+  mkdirSync(agentsDir, { recursive: true });
+  if (!existsSync(openaiPath)) {
+    writeFileSync(
+      openaiPath,
+      "policy:\n  allow_implicit_invocation: false\n",
+      "utf8"
+    );
+    return;
+  }
+  const text = readFileSync(openaiPath, "utf8");
+  if (text.includes("allow_implicit_invocation")) return;
+  const sep = text.endsWith("\n") ? "" : "\n";
+  writeFileSync(
+    openaiPath,
+    `${text}${sep}policy:\n  allow_implicit_invocation: false\n`,
+    "utf8"
+  );
 }
 
 /** @param {string} path */
@@ -182,16 +191,13 @@ function syncShared() {
 function syncCursor() {
   rmSync(join(outRoot, "cursor"), { recursive: true, force: true });
   for (const name of SKILL_NAMES) {
-    copyTextFile(
-      join(skillsRoot, "cursor", "rules", `${name}.mdc`),
-      join(outRoot, "cursor", "rules", `${name}.mdc`),
-      "cursor-rule"
-    );
+    const dest = join(outRoot, "cursor", "skills", name);
     copyTree(
-      join(skillsRoot, "codex", name),
-      join(outRoot, "cursor", "skills", name),
+      join(skillsRoot, "skills", name),
+      dest,
       "skill"
     );
+    rmSync(join(dest, "agents"), { recursive: true, force: true });
   }
 }
 
@@ -202,7 +208,7 @@ function syncClaudeCode() {
 
   copyTextFile(
     join(skillsRoot, "claude-code", "self-memory", "CLAUDE.md"),
-    join(selfMem, "CLAUDE.md"),
+    join(selfMem, "CLAUDE.install.md"),
     "claude-starter"
   );
 
@@ -223,22 +229,26 @@ function syncClaudeCode() {
   }
 
   for (const name of SKILL_NAMES) {
+    const dest = join(outRoot, "claude-code", "skills", name);
     copyTree(
-      join(skillsRoot, "claude-code", "skills", name),
-      join(outRoot, "claude-code", "skills", name),
+      join(skillsRoot, "skills", name),
+      dest,
       "skill"
     );
+    rmSync(join(dest, "agents"), { recursive: true, force: true });
   }
 }
 
 function syncCodex() {
   rmSync(join(outRoot, "codex"), { recursive: true, force: true });
   for (const name of SKILL_NAMES) {
+    const dest = join(outRoot, "codex", "skills", name);
     copyTree(
-      join(skillsRoot, "codex", name),
-      join(outRoot, "codex", "skills", name),
+      join(skillsRoot, "skills", name),
+      dest,
       "skill"
     );
+    ensureCodexManualInvocation(dest);
   }
 }
 
@@ -265,7 +275,7 @@ function writeManifest() {
 function writeReadme() {
   const readme = `# IDE skill bundles (generated)
 
-Do not edit files here by hand. Source: \`ghostcrab-skills/\`. Regenerate:
+Do not edit files here by hand. Source: \`ghostcrab-skills/skills/\`. Regenerate:
 
 \`\`\`bash
 pnpm run sync:ide-skills
@@ -273,14 +283,14 @@ pnpm run sync:ide-skills
 
 ## Setup mapping
 
-| \`gcp brain setup\` | Bundle | Installed into user project |
+| \`gcp brain setup\` | Bundle | Installed by default |
 |---------------------|--------|----------------------------|
-| \`cursor\` | \`cursor/rules/\`, \`cursor/skills/\`, \`shared/\` | \`.cursor/rules/*.mdc\`, \`.cursor/skills/<skill>/\`, \`.ghostcrab/skills/shared/\` |
-| \`claude\` | \`claude-code/self-memory/\`, \`claude-code/skills/\`, \`shared/\` | \`.claude/skills/<skill>/\`, \`.ghostcrab/claude-self-memory.md\`, \`.ghostcrab/skills/shared/\`, merge \`.claude/settings.json\` |
-| \`codex\` | \`codex/skills/\`, \`shared/\` | \`.codex/skills/<skill>/\`, \`.codex/skills/ghostcrab-shared/\` |
-| \`generic\` | \`codex/skills/\`, \`shared/\` | \`.agents/skills/<skill>/\`, \`.agents/skills/ghostcrab-shared/\` |
+| \`cursor\` | \`cursor/skills/\`, \`shared/\` | \`~/.cursor/skills/<skill>/\`, \`.ghostcrab/skills/shared/\` |
+| \`claude\` | \`claude-code/self-memory/\`, \`claude-code/skills/\`, \`shared/\` | \`~/.claude/skills/<skill>/\`, \`.ghostcrab/claude-self-memory.md\`, \`.ghostcrab/skills/shared/\`, merge Claude settings |
+| \`codex\` | \`codex/skills/\`, \`shared/\` | \`~/.agents/skills/<skill>/\`, \`~/.agents/skills/ghostcrab-shared/\` |
+| \`generic\` | \`codex/skills/\`, \`shared/\` | \`~/.agents/skills/<skill>/\`, \`~/.agents/skills/ghostcrab-shared/\` |
 
-Installed by \`gcp brain setup\` by default (opt-out: \`--no-skills\`).
+Installed globally by \`gcp brain setup\` by default (opt-out: \`--no-skills\`; project install: \`--skills-scope project\`).
 `;
   writeFileSync(join(outRoot, "README.md"), readme, "utf8");
 }

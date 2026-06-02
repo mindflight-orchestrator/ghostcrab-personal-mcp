@@ -211,9 +211,9 @@ If you built a tarball (for example with `pnpm run pack:local` and a file under 
 
 Cursor enforces a **limit on how many tools** can be active across all MCP servers (see current Cursor release notes or Settings). If you use many servers at once, you may need to disable others or rely on tool toggles so GhostCrab tools stay available.
 
-## Agent rules and onboarding (separate from MCP)
+## Cursor skills and onboarding (separate from MCP)
 
-`gcp brain setup cursor` also installs the GhostCrab Cursor rules into `.cursor/rules/`, mirrors the skill packages into `.cursor/skills/`, and writes `.ghostcrab/skills/installed.json` so the installed skill folder is easy to find. For the source authoring tree, see [ghostcrab-skills/cursor/README.md](ghostcrab-skills/cursor/README.md) and the [ONBOARDING_CONTRACT](ghostcrab-skills/shared/ONBOARDING_CONTRACT.md).
+`gcp brain setup cursor` installs selectable GhostCrab skills into `~/.cursor/skills/` and writes `.ghostcrab/skills/installed.json` plus `.ghostcrab/skills/current` so the installed skill folder is easy to find. It does not install Cursor rules. For the source authoring tree, see [ghostcrab-skills/cursor/README.md](ghostcrab-skills/cursor/README.md) and the [ONBOARDING_CONTRACT](ghostcrab-skills/shared/ONBOARDING_CONTRACT.md).
 
 ## Related documentation
 

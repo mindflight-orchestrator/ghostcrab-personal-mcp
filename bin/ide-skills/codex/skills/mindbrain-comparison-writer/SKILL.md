@@ -1,6 +1,7 @@
 ---
 name: mindbrain-comparison-writer
 description: Use when drafting, rewriting, or planning comparison articles that position MindBrain or GhostCrab against AI memory tools, personal knowledge graphs, knowledge graph memory systems, agent frameworks with memory, PKM tools, or ontology tools. Trigger for articles such as GBrain vs MindBrain, Mem0 vs MindBrain, Zep vs MindBrain, Cognee vs MindBrain, Letta vs MindBrain, LangChain Memory vs MindBrain, LlamaIndex vs MindBrain, Hermes memory vs MindBrain, Obsidian AI vs MindBrain, or Protege/TopBraid vs MindBrain.
+disable-model-invocation: true
 ---
 
 # MindBrain Comparison Writer

@@ -8,7 +8,7 @@ This file is the honest product contract for GhostCrab V1 across Codex, Claude C
 
 - Codex uses compact `SKILL.md` mirrors under `codex/`.
 - Claude Code uses both persistent starter fragments and on-demand skills under `claude-code/skills/`.
-- Cursor uses `.mdc` rules under `cursor/rules/`; these are more literal and procedural so Composer 2.5 can follow the gates reliably.
+- Cursor uses selectable skill mirrors generated from the Codex `SKILL.md` sources and installed into `~/.cursor/skills/`.
 
 The behavior contract is shared, but the wording is adapted to each host's strengths.
 

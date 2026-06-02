@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-02T12:12:20.628Z",
+  "generated_at": "2026-06-02T13:26:03.730Z",
   "source": "ghostcrab-skills",
   "skill_names": [
     "ghostcrab-memory",
@@ -11,10 +11,10 @@
   "files": [
     {
       "path": "README.md",
-      "sha256": "d114aac80febf419e3589f400ded1916c5038c915a13a2b3c94ff7d5fd2aad08"
+      "sha256": "484959c43f56e696cc46e87838d40534159eceb42cbea238836fe916487ecd01"
     },
     {
-      "path": "claude-code/self-memory/CLAUDE.md",
+      "path": "claude-code/self-memory/CLAUDE.install.md",
       "sha256": "587ff7a0cfe6fa58c0193cff69d7021b229dab4aab5bf8e13027a798fa48febe"
     },
     {
@@ -27,95 +27,91 @@
     },
     {
       "path": "claude-code/skills/ghostcrab-data-architect/SKILL.md",
-      "sha256": "aeb8a49eea17d46fa528ed3dc4ccd5f6b5b9cbf8e13f6e9967e7b9170e49ab89"
+      "sha256": "864a09c4d4a79c877039c84ea7b4f5486443aeb115ff387ea5a21c7440de7232"
     },
     {
       "path": "claude-code/skills/ghostcrab-integration-sop-editor/SKILL.md",
-      "sha256": "97387cca8b90c57ead449ff9924006bc65b3ff9650b3cb9e5667d1fc87d6b764"
+      "sha256": "07a816364729d613bbad83ec9486476de6cea2faeaac0e90b206152eb094f476"
     },
     {
       "path": "claude-code/skills/ghostcrab-memory/SKILL.md",
-      "sha256": "1c293b02af309aef3f597ffe6aff0a8d9c0f6dc75f28e894b32b8351477cc824"
+      "sha256": "fa3e8b1823545bd52c186b06e3ac875f46279bf10d6f942651f6bfab1a100a37"
     },
     {
       "path": "claude-code/skills/ghostcrab-prompt-guide/SKILL.md",
-      "sha256": "346c68cc832362993d6493a8fce53e3de75e0fa579e727b8c876f4e567aa42ed"
+      "sha256": "e113b439288872a3df137fae8ff2848aac10b7d7eb6dab754b74eeda3b91088e"
     },
     {
       "path": "claude-code/skills/mindbrain-comparison-writer/SKILL.md",
-      "sha256": "08477c037a2a2edd97263b651fc099b04ce89fa1ac9bf54c905128ff6825e0a6"
+      "sha256": "f2ae3cd0419b73353338e90582b43e14e186f03005baab7ef6b659abacdfc479"
+    },
+    {
+      "path": "claude-code/skills/mindbrain-comparison-writer/references/article-blueprint.md",
+      "sha256": "73e601d9d088b5eacd48cb20d493466bf22842f02458a1ba082a792eb956b43a"
     },
     {
       "path": "codex/skills/ghostcrab-data-architect/SKILL.md",
-      "sha256": "404626f05c36b9215f5ae5340aff179490b859eba3bc5b2977f047c51097084c"
+      "sha256": "864a09c4d4a79c877039c84ea7b4f5486443aeb115ff387ea5a21c7440de7232"
+    },
+    {
+      "path": "codex/skills/ghostcrab-data-architect/agents/openai.yaml",
+      "sha256": "a1499d95abd8447558c535fe5554adcc3c9b988a0a39264a6283d430effe1e94"
     },
     {
       "path": "codex/skills/ghostcrab-integration-sop-editor/SKILL.md",
-      "sha256": "10cc5783237d0db7c72b25be7b427968811d4d848b17e6a6231cb68283c1943f"
+      "sha256": "07a816364729d613bbad83ec9486476de6cea2faeaac0e90b206152eb094f476"
+    },
+    {
+      "path": "codex/skills/ghostcrab-integration-sop-editor/agents/openai.yaml",
+      "sha256": "a1499d95abd8447558c535fe5554adcc3c9b988a0a39264a6283d430effe1e94"
     },
     {
       "path": "codex/skills/ghostcrab-memory/SKILL.md",
-      "sha256": "dd913a9a6f1866fd32192225d817ef0d6c3f32081b53536aa03e75a94183f324"
+      "sha256": "fa3e8b1823545bd52c186b06e3ac875f46279bf10d6f942651f6bfab1a100a37"
+    },
+    {
+      "path": "codex/skills/ghostcrab-memory/agents/openai.yaml",
+      "sha256": "a1499d95abd8447558c535fe5554adcc3c9b988a0a39264a6283d430effe1e94"
     },
     {
       "path": "codex/skills/ghostcrab-prompt-guide/SKILL.md",
-      "sha256": "70bf8ed2551f866c85e2b76ccf8dc58becf2d8521265e48daff0b7d0e61f1890"
+      "sha256": "e113b439288872a3df137fae8ff2848aac10b7d7eb6dab754b74eeda3b91088e"
+    },
+    {
+      "path": "codex/skills/ghostcrab-prompt-guide/agents/openai.yaml",
+      "sha256": "a1499d95abd8447558c535fe5554adcc3c9b988a0a39264a6283d430effe1e94"
     },
     {
       "path": "codex/skills/mindbrain-comparison-writer/SKILL.md",
-      "sha256": "3a807876110eebff799a0a13819e6bc3cecf140043744fd943182681027ed2be"
+      "sha256": "f2ae3cd0419b73353338e90582b43e14e186f03005baab7ef6b659abacdfc479"
     },
     {
       "path": "codex/skills/mindbrain-comparison-writer/agents/openai.yaml",
-      "sha256": "fab044681355012ac61a0da27e3e5fbb7be60f229aa9ae779a7db7642a439bf1"
+      "sha256": "b64448a99a30487d507d3f410ee9b4a7435b8497fae2d511f7d623d3e3d026c9"
     },
     {
       "path": "codex/skills/mindbrain-comparison-writer/references/article-blueprint.md",
       "sha256": "73e601d9d088b5eacd48cb20d493466bf22842f02458a1ba082a792eb956b43a"
     },
     {
-      "path": "cursor/rules/ghostcrab-data-architect.mdc",
-      "sha256": "e4026c497db33d641db3713f8449dcb736222dffa005a9565430b2717b72e8a1"
-    },
-    {
-      "path": "cursor/rules/ghostcrab-integration-sop-editor.mdc",
-      "sha256": "76f04242192c4df5860f821f66508e50a5c7b240b54ad90632ed479603a3f609"
-    },
-    {
-      "path": "cursor/rules/ghostcrab-memory.mdc",
-      "sha256": "1ea62a2e3efede2fc4a468a118e8a5542ec7bd9a266603f0bf82142bf0184b33"
-    },
-    {
-      "path": "cursor/rules/ghostcrab-prompt-guide.mdc",
-      "sha256": "a29affd46c8be5fa4b2018b43c9023c945c42f3f59bc2bdf0c24cb0c3ac0f31b"
-    },
-    {
-      "path": "cursor/rules/mindbrain-comparison-writer.mdc",
-      "sha256": "96dc2998c67ba84be90afb3498e44ebdc3fd82259f6b8b3db884b9a53698ed06"
-    },
-    {
       "path": "cursor/skills/ghostcrab-data-architect/SKILL.md",
-      "sha256": "404626f05c36b9215f5ae5340aff179490b859eba3bc5b2977f047c51097084c"
+      "sha256": "864a09c4d4a79c877039c84ea7b4f5486443aeb115ff387ea5a21c7440de7232"
     },
     {
       "path": "cursor/skills/ghostcrab-integration-sop-editor/SKILL.md",
-      "sha256": "10cc5783237d0db7c72b25be7b427968811d4d848b17e6a6231cb68283c1943f"
+      "sha256": "07a816364729d613bbad83ec9486476de6cea2faeaac0e90b206152eb094f476"
     },
     {
       "path": "cursor/skills/ghostcrab-memory/SKILL.md",
-      "sha256": "dd913a9a6f1866fd32192225d817ef0d6c3f32081b53536aa03e75a94183f324"
+      "sha256": "fa3e8b1823545bd52c186b06e3ac875f46279bf10d6f942651f6bfab1a100a37"
     },
     {
       "path": "cursor/skills/ghostcrab-prompt-guide/SKILL.md",
-      "sha256": "70bf8ed2551f866c85e2b76ccf8dc58becf2d8521265e48daff0b7d0e61f1890"
+      "sha256": "e113b439288872a3df137fae8ff2848aac10b7d7eb6dab754b74eeda3b91088e"
     },
     {
       "path": "cursor/skills/mindbrain-comparison-writer/SKILL.md",
-      "sha256": "3a807876110eebff799a0a13819e6bc3cecf140043744fd943182681027ed2be"
-    },
-    {
-      "path": "cursor/skills/mindbrain-comparison-writer/agents/openai.yaml",
-      "sha256": "fab044681355012ac61a0da27e3e5fbb7be60f229aa9ae779a7db7642a439bf1"
+      "sha256": "f2ae3cd0419b73353338e90582b43e14e186f03005baab7ef6b659abacdfc479"
     },
     {
       "path": "cursor/skills/mindbrain-comparison-writer/references/article-blueprint.md",
@@ -127,7 +123,7 @@
     },
     {
       "path": "shared/CAPABILITIES.md",
-      "sha256": "eb5325728abc562ca2a9d273c3427b900f70a0a087f6d4fff9851adad9cc8e73"
+      "sha256": "e17364b6ffe9c1f274f6e8ba122bd318032810b025cf65e6917675e4854b125f"
     },
     {
       "path": "shared/DEMO_CHOOSER.md",

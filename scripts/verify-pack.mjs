@@ -102,17 +102,16 @@ for (const requiredPath of [
   "docs/dev/known_limits.md",
   "examples/node-stdio-client/index.mjs",
   "bin/ide-skills/shared/ONBOARDING_CONTRACT.md",
-  "bin/ide-skills/cursor/rules/ghostcrab-memory.mdc",
-  "bin/ide-skills/cursor/rules/ghostcrab-prompt-guide.mdc",
   "bin/ide-skills/cursor/skills/ghostcrab-memory/SKILL.md",
   "bin/ide-skills/codex/skills/ghostcrab-memory/SKILL.md",
+  "bin/ide-skills/codex/skills/ghostcrab-memory/agents/openai.yaml",
   "bin/ide-skills/codex/skills/ghostcrab-prompt-guide/SKILL.md",
   "bin/ide-skills/codex/skills/mindbrain-comparison-writer/references/article-blueprint.md",
   "bin/ide-skills/claude-code/skills/ghostcrab-memory/SKILL.md",
   "bin/ide-skills/claude-code/skills/ghostcrab-prompt-guide/SKILL.md",
   "ghostcrab-skills/shared/ONBOARDING_CONTRACT.md",
-  "ghostcrab-skills/cursor/rules/ghostcrab-memory.mdc",
-  "ghostcrab-skills/codex/ghostcrab-memory/SKILL.md",
+  "ghostcrab-skills/skills/ghostcrab-memory/SKILL.md",
+  "ghostcrab-skills/skills/mindbrain-comparison-writer/references/article-blueprint.md",
   "ghostcrab-skills/claude-code/self-memory/CLAUDE.md"
 ]) {
   assert.equal(

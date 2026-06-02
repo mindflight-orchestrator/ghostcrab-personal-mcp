@@ -14,6 +14,7 @@ import {
   symlinkSync,
   writeFileSync
 } from "node:fs";
+import { homedir } from "node:os";
 import { dirname, join, relative } from "node:path";
 import { detectIde } from "./ide-detect.mjs";
 import {
@@ -25,6 +26,7 @@ import {
 const LOG_PREFIX = "[ghostcrab]";
 
 /** @typedef {"cursor" | "claude-code" | "codex" | "generic"} IdeSkillsTarget */
+/** @typedef {"user" | "project"} IdeSkillsScope */
 
 /**
  * @param {string} pkgRoot
@@ -97,6 +99,31 @@ function installSharedDocs(bundleRoot, cwd) {
 }
 
 /**
+ * @param {string} cwd
+ * @param {IdeSkillsTarget} target
+ * @param {IdeSkillsScope} scope
+ */
+function resolveInstallRoots(cwd, target, scope) {
+  const home = homedir();
+  if (scope === "user") {
+    if (target === "cursor") {
+      return { skillRoot: join(home, ".cursor", "skills") };
+    }
+    if (target === "claude-code") {
+      return { skillRoot: join(home, ".claude", "skills") };
+    }
+    return { skillRoot: join(home, ".agents", "skills") };
+  }
+  if (target === "cursor") {
+    return { skillRoot: join(cwd, ".cursor", "skills") };
+  }
+  if (target === "claude-code") {
+    return { skillRoot: join(cwd, ".claude", "skills") };
+  }
+  return { skillRoot: join(cwd, ".agents", "skills") };
+}
+
+/**
  * @param {string} src
  * @param {string} dest
  * @param {boolean} force
@@ -133,6 +160,21 @@ function copySkillRootShared(srcShared, destShared, paths) {
   paths.push(destShared);
 }
 
+/**
+ * @param {string} cwd
+ * @param {string[]} skills
+ * @param {string[]} paths
+ */
+function pruneLegacyCursorRules(cwd, skills, paths) {
+  const rulesRoot = join(cwd, ".cursor", "rules");
+  for (const name of skills) {
+    const legacyRule = join(rulesRoot, `${name}.mdc`);
+    if (!existsSync(legacyRule)) continue;
+    rmSync(legacyRule, { force: true });
+    paths.push(legacyRule);
+  }
+}
+
 /** @param {string} dir */
 function patchSkillLinks(dir) {
   if (!existsSync(dir)) return;
@@ -147,6 +189,29 @@ function patchSkillLinks(dir) {
     text = text.replaceAll("../../ghostcrab-shared/", "../ghostcrab-shared/");
     if (text !== before) writeFileSync(path, text, "utf8");
   }
+}
+
+/** @param {string} skillDir */
+function ensureCodexManualInvocation(skillDir) {
+  const agentsDir = join(skillDir, "agents");
+  const openaiPath = join(agentsDir, "openai.yaml");
+  mkdirSync(agentsDir, { recursive: true });
+  if (!existsSync(openaiPath)) {
+    writeFileSync(
+      openaiPath,
+      "policy:\n  allow_implicit_invocation: false\n",
+      "utf8"
+    );
+    return;
+  }
+  const text = readFileSync(openaiPath, "utf8");
+  if (text.includes("allow_implicit_invocation")) return;
+  const sep = text.endsWith("\n") ? "" : "\n";
+  writeFileSync(
+    openaiPath,
+    `${text}${sep}policy:\n  allow_implicit_invocation: false\n`,
+    "utf8"
+  );
 }
 
 /** @param {string} dir @param {string} [prefix] */
@@ -178,6 +243,7 @@ function collectTextFiles(dir, prefix = "") {
 function writeInstallReference({
   cwd,
   target,
+  scope,
   installedSkillRoot,
   sharedRoot,
   skills,
@@ -187,6 +253,7 @@ function writeInstallReference({
   const refRoot = join(cwd, ".ghostcrab", "skills");
   mkdirSync(refRoot, { recursive: true });
   const manifestPath = join(refRoot, "installed.json");
+  const targetManifestPath = join(refRoot, `installed-${target}.json`);
   const readmePath = join(refRoot, "README.md");
   const shortcutPath = join(refRoot, "current");
   const shortcutFallbackPath = join(refRoot, "current.txt");
@@ -195,6 +262,7 @@ function writeInstallReference({
 
   const doc = {
     target,
+    scope,
     sourceBundleRoot: bundleRoot,
     installedSkillRoot,
     sharedRoot,
@@ -202,11 +270,13 @@ function writeInstallReference({
     generatedAt: new Date().toISOString()
   };
   writeFileSync(manifestPath, `${JSON.stringify(doc, null, 2)}\n`, "utf8");
+  writeFileSync(targetManifestPath, `${JSON.stringify(doc, null, 2)}\n`, "utf8");
   writeFileSync(
     readmePath,
     `# GhostCrab installed skills
 
 Target: ${target}
+Scope: ${scope}
 
 - Skill root: \`${relSkillRoot}\`
 - Shared reference docs: \`${relSharedRoot}\`
@@ -217,7 +287,7 @@ ${skills.map((s) => `- ${s}`).join("\n")}
 `,
     "utf8"
   );
-  paths.push(manifestPath, readmePath);
+  paths.push(manifestPath, targetManifestPath, readmePath);
 
   try {
     if (existsSync(shortcutPath) || lstatExists(shortcutPath)) {
@@ -245,29 +315,21 @@ function lstatExists(path) {
  * @param {string} bundleRoot
  * @param {string} cwd
  * @param {boolean} force
+ * @param {IdeSkillsScope} scope
  */
-function installCursorBundle(bundleRoot, cwd, force) {
+function installCursorBundle(bundleRoot, cwd, force, scope) {
   const paths = [];
   const skipped = [];
   const skills = readBundleSkillNames(bundleRoot);
   const srcShared = join(bundleRoot, "shared");
   const sharedRoot = installSharedDocs(bundleRoot, cwd);
-
-  const srcRules = join(bundleRoot, "cursor", "rules");
-  const destRules = join(cwd, ".cursor", "rules");
-  if (!existsSync(srcRules)) {
-    return { ok: false, message: `Missing cursor rules at ${srcRules}` };
-  }
-  for (const name of readdirSync(srcRules)) {
-    if (!name.endsWith(".mdc")) continue;
-    copyManagedTree(join(srcRules, name), join(destRules, name), force, paths, skipped);
-  }
+  if (force) pruneLegacyCursorRules(cwd, skills, paths);
 
   const preferredCursorSkills = join(bundleRoot, "cursor", "skills");
   const srcSkills = existsSync(preferredCursorSkills)
     ? preferredCursorSkills
     : codexBundleSkillsRoot(bundleRoot);
-  const destSkills = join(cwd, ".cursor", "skills");
+  const { skillRoot: destSkills } = resolveInstallRoots(cwd, "cursor", scope);
   if (existsSync(srcSkills)) {
     for (const name of skills) {
       const beforeCopy = paths.length;
@@ -286,7 +348,8 @@ function installCursorBundle(bundleRoot, cwd, force) {
   writeInstallReference({
     cwd,
     target: "cursor",
-    installedSkillRoot: existsSync(srcSkills) ? destSkills : destRules,
+    scope,
+    installedSkillRoot: destSkills,
     sharedRoot,
     skills,
     bundleRoot,
@@ -299,9 +362,10 @@ function installCursorBundle(bundleRoot, cwd, force) {
  * @param {string} bundleRoot
  * @param {string} cwd
  * @param {boolean} force
+ * @param {IdeSkillsScope} scope
  * @param {{ permissionsAllow?: string[] }} [perm]
  */
-function installClaudeBundle(bundleRoot, cwd, force, perm = {}) {
+function installClaudeBundle(bundleRoot, cwd, force, scope, perm = {}) {
   const paths = [];
   const skipped = [];
   const skills = readBundleSkillNames(bundleRoot);
@@ -309,16 +373,18 @@ function installClaudeBundle(bundleRoot, cwd, force, perm = {}) {
   const sharedRoot = installSharedDocs(bundleRoot, cwd);
 
   const selfMem = join(bundleRoot, "claude-code", "self-memory");
-  const srcClaude = join(selfMem, "CLAUDE.md");
+  const srcClaude = existsSync(join(selfMem, "CLAUDE.install.md"))
+    ? join(selfMem, "CLAUDE.install.md")
+    : join(selfMem, "CLAUDE.md");
   if (!existsSync(srcClaude)) {
-    return { ok: false, message: `Missing Claude CLAUDE.md under ${selfMem}` };
+    return { ok: false, message: `Missing Claude self-memory starter under ${selfMem}` };
   }
 
   const destClaude = join(cwd, ".ghostcrab", "claude-self-memory.md");
   copyManagedTree(srcClaude, destClaude, force, paths, skipped);
 
   const srcSkills = join(bundleRoot, "claude-code", "skills");
-  const destSkills = join(cwd, ".claude", "skills");
+  const { skillRoot: destSkills } = resolveInstallRoots(cwd, "claude-code", scope);
   if (!existsSync(srcSkills)) {
     return { ok: false, message: `Missing Claude skills at ${srcSkills}` };
   }
@@ -336,7 +402,7 @@ function installClaudeBundle(bundleRoot, cwd, force, perm = {}) {
   copySkillRootShared(srcShared, join(destSkills, "ghostcrab-shared"), paths);
 
   const fragmentPath = join(selfMem, "settings.fragment.json");
-  const settingsPath = resolveClaudeSettingsPath("project", cwd);
+  const settingsPath = resolveClaudeSettingsPath(scope, cwd);
   let existing = null;
   if (existsSync(settingsPath)) {
     try {
@@ -374,6 +440,7 @@ function installClaudeBundle(bundleRoot, cwd, force, perm = {}) {
   writeInstallReference({
     cwd,
     target: "claude-code",
+    scope,
     installedSkillRoot: destSkills,
     sharedRoot,
     skills,
@@ -387,14 +454,15 @@ function installClaudeBundle(bundleRoot, cwd, force, perm = {}) {
  * @param {string} bundleRoot
  * @param {string} cwd
  * @param {boolean} force
+ * @param {IdeSkillsScope} scope
  */
-function installCodexBundle(bundleRoot, cwd, force) {
+function installCodexBundle(bundleRoot, cwd, force, scope) {
   const paths = [];
   const skipped = [];
   const skills = readBundleSkillNames(bundleRoot);
   const srcSkills = codexBundleSkillsRoot(bundleRoot);
   const srcShared = join(bundleRoot, "shared");
-  const destSkills = join(cwd, ".codex", "skills");
+  const { skillRoot: destSkills } = resolveInstallRoots(cwd, "codex", scope);
   const destShared = join(destSkills, "ghostcrab-shared");
   const sharedRoot = installSharedDocs(bundleRoot, cwd);
 
@@ -411,12 +479,17 @@ function installCodexBundle(bundleRoot, cwd, force) {
       paths,
       skipped
     );
-    if (paths.length > beforeCopy) patchSkillLinks(join(destSkills, name));
+    if (paths.length > beforeCopy) {
+      const destSkill = join(destSkills, name);
+      patchSkillLinks(destSkill);
+      ensureCodexManualInvocation(destSkill);
+    }
   }
   copySkillRootShared(srcShared, destShared, paths);
   writeInstallReference({
     cwd,
     target: "codex",
+    scope,
     installedSkillRoot: destSkills,
     sharedRoot,
     skills,
@@ -430,14 +503,15 @@ function installCodexBundle(bundleRoot, cwd, force) {
  * @param {string} bundleRoot
  * @param {string} cwd
  * @param {boolean} force
+ * @param {IdeSkillsScope} scope
  */
-function installGenericBundle(bundleRoot, cwd, force) {
+function installGenericBundle(bundleRoot, cwd, force, scope) {
   const paths = [];
   const skipped = [];
   const skills = readBundleSkillNames(bundleRoot);
   const srcSkills = codexBundleSkillsRoot(bundleRoot);
   const srcShared = join(bundleRoot, "shared");
-  const destSkills = join(cwd, ".agents", "skills");
+  const { skillRoot: destSkills } = resolveInstallRoots(cwd, "generic", scope);
   const destShared = join(destSkills, "ghostcrab-shared");
   const sharedRoot = installSharedDocs(bundleRoot, cwd);
 
@@ -454,12 +528,17 @@ function installGenericBundle(bundleRoot, cwd, force) {
       paths,
       skipped
     );
-    if (paths.length > beforeCopy) patchSkillLinks(join(destSkills, name));
+    if (paths.length > beforeCopy) {
+      const destSkill = join(destSkills, name);
+      patchSkillLinks(destSkill);
+      ensureCodexManualInvocation(destSkill);
+    }
   }
   copySkillRootShared(srcShared, destShared, paths);
   writeInstallReference({
     cwd,
     target: "generic",
+    scope,
     installedSkillRoot: destSkills,
     sharedRoot,
     skills,
@@ -477,6 +556,7 @@ function installGenericBundle(bundleRoot, cwd, force) {
  * @param {boolean} [opts.skip]
  * @param {boolean} [opts.force]
  * @param {'init' | 'serve' | 'setup'} [opts.context]
+ * @param {IdeSkillsScope} [opts.scope]
  * @param {string[]} [opts.permissionsAllow] Claude project settings allow rules
  */
 export function installIdeSkillsBundleForTarget(opts) {
@@ -487,6 +567,7 @@ export function installIdeSkillsBundleForTarget(opts) {
     skip = false,
     force = false,
     context = "setup",
+    scope = context === "setup" ? "user" : "project",
     permissionsAllow
   } = opts;
 
@@ -504,13 +585,13 @@ export function installIdeSkillsBundleForTarget(opts) {
   /** @type {{ ok: boolean, paths?: string[], skippedPaths?: string[], skipped?: boolean, message?: string }} */
   let result;
   if (target === "cursor") {
-    result = installCursorBundle(bundleRoot, cwd, force);
+    result = installCursorBundle(bundleRoot, cwd, force, scope);
   } else if (target === "claude-code") {
-    result = installClaudeBundle(bundleRoot, cwd, force, { permissionsAllow });
+    result = installClaudeBundle(bundleRoot, cwd, force, scope, { permissionsAllow });
   } else if (target === "codex") {
-    result = installCodexBundle(bundleRoot, cwd, force);
+    result = installCodexBundle(bundleRoot, cwd, force, scope);
   } else if (target === "generic") {
-    result = installGenericBundle(bundleRoot, cwd, force);
+    result = installGenericBundle(bundleRoot, cwd, force, scope);
   } else {
     return { ok: false, message: `Unknown IDE skills target: ${target}` };
   }
@@ -554,6 +635,7 @@ export function installIdeSkillsBundleForTarget(opts) {
  * @param {IdeSkillsTarget} opts.target
  * @param {string} opts.cwd
  * @param {string} opts.pkgRoot
+ * @param {IdeSkillsScope} [opts.scope]
  */
 export function describeIdeSkillsBundleForTarget(opts) {
   const bundleRoot = resolveIdeSkillsBundleRoot(opts.pkgRoot);
@@ -566,15 +648,15 @@ export function describeIdeSkillsBundleForTarget(opts) {
   }
   const skills = readBundleSkillNames(bundleRoot);
   const sharedRoot = join(opts.cwd, ".ghostcrab", "skills", "shared");
+  const scope = opts.scope ?? "user";
   let installedSkillRoot;
-  if (opts.target === "cursor") {
-    installedSkillRoot = join(opts.cwd, ".cursor", "skills");
-  } else if (opts.target === "claude-code") {
-    installedSkillRoot = join(opts.cwd, ".claude", "skills");
-  } else if (opts.target === "codex") {
-    installedSkillRoot = join(opts.cwd, ".codex", "skills");
-  } else if (opts.target === "generic") {
-    installedSkillRoot = join(opts.cwd, ".agents", "skills");
+  if (
+    opts.target === "cursor" ||
+    opts.target === "claude-code" ||
+    opts.target === "codex" ||
+    opts.target === "generic"
+  ) {
+    installedSkillRoot = resolveInstallRoots(opts.cwd, opts.target, scope).skillRoot;
   } else {
     return { ok: false, message: `Unknown IDE skills target: ${opts.target}` };
   }
@@ -585,6 +667,12 @@ export function describeIdeSkillsBundleForTarget(opts) {
     installedSkillRoot,
     sharedRoot,
     referenceManifest: join(opts.cwd, ".ghostcrab", "skills", "installed.json"),
+    targetReferenceManifest: join(
+      opts.cwd,
+      ".ghostcrab",
+      "skills",
+      `installed-${opts.target}.json`
+    ),
     currentShortcut: join(opts.cwd, ".ghostcrab", "skills", "current")
   };
 }

@@ -1,48 +1,60 @@
 ---
 name: ghostcrab-memory
-description: Use when GhostCrab should hold durable Claude Code working memory for coding decisions, blockers, follow-up, long-running delivery, integrations, or fuzzy tracking requests.
+description: Use when GhostCrab should hold durable working memory for coding, blockers, follow-up, long-running delivery, integrations, or fuzzy tracking requests.
+disable-model-invocation: true
 ---
 
 # GhostCrab Memory
 
-## Persona
+## Persona Rule
 
-Speak in user or product language first. Do not lead with schema names, facets, graph edges, or MCP tool names unless the user explicitly asks how GhostCrab works internally.
+Speak in product language first.
+Do not explain schemas, facets, graph edges, or tool names unless the user explicitly asks for implementation detail.
 
-## First Fuzzy Turn
+## First-turn fuzzy GhostCrab onboarding
 
-Follow [shared/ONBOARDING_CONTRACT.md](../ghostcrab-shared/ONBOARDING_CONTRACT.md) before any GhostCrab tool call.
+Follow **[shared/ONBOARDING_CONTRACT.md](../ghostcrab-shared/ONBOARDING_CONTRACT.md)** in full (§2 naive callers, §3–§8 intake-only first fuzzy reply, §4 closing lines, §6 pre-send checklist, §9 domain modeling gate before creates/writes).
 
-If the user is new, fuzzy, or only says they want to "track", "remember", "set up", or "create" something in GhostCrab:
+### Hard gate before any tool call (first fuzzy turn)
 
-1. State one short intent hypothesis.
-2. Ask 2 to 4 clarification questions.
-3. Recommend one compact view in plain language.
-4. Offer to draft the next structured GhostCrab prompt.
-5. Stop.
+Answer mentally: (1) user asked about GhostCrab readiness or available surfaces? (2) implementation detail? (3) initialize or write? (4) storage alternatives? (5) continues an existing GhostCrab workspace?
 
-Do not call read tools or write tools on that first fuzzy turn unless the user explicitly asks about runtime health, available surfaces, implementation details, storage alternatives, or says this continues an existing GhostCrab workspace.
+If **every** answer is **no**, block for that reply: `ghostcrab_status`, `ghostcrab_schema_list`, `ghostcrab_schema_register`, any GhostCrab write, schema/tool enumeration, scope creation, local or alternate storage proposals.
 
-## Read Sequence
+## Fuzzy Tracking Requests
 
-For non-fuzzy work, use the smallest grounded read:
+When the user asks for a tracker, board, follow-up view, blocker view, or long-running workspace:
 
-1. `ghostcrab_status` only when runtime health, workspace context, autonomy, or blockers materially matter.
-2. `ghostcrab_search` with explicit `schema_id` and filters when the entity family is known.
-3. `ghostcrab_count` when the space is broad and you need shape before content.
-4. `ghostcrab_pack` after at least one factual read, when compact working context is useful.
+1. treat it as intent routing first
+2. decide whether the request implies durable state
+3. prefer GhostCrab over Markdown-first or file-first tracking
+4. ask only the minimum exploratory questions needed
+5. do not implement on the first turn if the request is still fuzzy
+
+## Default Read Sequence
+
+Use the smallest grounded sequence:
+
+1. call `ghostcrab_status` only when runtime health, autonomy, or global blockers may matter
+2. prefer exact `ghostcrab_search` reads with explicit `schema_id` and filters
+3. use `ghostcrab_count` when the space is broad
+4. use `ghostcrab_pack` only after at least one factual read
+
+For first-turn fuzzy onboarding, ask the questions before broad GhostCrab discovery unless the user explicitly asked about runtime or available surfaces.
 
 ## Write Rules
 
-Use writes only after the user has confirmed a model proposal in the same thread.
+- use `ghostcrab_remember` for durable facts and notes
+- use `ghostcrab_upsert` for current-state changes
+- use `ghostcrab_learn` for stable structural relations
+- use `ghostcrab_project` for compact provisional views only after the route is clear
 
-- `ghostcrab_remember` for durable facts and notes.
-- `ghostcrab_upsert` for current-state records.
-- `ghostcrab_learn` for stable graph relations.
-- `ghostcrab_project` for compact provisional views after the route is clear.
+## Checkpoint Rule
 
-Before any write, verify workspace intent with the latest status when workspace context matters. Never open SQLite directly.
+For long-running work:
 
-## Long-Running Work
+- end each meaningful session with a checkpoint
+- end each phase boundary with a checkpoint
+- before overwriting a meaningful current-state record, preserve transition rationale when losing it would harm recovery
 
-For multi-session work, checkpoint at meaningful phase boundaries and preserve transition rationale before overwriting current-state records. Use [shared/TRANSITION_LOGGING.md](../ghostcrab-shared/TRANSITION_LOGGING.md) as the pattern.
+Use [shared/TRANSITION_LOGGING.md](../ghostcrab-shared/TRANSITION_LOGGING.md) as the pattern.

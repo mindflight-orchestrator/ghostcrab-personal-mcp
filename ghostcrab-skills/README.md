@@ -6,7 +6,7 @@ This repository contains:
 
 - Claude Code starter packs
 - Claude Code on-demand skills
-- Cursor Composer-oriented rules
+- Cursor selectable skill references
 - OpenClaw skill and agent profiles
 - shared design rules and portable demo seed data
 - pointers to the GhostCrab Personal StarterKit for clonable SOPs and templates
@@ -51,25 +51,27 @@ It does not try to solve every domain or every modeling edge case in this first 
 
 ```text
 ghostcrab-skills/
-├── codex/
+├── skills/                         # canonical editable SKILL.md sources
 │   ├── ghostcrab-memory/
 │   ├── ghostcrab-prompt-guide/
 │   ├── ghostcrab-data-architect/
 │   ├── ghostcrab-integration-sop-editor/
 │   └── mindbrain-comparison-writer/
+├── codex/
+│   └── <skill> -> ../skills/<skill>
 ├── claude-code/
 │   ├── README.md
 │   ├── skills/
-│   │   ├── ghostcrab-memory/
-│   │   ├── ghostcrab-prompt-guide/
-│   │   ├── ghostcrab-data-architect/
-│   │   ├── ghostcrab-integration-sop-editor/
-│   │   └── mindbrain-comparison-writer/
+│   │   └── <skill> -> ../../skills/<skill>
 │   ├── self-memory/
 │   └── data-architect/
 ├── cursor/
 │   ├── README.md
-│   └── rules/
+│   └── skills/<skill> -> ../../skills/<skill>
+├── generated/
+│   ├── cursor -> ../../bin/ide-skills/cursor/skills
+│   ├── codex -> ../../bin/ide-skills/codex/skills
+│   └── claude-code -> ../../bin/ide-skills/claude-code/skills
 ├── openclaw/
 │   ├── README.md
 │   ├── ghostcrab-memory/
@@ -89,28 +91,21 @@ ghostcrab-skills/
 └── GHOSTCRAB_INTEGRATION.md
 ```
 
+Edit only `ghostcrab-skills/skills/<skill>/SKILL.md` for the five common GhostCrab skills. The editor-specific paths are symlinks for discoverability, and `bin/ide-skills/` is regenerated from those canonical sources by `pnpm run sync:ide-skills`.
+
 ## Quick Start
 
 1. Start a GhostCrab server from the product repo root. In this embedded workspace, that is [`..`](..).
 2. Pick one integration entrypoint:
    - **Codex (MCP + skills):** [codex/README.md](./codex/README.md)
    - **Claude Code (skills + starters):** [claude-code/README.md](./claude-code/README.md)
-   - **Cursor (MCP + rules):** [cursor/README.md](./cursor/README.md)
+   - **Cursor (MCP + skills):** [cursor/README.md](./cursor/README.md)
    - **OpenClaw (MCP + skills + scenarios):** [openclaw/README.md](./openclaw/README.md)
-   - `codex/ghostcrab-memory/`
-   - `codex/ghostcrab-prompt-guide/`
-   - `codex/ghostcrab-data-architect/`
-   - `codex/ghostcrab-integration-sop-editor/`
-   - `codex/mindbrain-comparison-writer/`
-   - `claude-code/skills/ghostcrab-memory/`
-   - `claude-code/skills/ghostcrab-prompt-guide/`
-   - `claude-code/skills/ghostcrab-data-architect/`
-   - `claude-code/skills/ghostcrab-integration-sop-editor/`
-   - `claude-code/skills/mindbrain-comparison-writer/`
+   - `skills/<skill>/` for common editable skills
    - `openclaw/ghostcrab-memory/`
    - `claude-code/self-memory/`
    - `claude-code/data-architect/`
-   - `cursor/rules/`
+   - `generated/<editor>/` for symlinked references to generated install bundles
 3. Apply the client-specific config files.
 4. Pick one demo profile from `shared/demo-profiles/`.
 5. Use `shared/bootstrap_seed.jsonl` only when you want the aggregate view of all demo entries.
@@ -127,7 +122,7 @@ This initial pass includes:
 
 - Codex-facing skill mirrors with the V1 onboarding contract
 - Claude Code on-demand skill mirrors for the five Codex skills
-- Cursor `.mdc` rules adapted for more literal Composer behavior
+- Cursor selectable skill mirrors for the five common skills
 - a minimal OpenClaw memory skill
 - a fuller OpenClaw epistemic agent profile
 - a Claude Code self-memory starter
