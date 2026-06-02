@@ -9,6 +9,7 @@ import { tmpdir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { formatSpawnFailure, spawnPnpm } from "./lib/spawn-npm.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
@@ -40,13 +41,17 @@ const PLATFORM_PACKAGES = [
     platformKey: "win32-x64",
     packageName: "@mindflight/ghostcrab-personal-mcp-win32-x64",
     packageDir: join(repoRoot, "packages/prebuild-win32-x64")
+  },
+  {
+    platformKey: "win32-arm64",
+    packageName: "@mindflight/ghostcrab-personal-mcp-win32-arm64",
+    packageDir: join(repoRoot, "packages/prebuild-win32-arm64")
   }
 ];
 
 const rootPackage = JSON.parse(
   readFileSync(join(repoRoot, "package.json"), "utf8")
 );
-const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
 function packFilename(name, version) {
   return `${name.replace(/^@/, "").replace(/\//g, "-")}-${version}.tgz`;
@@ -56,7 +61,7 @@ function runPack(cwd) {
   const packageJson = JSON.parse(
     readFileSync(join(cwd, "package.json"), "utf8")
   );
-  const result = spawnSync(pnpm, ["pack", "--pack-destination", distPackDir], {
+  const result = spawnPnpm(["pack", "--pack-destination", distPackDir], {
     cwd,
     encoding: "utf8",
     env: {
@@ -65,9 +70,9 @@ function runPack(cwd) {
     }
   });
 
-  if (result.status !== 0) {
+  if (result.status !== 0 || result.error) {
     throw new Error(
-      `pnpm pack failed in ${cwd} (exit ${result.status ?? "null"}).\n` +
+      `pnpm pack failed in ${cwd} (${formatSpawnFailure(result)}).\n` +
         `${result.stderr}\n${result.stdout}`
     );
   }

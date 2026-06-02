@@ -48,6 +48,12 @@ export const SUPPORTED_PREBUILD_TARGETS = [
     packageName: "@mindflight/ghostcrab-personal-mcp-win32-x64",
     binaryName: "ghostcrab-backend.exe",
     documentBinaryName: "ghostcrab-document.exe"
+  },
+  {
+    platformKey: "win32-arm64",
+    packageName: "@mindflight/ghostcrab-personal-mcp-win32-arm64",
+    binaryName: "ghostcrab-backend.exe",
+    documentBinaryName: "ghostcrab-document.exe"
   }
 ];
 

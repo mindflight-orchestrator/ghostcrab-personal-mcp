@@ -7,7 +7,7 @@ name: Publish
 # Intended pipeline (to align with docs/dev/npm_split_release_process.md):
 #   1. Cross-compile Zig backends → prebuilds/{platform}/ (Zig 0.16.x per scripts/cross-build-all.sh).
 #   2. npm ci && npm run build
-#   3. Publish the five @mindflight/ghostcrab-personal-mcp-* platform packages, then the root package (scripts/publish-npm-split.mjs).
+#   3. Publish the six @mindflight/ghostcrab-personal-mcp-* platform packages, then the root package (scripts/publish-npm-split.mjs).
 
 on:
   push:
@@ -56,6 +56,18 @@ jobs:
 
       - name: List prebuilds
         run: find prebuilds -type f | sort
+
+      - name: Verify win32-x64 prebuilds
+        run: |
+          test -f prebuilds/win32-x64/ghostcrab-backend.exe
+          test -f prebuilds/win32-x64/ghostcrab-document.exe
+          file prebuilds/win32-x64/ghostcrab-backend.exe | grep -Ei 'PE32|PE32\+'
+
+      - name: Verify win32-arm64 prebuilds
+        run: |
+          test -f prebuilds/win32-arm64/ghostcrab-backend.exe
+          test -f prebuilds/win32-arm64/ghostcrab-document.exe
+          file prebuilds/win32-arm64/ghostcrab-backend.exe | grep -Ei 'PE32|PE32\+|Aarch64'
 
       - name: Upload prebuilds artifact
         uses: actions/upload-artifact@v4
@@ -107,3 +119,46 @@ jobs:
         run: node scripts/publish-npm-split.mjs
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # ── Job 3: Windows beta install smoke (catches npm.cmd EINVAL regressions) ───
+  beta-install-windows:
+    name: Beta install smoke (Windows)
+    runs-on: windows-latest
+    needs: build-backends
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Download prebuilds
+        uses: actions/download-artifact@v4
+        with:
+          name: prebuilds
+          path: prebuilds/
+
+      - name: Pack local tarballs (reuse prebuilds)
+        run: npm run pack:local:reuse-prebuilds
+
+      - name: Build beta bundle
+        run: node scripts/make-beta-bundle.mjs
+
+      - name: Install from beta bundle
+        shell: pwsh
+        run: |
+          Set-Location dist-pack/beta-bundle
+          node install-beta.mjs
+
+      - name: Smoke gcp --help
+        shell: pwsh
+        run: |
+          node dist-pack/beta-bundle/node_modules/@mindflight/ghostcrab-personal-mcp/bin/gcp.mjs --help

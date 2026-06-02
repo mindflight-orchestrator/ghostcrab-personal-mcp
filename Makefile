@@ -24,7 +24,8 @@ CROSS_TARGETS := \
   aarch64-linux-gnu:linux-arm64 \
   x86_64-macos:darwin-x64 \
   aarch64-macos:darwin-arm64 \
-  x86_64-windows-gnu:win32-x64
+  x86_64-windows-gnu:win32-x64 \
+  aarch64-windows-gnu:win32-arm64
 
 .PHONY: help backend-vendor sqlite3-download backend-build backend-build-debug \
         document-tool backend-dev backend-init prebuilds release lib-build local-pack \
@@ -45,7 +46,7 @@ help:
 	@echo "  make backend-dev         # run the backend (GHOSTCRAB_SQLITE_PATH=$(GHOSTCRAB_SQLITE_PATH))"
 	@echo ""
 	@echo "Distribution:"
-	@echo "  make prebuilds           # cross-compile all 5 platforms into prebuilds/"
+	@echo "  make prebuilds           # cross-compile all 6 platforms into prebuilds/"
 	@echo "  make release             # prebuilds + pnpm build + pnpm pack (full tarball)"
 	@echo ""
 	@echo "Local JS library (no cross-compile):"
@@ -105,14 +106,14 @@ backend-dev: $(BACKEND_BIN)
 $(BACKEND_BIN): backend-vendor $(SQLITE3_C)
 	$(MAKE) backend-build
 
-## Cross-compile all 5 platforms into prebuilds/ for npm distribution
+## Cross-compile all 6 platforms into prebuilds/ for npm distribution
 ## (ghostcrab-backend + ghostcrab-document per platform).
 ## Requires Zig 0.16 in PATH. Run `make sqlite3-download backend-vendor` first.
 prebuilds: backend-vendor $(SQLITE3_C)
 	@mkdir -p \
 	  prebuilds/linux-x64 prebuilds/linux-arm64 \
 	  prebuilds/darwin-x64 prebuilds/darwin-arm64 \
-	  prebuilds/win32-x64
+	  prebuilds/win32-x64 prebuilds/win32-arm64
 	@scripts/cross-build-all.sh
 
 ## Cross-compile all platforms, build JS, and produce the npm tarball.

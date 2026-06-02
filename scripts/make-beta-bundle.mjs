@@ -18,6 +18,8 @@ const manifestPath = join(distPackDir, "pack-manifest.json");
 const bundleDir = join(distPackDir, "beta-bundle");
 const betaReadme = join(repoRoot, "docs", "dev", "beta_testers_readme.md");
 const installScriptSrc = join(repoRoot, "scripts", "beta-bundle-install.mjs");
+const installPs1Src = join(repoRoot, "scripts", "beta-bundle-install.ps1");
+const spawnNpmLibSrc = join(repoRoot, "scripts", "lib", "spawn-npm.mjs");
 const ideSmokeScriptSrc = join(
   repoRoot,
   "scripts",
@@ -77,6 +79,17 @@ if (!existsSync(installScriptSrc)) {
 }
 copyFileSync(installScriptSrc, join(bundleDir, "install-beta.mjs"));
 
+if (!existsSync(installPs1Src)) {
+  throw new Error(`Missing installer script: ${installPs1Src}`);
+}
+copyFileSync(installPs1Src, join(bundleDir, "install-beta.ps1"));
+
+if (!existsSync(spawnNpmLibSrc)) {
+  throw new Error(`Missing spawn helper: ${spawnNpmLibSrc}`);
+}
+mkdirSync(join(bundleDir, "lib"), { recursive: true });
+copyFileSync(spawnNpmLibSrc, join(bundleDir, "lib", "spawn-npm.mjs"));
+
 if (!existsSync(ideSmokeScriptSrc)) {
   throw new Error(`Missing IDE smoke script: ${ideSmokeScriptSrc}`);
 }
@@ -114,6 +127,8 @@ const checksumNames = [
   "README_MAKE.md",
   "pack-manifest.json",
   "install-beta.mjs",
+  "install-beta.ps1",
+  "lib/spawn-npm.mjs",
   "smoke-ide-install.mjs",
   ...filesToCopy.map((entry) => basename(entry))
 ];

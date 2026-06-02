@@ -13,7 +13,8 @@ const platformPackageDirs = [
   "packages/prebuild-linux-arm64",
   "packages/prebuild-darwin-x64",
   "packages/prebuild-darwin-arm64",
-  "packages/prebuild-win32-x64"
+  "packages/prebuild-win32-x64",
+  "packages/prebuild-win32-arm64"
 ];
 
 for (const packageDir of platformPackageDirs) {

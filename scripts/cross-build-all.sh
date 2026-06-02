@@ -94,5 +94,7 @@ build_one "aarch64-macos"      "darwin-arm64"  "ghostcrab-backend"
 build_document_one "aarch64-macos"      "darwin-arm64"  "ghostcrab-document"
 build_one "x86_64-windows-gnu" "win32-x64"    "ghostcrab-backend.exe"
 build_document_one "x86_64-windows-gnu" "win32-x64"    "ghostcrab-document.exe"
+build_one "aarch64-windows-gnu" "win32-arm64" "ghostcrab-backend.exe"
+build_document_one "aarch64-windows-gnu" "win32-arm64" "ghostcrab-document.exe"
 
 echo "[cross] all platforms built."

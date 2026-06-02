@@ -22,7 +22,8 @@ Les **autres voies** (zip bêta, dépôt Git, optional manquant) suivent dans **
 
 - **Node.js 20+** et `npm` (ou `pnpm`).
 - **Accès Internet** pour les dépendances JS du paquet principal.
-- **`make` (optionnel)** : macOS et Linux — oui. Windows — plutôt **WSL**, **Git Bash + GNU Make**, ou utilisez uniquement **`node install-beta.mjs`** (recommandé sous Windows sans outils Unix). Détails : [docs/installers/beta-bundle/README.md](docs/installers/beta-bundle/README.md).
+- **`make` (optionnel)** : macOS et Linux — oui. Windows — plutôt **WSL**, **Git Bash + GNU Make**, ou utilisez **`.\install-beta.ps1`** / **`node install-beta.mjs`** (recommandé sous PowerShell). Détails : [docs/installers/beta-bundle/README.md](docs/installers/beta-bundle/README.md).
+- **PowerShell :** `npm` / `npx` peuvent être bloqués (politique d’exécution `.ps1`). Préférez `install-beta.ps1`, `node …/gcp.mjs`, ou `npm.cmd` / `npx.cmd`.
 - Voie **dépôt Git** : voir le [Makefile](Makefile) (`make help`) — Zig 0.16, `pnpm`, etc. selon ce que vous construisez.
 
 ### Trois façons d’installer
@@ -34,7 +35,13 @@ Dézipper le bundle, puis dans le dossier qui contient les `.tgz` et `install-be
 node install-beta.mjs
 ```
 
-Cela installe le paquet **principal** et le **binaire natif** pour votre OS (Linux x64/ARM64, macOS Intel/Apple Silicon, Windows x64). Sans la plateforme, le backend Zig n’est pas présent — le MCP ne pourra pas démarrer le serveur HTTP MindBrain.
+Sous **PowerShell** :
+
+```powershell
+.\install-beta.ps1
+```
+
+Cela installe le paquet **principal** et le **binaire natif** pour votre OS (Linux x64/ARM64, macOS Intel/Apple Silicon, Windows x64 Intel/AMD, Windows ARM64). Sans la plateforme, le backend Zig n’est pas présent — le MCP ne pourra pas démarrer le serveur HTTP MindBrain.
 
 Dans le **zip bêta**, un `Makefile` et `README_MAKE.md` sont fournis à côté des `.tgz` (`make` puis `make mcp`). Dans le dépôt : [docs/installers/beta-bundle/](docs/installers/beta-bundle/README.md).
 
@@ -122,7 +129,8 @@ Guides détaillés : [README_CURSOR_MCP.md](README_CURSOR_MCP.md), [README_CODEX
 
 - **Node.js 20+** and `npm` (or `pnpm`).
 - **Internet** for the main package’s JS dependency tree.
-- **`make` (optional):** macOS and Linux — fine. Windows — use **WSL**, **Git Bash + GNU Make**, or skip `make` and use **`node install-beta.mjs`** (simplest on Windows without Unix tools). See [docs/installers/beta-bundle/README.md](docs/installers/beta-bundle/README.md).
+- **`make` (optional):** macOS and Linux — fine. Windows — use **WSL**, **Git Bash + GNU Make**, or **`.\install-beta.ps1`** / **`node install-beta.mjs`** (simplest on PowerShell). See [docs/installers/beta-bundle/README.md](docs/installers/beta-bundle/README.md).
+- **PowerShell:** bare `npm` / `npx` may fail (execution policy blocks `.ps1` shims). Prefer `install-beta.ps1`, `node …/gcp.mjs`, or `npm.cmd` / `npx.cmd`.
 - **Git / dev path:** see the repo [Makefile](Makefile) (`make help`) for Zig, `pnpm`, etc.
 
 ### Three installation paths
@@ -134,7 +142,13 @@ Unzip the bundle, then in the folder that contains the `.tgz` files and `install
 node install-beta.mjs
 ```
 
-This installs the **main** package and the **native binary** for your OS. Without the platform package, the Zig backend is missing and MindBrain cannot start.
+On **PowerShell**:
+
+```powershell
+.\install-beta.ps1
+```
+
+This installs the **main** package and the **native binary** for your OS (Linux x64/ARM64, macOS Intel/Apple Silicon, Windows x64 Intel/AMD, Windows ARM64). Without the platform package, the Zig backend is missing and MindBrain cannot start.
 
 The **beta zip** includes a `Makefile` and `README_MAKE.md` next to the `.tgz` files (`make`, then `make mcp`). In the repo: [docs/installers/beta-bundle/](docs/installers/beta-bundle/README.md).
 
@@ -167,7 +181,7 @@ To develop or produce tarballs yourself:
 
 - `make lib-build` — JS only
 - `make local-pack` or `pnpm run pack:local` — tarball in `dist-pack/`
-- `make prebuilds` then `pnpm run pack:local` — all five platform binaries
+- `make prebuilds` then `pnpm run pack:local` — all six platform binaries
 
 See [Makefile](Makefile) and [docs/dev/npm_split_release_process.md](docs/dev/npm_split_release_process.md).
 
