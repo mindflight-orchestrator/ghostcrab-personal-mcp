@@ -1,4 +1,8 @@
 import { WORKSPACE_CONTEXT_DISCIPLINE } from "./workspace-context-status.js";
+import {
+  buildImportPipelinesInstructionsBlock,
+  buildImportPipelinesMarkdownSection
+} from "./import-pipelines.js";
 
 /**
  * Single source of truth for GhostCrab product framing: MCP instructions,
@@ -12,7 +16,7 @@ const ROLE_LINES = [
 ] as const;
 
 const NON_GOAL_LINE =
-  "Non-goal: MCP is the ontology and query surface — high-throughput ingestion uses direct SQL (operator pipelines only; agents must use MCP tools, not SQLite shell access).";
+  "Non-goal: MCP is the ontology and query surface — bulk import uses gcp brain structured-import / gcp brain document (not MCP tools). Agents may run those CLIs when the user requests import; agents must not open SQLite or use CLI/SQL to read data (MCP tools only).";
 
 /** First-turn fuzzy onboarding: question count (aligned with ONBOARDING_CONTRACT.md). */
 const FIRST_TURN_QUESTION_DISCIPLINE = [
@@ -149,7 +153,8 @@ For local ingest (email, messages, calendar, search results): skip \`ghostcrab_s
 - If \`ghostcrab_status\` or \`ghostcrab_coverage\` shows gaps, continue only with disclosure when acceptable; otherwise escalate with the specific gap.
 - For graph instance validation (closed-world business rules), use \`ghostcrab_tool_search\` to find \`ghostcrab_graph_gap_rules_import\`, \`ghostcrab_graph_gap_rules\`, \`ghostcrab_graph_diagnostics\`, and \`ghostcrab_graph_gap_rules_delete\`. Workflow: import rules → list rules → run diagnostics. \`ghostcrab_coverage\` checks ontology instantiation, not instance invariants.
 - For local tasks, do not import unrelated global gaps unless they affect the answer.
-`;
+
+${buildImportPipelinesMarkdownSection()}`;
 }
 
 export interface McpInstructionsParams {
@@ -194,7 +199,8 @@ export function buildMcpInstructions(params: McpInstructionsParams): string {
     `Product role: persistent fact store with schemas, knowledge graph, facets, ` +
     `and projections. Use it for workflow tracking, CRM pipelines, compliance, ` +
     `knowledge bases, and domain modeling. MCP is the ontology and query surface; ` +
-    `high-throughput ingestion uses direct SQL (operator pipelines only — agents must use MCP tools).\n\n` +
+    `bulk import uses gcp brain structured-import and gcp brain document (see ghostcrab_status.import_pipelines or ghostcrab://readme); agents must not use CLI/SQL to read data.\n\n` +
+    `${buildImportPipelinesInstructionsBlock()}\n\n` +
     `${WORKSPACE_CONTEXT_DISCIPLINE}\n\n` +
     `${firstCallChecklistStandalone()}\n\n` +
     `${onboardingDisciplineBlock}\n\n` +

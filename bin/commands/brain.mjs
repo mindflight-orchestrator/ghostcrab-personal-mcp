@@ -61,6 +61,11 @@ export async function cmdBrain(args) {
       await cmdBrainStructuredImport(rest);
       break;
     }
+    case "docs": {
+      const { cmdBrainDocs } = await import("../lib/import-docs.mjs");
+      await cmdBrainDocs(rest);
+      break;
+    }
     case "setup":
     case "setup_cursor":
     case "setup_codex":
@@ -694,6 +699,7 @@ Subcommands:
                                            Corpus import / normalize / profile (stop MCP first)
   structured-import [--workspace] [--db] [--force] <cmd>
                                            Tabular CSV/JSON import (stop MCP first)
+  docs [structured|document|import|--list] Full import runbooks (Markdown)
   backup [opts]                           Export workspace, collection, or taxonomy backup bundle
   export [opts]                           Alias for backup
   load <file.jsonl|backup.json>           Load JSONL profile or restore backup bundle

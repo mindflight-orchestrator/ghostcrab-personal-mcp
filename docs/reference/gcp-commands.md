@@ -22,6 +22,8 @@ operations.
 | **Backup / restore** | `gcp brain backup …`, `gcp brain load …` | Export workspace, collection, or taxonomy backup bundles; restore `ghostcrab_backup_bundle` JSON. `gcp brain export` is an alias for backup. |
 | **Load demo profile** | `gcp brain load …` | JSONL profile into the DB. Legacy: `gcp load …`. |
 | **Corpus import / profiling** | `gcp brain document …` | Normalize, profile, enqueue/worker, ingest, list qualification vocabulary (stop MCP first). See `gcp brain document --help` and [document-import.md](../setup/document-import.md). |
+| **Tabular structured import** | `gcp brain structured-import …` | CSV/JSON/YAML/XLSX/TOON via native engine (stop MCP first). See `gcp brain structured-import --help` and [structured-import.md](../setup/structured-import.md). |
+| **Full import runbooks (Markdown)** | `gcp brain docs [structured\|document\|import]` | Prints packaged runbooks from `docs/setup/` (same content as the setup guides). |
 | **Native binary permissions** | `gcp authorize` | `chmod` / macOS quarantine (also runs on `postinstall`). |
 | **Human DDL maintenance** | `gcp maintenance ddl-approve \| ddl-execute` | Explicit operator-only approval/execution for pending DDL migrations. |
 | **User-global MCP in IDE** | `gcp brain setup <cursor, codex, or claude> […]` | Registers the GhostCrab stdio server in the **user** scope: merges `~/.cursor/mcp.json` for Cursor, runs `codex mcp add` (or prints a TOML fragment) for Codex, or runs `claude mcp add` for Claude Code. Aliases: `gcp brain setup_cursor` / `setup_codex` / `setup_claude` / `setup_claudecode`. See [gcp-client-setup.md](../setup/gcp-client-setup.md) and the root `README_*_MCP.md` files. |

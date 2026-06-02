@@ -7,6 +7,9 @@ MindBrain SQLite, with and without an LLM provider.
 For the lower-level engine reference and all flags, see
 `vendor/mindbrain/docs/document-profile.md`.
 
+For **tabular structured data** (CSV, JSON, YAML), see
+[structured-import.md](./structured-import.md).
+
 ## What This Imports
 
 The document flow can write several layers:

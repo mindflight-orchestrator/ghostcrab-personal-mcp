@@ -341,7 +341,9 @@ Usage: gcp brain document [--workspace <name>] [--db <path>] [--force] <subcomma
   --db <path>          Explicit SQLite file path for database-backed subcommands
   --force              Skip the running-backend check (may hit "database is locked")
 
-  For subcommands and flags, see the product docs (document import / profiling).
+  Full runbook:  gcp brain docs document
+  Subcommand help: gcp brain document <subcommand> --help (native engine flags)
+
   Examples:
 
   gcp brain document document-normalize --input ./paper.pdf --output-dir ./out
