@@ -3,6 +3,7 @@
  */
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { findOnPath } from "../lib/mcp-global-setup.mjs";
 import { preparePrebuildForInstall } from "../lib/prebuild-permissions.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -16,7 +17,7 @@ Usage: gcp authorize
 
 Ensures the installed native binaries for *this* OS/arch can run:
   • ghostcrab-backend — HTTP server used by MCP
-  • ghostcrab-document — optional; used by  gcp brain document  (same chmod / quarantine rules)
+  • ghostcrab-document — MindBrain CLI for gcp brain ontology|document|structured-import
   • Linux / macOS: sets the executable bit if npm/pnpm dropped it
   • macOS (Intel or Apple Silicon): removes com.apple.quarantine when present
   • Windows: use file "Unblock" if SmartScreen blocks a .exe
@@ -48,5 +49,23 @@ Works the same for:
 
   if (!r.ok) {
     process.exit(1);
+  }
+
+  if (r.documentMissing) {
+    console.error(
+      `[ghostcrab] authorize: ghostcrab-document is required for ontology/document/structured-import CLI.\n` +
+        `  Expected: ${r.documentPath}\n` +
+        (r.packageName ? `  npm install ${r.packageName}\n` : "") +
+        `  Re-run: gcp authorize`
+    );
+    process.exit(1);
+  }
+
+  if (!findOnPath("gcp")) {
+    console.error(
+      `[ghostcrab] gcp is not on PATH in this shell.\n` +
+        `  Run: gcp path install --write-profile\n` +
+        `  (IDE MCP uses absolute paths via gcp brain setup — terminal/scripts need the shim.)`
+    );
   }
 }

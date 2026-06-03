@@ -59,6 +59,7 @@ describe("runSetupPostInstall", () => {
     expect(text).toMatch(/ghostcrab-memory/);
     expect(text).toMatch(/mindbrain-comparison-writer/);
     expect(text).toMatch(/Would write skill reference/);
+    expect(text).toMatch(/Would install PATH shim at/);
   });
 
   it("skipPermissions skips cursor allowlist dry-run line", async () => {
@@ -189,5 +190,7 @@ describe("runSetupPostInstall", () => {
     expect(existsSync(join(cwd, ".cursor", "rules", "ghostcrab-memory.mdc"))).toBe(false);
     expect(existsSync(join(fakeHome, ".cursor", "skills", "ghostcrab-memory", "SKILL.md"))).toBe(true);
     expect(existsSync(join(cwd, ".ghostcrab", "skills", "installed.json"))).toBe(true);
+    const text = (result.messages ?? []).join("\n");
+    expect(text).toMatch(/PATH shim:/);
   });
 });

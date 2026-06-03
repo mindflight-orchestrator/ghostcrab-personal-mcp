@@ -12,6 +12,7 @@ import { preparePrebuildForInstall } from "./prebuild-permissions.mjs";
 import { runHostProjectBootstrap } from "./postinstall-host-bootstrap.mjs";
 import { runPostinstallSmoke } from "./postinstall-smoke.mjs";
 import { ensureGhostcrabSkillLinks } from "./postinstall-skill-links.mjs";
+import { installPathShim } from "./path-shim.mjs";
 
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const quiet = process.env.GHOSTCRAB_POSTINSTALL_QUIET === "1";
@@ -55,6 +56,11 @@ if (r.skipped) {
   console.error(
     `[ghostcrab] postinstall: ${r.warn} — run: gcp authorize or chmod +x "${r.binPath}"`
   );
+} else if (r.documentMissing) {
+  console.error(
+    `[ghostcrab] postinstall: ghostcrab-document engine missing (MCP-only install).\n` +
+      `  Install the platform package for ${r.platformKey}, then run: gcp authorize`
+  );
 }
 
 if (
@@ -64,17 +70,35 @@ if (
   r.binPath &&
   process.env.GHOSTCRAB_SKIP_POSTINSTALL_SMOKE !== "1"
 ) {
-  runPostinstallSmoke({ pkgRoot, backendPath: r.binPath, quiet });
+  runPostinstallSmoke({
+    pkgRoot,
+    backendPath: r.binPath,
+    documentPath: r.documentOk ? r.documentPath : null,
+    quiet
+  });
+
+  try {
+    const shim = installPathShim({ pkgRoot, writeProfile: false });
+    if (!quiet) {
+      console.error(`[ghostcrab] PATH shim: ${shim.shimPath}`);
+    }
+  } catch (e) {
+    console.error(
+      `[ghostcrab] PATH shim install failed (non-fatal): ${e instanceof Error ? e.message : e}`
+    );
+  }
+
   if (!quiet) {
     console.error("[ghostcrab] Next steps:");
     console.error(
       "  1. If .env / data/ / README / ghostcrab-skills links are missing in your project root, run:"
     );
     console.error("       npx gcp bootstrap");
-    console.error("  2. Register the MCP server in your IDE:");
+    console.error("  2. Register the MCP server in your IDE (includes PATH shim):");
     console.error("       npx gcp brain setup cursor --force");
     console.error("       npx gcp brain setup codex");
     console.error("       npx gcp brain setup claude");
+    console.error("  3. Or install PATH only: npx gcp path install --write-profile");
     console.error(
       "[ghostcrab] See INSTALL.md / README_CURSOR_MCP.md / README_CODEX_MCP.md / README_CLAUDE_CODE_MCP.md in the package."
     );

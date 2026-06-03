@@ -472,6 +472,63 @@ export function ensureBackendExecutableForServe(binPath) {
 }
 
 /**
+ * @param {{ packageName: string | null, path: string, platformKey: string }} docResolved
+ */
+export function warnDocumentEngineMissing(docResolved) {
+  const reg = docResolved.packageName
+    ? `  npm install ${docResolved.packageName}\n`
+    : "";
+  console.error(
+    `[ghostcrab] Document engine (ghostcrab-document) not found for ${docResolved.platformKey}.\n` +
+      `  Expected: ${docResolved.path}\n` +
+      reg +
+      `  MCP (gcp brain up) works; gcp brain ontology|document|structured-import will fail.\n` +
+      `  After installing the platform package, run: gcp authorize`
+  );
+}
+
+/**
+ * @param {string} pkgRoot
+ * @param {{ verbose?: boolean, silent?: boolean, tryQuarantine?: boolean, softFail?: boolean, platformKey: string, actions: string[] }} opts
+ */
+function prepareDocumentEngineForInstall(pkgRoot, opts) {
+  const { verbose, silent, tryQuarantine, softFail, platformKey, actions } =
+    opts;
+  const docResolved = resolveDocumentEnginePath(pkgRoot);
+
+  if (docResolved.ok) {
+    const docEx = ensureUnixExecuteBit(docResolved.path);
+    if (docEx.changed) {
+      actions.push("document-chmod+x");
+    } else if (!docEx.ok && !softFail && verbose) {
+      console.error(
+        `[ghostcrab] Document engine chmod: ${docEx.error?.message ?? docEx} (${docResolved.path})`
+      );
+    }
+    if (tryQuarantine && process.platform === "darwin") {
+      const dq = tryStripDarwinQuarantine(docResolved.path);
+      if (dq.stripped) {
+        actions.push("document-cleared-quarantine");
+      }
+    }
+    if (verbose) {
+      console.log(
+        `[ghostcrab] Document engine for ${platformKey} (${docResolved.source}) — ${docResolved.path}`
+      );
+    }
+  } else {
+    warnDocumentEngineMissing(docResolved);
+  }
+
+  return {
+    documentOk: docResolved.ok,
+    documentMissing: !docResolved.ok,
+    documentPath: docResolved.path,
+    documentSource: docResolved.source
+  };
+}
+
+/**
  * @param {string} pkgRoot
  * @param {{ verbose?: boolean, silent?: boolean, tryQuarantine?: boolean, softFail?: boolean, ignorePostinstallEnv?: boolean }} o
  * @returns {object}
@@ -510,7 +567,11 @@ export function preparePrebuildForInstall(pkgRoot, o = {}) {
       missing: true,
       binPath,
       platformKey,
-      packageName: resolved.packageName
+      packageName: resolved.packageName,
+      documentOk: false,
+      documentMissing: true,
+      documentPath: resolveDocumentEnginePath(pkgRoot).path,
+      documentSource: "missing"
     };
   }
 
@@ -532,12 +593,21 @@ export function preparePrebuildForInstall(pkgRoot, o = {}) {
         `[ghostcrab] postinstall: backend ready (${resolved.source}) — ${binPath}`
       );
     }
+    const docFields = prepareDocumentEngineForInstall(pkgRoot, {
+      verbose,
+      silent,
+      tryQuarantine,
+      softFail,
+      platformKey,
+      actions: []
+    });
     return {
       ok: true,
       platformKey,
       binPath,
       actions: [],
-      source: resolved.source
+      source: resolved.source,
+      ...docFields
     };
   }
 
@@ -567,7 +637,11 @@ export function preparePrebuildForInstall(pkgRoot, o = {}) {
       binPath,
       actions,
       warn: err,
-      source: resolved.source
+      source: resolved.source,
+      documentOk: false,
+      documentMissing: true,
+      documentPath: resolveDocumentEnginePath(pkgRoot).path,
+      documentSource: "missing"
     };
   }
   if (ex.changed) {
@@ -601,34 +675,21 @@ export function preparePrebuildForInstall(pkgRoot, o = {}) {
     );
   }
 
-  const docResolved = resolveDocumentEnginePath(pkgRoot);
-  if (docResolved.ok) {
-    const docEx = ensureUnixExecuteBit(docResolved.path);
-    if (docEx.changed) {
-      actions.push("document-chmod+x");
-    } else if (!docEx.ok && !softFail && verbose) {
-      console.error(
-        `[ghostcrab] Document engine chmod: ${docEx.error?.message ?? docEx} (${docResolved.path})`
-      );
-    }
-    if (tryQuarantine && process.platform === "darwin") {
-      const dq = tryStripDarwinQuarantine(docResolved.path);
-      if (dq.stripped) {
-        actions.push("document-cleared-quarantine");
-      }
-    }
-    if (verbose) {
-      console.log(
-        `[ghostcrab] Document engine for ${platformKey} (${docResolved.source}) — ${docResolved.path}`
-      );
-    }
-  } else if (verbose) {
-    console.log(
-      `[ghostcrab] No document engine binary for ${platformKey} (optional until you run full prebuilds).\n` +
-        `  Expected: ${docResolved.path}\n` +
-        `  Or build:  cd cmd/backend && zig build document-tool`
-    );
-  }
+  const docFields = prepareDocumentEngineForInstall(pkgRoot, {
+    verbose,
+    silent,
+    tryQuarantine,
+    softFail,
+    platformKey,
+    actions
+  });
 
-  return { ok: true, binPath, platformKey, actions, source: resolved.source };
+  return {
+    ok: true,
+    binPath,
+    platformKey,
+    actions,
+    source: resolved.source,
+    ...docFields
+  };
 }

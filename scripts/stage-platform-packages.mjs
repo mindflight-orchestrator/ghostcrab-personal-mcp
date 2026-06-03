@@ -4,6 +4,7 @@ import {
   mkdirSync,
   readFileSync,
   rmSync,
+  statSync,
   writeFileSync
 } from "node:fs";
 import { dirname, join } from "node:path";
@@ -91,6 +92,32 @@ function stagePackageMetadata(packageRoot) {
   writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n");
 }
 
+function assertPlatformBinaries(entry) {
+  const packageRoot = join(repoRoot, entry.packageDir);
+  const binDir = join(packageRoot, "bin");
+  for (const name of [entry.binaryName, entry.documentBinaryName]) {
+    const targetPath = join(binDir, name);
+    if (!existsSync(targetPath)) {
+      throw new Error(
+        `Platform package ${entry.packageName} missing binary: ${targetPath}`
+      );
+    }
+    const st = statSync(targetPath);
+    if (st.size <= 0) {
+      throw new Error(
+        `Platform package ${entry.packageName} binary is empty: ${targetPath}`
+      );
+    }
+    if (process.platform !== "win32" && !name.endsWith(".exe")) {
+      if ((st.mode & 0o111) === 0) {
+        throw new Error(
+          `Platform package ${entry.packageName} binary is not executable: ${targetPath}`
+        );
+      }
+    }
+  }
+}
+
 function stagePackage(entry) {
   const packageRoot = join(repoRoot, entry.packageDir);
   const targetDir = join(packageRoot, "bin");
@@ -127,4 +154,5 @@ if (selected.length === 0) {
 
 for (const entry of selected) {
   stagePackage(entry);
+  assertPlatformBinaries(entry);
 }

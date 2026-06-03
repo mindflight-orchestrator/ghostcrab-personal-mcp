@@ -201,6 +201,32 @@ Edit `.env` as needed. Variable reference: [.env.example](.env.example).
 
 **Global install:** use `$(npm root -g)/@mindflight/ghostcrab-personal-mcp/.env.example`.
 
+### Platform binaries (backend + document engine)
+
+Each platform optional package ships **two** native binaries in `bin/`:
+
+| Binary | Role |
+|--------|------|
+| `ghostcrab-backend` | HTTP server for MCP (`gcp brain up`) |
+| `ghostcrab-document` | MindBrain CLI for `gcp brain ontology`, `document`, `structured-import` |
+
+If only the backend is present (partial install), MCP works but document/ontology CLI commands fail. Postinstall prints a warning; run `gcp authorize` after installing the platform package.
+
+### PATH: invoke `gcp` from any terminal
+
+IDE MCP setup uses absolute paths (`gcp brain setup …`) and also installs the PATH shim. For shells and scripts only:
+
+```bash
+gcp path install --write-profile   # optional if you skipped gcp brain setup
+```
+
+| OS | Shim location | Profile file |
+|----|---------------|--------------|
+| Linux / macOS | `~/.ghostcrab/bin/gcp` | `~/.zshrc`, `~/.bashrc`, or `~/.profile` |
+| Windows | `%USERPROFILE%\.ghostcrab\bin\gcp.cmd` | PowerShell `$PROFILE` (or add via System PATH GUI) |
+
+Other commands: `gcp path print` (show export line only), `gcp path doctor` (PATH + shim + document engine check).
+
 ### IDE: register MCP (one command each)
 
 From the project root where the package is installed locally (or where `gcp` is on `PATH`):
