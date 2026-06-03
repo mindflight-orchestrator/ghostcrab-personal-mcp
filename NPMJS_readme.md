@@ -14,11 +14,11 @@ The **root** package is a small installer: it does **not** ship `prebuilds/` ins
 | Package                                                                         | Role                                                                                                       |
 | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `@mindflight/ghostcrab-personal-mcp`                                                                                      | JS/CLI, docs, skills, `postinstall`; declares **optionalDependencies** on the six platform packages below |
-| `…-linux-x64`, `…-linux-arm64`, `…-darwin-x64`, `…-darwin-arm64`, `…-win32-x64`, `…-win32-arm64` | One native build each (`ghostcrab-backend` + `ghostcrab-document` where applicable)                        |
+| `…-linux-x64`, `…-linux-arm64`, `…-darwin-x64`, `…-darwin-arm64`, `…-win32-x64`, `…-win32-arm64` | One native build each: **`ghostcrab-backend`** (MCP server) + **`ghostcrab-document`** (MindBrain CLI for ontology/document/structured-import) |
 
-At **`npm install`**, the client tries to install the **optional** package matching the current OS/CPU. The root **`postinstall`** ([`bin/lib/postinstall-prebuilds.mjs`](bin/lib/postinstall-prebuilds.mjs)) locates that binary, fixes permissions / quarantine when needed, runs a small smoke (`gcp --help`, backend `--help`). On success it may print **next steps** for IDE wiring (unless `GHOSTCRAB_POSTINSTALL_QUIET=1`):
+At **`npm install`**, the client tries to install the **optional** package matching the current OS/CPU. The root **`postinstall`** ([`bin/lib/postinstall-prebuilds.mjs`](bin/lib/postinstall-prebuilds.mjs)) locates that binary, fixes permissions / quarantine when needed, runs a small smoke (`gcp --help`, backend `--help`, `ghostcrab-document --help` when present). On success it may print **next steps** for IDE wiring (unless `GHOSTCRAB_POSTINSTALL_QUIET=1`):
 
-- `npx gcp brain setup cursor`
+- `npx gcp brain setup cursor` (MCP + skills + PATH shim)
 - `npx gcp brain setup codex`
 - `npx gcp brain setup claude`
 

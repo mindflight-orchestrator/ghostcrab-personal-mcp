@@ -1,5 +1,5 @@
 /**
- * Post-setup: MCP permissions + IDE skill bundles.
+ * Post-setup: MCP permissions + IDE skill bundles + PATH shim.
  */
 
 import {
@@ -13,6 +13,7 @@ import {
   installIdeSkillsBundleForTarget,
   setupTargetToIdeSkillsTarget
 } from "./install-ide-skills.mjs";
+import { installPathShim } from "./path-shim.mjs";
 
 /**
  * @param {object} opts
@@ -138,6 +139,41 @@ export async function runSetupPostInstall(opts) {
       );
       messages.push(
         `[dry-run] Would write skill reference ${preview.referenceManifest}, ${preview.targetReferenceManifest} and shortcut ${preview.currentShortcut}`
+      );
+    }
+  }
+
+  if (opts.dryRun) {
+    const pathPreview = installPathShim({
+      pkgRoot: opts.pkgRoot,
+      dryRun: true
+    });
+    messages.push(
+      `[dry-run] Would install PATH shim at ${pathPreview.shimPath} and update ${pathPreview.profilePath}`
+    );
+    details.pathShim = pathPreview.shimPath;
+  } else {
+    try {
+      const pathResult = installPathShim({
+        pkgRoot: opts.pkgRoot,
+        writeProfile: true
+      });
+      const profileNote =
+        pathResult.profileStatus === "present"
+          ? "shell profile already configured"
+          : pathResult.profileStatus === "appended"
+            ? `updated ${pathResult.profilePath}`
+            : "profile unchanged";
+      messages.push(`PATH shim: ${pathResult.shimPath} (${profileNote})`);
+      if (!pathResult.onPath) {
+        messages.push(
+          "Open a new terminal (or run the PATH export once) so `gcp` is available."
+        );
+      }
+      details.pathShim = pathResult.shimPath;
+    } catch (e) {
+      messages.push(
+        `PATH shim install failed (non-fatal): ${e instanceof Error ? e.message : e}`
       );
     }
   }

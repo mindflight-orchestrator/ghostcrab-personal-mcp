@@ -504,7 +504,8 @@ function printSetupHelp() {
     `
 Usage: gcp brain setup <cursor|codex|claude|generic> [options]
 
-  Register the GhostCrab MCP server and install the matching GhostCrab skills.
+  Register the GhostCrab MCP server, install the matching GhostCrab skills,
+  and install the ~/.ghostcrab/bin PATH shim (updates your shell profile).
   The generic target prints MCP snippets and installs portable .agents/skills.
 
   --runner <auto|gcp|pnpm|npx|node>

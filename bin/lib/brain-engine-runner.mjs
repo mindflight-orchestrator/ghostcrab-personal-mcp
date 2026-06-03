@@ -18,13 +18,13 @@ export function resolveNativeEngineOrExit(pkgRoot, options = {}) {
   const resolved = resolveDocumentEnginePath(pkgRoot);
   if (!resolved.ok) {
     const hint = resolved.packageName
-      ? `  Optional package: ${resolved.packageName}\n`
+      ? `  Platform package: npm install ${resolved.packageName}\n`
       : "";
     console.error(
-      `[ghostcrab] Document engine not found for ${resolved.platformKey}.\n` +
+      `[ghostcrab] ghostcrab-document engine not found for ${resolved.platformKey}.\n` +
         hint +
-        `  Fallback path: ${resolved.path}\n` +
-        `  Build from source:  cd cmd/backend && zig build document-tool\n` +
+        `  Expected: ${resolved.path}\n` +
+        `  Run: gcp authorize  (after installing the platform optional package)\n` +
         `  Or set GHOSTCRAB_DOCUMENT_ENGINE=/path/to/ghostcrab-document`
     );
     process.exit(1);
@@ -69,7 +69,7 @@ export function runNativeEngineSync(pkgRoot, childArgs, options = {}) {
       ok: false,
       status: null,
       stdout: "",
-      stderr: "native MindBrain engine binary not found"
+      stderr: "ghostcrab-document engine binary not found"
     };
   }
 

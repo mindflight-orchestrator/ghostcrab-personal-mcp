@@ -44,6 +44,7 @@ Usage: gcp bootstrap [options]
 
 Options:
   --cwd <dir>   Project directory to bootstrap (default: current directory)
+  --path        Install ~/.ghostcrab/bin PATH shim (--write-profile)
   --quiet       Only print warnings and errors
   -h, --help    Show this help
 
@@ -57,6 +58,12 @@ Safe to re-run: never overwrites an existing .env or a real (non-symlink) file.
   const projectDir =
     cwdIdx !== -1 && args[cwdIdx + 1] ? args[cwdIdx + 1] : process.cwd();
   const quiet = args.includes("--quiet");
+
+  if (args.includes("--path")) {
+    warn(
+      "[ghostcrab] bootstrap: --path is deprecated; PATH shim is installed automatically at the end."
+    );
+  }
 
   const log = (msg) => {
     if (!quiet) console.log(msg);
@@ -146,6 +153,24 @@ Safe to re-run: never overwrites an existing .env or a real (non-symlink) file.
         );
       }
     }
+  }
+
+  try {
+    const { installPathShim } = await import("../lib/path-shim.mjs");
+    const pathResult = installPathShim({
+      pkgRoot: PKG_ROOT,
+      writeProfile: true
+    });
+    log(`[ghostcrab] bootstrap: path shim     → ${pathResult.shimPath}`);
+    if (!quiet) {
+      log(
+        `[ghostcrab] bootstrap: shell profile → ${pathResult.profilePath} (${pathResult.profileStatus})`
+      );
+    }
+  } catch (e) {
+    warn(
+      `[ghostcrab] bootstrap: path shim ERROR — ${e instanceof Error ? e.message : e}`
+    );
   }
 
   log(

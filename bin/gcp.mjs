@@ -83,6 +83,11 @@ switch (cmd) {
     await cmdBootstrap(rest);
     break;
   }
+  case "path": {
+    const { cmdPath } = await import("./commands/path.mjs");
+    await cmdPath(rest);
+    break;
+  }
   case undefined:
   case "--help":
   case "-h":
@@ -124,6 +129,7 @@ Usage: gcp <command> [options]
   brain setup <cursor|codex|claude|generic>
                                     User-global MCP + IDE skills (generic prints snippets)
   bootstrap                          Create .env / data/ / README symlinks in cwd
+  path install|print|doctor          Cross-platform PATH shim (~/.ghostcrab/bin)
   agent skills <sub>              Registry skills (agent capabilities)
   agent equip <owner/name>        Shortcut for: agent skills pull
   env list | show | get | set     GhostCrab config file (~/.ghostcrab/…)
@@ -132,7 +138,7 @@ Usage: gcp <command> [options]
   gcp up | gcp start              Same as  gcp brain up
 
 ── Legacy (same behavior) ──
-  serve, init, config, ontologies, skills, load, authorize, bootstrap
+  serve, init, config, ontologies, skills, load, authorize, bootstrap, path
 
 Quick start (new names):
   gcp brain workspace create my-app

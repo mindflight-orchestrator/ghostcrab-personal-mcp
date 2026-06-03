@@ -103,6 +103,8 @@ check:
 	@echo "→ Smoke test: gcp --help"
 	@test -f "$(GCP_MJS)" || (echo "ERROR: run 'make install' first" && exit 1)
 	@node "$(GCP_MJS)" --help | head -6
+	@echo "→ PATH + document engine: gcp path doctor"
+	@node "$(GCP_MJS)" path doctor
 	@echo "✓ CLI ok"
 
 .PHONY: mcp

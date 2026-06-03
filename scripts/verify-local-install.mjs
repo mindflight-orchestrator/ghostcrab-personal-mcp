@@ -209,6 +209,22 @@ try {
     `gcp authorize failed (exit ${authz.status ?? "null"}).\n${authz.stderr}\n${authz.stdout}`
   );
 
+  const platformPkgDir = pathUnderConsumer(consumerDir, platformPackageName);
+  const documentBinaryName =
+    process.platform === "win32" ? "ghostcrab-document.exe" : "ghostcrab-document";
+  const documentBin = join(platformPkgDir, "bin", documentBinaryName);
+  assert.equal(
+    existsSync(documentBin),
+    true,
+    `platform package missing ghostcrab-document at ${documentBin}`
+  );
+  const docHelp = run(documentBin, ["--help"], { cwd: consumerDir });
+  const docCombined = `${docHelp.stdout ?? ""}${docHelp.stderr ?? ""}`;
+  assert.ok(
+    docHelp.status === 0 || /usage:/i.test(docCombined),
+    `ghostcrab-document --help failed (exit ${docHelp.status ?? "null"}).\n${docCombined}`
+  );
+
   const toolsVerify = run(
     process.execPath,
     [join(pathUnderConsumer(consumerDir, pkgName), "bin", "gcp.mjs"), "tools", "verify"],
