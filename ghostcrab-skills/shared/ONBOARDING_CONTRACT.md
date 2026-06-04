@@ -1,5 +1,7 @@
 # GhostCrab V1 — Canonical onboarding and discipline
 
+Vocabulary (Personal SQLite): [docs/explanation/glossary.md](../../docs/explanation/glossary.md). Operator catalog: [docs/reference/operator-catalog.md](../../docs/reference/operator-catalog.md).
+
 **Single source of truth** for first-turn fuzzy GhostCrab onboarding, **naive domain requests**, and cross-host alignment.  
 Other skill files should **link here** instead of copying long rule lists. Keep behavior aligned; do not contradict this contract.
 

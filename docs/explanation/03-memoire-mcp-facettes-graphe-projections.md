@@ -2,6 +2,8 @@
 
 Ce document explique les couches techniques que le code GhostCrab/MindBrain utilise derrière les outils MCP. Le point important : il n'y a pas une seule « mémoire ». Il y a plusieurs magasins, avec des rôles et des règles de synchronisation différents.
 
+> **Modèle LinkML :** [`ghostcrab-docs::memory-model`](ontology/diagrams/memory-model.md) · [MECE validation](ontology/mece-validation.md)
+
 Suite recommandée : [04 — Réindexation](04-reindexation-ghostcrab.md) puis [05 — Projections expliquées](05-projections-expliquees.md).
 
 Pour auditer ces explications sur un vrai import, voir la [Méthode StarterKit](methode-starterkit/README.md).

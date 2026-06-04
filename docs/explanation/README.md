@@ -12,11 +12,22 @@ Cette section unique couvre :
 
 ---
 
+## Références transverses
+
+| Document | Sujet |
+|----------|-------|
+| [Glossaire](glossary.md) | Vocabulaire canonique Personal (LinkML, facets, projections) |
+| [Ontologies LinkML/OWL2](ontology/README.md) | Hub : graphes [diagrams/](ontology/diagrams/), YAML [linkml/](ontology/linkml/ghostcrab-docs/), prose 03→05 |
+| [Catalogue opérateur](../reference/operator-catalog.md) | Commandes `gcp` + outils MCP et impact tables |
+
+---
+
 ## Parcours de lecture — architecture (recommandé)
 
 | Ordre | Document | Sujet |
 |-------|----------|-------|
-| 1 | [03 — Mémoire MCP, facettes, graphe et projections](03-memoire-mcp-facettes-graphe-projections.md) | Trois sens de « facets », quatre couches mémoire |
+| 0 | [Glossaire](glossary.md) | Termes autorisés / Pro-only |
+| 1 | [03 — Mémoire MCP, facettes, graphe et projections](03-memoire-mcp-facettes-graphe-projections.md) | Trois sens de « facets », quatre couches mémoire · LinkML : [`ghostcrab-docs::memory-model`](ontology/diagrams/memory-model.md) |
 | 2 | [04 — Réindexation GhostCrab](04-reindexation-ghostcrab.md) | Raw vs dérivé, auto-indexation |
 | 3 | [05 — Projections expliquées](05-projections-expliquees.md) | Type A, Type B, requête graphe |
 

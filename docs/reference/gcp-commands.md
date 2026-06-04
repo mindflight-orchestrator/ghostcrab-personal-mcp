@@ -56,6 +56,7 @@ Legacy (still supported):
 
 ## See also
 
+- [operator-catalog.md](operator-catalog.md) — full `gcp` and MCP tool list with SQLite impact (generated catalog)
 - [gcp-client-setup.md](../setup/gcp-client-setup.md) — IDE integration and env vars
 - [document-import.md](../setup/document-import.md) — document normalization, deterministic import, LLM profiling, qualification vocabulary listing, and no-LLM fallbacks
 - [skillset-demo-import.md](../setup/skillset-demo-import.md) — bundle manifests, schema/skill pulls, vendored `skills install`, JSONL loads

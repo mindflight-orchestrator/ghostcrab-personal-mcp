@@ -8,12 +8,16 @@ Document de **contestation constructive** : ce qui, dans [`starter-kit-ghostcrab
 
 | Document | Affirmation | Contredit |
 |----------|-------------|-----------|
-| [`QUICKSTART.md`](../../../../starter-kit-ghostcrab-perso/starterkit/QUICKSTART.md) L39 | « PostgreSQL only — SQLite not supported » | [`SOP5`](../../../../starter-kit-ghostcrab-perso/starterkit/SOP5_source_import_compiler.md) Gate 0 : backend « SQLite PERSO » explicite |
+| ~~QUICKSTART L39~~ | ~~PostgreSQL only~~ | **Résolu** sur branche `refactor/personal-glossary-gcp-sops` : [`EDITIONS.md`](../../../../gitlab-starter-kit-ghostcrab-perso/starterkit/EDITIONS.md) + QUICKSTART Personal par défaut |
 | QUICKSTART Phase A | Docker + `make dev-bootstrap` + smoke 24 tools | Personal : binaire MindBrain + SQLite fichier, catalog ~50 tools |
 | SOP1 §2 | Inventaire 24 outils (marketplace, patch, geo…) | Personal : surface différente ; certains outils absents ou « extended » via `ghostcrab_tool_search` |
 | SOP3 | COPY PostgreSQL bulk | Personal : pas de COPY ; bundle / CLI / MCP |
 
-**Lecture saine :** traiter QUICKSTART comme cible **Pro GitLab**, SOP5 Gate 0 comme **plus à jour** pour les forks SQLite.
+**Lecture saine :** lire `EDITIONS.md` → suivre uniquement [`personal-mcp/SOP_SEQUENCE.md`](../../../../starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP_SEQUENCE.md). QUICKSTART = routeur seulement.
+
+| Écart | Statut |
+|-------|--------|
+| Une seule séquence SOP mélangée (DDL/COPY/mindCLI) | **Résolu** — tracks `personal-mcp/` et `pro-mcp/` |
 
 ---
 

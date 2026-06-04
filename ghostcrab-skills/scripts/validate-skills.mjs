@@ -36,6 +36,11 @@ const REQUIRED_DIRECTORIES = [
   "codex/ghostcrab-data-architect",
   "codex/ghostcrab-integration-sop-editor",
   "codex/mindbrain-comparison-writer",
+  "codex/ghostcrab-operator",
+  "codex/ghostcrab-evidence-discovery",
+  "codex/ghostcrab-gap-auditor",
+  "codex/ghostcrab-json-answer-builder",
+  "codex/ghostcrab-projection-reviewer",
   "shared",
   "shared/demo-profiles",
   "openclaw/ghostcrab-memory",
@@ -78,6 +83,11 @@ const REQUIRED_FILES = [
   "codex/ghostcrab-data-architect/SKILL.md",
   "codex/ghostcrab-integration-sop-editor/SKILL.md",
   "codex/mindbrain-comparison-writer/SKILL.md",
+  "codex/ghostcrab-operator/SKILL.md",
+  "codex/ghostcrab-evidence-discovery/SKILL.md",
+  "codex/ghostcrab-gap-auditor/SKILL.md",
+  "codex/ghostcrab-json-answer-builder/SKILL.md",
+  "codex/ghostcrab-projection-reviewer/SKILL.md",
   "claude-code/README.md",
   "claude-code/skills/ghostcrab-memory/SKILL.md",
   "claude-code/skills/ghostcrab-prompt-guide/SKILL.md",
@@ -1162,9 +1172,49 @@ function extractSeedDomain(entry) {
   return null;
 }
 
+const PERSONAL_SKILL_FORBIDDEN = [
+  /\bmindcli\b/i,
+  /\bmindbot\b/i,
+  /\bGHOSTCRAB_DSN\b/,
+  /\bDATABASE_URL\b.*mindcli/i,
+  /go run \.\/cmd\/mindcli/
+];
+
+function validatePersonalSkillTerminology() {
+  const roots = ["codex", "skills", "shared"];
+  for (const rootDir of roots) {
+    const base = path.join(repoRoot, rootDir);
+    if (!fs.existsSync(base)) continue;
+    walkSkillMarkdown(base, (filePath, content) => {
+      for (const pattern of PERSONAL_SKILL_FORBIDDEN) {
+        if (pattern.test(content)) {
+          addError(
+            `Personal skills must not reference Pro-only operators (${pattern}): ${relativeRepoPath(filePath)}`
+          );
+          break;
+        }
+      }
+    });
+  }
+}
+
+function walkSkillMarkdown(dir, onFile) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      walkSkillMarkdown(full, onFile);
+      continue;
+    }
+    if (entry.name === "SKILL.md" || entry.name.endsWith(".yaml")) {
+      onFile(full, fs.readFileSync(full, "utf8"));
+    }
+  }
+}
+
 function main() {
   assertRequiredPaths();
   assertEditorSkillSymlinks();
+  validatePersonalSkillTerminology();
   validateJsonFiles();
   validateMarkdownLinks();
   const seedEntries = validatePortableSeedFiles() ?? [];

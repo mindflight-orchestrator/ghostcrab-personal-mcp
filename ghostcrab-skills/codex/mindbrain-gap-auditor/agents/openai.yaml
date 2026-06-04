@@ -1,4 +1,0 @@
-interface:
-  display_name: "MindBrain Gap Auditor"
-  short_description: "Find gaps between a question and answerable evidence"
-  default_prompt: "Use $mindbrain-gap-auditor to identify missing projections, facets, edges, or snapshots for a MindBrain question."

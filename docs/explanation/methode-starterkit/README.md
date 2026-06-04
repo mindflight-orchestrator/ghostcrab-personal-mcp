@@ -2,7 +2,9 @@
 
 Ce dossier audite les explications architecture ([03](../03-memoire-mcp-facettes-graphe-projections.md) → [04](../04-reindexation-ghostcrab.md) → [05](../05-projections-expliquees.md)) en les confrontant au **StarterKit externe** et au **code de ce repo**.
 
-**StarterKit de référence :** [`starter-kit-ghostcrab-perso`](../../../../starter-kit-ghostcrab-perso/starterkit/README.md) (clone sibling recommandé : `~/Documents/mindflight/starter-kit-ghostcrab-perso`).
+**StarterKit de référence :** [`starter-kit-ghostcrab-perso`](../../../../starter-kit-ghostcrab-perso/starterkit/README.md).
+
+**Séquence Personal (canon) :** [`personal-mcp/SOP_SEQUENCE.md`](../../../../starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP_SEQUENCE.md) — Pro : [`pro-mcp/SOP_SEQUENCE.md`](../../../../starter-kit-ghostcrab-perso/starterkit/pro-mcp/SOP_SEQUENCE.md).
 
 ## Deux optiques
 

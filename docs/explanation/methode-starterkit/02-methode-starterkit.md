@@ -2,6 +2,8 @@
 
 Référence : [`starter-kit-ghostcrab-perso/starterkit/`](../../../../starter-kit-ghostcrab-perso/starterkit/).
 
+**Séquence canonique Personal :** [`personal-mcp/SOP_SEQUENCE.md`](../../../../starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP_SEQUENCE.md) (ne pas suivre le QUICKSTART comme checklist unique).
+
 Le StarterKit force un enchaînement **gates deterministes** (SOP5 §3) avant et après écriture. Ce document mappe ce flux sur le vocabulaire Personal.
 
 ---
@@ -27,7 +29,7 @@ Source : [`QUICKSTART.md`](../../../../starter-kit-ghostcrab-perso/starterkit/QU
 
 Source : [`SOP5_source_import_compiler.md`](../../../../starter-kit-ghostcrab-perso/starterkit/SOP5_source_import_compiler.md) §3 (Voie A) ou §1 bis (Voie B structured-import CLI).
 
-**Voie B Personal (défaut tabulaire) :** remplacer gates 4–6 par `structured-import validate | register-semantics | apply | reindex`. Détail : [06 — Voies import](06-voies-import-ontologie-et-tabulaire.md).
+**Voie B Personal (défaut tabulaire) :** gates 4–6 = `gcp brain structured-import` — canon StarterKit : [SOP5 §1 bis](../../../../gitlab-starter-kit-ghostcrab-perso/starterkit/SOP5_source_import_compiler.md). Détail : [06 — Voies import](06-voies-import-ontologie-et-tabulaire.md), runbook [structured-import](../../setup/structured-import.md).
 
 ```text
 Gate 0  runtime / workspace autorisé

@@ -1,0 +1,177 @@
+id: https://ghostcrab.be/ontology/ghostcrab-docs/import-paths
+name: ghostcrab_docs_import_paths
+title: GhostCrab documentation — import paths and operators
+description: >
+  MECE slice for B0/C2 import path choices, gcp ontology pipeline, and Personal edition operators.
+  Sources 06-voies-import, linkml-owl2-pipeline, operator-catalog.
+license: https://ghostcrab.be/Licence.md
+version: 1.0.0
+
+prefixes:
+  linkml: https://w3id.org/linkml/
+  gdocs: https://ghostcrab.be/ontology/ghostcrab-docs/
+  ghostcrab: https://ghostcrab.be/ontology/
+
+imports:
+  - linkml:types
+
+default_prefix: gdocs
+default_range: string
+
+enums:
+  DocsSliceId:
+    permissible_values:
+      memory_model:
+      query_layers:
+      methodology_loop:
+      import_paths:
+
+  OntologyImportPath:
+    permissible_values:
+      linkml_compile:
+      mcp_incremental:
+
+  TabularImportPath:
+    permissible_values:
+      structured_import_cli:
+      sop5_scripts_pro_only:
+
+  OperatorSurface:
+    permissible_values:
+      gcp:
+      mcp:
+      pro_only_legacy:
+
+  ProductEdition:
+    permissible_values:
+      personal_mcp:
+      pro_mcp:
+
+classes:
+  DocumentationConcept:
+    abstract: true
+    annotations:
+      ghostcrab.slice: import-paths
+      ghostcrab.docs_layer: explanation
+
+  ImportPathArchitecture:
+    is_a: DocumentationConcept
+    description: Explicit B0 and C2 path choices for Personal agents.
+
+  OntologyPathChoice:
+    is_a: DocumentationConcept
+    description: Phase B0 ontology authoring path.
+    slots:
+      pathCode:
+        range: OntologyImportPath
+        required: true
+      isDefaultPersonal:
+        range: boolean
+      operatorSurface:
+        range: OperatorSurface
+
+  OntologyPathLinkML:
+    is_a: OntologyPathChoice
+    description: Default Personal — LLM-authored core.yaml, compile dry-run, then --import-db.
+    annotations:
+      ghostcrab.path: linkml_compile
+      ghostcrab.default_personal: true
+      ghostcrab.operators: gcp brain ontology compile
+    slots:
+      pathCode:
+        range: OntologyImportPath
+
+  OntologyPathMcpIncremental:
+    is_a: OntologyPathChoice
+    description: Alternative — ghostcrab_schema_register sequence without versioned LinkML.
+    annotations:
+      ghostcrab.path: mcp_incremental
+      ghostcrab.operators: ghostcrab_schema_register,ghostcrab_remember,ghostcrab_learn
+
+  TabularPathChoice:
+    is_a: DocumentationConcept
+    description: Phase C2 structured data import path.
+    slots:
+      pathCode:
+        range: TabularImportPath
+        required: true
+      isDefaultPersonal:
+        range: boolean
+
+  TabularPathStructuredImport:
+    is_a: TabularPathChoice
+    description: Default Personal — gcp brain structured-import gate chain.
+    annotations:
+      ghostcrab.path: structured_import_cli
+      ghostcrab.default_personal: true
+      ghostcrab.runbook: docs/setup/structured-import.md
+
+  TabularPathSop5ScriptsProOnly:
+    is_a: TabularPathChoice
+    description: Pro track — SOP5 Voie A scripts and COPY; not Personal default.
+    annotations:
+      ghostcrab.path: sop5_scripts_pro_only
+      ghostcrab.edition: pro_mcp
+      ghostcrab.forbidden_on: personal_mcp
+
+  FormalOntologyPath:
+    is_a: DocumentationConcept
+    description: LinkML YAML under ontologies/ is authoring source; OWL2 is interchange.
+    slots:
+      authoringFormat:
+        range: string
+      runtimeTables:
+        multivalued: true
+        range: string
+
+  PlatformProfileArtifact:
+    is_a: DocumentationConcept
+    description: ontologies/ghostcrab/profile.yaml reusable patterns.
+    annotations:
+      ghostcrab.artifact_path: ontologies/ghostcrab/profile.yaml
+
+  DomainSliceArtifact:
+    is_a: DocumentationConcept
+    description: ontologies/<workspace>/core.yaml with id workspace::core.
+    slots:
+      ontologyIdPattern:
+        range: string
+
+  OntologyCompileOperator:
+    is_a: DocumentationConcept
+    description: gcp brain ontology compile with mandatory dry-run before --import-db.
+    annotations:
+      ghostcrab.operator: gcp brain ontology compile
+      ghostcrab.requires_mcp_stopped: true
+
+  AgentSchemaRegistryPath:
+    is_a: DocumentationConcept
+    description: ghostcrab:* JSON schemas for agent_facts — not OWL ontology group.
+    annotations:
+      ghostcrab.operator: ghostcrab_schema_register
+      ghostcrab.not_ontology_owl: true
+
+  DocumentImportOperator:
+    is_a: DocumentationConcept
+    description: gcp brain document * pipeline for facet_assignments_raw.
+    annotations:
+      ghostcrab.operator_surface: gcp
+      ghostcrab.runbook: docs/setup/document-import.md
+
+  ProductEditionPersonal:
+    is_a: DocumentationConcept
+    description: ghostcrab-personal-mcp SQLite track; Pro CLI operators forbidden.
+    slots:
+      edition:
+        range: ProductEdition
+    annotations:
+      ghostcrab.edition: personal_mcp
+      ghostcrab.storage: GHOSTCRAB_SQLITE_PATH
+
+  ProOnlyOperatorBan:
+    is_a: DocumentationConcept
+    description: Operators that must not appear on personal-mcp agent paths.
+    slots:
+      bannedTerms:
+        multivalued: true
+        range: string

@@ -1,0 +1,157 @@
+id: https://ghostcrab.be/ontology/ghostcrab-docs/methodology-loop
+name: ghostcrab_docs_methodology_loop
+title: GhostCrab documentation — universal methodology loop
+description: >
+  MECE slice for the four-phase agent methodology and competency questions.
+  Source docs/methodology/universal_methodology.md.
+license: https://ghostcrab.be/Licence.md
+version: 1.0.0
+
+prefixes:
+  linkml: https://w3id.org/linkml/
+  gdocs: https://ghostcrab.be/ontology/ghostcrab-docs/
+  ghostcrab: https://ghostcrab.be/ontology/
+
+imports:
+  - linkml:types
+
+default_prefix: gdocs
+default_range: string
+
+enums:
+  DocsSliceId:
+    permissible_values:
+      memory_model:
+      query_layers:
+      methodology_loop:
+      import_paths:
+
+  MethodologyPhaseNumber:
+    permissible_values:
+      phase_1:
+      phase_2:
+      phase_3:
+      phase_4:
+
+  WorkshopActCode:
+    description: Five acts from live narrative workshops.
+    permissible_values:
+      names:
+      verbs:
+      qualifiers:
+      conditions:
+      search_modes:
+
+classes:
+  DocumentationConcept:
+    abstract: true
+    annotations:
+      ghostcrab.slice: methodology-loop
+      ghostcrab.docs_layer: methodology
+
+  MethodologyLoop:
+    is_a: DocumentationConcept
+    description: Iterative four-phase loop for domain modeling in GhostCrab.
+    slots:
+      startsAfterOnboardingPhase:
+        range: string
+        description: Phase D execution per ONBOARDING_CONTRACT.
+
+  MethodologyPhase:
+    is_a: DocumentationConcept
+    description: One phase of the universal methodology.
+    slots:
+      phaseNumber:
+        range: MethodologyPhaseNumber
+        required: true
+      phaseTitle:
+        range: string
+        required: true
+      producesArtifacts:
+        multivalued: true
+        range: string
+      bridgesToSlice:
+        range: DocsSliceId
+
+  MethodologyPhase1FacetsOntology:
+    is_a: MethodologyPhase
+    description: Design minimal durable facet and ontology shape.
+    annotations:
+      ghostcrab.phase: 1
+      ghostcrab.phase_title: Facettes / ontologies
+    slots:
+      phaseNumber:
+        range: MethodologyPhaseNumber
+
+  MethodologyPhase2Projections:
+    is_a: MethodologyPhase
+    description: Design agent-facing read contract (projections).
+    annotations:
+      ghostcrab.phase: 2
+      ghostcrab.phase_title: Projections
+    slots:
+      phaseNumber:
+        range: MethodologyPhaseNumber
+      bridgesToSlice:
+        range: DocsSliceId
+
+  MethodologyPhase3Import:
+    is_a: MethodologyPhase
+    description: Ingest minimum data exercising phases 1 and 2.
+    annotations:
+      ghostcrab.phase: 3
+      ghostcrab.phase_title: Import
+    slots:
+      phaseNumber:
+        range: MethodologyPhaseNumber
+      bridgesToSlice:
+        range: DocsSliceId
+
+  MethodologyPhase4Reports:
+    is_a: MethodologyPhase
+    description: Run projections and validate against competency questions.
+    annotations:
+      ghostcrab.phase: 4
+      ghostcrab.phase_title: Rapports / extraction
+    slots:
+      phaseNumber:
+        range: MethodologyPhaseNumber
+
+  CompetencyQuestion:
+    is_a: DocumentationConcept
+    description: Natural-language question the ontology must support.
+    slots:
+      questionText:
+        range: string
+        required: true
+      requiresPhase:
+        range: MethodologyPhaseNumber
+      answeredBySlice:
+        range: DocsSliceId
+
+  OnboardingPrerequisite:
+    is_a: DocumentationConcept
+    description: HARD GATES before methodology phase 1.
+    slots:
+      requiresConfirmedModel:
+        range: boolean
+      requiresWorkspaceId:
+        range: boolean
+
+  WorkshopAct:
+    is_a: DocumentationConcept
+    description: Facilitation act mapping narrative to GhostCrab artifacts.
+    slots:
+      actCode:
+        range: WorkshopActCode
+        required: true
+      mapsToGhostcrab:
+        range: string
+
+  IterativeEnrichment:
+    is_a: DocumentationConcept
+    description: Loop is not linear; thin slices enrich over passes.
+    slots:
+      enrichActions:
+        multivalued: true
+        range: string

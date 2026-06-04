@@ -18,6 +18,10 @@ fully worked narrative, see:
 This methodology is the bridge between the two: theory on top, GhostCrab
 runtime on the bottom, one iterative loop in the middle.
 
+**Personal vocabulary:** [explanation/glossary.md](../explanation/glossary.md). **Import gates:** StarterKit `SOP5` (§1 bis `gcp brain structured-import`) + [structured-import runbook](../setup/structured-import.md). **LinkML ontologies:** [ontology/README.md](../explanation/ontology/README.md).
+
+> **LinkML slice for this doc:** [`ghostcrab-docs::methodology-loop`](../explanation/ontology/diagrams/methodology-loop.md) (MECE class graph + [validation](../explanation/ontology/mece-validation.md)).
+
 ## 1. Purpose and Scope
 
 ### What this document is

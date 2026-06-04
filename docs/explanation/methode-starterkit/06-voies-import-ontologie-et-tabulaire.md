@@ -2,6 +2,8 @@
 
 Synthèse Personal des choix introduits par [`SOP0_import_path_choices.md`](../../../../starter-kit-ghostcrab-perso/starterkit/SOP0_import_path_choices.md) dans le StarterKit.
 
+> **Modèle LinkML :** [`ghostcrab-docs::import-paths`](../ontology/diagrams/import-paths.md)
+
 Voir aussi : [02 — Méthode StarterKit](02-methode-starterkit.md), [structured-import runbook](../../setup/structured-import.md).
 
 ---

@@ -1,0 +1,179 @@
+id: https://ghostcrab.be/ontology/ghostcrab-docs/memory-model
+name: ghostcrab_docs_memory_model
+title: GhostCrab documentation — memory and storage model
+description: >
+  MECE slice for MCP memory layers, three facet senses, projections A/B,
+  and raw vs runtime graph stores. Source docs/explanation 03 and glossary.
+license: https://ghostcrab.be/Licence.md
+version: 1.0.0
+
+prefixes:
+  linkml: https://w3id.org/linkml/
+  gdocs: https://ghostcrab.be/ontology/ghostcrab-docs/
+  ghostcrab: https://ghostcrab.be/ontology/
+
+imports:
+  - linkml:types
+
+default_prefix: gdocs
+default_range: string
+
+enums:
+  DocsSliceId:
+    description: MECE documentation ontology slices.
+    permissible_values:
+      memory_model:
+      query_layers:
+      methodology_loop:
+      import_paths:
+
+  FacetSenseCode:
+    description: Three disjoint meanings of facets in Personal product docs.
+    permissible_values:
+      agent_facts:
+      document_index:
+      ontology_vocabulary:
+
+  MemoryLayerCode:
+    description: MCP memory routing and persistence layers.
+    permissible_values:
+      session:
+      agent_facts:
+      projection_type_a:
+      projection_type_b:
+      graph_raw:
+      graph_runtime:
+
+classes:
+  DocumentationConcept:
+    abstract: true
+    description: Epistemic product-documentation concept (not a domain instance).
+    annotations:
+      ghostcrab.slice: memory-model
+      ghostcrab.docs_layer: explanation
+
+  MemoryArchitecture:
+    is_a: DocumentationConcept
+    description: Root for Personal multi-store memory model.
+    slots:
+      bridgesToSlice:
+        range: DocsSliceId
+
+  FacetSense:
+    is_a: DocumentationConcept
+    description: One of three mutually exclusive facet meanings.
+    slots:
+      senseCode:
+        range: FacetSenseCode
+        required: true
+      primaryTable:
+        range: string
+      docSource:
+        range: uri
+
+  FacetSenseAgent:
+    is_a: FacetSense
+    description: Sens A — agent_facts and ghostcrab_remember family.
+    annotations:
+      ghostcrab.facet_sense: A
+      ghostcrab.primary_table: agent_facts
+      ghostcrab.sense_code: agent_facts
+
+  FacetSenseDocumentIndex:
+    is_a: FacetSense
+    description: Sens B — facet_tables, facet_postings derived index.
+    annotations:
+      ghostcrab.facet_sense: B
+      ghostcrab.primary_table: facet_tables
+      ghostcrab.sense_code: document_index
+
+  FacetSenseOntologyVocabulary:
+    is_a: FacetSense
+    description: Sens C — ontology_* and facet_assignments_raw qualification.
+    annotations:
+      ghostcrab.facet_sense: C
+      ghostcrab.primary_table: ontology_dimensions
+      ghostcrab.sense_code: ontology_vocabulary
+      ghostcrab.bridges_to_slice: import_paths
+
+  MemoryLayer:
+    is_a: DocumentationConcept
+    description: A persistence layer behind MCP tools.
+    slots:
+      layerCode:
+        range: MemoryLayerCode
+        required: true
+      isEphemeral:
+        range: boolean
+      writeTools:
+        multivalued: true
+        range: string
+
+  SessionRoutingLayer:
+    is_a: MemoryLayer
+    description: Process MCP session routing; not durable business truth.
+    annotations:
+      ghostcrab.layer_code: session
+      ghostcrab.is_ephemeral: true
+      ghostcrab.write_tools: ghostcrab_workspace_use
+
+  AgentFactsStore:
+    is_a: MemoryLayer
+    description: Durable agent text facts (sens A storage).
+    annotations:
+      ghostcrab.layer_code: agent_facts
+      ghostcrab.write_tools: ghostcrab_remember,ghostcrab_upsert
+
+  ProjectionTypeAStore:
+    is_a: MemoryLayer
+    description: Working memory projections table.
+    annotations:
+      ghostcrab.layer_code: projection_type_a
+      ghostcrab.write_tools: ghostcrab_project
+
+  ProjectionTypeBStore:
+    is_a: MemoryLayer
+    description: Materialized ProjectionResult in graph_entity.
+    annotations:
+      ghostcrab.layer_code: projection_type_b
+      ghostcrab.read_tools: ghostcrab_projection_get
+
+  GraphRawStore:
+    is_a: MemoryLayer
+    description: entities_raw, relations_raw, documents_raw, chunks_raw.
+    annotations:
+      ghostcrab.layer_code: graph_raw
+      ghostcrab.tables: entities_raw,relations_raw,documents_raw,chunks_raw
+
+  GraphRuntimeStore:
+    is_a: MemoryLayer
+    description: graph_entity, graph_relation after reindex.
+    annotations:
+      ghostcrab.layer_code: graph_runtime
+      ghostcrab.write_tools: ghostcrab_graph_reindex,ghostcrab_learn
+
+  ReindexRawRuntimePair:
+    is_a: DocumentationConcept
+    description: Raw tables are source of truth; runtime is derived.
+    slots:
+      rawTables:
+        multivalued: true
+        range: string
+      runtimeTables:
+        multivalued: true
+        range: string
+
+  OntologyTablesStore:
+    is_a: MemoryLayer
+    description: Formal ontology storage (sens C); compiled from LinkML.
+    annotations:
+      ghostcrab.layer_code: ontology_vocabulary
+      ghostcrab.primary_table: ontology_*
+      ghostcrab.bridges_to_slice: import_paths
+
+  DocumentFacetIndexStore:
+    is_a: MemoryLayer
+    description: Document faceting engine (sens B).
+    annotations:
+      ghostcrab.layer_code: document_index
+      ghostcrab.primary_table: facet_tables

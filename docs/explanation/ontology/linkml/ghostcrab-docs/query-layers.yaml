@@ -1,0 +1,171 @@
+id: https://ghostcrab.be/ontology/ghostcrab-docs/query-layers
+name: ghostcrab_docs_query_layers
+title: GhostCrab documentation — MCP query layers
+description: >
+  MECE slice for facets, graph, and pragma read layers plus cross-layer tools.
+  Source docs/methodology/ghostcrab-query-layers.md.
+license: https://ghostcrab.be/Licence.md
+version: 1.0.0
+
+prefixes:
+  linkml: https://w3id.org/linkml/
+  gdocs: https://ghostcrab.be/ontology/ghostcrab-docs/
+  ghostcrab: https://ghostcrab.be/ontology/
+
+imports:
+  - linkml:types
+
+default_prefix: gdocs
+default_range: string
+
+enums:
+  DocsSliceId:
+    permissible_values:
+      memory_model:
+      query_layers:
+      methodology_loop:
+      import_paths:
+
+  QueryLayerCode:
+    description: Mutually exclusive MCP read layers.
+    permissible_values:
+      facets:
+      graph:
+      pragma:
+
+  CrossLayerSpan:
+    description: Which query layers a cross-layer tool touches.
+    permissible_values:
+      facets_and_pragma:
+      facets_graph_and_linked_facts:
+      all_three:
+
+classes:
+  DocumentationConcept:
+    abstract: true
+    annotations:
+      ghostcrab.slice: query-layers
+      ghostcrab.docs_layer: methodology
+
+  QueryArchitecture:
+    is_a: DocumentationConcept
+    description: How agents read GhostCrab without mixing stores.
+    slots:
+      bridgesToSlice:
+        range: DocsSliceId
+
+  QueryLayer:
+    is_a: DocumentationConcept
+    description: One MCP query layer with dedicated read tools.
+    slots:
+      layerCode:
+        range: QueryLayerCode
+        required: true
+      primaryStore:
+        range: string
+        required: true
+      excludesStores:
+        multivalued: true
+        range: string
+
+  FacetsQueryLayer:
+    is_a: QueryLayer
+    description: Layer 1 — agent_facts BM25/FTS and facet filters.
+    annotations:
+      ghostcrab.query_layer: facets
+      ghostcrab.primary_store: agent_facts
+      ghostcrab.read_tools: ghostcrab_search,ghostcrab_count
+    slots:
+      layerCode:
+        range: QueryLayerCode
+      primaryStore:
+        range: string
+
+  GraphQueryLayer:
+    is_a: QueryLayer
+    description: Layer 2 — graph_entity, graph_relation live queries.
+    annotations:
+      ghostcrab.query_layer: graph
+      ghostcrab.primary_store: graph_entity
+      ghostcrab.read_tools: ghostcrab_graph_search,ghostcrab_traverse,ghostcrab_graph_path,ghostcrab_graph_subgraph,ghostcrab_entity_chunks
+    slots:
+      layerCode:
+        range: QueryLayerCode
+      primaryStore:
+        range: string
+
+  PragmaQueryLayer:
+    is_a: QueryLayer
+    description: Layer 3 — projections Type A and Type B reads.
+    annotations:
+      ghostcrab.query_layer: pragma
+      ghostcrab.read_tools: ghostcrab_project,ghostcrab_pack,ghostcrab_projection_get
+    slots:
+      layerCode:
+        range: QueryLayerCode
+
+  McpReadTool:
+    is_a: DocumentationConcept
+    description: A named MCP read tool bound to one primary layer.
+    slots:
+      toolName:
+        range: string
+        required: true
+      primaryLayer:
+        range: QueryLayerCode
+        required: true
+      visibility:
+        range: string
+        description: basic or extended per tool-manifest.
+
+  FacetsReadTool:
+    is_a: McpReadTool
+    annotations:
+      ghostcrab.example_tools: ghostcrab_search,ghostcrab_count
+
+  GraphReadTool:
+    is_a: McpReadTool
+    annotations:
+      ghostcrab.example_tools: ghostcrab_graph_search,ghostcrab_traverse
+      ghostcrab.visibility: extended
+
+  PragmaReadTool:
+    is_a: McpReadTool
+    annotations:
+      ghostcrab.example_tools: ghostcrab_projection_get,ghostcrab_project
+
+  CrossLayerReadTool:
+    is_a: DocumentationConcept
+    description: Tool spanning multiple layers; not a storage layer itself.
+    slots:
+      toolName:
+        range: string
+        required: true
+      spansLayers:
+        range: CrossLayerSpan
+        required: true
+      bridgesToSlice:
+        range: DocsSliceId
+
+  PackCrossLayerTool:
+    is_a: CrossLayerReadTool
+    description: ghostcrab_pack — agent_facts + projections Type A.
+    annotations:
+      ghostcrab.tool_name: ghostcrab_pack
+      ghostcrab.spans: facets_and_pragma
+
+  CombinedSearchCrossLayerTool:
+    is_a: CrossLayerReadTool
+    description: ghostcrab_combined_search — graph-first with facet fallback.
+    annotations:
+      ghostcrab.tool_name: ghostcrab_combined_search
+      ghostcrab.spans: facets_graph_and_linked_facts
+
+  LiveGraphQuery:
+    is_a: DocumentationConcept
+    description: Explicitly not a projection; queries current graph_entity state.
+    annotations:
+      ghostcrab.docs_source: docs/explanation/05-projections-expliquees.md
+    slots:
+      bridgesToSlice:
+        range: DocsSliceId
