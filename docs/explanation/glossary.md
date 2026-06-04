@@ -88,7 +88,7 @@ Détail : [04 — Réindexation](04-reindexation-ghostcrab.md).
 | `DATABASE_URL`, `GHOSTCRAB_DSN` | `GHOSTCRAB_SQLITE_PATH`, `--db` |
 | `mb_pragma.agent_facts` | table `agent_facts` |
 | `mb_pragma.projections` | table `projections` |
-| `mfo_*`, `pg_*` (extensions) | voir [EDITIONS](../../gitlab-starter-kit-ghostcrab-perso/starterkit/EDITIONS.md) |
+| `mfo_*`, `pg_*` (extensions) | voir [EDITIONS](../../starter-kit-ghostcrab-perso/starterkit/EDITIONS.md) |
 
 ---
 
@@ -98,4 +98,4 @@ Détail : [04 — Réindexation](04-reindexation-ghostcrab.md).
 |-|----------|-----|
 | Repo | `ghostcrab-personal-mcp` | `ghostcrab-mcp` |
 | Stockage | SQLite | PostgreSQL |
-| Matrice complète | [StarterKit EDITIONS.md](https://gitlab.com/webigniter/starter-kit-ghostcrab-perso/-/blob/main/starterkit/EDITIONS.md) | idem |
+| Matrice complète | [StarterKit EDITIONS.md](../../starter-kit-ghostcrab-perso/starterkit/EDITIONS.md) | idem |

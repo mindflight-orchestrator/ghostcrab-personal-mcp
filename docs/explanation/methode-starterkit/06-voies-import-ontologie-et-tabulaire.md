@@ -1,6 +1,6 @@
 # 06 — Voies d'import ontologie et tabulaire (Personal)
 
-Synthèse Personal des choix introduits par [`SOP0_import_path_choices.md`](../../../../starter-kit-ghostcrab-perso/starterkit/SOP0_import_path_choices.md) dans le StarterKit.
+Synthèse Personal des choix introduits par [`personal-mcp/SOP0_import_path_choices.md`](../../../../starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP0_import_path_choices.md) dans le StarterKit.
 
 > **Modèle LinkML :** [`ghostcrab-docs::import-paths`](../ontology/diagrams/import-paths.md)
 

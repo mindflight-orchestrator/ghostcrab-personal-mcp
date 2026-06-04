@@ -27,7 +27,7 @@
 
 - `templates/linkml_ontology.stub.yaml` — starting skeleton
 - `templates/mvp_core_contract.yaml` — parallel business contract (not OWL; maps to import mapping)
-- SOP2 § LinkML path — canonical procedure in [starter-kit-ghostcrab-perso](https://gitlab.com/webigniter/starter-kit-ghostcrab-perso)
+- SOP2 § LinkML path — canonical procedure in [starter-kit-ghostcrab-perso shared SOP2](../../../starter-kit-ghostcrab-perso/starterkit/shared/SOP2_obsidian_ontologie.md)
 
 ---
 

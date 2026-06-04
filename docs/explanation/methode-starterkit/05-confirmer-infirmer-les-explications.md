@@ -2,7 +2,7 @@
 
 Documents audités : [03](../03-memoire-mcp-facettes-graphe-projections.md), [04](../04-reindexation-ghostcrab.md), [05](../05-projections-expliquees.md).
 
-Sources StarterKit : [`SOP5`](../../../../starter-kit-ghostcrab-perso/starterkit/SOP5_source_import_compiler.md), [`consumer_contract.yaml`](../../../../starter-kit-ghostcrab-perso/starterkit/templates/consumer_contract.yaml), [`SOP1`](../../../../starter-kit-ghostcrab-perso/starterkit/SOP1_ghostcrab_mcp.md).
+Sources StarterKit : [`personal-mcp/SOP5`](../../../../starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP5_structured_import.md), [`consumer_contract.yaml`](../../../../starter-kit-ghostcrab-perso/starterkit/templates/consumer_contract.yaml), [`personal-mcp/SOP1`](../../../../starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP1_ghostcrab_mcp.md).
 
 ---
 

@@ -6,7 +6,7 @@ Documents audités :
 - [`04-reindexation-ghostcrab.md`](../04-reindexation-ghostcrab.md)
 - [`05-projections-expliquees.md`](../05-projections-expliquees.md)
 
-Méthode externe : [StarterKit SOP5 gates](../../../../starter-kit-ghostcrab-perso/starterkit/SOP5_source_import_compiler.md) — voir [02 — Méthode](02-methode-starterkit.md).
+Méthode externe : [StarterKit personal-mcp SOP5](../../../../starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP5_structured_import.md) — voir [02 — Méthode](02-methode-starterkit.md).
 
 ---
 

@@ -143,4 +143,4 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 - [structured-import.md](../setup/structured-import.md)
 - [document-import.md](../setup/document-import.md)
 - [ontology/README.md](../explanation/ontology/README.md)
-- [StarterKit EDITIONS.md](https://gitlab.com/webigniter/starter-kit-ghostcrab-perso/-/blob/main/starterkit/EDITIONS.md)
+- [StarterKit EDITIONS.md](../../starter-kit-ghostcrab-perso/starterkit/EDITIONS.md) · [personal-mcp/SOP_SEQUENCE.md](../../starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP_SEQUENCE.md)

@@ -27,9 +27,9 @@ Source : [`QUICKSTART.md`](../../../../starter-kit-ghostcrab-perso/starterkit/QU
 
 ## Pipeline SOP5 (9 gates)
 
-Source : [`SOP5_source_import_compiler.md`](../../../../starter-kit-ghostcrab-perso/starterkit/SOP5_source_import_compiler.md) §3 (Voie A) ou §1 bis (Voie B structured-import CLI).
+Source Personal : [`personal-mcp/SOP5_structured_import.md`](../../../../starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP5_structured_import.md). Pro : [`pro-mcp/SOP5_source_import_compiler.md`](../../../../starter-kit-ghostcrab-perso/starterkit/pro-mcp/SOP5_source_import_compiler.md).
 
-**Voie B Personal (défaut tabulaire) :** gates 4–6 = `gcp brain structured-import` — canon StarterKit : [SOP5 §1 bis](../../../../gitlab-starter-kit-ghostcrab-perso/starterkit/SOP5_source_import_compiler.md). Détail : [06 — Voies import](06-voies-import-ontologie-et-tabulaire.md), runbook [structured-import](../../setup/structured-import.md).
+**Voie B Personal (défaut tabulaire) :** gates 4–6 = `gcp brain structured-import` — canon StarterKit : [personal-mcp/SOP5_structured_import.md](../../../../starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP5_structured_import.md). Détail : [06 — Voies import](06-voies-import-ontologie-et-tabulaire.md), runbook [structured-import](../../setup/structured-import.md).
 
 ```text
 Gate 0  runtime / workspace autorisé

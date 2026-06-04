@@ -2,7 +2,7 @@
 
 Scénario : importer une source externe et tracer l'effet sur **`agent_facts`**, qualification docs, graphe raw/runtime, projections Type A/B, et consommateurs.
 
-Aligné sur [`SOP5_source_import_compiler.md`](../../../../starter-kit-ghostcrab-perso/starterkit/SOP5_source_import_compiler.md) et [05 — Réindexation](../04-reindexation-ghostcrab.md).
+Aligné sur [`personal-mcp/SOP5_structured_import.md`](../../../../starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP5_structured_import.md) et [04 — Réindexation](../04-reindexation-ghostcrab.md).
 
 ---
 
