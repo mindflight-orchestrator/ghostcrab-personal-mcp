@@ -8,7 +8,7 @@ function parseArgs(argv) {
     if (token === "--input") out.input = argv[++index];
     else if (token === "--output") out.output = argv[++index];
   }
-  if (!out.input) throw new Error("Missing --input mindcli-query-response.json");
+  if (!out.input) throw new Error("Missing --input projection-query-response.json");
   return out;
 }
 
@@ -57,7 +57,7 @@ function render(rows) {
     "# Structure des dimensions",
     "",
     `Workspace: \`mindbrain-seo-audit\`  `,
-    `Source: \`mindCLI pg query template run -> graph.entity.metadata\`  `,
+    `Source: GhostCrab MCP graph metadata / projection query JSON  `,
     `Entites comptees: \`${totalEntities}\`  `,
     `Lignes de facettes: \`${rows.length}\``,
     "",

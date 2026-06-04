@@ -1,17 +1,17 @@
 ---
 name: ai-act-projection-interpreter
-description: Interpret AI Act MindCLI projection JSON into precise human-facing compliance answers. Use when rendering ai-act obligation_cascade, penalty_path, exemption_surface, or sector_risk_profile results, especially for demos where every answer must be cited, scoped, and faithful to the returned rows.
+description: Interpret AI Act projection JSON from GhostCrab MCP (ghostcrab_projection_get or exported rows) into precise human-facing compliance answers. Use when rendering ai-act obligation_cascade, penalty_path, exemption_surface, or sector_risk_profile results, especially for demos where every answer must be cited, scoped, and faithful to the returned rows.
 metadata:
   short-description: Render AI Act projection results
 ---
 
 # AI Act Projection Interpreter
 
-Use this skill when a user asks to explain, summarize, render, or validate JSON returned by MindCLI templates for the `ai-act` workspace.
+Use this skill when a user asks to explain, summarize, render, or validate JSON returned by GhostCrab for the `ai-act` workspace (typically via `ghostcrab_projection_get` or a saved MCP response).
 
 ## Core Rule
 
-MindCLI output is the source of truth. Do not invent obligations, penalties, exemptions, dates, or legal basis not present in the returned rows.
+MCP-returned rows are the source of truth. Do not invent obligations, penalties, exemptions, dates, or legal basis not present in the returned rows.
 
 If a row lacks `source_ref`, `source_article`, or `legal_basis`, say the projection result is incomplete and flag it as a quality issue.
 

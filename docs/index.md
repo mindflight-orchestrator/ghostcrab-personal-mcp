@@ -6,6 +6,10 @@ Start here when you need the project documentation map.
 
 Single hub: [GhostCrab MCP — explications (architecture + lab)](explanation/README.md)
 
+- [Glossary (FR)](explanation/glossary.md) · [EN](explanation/en/glossary.md)
+- [LinkML/OWL2 ontologies](explanation/ontology/README.md)
+- [Operator catalog — `gcp` + MCP tools](reference/operator-catalog.md)
+
 | Chapitre | Document |
 |----------|----------|
 | 03 — Mémoire, facettes, graphe | [03-memoire-mcp-facettes-graphe-projections.md](explanation/03-memoire-mcp-facettes-graphe-projections.md) |

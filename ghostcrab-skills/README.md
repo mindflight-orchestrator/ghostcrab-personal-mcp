@@ -10,6 +10,8 @@ This repository contains:
 - OpenClaw skill and agent profiles
 - shared design rules and portable demo seed data
 - pointers to the GhostCrab Personal StarterKit for clonable SOPs and templates
+- Personal operator catalog: [docs/reference/operator-catalog.md](../docs/reference/operator-catalog.md)
+- Codex investigation skills: `ghostcrab-operator`, `ghostcrab-gap-auditor`, … (replaced deprecated `mindbrain-*` / mindCLI)
 
 This repository does not contain:
 

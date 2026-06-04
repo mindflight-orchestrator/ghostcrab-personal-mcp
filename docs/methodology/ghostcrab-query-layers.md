@@ -4,11 +4,13 @@
 
 GhostCrab stores data in three separate layers. Each has dedicated tools. Mixing them up is the most common source of empty results.
 
+> **LinkML slice:** [`ghostcrab-docs::query-layers`](../explanation/ontology/diagrams/query-layers.md) — class graph and [MECE validation](../explanation/ontology/mece-validation.md).
+
 ## Overview
 
 ```mermaid
 flowchart LR
-  subgraph facetsLayer ["Facets layer (mb_pragma.agent_facts)"]
+  subgraph facetsLayer ["Facets layer (agent_facts)"]
     S[ghostcrab_search]
     CS[ghostcrab_combined_search]
     C[ghostcrab_count]
@@ -24,7 +26,7 @@ flowchart LR
     PJ[ghostcrab_project]
     PK2[ghostcrab_pack]
     PG[ghostcrab_projection_get]
-    subgraph wm ["Working memory (mb_pragma.projections)"]
+    subgraph wm ["Working memory (projections Type A)"]
       PJ
       PK2
     end
@@ -38,7 +40,7 @@ flowchart LR
 
 ## Layer 1 — Facets
 
-**Store:** `mb_pragma.agent_facts`
+**Store:** `agent_facts` (Personal SQLite). Glossary: [glossary.md](../explanation/glossary.md).
 
 Structured domain records written via `ghostcrab_remember` / `ghostcrab_upsert`. Each row has a `schema_id`, free-text `content`, and a `facets` JSON bag.
 
@@ -140,7 +142,7 @@ Use `properties` for loose human-readable context. Use `relation_properties` for
 
 ### A. Working memory projections
 
-**Store:** `mb_pragma.projections`
+**Store:** table `projections` (Type A working memory)
 
 Short-lived agent context: goals, steps, constraints, facts for the current task.
 
@@ -187,7 +189,7 @@ Precomputed analytical snapshots built by ingest pipelines or recipes (e.g. SEO 
 
 - **`ghostcrab_search` returns nothing → assume domain is empty.** Wrong: the graph and projection layers are separate. Escalate to `ghostcrab_graph_search` or `ghostcrab_projection_get`.
 - **Calling graph tools by default.** They are extended — not listed in the default tool set. Call `ghostcrab_tool_search` first.
-- **Confusing the two "projection" concepts.** Working memory projections (`mb_pragma.projections`) ≠ materialized `ProjectionResult` entities in the graph. Different stores, different tools.
+- **Confusing the two "projection" concepts.** Type A (`projections` table) ≠ Type B (`ProjectionResult` in `graph_entity`). Different stores, different tools. See [05-projections](../explanation/05-projections-expliquees.md).
 - **Expecting `ghostcrab_pack` to include graph data.** It doesn't. Pack = pragma projections + facet facts only.
 - **Using `ghostcrab_search` as a catch-all.** Use `ghostcrab_combined_search` when graph and facets should both be considered.
 - **Skipping reindex after collection/graph import.** Backup bundle loads default to `--reindex graph`, so derived `graph_*` tables are populated automatically. Use `--reindex none` only for raw-only imports or benchmarks; use `--reindex all` when BM25 and collection facet postings are also required.

@@ -11,6 +11,10 @@ Ce document est **destiné aux agents**. Il suppose que vous connaissez déjà l
 
 Cette méthodologie est le pont entre les deux : la théorie en amont, le moteur d'exécution GhostCrab en aval, une boucle itérative au centre.
 
+**Vocabulaire Personal :** [glossary.md](../explanation/glossary.md). **Gates import :** StarterKit `SOP5` (§1 bis `gcp brain structured-import`) + [structured-import](../setup/structured-import.md). **Ontologies LinkML :** [ontology/README.md](../explanation/ontology/README.md).
+
+> **Modèle LinkML de cette section :** tranche [`ghostcrab-docs::methodology-loop`](../explanation/ontology/diagrams/methodology-loop.md) (graphe de classes MECE + [validation MECE](../explanation/ontology/mece-validation.md)).
+
 ## 1. Objectif et périmètre
 
 ### Ce qu'est ce document

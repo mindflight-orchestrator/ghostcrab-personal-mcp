@@ -111,11 +111,11 @@ This directory contains ten skills:
 | [ghostcrab-data-architect/](ghostcrab-data-architect/)                 | Structured domain modeling patterns                                               |
 | [ghostcrab-integration-sop-editor/](ghostcrab-integration-sop-editor/) | Cleanup and introduction rewrites for GhostCrab/MindBrain integration SOP exports |
 | [mindbrain-comparison-writer/](mindbrain-comparison-writer/)           | Editorial workflow for MindBrain comparison articles                              |
-| [mindbrain-operator/](mindbrain-operator/)                             | Business questions → deterministic mindCLI workflows on workspaces                |
-| [mindbrain-evidence-discovery/](mindbrain-evidence-discovery/)         | Map business questions to facets, edges, projections, and evidence paths          |
-| [mindbrain-gap-auditor/](mindbrain-gap-auditor/)                       | Audit gaps between questions and available mindCLI evidence                       |
-| [mindbrain-json-answer-builder/](mindbrain-json-answer-builder/)       | Stable JSON answers from mindCLI outputs (observed vs inferred vs missing)        |
-| [mindbrain-projection-reviewer/](mindbrain-projection-reviewer/)       | Review projection contracts, readiness, and operational limits                    |
+| [ghostcrab-operator/](ghostcrab-operator/)                             | Business questions → GhostCrab MCP workflows (Personal SQLite)                    |
+| [ghostcrab-evidence-discovery/](ghostcrab-evidence-discovery/)         | Map business questions to facets, graph, projections via MCP                      |
+| [ghostcrab-gap-auditor/](ghostcrab-gap-auditor/)                       | Audit gaps between questions and available MCP evidence                           |
+| [ghostcrab-json-answer-builder/](ghostcrab-json-answer-builder/)       | Stable JSON answers from MCP outputs (observed vs inferred vs missing)            |
+| [ghostcrab-projection-reviewer/](ghostcrab-projection-reviewer/)       | Review Type A/B projections and readiness via MCP                                 |
 
 Each skill’s `SKILL.md` links to shared contracts under **`../shared/`** (for example [ONBOARDING_CONTRACT.md](../shared/ONBOARDING_CONTRACT.md)). Those paths assume this layout:
 
@@ -145,7 +145,7 @@ If your Codex version documents a single skills root directory, point it at the 
 git clone https://gitlab.com/webigniter/starter-kit-ghostcrab-perso.git
 ```
 
-For source imports, load `starterkit/SOP5_source_import_compiler.md` plus the templates under `starterkit/templates/`.
+For source imports: StarterKit `SOP5` (§1 bis `gcp brain structured-import`), `SOP6` (documents), plus product runbooks [`structured-import.md`](../../docs/setup/structured-import.md) and [`operator-catalog.md`](../../docs/reference/operator-catalog.md).
 
 ## See also
 

@@ -1,0 +1,2 @@
+short_description: Stable JSON from GhostCrab MCP outputs.
+default_prompt: Use $ghostcrab-json-answer-builder to produce structured JSON from GhostCrab MCP results.

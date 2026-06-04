@@ -1,0 +1,2 @@
+short_description: Map business questions to GhostCrab MCP evidence paths.
+default_prompt: Use $ghostcrab-evidence-discovery to find which GhostCrab layers can answer this question.

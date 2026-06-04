@@ -4,11 +4,13 @@
 
 GhostCrab stocke les données dans trois couches distinctes. Chacune dispose d'outils dédiés. Les confondre est la cause la plus fréquente de résultats vides.
 
+> **Tranche LinkML :** [`ghostcrab-docs::query-layers`](../../explanation/ontology/diagrams/query-layers.md)
+
 ## Vue d'ensemble
 
 ```mermaid
 flowchart LR
-  subgraph facetsLayer ["Couche facettes (mb_pragma.agent_facts)"]
+  subgraph facetsLayer ["Couche facettes (agent_facts)"]
     S[ghostcrab_search]
     CS[ghostcrab_combined_search]
     C[ghostcrab_count]
@@ -24,7 +26,7 @@ flowchart LR
     PJ[ghostcrab_project]
     PK2[ghostcrab_pack]
     PG[ghostcrab_projection_get]
-    subgraph wm ["Mémoire de travail (mb_pragma.projections)"]
+    subgraph wm ["Mémoire de travail (projections Type A)"]
       PJ
       PK2
     end
@@ -38,7 +40,7 @@ flowchart LR
 
 ## Couche 1 — Facettes
 
-**Stockage :** `mb_pragma.agent_facts`
+**Stockage :** `agent_facts` (SQLite Personal). Glossaire : [glossary.md](../explanation/glossary.md).
 
 Enregistrements de domaine structurés, écrits via `ghostcrab_remember` / `ghostcrab_upsert`. Chaque ligne possède un `schema_id`, un `content` en texte libre et un sac JSON `facets`.
 
@@ -140,7 +142,7 @@ Utiliser `properties` pour un contexte lisible et souple. Utiliser `relation_pro
 
 ### A. Projections de mémoire de travail
 
-**Stockage :** `mb_pragma.projections`
+**Stockage :** table `projections` (Type A)
 
 Contexte agent éphémère : objectifs, étapes, contraintes, faits pour la tâche en cours.
 
@@ -187,7 +189,7 @@ Instantanés analytiques précalculés, produits par des pipelines d'ingestion o
 
 - **`ghostcrab_search` ne renvoie rien → supposer que le domaine est vide.** Faux : les couches graphe et projection sont distinctes. Escalader vers `ghostcrab_graph_search` ou `ghostcrab_projection_get`.
 - **Appeler les outils graphe par défaut.** Ils sont étendus — non listés dans l'ensemble d'outils par défaut. Appeler `ghostcrab_tool_search` d'abord.
-- **Confondre les deux concepts de « projection ».** Les projections de mémoire de travail (`mb_pragma.projections`) ≠ les entités matérialisées `ProjectionResult` dans le graphe. Stockages et outils différents.
+- **Confondre les deux concepts de « projection ».** Type A (`projections`) ≠ Type B (`ProjectionResult` dans `graph_entity`). Voir [05-projections](../explanation/05-projections-expliquees.md).
 - **S'attendre à ce que `ghostcrab_pack` inclue des données graphe.** Ce n'est pas le cas. Pack = projections pragma + faits facettes uniquement.
 - **Utiliser `ghostcrab_search` comme attrape-tout.** Utiliser `ghostcrab_combined_search` lorsque graphe et facettes doivent tous deux être pris en compte.
 - **Omettre le réindexage après import collection/graphe.** Les chargements de bundle de sauvegarde utilisent par défaut `--reindex graph`, donc les tables dérivées `graph_*` sont remplies automatiquement. Utiliser `--reindex none` uniquement pour des imports bruts ou des benchmarks ; utiliser `--reindex all` lorsque les postings BM25 et facettes de collection sont aussi requis.

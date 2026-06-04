@@ -1,0 +1,21 @@
+# Lab choices for ghostcrab-docs epistemic ontology slices (Personal track).
+# Template: starter-kit-ghostcrab-perso/starterkit/templates/import_path_choices.yaml
+
+edition: personal-mcp
+workspace_id: ghostcrab-docs
+
+ontology_path:
+  choice: linkml_compile
+  default: true
+  slices:
+    - ghostcrab-docs::memory-model
+    - ghostcrab-docs::query-layers
+    - ghostcrab-docs::methodology-loop
+    - ghostcrab-docs::import-paths
+  source_dir: docs/explanation/ontology/linkml/ghostcrab-docs/
+  product_doc: docs/explanation/ontology/README.md
+  mece_checklist: docs/explanation/ontology/mece-validation.md
+
+tabular_path:
+  choice: structured_import_cli
+  note: Not used for doc epistemic slices; N/A for this lab workspace.
