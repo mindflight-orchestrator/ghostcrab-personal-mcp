@@ -295,7 +295,7 @@ Because public Hermes memory documentation is still limited around typed graph m
 4. Query after import
    -> ghostcrab_count narrows the shape of the domain before content reads.
    -> ghostcrab_search reads facet-indexed records with exact filters.
-   -> ghostcrab_facet_tree shows the available taxonomy dimensions.
+   -> ghostcrab_collection_facet_search shows the available taxonomy dimensions.
    -> ghostcrab_traverse follows blockers, dependencies, approvals, and
       evidence edges.
    -> ghostcrab_coverage reports missing or weakly covered model areas.

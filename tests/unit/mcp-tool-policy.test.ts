@@ -5,6 +5,7 @@ import {
   DESTRUCTIVE_TOOL_NAMES,
   formatClaudeMcpRule,
   formatCursorMcpRule,
+  getToolAccessForName,
   policyToClaudePermissions,
   policyToCursorMcpAllowlist
 } from "../../src/tools/mcp-tool-policy.js";
@@ -87,5 +88,18 @@ describe("mcp-tool-policy", () => {
     expect(policy.allow.some((ref) => ref.toolName === "ghostcrab_status")).toBe(
       true
     );
+    for (const name of [
+      "ghostcrab_graph_reindex",
+      "ghostcrab_collection_reindex",
+      "ghostcrab_workspace_delete",
+      "ghostcrab_workspace_reset"
+    ]) {
+      expect(getToolAccessForName(name)).toBe("write");
+      expect(policy.ask).toContainEqual({ serverName: server, toolName: name });
+      expect(policy.allow).not.toContainEqual({
+        serverName: server,
+        toolName: name
+      });
+    }
   });
 });

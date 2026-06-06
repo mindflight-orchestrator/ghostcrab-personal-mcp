@@ -362,8 +362,8 @@ The MindBrain path is not "put everything in a graph and hope retrieval works." 
    chunks, entities, relations, facets, and projection signals
 
 4. Query after import
-   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree narrow records
-   ghostcrab_marketplace / ghostcrab_traverse follow graph structure
+   ghostcrab_count / ghostcrab_search / ghostcrab_collection_facet_search narrow records
+   ghostcrab_graph_search / ghostcrab_traverse follow graph structure
    ghostcrab_coverage checks model gaps
    ghostcrab_projection_get / ghostcrab_pack returns compact task context
 ```

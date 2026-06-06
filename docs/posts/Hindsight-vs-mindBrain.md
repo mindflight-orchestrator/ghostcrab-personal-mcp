@@ -310,7 +310,7 @@ Because public Hindsight implementation detail is still limited, the safest comp
      projection signals
 
 4. Query the qualified workspace
-   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree
+   ghostcrab_count / ghostcrab_search / ghostcrab_collection_facet_search
      -> facet-indexed records and typed navigation
 
    ghostcrab_traverse / graph entity tools

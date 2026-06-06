@@ -13,25 +13,31 @@ operations.
 | Job | Command group | What it does |
 |-----|----------------|--------------|
 | **Start the brain + expose MCP** | `gcp brain up` | Launches the Zig MindBrain backend (if needed) and the MCP server on stdio. Shorthand: `gcp up` / `gcp start`. Legacy: `gcp serve`. |
-| **Local smoke / diagnostics** | `gcp smoke`, `gcp status`, `gcp tools list` | Read-only checks for backend reachability, package/version, MCP tool registration, and operational status. |
-| **Isolate memory (workspace)** | `gcp brain workspace create \| list` | Registers a logical MindBrain workspace_id. Legacy: `gcp init`. |
-| **Structure in the DB (ontologies)** | `gcp brain schema …` | Registry ontologies (knowledge schema). Legacy: `gcp ontologies …`. |
-| **Ontology source import/export** | `gcp brain ontology import\|export …` | Import normalized OWL2/RDF N-Triples into MindBrain, export preserved N-Triples or a taxonomy bundle. |
+| **Local smoke / diagnostics** | `gcp smoke`, `gcp status`, `gcp tools list`, `gcp tools verify` | Read-only checks for backend reachability, package/version, MCP tool registration, catalog drift, and operational status. |
+| **SQLite lock inspection** | `gcp brain db-who [--path \| --workspace]` | Lists host processes holding the resolved GhostCrab SQLite file open via `lsof`. |
+| **Isolate memory (workspace)** | `gcp brain workspace create \| list` | Registers or lists logical MindBrain `workspace_id` partitions. Legacy: `gcp init`. |
+| **Workspace destructive maintenance** | `ghostcrab workspace reset \| delete` | Lower-level launcher operations to wipe workspace-scoped data or remove/archive a workspace row; keep these out of normal agent flows. |
+| **Structure in the DB (ontologies)** | `gcp brain schema …` | Registry ontologies (knowledge schema): `list`, `pull`, `show`, `remove`. Legacy: `gcp ontologies …`. |
+| **Ontology source import/export** | `gcp brain ontology compile\|import\|export\|export-linkml …` | Compile LinkML, import normalized OWL2/RDF N-Triples into MindBrain, export preserved N-Triples, taxonomy bundles, or LinkML slices. |
 | **Equip agents (skills)** | `gcp agent skills …` | Registry skills (agent capabilities). Shortcut: `gcp agent equip owner/name` = `agent skills pull`. Legacy: `gcp skills …`. |
 | **CLI / MCP environment** | `gcp env …` | Read/write `~/.ghostcrab/config.json`. Legacy: `gcp config …`. |
+| **Host project bootstrap** | `gcp bootstrap` | Idempotently creates `.env`, `data/`, README doc symlinks, and the PATH shim in the current project. |
+| **PATH shim** | `gcp path install\|print\|doctor` | Installs, prints, or diagnoses the cross-platform `~/.ghostcrab/bin/gcp` shim. |
+| **MCP permissions** | `gcp brain permissions print\|apply` | Prints or writes Cursor/Claude MCP permission presets (`basic`, `balanced`, `full`, `none`, `custom`). |
 | **Backup / restore** | `gcp brain backup …`, `gcp brain load …` | Export workspace, collection, or taxonomy backup bundles (includes `mindbrain_answer_artifacts` on full workspace export); restore `ghostcrab_backup_bundle` JSON. `gcp brain export` is an alias for backup. |
 | **Answer artifact registry** | `gcp brain artifact list \| get \| refresh \| events \| migrate …` | List/get/refresh/events via HTTP (backend running); backfill from legacy projections with `migrate --dry-run` / `--repair` (stop MCP first). |
 | **Load demo profile** | `gcp brain load …` | JSONL profile into the DB. Legacy: `gcp load …`. |
 | **Corpus import / profiling** | `gcp brain document …` | Normalize, profile, enqueue/worker, ingest, list qualification vocabulary (stop MCP first). See `gcp brain document --help` and [document-import.md](../setup/document-import.md). |
 | **Tabular structured import** | `gcp brain structured-import …` | CSV/JSON/YAML/XLSX/TOON via native engine (stop MCP first). See `gcp brain structured-import --help` and [structured-import.md](../setup/structured-import.md). |
 | **Full import runbooks (Markdown)** | `gcp brain docs [structured\|document\|import]` | Prints packaged runbooks from `docs/setup/` (same content as the setup guides). |
-| **Native binary permissions** | `gcp authorize` | `chmod` / macOS quarantine (also runs on `postinstall`). |
-| **Human DDL maintenance** | `gcp maintenance ddl-approve \| ddl-execute` | Explicit operator-only approval/execution for pending DDL migrations. |
+| **Native binary permissions** | `gcp authorize` | `chmod` / macOS quarantine cleanup for native binaries (also runs on `postinstall`). |
+| **Human DDL maintenance** | `gcp maintenance ddl-approve \| ddl-execute` | Explicit operator-only approval/execution for pending DDL migrations. Some launchers expose help at the subcommand level even if the group help is intentionally narrow. |
 | **User-global MCP in IDE** | `gcp brain setup <cursor, codex, claude, or generic> […]` | Registers the GhostCrab stdio server where supported: merges `~/.cursor/mcp.json` for Cursor, runs `codex mcp add` (or prints TOML) for Codex, runs `claude mcp add` for Claude Code, or prints generic MCP JSON/TOML snippets. Also installs the matching GhostCrab skill bundle and `.ghostcrab/skills/installed.json`. Aliases: `gcp brain setup_cursor` / `setup_codex` / `setup_claude` / `setup_claudecode` / `setup_generic`. See [gcp-client-setup.md](../setup/gcp-client-setup.md) and the root `README_*_MCP.md` files. |
 
 For the lower-level `ghostcrab`/`dist/index.js` launcher, the supported CLI
-commands are intentionally narrow: `serve`, `smoke`, `status`, `tools list`, and
-`maintenance ddl-approve|ddl-execute`. Commands like `search`, `remember`,
+commands are intentionally narrow: `serve`, `smoke`, `status`, `tools list`,
+`tools verify`, `maintenance ddl-approve|ddl-execute`, and destructive
+`workspace reset|delete` maintenance. Commands like `search`, `remember`,
 `upsert`, `schema`, `learn`, `project`, and `pack` are MCP-only.
 
 ## Why “brain” vs “agent”
@@ -58,6 +64,8 @@ Legacy (still supported):
 ## See also
 
 - [operator-catalog.md](operator-catalog.md) — full `gcp` and MCP tool list with SQLite impact (generated catalog)
+- [mcp-tools.md](mcp-tools.md) — generated MCP tool API reference from the compiled registry
+- [api-reference-blindspots.md](api-reference-blindspots.md) — coverage limits and stale-reference audit notes
 - [gcp-client-setup.md](../setup/gcp-client-setup.md) — IDE integration and env vars
 - [document-import.md](../setup/document-import.md) — document normalization, deterministic import, LLM profiling, qualification vocabulary listing, and no-LLM fallbacks
 - [skillset-demo-import.md](../setup/skillset-demo-import.md) — bundle manifests, schema/skill pulls, vendored `skills install`, JSONL loads

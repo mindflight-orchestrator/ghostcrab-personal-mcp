@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildToolCatalog,
+  classifyToolAccess,
   getBasicToolNames,
   listBasicRegisteredTools,
   searchToolCatalog
@@ -74,5 +75,18 @@ describe("tool catalog", () => {
       5
     );
     expect(matches.map((m) => m.name)).toContain("ghostcrab_workspace_use");
+  });
+
+  it("classifies mutating extended tools as write access", () => {
+    for (const name of [
+      "ghostcrab_graph_reindex",
+      "ghostcrab_collection_reindex",
+      "ghostcrab_graph_gap_rules_delete",
+      "ghostcrab_workspace_delete",
+      "ghostcrab_workspace_reset",
+      "ghostcrab_live_refresh"
+    ]) {
+      expect(classifyToolAccess(name)).toBe("write");
+    }
   });
 });

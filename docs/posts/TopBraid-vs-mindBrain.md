@@ -281,8 +281,8 @@ TopBraid governs enterprise semantic assets. MindBrain has a narrower runtime qu
    records, entities, relations, facets, evidence links, and projection signals
 
 4. Query after import
-   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree for facets
-   ghostcrab_marketplace / ghostcrab_traverse for dependency and evidence paths
+   ghostcrab_count / ghostcrab_search / ghostcrab_collection_facet_search for facets
+   ghostcrab_graph_search / ghostcrab_traverse for dependency and evidence paths
    ghostcrab_coverage for missing ontology coverage
    ghostcrab_projection_get / ghostcrab_pack for compact working context
 ```

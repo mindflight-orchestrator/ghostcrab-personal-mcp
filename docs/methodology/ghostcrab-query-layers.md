@@ -91,7 +91,9 @@ Imported or derived structural data: ontology nodes, knowledge graph entities, p
 | `ghostcrab_graph_path` | Shortest path between two entity IDs |
 | `ghostcrab_entity_chunks` | Raw chunk / document content linked to a graph entity |
 
-**All graph tools are extended** — they do not appear in the default MCP descriptors. Discover them with:
+Most graph tools are extended — they do not appear in the compact default MCP
+`tools/list` descriptors. Discover the complete 52-tool runtime catalog with
+`gcp tools list`, or ask the MCP discovery tool for the graph subset:
 
 ```
 ghostcrab_tool_search { visibility: ["extended"], subsystem: ["graph"] }
@@ -188,7 +190,8 @@ Precomputed analytical snapshots built by ingest pipelines or recipes (e.g. SEO 
 ## Common Mistakes
 
 - **`ghostcrab_search` returns nothing → assume domain is empty.** Wrong: the graph and projection layers are separate. Escalate to `ghostcrab_graph_search` or `ghostcrab_projection_get`.
-- **Calling graph tools by default.** They are extended — not listed in the default tool set. Call `ghostcrab_tool_search` first.
+- **Treating default `tools/list` as the full API.** It is a recommended 12-tool surface, not the whole runtime catalog. Use `ghostcrab_tool_search` or `gcp tools list` before concluding a tool does not exist.
+- **Calling graph tools by default.** They are usually extended — not listed in the default tool set. Call `ghostcrab_tool_search` first.
 - **Confusing the two "projection" concepts.** Type A (`projections` table) ≠ Type B (`ProjectionResult` in `graph_entity`). Different stores, different tools. See [05-projections](../explanation/05-projections-expliquees.md).
 - **Expecting `ghostcrab_pack` to include graph data.** It doesn't. Pack = pragma projections + facet facts only.
 - **Using `ghostcrab_search` as a catch-all.** Use `ghostcrab_combined_search` when graph and facets should both be considered.

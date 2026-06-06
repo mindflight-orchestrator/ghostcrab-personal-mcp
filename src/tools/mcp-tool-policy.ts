@@ -1,4 +1,4 @@
-import { getBasicToolNames } from "./catalog.js";
+import { classifyToolAccess, getBasicToolNames } from "./catalog.js";
 import { EXPECTED_TOOL_NAMES } from "./tool-manifest.js";
 
 export type ToolPermissionPreset =
@@ -34,39 +34,8 @@ const READ_ACCESS = new Set([
   "session"
 ]);
 
-function classifyAccess(name: string): string {
-  if (name === "ghostcrab_status") return "bootstrap";
-  if (name === "ghostcrab_modeling_guidance") return "guide";
-  if (name === "ghostcrab_workspace_use") return "session";
-  if (
-    name.includes("_remember") ||
-    name.includes("_learn") ||
-    name.includes("_upsert") ||
-    name.includes("_patch") ||
-    name.includes("_register") ||
-    name.includes("_create") ||
-    name.includes("_apply") ||
-    name.includes("_seed") ||
-    name.includes("_instantiate") ||
-    name.includes("_checkpoint") ||
-    name.includes("_import") ||
-    name.includes("_bridge")
-  ) {
-    return "write";
-  }
-  if (
-    name.includes("_project") ||
-    name.includes("_ddl_") ||
-    name.includes("_compare") ||
-    name.includes("_conflicts")
-  ) {
-    return "model";
-  }
-  return "read";
-}
-
 export function getToolAccessForName(name: string): string {
-  return classifyAccess(name);
+  return classifyToolAccess(name);
 }
 
 export function formatClaudeMcpRule(serverName: string, toolName?: string): string {
@@ -135,11 +104,12 @@ export function buildToolPermissionPreset(
 
   if (preset === "read") {
     const allow = EXPECTED_TOOL_NAMES.filter((name) =>
-      READ_ACCESS.has(classifyAccess(name))
+      READ_ACCESS.has(classifyToolAccess(name))
     ).map((name) => toolRef(serverName, name));
     const ask = EXPECTED_TOOL_NAMES.filter(
       (name) =>
-        classifyAccess(name) === "write" || classifyAccess(name) === "model"
+        classifyToolAccess(name) === "write" ||
+        classifyToolAccess(name) === "model"
     ).map((name) => toolRef(serverName, name));
     return { allow, ask, deny: [] };
   }

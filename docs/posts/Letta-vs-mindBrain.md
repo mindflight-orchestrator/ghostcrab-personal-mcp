@@ -157,7 +157,7 @@ Letta retrieval is agent-context retrieval. The agent has a context window, memo
 MindBrain retrieval is domain-state retrieval:
 
 ```text
-1. Use ghostcrab_count or ghostcrab_facet_tree to inspect the workspace shape.
+1. Use ghostcrab_count or ghostcrab_collection_facet_search to inspect the workspace shape.
 2. Use ghostcrab_search to find the relevant facet-indexed subset.
 3. Use ghostcrab_traverse to follow dependencies, blockers, and validation edges.
 4. Use ghostcrab_coverage to check whether the model is complete enough.
@@ -231,7 +231,7 @@ MindBrain is not just a policy that tells agents to be careful. The workflow mov
    chunks, entities, relations, facets, evidence, and projection signals.
 
 4. Query after import
-   ghostcrab_count / ghostcrab_facet_tree for shape-of-data questions
+   ghostcrab_count / ghostcrab_collection_facet_search for shape-of-data questions
    ghostcrab_search for facet-indexed records
    ghostcrab_traverse for blockers, dependencies, and validation paths
    ghostcrab_coverage for missing domain coverage

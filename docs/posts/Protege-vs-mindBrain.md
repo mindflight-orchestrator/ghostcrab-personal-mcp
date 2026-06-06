@@ -260,8 +260,8 @@ The clean comparison is not "Protégé cannot model domains." It can. The compar
    chunks, entities, relations, facets, and projection signals
 
 4. Query after import
-   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree for facets
-   ghostcrab_marketplace / ghostcrab_traverse for graph relationships
+   ghostcrab_count / ghostcrab_search / ghostcrab_collection_facet_search for facets
+   ghostcrab_graph_search / ghostcrab_traverse for graph relationships
    ghostcrab_coverage for model gaps before autonomous action
    ghostcrab_projection_get / ghostcrab_pack for agent-ready context
 ```
