@@ -24,7 +24,7 @@ Références : [term-slice-matrix.md](term-slice-matrix.md) · [diagrams/](diagr
 | M1 | Mutuel | [term-slice-matrix.md](term-slice-matrix.md) | Aucun terme glossaire dans ≥2 tranches sans `bridgesToSlice` | pass |
 | M2 | Mutuel | `CrossLayerReadTool` uniquement dans query-layers | `pack` / `combined_search` pas modélisés comme MemoryLayer | pass |
 | M3 | Mutuel | Projections Type A/B définies dans memory-model seulement | query-layers référence pragma reads, pas définition stockage | pass |
-| E1 | Exhaustif | Glossaire § ontologie, facets, couches, projections, réindex | Chaque ligne mappée dans term-slice-matrix | pass |
+| E1 | Exhaustif | Glossaire § ontologie, facets, couches, projections, réindex, **gaps, answer artifacts** | Chaque ligne mappée dans term-slice-matrix | pending |
 | E2 | Exhaustif | explanation 03→05 + methodology query-layers + universal §2 | ≥1 classe par chapitre dans une tranche | pass |
 | E3 | Exhaustif | Questions de compétence (32 total) | Répondables via doc ou slice JSON | pass |
 | H1 | Hiérarchie | Sous-classes `FacetSense*`, `MethodologyPhase*`, `OntologyPath*` | Spécialisation sémantique via `is_a` | pass |
@@ -37,7 +37,10 @@ Références : [term-slice-matrix.md](term-slice-matrix.md) · [diagrams/](diagr
 
 | ID | Sévérité | Tranche | Action |
 |----|----------|---------|--------|
-| — | — | — | Aucun écart bloquant au dernier audit |
+| — | — | — | Mettre à jour après ajout taxonomie gaps/artifacts au glossaire (2026-06) | pending |
+
+| E4 | Exhaustif | Glossaire § gaps (graph_data_gap, coverage_gap, answerability_gap, mece_gap) | Chaque sens gap mappé ; aucun ⊂ artifact_kind | pending |
+| E5 | Exhaustif | Glossaire § answer artifacts (analysis_plan, live_answer_view, answer_snapshot, evidence_pack) | Distinct de event_kind answer_update_event | pending |
 
 ---
 

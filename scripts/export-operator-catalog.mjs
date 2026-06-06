@@ -13,6 +13,7 @@ const root = join(__dirname, "..");
 const outPath = join(root, "docs/reference/operator-catalog.md");
 
 const EXPECTED_TOOL_NAMES = [
+  "ghostcrab_artifact_get",
   "ghostcrab_collection_facet_search",
   "ghostcrab_collection_reindex",
   "ghostcrab_combined_search",
@@ -36,6 +37,7 @@ const EXPECTED_TOOL_NAMES = [
   "ghostcrab_graph_search",
   "ghostcrab_graph_subgraph",
   "ghostcrab_learn",
+  "ghostcrab_live_refresh",
   "ghostcrab_loadout_apply",
   "ghostcrab_loadout_inspect",
   "ghostcrab_loadout_list",
@@ -88,6 +90,8 @@ function classifySubsystem(name) {
   if (
     name.startsWith("ghostcrab_status") ||
     name.startsWith("ghostcrab_pack") ||
+    name.startsWith("ghostcrab_artifact") ||
+    name.startsWith("ghostcrab_live") ||
     name.startsWith("ghostcrab_projection") ||
     name.startsWith("ghostcrab_project") ||
     name.startsWith("ghostcrab_modeling_guidance")
@@ -118,7 +122,8 @@ function classifyAccess(name) {
     name.includes("_apply") ||
     name.includes("_seed") ||
     name.includes("_import") ||
-    name.includes("_execute")
+    name.includes("_execute") ||
+    name.includes("_refresh")
   ) {
     return "write";
   }
@@ -143,6 +148,12 @@ function tablesFor(name, subsystem) {
   }
   if (subsystem === "loadout") return "bootstrap recipes / schemas seed";
   if (subsystem === "pragma") {
+    if (name === "ghostcrab_artifact_get") {
+      return "mindbrain_answer_artifacts";
+    }
+    if (name === "ghostcrab_live_refresh") {
+      return "mindbrain_answer_artifacts, mindbrain_answer_events";
+    }
     if (name === "ghostcrab_projection_get") return "graph_entity (ProjectionResult)";
     if (name === "ghostcrab_project") return "projections";
     if (name === "ghostcrab_pack") return "projections + agent_facts";
@@ -210,6 +221,14 @@ const GCP_GROUPS = [
     ]
   },
   {
+    group: "Answer artifacts",
+    rows: [
+      ["gcp", "brain artifact list | get", "pragma", "mindbrain_answer_artifacts", "read", "backend running", "gcp-commands.md"],
+      ["gcp", "brain artifact refresh | events", "pragma", "mindbrain_answer_artifacts, mindbrain_answer_events", "write/read", "backend running; refresh is live_answer_view only", "gcp-commands.md"],
+      ["gcp", "brain artifact migrate --dry-run | --repair", "pragma", "mindbrain_answer_artifacts (offline backfill)", "write", "stop MCP", "gcp-commands.md"]
+    ]
+  },
+  {
     group: "Backup / demo / IDE",
     rows: [
       ["gcp", "brain backup | export | load", "workspace", "SQLite file / bundles", "write", "stop MCP", "skillset-demo-import.md"],
@@ -246,11 +265,15 @@ function gcpTables() {
     );
     parts.push("|---------|---------|-------|--------|--------|---------------|-----------|");
     for (const r of rows) {
-      parts.push(`| ${r.join(" | ")} |`);
+      parts.push(`| ${r.map(mdCell).join(" | ")} |`);
     }
     parts.push("");
   }
   return parts.join("\n");
+}
+
+function mdCell(value) {
+  return String(value).replaceAll("|", "\\|");
 }
 
 const md = `# GhostCrab operator catalog (Personal)

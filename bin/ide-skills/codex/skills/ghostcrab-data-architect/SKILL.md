@@ -88,6 +88,8 @@ gcp brain ontology compile ... --import-db --force
 
 Canonical LinkML examples in this repo: `ontologies/immeuble-demo/core.yaml`, `ontologies/ghostcrab/profile.yaml`.
 
+**Documentation epistemology (MECE slices):** `docs/explanation/ontology/linkml/ghostcrab-docs/` — workspace `ghostcrab-docs`. Human docs: `docs/explanation/ontology/diagrams/` + chapters 03→05. Compile JSON (optional audit): `docs/explanation/ontology/compiled-slices/`. Before import: `docs/explanation/ontology/mece-validation.md`. Not `ghostcrab_schema_register` agent schemas.
+
 Personal bridge doc: `docs/explanation/methode-starterkit/06-voies-import-ontologie-et-tabulaire.md`.
 
 ## Freeze Policy

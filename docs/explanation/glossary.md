@@ -35,23 +35,67 @@ Détail : [03 — Mémoire MCP](03-memoire-mcp-facettes-graphe-projections.md).
 
 ## Couches mémoire MCP
 
-| Couche | Stockage | Outils principaux |
-|--------|----------|-------------------|
-| **Session** | mémoire process MCP | `ghostcrab_workspace_use` |
-| **Faits durables** | `agent_facts` | `remember`, `upsert`, `search`, `count` |
-| **Mémoire de travail** | `projections` (Type A) | `project`, `pack` |
-| **Graphe métier** | raw + `graph_entity` | `learn`, `graph_search`, `traverse`, `graph_reindex` |
-| **Snapshot rapport** | `ProjectionResult` (Type B) | `projection_get` |
+| Couche | Stockage | Outils principaux | `artifact_kind` |
+|--------|----------|---------------------|-------------------|
+| **Session** | mémoire process MCP | `ghostcrab_workspace_use` | — |
+| **Faits durables** | `agent_facts` | `remember`, `upsert`, `search`, `count` | — |
+| **Plan d'analyse** | `projections` (legacy Type A) | `project`, `pack` | `analysis_plan` |
+| **Graphe métier** | raw + `graph_entity` | `learn`, `graph_search`, `traverse`, `graph_reindex` | — |
+| **Instantané** | `ProjectionResult` (legacy Type B) | `projection_get` | `answer_snapshot` |
+| **Données en direct** | registre `mindbrain_answer_artifacts` | routes artifact backend | `live_answer_view` |
+
+Contrat backend : [`vendor/mindbrain/docs/artifacts/artifact-model.md`](../../vendor/mindbrain/docs/artifacts/artifact-model.md).
 
 ---
 
-## Projections
+## Trois couches de nommage (artefacts de réponse)
 
-| Terme | Type | Stockage | Read / write |
-|-------|------|----------|--------------|
-| **Projection Type A** | mémoire de travail agent | table `projections` | `ghostcrab_project` / `ghostcrab_pack` |
-| **Projection Type B** | snapshot matérialisé | `graph_entity` (`ProjectionResult`) | `ghostcrab_projection_get` |
-| **Requête graphe** | *pas* une projection | `graph_entity` domaine | `graph_search`, `traverse`, … |
+Un libellé ne sert **pas** à la fois humain, agent et filesystem.
+
+| Couche | Exemple | Règle |
+|--------|---------|-------|
+| **Libellé humain** | « Données en direct — Pilotage hebdomadaire » | Court, sans jargon |
+| **Type agent (`artifact_kind`)** | `live_answer_view` | Stable, machine-lisible |
+| **Identifiant technique** | `live_answer_view__pilotage_hebdomadaire` | Préfixe = kind ; id **sans version** |
+
+Spec : [renommage.md](renommage.md).
+
+---
+
+## Artefacts de réponse vs gaps / règles / diagnostics
+
+**`artifact_kind` est réservé aux artefacts de réponse.**
+
+| Libellé public | `artifact_kind` | Legacy |
+|----------------|-----------------|--------|
+| Plan d'analyse | `analysis_plan` | Type A |
+| Données en direct | `live_answer_view` | *(nouveau)* |
+| Instantané | `answer_snapshot` | Type B |
+| Preuves utilisées | `evidence_pack` | liens preuve |
+
+`event_kind = answer_update_event` dans `mindbrain_answer_events` — **pas** un `artifact_kind`.
+
+| Sens gap / règle | Terme préféré | Surface |
+|-------------------|---------------|---------|
+| Gap données graphe | `graph_data_gap` | `ghostcrab_graph_diagnostics` |
+| Conflit entre faits | `graph_conflict` | diagnostics (planifié) + `graph_knowledge_patch` |
+| Règle validation | `graph_gap_rule` | `graph_gap_rules` |
+| Gap couverture | `coverage_gap` | `ghostcrab_coverage` |
+| Gap answerability | `answerability_gap` | skill `ghostcrab-gap-auditor` |
+| Écart MECE | `mece_gap` | [mece-validation.md](ontology/mece-validation.md) |
+
+Détail : [`non-artifact-gaps-and-reports.md`](../../vendor/mindbrain/docs/artifacts/non-artifact-gaps-and-reports.md).
+
+---
+
+## Projections (legacy — transition)
+
+| Terme | Type | Stockage | Read / write | `artifact_kind` |
+|-------|------|----------|--------------|-----------------|
+| **Projection Type A** | mémoire de travail agent | table `projections` | `ghostcrab_project` / `ghostcrab_pack` | `analysis_plan` |
+| **Projection Type B** | snapshot matérialisé | `graph_entity` (`ProjectionResult`) | `ghostcrab_projection_get` | `answer_snapshot` |
+| **Requête graphe** | *pas* une projection | `graph_entity` domaine | `graph_search`, `traverse`, … | — |
+| **`memory_projections`** | legacy TOON pack | `memory_projections` | `GET /api/mindbrain/pack` | hors registre |
 
 Détail : [05 — Projections expliquées](05-projections-expliquees.md).
 
