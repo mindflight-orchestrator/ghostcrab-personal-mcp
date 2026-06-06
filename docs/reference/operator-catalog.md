@@ -25,14 +25,16 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | Surface | Command | Layer | Impact | Access | Prerequisites | Runbook |
 |---------|---------|-------|--------|--------|---------------|-----------|
 | gcp | brain up \| up \| start | control-plane | MCP stdio + backend | write | — | gcp-commands.md |
-| gcp | smoke \| status \| tools list \| tools verify | control-plane | — | read | — | gcp-commands.md |
+| gcp | smoke \| status \| tools list \| tools verify | control-plane | package/runtime/tool catalog | read | — | gcp-commands.md |
+| gcp | brain db-who | control-plane | SQLite file holders via lsof | read | lsof on host | gcp-commands.md |
 | gcp | maintenance ddl-approve \| ddl-execute | workspace | pending DDL | write | human approval | gcp-commands.md |
 
 ### Workspace
 
 | Surface | Command | Layer | Impact | Access | Prerequisites | Runbook |
 |---------|---------|-------|--------|--------|---------------|-----------|
-| gcp | brain workspace create \| list | workspace | workspace registry | write | — | gcp-commands.md |
+| gcp | brain workspace create \| list | workspace | workspace registry | write/read | — | gcp-commands.md |
+| ghostcrab | workspace reset \| delete | workspace | workspace-scoped data | write | explicit workspace id | gcp-commands.md |
 | gcp | init (legacy) | workspace | workspace registry | write | — | gcp-commands.md |
 
 ### Schema registry (not LinkML OWL)
@@ -83,8 +85,10 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | gcp | brain backup \| export \| load | workspace | SQLite file / bundles | write | stop MCP | skillset-demo-import.md |
 | gcp | brain docs structured\|document\|import | control-plane | — | read | — | docs/setup/ |
 | gcp | brain setup cursor\|codex\|claude\|generic | control-plane | IDE MCP config | write | — | gcp-client-setup.md |
+| gcp | brain permissions print\|apply | control-plane | Cursor/Claude MCP allow rules | read/write | — | gcp-client-setup.md |
 | gcp | agent skills … \| equip | control-plane | skills registry | read/write | — | skillset-demo-import.md |
-| gcp | env … \| authorize \| bootstrap \| path … | control-plane | — | read/write | — | gcp-client-setup.md |
+| gcp | env … \| authorize \| bootstrap | control-plane | .ghostcrab config, native binary permissions, host project files | read/write | — | gcp-client-setup.md |
+| gcp | path install\|print\|doctor | control-plane | ~/.ghostcrab/bin PATH shim | read/write | — | gcp-client-setup.md |
 
 
 ---
@@ -95,12 +99,12 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 |------|-------|-----------|--------|-----------------|
 | `ghostcrab_artifact_get` | no | pragma | read | mindbrain_answer_artifacts |
 | `ghostcrab_collection_facet_search` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
-| `ghostcrab_collection_reindex` | no | graph | read | documents_raw, search_fts, graph |
+| `ghostcrab_collection_reindex` | no | graph | write | documents_raw, search_fts, graph |
 | `ghostcrab_combined_search` | yes | facets | read | agent_facts (+ facet_tables FTS when indexed) |
 | `ghostcrab_count` | yes | facets | read | agent_facts (+ facet_tables FTS when indexed) |
 | `ghostcrab_coverage` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_csearch` | no | facets | read | agent_facts (+ facet_tables FTS when indexed) |
-| `ghostcrab_ddl_execute` | no | workspace | write | pending DDL metadata |
+| `ghostcrab_ddl_execute` | no | workspace | model | pending DDL metadata |
 | `ghostcrab_ddl_list_pending` | no | workspace | model | pending DDL metadata |
 | `ghostcrab_ddl_propose` | no | workspace | model | pending DDL metadata |
 | `ghostcrab_entity_chunks` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
@@ -110,10 +114,10 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | `ghostcrab_facet_validate` | no | facets | read | facet catalog metadata |
 | `ghostcrab_graph_diagnostics` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_graph_gap_rules` | no | graph | read | gap_rules store |
-| `ghostcrab_graph_gap_rules_delete` | no | graph | read | gap_rules store |
+| `ghostcrab_graph_gap_rules_delete` | no | graph | write | gap_rules store |
 | `ghostcrab_graph_gap_rules_import` | no | graph | write | gap_rules store |
 | `ghostcrab_graph_path` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
-| `ghostcrab_graph_reindex` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
+| `ghostcrab_graph_reindex` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_graph_search` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_graph_subgraph` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_learn` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
@@ -124,7 +128,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | `ghostcrab_loadout_seed` | no | loadout | write | bootstrap recipes / schemas seed |
 | `ghostcrab_loadout_suggest` | no | loadout | read | bootstrap recipes / schemas seed |
 | `ghostcrab_modeling_guidance` | yes | pragma | guide | — (diagnostic) |
-| `ghostcrab_onboarding_schemas` | no | facets | guide | schema registry (agent_facts shapes; not LinkML ontology_*) |
+| `ghostcrab_onboarding_schemas` | no | facets | read | schema registry (agent_facts shapes; not LinkML ontology_*) |
 | `ghostcrab_pack` | yes | pragma | read | projections + agent_facts |
 | `ghostcrab_project` | yes | pragma | model | projections |
 | `ghostcrab_projection_get` | no | pragma | model | graph_entity (ProjectionResult) |
@@ -133,17 +137,17 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | `ghostcrab_schema_list` | yes | facets | read | schema registry (agent_facts shapes; not LinkML ontology_*) |
 | `ghostcrab_schema_register` | no | facets | write | schema registry (agent_facts shapes; not LinkML ontology_*) |
 | `ghostcrab_search` | yes | facets | read | agent_facts (+ facet_tables FTS when indexed) |
-| `ghostcrab_status` | yes | pragma | read | — (diagnostic) |
+| `ghostcrab_status` | yes | pragma | bootstrap | — (diagnostic) |
 | `ghostcrab_tool_search` | yes | facets | read | agent_facts (+ facet_tables FTS when indexed) |
 | `ghostcrab_traverse` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_upsert` | yes | facets | write | agent_facts (+ facet_tables FTS when indexed) |
 | `ghostcrab_workspace_create` | no | workspace | write | workspace registry |
-| `ghostcrab_workspace_delete` | no | workspace | read | workspace registry |
+| `ghostcrab_workspace_delete` | no | workspace | write | workspace registry |
 | `ghostcrab_workspace_export_model` | no | workspace | read | workspace registry |
 | `ghostcrab_workspace_export_model_toon` | no | workspace | read | workspace registry |
 | `ghostcrab_workspace_inspect` | no | workspace | read | workspace registry |
 | `ghostcrab_workspace_list` | no | workspace | read | workspace registry |
-| `ghostcrab_workspace_reset` | no | workspace | read | workspace registry |
+| `ghostcrab_workspace_reset` | no | workspace | write | workspace registry |
 | `ghostcrab_workspace_use` | no | session | session | — (routing only) |
 
 ---
@@ -152,5 +156,6 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 
 - [structured-import.md](../setup/structured-import.md)
 - [document-import.md](../setup/document-import.md)
+- [mcp-tools.md](mcp-tools.md)
 - [ontology/README.md](../explanation/ontology/README.md)
 - [StarterKit EDITIONS.md](https://gitlab.com/webigniter/starter-kit-ghostcrab-perso/-/blob/main/starterkit/EDITIONS.md)

@@ -95,7 +95,7 @@ export function listAllRegisteredToolsForMcp(tools: Tool[]): Tool[] {
 
 export function buildToolCatalog(tools: Tool[]): ToolCatalogEntry[] {
   return tools.map((tool) => {
-    const access = classifyAccess(tool.name);
+    const access = classifyToolAccess(tool.name);
     const subsystem = classifySubsystem(tool.name);
     const visibility: ToolVisibility = BASIC_LISTED_TOOL_SET.has(tool.name)
       ? "basic"
@@ -188,7 +188,7 @@ export function getBasicToolNames(): readonly string[] {
   return BASIC_LISTED_TOOL_NAMES;
 }
 
-function classifyAccess(name: string): ToolAccess {
+export function classifyToolAccess(name: string): ToolAccess {
   if (name === "ghostcrab_status") {
     return "bootstrap";
   }
@@ -214,7 +214,10 @@ function classifyAccess(name: string): ToolAccess {
     name.includes("_checkpoint") ||
     name.includes("_import") ||
     name.includes("_bridge") ||
-    name.includes("_refresh")
+    name.includes("_refresh") ||
+    name.includes("_reindex") ||
+    name.includes("_delete") ||
+    name.includes("_reset")
   ) {
     return "write";
   }
@@ -222,6 +225,7 @@ function classifyAccess(name: string): ToolAccess {
   if (
     name.includes("_project") ||
     name.includes("_ddl_") ||
+    name.includes("_execute") ||
     name.includes("_compare") ||
     name.includes("_conflicts")
   ) {

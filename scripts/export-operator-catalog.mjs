@@ -8,137 +8,14 @@ import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { loadToolManifestFromDist } from "./load-tool-manifest.mjs";
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
 const outPath = join(root, "docs/reference/operator-catalog.md");
+const mcpOutPath = join(root, "docs/reference/mcp-tools.md");
 
-const EXPECTED_TOOL_NAMES = [
-  "ghostcrab_artifact_get",
-  "ghostcrab_collection_facet_search",
-  "ghostcrab_collection_reindex",
-  "ghostcrab_combined_search",
-  "ghostcrab_count",
-  "ghostcrab_coverage",
-  "ghostcrab_csearch",
-  "ghostcrab_ddl_execute",
-  "ghostcrab_ddl_list_pending",
-  "ghostcrab_ddl_propose",
-  "ghostcrab_entity_chunks",
-  "ghostcrab_facet_catalog",
-  "ghostcrab_facet_inspect",
-  "ghostcrab_facet_register",
-  "ghostcrab_facet_validate",
-  "ghostcrab_graph_diagnostics",
-  "ghostcrab_graph_gap_rules",
-  "ghostcrab_graph_gap_rules_delete",
-  "ghostcrab_graph_gap_rules_import",
-  "ghostcrab_graph_path",
-  "ghostcrab_graph_reindex",
-  "ghostcrab_graph_search",
-  "ghostcrab_graph_subgraph",
-  "ghostcrab_learn",
-  "ghostcrab_live_refresh",
-  "ghostcrab_loadout_apply",
-  "ghostcrab_loadout_inspect",
-  "ghostcrab_loadout_list",
-  "ghostcrab_loadout_seed",
-  "ghostcrab_loadout_suggest",
-  "ghostcrab_modeling_guidance",
-  "ghostcrab_onboarding_schemas",
-  "ghostcrab_pack",
-  "ghostcrab_projection_get",
-  "ghostcrab_project",
-  "ghostcrab_remember",
-  "ghostcrab_schema_inspect",
-  "ghostcrab_schema_list",
-  "ghostcrab_schema_register",
-  "ghostcrab_search",
-  "ghostcrab_status",
-  "ghostcrab_tool_search",
-  "ghostcrab_traverse",
-  "ghostcrab_upsert",
-  "ghostcrab_workspace_create",
-  "ghostcrab_workspace_delete",
-  "ghostcrab_workspace_export_model",
-  "ghostcrab_workspace_export_model_toon",
-  "ghostcrab_workspace_inspect",
-  "ghostcrab_workspace_list",
-  "ghostcrab_workspace_reset",
-  "ghostcrab_workspace_use"
-];
-
-const BASIC = new Set([
-  "ghostcrab_status",
-  "ghostcrab_search",
-  "ghostcrab_count",
-  "ghostcrab_combined_search",
-  "ghostcrab_remember",
-  "ghostcrab_upsert",
-  "ghostcrab_schema_list",
-  "ghostcrab_schema_inspect",
-  "ghostcrab_pack",
-  "ghostcrab_project",
-  "ghostcrab_modeling_guidance",
-  "ghostcrab_tool_search"
-]);
-
-function classifySubsystem(name) {
-  if (name.startsWith("ghostcrab_loadout_")) return "loadout";
-  if (name.startsWith("ghostcrab_workspace_") || name.startsWith("ghostcrab_ddl_")) {
-    return name === "ghostcrab_workspace_use" ? "session" : "workspace";
-  }
-  if (
-    name.startsWith("ghostcrab_status") ||
-    name.startsWith("ghostcrab_pack") ||
-    name.startsWith("ghostcrab_artifact") ||
-    name.startsWith("ghostcrab_live") ||
-    name.startsWith("ghostcrab_projection") ||
-    name.startsWith("ghostcrab_project") ||
-    name.startsWith("ghostcrab_modeling_guidance")
-  ) {
-    return "pragma";
-  }
-  if (
-    name.startsWith("ghostcrab_traverse") ||
-    name.startsWith("ghostcrab_entity_chunks") ||
-    name.startsWith("ghostcrab_graph") ||
-    name.startsWith("ghostcrab_collection_") ||
-    name.startsWith("ghostcrab_coverage") ||
-    name.startsWith("ghostcrab_learn")
-  ) {
-    return "graph";
-  }
-  return "facets";
-}
-
-function classifyAccess(name) {
-  if (name === "ghostcrab_workspace_use") return "session";
-  if (
-    name.includes("_remember") ||
-    name.includes("_learn") ||
-    name.includes("_upsert") ||
-    name.includes("_register") ||
-    name.includes("_create") ||
-    name.includes("_apply") ||
-    name.includes("_seed") ||
-    name.includes("_import") ||
-    name.includes("_execute") ||
-    name.includes("_refresh")
-  ) {
-    return "write";
-  }
-  if (
-    name.includes("_project") ||
-    name.includes("_ddl_") ||
-    name.includes("_propose")
-  ) {
-    return "model";
-  }
-  if (name.includes("modeling_guidance") || name.includes("onboarding_schemas")) {
-    return "guide";
-  }
-  return "read";
-}
+const { manifest, catalog } = loadToolManifestFromDist();
 
 function tablesFor(name, subsystem) {
   if (subsystem === "session") return "— (routing only)";
@@ -176,14 +53,16 @@ const GCP_GROUPS = [
     group: "Start / diagnostics",
     rows: [
       ["gcp", "brain up | up | start", "control-plane", "MCP stdio + backend", "write", "—", "gcp-commands.md"],
-      ["gcp", "smoke | status | tools list | tools verify", "control-plane", "—", "read", "—", "gcp-commands.md"],
+      ["gcp", "smoke | status | tools list | tools verify", "control-plane", "package/runtime/tool catalog", "read", "—", "gcp-commands.md"],
+      ["gcp", "brain db-who", "control-plane", "SQLite file holders via lsof", "read", "lsof on host", "gcp-commands.md"],
       ["gcp", "maintenance ddl-approve | ddl-execute", "workspace", "pending DDL", "write", "human approval", "gcp-commands.md"]
     ]
   },
   {
     group: "Workspace",
     rows: [
-      ["gcp", "brain workspace create | list", "workspace", "workspace registry", "write", "—", "gcp-commands.md"],
+      ["gcp", "brain workspace create | list", "workspace", "workspace registry", "write/read", "—", "gcp-commands.md"],
+      ["ghostcrab", "workspace reset | delete", "workspace", "workspace-scoped data", "write", "explicit workspace id", "gcp-commands.md"],
       ["gcp", "init (legacy)", "workspace", "workspace registry", "write", "—", "gcp-commands.md"]
     ]
   },
@@ -234,8 +113,10 @@ const GCP_GROUPS = [
       ["gcp", "brain backup | export | load", "workspace", "SQLite file / bundles", "write", "stop MCP", "skillset-demo-import.md"],
       ["gcp", "brain docs structured|document|import", "control-plane", "—", "read", "—", "docs/setup/"],
       ["gcp", "brain setup cursor|codex|claude|generic", "control-plane", "IDE MCP config", "write", "—", "gcp-client-setup.md"],
+      ["gcp", "brain permissions print|apply", "control-plane", "Cursor/Claude MCP allow rules", "read/write", "—", "gcp-client-setup.md"],
       ["gcp", "agent skills … | equip", "control-plane", "skills registry", "read/write", "—", "skillset-demo-import.md"],
-      ["gcp", "env … | authorize | bootstrap | path …", "control-plane", "—", "read/write", "—", "gcp-client-setup.md"]
+      ["gcp", "env … | authorize | bootstrap", "control-plane", ".ghostcrab config, native binary permissions, host project files", "read/write", "—", "gcp-client-setup.md"],
+      ["gcp", "path install|print|doctor", "control-plane", "~/.ghostcrab/bin PATH shim", "read/write", "—", "gcp-client-setup.md"]
     ]
   }
 ];
@@ -245,15 +126,80 @@ function mcpTable() {
     "| Tool | Basic | Subsystem | Access | Tables / impact |",
     "|------|-------|-----------|--------|-----------------|"
   ];
-  for (const name of EXPECTED_TOOL_NAMES.sort()) {
-    const sub = classifySubsystem(name);
-    const acc = classifyAccess(name);
-    const basic = BASIC.has(name) ? "yes" : "no";
+  for (const entry of catalog) {
+    const sub = entry.subsystem;
+    const acc = entry.access;
+    const basic = entry.visibility === "basic" ? "yes" : "no";
     lines.push(
-      `| \`${name}\` | ${basic} | ${sub} | ${acc} | ${tablesFor(name, sub)} |`
+      `| \`${entry.name}\` | ${basic} | ${sub} | ${acc} | ${tablesFor(entry.name, sub)} |`
     );
   }
   return lines.join("\n");
+}
+
+function requiredText(entry) {
+  return entry.required_arguments.length > 0
+    ? entry.required_arguments.map((name) => `\`${name}\``).join(", ")
+    : "none";
+}
+
+function argumentTable(entry) {
+  if (entry.arguments.length === 0) {
+    return "_No input arguments._";
+  }
+
+  const lines = [
+    "| Argument | Required | Type | Description |",
+    "|----------|----------|------|-------------|"
+  ];
+  for (const argument of entry.arguments) {
+    lines.push(
+      `| \`${mdCell(argument.name)}\` | ${argument.required ? "yes" : "no"} | \`${mdCell(argument.type)}\` | ${mdCell(argument.description || "-")} |`
+    );
+  }
+  return lines.join("\n");
+}
+
+function mcpToolsReference() {
+  const sections = catalog.map((entry) => {
+    return `### \`${entry.name}\`
+
+${entry.description || "_No description._"}
+
+| Field | Value |
+|-------|-------|
+| Visibility | ${entry.visibility} |
+| Subsystem | ${entry.subsystem} |
+| Access | ${entry.access} |
+| Required arguments | ${requiredText(entry)} |
+
+${argumentTable(entry)}
+`;
+  });
+
+  return `# GhostCrab MCP Tools Reference
+
+> Generated by \`node scripts/export-operator-catalog.mjs\` from the compiled MCP registry. Do not hand-edit tool entries.
+
+GhostCrab exposes ${manifest.total} registered MCP tools: ${manifest.basic} recommended default tools and ${manifest.extended} extended tools. MCP \`tools/list\` returns the recommended default set; \`gcp tools list\` and \`ghostcrab_tool_search\` expose discovery metadata for the full catalog.
+
+All successful tool calls use the additive envelope:
+
+\`\`\`json
+{
+  "ok": true,
+  "tool": "ghostcrab_status",
+  "surface_version": "2026-03-23",
+  "generated_at": "2026-03-23T08:00:00.000Z"
+}
+\`\`\`
+
+Tool-specific fields are added next to that envelope. Structured failures use the same envelope with \`ok: false\` and \`error.code\`.
+
+## Tools
+
+${sections.join("\n")}
+`;
 }
 
 function gcpTables() {
@@ -302,7 +248,7 @@ ${gcpTables()}
 
 ---
 
-## B — MCP tools (${EXPECTED_TOOL_NAMES.length} registered)
+## B — MCP tools (${manifest.total} registered)
 
 ${mcpTable()}
 
@@ -312,9 +258,12 @@ ${mcpTable()}
 
 - [structured-import.md](../setup/structured-import.md)
 - [document-import.md](../setup/document-import.md)
+- [mcp-tools.md](mcp-tools.md)
 - [ontology/README.md](../explanation/ontology/README.md)
 - [StarterKit EDITIONS.md](https://gitlab.com/webigniter/starter-kit-ghostcrab-perso/-/blob/main/starterkit/EDITIONS.md)
 `;
 
 writeFileSync(outPath, md);
-console.log(`Wrote ${outPath} (${EXPECTED_TOOL_NAMES.length} MCP tools)`);
+writeFileSync(mcpOutPath, mcpToolsReference());
+console.log(`Wrote ${outPath} (${manifest.total} MCP tools)`);
+console.log(`Wrote ${mcpOutPath} (${manifest.total} MCP tools)`);

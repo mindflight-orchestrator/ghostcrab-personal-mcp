@@ -9,8 +9,8 @@ Document de **contestation constructive** : ce qui, dans [`starter-kit-ghostcrab
 | Document | Affirmation | Contredit |
 |----------|-------------|-----------|
 | ~~QUICKSTART L39~~ | ~~PostgreSQL only~~ | **Résolu** : [`EDITIONS.md`](../../../../starter-kit-ghostcrab-perso/starterkit/EDITIONS.md) + QUICKSTART routeur |
-| QUICKSTART Phase A | Docker + `make dev-bootstrap` + smoke 24 tools | Personal : binaire MindBrain + SQLite fichier, catalog ~50 tools |
-| SOP1 §2 | Inventaire 24 outils (marketplace, patch, geo…) | Personal : surface différente ; certains outils absents ou « extended » via `ghostcrab_tool_search` |
+| QUICKSTART Phase A | Docker + `make dev-bootstrap` + smoke 24 tools | Personal : binaire MindBrain + SQLite fichier, 52 outils enregistrés dont 12 listés par défaut |
+| SOP1 §2 | Inventaire 24 outils (marketplace, patch, geo…) | Personal : surface différente ; certains anciens noms sont absents, d'autres fonctions sont « extended » via `ghostcrab_tool_search` |
 | SOP3 | COPY PostgreSQL bulk | Personal : pas de COPY ; bundle / CLI / MCP |
 
 **Lecture saine :** lire `EDITIONS.md` → suivre uniquement [`personal-mcp/SOP_SEQUENCE.md`](../../../../starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP_SEQUENCE.md). QUICKSTART = routeur seulement.
@@ -28,8 +28,8 @@ Document de **contestation constructive** : ce qui, dans [`starter-kit-ghostcrab
 Phase A exige 24 outils visibles. En Personal :
 
 - le nombre listé par défaut est **12** ;
-- l'étendu complet requiert `ghostcrab_tool_search` ;
-- un backend SQLite peut être sain avec un catalog différent du Pro.
+- l'étendu complet requiert `ghostcrab_tool_search` ou `gcp tools list` ;
+- un backend SQLite peut être sain avec un catalogue différent du Pro.
 
 **Test Personal recommandé :** `ghostcrab_status` + familles status / remember / learn / graph_search / pack / graph_reindex — pas un décompte magique.
 

@@ -240,7 +240,7 @@ A fair comparison to Zep has to show what happens after data is imported, not on
    relations, facet values, evidence links, and projection signals.
 
 4. Query after import
-   ghostcrab_count / ghostcrab_facet_tree to understand the dataset shape
+   ghostcrab_count / ghostcrab_collection_facet_search to understand the dataset shape
    ghostcrab_search for facet-indexed records
    ghostcrab_traverse for typed dependencies and evidence paths
    ghostcrab_coverage for missing ontology coverage

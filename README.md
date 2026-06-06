@@ -22,7 +22,7 @@ mindBrain runs on **SQLite** in this personal distribution, and on **PostgreSQL*
 
 ### What is GhostCrab MCP?
 
-**GhostCrab MCP is the agent-facing interface to mindBrain.** It exposes mindBrain's full domain model as 12+ `ghostcrab_*` MCP tools — so any MCP-compatible agent (Cursor, Claude Code, Codex, OpenClaw, and others) can create ontologies, navigate relationships, and query structured knowledge natively, without custom integration code.
+**GhostCrab MCP is the agent-facing interface to mindBrain.** It exposes mindBrain through 52 registered `ghostcrab_*` MCP tools: 12 recommended defaults for day-to-day agents and 40 extended tools for graph, workspace, ontology, loadout, artifact, and maintenance workflows. Any MCP-compatible agent (Cursor, Claude Code, Codex, OpenClaw, and others) can query structured knowledge, update durable memory, and navigate relationships natively, without custom integration code.
 
 GhostCrab MCP does not own the data. mindBrain does. GhostCrab MCP is the door.
 
@@ -240,15 +240,24 @@ Use Tier 1 models for first workspace setup or fuzzy onboarding. Lighter models 
 
 ## MCP tool surface
 
-| Group               | Tools                                                                                                                                                                                                       |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Facets / Search** | `ghostcrab_search`, `ghostcrab_combined_search`, `ghostcrab_csearch`, `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_count`, `ghostcrab_facet_tree`, `ghostcrab_query_geo`                            |
-| **Graph**           | `ghostcrab_learn`, `ghostcrab_traverse`, `ghostcrab_marketplace`, `ghostcrab_patch`, `ghostcrab_coverage`                                                                                                   |
-| **Projections**     | `ghostcrab_project`, `ghostcrab_pack`, `ghostcrab_status`                                                                                                                                                   |
-| **Schema**          | `ghostcrab_schema_register`, `ghostcrab_schema_list`, `ghostcrab_schema_inspect`                                                                                                                            |
-| **Workspace**       | `ghostcrab_workspace_create`, `ghostcrab_workspace_list`, `ghostcrab_workspace_inspect`, `ghostcrab_workspace_export_model`, `ghostcrab_ddl_propose`, `ghostcrab_ddl_list_pending`, `ghostcrab_ddl_execute` |
+The default MCP `tools/list` surface is intentionally compact: status, search/count, combined search, remember/upsert, schema read, pack/project, modeling guidance, and tool discovery. The complete runtime catalog is available through:
 
-Full contract: `docs/dev/mcp_tools_contract.md`
+```bash
+gcp tools list
+gcp tools verify
+```
+
+Agents can also discover extended tools at runtime with `ghostcrab_tool_search`.
+
+| Group | Examples |
+| ----- | -------- |
+| **Facets / Search** | `ghostcrab_search`, `ghostcrab_combined_search`, `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_facet_catalog`, `ghostcrab_collection_facet_search` |
+| **Graph** | `ghostcrab_graph_search`, `ghostcrab_graph_subgraph`, `ghostcrab_graph_path`, `ghostcrab_traverse`, `ghostcrab_graph_reindex`, `ghostcrab_graph_gap_rules_import` |
+| **Projections / Artifacts** | `ghostcrab_project`, `ghostcrab_pack`, `ghostcrab_projection_get`, `ghostcrab_artifact_get`, `ghostcrab_live_refresh` |
+| **Schema / Workspace** | `ghostcrab_schema_list`, `ghostcrab_schema_inspect`, `ghostcrab_schema_register`, `ghostcrab_workspace_list`, `ghostcrab_workspace_create`, `ghostcrab_workspace_reset` |
+| **Discovery / Loadout / Ontology** | `ghostcrab_tool_search`, `ghostcrab_loadout_apply`, `ghostcrab_onboarding_schemas`, `ghostcrab_ontology_bundle_export` |
+
+Full references: `docs/reference/mcp-tools.md` and `docs/reference/operator-catalog.md`.
 
 ---
 

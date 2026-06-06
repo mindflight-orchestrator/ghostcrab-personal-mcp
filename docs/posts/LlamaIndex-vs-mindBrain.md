@@ -333,7 +333,7 @@ For a LlamaIndex audience, the important question is what happens after retrieva
    -> ghostcrab_search reads facet-indexed records such as obligation
       status, owner, jurisdiction, and workflow phase.
    -> ghostcrab_count answers shape-of-domain questions before synthesis.
-   -> ghostcrab_facet_tree exposes the taxonomy of imported dimensions.
+   -> ghostcrab_collection_facet_search exposes the taxonomy of imported dimensions.
    -> ghostcrab_traverse follows document-validates-obligation or
       task-depends-on-approval edges.
    -> ghostcrab_coverage checks where the ontology or evidence graph is thin.

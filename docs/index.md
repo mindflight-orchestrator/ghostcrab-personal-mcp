@@ -9,6 +9,7 @@ Single hub: [GhostCrab MCP — explications (architecture + lab)](explanation/RE
 - [Glossary (FR)](explanation/glossary.md) · [EN](explanation/en/glossary.md)
 - [LinkML/OWL2 ontologies](explanation/ontology/README.md)
 - [Operator catalog — `gcp` + MCP tools](reference/operator-catalog.md)
+- [MCP tools reference — generated runtime catalog](reference/mcp-tools.md)
 
 | Chapitre | Document |
 |----------|----------|
@@ -39,7 +40,10 @@ Single hub: [GhostCrab MCP — explications (architecture + lab)](explanation/RE
 ## Reference
 
 - [Command reference](reference/gcp-commands.md) — job-to-be-done overview for `gcp brain`, `gcp agent`, `gcp env`, and related aliases.
-- [OpenAPI specification](reference/openapi.yaml) — API contract for generated clients and tooling.
+- [MCP tools reference](reference/mcp-tools.md) — generated API reference for the registered `ghostcrab_*` MCP tools.
+- [Operator catalog](reference/operator-catalog.md) — generated impact matrix for `gcp` commands and MCP tools.
+- [API reference blindspots](reference/api-reference-blindspots.md) — audit notes for coverage limits, ignored/stale docs, and non-contract surfaces.
+- [OpenAPI specification](reference/openapi.yaml) — telemetry HTTP contract only; this is not the MCP tool API.
 
 ## Architecture And Migrations
 

@@ -91,7 +91,10 @@ Données structurelles importées ou dérivées : nœuds d'ontologie, entités d
 | `ghostcrab_graph_path` | Plus court chemin entre deux IDs d'entités |
 | `ghostcrab_entity_chunks` | Contenu brut de chunk / document lié à une entité graphe |
 
-**Tous les outils graphe sont étendus** — ils n'apparaissent pas dans les descripteurs MCP par défaut. Les découvrir avec :
+La plupart des outils graphe sont étendus — ils n'apparaissent pas dans les
+descripteurs MCP compacts par défaut. Découvrir le catalogue runtime complet de
+52 outils avec `gcp tools list`, ou demander le sous-ensemble graphe à l'outil
+de découverte MCP :
 
 ```
 ghostcrab_tool_search { visibility: ["extended"], subsystem: ["graph"] }
@@ -188,7 +191,8 @@ Instantanés analytiques précalculés, produits par des pipelines d'ingestion o
 ## Erreurs courantes
 
 - **`ghostcrab_search` ne renvoie rien → supposer que le domaine est vide.** Faux : les couches graphe et projection sont distinctes. Escalader vers `ghostcrab_graph_search` ou `ghostcrab_projection_get`.
-- **Appeler les outils graphe par défaut.** Ils sont étendus — non listés dans l'ensemble d'outils par défaut. Appeler `ghostcrab_tool_search` d'abord.
+- **Prendre `tools/list` par défaut pour l'API complète.** C'est une surface recommandée de 12 outils, pas tout le catalogue runtime. Utiliser `ghostcrab_tool_search` ou `gcp tools list` avant de conclure qu'un outil n'existe pas.
+- **Appeler les outils graphe par défaut.** Ils sont généralement étendus — non listés dans l'ensemble d'outils par défaut. Appeler `ghostcrab_tool_search` d'abord.
 - **Confondre les deux concepts de « projection ».** Type A (`projections`) ≠ Type B (`ProjectionResult` dans `graph_entity`). Voir [05-projections](../explanation/05-projections-expliquees.md).
 - **S'attendre à ce que `ghostcrab_pack` inclue des données graphe.** Ce n'est pas le cas. Pack = projections pragma + faits facettes uniquement.
 - **Utiliser `ghostcrab_search` comme attrape-tout.** Utiliser `ghostcrab_combined_search` lorsque graphe et facettes doivent tous deux être pris en compte.

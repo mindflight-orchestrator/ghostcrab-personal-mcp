@@ -132,7 +132,7 @@ That path is excellent when the question is: "what should this agent remember ab
 
 MindBrain retrieval starts from structured intent:
 
-1. `ghostcrab_count` or `ghostcrab_facet_tree` shows the shape of the imported data before the agent reads content.
+1. `ghostcrab_count` or `ghostcrab_collection_facet_search` shows the shape of the imported data before the agent reads content.
 2. `ghostcrab_search` narrows facet-indexed records by status, owner, phase, role, system, country, risk, endpoint type, or any modeled dimension.
 3. `ghostcrab_traverse` follows typed relations such as `BLOCKS`, `REQUIRES`, `VALIDATES`, `DEPENDS_ON`, or `CONTRADICTS`.
 4. `ghostcrab_coverage`, `ghostcrab_projection_get`, or `ghostcrab_pack` checks whether the model is complete enough and returns compact working context.
@@ -190,7 +190,7 @@ A concrete MindBrain workflow has four parts. The point is not to ask the agent 
    records, chunks, entities, relations, facets, evidence, and projection signals.
 
 4. Query after import
-   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree for facet-indexed records
+   ghostcrab_count / ghostcrab_search / ghostcrab_collection_facet_search for facet-indexed records
    ghostcrab_traverse for typed dependencies and blockers
    ghostcrab_coverage for missing model coverage
    ghostcrab_projection_get / ghostcrab_pack for agent-ready context

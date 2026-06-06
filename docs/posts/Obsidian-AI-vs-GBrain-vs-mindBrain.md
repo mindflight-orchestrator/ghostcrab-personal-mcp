@@ -283,8 +283,8 @@ For an Obsidian user, the important test is whether notes can become operational
    entities, relations, facets, and projection signals
 
 4. Query after import
-   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree for faceted records
-   ghostcrab_marketplace / ghostcrab_traverse for graph paths and evidence
+   ghostcrab_count / ghostcrab_search / ghostcrab_collection_facet_search for faceted records
+   ghostcrab_graph_search / ghostcrab_traverse for graph paths and evidence
    ghostcrab_coverage for missing model coverage
    ghostcrab_projection_get / ghostcrab_pack for compact agent context
 ```

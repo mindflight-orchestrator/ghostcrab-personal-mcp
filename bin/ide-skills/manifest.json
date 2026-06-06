@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-06T07:11:56.440Z",
+  "generated_at": "2026-06-06T15:09:45.570Z",
   "source": "ghostcrab-skills",
   "skill_names": [
     "ghostcrab-memory",
@@ -131,7 +131,7 @@
     },
     {
       "path": "shared/ONBOARDING_CONTRACT.md",
-      "sha256": "d0184238880227708b4b8aa88b4725484149cc56539e9991c9caf759edabed4c"
+      "sha256": "6adaebd969ed7a70caeec92ecbae044ec2f784ed287a8473f9dc6e48d718048f"
     },
     {
       "path": "shared/PATH_CONTENT_FACETS.md",

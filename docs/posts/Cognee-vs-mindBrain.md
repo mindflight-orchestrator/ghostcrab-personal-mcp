@@ -280,7 +280,7 @@ The MindBrain equivalent of Cognee's ingestion pipeline is not "put documents in
      projection signals
 
 4. Query the imported domain
-   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree
+   ghostcrab_count / ghostcrab_search / ghostcrab_collection_facet_search
      -> facet-indexed records and dashboard slices
 
    ghostcrab_traverse / graph entity tools

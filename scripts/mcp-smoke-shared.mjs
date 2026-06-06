@@ -42,12 +42,28 @@ export async function withSmokeClient(clientName, runScenario, options = {}) {
   );
 
   try {
-    await withTimeout(client.connect(transport), defaultTimeoutMs, "connect");
+    try {
+      await withTimeout(client.connect(transport), defaultTimeoutMs, "connect");
+    } catch (error) {
+      const details = stderrOutput.trim();
+      if (details) {
+        throw new Error(`${error instanceof Error ? error.message : String(error)}\n${details}`);
+      }
+      throw error;
+    }
 
-    return await runScenario({
-      client,
-      getStderrOutput: () => stderrOutput
-    });
+    try {
+      return await runScenario({
+        client,
+        getStderrOutput: () => stderrOutput
+      });
+    } catch (error) {
+      const details = stderrOutput.trim();
+      if (details) {
+        throw new Error(`${error instanceof Error ? error.message : String(error)}\n${details}`);
+      }
+      throw error;
+    }
   } finally {
     await client.close().catch(() => undefined);
   }

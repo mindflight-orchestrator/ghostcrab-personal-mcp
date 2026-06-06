@@ -311,7 +311,7 @@ The operational proof is not "add an ontology" and stop there. A LangChain app t
 4. Query after import
    -> ghostcrab_count shapes the domain before content reads.
    -> ghostcrab_search reads facet-indexed records with exact filters.
-   -> ghostcrab_facet_tree exposes taxonomy-like navigation.
+   -> ghostcrab_collection_facet_search exposes taxonomy-like navigation.
    -> ghostcrab_traverse follows blockers, dependencies, and evidence links.
    -> ghostcrab_coverage checks whether the modeled domain has gaps.
    -> ghostcrab_pack returns compact FACT / GOAL / STEP / CONSTRAINT context.

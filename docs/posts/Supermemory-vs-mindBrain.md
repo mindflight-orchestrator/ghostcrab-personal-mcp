@@ -250,7 +250,7 @@ The MindBrain version of "add everything, search later" is more selective. It tr
      projection signals
 
 4. Query after import
-   ghostcrab_count / ghostcrab_search / ghostcrab_facet_tree
+   ghostcrab_count / ghostcrab_search / ghostcrab_collection_facet_search
      -> typed slices, counts, and facet navigation
 
    ghostcrab_traverse / graph entity tools
