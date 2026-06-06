@@ -75,9 +75,16 @@ Spec: [renommage.md](../renommage.md).
 | Snapshot | `answer_snapshot` | Type B / `ProjectionResult` | frozen, terminal |
 | Evidence pack | `evidence_pack` | projection-get evidence links | computed (live) or frozen (snapshot) |
 
-**Updates** are `mindbrain_answer_events` rows with `event_kind = answer_update_event` — **not** an `artifact_kind`.
+### Answer events (`event_kind`)
 
-### Outside `artifact_kind`
+| Public label | `event_kind` | Storage | Meaning |
+|--------------|--------------|---------|---------|
+| Update | `answer_update_event` | `mindbrain_answer_events` | Delta/version event attached to an artifact |
+
+`answer_update_event` answers "what happened to this object?", never "what
+answer object is this?".
+
+### Outside `artifact_kind` and `event_kind`
 
 | Meaning | Preferred term | Surface | In answer registry? |
 |---------|----------------|---------|---------------------|

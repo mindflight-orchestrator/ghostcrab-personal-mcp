@@ -66,6 +66,8 @@ Spec : [renommage.md](renommage.md).
 
 **`artifact_kind` est réservé aux artefacts de réponse.**
 
+### Artefacts de réponse (`artifact_kind`)
+
 | Libellé public | `artifact_kind` | Legacy |
 |----------------|-----------------|--------|
 | Plan d'analyse | `analysis_plan` | Type A |
@@ -73,7 +75,16 @@ Spec : [renommage.md](renommage.md).
 | Instantané | `answer_snapshot` | Type B |
 | Preuves utilisées | `evidence_pack` | liens preuve |
 
-`event_kind = answer_update_event` dans `mindbrain_answer_events` — **pas** un `artifact_kind`.
+### Evénements de réponse (`event_kind`)
+
+| Libellé public | `event_kind` | Stockage | Sens |
+|----------------|--------------|----------|------|
+| Mise à jour | `answer_update_event` | `mindbrain_answer_events` | delta/version event attaché à un artefact |
+
+`answer_update_event` répond à “qu'est-ce qui est arrivé à cet objet ?”, jamais
+à “quel objet de réponse est-ce ?”.
+
+### Hors `artifact_kind` et `event_kind`
 
 | Sens gap / règle | Terme préféré | Surface |
 |-------------------|---------------|---------|
