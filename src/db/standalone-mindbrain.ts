@@ -83,6 +83,9 @@ export interface StandaloneGhostcrabPackRow {
   weight: number;
   source_ref: string | null;
   status: string;
+  artifact_kind?: "analysis_plan";
+  legacy_kind?: "projection_type_a";
+  public_label?: string;
 }
 
 export interface StandaloneGhostcrabProjectionGetParams {
@@ -119,6 +122,8 @@ export interface StandaloneGhostcrabProjectionEvidenceRow {
 export interface StandaloneGhostcrabProjectionGetResponse {
   workspace_id: string;
   projection_id: string;
+  artifact_kind?: "answer_snapshot";
+  legacy_kind?: "projection_type_b";
   projection_results: StandaloneGhostcrabProjectionEntityRow[];
   linked_evidence: StandaloneGhostcrabProjectionEvidenceRow[];
   deltas: StandaloneGhostcrabProjectionEntityRow[];
@@ -126,11 +131,77 @@ export interface StandaloneGhostcrabProjectionGetResponse {
     workspace_id: string;
     collection_id?: string | null;
     projection_id: string;
+    artifact_kind?: "answer_snapshot";
+    legacy_kind?: "projection_type_b";
+    frozen?: boolean;
+    terminal?: boolean;
     projection_result_count: number;
     linked_evidence_count: number;
     delta_count: number;
     has_projection: boolean;
   };
+}
+
+export interface StandaloneAnswerArtifactRow {
+  artifact_id: string;
+  slug: string;
+  workspace_id: string | null;
+  agent_id: string | null;
+  scope: string | null;
+  artifact_kind:
+    | "analysis_plan"
+    | "live_answer_view"
+    | "answer_snapshot"
+    | "evidence_pack";
+  public_label: string;
+  lifecycle: string;
+  state: string;
+  current_version: number;
+  payload_json: string;
+  legacy_ref: string | null;
+}
+
+export interface StandaloneAnswerArtifactRefreshResponse {
+  ok: true;
+  artifact_id: string;
+  artifact_kind: string;
+  current_version: number;
+  state: string;
+}
+
+export interface StandaloneAnswerArtifactEventRow {
+  event_id: string;
+  artifact_id: string;
+  event_kind: string;
+  from_version: number | null;
+  to_version: number | null;
+  signal_json: string;
+  created_at_unix: number;
+}
+
+export interface StandaloneAnswerArtifactGetParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  artifactId: string;
+}
+
+export interface StandaloneAnswerArtifactRefreshParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  artifactId: string;
+}
+
+export interface StandaloneAnswerArtifactEventsParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  artifactId: string;
+  limit?: number;
+}
+
+export interface StandaloneAnswerArtifactEventsResponse {
+  artifact_id: string;
+  event_kind: string;
+  events: StandaloneAnswerArtifactEventRow[];
 }
 
 export interface StandaloneGhostcrabGraphSearchParams {
@@ -514,6 +585,58 @@ export async function runStandaloneGhostcrabProjectionGet(
     },
     params.timeoutMs
   );
+}
+
+export async function runStandaloneAnswerArtifactGet(
+  params: StandaloneAnswerArtifactGetParams
+): Promise<StandaloneAnswerArtifactRow> {
+  const url = new URL(
+    `/api/mindbrain/ghostcrab/artifact/${encodeURIComponent(params.artifactId)}`,
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  return await fetchJson<StandaloneAnswerArtifactRow>(
+    url,
+    { method: "GET" },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneAnswerArtifactRefresh(
+  params: StandaloneAnswerArtifactRefreshParams
+): Promise<StandaloneAnswerArtifactRefreshResponse> {
+  const url = new URL(
+    `/api/mindbrain/ghostcrab/artifact/${encodeURIComponent(params.artifactId)}/refresh`,
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  return await fetchJson<StandaloneAnswerArtifactRefreshResponse>(
+    url,
+    { method: "POST" },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneAnswerArtifactEvents(
+  params: StandaloneAnswerArtifactEventsParams
+): Promise<StandaloneAnswerArtifactEventsResponse> {
+  const url = new URL(
+    `/api/mindbrain/ghostcrab/artifact/${encodeURIComponent(params.artifactId)}/events`,
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  if (params.limit !== undefined) {
+    url.searchParams.set("limit", String(params.limit));
+  }
+  const body = await fetchJson<{
+    artifact_id: string;
+    event_kind: string;
+    rows?: StandaloneAnswerArtifactEventRow[];
+    events?: StandaloneAnswerArtifactEventRow[];
+  }>(url, { method: "GET" }, params.timeoutMs);
+  const events = body.rows ?? body.events ?? [];
+  return {
+    artifact_id: body.artifact_id,
+    event_kind: body.event_kind,
+    events
+  };
 }
 
 export async function runStandaloneGhostcrabGraphSearch(

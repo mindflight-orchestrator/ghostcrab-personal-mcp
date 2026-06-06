@@ -56,7 +56,10 @@ describe("pragma tools", () => {
                 content: "Do not break public API",
                 weight: 1,
                 source_ref: null,
-                status: "blocking"
+                status: "blocking",
+                artifact_kind: "analysis_plan",
+                legacy_kind: "projection_type_a",
+                public_label: "Do not break public API"
               },
               {
                 id: "proj-goal-1",
@@ -64,7 +67,10 @@ describe("pragma tools", () => {
                 content: "Ship phase 2 tools",
                 weight: 0.8,
                 source_ref: null,
-                status: "active"
+                status: "active",
+                artifact_kind: "analysis_plan",
+                legacy_kind: "projection_type_a",
+                public_label: "Ship phase 2 tools"
               }
             ]
           }),
@@ -146,6 +152,11 @@ describe("pragma tools", () => {
     expect(readStructured(result).kpi_snapshots).toEqual([]);
     expect(readStructured(result).pack_text).toContain("CONSTRAINT[blocking]");
     expect(readStructured(result).pack_text).toContain("FACT:");
+    const pack = readStructured(result).pack as Array<Record<string, unknown>>;
+    expect(pack[0]).toMatchObject({
+      artifact_kind: "analysis_plan",
+      legacy_kind: "projection_type_a"
+    });
     const searchCall = fetchMock.mock.calls.find(([url]) =>
       String(url).includes("ghostcrab/search")
     );
@@ -555,6 +566,9 @@ describe("pragma tools", () => {
       provisional: true,
       scope: "project-delivery-board",
       source_type: "provisional:workflow-tracking",
+      artifact_kind: "analysis_plan",
+      legacy_kind: "projection_type_a",
+      public_label: "Track in-progress cards and blockers.",
       updated: false
     });
     expect(readStructured(updated)).toMatchObject({

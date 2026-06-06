@@ -47,6 +47,8 @@ describe("ghostcrab_projection_get", () => {
             workspace_id: "mindbrain-seo-audit",
             collection_id: "seo",
             projection_id: "proj_keyword_opportunities",
+            artifact_kind: "answer_snapshot",
+            legacy_kind: "projection_type_b",
             projection_results: [
               {
                 entity_id: 10,
@@ -85,6 +87,10 @@ describe("ghostcrab_projection_get", () => {
               workspace_id: "mindbrain-seo-audit",
               collection_id: "seo",
               projection_id: "proj_keyword_opportunities",
+              artifact_kind: "answer_snapshot",
+              legacy_kind: "projection_type_b",
+              frozen: true,
+              terminal: true,
               projection_result_count: 1,
               linked_evidence_count: 1,
               delta_count: 1,
@@ -116,6 +122,10 @@ describe("ghostcrab_projection_get", () => {
       ok: true,
       tool: "ghostcrab_projection_get",
       backend: "native",
+      artifact_kind: "answer_snapshot",
+      legacy_kind: "projection_type_b",
+      lifecycle: "frozen",
+      is_terminal_answer: true,
       report: {
         collection_id: "seo",
         projection_result_count: 1,

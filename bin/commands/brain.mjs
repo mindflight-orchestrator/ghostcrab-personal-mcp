@@ -52,6 +52,11 @@ export async function cmdBrain(args) {
       await runBrainDbWho(rest);
       break;
     }
+    case "artifact": {
+      const { cmdBrainArtifact } = await import("./brain-artifact.mjs");
+      await cmdBrainArtifact(rest);
+      break;
+    }
     case "document": {
       const { cmdBrainDocument } = await import("./brain-document.mjs");
       await cmdBrainDocument(rest);
@@ -752,6 +757,7 @@ Subcommands:
   schema <list|pull|remove|show>           Ontologies / knowledge structure in the DB
   ontology import|export [opts]           Import/export OWL2 N-Triples into MindBrain
   db-who [--path] [--workspace]            Which processes have the SQLite file open (lsof)
+  artifact <list|get|refresh|events|migrate> [opts]  Answer artifact registry (HTTP subcommands need backend)
   document [--workspace] [--db] [--force] <cmd>
                                            Corpus import / normalize / profile (stop MCP first)
   structured-import [--workspace] [--db] [--force] <cmd>
@@ -772,6 +778,8 @@ Examples:
   gcp brain ontology import --workspace-id my_ws --ontology-id my_ws::owl --input ./ontology.nt --materialize-graph
   gcp brain ontology export --ontology-id my_ws::owl --format ntriples -o ./ontology.nt
   gcp brain backup --workspace-id my_ws --output ./backup.json
+  gcp brain artifact list --workspace-id my_ws --kind analysis_plan
+  gcp brain artifact migrate --dry-run --db data/ghostcrab.sqlite
   gcp brain backup --workspace-id my_ws --scope taxonomies --output ./taxonomies.json
   gcp brain export --workspace-id my_ws --scope collection --collection-id my_ws::docs -o ./docs.json
   gcp brain document document-profile-worker --base-url https://api.openai.com/v1 --model gpt-4.1-mini --limit 2

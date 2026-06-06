@@ -214,9 +214,25 @@ export async function resetWorkspaceData(
     `DELETE FROM table_semantics WHERE workspace_id = ?`
   );
   await clear(
+    "mindbrain_answer_events",
+    `SELECT COUNT(*) AS count FROM mindbrain_answer_events
+     WHERE artifact_id IN (
+       SELECT artifact_id FROM mindbrain_answer_artifacts WHERE workspace_id = ?
+     )`,
+    `DELETE FROM mindbrain_answer_events
+     WHERE artifact_id IN (
+       SELECT artifact_id FROM mindbrain_answer_artifacts WHERE workspace_id = ?
+     )`
+  );
+  await clear(
+    "mindbrain_answer_artifacts",
+    `SELECT COUNT(*) AS count FROM mindbrain_answer_artifacts WHERE workspace_id = ?`,
+    `DELETE FROM mindbrain_answer_artifacts WHERE workspace_id = ?`
+  );
+  await clear(
     "projections",
-    `SELECT COUNT(*) AS count FROM projections WHERE workspace_id = ?`,
-    `DELETE FROM projections WHERE workspace_id = ?`
+    `SELECT COUNT(*) AS count FROM projections WHERE scope = ?`,
+    `DELETE FROM projections WHERE scope = ?`
   );
 
   const rows_deleted = tables_cleared.reduce(

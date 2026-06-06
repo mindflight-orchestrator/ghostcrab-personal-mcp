@@ -213,7 +213,8 @@ function classifyAccess(name: string): ToolAccess {
     name.includes("_instantiate") ||
     name.includes("_checkpoint") ||
     name.includes("_import") ||
-    name.includes("_bridge")
+    name.includes("_bridge") ||
+    name.includes("_refresh")
   ) {
     return "write";
   }
@@ -269,6 +270,8 @@ function classifySubsystem(name: string): ToolSubsystem {
   if (
     name.startsWith("ghostcrab_status") ||
     name.startsWith("ghostcrab_pack") ||
+    name.startsWith("ghostcrab_artifact") ||
+    name.startsWith("ghostcrab_live") ||
     name.startsWith("ghostcrab_projection") ||
     name.startsWith("ghostcrab_project") ||
     name.startsWith("ghostcrab_modeling_guidance")
