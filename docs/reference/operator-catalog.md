@@ -24,22 +24,22 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 
 | Surface | Command | Layer | Impact | Access | Prerequisites | Runbook |
 |---------|---------|-------|--------|--------|---------------|-----------|
-| gcp | brain up | up | start | control-plane | MCP stdio + backend | write | — | gcp-commands.md |
-| gcp | smoke | status | tools list | tools verify | control-plane | — | read | — | gcp-commands.md |
-| gcp | maintenance ddl-approve | ddl-execute | workspace | pending DDL | write | human approval | gcp-commands.md |
+| gcp | brain up \| up \| start | control-plane | MCP stdio + backend | write | — | gcp-commands.md |
+| gcp | smoke \| status \| tools list \| tools verify | control-plane | — | read | — | gcp-commands.md |
+| gcp | maintenance ddl-approve \| ddl-execute | workspace | pending DDL | write | human approval | gcp-commands.md |
 
 ### Workspace
 
 | Surface | Command | Layer | Impact | Access | Prerequisites | Runbook |
 |---------|---------|-------|--------|--------|---------------|-----------|
-| gcp | brain workspace create | list | workspace | workspace registry | write | — | gcp-commands.md |
+| gcp | brain workspace create \| list | workspace | workspace registry | write | — | gcp-commands.md |
 | gcp | init (legacy) | workspace | workspace registry | write | — | gcp-commands.md |
 
 ### Schema registry (not LinkML OWL)
 
 | Surface | Command | Layer | Impact | Access | Prerequisites | Runbook |
 |---------|---------|-------|--------|--------|---------------|-----------|
-| gcp | brain schema list | pull | show | remove | facets | local schema packs | read/write | — | skillset-demo-import.md |
+| gcp | brain schema list \| pull \| show \| remove | facets | local schema packs | read/write | — | skillset-demo-import.md |
 | gcp | ontologies … (legacy) | facets | local schema packs | read/write | — | gcp-commands.md |
 
 ### Ontology LinkML / OWL2
@@ -47,44 +47,53 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | Surface | Command | Layer | Impact | Access | Prerequisites | Runbook |
 |---------|---------|-------|--------|--------|---------------|-----------|
 | gcp | brain ontology compile | ontology | ontology_* (after --import-db) | write | stop MCP | 06-voies-import, ontology/README |
-| gcp | brain ontology import | export | ontology | ontology_* / N-Triples | write | stop MCP | ontology/linkml-owl2-pipeline.md |
+| gcp | brain ontology import \| export | ontology | ontology_* / N-Triples | write | stop MCP | ontology/linkml-owl2-pipeline.md |
 | gcp | brain ontology export-linkml | ontology | YAML slice export | read | — | ontology/linkml-owl2-pipeline.md |
 
 ### Structured import
 
 | Surface | Command | Layer | Impact | Access | Prerequisites | Runbook |
 |---------|---------|-------|--------|--------|---------------|-----------|
-| gcp | brain structured-import validate | infer | dry-run | profile | control-plane | — | read | — | structured-import.md |
+| gcp | brain structured-import validate \| infer \| dry-run \| profile | control-plane | — | read | — | structured-import.md |
 | gcp | brain structured-import register-semantics | ontology | table_semantics, source_mappings | write | stop MCP | structured-import.md |
-| gcp | brain structured-import apply | project | facets+graph | agent_facts, entities_raw, relations_raw | write | stop MCP | structured-import.md |
+| gcp | brain structured-import apply \| project | facets+graph | agent_facts, entities_raw, relations_raw | write | stop MCP | structured-import.md |
 | gcp | brain structured-import reindex | graph+facets | graph_entity, facet_postings, FTS | write | stop MCP | structured-import.md |
-| gcp | brain structured-import ddl-propose | ddl-execute | load-ws | workspace | ws_* staging | write | stop MCP | structured-import.md |
+| gcp | brain structured-import ddl-propose \| ddl-execute \| load-ws | workspace | ws_* staging | write | stop MCP | structured-import.md |
 
 ### Document import
 
 | Surface | Command | Layer | Impact | Access | Prerequisites | Runbook |
 |---------|---------|-------|--------|--------|---------------|-----------|
-| gcp | brain document document-normalize | document-profile | control-plane | files on disk | write | optional no DB | document-import.md |
-| gcp | brain document document-ingest | document-qualify | ontology+graph | documents_raw, facet_assignments_raw | write | stop MCP | document-import.md |
+| gcp | brain document document-normalize \| document-profile | control-plane | files on disk | write | optional no DB | document-import.md |
+| gcp | brain document document-ingest \| document-qualify | ontology+graph | documents_raw, facet_assignments_raw | write | stop MCP | document-import.md |
 | gcp | brain document qualification-vocab-list | ontology | ontology_* taxonomies | read | — | document-import.md |
+
+### Answer artifacts
+
+| Surface | Command | Layer | Impact | Access | Prerequisites | Runbook |
+|---------|---------|-------|--------|--------|---------------|-----------|
+| gcp | brain artifact list \| get | pragma | mindbrain_answer_artifacts | read | backend running | gcp-commands.md |
+| gcp | brain artifact refresh \| events | pragma | mindbrain_answer_artifacts, mindbrain_answer_events | write/read | backend running; refresh is live_answer_view only | gcp-commands.md |
+| gcp | brain artifact migrate --dry-run \| --repair | pragma | mindbrain_answer_artifacts (offline backfill) | write | stop MCP | gcp-commands.md |
 
 ### Backup / demo / IDE
 
 | Surface | Command | Layer | Impact | Access | Prerequisites | Runbook |
 |---------|---------|-------|--------|--------|---------------|-----------|
-| gcp | brain backup | export | load | workspace | SQLite file / bundles | write | stop MCP | skillset-demo-import.md |
-| gcp | brain docs structured|document|import | control-plane | — | read | — | docs/setup/ |
-| gcp | brain setup cursor|codex|claude|generic | control-plane | IDE MCP config | write | — | gcp-client-setup.md |
-| gcp | agent skills … | equip | control-plane | skills registry | read/write | — | skillset-demo-import.md |
-| gcp | env … | authorize | bootstrap | path … | control-plane | — | read/write | — | gcp-client-setup.md |
+| gcp | brain backup \| export \| load | workspace | SQLite file / bundles | write | stop MCP | skillset-demo-import.md |
+| gcp | brain docs structured\|document\|import | control-plane | — | read | — | docs/setup/ |
+| gcp | brain setup cursor\|codex\|claude\|generic | control-plane | IDE MCP config | write | — | gcp-client-setup.md |
+| gcp | agent skills … \| equip | control-plane | skills registry | read/write | — | skillset-demo-import.md |
+| gcp | env … \| authorize \| bootstrap \| path … | control-plane | — | read/write | — | gcp-client-setup.md |
 
 
 ---
 
-## B — MCP tools (50 registered)
+## B — MCP tools (52 registered)
 
 | Tool | Basic | Subsystem | Access | Tables / impact |
 |------|-------|-----------|--------|-----------------|
+| `ghostcrab_artifact_get` | no | pragma | read | mindbrain_answer_artifacts |
 | `ghostcrab_collection_facet_search` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_collection_reindex` | no | graph | read | documents_raw, search_fts, graph |
 | `ghostcrab_combined_search` | yes | facets | read | agent_facts (+ facet_tables FTS when indexed) |
@@ -108,6 +117,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | `ghostcrab_graph_search` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_graph_subgraph` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_learn` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
+| `ghostcrab_live_refresh` | no | pragma | write | mindbrain_answer_artifacts, mindbrain_answer_events |
 | `ghostcrab_loadout_apply` | no | loadout | write | bootstrap recipes / schemas seed |
 | `ghostcrab_loadout_inspect` | no | loadout | read | bootstrap recipes / schemas seed |
 | `ghostcrab_loadout_list` | no | loadout | read | bootstrap recipes / schemas seed |
@@ -143,4 +153,4 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 - [structured-import.md](../setup/structured-import.md)
 - [document-import.md](../setup/document-import.md)
 - [ontology/README.md](../explanation/ontology/README.md)
-- [StarterKit EDITIONS.md](../../starter-kit-ghostcrab-perso/starterkit/EDITIONS.md) · [personal-mcp/SOP_SEQUENCE.md](../../starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP_SEQUENCE.md)
+- [StarterKit EDITIONS.md](https://gitlab.com/webigniter/starter-kit-ghostcrab-perso/-/blob/main/starterkit/EDITIONS.md)

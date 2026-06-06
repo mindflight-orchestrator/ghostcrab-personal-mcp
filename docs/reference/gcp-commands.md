@@ -19,7 +19,8 @@ operations.
 | **Ontology source import/export** | `gcp brain ontology import\|export …` | Import normalized OWL2/RDF N-Triples into MindBrain, export preserved N-Triples or a taxonomy bundle. |
 | **Equip agents (skills)** | `gcp agent skills …` | Registry skills (agent capabilities). Shortcut: `gcp agent equip owner/name` = `agent skills pull`. Legacy: `gcp skills …`. |
 | **CLI / MCP environment** | `gcp env …` | Read/write `~/.ghostcrab/config.json`. Legacy: `gcp config …`. |
-| **Backup / restore** | `gcp brain backup …`, `gcp brain load …` | Export workspace, collection, or taxonomy backup bundles; restore `ghostcrab_backup_bundle` JSON. `gcp brain export` is an alias for backup. |
+| **Backup / restore** | `gcp brain backup …`, `gcp brain load …` | Export workspace, collection, or taxonomy backup bundles (includes `mindbrain_answer_artifacts` on full workspace export); restore `ghostcrab_backup_bundle` JSON. `gcp brain export` is an alias for backup. |
+| **Answer artifact registry** | `gcp brain artifact list \| get \| refresh \| events \| migrate …` | List/get/refresh/events via HTTP (backend running); backfill from legacy projections with `migrate --dry-run` / `--repair` (stop MCP first). |
 | **Load demo profile** | `gcp brain load …` | JSONL profile into the DB. Legacy: `gcp load …`. |
 | **Corpus import / profiling** | `gcp brain document …` | Normalize, profile, enqueue/worker, ingest, list qualification vocabulary (stop MCP first). See `gcp brain document --help` and [document-import.md](../setup/document-import.md). |
 | **Tabular structured import** | `gcp brain structured-import …` | CSV/JSON/YAML/XLSX/TOON via native engine (stop MCP first). See `gcp brain structured-import --help` and [structured-import.md](../setup/structured-import.md). |
