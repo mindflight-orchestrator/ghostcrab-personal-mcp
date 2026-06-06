@@ -215,7 +215,7 @@ Le parcours [`examples/immeuble/mcp-lab/`](../../../examples/immeuble/mcp-lab/) 
 | Invariants monde fermé | `ghostcrab_graph_diagnostics` + gap-rules | Graphe |
 | Décomptes entités/relations | SQL ou script de comparaison | Graphe brut |
 
-Le lab n'utilise **pas** `ghostcrab_pack` ni `ghostcrab_projection_get` pour le succès/échec — le bundle golden n'a pas d'entités `ProjectionResult`. Les graines Type A optionnelles se trouvent dans [`projections.seed.jsonl`](../../../examples/immeuble/reference/projections.seed.jsonl).
+Le lab n'utilise **pas** `ghostcrab_pack` ni `ghostcrab_projection_get` pour le succès/échec — le bundle golden n'a pas d'entités `ProjectionResult`. Les graines optionnelles d'artefacts de réponse se trouvent dans [`answer-artifacts.seed.jsonl`](../../../examples/immeuble/reference/answer-artifacts.seed.jsonl) et exposent `analysis_plan` + `live_answer_view`.
 
 Détail : [`docs/explanation/05-projections-expliquees.md`](../../explanation/05-projections-expliquees.md) · [`universal_methodology.md`](universal_methodology.md) §12.
 

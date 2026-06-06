@@ -487,7 +487,7 @@ Documentation :
 
 ### Écarts documentés
 
-1. **Projections avant import.** Cette méthodologie exige de concevoir les projections (Phase 2) avant l'ingestion. Le lab immeuble valide la **reconstruction structurelle** (ontologie + docs + graphe instance). Le bundle golden ne contient pas d'entités `ProjectionResult` ; la validation utilise [`success-criteria.yaml`](../../../examples/immeuble/mcp-lab/success-criteria.yaml) et les outils graphe, pas `ghostcrab_pack`. Pour un alignement strict, ajouter une **phase 02-bis** optionnelle : seed [`projections.seed.jsonl`](../../../examples/immeuble/reference/projections.seed.jsonl) via `ghostcrab_project` — documenté seulement ; prompts lab inchangés.
+1. **Artefacts de réponse avant import.** Cette méthodologie exige de concevoir le contrat de réponse (Phase 2) avant l'ingestion. Le lab immeuble valide la **reconstruction structurelle** (ontologie + docs + graphe instance). Le bundle golden ne contient pas d'entités `ProjectionResult` ; la validation utilise [`success-criteria.yaml`](../../../examples/immeuble/mcp-lab/success-criteria.yaml) et les outils graphe, pas `ghostcrab_pack`. Pour un alignement strict, ajouter une **phase 02-bis** optionnelle : seed [`answer-artifacts.seed.jsonl`](../../../examples/immeuble/reference/answer-artifacts.seed.jsonl) via `gcp load` — documenté seulement ; prompts lab inchangés.
 
 2. **Tranches fines vs domaine complet.** La Vague 1 de cette méthodologie complète une question de compétence de bout en bout. Le lab immeuble vise le **domaine syndic complet d'un coup** — plus proche d'un test d'intégration/régression que d'une première tranche fine.
 
@@ -497,4 +497,4 @@ Documentation :
 
 ### Source des questions de compétence
 
-Les questions de compétence lisibles par un humain sont dans [`examples/immeuble/reference/scenarios.yaml`](../../../examples/immeuble/reference/scenarios.yaml). Elles s'alignent sur les ids de scénario des seeds de projections Type A optionnelles — voir [`ontology_dev_for_llm.md`](../ontology_dev_for_llm.md) Exemple appliqué.
+Les questions de compétence lisibles par un humain sont dans [`examples/immeuble/reference/scenarios.yaml`](../../../examples/immeuble/reference/scenarios.yaml). Elles sont portées par le seed optionnel d'artefact `analysis_plan` — voir [`ontology_dev_for_llm.md`](../ontology_dev_for_llm.md) Exemple appliqué.

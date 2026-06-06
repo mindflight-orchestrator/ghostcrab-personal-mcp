@@ -3198,7 +3198,7 @@
       "doc_nanoid": "immeuble-demo-doc-1",
       "content": "La résidence Les Tilleuls comprend un bloc A, cinq appartements, une buanderie, un jardin commun et des jardins privatifs au rez-de-chaussée. Chaque lot possède une cave; certains lots disposent d'un garage.",
       "language": "fr",
-      "source_ref": "examples/immeuble-demo/documents/reglement-copropriete-tilleuls.md",
+      "source_ref": "examples/immeuble/reference/documents/reglement-copropriete-tilleuls.md",
       "summary": "Règlement de copropriété Tilleuls",
       "metadata_json": "{\"title\":\"Règlement de copropriété Tilleuls\",\"synthetic\":true}"
     },
@@ -3209,7 +3209,7 @@
       "doc_nanoid": "immeuble-demo-doc-2",
       "content": "Le lot Tilleuls Appartement A3 est détenu par Nicolas Dupont et Pauline Dupont à parts égales. Le ménage comprend deux enfants occupants, Lina et Tom Dupont.",
       "language": "fr",
-      "source_ref": "examples/immeuble-demo/documents/titre-propriete-tilleuls-a3.md",
+      "source_ref": "examples/immeuble/reference/documents/titre-propriete-tilleuls-a3.md",
       "summary": "Titre de propriété Tilleuls A3",
       "metadata_json": "{\"title\":\"Titre de propriété Tilleuls A3\",\"synthetic\":true}"
     },
@@ -3220,7 +3220,7 @@
       "doc_nanoid": "immeuble-demo-doc-3",
       "content": "Les Tilleuls A1 sont occupés par Henri et Madeleine Dupont. Les Tilleuls A3 sont occupés par Nicolas, Pauline, Lina et Tom Dupont. Les Érables B2 sont loués à la famille El Idrissi.",
       "language": "fr",
-      "source_ref": "examples/immeuble-demo/documents/composition-menages.md",
+      "source_ref": "examples/immeuble/reference/documents/composition-menages.md",
       "summary": "Composition des ménages",
       "metadata_json": "{\"title\":\"Composition des ménages\",\"synthetic\":true}"
     },
@@ -3231,7 +3231,7 @@
       "doc_nanoid": "immeuble-demo-doc-4",
       "content": "05/01/2026: virement 1847,23 EUR avec communication CP LOT A3 CHGE JANV. 07/01/2026: virement 500,00 EUR LOT B2 PARTIEL. 08/01/2026: virement 650,00 EUR VIR INCONNU.",
       "language": "fr",
-      "source_ref": "examples/immeuble-demo/documents/extrait-coda-janvier-2026.md",
+      "source_ref": "examples/immeuble/reference/documents/extrait-coda-janvier-2026.md",
       "summary": "Extrait CODA janvier 2026",
       "metadata_json": "{\"title\":\"Extrait CODA janvier 2026\",\"synthetic\":true}"
     },
@@ -3242,7 +3242,7 @@
       "doc_nanoid": "immeuble-demo-doc-5",
       "content": "L'assemblée générale de l'ACP Résidence Les Tilleuls du 12 décembre 2025 approuve le budget 2026 et les appels de charges mensuels.",
       "language": "fr",
-      "source_ref": "examples/immeuble-demo/documents/pv-ag-budget-2026.md",
+      "source_ref": "examples/immeuble/reference/documents/pv-ag-budget-2026.md",
       "summary": "PV AG budget 2026",
       "metadata_json": "{\"title\":\"PV AG budget 2026\",\"synthetic\":true}"
     },
@@ -3253,7 +3253,7 @@
       "doc_nanoid": "immeuble-demo-doc-6",
       "content": "Les appartements du rez-de-chaussée disposent d'un jardin privatif à usage exclusif. Chaque appartement dispose d'une cave. Les garages sont attachés à certains lots selon l'acte de base.",
       "language": "fr",
-      "source_ref": "examples/immeuble-demo/documents/annexes-jardins-garages.md",
+      "source_ref": "examples/immeuble/reference/documents/annexes-jardins-garages.md",
       "summary": "Annexes jardins caves garages",
       "metadata_json": "{\"title\":\"Annexes jardins caves garages\",\"synthetic\":true}"
     },
@@ -3264,7 +3264,7 @@
       "doc_nanoid": "immeuble-demo-doc-7",
       "content": "Les lots Érables A2, B2, B3 et B4 sont occupés par des locataires sous bail écrit. Les baux relient le bailleur, le ménage locataire, le lot, la date de début et le loyer mensuel.",
       "language": "fr",
-      "source_ref": "examples/immeuble-demo/documents/baux-erables.md",
+      "source_ref": "examples/immeuble/reference/documents/baux-erables.md",
       "summary": "Baux Érables",
       "metadata_json": "{\"title\":\"Baux Érables\",\"synthetic\":true}"
     }
@@ -10217,5 +10217,42 @@
     }
   ],
   "document_links_raw": [],
-  "external_links_raw": []
+  "external_links_raw": [],
+  "mindbrain_answer_artifacts": [
+    {
+      "artifact_id": "analysis_plan__immeuble_demo_competency_questions",
+      "slug": "immeuble_demo_competency_questions",
+      "workspace_id": null,
+      "agent_id": "agent:immeuble-demo",
+      "scope": "immeuble-demo",
+      "artifact_kind": "analysis_plan",
+      "public_label_key": "analysis_plan.immeuble_demo.competency_questions",
+      "public_label": "Plan d'analyse immeuble demo",
+      "lifecycle": "active",
+      "state": "open",
+      "current_version": 1,
+      "payload_json": "{\"competency_questions\":[{\"id\":\"scenario:tilleuls-family-stack\",\"title\":\"Famille multi-génération Tilleuls\",\"competency_question\":\"Quels liens existent entre le vieux couple du rez-de-chaussée et le ménage du fils au premier étage ?\"},{\"id\":\"scenario:tenant-lease\",\"title\":\"Baux et locataires\",\"competency_question\":\"Quels appartements sont loués, à qui, depuis quelle date et par quel bailleur ?\"},{\"id\":\"scenario:quota-check\",\"title\":\"Quotités par immeuble\",\"competency_question\":\"Les quotités de chaque immeuble totalisent-elles 1000 ?\"},{\"id\":\"scenario:annexes\",\"title\":\"Annexes privatives et communes\",\"competency_question\":\"Quelle cave, garage, jardin privatif et partie commune est accessible depuis chaque lot ?\"},{\"id\":\"scenario:coda-complete-payment\",\"title\":\"Paiement CODA complet\",\"competency_question\":\"Quel paiement CODA a soldé l'appel de charges Tilleuls janvier 2026 ?\"},{\"id\":\"scenario:coda-partial-reminder\",\"title\":\"Paiement partiel et relance\",\"competency_question\":\"Quel paiement partiel déclenche une relance ?\"}],\"expected_focus\":[\"occupation familiale Tilleuls\",\"baux locatifs actifs\",\"quotites par immeuble\",\"annexes privatives\",\"paiements CODA\"]}",
+      "legacy_ref": null,
+      "created_at_unix": 1760000000,
+      "updated_at_unix": 1760000000
+    },
+    {
+      "artifact_id": "live_answer_view__immeuble_demo_pilotage",
+      "slug": "immeuble_demo_pilotage",
+      "workspace_id": "immeuble-demo",
+      "agent_id": null,
+      "scope": null,
+      "artifact_kind": "live_answer_view",
+      "public_label_key": "live_answer_view.immeuble_demo.pilotage",
+      "public_label": "Vue live immeuble demo",
+      "lifecycle": "stale",
+      "state": "dirty",
+      "current_version": 1,
+      "payload_json": "{\"source_plan_id\":\"analysis_plan__immeuble_demo_competency_questions\",\"summary\":\"Vue courante a rafraichir apres import/reindex du bundle immeuble-demo.\",\"refresh_checks\":[\"entity counts vs success-criteria.yaml\",\"graph diagnostics L2 syndic\",\"CODA payment matching\"]}",
+      "legacy_ref": null,
+      "created_at_unix": 1760000000,
+      "updated_at_unix": 1760000000
+    }
+  ],
+  "mindbrain_answer_events": []
 }

@@ -19,7 +19,7 @@ Fichiers **à côté** du bundle (pas dedans) :
 
 - [`gap-rules/demo.json`](../../examples/immeuble/reference/gap-rules/demo.json) — règles patrimoine
 - [`gap-rules/syndic.json`](../../examples/immeuble/reference/gap-rules/syndic.json) — règles occupation/baux
-- [`projections.seed.jsonl`](../../examples/immeuble/reference/projections.seed.jsonl) — seed optionnel working memory
+- [`answer-artifacts.seed.jsonl`](../../examples/immeuble/reference/answer-artifacts.seed.jsonl) — seed optionnel `analysis_plan` + `live_answer_view`
 - [`scenarios.yaml`](../../examples/immeuble/reference/scenarios.yaml) — questions de compétence
 
 Charger la référence (pour comparaison uniquement) :

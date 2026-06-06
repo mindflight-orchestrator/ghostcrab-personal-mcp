@@ -214,7 +214,7 @@ The [`examples/immeuble/mcp-lab/`](../../examples/immeuble/mcp-lab/) track valid
 | Closed-world invariants | `ghostcrab_graph_diagnostics` + gap-rules | Graph |
 | Entity/relation counts | SQL or compare script | Graph raw |
 
-The lab does **not** use `ghostcrab_pack` or `ghostcrab_projection_get` for pass/fail — the golden bundle has no `ProjectionResult` entities. Optional Type A seeds live in [`projections.seed.jsonl`](../../examples/immeuble/reference/projections.seed.jsonl).
+The lab does **not** use `ghostcrab_pack` or `ghostcrab_projection_get` for pass/fail — the golden bundle has no `ProjectionResult` entities. Optional answer artifact seeds live in [`answer-artifacts.seed.jsonl`](../../examples/immeuble/reference/answer-artifacts.seed.jsonl) and expose `analysis_plan` + `live_answer_view`.
 
 Detail: [`docs/explanation/05-projections-expliquees.md`](../explanation/05-projections-expliquees.md) · [`universal_methodology.md`](universal_methodology.md) §12.
 

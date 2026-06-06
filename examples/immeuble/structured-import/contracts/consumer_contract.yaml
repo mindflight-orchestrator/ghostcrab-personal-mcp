@@ -13,14 +13,13 @@ facet_queries:
     tool: ghostcrab_search
     schema_id: immeuble-structured-import:core:lot
     min_rows: 1
-  - name: 
 graph_traversals:
   - name: copropriete_to_lots
     start_entity_type: immeuble-structured-import:copropriete
     edge_label: CONTAINS
     min_edges: 1
-  - name:   - name: 
-projections:
+answer_artifacts:
   - name: annuaire_coproprietes
-    scope: immeuble-structured-import
+    artifact_kind: live_answer_view
+    workspace_id: immeuble-structured-import
     min_items: 1

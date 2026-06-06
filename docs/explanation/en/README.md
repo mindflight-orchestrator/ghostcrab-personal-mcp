@@ -90,7 +90,7 @@ node scripts/import-immeuble-demo-llm.mjs --mode mock --reset
 | Qualified documents | Phase 4 — `gcp brain document` | Contains 7 qualified docs (reference) vs 8 corpus files (lab input) |
 | Business graph | Phase 5 — `ghostcrab_learn` / extract | Contains 131 entities, 265 relations (thresholds in success-criteria) |
 | Gap-rules | Phase 3 — separate JSON import | **Absent** from bundle — sidecar `gap-rules/*.json` |
-| Projection seed | Optional — `ghostcrab_project` | **Absent** from bundle — sidecar `projections.seed.jsonl` |
+| Answer artifact seed | Optional — `analysis_plan` + `live_answer_view` | Present in bundle and sidecar `answer-artifacts.seed.jsonl` |
 
 **Key rule** ([`src/mcp/agent-brief.ts`](../../../src/mcp/agent-brief.ts)): MCP = ontology and **query** surface. High-throughput document ingestion goes through **CLI + native engine** (`gcp brain document`), not unitary MCP streaming.
 
