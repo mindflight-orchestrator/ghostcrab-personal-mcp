@@ -6,6 +6,7 @@ import {
   registerTool,
   type ToolHandler
 } from "../registry.js";
+import { analysisPlanOverlay } from "./answer-artifact-overlay.js";
 
 export const ProjectInput = z.object({
   activity_family: z.string().trim().min(1).optional(),
@@ -146,7 +147,8 @@ export const projectTool: ToolHandler = {
       scope: input.scope,
       source_type: sourceType,
       stored: true,
-      updated: payload.updated
+      updated: payload.updated,
+      ...analysisPlanOverlay(input.content)
     });
   }
 };

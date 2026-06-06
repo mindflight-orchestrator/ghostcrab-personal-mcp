@@ -5,6 +5,7 @@ import { getBasicToolNames } from "./catalog.js";
  * Update this list when adding a tool module; tests fail if the registry diverges.
  */
 export const EXPECTED_TOOL_NAMES = [
+  "ghostcrab_artifact_get",
   "ghostcrab_collection_facet_search",
   "ghostcrab_collection_reindex",
   "ghostcrab_combined_search",
@@ -28,6 +29,7 @@ export const EXPECTED_TOOL_NAMES = [
   "ghostcrab_graph_search",
   "ghostcrab_graph_subgraph",
   "ghostcrab_learn",
+  "ghostcrab_live_refresh",
   "ghostcrab_loadout_apply",
   "ghostcrab_loadout_inspect",
   "ghostcrab_loadout_list",

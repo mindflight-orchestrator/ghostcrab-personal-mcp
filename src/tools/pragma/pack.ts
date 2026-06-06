@@ -11,6 +11,10 @@ import {
   registerTool,
   type ToolHandler
 } from "../registry.js";
+import {
+  withAnalysisPlanOverlay,
+  type AnalysisPlanOverlay
+} from "./answer-artifact-overlay.js";
 
 interface FactRow {
   content: string;
@@ -75,23 +79,29 @@ export const packTool: ToolHandler = {
     const notes: string[] = [];
 
     const config = resolveGhostcrabConfig();
+type PackRow = {
+  id?: string;
+  content: string;
+  proj_type: string;
+  source_ref: string | null;
+  status: string;
+  weight: number;
+} & AnalysisPlanOverlay;
+
     let packBackend: "native" | "sql" = "native";
-    let packRows: Array<{
-      content: string;
-      proj_type: string;
-      source_ref: string | null;
-      status: string;
-      weight: number;
-    }>;
+    let packRows: PackRow[];
 
     try {
-      packRows = await runStandaloneGhostcrabPack({
+      const nativeRows = await runStandaloneGhostcrabPack({
         mindbrainUrl: config.mindbrainUrl,
         agentId: input.agent_id,
         query: input.query,
         scope: input.scope,
         limit: input.limit
       });
+      packRows = nativeRows.map((row) =>
+        row.artifact_kind ? (row as PackRow) : withAnalysisPlanOverlay(row)
+      );
     } catch (error) {
       packBackend = "sql";
       notes.push(
@@ -110,7 +120,7 @@ export const packTool: ToolHandler = {
       }
 
       projectionParams.push(input.limit);
-      packRows = await context.database.query<{
+      const sqlRows = await context.database.query<{
         content: string;
         proj_type: string;
         source_ref: string | null;
@@ -129,6 +139,7 @@ export const packTool: ToolHandler = {
         `,
         projectionParams
       );
+      packRows = sqlRows.map((row) => withAnalysisPlanOverlay(row));
     }
 
     // Phase 2: hybrid BM25+vector fact retrieval via MindBrain ghostcrab/search.

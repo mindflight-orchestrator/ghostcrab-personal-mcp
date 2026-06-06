@@ -8,6 +8,7 @@ import {
   registerTool,
   type ToolHandler
 } from "../registry.js";
+import { answerSnapshotOverlay } from "./answer-artifact-overlay.js";
 
 export const ProjectionGetInput = z.object({
   projection_id: z.string().trim().min(1),
@@ -163,6 +164,7 @@ export const projectionGetTool: ToolHandler = {
       }
     }));
     const deltas = response.deltas.map(mapEntity);
+    const snapshotOverlay = answerSnapshotOverlay();
 
     return createToolSuccessResult("ghostcrab_projection_get", {
       workspace_id: workspaceId,
@@ -172,6 +174,7 @@ export const projectionGetTool: ToolHandler = {
       include_deltas: input.include_deltas,
       backend: "native",
       notes: [],
+      ...snapshotOverlay,
       projection_results: projectionResults,
       linked_evidence: linkedEvidence,
       deltas,
@@ -179,6 +182,7 @@ export const projectionGetTool: ToolHandler = {
         workspace_id: workspaceId,
         collection_id: input.collection_id ?? null,
         projection_id: input.projection_id,
+        ...snapshotOverlay,
         projection_result_count: projectionResults.length,
         linked_evidence_count: linkedEvidence.length,
         delta_count: deltas.length,
