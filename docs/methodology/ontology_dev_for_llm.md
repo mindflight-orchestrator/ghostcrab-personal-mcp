@@ -377,6 +377,6 @@ When enough information is available, proceed iteratively:
 
 For a concrete competency-question set in a document-corpus domain, see [`examples/immeuble/reference/scenarios.yaml`](../../examples/immeuble/reference/scenarios.yaml). Each entry is a natural-language question the syndic domain should answer (e.g. who occupies lot A1, whether a CODA payment matches an expected charge).
 
-These questions were elicited using the narrative 5-act approach described in [`universal_methodology.md`](universal_methodology.md) §1 (accountant scenario on the 5th of the month). They map to optional Type A projection `source_ref` ids (`scenario:*`) in [`projections.seed.jsonl`](../../examples/immeuble/reference/projections.seed.jsonl).
+These questions were elicited using the narrative 5-act approach described in [`universal_methodology.md`](universal_methodology.md) §1 (accountant scenario on the 5th of the month). They map to the optional `analysis_plan` answer artifact in [`answer-artifacts.seed.jsonl`](../../examples/immeuble/reference/answer-artifacts.seed.jsonl).
 
 End-to-end GhostCrab execution of this domain: [`docs/explanation/README.md`](../explanation/README.md) (FR hub + lab) · [`docs/explanation/en/README.md`](../explanation/en/README.md) (EN lab) · [`universal_methodology.md`](universal_methodology.md) §12.

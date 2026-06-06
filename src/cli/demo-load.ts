@@ -16,7 +16,19 @@ type DemoSeedEntry =
   | DemoRememberEntry
   | DemoLearnNodeEntry
   | DemoLearnEdgeEntry
+  | DemoAnswerArtifactEntry
   | DemoProjectionEntry;
+
+const ANSWER_ARTIFACT_KINDS = [
+  "analysis_plan",
+  "live_answer_view",
+  "answer_snapshot",
+  "evidence_pack"
+] as const;
+
+type AnswerArtifactKind = (typeof ANSWER_ARTIFACT_KINDS)[number];
+
+const ANSWER_ARTIFACT_KIND_SET = new Set<string>(ANSWER_ARTIFACT_KINDS);
 
 interface DemoProfileEntry {
   description: string;
@@ -72,7 +84,29 @@ interface DemoProjectionEntry {
   };
 }
 
+interface DemoAnswerArtifactEntry {
+  artifact: {
+    agent_id?: string | null;
+    artifact_id: string;
+    artifact_kind: AnswerArtifactKind;
+    current_version?: number;
+    lifecycle: string;
+    legacy_ref?: string | null;
+    payload?: Record<string, unknown>;
+    payload_json?: string;
+    public_label: string;
+    public_label_key?: string | null;
+    scope?: string | null;
+    slug: string;
+    state: string;
+    workspace_id?: string | null;
+  };
+  kind: "answer_artifact";
+  profile_id: string;
+}
+
 interface DemoLoadSummary {
+  insertedArtifacts: number;
   insertedEdges: number;
   insertedFacts: number;
   insertedNodes: number;
@@ -200,6 +234,181 @@ async function ensureRememberEntry(
   });
 
   return result.created || result.updated;
+}
+
+function assertAnswerArtifactKind(kind: unknown): AnswerArtifactKind {
+  if (typeof kind === "string" && ANSWER_ARTIFACT_KIND_SET.has(kind)) {
+    return kind as AnswerArtifactKind;
+  }
+
+  throw new Error(
+    `Invalid answer_artifact artifact_kind "${String(kind)}". Allowed: ${ANSWER_ARTIFACT_KINDS.join(", ")}`
+  );
+}
+
+function normalizeNullableString(
+  value: string | null | undefined
+): string | null {
+  return value === undefined ? null : value;
+}
+
+function normalizePayloadJson(
+  entry: DemoAnswerArtifactEntry["artifact"]
+): string {
+  if (entry.payload !== undefined && entry.payload_json !== undefined) {
+    throw new Error(
+      "answer_artifact must set either payload or payload_json, not both."
+    );
+  }
+
+  if (entry.payload_json !== undefined) {
+    JSON.parse(entry.payload_json);
+    return entry.payload_json;
+  }
+
+  return JSON.stringify(entry.payload ?? {});
+}
+
+export function normalizeAnswerArtifactEntry(
+  entry: DemoAnswerArtifactEntry["artifact"]
+): {
+  agent_id: string | null;
+  artifact_id: string;
+  artifact_kind: AnswerArtifactKind;
+  current_version: number;
+  lifecycle: string;
+  legacy_ref: string | null;
+  payload_json: string;
+  public_label: string;
+  public_label_key: string | null;
+  scope: string | null;
+  slug: string;
+  state: string;
+  workspace_id: string | null;
+} {
+  const artifactKind = assertAnswerArtifactKind(entry.artifact_kind);
+  const workspaceId = normalizeNullableString(entry.workspace_id);
+  const agentId = normalizeNullableString(entry.agent_id);
+  const scope = normalizeNullableString(entry.scope);
+  const payloadJson = normalizePayloadJson(entry);
+  const currentVersion = entry.current_version ?? 1;
+
+  for (const [field, value] of [
+    ["artifact_id", entry.artifact_id],
+    ["slug", entry.slug],
+    ["public_label", entry.public_label],
+    ["lifecycle", entry.lifecycle],
+    ["state", entry.state]
+  ] as const) {
+    if (typeof value !== "string" || value.trim() === "") {
+      throw new Error(`answer_artifact ${field} must be a non-empty string.`);
+    }
+  }
+
+  if (!Number.isInteger(currentVersion) || currentVersion < 1) {
+    throw new Error(
+      "answer_artifact current_version must be a positive integer."
+    );
+  }
+
+  if (artifactKind === "analysis_plan") {
+    if (workspaceId !== null || !agentId || !scope) {
+      throw new Error(
+        "answer_artifact analysis_plan requires agent_id and scope, and must not set workspace_id."
+      );
+    }
+  } else if (
+    artifactKind === "live_answer_view" ||
+    artifactKind === "answer_snapshot"
+  ) {
+    if (!workspaceId) {
+      throw new Error(`answer_artifact ${artifactKind} requires workspace_id.`);
+    }
+  } else if (artifactKind === "evidence_pack") {
+    const parsed = JSON.parse(payloadJson) as Record<string, unknown>;
+    if (
+      typeof parsed.parent_artifact_id !== "string" ||
+      parsed.parent_artifact_id.trim() === ""
+    ) {
+      throw new Error(
+        "answer_artifact evidence_pack requires payload.parent_artifact_id."
+      );
+    }
+  }
+
+  return {
+    agent_id: agentId,
+    artifact_id: entry.artifact_id,
+    artifact_kind: artifactKind,
+    current_version: currentVersion,
+    lifecycle: entry.lifecycle,
+    legacy_ref: normalizeNullableString(entry.legacy_ref),
+    payload_json: payloadJson,
+    public_label: entry.public_label,
+    public_label_key: normalizeNullableString(entry.public_label_key),
+    scope,
+    slug: entry.slug,
+    state: entry.state,
+    workspace_id: workspaceId
+  };
+}
+
+async function ensureAnswerArtifactEntry(
+  queryable: Queryable,
+  entry: DemoAnswerArtifactEntry["artifact"]
+): Promise<boolean> {
+  const artifact = normalizeAnswerArtifactEntry(entry);
+  const [existing] = await queryable.query<{ artifact_id: string }>(
+    `
+      SELECT artifact_id
+      FROM mindbrain_answer_artifacts
+      WHERE artifact_id = $1
+      LIMIT 1
+    `,
+    [artifact.artifact_id]
+  );
+
+  if (existing) {
+    return false;
+  }
+
+  await queryable.query(
+    `
+      INSERT INTO mindbrain_answer_artifacts (
+        artifact_id,
+        slug,
+        workspace_id,
+        agent_id,
+        scope,
+        artifact_kind,
+        public_label_key,
+        public_label,
+        lifecycle,
+        state,
+        current_version,
+        payload_json,
+        legacy_ref
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+    `,
+    [
+      artifact.artifact_id,
+      artifact.slug,
+      artifact.workspace_id,
+      artifact.agent_id,
+      artifact.scope,
+      artifact.artifact_kind,
+      artifact.public_label_key,
+      artifact.public_label,
+      artifact.lifecycle,
+      artifact.state,
+      artifact.current_version,
+      artifact.payload_json,
+      artifact.legacy_ref
+    ]
+  );
+
+  return true;
 }
 
 async function ensureNodeEntry(
@@ -358,7 +567,7 @@ async function ensureProjectionEntry(
   return true;
 }
 
-async function loadDemoProfile(
+export async function loadDemoProfile(
   config: GhostcrabConfig,
   queryable: Queryable,
   entries: DemoSeedEntry[],
@@ -366,6 +575,7 @@ async function loadDemoProfile(
 ): Promise<DemoLoadSummary> {
   const workspaceId = profileId;
   const summary: DemoLoadSummary = {
+    insertedArtifacts: 0,
     insertedEdges: 0,
     insertedFacts: 0,
     insertedNodes: 0,
@@ -379,9 +589,7 @@ async function loadDemoProfile(
       case "profile":
         break;
       case "remember":
-        if (
-          await ensureRememberEntry(config, queryable, workspaceId, entry)
-        ) {
+        if (await ensureRememberEntry(config, queryable, workspaceId, entry)) {
           summary.insertedFacts += 1;
         } else {
           summary.skipped += 1;
@@ -397,6 +605,13 @@ async function loadDemoProfile(
       case "learn_edge":
         if (await ensureEdgeEntry(queryable, workspaceId, entry.edge)) {
           summary.insertedEdges += 1;
+        } else {
+          summary.skipped += 1;
+        }
+        break;
+      case "answer_artifact":
+        if (await ensureAnswerArtifactEntry(queryable, entry.artifact)) {
+          summary.insertedArtifacts += 1;
         } else {
           summary.skipped += 1;
         }
@@ -441,7 +656,7 @@ export async function runDemoLoad(argv: string[]): Promise<void> {
     );
 
     console.error(
-      `[ghostcrab] Demo load summary: profile=${summary.profileId}, facts=${summary.insertedFacts}, nodes=${summary.insertedNodes}, edges=${summary.insertedEdges}, projections=${summary.insertedProjections}, skipped=${summary.skipped}`
+      `[ghostcrab] Demo load summary: profile=${summary.profileId}, facts=${summary.insertedFacts}, nodes=${summary.insertedNodes}, edges=${summary.insertedEdges}, artifacts=${summary.insertedArtifacts}, projections=${summary.insertedProjections}, skipped=${summary.skipped}`
     );
   } finally {
     await database.close();

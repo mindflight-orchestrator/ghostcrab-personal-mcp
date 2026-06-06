@@ -4,7 +4,7 @@ This folder mirrors the intent of an external **starter-kit-ghostcrab-perso** re
 
 ## File
 
-- **`starterkit-default.jsonl`** — demo profile `starterkit-default`: JTBD + contract summaries, template-bundle note, three phase nodes, `DEPENDS_ON` edges, one onboarding projection. Uses workspace slug **`perso-starterkit`** in facets (informational; align your real `ghostcrab_workspace_create` name when you model).
+- **`starterkit-default.jsonl`** — demo profile `starterkit-default`: JTBD + contract summaries, template-bundle note, three phase nodes, `DEPENDS_ON` edges, one `analysis_plan` and one `live_answer_view`. Uses workspace slug **`perso-starterkit`** in facets and live artifacts (informational; align your real `ghostcrab_workspace_create` name when you model).
 
 ## Load into the database
 
@@ -30,11 +30,21 @@ pnpm run demo:load -- --profile knowledge-base --skills-repo-root ../ghostcrab-s
 
 ## Relation to the external starter kit
 
-| Starter kit artifact               | This seed                                      |
-| ---------------------------------- | ---------------------------------------------- |
-| `templates/jtbd.yaml`              | One `remember` row summarising JTBD intent     |
-| `templates/mvp_core_contract.yaml` | One `remember` row with contract / edge policy |
-| Other templates                    | One `remember` row describing the bundle       |
-| QUICKSTART three phases            | Three `learn_node` + `DEPENDS_ON` chain        |
+| Starter kit artifact               | This seed                                                    |
+| ---------------------------------- | ------------------------------------------------------------ |
+| `templates/jtbd.yaml`              | One `remember` row summarising JTBD intent                   |
+| `templates/mvp_core_contract.yaml` | One `remember` row with contract / edge policy               |
+| Other templates                    | One `remember` row describing the bundle                     |
+| QUICKSTART three phases            | Three `learn_node` + `DEPENDS_ON` chain                      |
+| Onboarding projection              | `answer_artifact` rows: `analysis_plan` + `live_answer_view` |
 
-To seed **your own** filled YAML as rows later, either extend this JSONL or use `ghostcrab_remember` / ingest pipelines from the starter kit SOPs.
+After loading, inspect answer artifacts with:
+
+```bash
+gcp brain artifact list --kind analysis_plan --scope perso-starterkit-onboarding
+gcp brain artifact get analysis_plan__perso_starterkit_onboarding
+gcp brain artifact refresh live_answer_view__perso_starterkit_onboarding
+gcp brain artifact events live_answer_view__perso_starterkit_onboarding --limit 5
+```
+
+To seed **your own** filled YAML as rows later, either extend this JSONL with `remember` / `answer_artifact` lines or use `ghostcrab_remember` / ingest pipelines from the starter kit SOPs.

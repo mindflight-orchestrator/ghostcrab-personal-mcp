@@ -653,7 +653,7 @@ Documentation:
 
 ### Documented deviations
 
-1. **Projections before import.** This methodology requires designing projections (Phase 2) before ingestion. The immeuble lab validates **structural reconstruction** (ontology + docs + instance graph). The golden bundle contains no `ProjectionResult` entities; validation uses [`success-criteria.yaml`](../../examples/immeuble/mcp-lab/success-criteria.yaml) and graph tools, not `ghostcrab_pack`. For strict alignment, add an optional **phase 02-bis**: seed [`projections.seed.jsonl`](../../examples/immeuble/reference/projections.seed.jsonl) via `ghostcrab_project` — documented only; lab prompts unchanged.
+1. **Answer artifacts before import.** This methodology requires designing the answer contract (Phase 2) before ingestion. The immeuble lab validates **structural reconstruction** (ontology + docs + instance graph). The golden bundle contains no `ProjectionResult` entities; validation uses [`success-criteria.yaml`](../../examples/immeuble/mcp-lab/success-criteria.yaml) and graph tools, not `ghostcrab_pack`. For strict alignment, add an optional **phase 02-bis**: seed [`answer-artifacts.seed.jsonl`](../../examples/immeuble/reference/answer-artifacts.seed.jsonl) via `gcp load` — documented only; lab prompts unchanged.
 
 2. **Thin slices vs full domain.** Wave 1 of this methodology completes one competency question end to end. The immeuble lab targets the **full syndic domain at once** — closer to a regression/integration test than a first thin slice.
 
@@ -663,4 +663,4 @@ Documentation:
 
 ### Competency questions source
 
-Human-readable competency questions live in [`examples/immeuble/reference/scenarios.yaml`](../../examples/immeuble/reference/scenarios.yaml). They align with scenario ids used in optional Type A projection seeds — see [`ontology_dev_for_llm.md`](ontology_dev_for_llm.md) Applied example.
+Human-readable competency questions live in [`examples/immeuble/reference/scenarios.yaml`](../../examples/immeuble/reference/scenarios.yaml). They are carried by the optional `analysis_plan` answer artifact seed — see [`ontology_dev_for_llm.md`](ontology_dev_for_llm.md) Applied example.

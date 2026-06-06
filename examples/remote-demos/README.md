@@ -47,7 +47,7 @@ npm run setup
 3. `gcp agent skills install --dir …` for each path in `local_skills`
 4. `gcp load` for each file in `profiles`
 
-Re-running is mostly **idempotent** (demo loader skips duplicate facts/nodes/edges/projections).
+Re-running is mostly **idempotent** (demo loader skips duplicate facts, nodes, edges, and answer artifacts).
 
 ### Profiles only
 
@@ -66,7 +66,38 @@ npm run load
 
 ## JSONL format
 
-Each line is JSON with `kind`: `profile` (metadata only, not inserted), `remember`, `learn_node`, `learn_edge`, `projection`. See `src/cli/demo-load.ts` in the main repo for field definitions.
+Each line is JSON with `kind`: `profile` (metadata only, not inserted), `remember`, `learn_node`, `learn_edge`, or `answer_artifact`. Legacy `projection` lines are still accepted for old profiles, but new demos should prefer answer artifacts.
+
+Minimal answer artifact example:
+
+```json
+{
+  "kind": "answer_artifact",
+  "profile_id": "demo",
+  "artifact": {
+    "artifact_id": "analysis_plan__demo",
+    "slug": "demo",
+    "agent_id": "agent:demo",
+    "scope": "demo",
+    "artifact_kind": "analysis_plan",
+    "public_label": "Plan demo",
+    "lifecycle": "active",
+    "state": "open",
+    "payload": { "goal": "Explain what to inspect next." }
+  }
+}
+```
+
+Use `analysis_plan` for the plan/contract and `live_answer_view` for refreshable current-state views. After `npm run load`, inspect them with:
+
+```bash
+gcp brain artifact list --kind analysis_plan
+gcp brain artifact get analysis_plan__remote_demos_minimal
+gcp brain artifact refresh live_answer_view__remote_demos_minimal
+gcp brain artifact events live_answer_view__remote_demos_minimal --limit 5
+```
+
+See `src/cli/demo-load.ts` in the main repo for field definitions.
 
 ## MCP in your IDE
 

@@ -62,6 +62,7 @@ const WS = "immeuble-demo";
 const ONT = "immeuble-demo::core";
 const COLL = "immeuble-demo::docs";
 const FACET_TABLE_ID = 77001;
+const ARTIFACT_TS = 1760000000;
 const REFERENCE_DIR = join(REPO_ROOT, "examples/immeuble/reference");
 const DOCS_DIR = join(REFERENCE_DIR, "documents");
 const SOURCES_DIR = join(REPO_ROOT, "examples/immeuble/mcp-lab/corpus");
@@ -1635,6 +1636,98 @@ const facetDefinitions = Array.from(
     facet_name
   }));
 
+const scenarios = [
+  [
+    "scenario:tilleuls-family-stack",
+    "Famille multi-génération Tilleuls",
+    "Quels liens existent entre le vieux couple du rez-de-chaussée et le ménage du fils au premier étage ?"
+  ],
+  [
+    "scenario:tenant-lease",
+    "Baux et locataires",
+    "Quels appartements sont loués, à qui, depuis quelle date et par quel bailleur ?"
+  ],
+  [
+    "scenario:quota-check",
+    "Quotités par immeuble",
+    "Les quotités de chaque immeuble totalisent-elles 1000 ?"
+  ],
+  [
+    "scenario:annexes",
+    "Annexes privatives et communes",
+    "Quelle cave, garage, jardin privatif et partie commune est accessible depuis chaque lot ?"
+  ],
+  [
+    "scenario:coda-complete-payment",
+    "Paiement CODA complet",
+    "Quel paiement CODA a soldé l'appel de charges Tilleuls janvier 2026 ?"
+  ],
+  [
+    "scenario:coda-partial-reminder",
+    "Paiement partiel et relance",
+    "Quel paiement partiel déclenche une relance ?"
+  ]
+];
+
+const answerArtifacts = [
+  {
+    artifact_id: "analysis_plan__immeuble_demo_competency_questions",
+    slug: "immeuble_demo_competency_questions",
+    workspace_id: null,
+    agent_id: "agent:immeuble-demo",
+    scope: WS,
+    artifact_kind: "analysis_plan",
+    public_label_key: "analysis_plan.immeuble_demo.competency_questions",
+    public_label: "Plan d'analyse immeuble demo",
+    lifecycle: "active",
+    state: "open",
+    current_version: 1,
+    payload_json: j({
+      competency_questions: scenarios.map(([id, title, competency]) => ({
+        id,
+        title,
+        competency_question: competency
+      })),
+      expected_focus: [
+        "occupation familiale Tilleuls",
+        "baux locatifs actifs",
+        "quotites par immeuble",
+        "annexes privatives",
+        "paiements CODA"
+      ]
+    }),
+    legacy_ref: null,
+    created_at_unix: ARTIFACT_TS,
+    updated_at_unix: ARTIFACT_TS
+  },
+  {
+    artifact_id: "live_answer_view__immeuble_demo_pilotage",
+    slug: "immeuble_demo_pilotage",
+    workspace_id: WS,
+    agent_id: null,
+    scope: null,
+    artifact_kind: "live_answer_view",
+    public_label_key: "live_answer_view.immeuble_demo.pilotage",
+    public_label: "Vue live immeuble demo",
+    lifecycle: "stale",
+    state: "dirty",
+    current_version: 1,
+    payload_json: j({
+      source_plan_id: "analysis_plan__immeuble_demo_competency_questions",
+      summary:
+        "Vue courante a rafraichir apres import/reindex du bundle immeuble-demo.",
+      refresh_checks: [
+        "entity counts vs success-criteria.yaml",
+        "graph diagnostics L2 syndic",
+        "CODA payment matching"
+      ]
+    }),
+    legacy_ref: null,
+    created_at_unix: ARTIFACT_TS,
+    updated_at_unix: ARTIFACT_TS
+  }
+];
+
 const bundle = {
   kind: "ghostcrab_backup_bundle",
   schema_version: "2",
@@ -1737,7 +1830,9 @@ const bundle = {
   entity_documents_raw: rows.entityDocs,
   entity_chunks_raw: rows.entityChunks,
   document_links_raw: [],
-  external_links_raw: []
+  external_links_raw: [],
+  mindbrain_answer_artifacts: answerArtifacts,
+  mindbrain_answer_events: []
 };
 
 writeFileSync(
@@ -1745,38 +1840,6 @@ writeFileSync(
   `${JSON.stringify(bundle, null, 2)}\n`
 );
 
-const scenarios = [
-  [
-    "scenario:tilleuls-family-stack",
-    "Famille multi-génération Tilleuls",
-    "Quels liens existent entre le vieux couple du rez-de-chaussée et le ménage du fils au premier étage ?"
-  ],
-  [
-    "scenario:tenant-lease",
-    "Baux et locataires",
-    "Quels appartements sont loués, à qui, depuis quelle date et par quel bailleur ?"
-  ],
-  [
-    "scenario:quota-check",
-    "Quotités par immeuble",
-    "Les quotités de chaque immeuble totalisent-elles 1000 ?"
-  ],
-  [
-    "scenario:annexes",
-    "Annexes privatives et communes",
-    "Quelle cave, garage, jardin privatif et partie commune est accessible depuis chaque lot ?"
-  ],
-  [
-    "scenario:coda-complete-payment",
-    "Paiement CODA complet",
-    "Quel paiement CODA a soldé l'appel de charges Tilleuls janvier 2026 ?"
-  ],
-  [
-    "scenario:coda-partial-reminder",
-    "Paiement partiel et relance",
-    "Quel paiement partiel déclenche une relance ?"
-  ]
-];
 writeFileSync(
   join(REFERENCE_DIR, "scenarios.yaml"),
   [
@@ -1791,45 +1854,29 @@ writeFileSync(
   ].join("\n") + "\n"
 );
 
-const projections = [
-  {
-    scope: WS,
-    proj_type: "FACT",
-    status: "active",
-    weight: 0.9,
-    source_ref: "scenario:tilleuls-family-stack",
-    content:
-      "Les Tilleuls A1 sont occupés par le couple Henri et Madeleine Dupont; leur fils Nicolas vit avec Pauline et deux enfants dans Tilleuls A3."
-  },
-  {
-    scope: WS,
-    proj_type: "FACT",
-    status: "active",
-    weight: 0.85,
-    source_ref: "scenario:tenant-lease",
-    content:
-      "Les lots Tilleuls A4, Érables A2, Érables B2, Érables B3 et Érables B4 ont un bail actif."
-  },
-  {
-    scope: WS,
-    proj_type: "CONSTRAINT",
-    status: "blocking",
-    weight: 0.95,
-    source_ref: "scenario:quota-check",
-    content:
-      "Les quotités de chaque immeuble doivent totaliser exactement 1000."
-  },
-  {
-    scope: WS,
-    proj_type: "STEP",
-    status: "active",
-    weight: 0.75,
-    source_ref: "document:extrait-coda-janvier-2026",
-    content:
-      "Qualifier une écriture CODA inconnue en vérifiant montant, communication, lot, groupe de facturation puis appel de charges."
-  }
-];
 writeFileSync(
-  join(REFERENCE_DIR, "projections.seed.jsonl"),
-  `${projections.map((projection) => JSON.stringify(projection)).join("\n")}\n`
+  join(REFERENCE_DIR, "answer-artifacts.seed.jsonl"),
+  `${answerArtifacts
+    .map((artifact) =>
+      JSON.stringify({
+        kind: "answer_artifact",
+        profile_id: WS,
+        artifact: {
+          artifact_id: artifact.artifact_id,
+          slug: artifact.slug,
+          workspace_id: artifact.workspace_id,
+          agent_id: artifact.agent_id,
+          scope: artifact.scope,
+          artifact_kind: artifact.artifact_kind,
+          public_label_key: artifact.public_label_key,
+          public_label: artifact.public_label,
+          lifecycle: artifact.lifecycle,
+          state: artifact.state,
+          current_version: artifact.current_version,
+          payload_json: artifact.payload_json,
+          legacy_ref: artifact.legacy_ref
+        }
+      })
+    )
+    .join("\n")}\n`
 );

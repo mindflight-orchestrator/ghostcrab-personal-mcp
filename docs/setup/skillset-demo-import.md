@@ -11,7 +11,7 @@ This document describes how to **equip a GhostCrab setup** with a curated **skil
 | **Vendored skills** (no registry) | `gcp agent skills install --dir <path>` | Same layout as pull |
 | **Demo facts / graph / projections** | `gcp load <file.jsonl>` or `gcp brain load ...` | MindBrain DB (via running backend) |
 
-JSONL line kinds and fields: see [`src/cli/demo-load.ts`](../../src/cli/demo-load.ts) (`profile`, `remember`, `learn_node`, `learn_edge`, `projection`). The `profile` line is metadata only for the file; it is not inserted as a row.
+JSONL line kinds and fields: see [`src/cli/demo-load.ts`](../../src/cli/demo-load.ts) (`profile`, `remember`, `learn_node`, `learn_edge`, `answer_artifact`; legacy `projection` remains accepted). The `profile` line is metadata only for the file; it is not inserted as a row.
 
 ## Bundled example: `examples/remote-demos`
 
