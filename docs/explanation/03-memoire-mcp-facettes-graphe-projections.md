@@ -55,7 +55,7 @@ Doc graphe canonique : [vendor/mindbrain/docs/graph.md](../../vendor/mindbrain/d
 | **Routage** | `src/mcp/session-context.ts` | `ghostcrab_workspace_use` | Non (restart MCP) |
 | **Faits durables** | `src/tools/facets/remember.ts` → `POST /api/mindbrain/facts/write` | `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_search` | Oui (`agent_facts`) |
 | **Mémoire de travail** | `src/tools/pragma/project.ts`, `pack.ts` | `ghostcrab_project`, `ghostcrab_pack` | Oui (`projections`) |
-| **Ontologie formelle** | `src/tools/ontology/import.ts` → moteur natif MindBrain | `ghostcrab_ontology_import` | Oui (`ontology_*`) |
+| **Ontologie formelle** | `src/tools/ontology/import.ts` → HTTP natif MindBrain, fallback CLI natif | `ghostcrab_ontology_import` | Oui (`ontology_*`) |
 | **Graphe métier** | `src/tools/dgraph/learn.ts`, `src/db/graph.ts` | `ghostcrab_learn`, `ghostcrab_graph_search`, `traverse`… | Oui (raw + runtime) |
 
 **`ghostcrab_pack`** fusionne projections actives + top faits depuis `agent_facts` (BM25/FTS). Il **ne lit pas** `graph_entity`.

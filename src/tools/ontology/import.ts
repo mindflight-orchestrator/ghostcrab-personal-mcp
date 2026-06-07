@@ -92,7 +92,7 @@ export const ontologyImportTool: ToolHandler = {
           type: "boolean",
           default: false,
           description:
-            "Allow import even when MindBrain reports an active writer session. Prefer false; set true only after checking writer status."
+            "Compatibility flag for native CLI fallback only: allow import even when MindBrain reports an active writer session. Native HTTP imports always use the serialized writer lane."
         }
       }
     }
@@ -131,22 +131,56 @@ export const ontologyImportTool: ToolHandler = {
     }
 
     const config = resolveGhostcrabConfig();
-    const writerStatus = await fetchWriterStatus(
+    const httpCapability = await fetchOntologyImportHttpCapability(
       config.mindbrainUrl,
       config.mindbrainHttpTimeoutMs
     );
-    if (
-      !input.force &&
-      writerStatus &&
-      writerStatus.active_session_id !== null &&
-      writerStatus.active_session_id !== undefined
-    ) {
-      return createToolErrorResult(
-        "ghostcrab_ontology_import",
-        "MindBrain reports an active writer session. Retry after the writer is idle, or set force:true only if you accept SQLite lock risk.",
-        "active_writer",
-        { writer_status: writerStatus }
+    let useCliFallback = !httpCapability.supported;
+    if (httpCapability.supported) {
+      const httpResult = await runHttpOntologyImport(input, {
+        workspace_id: workspaceId,
+        mindbrain_url: config.mindbrainUrl,
+        timeout_ms: config.mindbrainHttpTimeoutMs
+      });
+      if (httpResult.ok) {
+        return createToolSuccessResult("ghostcrab_ontology_import", {
+          imported: true,
+          workspace_id: workspaceId,
+          ontology_id: input.ontology_id,
+          source_format: input.source_format,
+          input_path: input.input_path,
+          backend: "mindbrain/http-ontology-import",
+          response: httpResult.response
+        });
+      }
+      if (!httpResult.fallback) {
+        return createToolErrorResult(
+          "ghostcrab_ontology_import",
+          httpResult.message,
+          "http_import_failed",
+          httpResult.details
+        );
+      }
+      useCliFallback = true;
+    }
+    if (useCliFallback) {
+      const writerStatus = await fetchWriterStatus(
+        config.mindbrainUrl,
+        config.mindbrainHttpTimeoutMs
       );
+      if (
+        !input.force &&
+        writerStatus &&
+        writerStatus.active_session_id !== null &&
+        writerStatus.active_session_id !== undefined
+      ) {
+        return createToolErrorResult(
+          "ghostcrab_ontology_import",
+          "MindBrain reports an active writer session. Retry after the writer is idle, or set force:true only if you accept SQLite lock risk.",
+          "active_writer",
+          { writer_status: writerStatus }
+        );
+      }
     }
 
     const engineArgs = buildOntologyImportArgs({
@@ -218,6 +252,103 @@ function buildOntologyImportArgs(input: z.infer<typeof OntologyImportInput> & {
   if (input.name) args.push("--name", input.name);
   if (input.materialize_graph) args.push("--materialize-graph");
   return args;
+}
+
+async function fetchOntologyImportHttpCapability(
+  mindbrainUrl: string,
+  timeoutMs: number
+): Promise<{ supported: boolean }> {
+  try {
+    const response = await fetch(
+      new URL("/api/mindbrain/capabilities", mindbrainUrl),
+      { signal: AbortSignal.timeout(Math.min(timeoutMs, 2000)) }
+    );
+    if (!response.ok) return { supported: false };
+    const json = await response.json();
+    const features =
+      typeof json === "object" && json !== null && "features" in json
+        ? (json as { features?: Record<string, unknown> }).features
+        : undefined;
+    return {
+      supported:
+        features?.ontology_import === true &&
+        features?.ontology_compile_linkml === true
+    };
+  } catch {
+    return { supported: false };
+  }
+}
+
+async function runHttpOntologyImport(
+  input: z.infer<typeof OntologyImportInput>,
+  options: { workspace_id: string; mindbrain_url: string; timeout_ms: number }
+): Promise<
+  | { ok: true; response: unknown }
+  | {
+      ok: false;
+      fallback: boolean;
+      message: string;
+      details: Record<string, unknown>;
+    }
+> {
+  const path =
+    input.source_format === "linkml"
+      ? "/api/mindbrain/ontology/compile-linkml"
+      : "/api/mindbrain/ontology/import";
+  const body =
+    input.source_format === "linkml"
+      ? {
+          workspace_id: options.workspace_id,
+          ontology_id: input.ontology_id,
+          input_path: input.input_path,
+          ...(input.profile ? { profile: input.profile } : {})
+        }
+      : {
+          workspace_id: options.workspace_id,
+          ontology_id: input.ontology_id,
+          input_path: input.input_path,
+          ...(input.name ? { name: input.name } : {}),
+          materialize_graph: input.materialize_graph
+        };
+
+  try {
+    const response = await fetch(new URL(path, options.mindbrain_url), {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(options.timeout_ms)
+    });
+    const text = await response.text();
+    if (response.status === 404 || response.status === 405) {
+      return {
+        ok: false,
+        fallback: true,
+        message: "MindBrain ontology HTTP route is not available.",
+        details: { status: response.status, body: text.trim() }
+      };
+    }
+    if (!response.ok) {
+      return {
+        ok: false,
+        fallback: false,
+        message:
+          text.trim() ||
+          `MindBrain ontology HTTP import failed with status ${response.status}.`,
+        details: { status: response.status, body: text.trim() }
+      };
+    }
+    return { ok: true, response: text ? JSON.parse(text) : {} };
+  } catch (error) {
+    return {
+      ok: false,
+      fallback: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "MindBrain ontology HTTP import failed.",
+      details: { error: error instanceof Error ? error.message : String(error) }
+    };
+  }
 }
 
 async function fetchWriterStatus(
