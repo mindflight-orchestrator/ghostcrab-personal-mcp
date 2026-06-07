@@ -52,6 +52,10 @@ export async function cmdBrain(args) {
       await runBrainDbWho(rest);
       break;
     }
+    case "upgrade": {
+      await cmdBrainUpgrade(rest);
+      break;
+    }
     case "artifact": {
       const { cmdBrainArtifact } = await import("./brain-artifact.mjs");
       await cmdBrainArtifact(rest);
@@ -63,7 +67,8 @@ export async function cmdBrain(args) {
       break;
     }
     case "structured-import": {
-      const { cmdBrainStructuredImport } = await import("./brain-structured-import.mjs");
+      const { cmdBrainStructuredImport } =
+        await import("./brain-structured-import.mjs");
       await cmdBrainStructuredImport(rest);
       break;
     }
@@ -99,6 +104,39 @@ export async function cmdBrain(args) {
       );
       process.exit(1);
   }
+}
+
+async function cmdBrainUpgrade(args) {
+  const {
+    parseUpgradeArgs,
+    printUpgradeHelp,
+    printUpgradeReport,
+    runInstallUpgrade
+  } = await import("../lib/install-upgrade.mjs");
+  const parsed = parseUpgradeArgs(args);
+  if (parsed === "help") {
+    printUpgradeHelp();
+    return;
+  }
+  if (parsed.error) {
+    console.error(`gcp brain upgrade: ${parsed.error}`);
+    process.exit(1);
+  }
+  const { PKG_ROOT } = await import("../lib/mcp-global-setup.mjs");
+  const report = await runInstallUpgrade({
+    pkgRoot: PKG_ROOT,
+    dryRun: parsed.dryRun,
+    noKillMcp: parsed.noKillMcp || parsed.dryRun,
+    skipConfigCleanup: parsed.skipConfigCleanup,
+    sqlitePathFromCli: parsed.sqlitePathFromCli,
+    defaultFromCli: parsed.defaultFromCli
+  });
+  if (parsed.json) {
+    console.log(JSON.stringify(report, null, 2));
+  } else {
+    printUpgradeReport(report);
+  }
+  if (!report.ok) process.exit(1);
 }
 
 /**
@@ -315,7 +353,9 @@ function parseSetupArgs(args) {
     return "help";
   }
   if (args.length === 0) {
-    return { error: "gcp brain setup: missing target (cursor|codex|claude|generic)." };
+    return {
+      error: "gcp brain setup: missing target (cursor|codex|claude|generic)."
+    };
   }
 
   const targetRaw = args[0];
@@ -461,14 +501,7 @@ function parseSetupArgs(args) {
     }
   }
 
-  const validPresets = [
-    "none",
-    "all",
-    "basic",
-    "read",
-    "balanced",
-    "custom"
-  ];
+  const validPresets = ["none", "all", "basic", "read", "balanced", "custom"];
   if (!validPresets.includes(out.permissionsPreset)) {
     return {
       error: `gcp brain setup: --permissions must be one of ${validPresets.join(", ")} (got ${out.permissionsPreset})`
@@ -480,10 +513,15 @@ function parseSetupArgs(args) {
   }
 
   if (out.dbPath && out.defaultDb) {
-    return { error: "gcp brain setup: use either --db <path> or --default, not both" };
+    return {
+      error: "gcp brain setup: use either --db <path> or --default, not both"
+    };
   }
 
-  if (out.scope === "project" && !rest.some((a, i) => a === "--permissions-scope" && rest[i + 1])) {
+  if (
+    out.scope === "project" &&
+    !rest.some((a, i) => a === "--permissions-scope" && rest[i + 1])
+  ) {
     out.permissionsScope = "project";
   }
 
@@ -757,6 +795,7 @@ Subcommands:
   schema <list|pull|remove|show>           Ontologies / knowledge structure in the DB
   ontology import|export [opts]           Import/export OWL2 N-Triples into MindBrain
   db-who [--path] [--workspace]            Which processes have the SQLite file open (lsof)
+  upgrade [--db <path>|--default]          Stop GhostCrab MCP, back up SQLite, run install migration
   artifact <list|get|refresh|events|migrate> [opts]  Answer artifact registry (HTTP subcommands need backend)
   document [--workspace] [--db] [--force] <cmd>
                                            Corpus import / normalize / profile (stop MCP first)
@@ -780,6 +819,7 @@ Examples:
   gcp brain backup --workspace-id my_ws --output ./backup.json
   gcp brain artifact list --workspace-id my_ws --kind analysis_plan
   gcp brain artifact migrate --dry-run --db data/ghostcrab.sqlite
+  gcp brain upgrade --dry-run
   gcp brain backup --workspace-id my_ws --scope taxonomies --output ./taxonomies.json
   gcp brain export --workspace-id my_ws --scope collection --collection-id my_ws::docs -o ./docs.json
   gcp brain document document-profile-worker --base-url https://api.openai.com/v1 --model gpt-4.1-mini --limit 2
