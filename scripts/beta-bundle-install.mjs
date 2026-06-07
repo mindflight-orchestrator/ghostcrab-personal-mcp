@@ -10,6 +10,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { formatSpawnFailure, spawnNpm } from "./lib/spawn-npm.mjs";
+import { spawnSync } from "node:child_process";
 
 const bundleRoot = dirname(fileURLToPath(import.meta.url));
 const manifestPath = join(bundleRoot, "pack-manifest.json");
@@ -96,5 +97,34 @@ runNpmInstall(root.filename);
 // (failed registry fetch during the root install), which would cause
 // "Invalid Version:" when installing the local tarball.
 runNpmInstall(plat.filename, { noPackageLock: true });
+
+const installedGcp = join(
+  bundleRoot,
+  "node_modules",
+  "@mindflight",
+  "ghostcrab-personal-mcp",
+  "bin",
+  "gcp.mjs"
+);
+if (
+  existsSync(installedGcp) &&
+  process.env.GHOSTCRAB_SKIP_INSTALL_UPGRADE !== "1"
+) {
+  console.error("[install-beta] running gcp brain upgrade");
+  const upgrade = spawnSync(
+    process.execPath,
+    [installedGcp, "brain", "upgrade"],
+    {
+      cwd: bundleRoot,
+      stdio: "inherit",
+      env: process.env
+    }
+  );
+  if (upgrade.status !== 0 || upgrade.error) {
+    console.error(
+      `[install-beta] upgrade failed/non-fatal (${formatSpawnFailure(upgrade)}). Retry: node "${installedGcp}" brain upgrade`
+    );
+  }
+}
 
 console.error("[install-beta] Done. Try: npx gcp --help");

@@ -13,6 +13,7 @@ import { runHostProjectBootstrap } from "./postinstall-host-bootstrap.mjs";
 import { runPostinstallSmoke } from "./postinstall-smoke.mjs";
 import { ensureGhostcrabSkillLinks } from "./postinstall-skill-links.mjs";
 import { installPathShim } from "./path-shim.mjs";
+import { printUpgradeReport, runInstallUpgrade } from "./install-upgrade.mjs";
 
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const quiet = process.env.GHOSTCRAB_POSTINSTALL_QUIET === "1";
@@ -94,13 +95,41 @@ if (
       "  1. If .env / data/ / README / ghostcrab-skills links are missing in your project root, run:"
     );
     console.error("       npx gcp bootstrap");
-    console.error("  2. Register the MCP server in your IDE (includes PATH shim):");
+    console.error(
+      "  2. Register the MCP server in your IDE (includes PATH shim):"
+    );
     console.error("       npx gcp brain setup cursor --force");
     console.error("       npx gcp brain setup codex");
     console.error("       npx gcp brain setup claude");
-    console.error("  3. Or install PATH only: npx gcp path install --write-profile");
+    console.error(
+      "  3. Or install PATH only: npx gcp path install --write-profile"
+    );
     console.error(
       "[ghostcrab] See INSTALL.md / README_CURSOR_MCP.md / README_CODEX_MCP.md / README_CLAUDE_CODE_MCP.md in the package."
     );
+  }
+}
+
+if (
+  !r.skipped &&
+  !r.missing &&
+  r.ok &&
+  process.env.GHOSTCRAB_SKIP_INSTALL_UPGRADE !== "1"
+) {
+  try {
+    const report = await runInstallUpgrade({
+      pkgRoot,
+      dryRun: false,
+      noKillMcp: false,
+      skipConfigCleanup: false
+    });
+    if (!quiet) {
+      printUpgradeReport(report, (line) => console.error(line));
+    }
+  } catch (e) {
+    console.error(
+      `[ghostcrab] install upgrade skipped/non-fatal: ${e instanceof Error ? e.message : e}`
+    );
+    console.error("  Retry manually: npx gcp brain upgrade");
   }
 }
