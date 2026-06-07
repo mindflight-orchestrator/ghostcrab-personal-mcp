@@ -133,7 +133,7 @@ mindbrain-standalone-tool ontology-export-linkml → LinkML YAML (+ preserved_tr
 |------|-----|
 | LinkML | Authoring + standard generators |
 | W3C yml2vocab | Simple RDFS vocabs only |
-| `ghostcrab_ontology_import` | LinkML or N-Triples → SQLite `ontology_*` from MCP |
+| `ghostcrab_ontology_import` | LinkML or N-Triples → SQLite `ontology_*` from MCP via native HTTP when available, native CLI fallback otherwise |
 | `gcp brain ontology import/export` | N-Triples ↔ SQLite |
 | `gcp brain load` | Full backup bundle |
 | `gcp brain ontology compile/export-linkml` | GhostCrab CLI wrappers over native MindBrain commands |
@@ -141,4 +141,4 @@ mindbrain-standalone-tool ontology-export-linkml → LinkML YAML (+ preserved_tr
 ## Dependencies
 
 - Python: `linkml`, `linkml-runtime` (optional `schema-automator` for OWL recovery)
-- Native: `mindbrain-standalone-tool ontology-import`, `ontology-compile-linkml`, `ontology-export-linkml`
+- Native: MindBrain HTTP `ontology/import` and `ontology/compile-linkml`, plus CLI `mindbrain-standalone-tool ontology-import`, `ontology-compile-linkml`, `ontology-export-linkml`

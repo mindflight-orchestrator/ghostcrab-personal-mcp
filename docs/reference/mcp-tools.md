@@ -599,6 +599,10 @@ _No input arguments._
 
 Write. Import a real ontology into MindBrain native ontology tables from LinkML YAML or OWL/RDF N-Triples. This is the MCP counterpart to gcp brain ontology compile/import; do not use remember, learn, schema_register, or graph_gap_rules_import for ontology source files. Defaults to LinkML because that is the Personal ontology authoring path.
 
+When MindBrain advertises native ontology HTTP import capabilities,
+`ghostcrab_ontology_import` uses the serialized HTTP writer lane. Older
+MindBrain servers fall back to the native CLI engine.
+
 | Field | Value |
 |-------|-------|
 | Visibility | extended |
@@ -617,7 +621,7 @@ Write. Import a real ontology into MindBrain native ontology tables from LinkML 
 | `profile` | no | `string` | Optional LinkML compile profile, for example syndic. Applies only to source_format=linkml. |
 | `name` | no | `string` | Optional ontology display name. Applies only to source_format=ntriples. |
 | `materialize_graph` | no | `boolean` | For N-Triples imports, also materialize object triples into graph entities/relations. Keep false for pure ontology registration. |
-| `force` | no | `boolean` | Allow import even when MindBrain reports an active writer session. Prefer false; set true only after checking writer status. |
+| `force` | no | `boolean` | Compatibility flag for native CLI fallback only: allow import even when MindBrain reports an active writer session. Native HTTP imports always use the serialized writer lane. |
 
 ### `ghostcrab_pack`
 
