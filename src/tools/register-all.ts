@@ -15,6 +15,7 @@ import "./facets/remember.js";
 import "./facets/schema.js";
 import "./facets/search.js";
 import "./facets/upsert.js";
+import "./ontology/import.js";
 import "./pragma/artifact-get.js";
 import "./pragma/guidance.js";
 import "./pragma/live-refresh.js";

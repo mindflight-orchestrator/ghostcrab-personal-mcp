@@ -645,7 +645,7 @@ Documentation:
 | Universal methodology | MCP lab (prompts) | Alignment |
 |-----------------------|-------------------|-----------|
 | ONBOARDING precondition + Model Proposal | 00–01 | Aligned |
-| Phase 1 — Facets / ontology | 02 (`ontology compile` / `schema_register`) | Aligned |
+| Phase 1 — Facets / ontology | 02 (`ghostcrab_ontology_import` / `ontology compile`) | Aligned |
 | Phase 2 — Projections (read contract) | *(absent from lab)* | **Intentional gap** — see note below |
 | Phase 3 — Import | 04 (qualified docs via CLI) + 05 (graph via `learn` / extract) | Partial — full domain import, not thin slice |
 | Phase 4 — Reports / validation | 06 (`graph_search`, `graph_diagnostics`, `success-criteria.yaml`) | Partial — graph + gap-rules validation, not `ghostcrab_pack` |

@@ -3,7 +3,7 @@
 GhostCrab exposes a single CLI entry point, `gcp`. Commands are grouped by **job to be done**:
 
 The MCP server is the canonical product surface for memory and modeling actions
-such as search, remember, upsert, schema registration, graph writes, projections,
+such as search, remember, upsert, ontology import, schema registration, graph writes, projections,
 and pack generation. The CLI is a local control plane: setup, environment,
 startup, diagnostics/smoke checks, and explicit human maintenance actions.
 GhostCrab code must call internal APIs or the backend client directly; it must
@@ -18,7 +18,7 @@ operations.
 | **Isolate memory (workspace)** | `gcp brain workspace create \| list` | Registers or lists logical MindBrain `workspace_id` partitions. Legacy: `gcp init`. |
 | **Workspace destructive maintenance** | `ghostcrab workspace reset \| delete` | Lower-level launcher operations to wipe workspace-scoped data or remove/archive a workspace row; keep these out of normal agent flows. |
 | **Structure in the DB (ontologies)** | `gcp brain schema …` | Registry ontologies (knowledge schema): `list`, `pull`, `show`, `remove`. Legacy: `gcp ontologies …`. |
-| **Ontology source import/export** | `gcp brain ontology compile\|import\|export\|export-linkml …` | Compile LinkML, import normalized OWL2/RDF N-Triples into MindBrain, export preserved N-Triples, taxonomy bundles, or LinkML slices. |
+| **Ontology source import/export** | MCP `ghostcrab_ontology_import`; CLI `gcp brain ontology compile\|import\|export\|export-linkml …` | Import LinkML or normalized OWL2/RDF N-Triples into MindBrain native `ontology_*` tables; export preserved N-Triples, taxonomy bundles, or LinkML slices. |
 | **Equip agents (skills)** | `gcp agent skills …` | Registry skills (agent capabilities). Shortcut: `gcp agent equip owner/name` = `agent skills pull`. Legacy: `gcp skills …`. |
 | **CLI / MCP environment** | `gcp env …` | Read/write `~/.ghostcrab/config.json`. Legacy: `gcp config …`. |
 | **Host project bootstrap** | `gcp bootstrap` | Idempotently creates `.env`, `data/`, README doc symlinks, and the PATH shim in the current project. |
@@ -38,7 +38,7 @@ For the lower-level `ghostcrab`/`dist/index.js` launcher, the supported CLI
 commands are intentionally narrow: `serve`, `smoke`, `status`, `tools list`,
 `tools verify`, `maintenance ddl-approve|ddl-execute`, and destructive
 `workspace reset|delete` maintenance. Commands like `search`, `remember`,
-`upsert`, `schema`, `learn`, `project`, and `pack` are MCP-only.
+`upsert`, `schema`, `learn`, `project`, `pack`, and agent-driven ontology import are MCP-only.
 
 ## Why “brain” vs “agent”
 

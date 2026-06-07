@@ -65,13 +65,24 @@ Load only what is needed:
 Before ontology or tabular import writes, follow `SOP0_import_path_choices.md`:
 
 1. Present two numbered options; do not remove the historical path.
-2. **Ontology default (Personal):** LinkML — LLM generates `ontology/core.yaml`, validates with dry-run compile, imports only after user confirmation.
-3. **Ontology alternative:** MCP incremental — `ghostcrab_schema_register` sequence (SOP2 §7 Voie A).
+2. **Ontology default (Personal):** LinkML — LLM generates `ontology/core.yaml`, validates when needed with dry-run compile, imports native `ontology_*` via `ghostcrab_ontology_import` or CLI after user confirmation.
+3. **Ontology alternative:** MCP incremental modeling — `ghostcrab_schema_register` / `remember` / `upsert` / `learn` sequence (SOP2 §7 Voie A), not a native ontology import.
 4. **Tabular default (Personal SQLite):** `gcp brain structured-import` — see `docs/setup/structured-import.md`.
 5. **Tabular alternative:** SOP5 scripts + gates (Voie A).
 6. Record choices in `templates/import_path_choices.yaml`.
 
-LinkML validation loop (mandatory before `--import-db`):
+MCP native import (default agent path):
+
+```json
+{
+  "workspace_id": "<ws>",
+  "ontology_id": "<ws>::core",
+  "input_path": "ontology/core.yaml",
+  "source_format": "linkml"
+}
+```
+
+LinkML validation loop (mandatory before CLI `--import-db`):
 
 ```bash
 gcp brain ontology compile \
@@ -80,7 +91,7 @@ gcp brain ontology compile \
   --output output/ontology-slice.json
 ```
 
-After exit 0 and user confirmation:
+After exit 0 and user confirmation for CLI import:
 
 ```bash
 gcp brain ontology compile ... --import-db --force
@@ -88,7 +99,7 @@ gcp brain ontology compile ... --import-db --force
 
 Canonical LinkML examples in this repo: `ontologies/immeuble-demo/core.yaml`, `ontologies/ghostcrab/profile.yaml`.
 
-**Documentation epistemology (MECE slices):** `docs/explanation/ontology/linkml/ghostcrab-docs/` — workspace `ghostcrab-docs`. Human docs: `docs/explanation/ontology/diagrams/` + chapters 03→05. Compile JSON (optional audit): `docs/explanation/ontology/compiled-slices/`. Before import: `docs/explanation/ontology/mece-validation.md`. Not `ghostcrab_schema_register` agent schemas.
+**Documentation epistemology (MECE slices):** `docs/explanation/ontology/linkml/ghostcrab-docs/` — workspace `ghostcrab-docs`. Human docs: `docs/explanation/ontology/diagrams/` + chapters 03→05. Compile JSON (optional audit): `docs/explanation/ontology/compiled-slices/`. Before import: `docs/explanation/ontology/mece-validation.md`. Import native ontologies with `ghostcrab_ontology_import` or CLI, not `ghostcrab_schema_register` agent schemas.
 
 Personal bridge doc: `docs/explanation/methode-starterkit/06-voies-import-ontologie-et-tabulaire.md`.
 

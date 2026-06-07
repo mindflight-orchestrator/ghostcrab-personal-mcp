@@ -41,6 +41,12 @@ function tablesFor(name, subsystem) {
     if (name.includes("gap_rules")) return "gap_rules store";
     return "entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs)";
   }
+  if (subsystem === "ontology") {
+    if (name === "ghostcrab_ontology_import") {
+      return "ontology_* native tables; optional graph materialization for N-Triples";
+    }
+    return "ontology_*";
+  }
   if (name.startsWith("ghostcrab_schema_") || name === "ghostcrab_onboarding_schemas") {
     return "schema registry (agent_facts shapes; not LinkML ontology_*)";
   }
@@ -263,7 +269,7 @@ ${mcpTable()}
 - [StarterKit EDITIONS.md](https://gitlab.com/webigniter/starter-kit-ghostcrab-perso/-/blob/main/starterkit/EDITIONS.md)
 `;
 
-writeFileSync(outPath, md);
-writeFileSync(mcpOutPath, mcpToolsReference());
+writeFileSync(outPath, `${md.trimEnd()}\n`);
+writeFileSync(mcpOutPath, `${mcpToolsReference().trimEnd()}\n`);
 console.log(`Wrote ${outPath} (${manifest.total} MCP tools)`);
 console.log(`Wrote ${mcpOutPath} (${manifest.total} MCP tools)`);

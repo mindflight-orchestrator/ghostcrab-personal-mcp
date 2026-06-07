@@ -123,7 +123,7 @@ Domain profiles (e.g. syndic) specialize standard patterns; they are not standal
 
 ```
 LinkML YAML (authoring)
-    → gcp brain ontology compile (mindbrain-standalone-tool ontology-compile-linkml)
+    → ghostcrab_ontology_import or gcp brain ontology compile (native MindBrain importer)
     → GhostCrab native ontology tables + ontology_triples_raw
     → mindbrain HTTP ontology/graph APIs
     → Sigma dual-view explorer

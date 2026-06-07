@@ -17,7 +17,7 @@ still mislead an operator or agent if read too literally.
 ## Blindspots found
 
 1. `tools/list` is not the full MCP API. It intentionally returns the 12
-   recommended default tools. The full catalog has 52 registered tools and must
+   recommended default tools. The full catalog has 53 registered tools and must
    be discovered through `gcp tools list`, `gcp tools verify`, or
    `ghostcrab_tool_search`.
 
@@ -58,6 +58,13 @@ still mislead an operator or agent if read too literally.
    persistence, and gap/rule/diagnostic table semantics, remain owned by
    MindBrain. This repo may document consumption boundaries, but backend changes
    must be planned in the MindBrain repo first.
+
+10. Ontology import now exists on both surfaces: MCP `ghostcrab_ontology_import`
+    for agent workflows, and CLI `gcp brain ontology ...` for operator scripts.
+    Do not describe `ghostcrab_remember`, `ghostcrab_upsert`,
+    `ghostcrab_learn`, `ghostcrab_schema_register`, or
+    `ghostcrab_graph_gap_rules_import` as ontology import paths; they write
+    memory, graph instances, agent schemas, or diagnostic rules.
 
 ## Maintenance checks
 

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-06T15:09:45.570Z",
+  "generated_at": "2026-06-07T06:26:59.888Z",
   "source": "ghostcrab-skills",
   "skill_names": [
     "ghostcrab-memory",
@@ -27,7 +27,7 @@
     },
     {
       "path": "claude-code/skills/ghostcrab-data-architect/SKILL.md",
-      "sha256": "bcf94d4ef72287baa048eac001579124754c9d2637bbd813b3b50bc0e2ffada5"
+      "sha256": "a0e18a1f06162129722d9c2e5184bebeb3a0d69aebfd0347951359e1854377b4"
     },
     {
       "path": "claude-code/skills/ghostcrab-integration-sop-editor/SKILL.md",
@@ -51,7 +51,7 @@
     },
     {
       "path": "codex/skills/ghostcrab-data-architect/SKILL.md",
-      "sha256": "bcf94d4ef72287baa048eac001579124754c9d2637bbd813b3b50bc0e2ffada5"
+      "sha256": "a0e18a1f06162129722d9c2e5184bebeb3a0d69aebfd0347951359e1854377b4"
     },
     {
       "path": "codex/skills/ghostcrab-data-architect/agents/openai.yaml",
@@ -95,7 +95,7 @@
     },
     {
       "path": "cursor/skills/ghostcrab-data-architect/SKILL.md",
-      "sha256": "bcf94d4ef72287baa048eac001579124754c9d2637bbd813b3b50bc0e2ffada5"
+      "sha256": "a0e18a1f06162129722d9c2e5184bebeb3a0d69aebfd0347951359e1854377b4"
     },
     {
       "path": "cursor/skills/ghostcrab-integration-sop-editor/SKILL.md",
@@ -119,7 +119,7 @@
     },
     {
       "path": "shared/APP_PATTERNS.md",
-      "sha256": "d309967598fd87b8107adc318287aa731c5e85aa1899850f90463bffd9087675"
+      "sha256": "83230826cac13f518eb749e6f6a281be6ef3d73ede75c0fa8428030ab7fbf7a2"
     },
     {
       "path": "shared/CAPABILITIES.md",
@@ -131,7 +131,7 @@
     },
     {
       "path": "shared/ONBOARDING_CONTRACT.md",
-      "sha256": "6adaebd969ed7a70caeec92ecbae044ec2f784ed287a8473f9dc6e48d718048f"
+      "sha256": "ee16a92b4270a58de00b700539b2689311e4d97cb935a2eed4005056dd0b3941"
     },
     {
       "path": "shared/PATH_CONTENT_FACETS.md",

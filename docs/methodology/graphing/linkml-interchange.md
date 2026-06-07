@@ -75,9 +75,18 @@ Ontology **loadouts** (`src/db/ontology-loadouts.ts`) are agent modeling recipes
 
 **Interchange profile** = classes, slots, enums, cardinality, URI mappings, GhostCrab pattern annotations. Everything else remains in `ontology_triples_raw`.
 
-## CLI
+## MCP and CLI
 
-The interchange contract is implemented in MindBrain (`vendor/mindbrain`). GhostCrab exposes thin wrappers:
+The interchange contract is implemented in MindBrain (`vendor/mindbrain`). GhostCrab exposes an MCP import tool for agent workflows and CLI wrappers for operator workflows:
+
+```json
+{
+  "workspace_id": "immeuble-demo",
+  "ontology_id": "immeuble-demo::core",
+  "input_path": "ontologies/immeuble-demo/core.yaml",
+  "source_format": "linkml"
+}
+```
 
 ```bash
 # Compile LinkML → native bundle + optional SQLite import
@@ -124,6 +133,7 @@ mindbrain-standalone-tool ontology-export-linkml → LinkML YAML (+ preserved_tr
 |------|-----|
 | LinkML | Authoring + standard generators |
 | W3C yml2vocab | Simple RDFS vocabs only |
+| `ghostcrab_ontology_import` | LinkML or N-Triples → SQLite `ontology_*` from MCP |
 | `gcp brain ontology import/export` | N-Triples ↔ SQLite |
 | `gcp brain load` | Full backup bundle |
 | `gcp brain ontology compile/export-linkml` | GhostCrab CLI wrappers over native MindBrain commands |

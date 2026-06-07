@@ -9,8 +9,8 @@ Translate business intent into an MCP investigation. Product language first unle
 
 ## Surface
 
-- **MCP** for reads/writes: `ghostcrab_*` tools after `ghostcrab_status`.
-- **CLI** only for operator maintenance: `gcp brain structured-import`, `gcp brain document`, `gcp brain ontology compile` — not for routine `search`/`remember` (MCP-only).
+- **MCP** for reads/writes: `ghostcrab_*` tools after `ghostcrab_status`, including `ghostcrab_ontology_import` for LinkML/N-Triples ontology source import.
+- **CLI** for operator maintenance and high-throughput/offline imports: `gcp brain structured-import`, `gcp brain document`, `gcp brain ontology compile|import|export` — not for routine `search`/`remember` (MCP-only).
 
 Do not use legacy Pro CLI tools, `DATABASE_URL`, or direct SQL.
 

@@ -17,7 +17,7 @@ Map a business question to MCP surfaces that can answer it on SQLite Personal.
 6. `ghostcrab_graph_search` / `ghostcrab_traverse` for graph paths.
 7. `ghostcrab_coverage` for schema population overview.
 
-Formal ontology dimensions (LinkML) live in `ontology_*` — discover via `gcp brain document qualification-vocab-list` after compile, not via `schema_register`.
+Formal ontology dimensions (LinkML) live in `ontology_*` — discover via `gcp brain document qualification-vocab-list` after `ghostcrab_ontology_import` or CLI compile, not via `schema_register`.
 
 ## Output shape
 
