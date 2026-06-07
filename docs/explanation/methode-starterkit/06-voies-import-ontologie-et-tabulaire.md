@@ -14,7 +14,7 @@ Deux décisions explicites, enregistrées dans `templates/import_path_choices.ya
 
 | Moment | Choix | Défaut Personal |
 |--------|-------|-----------------|
-| Phase B0 (avant écriture ontologie) | LinkML vs MCP incrémental | **LinkML** |
+| Phase B0 (avant écriture ontologie) | LinkML via MCP/CLI vs modélisation MCP incrémentale | **LinkML via `ghostcrab_ontology_import`** |
 | Phase C2.0 (avant import tabulaire) | structured-import CLI vs scripts SOP5 | **structured-import CLI** |
 
 Les voies historiques restent disponibles ; l'agent ne doit pas les supprimer du dialogue.
@@ -34,7 +34,18 @@ flowchart LR
 
 ### Commandes
 
-Dry-run (obligatoire) :
+Import MCP natif (défaut agent) :
+
+```json
+{
+  "workspace_id": "immeuble-demo",
+  "ontology_id": "immeuble-demo::core",
+  "input_path": "ontologies/immeuble-demo/core.yaml",
+  "source_format": "linkml"
+}
+```
+
+Dry-run CLI (recommandé avant artefact ou revue opérateur) :
 
 ```bash
 gcp brain ontology compile \
@@ -44,7 +55,7 @@ gcp brain ontology compile \
   --output output/ontology-slice.json
 ```
 
-Import après confirmation :
+Import CLI après confirmation :
 
 ```bash
 gcp brain ontology compile \
@@ -69,7 +80,7 @@ gcp brain ontology compile \
 
 SOP2 section 7 Voie A : `ghostcrab_workspace_create` → `ghostcrab_schema_register` → `remember` → `upsert` → `learn` → `project`.
 
-Utile quand le modèle évolue itérativement sans artefact LinkML versionné, ou en stack Pro PostgreSQL sans CLI ontology compile.
+Utile quand le modèle mémoire/graphe évolue itérativement sans artefact LinkML versionné. Cette voie ne crée pas une ontologie native `ontology_*` : `schema_register` décrit les schémas agent/facettes, `remember` et `upsert` écrivent la mémoire, `learn` écrit les instances/relation du graphe. Pour importer une ontologie formelle depuis MCP, utiliser `ghostcrab_ontology_import`.
 
 ---
 
@@ -112,7 +123,7 @@ Recommandée quand l'équipe veut le protocole gates/scripts StarterKit sans mot
 
 - [ ] `ghostcrab_status` OK
 - [ ] `import_path_choices.yaml` rempli (B0 + C2.0)
-- [ ] Voie ontologie : LinkML validé dry-run **ou** MCP §7 suivi intégralement
+- [ ] Voie ontologie : `ghostcrab_ontology_import` **ou** LinkML validé dry-run + import CLI **ou** MCP §7 suivi comme modélisation incrémentale non native
 - [ ] Voie tabulaire : structured-import **ou** scripts SOP5, pas les deux
 - [ ] `import_manifest.yaml` reflète `import_path_choices` et `commands.path`
 - [ ] Post-import : `ghostcrab_coverage` + `consumer_contract.yaml` si déclaré

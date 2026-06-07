@@ -8,7 +8,7 @@ Ce document précise **ce que MCP construit** dans le processus lab, **ce qu'il 
 
 | Artefact | Processus MCP lab | Outils | Stockage SQLite | Dans bundle golden ? |
 |----------|-------------------|--------|-----------------|----------------------|
-| Ontologie taxonomie | Phase 2 — **construire** | CLI compile LinkML **ou** `ghostcrab_schema_register` | `ontology_*` | Oui |
+| Ontologie taxonomie | Phase 2 — **construire** | `ghostcrab_ontology_import` **ou** CLI compile LinkML | `ontology_*` | Oui |
 | Documents + facets | Phase 4 — **construire** | `gcp brain document` (CLI) | `documents_raw`, `facet_assignments_raw` | Oui |
 | Graphe instance | Phase 5 — **construire** | `ghostcrab_learn`, extract LLM | `entities_raw` → `graph_entity` | Oui |
 | Gap-rules | Phase 3 — **construire** | `ghostcrab_graph_gap_rules_import` | `graph_gap_rules` | **Non** |
@@ -52,7 +52,18 @@ Correspondance méthodologie : phase MCP lab 02 = **Phase 1 — Facettes / ontol
 
 Documentées dans [`mcp-lab/prompts/02-ontology-register.md`](../../examples/immeuble/mcp-lab/prompts/02-ontology-register.md) :
 
-**Option A — LinkML (recommandée pour immeuble)**
+**Option A — LinkML via MCP (recommandée pour immeuble)**
+
+```json
+{
+  "workspace_id": "immeuble-demo-llm",
+  "ontology_id": "immeuble-demo::core",
+  "input_path": "ontologies/immeuble-demo/core.yaml",
+  "source_format": "linkml"
+}
+```
+
+**Option B — LinkML via CLI opérateur**
 
 ```bash
 gcp brain ontology compile \
@@ -64,13 +75,13 @@ gcp brain ontology compile \
 
 Source canonique : [`ontologies/immeuble-demo/core.yaml`](../../ontologies/immeuble-demo/core.yaml)
 
-**Option B — MCP schema register**
+**Option C — MCP schema register**
 
 ```
 ghostcrab_schema_register  →  facets avec schema_id mindbrain:schema
 ```
 
-Modèle plus léger ; ne remplace pas la richesse LinkML pour le syndic.
+Modèle plus léger pour schémas agent/facettes ; ne crée pas `ontology_*` et ne remplace pas la richesse LinkML pour le syndic.
 
 ### Outils MCP de consultation (pas de construction)
 
@@ -184,8 +195,8 @@ Seuils : [`success-criteria.yaml`](../../examples/immeuble/mcp-lab/success-crite
 
 | Action | MCP | CLI |
 |--------|-----|-----|
-| Enregistrer ontologie LinkML | inspect seulement | `gcp brain ontology compile` |
-| Schema léger alternatif | `ghostcrab_schema_register` | — |
+| Enregistrer ontologie LinkML | `ghostcrab_ontology_import` | `gcp brain ontology compile` |
+| Schema léger agent | `ghostcrab_schema_register` | — |
 | Ingérer corpus | guidance | `gcp brain document` |
 | Extraire graphe | `ghostcrab_learn` | `document-business-extract` (live) |
 | Importer gap-rules | `ghostcrab_graph_gap_rules_import` | `graph-gap-rules-import` |

@@ -8,7 +8,7 @@ This document clarifies **what MCP builds** in the lab process, **what it only c
 
 | Artifact | MCP lab process | Tools | SQLite storage | In golden bundle? |
 |----------|-----------------|-------|----------------|-------------------|
-| Taxonomy ontology | Phase 2 — **build** | CLI compile LinkML **or** `ghostcrab_schema_register` | `ontology_*` | Yes |
+| Taxonomy ontology | Phase 2 — **build** | `ghostcrab_ontology_import` **or** CLI compile LinkML | `ontology_*` | Yes |
 | Documents + facets | Phase 4 — **build** | `gcp brain document` (CLI) | `documents_raw`, `facet_assignments_raw` | Yes |
 | Instance graph | Phase 5 — **build** | `ghostcrab_learn`, LLM extract | `entities_raw` → `graph_entity` | Yes |
 | Gap-rules | Phase 3 — **build** | `ghostcrab_graph_gap_rules_import` | `graph_gap_rules` | **No** |
@@ -184,8 +184,8 @@ Thresholds: [`success-criteria.yaml`](../../../examples/immeuble/mcp-lab/success
 
 | Action | MCP | CLI |
 |--------|-----|-----|
-| Register LinkML ontology | inspect only | `gcp brain ontology compile` |
-| Lightweight schema alternative | `ghostcrab_schema_register` | — |
+| Register LinkML ontology | `ghostcrab_ontology_import` | `gcp brain ontology compile` |
+| Lightweight agent schema | `ghostcrab_schema_register` | — |
 | Ingest corpus | guidance | `gcp brain document` |
 | Extract graph | `ghostcrab_learn` | `document-business-extract` (live) |
 | Import gap-rules | `ghostcrab_graph_gap_rules_import` | `graph-gap-rules-import` |

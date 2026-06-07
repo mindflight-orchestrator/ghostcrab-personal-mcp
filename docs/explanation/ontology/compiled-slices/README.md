@@ -13,6 +13,7 @@ node bin/gcp.mjs brain ontology compile \
 ## What is inside each file?
 
 Each `*.json` is a **`ghostcrab_backup_bundle`** slice: the same structure MindBrain would load into SQLite `ontology_*` tables on `--import-db`.
+For agent-driven imports, use `ghostcrab_ontology_import` directly on the LinkML source instead of importing these JSON audit artefacts.
 
 | Block | Meaning for doc ontologies |
 |-------|----------------------------|

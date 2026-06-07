@@ -72,18 +72,18 @@ classes:
 
   OntologyPathLinkML:
     is_a: OntologyPathChoice
-    description: Default Personal — LLM-authored core.yaml, compile dry-run, then --import-db.
+    description: Default Personal — LLM-authored core.yaml, imported through ghostcrab_ontology_import or CLI.
     annotations:
       ghostcrab.path: linkml_compile
       ghostcrab.default_personal: true
-      ghostcrab.operators: gcp brain ontology compile
+      ghostcrab.operators: ghostcrab_ontology_import,gcp brain ontology compile
     slots:
       pathCode:
         range: OntologyImportPath
 
   OntologyPathMcpIncremental:
     is_a: OntologyPathChoice
-    description: Alternative — ghostcrab_schema_register sequence without versioned LinkML.
+    description: Alternative modeling path — agent schemas, memory, and graph writes without native ontology_* import.
     annotations:
       ghostcrab.path: mcp_incremental
       ghostcrab.operators: ghostcrab_schema_register,ghostcrab_remember,ghostcrab_learn
@@ -139,10 +139,17 @@ classes:
 
   OntologyCompileOperator:
     is_a: DocumentationConcept
-    description: gcp brain ontology compile with mandatory dry-run before --import-db.
+    description: CLI ontology compile/import path for operator dry-run and offline maintenance.
     annotations:
       ghostcrab.operator: gcp brain ontology compile
       ghostcrab.requires_mcp_stopped: true
+
+  OntologyMcpImportOperator:
+    is_a: DocumentationConcept
+    description: MCP ontology import path for LinkML YAML or OWL/RDF N-Triples into native ontology_* tables.
+    annotations:
+      ghostcrab.operator: ghostcrab_ontology_import
+      ghostcrab.primary_table: ontology_*
 
   AgentSchemaRegistryPath:
     is_a: DocumentationConcept

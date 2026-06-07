@@ -1,6 +1,6 @@
 # Pipeline LinkML → OWL2 (Personal)
 
-Source files live under [`ontologies/`](../../../ontologies/). Operator commands run via `gcp brain ontology` (Zig engine).
+Source files live under [`ontologies/`](../../../ontologies/). Agents can import through MCP with `ghostcrab_ontology_import`; operators can run the same native engine through `gcp brain ontology`.
 
 ---
 
@@ -11,14 +11,41 @@ flowchart LR
   YAML[core.yaml LinkML]
   Dry[compile dry-run]
   Review[utilisateur confirme]
-  Import[compile --import-db]
+  Import[MCP ontology_import or CLI import]
   DB[(ontology_* tables)]
   YAML --> Dry --> Review --> Import --> DB
 ```
 
 ---
 
-## Commands
+## MCP import
+
+LinkML import from an agent session:
+
+```json
+{
+  "workspace_id": "immeuble-demo",
+  "ontology_id": "immeuble-demo::core",
+  "input_path": "ontologies/immeuble-demo/core.yaml",
+  "source_format": "linkml"
+}
+```
+
+OWL/RDF N-Triples import:
+
+```json
+{
+  "workspace_id": "immeuble-demo",
+  "ontology_id": "immeuble-demo::owl",
+  "input_path": "output/ontology.nt",
+  "source_format": "ntriples",
+  "materialize_graph": false
+}
+```
+
+Use `materialize_graph:true` only when object triples should also create graph instances. Keep it false for pure ontology registration.
+
+## CLI commands
 
 Dry-run (no DB write):
 
@@ -30,7 +57,7 @@ gcp brain ontology compile \
   --output output/ontology-slice.json
 ```
 
-Import after explicit confirmation:
+Import after explicit confirmation from the CLI:
 
 ```bash
 gcp brain ontology compile \

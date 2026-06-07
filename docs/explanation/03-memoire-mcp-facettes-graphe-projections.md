@@ -36,8 +36,10 @@ flowchart LR
   end
 
   subgraph ontology [C - Ontologie docs]
+    OntologyImport[ghostcrab_ontology_import]
     OntologyTables[(ontology_dimensions...)]
     AssignRaw[(facet_assignments_raw)]
+    OntologyImport --> OntologyTables
     OntologyTables --> AssignRaw
   end
 ```
@@ -53,6 +55,7 @@ Doc graphe canonique : [vendor/mindbrain/docs/graph.md](../../vendor/mindbrain/d
 | **Routage** | `src/mcp/session-context.ts` | `ghostcrab_workspace_use` | Non (restart MCP) |
 | **Faits durables** | `src/tools/facets/remember.ts` → `POST /api/mindbrain/facts/write` | `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_search` | Oui (`agent_facts`) |
 | **Mémoire de travail** | `src/tools/pragma/project.ts`, `pack.ts` | `ghostcrab_project`, `ghostcrab_pack` | Oui (`projections`) |
+| **Ontologie formelle** | `src/tools/ontology/import.ts` → moteur natif MindBrain | `ghostcrab_ontology_import` | Oui (`ontology_*`) |
 | **Graphe métier** | `src/tools/dgraph/learn.ts`, `src/db/graph.ts` | `ghostcrab_learn`, `ghostcrab_graph_search`, `traverse`… | Oui (raw + runtime) |
 
 **`ghostcrab_pack`** fusionne projections actives + top faits depuis `agent_facts` (BM25/FTS). Il **ne lit pas** `graph_entity`.
@@ -60,6 +63,7 @@ Doc graphe canonique : [vendor/mindbrain/docs/graph.md](../../vendor/mindbrain/d
 **Écriture courante :**
 
 - Texte stable → `remember` / `upsert`
+- Ontologie LinkML/N-Triples → `ontology_import`
 - Relation métier → `learn`
 - Objectif de session → `project`, puis `pack`
 
@@ -69,6 +73,7 @@ flowchart TB
     Session[session context]
     Remember[ghostcrab_remember]
     Project[ghostcrab_project]
+    OntologyImport[ghostcrab_ontology_import]
     Learn[ghostcrab_learn]
     Pack[ghostcrab_pack]
   end
@@ -77,6 +82,7 @@ flowchart TB
     Facts[(agent_facts)]
     Proj[(projections)]
     Assign[(facet_assignments_raw)]
+    Ontology[(ontology_*)]
     RawGraph[(entities_raw / relations_raw)]
     RuntimeGraph[(graph_entity / graph_relation)]
     Search[(search_documents / search_fts)]
@@ -88,6 +94,7 @@ flowchart TB
   Project --> Proj
   Pack --> Proj
   Pack --> Facts
+  OntologyImport --> Ontology
   Learn --> RawGraph
   Learn --> RuntimeGraph
   Assign --> Search
@@ -128,6 +135,19 @@ Cette mémoire est utile pour notes stables, état de tracker, observations agen
 
 ### Ontologie domaine (LinkML)
 
+Voie MCP native :
+
+```json
+{
+  "workspace_id": "<workspace>",
+  "ontology_id": "<ontology-id>",
+  "input_path": "<path-to-core.yaml>",
+  "source_format": "linkml"
+}
+```
+
+Voie CLI opérateur :
+
 ```bash
 gcp brain ontology compile \
   --workspace-id <workspace> \
@@ -137,6 +157,8 @@ gcp brain ontology compile \
 ```
 
 Remplit `ontology_entity_types`, `ontology_edge_types`, `ontology_namespaces`, etc.
+
+Ne pas utiliser `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_learn`, `ghostcrab_schema_register` ou `ghostcrab_graph_gap_rules_import` pour importer une ontologie formelle : ces outils écrivent respectivement mémoire, état courant, instances graphe, schémas agent ou règles de diagnostic.
 
 Processus lab détaillé (illustration) : [02 — MCP, ontologie et gap-rules](02-mcp-ontologie-gap-rules.md).
 
@@ -247,6 +269,7 @@ Les projections (Type A / Type B) ne passent **jamais** par les mécanismes de r
 | Mise à jour | Effet immédiat | Action si stale |
 |-------------|----------------|-----------------|
 | `ghostcrab_remember` / `upsert` | Ligne `agent_facts` | Rafraîchir projection Type A si elle résume ce fait |
+| `ghostcrab_ontology_import` | Tables `ontology_*` | Réexécuter qualification/couverture si le vocabulaire change |
 | `document-qualify` | `facet_assignments_raw` | `ghostcrab_collection_reindex` |
 | `entities_raw` / SQL sur raw | Raw modifié | `ghostcrab_graph_reindex` |
 | `ghostcrab_learn` | Runtime graphe immédiat | `graph_reindex` si adjacence incohérente |
@@ -260,6 +283,7 @@ Tableau complet : [04 — Réindexation §5](04-reindexation-ghostcrab.md#5-quan
 ## Règle pratique
 
 - Fait textuel durable → `ghostcrab_remember` ou `ghostcrab_upsert`
+- Ontologie formelle LinkML/N-Triples → `ghostcrab_ontology_import`
 - Relation métier vérifiable → `ghostcrab_learn` ou `document-business-extract`
 - Raw visible aux outils graphe → `ghostcrab_graph_reindex`
 - Qualifier des documents/chunks → `document-qualify` puis reindex collection

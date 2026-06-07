@@ -19,7 +19,7 @@ Ce dossier documente le **groupe d'ontologies formelles** du produit Personal �
 | **Format source** | LinkML YAML | JSON schema registry |
 | **Cible logique** | OWL2 / N-Triples | `ghostcrab:task`, `ghostcrab:note`, … |
 | **Stockage** | `ontology_*` | métadonnées + lignes `agent_facts` |
-| **Opérateur** | `gcp brain ontology compile\|import\|export` | `ghostcrab_schema_register` |
+| **Opérateur** | `ghostcrab_ontology_import` ou `gcp brain ontology compile\|import\|export` | `ghostcrab_schema_register` |
 | **Usage principal** | taxonomies documentaires, vocabulaire graphe | faits textuels agent |
 
 ---
@@ -58,6 +58,17 @@ node bin/gcp.mjs brain ontology compile \
   --ontology-id ghostcrab-docs::memory-model \
   --input docs/explanation/ontology/linkml/ghostcrab-docs/memory-model.yaml \
   --output docs/explanation/ontology/compiled-slices/memory-model.json
+```
+
+Import MCP équivalent pour écrire l'ontologie dans les tables natives :
+
+```json
+{
+  "ontology_id": "ghostcrab-docs::memory-model",
+  "workspace_id": "ghostcrab-docs",
+  "input_path": "docs/explanation/ontology/linkml/ghostcrab-docs/memory-model.yaml",
+  "source_format": "linkml"
+}
 ```
 
 **Mapping graphing spec (Layer 1–4)** : Layers 1–3 = `ontologies/ghostcrab/profile.yaml` + tranches domaine ; Layer 4 = instances `graph_entity`. Les tranches `ghostcrab-docs` modélisent le **vocabulaire de lecture produit**, pas le graphe métier.

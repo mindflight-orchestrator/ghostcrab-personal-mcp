@@ -93,7 +93,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 
 ---
 
-## B — MCP tools (52 registered)
+## B — MCP tools (53 registered)
 
 | Tool | Basic | Subsystem | Access | Tables / impact |
 |------|-------|-----------|--------|-----------------|
@@ -129,6 +129,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | `ghostcrab_loadout_suggest` | no | loadout | read | bootstrap recipes / schemas seed |
 | `ghostcrab_modeling_guidance` | yes | pragma | guide | — (diagnostic) |
 | `ghostcrab_onboarding_schemas` | no | facets | read | schema registry (agent_facts shapes; not LinkML ontology_*) |
+| `ghostcrab_ontology_import` | no | ontology | write | ontology_* native tables; optional graph materialization for N-Triples |
 | `ghostcrab_pack` | yes | pragma | read | projections + agent_facts |
 | `ghostcrab_project` | yes | pragma | model | projections |
 | `ghostcrab_projection_get` | no | pragma | model | graph_entity (ProjectionResult) |

@@ -479,7 +479,7 @@ Documentation :
 | Méthodologie universelle | MCP lab (prompts) | Alignement |
 |--------------------------|-------------------|------------|
 | Précondition ONBOARDING + Model Proposal | 00–01 | Conforme |
-| Phase 1 — Facettes / ontologie | 02 (`ontology compile` / `schema_register`) | Conforme |
+| Phase 1 — Facettes / ontologie | 02 (`ghostcrab_ontology_import` / `ontology compile`) | Conforme |
 | Phase 2 — Projections (contrat de lecture) | *(absent du lab)* | **Écart volontaire** — voir note ci-dessous |
 | Phase 3 — Import | 04 (docs qualifiés CLI) + 05 (graphe via `learn` / extract) | Partiel — import domaine complet, pas thin slice |
 | Phase 4 — Rapports / validation | 06 (`graph_search`, `graph_diagnostics`, `success-criteria.yaml`) | Partiel — validation graphe + gap-rules, pas `ghostcrab_pack` |

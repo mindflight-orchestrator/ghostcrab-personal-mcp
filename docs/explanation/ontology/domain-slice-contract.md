@@ -16,9 +16,9 @@
 ## Lifecycle
 
 1. Author LinkML in repo (LLM-assisted or hand-edited).
-2. `gcp brain ontology compile` **without** `--import-db` → slice JSON for review.
+2. Optional CLI dry-run: `gcp brain ontology compile` **without** `--import-db` → slice JSON for review.
 3. User confirms in thread (StarterKit modeling gate).
-4. `compile --import-db --force` after MCP stopped.
+4. Import with `ghostcrab_ontology_import` from MCP, or `compile --import-db --force` after MCP stopped for CLI/operator flow.
 5. Verify with `ghostcrab_schema_inspect` / `ghostcrab_coverage` (MCP) — shapes for agent facts are separate.
 
 ---

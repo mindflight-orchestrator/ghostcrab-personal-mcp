@@ -28,7 +28,7 @@ Références : [term-slice-matrix.md](term-slice-matrix.md) · [diagrams/](diagr
 | E2 | Exhaustif | explanation 03→05 + methodology query-layers + universal §2 | ≥1 classe par chapitre dans une tranche | pass |
 | E3 | Exhaustif | Questions de compétence (32 total) | Répondables via doc ou slice JSON | pass |
 | H1 | Hiérarchie | Sous-classes `FacetSense*`, `MethodologyPhase*`, `OntologyPath*` | Spécialisation sémantique via `is_a` | pass |
-| C1 | Compile | `gcp brain ontology compile` ×4 | exit 0, slices sous `compiled-slices/` | pass |
+| C1 | Compile/import | `gcp brain ontology compile` ×4 ou `ghostcrab_ontology_import` sur source LinkML | exit 0, slices sous `compiled-slices/` ou import `ontology_*` réussi | pass |
 | P1 | Personal | `rg -i mindcli docs/explanation/ontology/linkml/ghostcrab-docs` | 0 occurrence | pass |
 
 ---
@@ -50,7 +50,7 @@ Références : [term-slice-matrix.md](term-slice-matrix.md) · [diagrams/](diagr
 # Graphes Mermaid à jour
 node scripts/render-linkml-ontology-graph.mjs --check
 
-# Compile dry-run (×4)
+# Compile dry-run CLI (×4)
 node bin/gcp.mjs brain ontology compile \
   --workspace-id ghostcrab-docs \
   --ontology-id ghostcrab-docs::memory-model \
@@ -66,8 +66,20 @@ rg -i mindcli docs/explanation/ontology/linkml/ghostcrab-docs || true
 ## Import workspace (après MECE vert)
 
 1. `node bin/gcp.mjs brain workspace create ghostcrab-docs` (si absent)
-2. Arrêter le serveur MCP (lock SQLite)
-3. Importer dans l’ordre : memory-model → query-layers → methodology-loop → import-paths
+2. Importer dans l’ordre : memory-model → query-layers → methodology-loop → import-paths
+
+Voie MCP :
+
+```json
+{
+  "workspace_id": "ghostcrab-docs",
+  "ontology_id": "ghostcrab-docs::memory-model",
+  "input_path": "docs/explanation/ontology/linkml/ghostcrab-docs/memory-model.yaml",
+  "source_format": "linkml"
+}
+```
+
+Voie CLI opérateur (arrêter le serveur MCP ou utiliser `--force`) :
 
 ```bash
 node bin/gcp.mjs brain ontology compile \

@@ -69,8 +69,8 @@ Prompts : [`00-prerequisites.md`](../../examples/immeuble/mcp-lab/prompts/00-pre
 | Action | Outil |
 |--------|-------|
 | Créer workspace | `ghostcrab_workspace_create` + `ghostcrab_workspace_use` |
-| Enregistrer taxonomie | **CLI** `gcp brain ontology compile` sur [`ontologies/immeuble-demo/core.yaml`](../../ontologies/immeuble-demo/core.yaml) |
-| Alternative légère | `ghostcrab_schema_register` |
+| Enregistrer taxonomie | `ghostcrab_ontology_import` sur [`ontologies/immeuble-demo/core.yaml`](../../ontologies/immeuble-demo/core.yaml), ou CLI `gcp brain ontology compile` |
+| Modèle léger agent | `ghostcrab_schema_register` (pas une ontologie LinkML native) |
 | Vérifier | `ghostcrab_schema_inspect`, `ghostcrab_coverage` |
 
 ```bash
@@ -79,6 +79,17 @@ gcp brain ontology compile \
   --ontology-id immeuble-demo::core \
   --input ontologies/immeuble-demo/core.yaml \
   --import-db --force
+```
+
+Équivalent MCP :
+
+```json
+{
+  "workspace_id": "immeuble-demo-llm",
+  "ontology_id": "immeuble-demo::core",
+  "input_path": "ontologies/immeuble-demo/core.yaml",
+  "source_format": "linkml"
+}
 ```
 
 L'ontologie fournit le **vocabulaire contrôlé** pour qualifier les docs et nommer les entités/arêtes du graphe.

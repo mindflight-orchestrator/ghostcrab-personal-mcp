@@ -7,7 +7,8 @@ Traçabilité glossaire / explication / méthodologie vers les quatre tranches L
 | Ontologie LinkML / OWL2 | import-paths | `FormalOntologyPath` |
 | Profil plateforme | import-paths | `PlatformProfileArtifact` |
 | Tranche domaine | import-paths | `DomainSliceArtifact` |
-| Compile ontologie | import-paths | `OntologyCompileOperator` |
+| Import ontologie MCP | import-paths | `OntologyMcpImportOperator` |
+| Compile ontologie CLI | import-paths | `OntologyCompileOperator` |
 | Schémas `ghostcrab:*` (hors OWL) | import-paths | `AgentSchemaRegistryPath` |
 | Facet sens A — faits agent | memory-model | `FacetSenseAgent` |
 | Facet sens B — index documentaire | memory-model | `FacetSenseDocumentIndex` |
@@ -29,8 +30,8 @@ Traçabilité glossaire / explication / méthodologie vers les quatre tranches L
 | `ghostcrab_pack`, `combined_search` | query-layers | `CrossLayerReadTool` |
 | Phase 1–4 méthodologie | methodology-loop | `MethodologyPhase*` |
 | Question de compétence | methodology-loop | `CompetencyQuestion` |
-| Voie LinkML B0 | import-paths | `OntologyPathLinkML` |
-| Voie MCP incrémental | import-paths | `OntologyPathMcpIncremental` |
+| Voie LinkML B0 native | import-paths | `OntologyPathLinkML` |
+| Voie MCP incrémental non native | import-paths | `OntologyPathMcpIncremental` |
 | structured-import CLI | import-paths | `TabularPathStructuredImport` |
 | Scripts SOP5 Voie A | import-paths | `TabularPathSop5ScriptsProOnly` |
 | Édition personal-mcp | import-paths | `ProductEditionPersonal` |
@@ -77,10 +78,10 @@ Ponts inter-tranches : slot `bridgesToSlice` (enum `DocsSliceId`) sur `Documenta
 ### import-paths
 
 1. Quel est le choix ontologie par défaut Personal en phase B0 ?
-2. Quelle commande compile LinkML sans écrire en base ?
-3. Quand utiliser `--import-db` et quelle précaution SQLite ?
+2. Quel outil MCP importe LinkML/N-Triples dans `ontology_*` ?
+3. Quelle commande CLI compile LinkML sans écrire en base ?
 4. Quelle voie tabulaire par défaut en C2 Personal ?
 5. Quels opérateurs sont interdits sur le track personal-mcp ?
 6. Où vit le YAML source d’autorité vs N-Triples ?
-7. Différence entre `ghostcrab_schema_register` et `gcp brain ontology compile` ?
+7. Différence entre `ghostcrab_ontology_import`, `ghostcrab_schema_register` et `gcp brain ontology compile` ?
 8. Quel runbook pour `structured-import apply` ?

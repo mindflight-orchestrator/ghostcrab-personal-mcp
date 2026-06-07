@@ -69,8 +69,8 @@ Prompts: [`00-prerequisites.md`](../../../examples/immeuble/mcp-lab/prompts/00-p
 | Action | Tool |
 |--------|------|
 | Create workspace | `ghostcrab_workspace_create` + `ghostcrab_workspace_use` |
-| Register taxonomy | **CLI** `gcp brain ontology compile` on [`ontologies/immeuble-demo/core.yaml`](../../../ontologies/immeuble-demo/core.yaml) |
-| Lightweight alternative | `ghostcrab_schema_register` |
+| Register taxonomy | `ghostcrab_ontology_import` on [`ontologies/immeuble-demo/core.yaml`](../../../ontologies/immeuble-demo/core.yaml), or CLI `gcp brain ontology compile` |
+| Lightweight agent model | `ghostcrab_schema_register` (not native LinkML ontology import) |
 | Verify | `ghostcrab_schema_inspect`, `ghostcrab_coverage` |
 
 ```bash

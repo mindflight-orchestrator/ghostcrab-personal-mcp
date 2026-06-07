@@ -121,8 +121,9 @@ Load from the starterkit as needed:
 
 Before ontology registration or tabular import, follow `SOP0`:
 
-- Present LinkML vs MCP incremental (ontology) and structured-import CLI vs SOP5 scripts (tabular).
+- Present LinkML native import (`ghostcrab_ontology_import` or CLI) vs MCP incremental modeling, and structured-import CLI vs SOP5 scripts (tabular).
 - Record the user's choice in `import_path_choices.yaml`.
 - Do not mix pipelines in one run.
-- LinkML requires dry-run compile validation before `--import-db`.
+- LinkML native import writes `ontology_*`; `ghostcrab_schema_register`, `remember`, `upsert`, and `learn` do not.
+- LinkML CLI import requires dry-run compile validation before `--import-db`.
 - Aligns with [ONBOARDING_CONTRACT.md](./ONBOARDING_CONTRACT.md): confirm before schema freeze.

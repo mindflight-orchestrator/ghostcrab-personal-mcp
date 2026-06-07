@@ -13,7 +13,7 @@ Vocabulaire canonique pour [explications](README.md), [méthodologie](../methodo
 | **Ontologie** | Schéma formel **LinkML** sous `ontologies/`, compilé en slice JSON / **N-Triples OWL2**, importé dans `ontology_*` | Même principe ; extensions `pg_*` possibles |
 | **Profil plateforme** | `ontologies/ghostcrab/profile.yaml` — patterns PROV, temps, preuve | idem |
 | **Tranche domaine** | `ontologies/<workspace>/core.yaml`, id `\<workspace\>::core` | idem |
-| **Compile ontologie** | `gcp brain ontology compile` (dry-run puis `--import-db`) | idem ou outillage Pro |
+| **Import ontologie** | `ghostcrab_ontology_import` depuis MCP, ou `gcp brain ontology compile` / `import` depuis CLI | idem ou outillage Pro |
 
 **Ce n'est pas une ontologie OWL :** les schémas `ghostcrab:task`, `ghostcrab:note`, etc. enregistrés via `ghostcrab_schema_register` (registre MCP pour `agent_facts`).
 
@@ -25,7 +25,7 @@ Vocabulaire canonique pour [explications](README.md), [méthodologie](../methodo
 |------|---------------|-------------|--------|
 | **A — Faits agent** | faits agent, mémoire MCP | `agent_facts` | `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_search` |
 | **B — Index documentaire** | moteur de faceting | `facet_tables`, `facet_postings` | dérivé de reindex / documents |
-| **C — Vocabulaire ontologique** | taxonomies LinkML | `ontology_*`, `facet_assignments_raw` | `gcp brain ontology`, `document-qualify` |
+| **C — Vocabulaire ontologique** | taxonomies LinkML | `ontology_*`, `facet_assignments_raw` | `ghostcrab_ontology_import`, `gcp brain ontology`, `document-qualify` |
 
 Le champ JSON `facets` sur un fait agent = **filtre**, pas l'index Roaring (sens B).
 

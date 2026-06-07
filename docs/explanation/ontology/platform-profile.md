@@ -23,7 +23,7 @@ Import or compile this profile **before** domain slices when the domain ontology
 |-----------|--------|
 | New workspace with domain-only YAML | Check if `core.yaml` imports profile symbols |
 | Cross-domain labs (immeuble, CRM) | Reuse profile; do not duplicate enums in each `core.yaml` |
-| Personal SQLite only | Same `gcp brain ontology compile` path as domain slices |
+| Personal SQLite only | Same `ghostcrab_ontology_import` or `gcp brain ontology compile` path as domain slices |
 
 ---
 

@@ -69,7 +69,7 @@ Ordered prompts: [`examples/immeuble/mcp-lab/prompts/`](../../../examples/immeub
 | Phase | Writes? | Action |
 |-------|---------|--------|
 | 00–01 | No | Discovery + Model Proposal |
-| 02 | Yes | Workspace + ontology (`gcp brain ontology compile` or `ghostcrab_schema_register`) |
+| 02 | Yes | Workspace + ontology (`ghostcrab_ontology_import` or `gcp brain ontology compile`) |
 | 03 | Yes | Gap-rules (`ghostcrab_graph_gap_rules_import`) |
 | 04 | Yes | Ingest + qualify docs (`gcp brain document`) |
 | 05 | Yes | Graph extraction (`ghostcrab_learn` / LLM extract) |
@@ -86,7 +86,7 @@ node scripts/import-immeuble-demo-llm.mjs --mode mock --reset
 
 | Artifact | MCP / CLI process | Role of `bundle.json` |
 |----------|-------------------|------------------------|
-| Ontology | Phase 2 — compile LinkML or schema_register | Contains target `ontology_*` to reproduce |
+| Ontology | Phase 2 — import/compile LinkML | Contains target `ontology_*` to reproduce |
 | Qualified documents | Phase 4 — `gcp brain document` | Contains 7 qualified docs (reference) vs 8 corpus files (lab input) |
 | Business graph | Phase 5 — `ghostcrab_learn` / extract | Contains 131 entities, 265 relations (thresholds in success-criteria) |
 | Gap-rules | Phase 3 — separate JSON import | **Absent** from bundle — sidecar `gap-rules/*.json` |

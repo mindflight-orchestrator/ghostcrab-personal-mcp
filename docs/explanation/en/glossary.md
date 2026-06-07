@@ -13,7 +13,7 @@ Canonical vocabulary for [explanations](README.md), [methodology](../../methodol
 | **Ontology** | Formal **LinkML** under `ontologies/`, compiled to slice JSON / **OWL2 N-Triples**, stored in `ontology_*` | Same pattern; optional `pg_*` |
 | **Platform profile** | `ontologies/ghostcrab/profile.yaml` | same |
 | **Domain slice** | `ontologies/<workspace>/core.yaml`, id `<workspace>::core` | same |
-| **Ontology compile** | `gcp brain ontology compile` (dry-run then `--import-db`) | same or Pro tooling |
+| **Ontology import** | `ghostcrab_ontology_import` from MCP, or `gcp brain ontology compile` / `import` from CLI | same or Pro tooling |
 
 **Not an OWL ontology:** `ghostcrab:task`, `ghostcrab:note`, etc. via `ghostcrab_schema_register` (MCP registry for `agent_facts`).
 
@@ -25,7 +25,7 @@ Canonical vocabulary for [explanations](README.md), [methodology](../../methodol
 |-------|----------------|-------|-------|
 | **A — Agent facts** | agent facts, MCP memory | `agent_facts` | `ghostcrab_remember`, `upsert`, `search` |
 | **B — Document index** | faceting engine | `facet_tables`, `facet_postings` | derived from reindex |
-| **C — Ontology vocabulary** | LinkML taxonomies | `ontology_*`, `facet_assignments_raw` | `gcp brain ontology`, `document-qualify` |
+| **C — Ontology vocabulary** | LinkML taxonomies | `ontology_*`, `facet_assignments_raw` | `ghostcrab_ontology_import`, `gcp brain ontology`, `document-qualify` |
 
 JSON field `facets` on an agent fact = **filter**, not the Roaring index (sense B).
 

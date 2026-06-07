@@ -40,6 +40,13 @@ These patches are drafts for the public GhostCrab MCP tool descriptions.
 - This is a freeze-level action.
 - Never call it on a first-turn fuzzy onboarding request.
 - Only register a canonical or custom schema after a confirmed modeling gap and explicit user confirmation.
+- Do not use it to import LinkML/N-Triples ontology source files; use `ghostcrab_ontology_import` for native `ontology_*`.
+
+## `ghostcrab_ontology_import`
+
+- Use for LinkML YAML or OWL/RDF N-Triples source import into native MindBrain `ontology_*` tables.
+- Do not replace it with `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_learn`, `ghostcrab_schema_register`, or `ghostcrab_graph_gap_rules_import`; those tools write memory, graph instances, agent schemas, or diagnostic rules.
+- Keep `materialize_graph` false unless importing N-Triples should also create graph instances.
 
 ## `ghostcrab_status`
 

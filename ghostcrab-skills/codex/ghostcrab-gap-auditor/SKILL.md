@@ -50,7 +50,7 @@ All categories are subtypes of **`answerability_gap`**:
 6. `ghostcrab_graph_search` / `ghostcrab_traverse` when graph evidence is required.
 7. Compare results to the user question.
 
-For bulk or ontology gaps on import pipelines, point operators to `gcp brain structured-import` or `gcp brain ontology compile` (stop MCP first) — see product runbooks.
+For import pipeline gaps, point operators to `gcp brain structured-import`; for ontology source gaps, prefer MCP `ghostcrab_ontology_import` when an agent owns the workflow, or `gcp brain ontology compile` for CLI/operator maintenance — see product runbooks.
 
 ## Output format
 

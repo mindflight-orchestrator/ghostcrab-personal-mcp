@@ -86,7 +86,7 @@ gcp brain ontology compile \
   --import-db --force
 ```
 
-MCP alternative: `ghostcrab_schema_register` (lightweight model, not full LinkML equivalent).
+MCP native alternative: `ghostcrab_ontology_import` with `source_format: "linkml"`. `ghostcrab_schema_register` is only a lightweight agent/facet schema model, not a full LinkML equivalent and not a native `ontology_*` import.
 
 **Comparison**: the reference bundle contains the same compiled ontology — read-only checklist: [`mcp-lab/reference/ontology-checklist.md`](../../../examples/immeuble/mcp-lab/reference/ontology-checklist.md).
 

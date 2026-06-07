@@ -74,6 +74,10 @@ import {
 } from "../../src/tools/workspace/loadouts.js";
 import { loadoutSeedTool } from "../../src/tools/workspace/loadout-seed.js";
 import { workspaceExportToonTool } from "../../src/tools/workspace/export-toon.js";
+import {
+  OntologyImportInput,
+  ontologyImportTool
+} from "../../src/tools/ontology/import.js";
 
 /**
  * Guards against MCP inputSchema drift from Zod: the LLM-visible JSON Schema
@@ -513,6 +517,40 @@ describe("MCP inputSchema contract (drift guard)", () => {
         expect(importParsed.data.rules[0]?.direction).toBe("out");
         expect(importParsed.data.rules[0]?.min_count).toBe(1);
       }
+    });
+  });
+
+  describe("ghostcrab_ontology_import", () => {
+    const schema = ontologyImportTool.definition.inputSchema as {
+      required?: string[];
+      properties: {
+        source_format: { enum?: string[]; default?: string };
+        force: { default?: boolean };
+        materialize_graph: { default?: boolean };
+      };
+    };
+
+    it("documents real ontology import inputs", () => {
+      expect(schema.required).toEqual(
+        expect.arrayContaining(["ontology_id", "input_path"])
+      );
+      expect(schema.properties.source_format.enum).toEqual([
+        "linkml",
+        "ntriples"
+      ]);
+      expect(schema.properties.source_format.default).toBe("linkml");
+      expect(schema.properties.force.default).toBe(false);
+      expect(schema.properties.materialize_graph.default).toBe(false);
+    });
+
+    it("Zod defaults ontology import to LinkML", () => {
+      const parsed = OntologyImportInput.parse({
+        ontology_id: "serenity-production::core",
+        input_path: "serenity-production/ontology/core.yaml"
+      });
+      expect(parsed.source_format).toBe("linkml");
+      expect(parsed.force).toBe(false);
+      expect(parsed.materialize_graph).toBe(false);
     });
   });
 

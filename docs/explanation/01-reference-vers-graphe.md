@@ -52,8 +52,8 @@ sequenceDiagram
   Agent->>MCP: Model Proposal confirmé
 
   Note over Agent: Phase 2 ontologie
-  Agent->>CLI: ontology compile LinkML
-  CLI->>DB: ontology_entity_types, dimensions...
+  Agent->>MCP: ghostcrab_ontology_import
+  MCP->>DB: ontology_entity_types, dimensions...
 
   Note over Agent: Phase 3 gap-rules
   Agent->>MCP: ghostcrab_graph_gap_rules_import
@@ -86,7 +86,18 @@ gcp brain ontology compile \
   --import-db --force
 ```
 
-Alternative MCP : `ghostcrab_schema_register` (modèle léger, pas équivalent complet LinkML).
+Alternative MCP native :
+
+```json
+{
+  "workspace_id": "immeuble-demo-llm",
+  "ontology_id": "immeuble-demo::core",
+  "input_path": "ontologies/immeuble-demo/core.yaml",
+  "source_format": "linkml"
+}
+```
+
+`ghostcrab_schema_register` reste un modèle léger pour schémas agent/facettes ; ce n'est pas un équivalent LinkML complet et ne remplit pas les tables `ontology_*`.
 
 **Comparaison** : la référence bundle contient la même ontologie compilée — checklist read-only : [`mcp-lab/reference/ontology-checklist.md`](../../examples/immeuble/mcp-lab/reference/ontology-checklist.md).
 

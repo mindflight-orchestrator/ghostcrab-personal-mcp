@@ -231,7 +231,7 @@ For **local ingest** (email, messages, calendar, search results): do **not** sta
 - **Query before asserting** durable knowledge. Never treat **one** empty exact read as proof the whole domain is empty.
 - **Read ladder:** count when the domain may be broad; search when the question is concrete; pack when work is complex—after a factual read.
 - **One user-requested write → one write**; finalize the summary before writing.
-- Use `ghostcrab_remember` for durable facts and notes; `ghostcrab_upsert` for in-place current-state changes; `ghostcrab_learn` for stable graph structure; `ghostcrab_project` for provisional compact views—**not** on the first fuzzy onboarding turn, and **not** before Phase D when §9 applies.
+- Use `ghostcrab_remember` for durable facts and notes; `ghostcrab_upsert` for in-place current-state changes; `ghostcrab_learn` for stable graph structure; `ghostcrab_ontology_import` for LinkML/N-Triples ontology source import into native `ontology_*`; `ghostcrab_project` for provisional compact views—**not** on the first fuzzy onboarding turn, and **not** before Phase D when §9 applies.
 
 ## 12. Living tracker and checkpoints
 
@@ -248,7 +248,7 @@ For **local ingest** (email, messages, calendar, search results): do **not** sta
 ## 14. Graph and ontology (optional depth)
 
 - Graph tools (`ghostcrab_coverage`, `ghostcrab_traverse`, `ghostcrab_learn`) support epistemic workflows; they are **not** required for every domain. Prefer them when blockers, dependencies, or coverage matter.
-- **Ontology-heavy** work still begins with §2 and §9: naive callers do not need to say "ontology"; you still owe them a **Model Proposal** before durable structure.
+- **Ontology-heavy** work still begins with §2 and §9: naive callers do not need to say "ontology"; you still owe them a **Model Proposal** before durable structure. Import formal ontology source files with `ghostcrab_ontology_import`, not with memory, graph, schema, or gap-rule tools.
 
 ## 15. Host responsibility
 

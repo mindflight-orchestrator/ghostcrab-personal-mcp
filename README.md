@@ -22,7 +22,7 @@ mindBrain runs on **SQLite** in this personal distribution, and on **PostgreSQL*
 
 ### What is GhostCrab MCP?
 
-**GhostCrab MCP is the agent-facing interface to mindBrain.** It exposes mindBrain through 52 registered `ghostcrab_*` MCP tools: 12 recommended defaults for day-to-day agents and 40 extended tools for graph, workspace, ontology, loadout, artifact, and maintenance workflows. Any MCP-compatible agent (Cursor, Claude Code, Codex, OpenClaw, and others) can query structured knowledge, update durable memory, and navigate relationships natively, without custom integration code.
+**GhostCrab MCP is the agent-facing interface to mindBrain.** It exposes mindBrain through 53 registered `ghostcrab_*` MCP tools: 12 recommended defaults for day-to-day agents and 41 extended tools for graph, workspace, ontology, loadout, artifact, and maintenance workflows. Any MCP-compatible agent (Cursor, Claude Code, Codex, OpenClaw, and others) can query structured knowledge, update durable memory, and navigate relationships natively, without custom integration code.
 
 GhostCrab MCP does not own the data. mindBrain does. GhostCrab MCP is the door.
 
@@ -179,7 +179,7 @@ This launches mindBrain, creates `~/.ghostcrab/databases/ghostcrab.sqlite`, and 
 
 ## CLI — bulk import and reference
 
-**MCP** is the ontology and query surface (`ghostcrab_search`, `ghostcrab_remember`, …). **Bulk import** runs through `gcp brain` wrappers around the native MindBrain engine — not MCP streaming. Stop MCP / `ghostcrab-backend` before database-backed import commands (or pass `--force`).
+**MCP** is the ontology, memory, graph, and query surface (`ghostcrab_search`, `ghostcrab_remember`, `ghostcrab_ontology_import`, …). **High-throughput tabular/document import** still runs through `gcp brain` wrappers around the native MindBrain engine — not MCP streaming. Stop MCP / `ghostcrab-backend` before database-backed CLI import commands (or pass `--force`).
 
 ### Discover commands
 
@@ -192,12 +192,14 @@ gcp brain docs document      # full document runbook (Markdown)
 gcp brain docs import        # both runbooks
 gcp brain structured-import --help
 gcp brain document --help
+gcp brain ontology --help
 ```
 
 ### Import pipelines
 
 | Pipeline | CLI | Full runbook (installed package) |
 | -------- | --- | -------------------------------- |
+| **Ontology** (LinkML YAML, OWL/RDF N-Triples) | `ghostcrab_ontology_import` (MCP) or `gcp brain ontology` (CLI) | `docs/explanation/ontology/` |
 | **Tabular** (CSV, JSON, YAML, XLSX, TOON) | `gcp brain structured-import` | `gcp brain docs structured` |
 | **Documents** (PDF, HTML, MD corpus) | `gcp brain document` | `gcp brain docs document` |
 
@@ -205,7 +207,9 @@ Typical tabular order: `register-semantics` → `apply` (or Phase D: `ddl-propos
 
 Document flow (thin slice): `document-normalize` → `document-ingest` → `qualification-vocab-list` → optional `document-profile` / `document-qualify`. See `gcp brain docs document` for no-LLM and LLM paths.
 
-After bulk import, agents query via MCP (`ghostcrab_search`, `ghostcrab_graph_search`, `ghostcrab_graph_reindex`, …).
+For ontology source files, use `ghostcrab_ontology_import` from MCP when the agent owns the workflow. Use `gcp brain ontology compile|import|export` for operator scripts, dry-run artefacts, or offline maintenance. Do not import LinkML with `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_learn`, `ghostcrab_schema_register`, or `ghostcrab_graph_gap_rules_import`; those write memory, graph instances, agent schemas, or diagnostics rules rather than native `ontology_*` tables.
+
+After import, agents query via MCP (`ghostcrab_search`, `ghostcrab_graph_search`, `ghostcrab_graph_reindex`, …).
 
 ### In-package reference files
 
@@ -255,7 +259,7 @@ Agents can also discover extended tools at runtime with `ghostcrab_tool_search`.
 | **Graph** | `ghostcrab_graph_search`, `ghostcrab_graph_subgraph`, `ghostcrab_graph_path`, `ghostcrab_traverse`, `ghostcrab_graph_reindex`, `ghostcrab_graph_gap_rules_import` |
 | **Projections / Artifacts** | `ghostcrab_project`, `ghostcrab_pack`, `ghostcrab_projection_get`, `ghostcrab_artifact_get`, `ghostcrab_live_refresh` |
 | **Schema / Workspace** | `ghostcrab_schema_list`, `ghostcrab_schema_inspect`, `ghostcrab_schema_register`, `ghostcrab_workspace_list`, `ghostcrab_workspace_create`, `ghostcrab_workspace_reset` |
-| **Discovery / Loadout / Ontology** | `ghostcrab_tool_search`, `ghostcrab_loadout_apply`, `ghostcrab_onboarding_schemas`, `ghostcrab_ontology_bundle_export` |
+| **Discovery / Loadout / Ontology** | `ghostcrab_tool_search`, `ghostcrab_loadout_apply`, `ghostcrab_onboarding_schemas`, `ghostcrab_ontology_import` |
 
 Full references: `docs/reference/mcp-tools.md` and `docs/reference/operator-catalog.md`.
 
