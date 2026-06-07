@@ -25,7 +25,7 @@ describe("resolveGhostcrabConfig", () => {
       mindbrainUrl: "http://127.0.0.1:8091",
       nodeEnv: "development",
       resolvedConfigPath: undefined,
-      sqlitePath: path.join(process.cwd(), "ghostcrab.sqlite"),
+      sqlitePath: path.join(os.homedir(), ".ghostcrab", "databases", "ghostcrab.sqlite"),
       telemetryEnabled: true,
       telemetryEndpoint: "https://telemetry.ghostcrab.be/v1/ping",
       telemetryTimeoutMs: 1500,

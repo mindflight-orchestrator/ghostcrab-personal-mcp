@@ -23,7 +23,7 @@ function deriveSqlitePathSource(config: ReturnType<typeof resolveGhostcrabConfig
   if (config.cliWorkspaceName) {
     return `CLI workspace "${config.cliWorkspaceName}"`;
   }
-  return "default (data/ghostcrab.sqlite in process cwd unless overridden)";
+  return "default (~/.ghostcrab/databases/ghostcrab.sqlite unless overridden)";
 }
 
 export function buildWorkspaceContextStatus(): WorkspaceContextStatus {

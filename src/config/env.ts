@@ -48,7 +48,13 @@ export interface GhostcrabConfig {
   executionMode?: TelemetryExecutionMode;
 }
 
-const DEFAULT_SQLITE_PATH = path.join(process.cwd(), "ghostcrab.sqlite");
+const DEFAULT_SQLITE_PATH = path.join(
+  process.env.GHOSTCRAB_DATA_DIR ??
+    process.env.GHOSTCRAB_HOME ??
+    path.join(os.homedir(), ".ghostcrab"),
+  "databases",
+  "ghostcrab.sqlite"
+);
 const DEFAULT_EMBEDDING_BASE_URL = "https://openrouter.ai/api/v1";
 const DEFAULT_EMBEDDING_DIMENSIONS = 1536;
 const DEFAULT_EMBEDDING_TIMEOUT_MS = 30_000;
