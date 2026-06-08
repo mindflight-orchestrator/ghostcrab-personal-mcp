@@ -12,9 +12,12 @@ import { createToolContext } from "./tool-context.js";
 import { countTool } from "../../src/tools/facets/count.js";
 import { rememberTool } from "../../src/tools/facets/remember.js";
 import {
+  schemaGetTool,
   schemaInspectTool,
   schemaListTool,
-  schemaRegisterTool
+  schemaRegisterTool,
+  schemaSyncApplyTool,
+  schemaSyncPreviewTool
 } from "../../src/tools/facets/schema.js";
 import { searchTool } from "../../src/tools/facets/search.js";
 import { upsertTool } from "../../src/tools/facets/upsert.js";
@@ -36,9 +39,12 @@ const TOOL_HANDLERS = {
   ghostcrab_pack: packTool,
   ghostcrab_project: projectTool,
   ghostcrab_remember: rememberTool,
+  ghostcrab_schema_get: schemaGetTool,
   ghostcrab_schema_inspect: schemaInspectTool,
   ghostcrab_schema_list: schemaListTool,
   ghostcrab_schema_register: schemaRegisterTool,
+  ghostcrab_schema_sync_apply: schemaSyncApplyTool,
+  ghostcrab_schema_sync_preview: schemaSyncPreviewTool,
   ghostcrab_search: searchTool,
   ghostcrab_status: statusTool,
   ghostcrab_traverse: traverseTool,

@@ -44,6 +44,7 @@ const BASIC_LISTED_TOOL_NAMES = [
   "ghostcrab_combined_search",
   "ghostcrab_remember",
   "ghostcrab_upsert",
+  "ghostcrab_schema_get",
   "ghostcrab_schema_list",
   "ghostcrab_schema_inspect",
   "ghostcrab_pack",

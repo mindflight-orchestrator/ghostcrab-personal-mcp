@@ -785,15 +785,15 @@ function printBrainHelp() {
     `
 Usage: gcp brain <subcommand>
 
-MindBrain (storage + structure) — start the Zig backend, isolate memory, install schema packs.
+MindBrain (storage + native ontologies) — start the Zig backend, isolate memory, install schema packs.
 
 Subcommands:
   up [--workspace <id>] [--db <path>|--default] [--install-skills]
                                            Start MindBrain backend + MCP on stdio
   workspace create [name]                 Register a workspace & data paths
   workspace list                          List workspaces
-  schema <list|pull|remove|show>           Ontologies / knowledge structure in the DB
-  ontology import|export [opts]           Import/export OWL2 N-Triples into MindBrain
+  schema <list|pull|remove|show>           Local schema packs from the registry/cache
+  ontology import|export|inspect [opts]   Native ontology_* import/export/inspection
   db-who [--path] [--workspace]            Which processes have the SQLite file open (lsof)
   upgrade [--db <path>|--default]          Stop GhostCrab MCP, back up SQLite, run install migration
   artifact <list|get|refresh|events|migrate> [opts]  Answer artifact registry (HTTP subcommands need backend)

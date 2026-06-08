@@ -5,9 +5,12 @@ import { createToolContext } from "../helpers/tool-context.js";
 import { countTool } from "../../src/tools/facets/count.js";
 import { rememberTool } from "../../src/tools/facets/remember.js";
 import {
+  schemaGetTool,
   schemaInspectTool,
   schemaListTool,
-  schemaRegisterTool
+  schemaRegisterTool,
+  schemaSyncApplyTool,
+  schemaSyncPreviewTool
 } from "../../src/tools/facets/schema.js";
 import { searchTool } from "../../src/tools/facets/search.js";
 import { upsertTool } from "../../src/tools/facets/upsert.js";
@@ -722,7 +725,24 @@ describe("facet tools", () => {
           content: JSON.stringify({
             schema_id: "ghostcrab:task",
             description: "Task schema"
-          })
+          }),
+          workspace_id: "default"
+        }
+      ])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          id: "schema-1",
+          facets_json: JSON.stringify({
+            schema_id: "ghostcrab:task",
+            target: "facets",
+            version: 1
+          }),
+          content: JSON.stringify({
+            schema_id: "ghostcrab:task",
+            description: "Task schema"
+          }),
+          workspace_id: "default"
         }
       ]);
     const database = createMockDatabase(query);
@@ -744,6 +764,10 @@ describe("facet tools", () => {
       { schema_id: "ghostcrab:task" },
       createToolContext(database)
     );
+    const getResult = await schemaGetTool.handler(
+      { schema_id: "ghostcrab:task" },
+      createToolContext(database)
+    );
 
     expect(readStructured(registerResult)).toMatchObject({
       ok: true,
@@ -760,8 +784,294 @@ describe("facet tools", () => {
       ok: true,
       tool: "ghostcrab_schema_inspect",
       found: true,
+      schema_id: "ghostcrab:task",
+      registry_found: true,
+      ontology_found: false,
+      sync_status: "ontology_missing"
+    });
+    expect(readStructured(getResult)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_schema_get",
+      found: true,
       schema_id: "ghostcrab:task"
     });
+  });
+
+  it("inspects native ontology namespaces and previews registry projection sync", async () => {
+    const ontologyRow = {
+      ontology_id: "workspace::core",
+      workspace_id: "workspace",
+      name: "Workspace Core",
+      version: "1.0.0",
+      source_kind: "linkml",
+      frozen: 0,
+      metadata_json: "{}"
+    };
+    const namespaceRows = [
+      {
+        namespace: "root",
+        label: "root",
+        parent_namespace: null,
+        metadata_json: "{}"
+      },
+      {
+        namespace: "shared",
+        label: "shared",
+        parent_namespace: null,
+        metadata_json: "{}"
+      }
+    ];
+    const dimensionRows = [
+      {
+        namespace: "root",
+        dimension: "LocalStatus",
+        value_type: "string",
+        is_multi: 0,
+        hierarchy_kind: "flat",
+        metadata_json: "{}"
+      },
+      {
+        namespace: "shared",
+        dimension: "SharedStatus",
+        value_type: "string",
+        is_multi: 0,
+        hierarchy_kind: "flat",
+        metadata_json: "{}"
+      }
+    ];
+    const valueRows = [
+      {
+        namespace: "root",
+        dimension: "LocalStatus",
+        value_id: 1,
+        value: "active",
+        parent_value_id: null,
+        label: "active",
+        metadata_json: "{}"
+      },
+      {
+        namespace: "shared",
+        dimension: "SharedStatus",
+        value_id: 1,
+        value: "inherited",
+        parent_value_id: null,
+        label: "inherited",
+        metadata_json: "{}"
+      }
+    ];
+    const query = vi
+      .fn<DatabaseClient["query"]>()
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([ontologyRow])
+      .mockResolvedValueOnce(namespaceRows)
+      .mockResolvedValueOnce(dimensionRows)
+      .mockResolvedValueOnce(valueRows)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([ontologyRow])
+      .mockResolvedValueOnce(namespaceRows)
+      .mockResolvedValueOnce(dimensionRows)
+      .mockResolvedValueOnce(valueRows)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    const database = createMockDatabase(query);
+
+    const inspectResult = await schemaInspectTool.handler(
+      { schema_id: "workspace::core", workspace_id: "workspace" },
+      createToolContext(database)
+    );
+    const previewResult = await schemaSyncPreviewTool.handler(
+      { schema_id: "workspace::core", workspace_id: "workspace" },
+      createToolContext(database)
+    );
+
+    expect(readStructured(inspectResult)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_schema_inspect",
+      schema_id: "workspace::core",
+      registry_found: false,
+      ontology_found: true,
+      canonical_source: "ontology",
+      sync_status: "registry_missing",
+      ontology: {
+        namespaces: [
+          expect.objectContaining({ namespace: "root" }),
+          expect.objectContaining({ namespace: "shared" })
+        ],
+        dimensions: [
+          expect.objectContaining({
+            namespace: "root",
+            dimension: "LocalStatus"
+          }),
+          expect.objectContaining({
+            namespace: "shared",
+            dimension: "SharedStatus"
+          })
+        ]
+      }
+    });
+    expect(readStructured(previewResult)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_schema_sync_preview",
+      schema_id: "workspace::core",
+      registry_found: false,
+      ontology_found: true,
+      sync_status: "registry_missing",
+      actions: ["create_registry_projection_from_ontology"],
+      mutates: false
+    });
+  });
+
+  it("requires explicit confirmation before applying schema sync", async () => {
+    const query = vi.fn<DatabaseClient["query"]>();
+    const database = createMockDatabase(query);
+
+    const result = await schemaSyncApplyTool.handler(
+      {
+        schema_id: "workspace::core",
+        action: "create_registry_projection_from_ontology",
+        confirm: false
+      },
+      createToolContext(database)
+    );
+
+    expect(query).not.toHaveBeenCalled();
+    expect(readStructured(result)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_schema_sync_apply",
+      applied: false,
+      reason: "confirm must be true to apply schema synchronization."
+    });
+  });
+
+  it("creates native ontology rows from a registry ontology projection", async () => {
+    const projection = {
+      schema_id: "workspace::core",
+      description: "Workspace Core",
+      target: "ontology",
+      ontology: {
+        ontology_id: "workspace::core",
+        workspace_id: "workspace",
+        name: "Workspace Core",
+        version: "1.0.0",
+        source_kind: "registry_projection",
+        metadata_json: "{}",
+        namespaces: [
+          { namespace: "root", label: "root", metadata_json: "{}" },
+          { namespace: "shared", label: "shared", metadata_json: "{}" }
+        ],
+        dimensions: [
+          {
+            namespace: "root",
+            dimension: "LocalStatus",
+            value_type: "string",
+            is_multi: 0,
+            hierarchy_kind: "flat",
+            metadata_json: "{}"
+          },
+          {
+            namespace: "shared",
+            dimension: "SharedStatus",
+            value_type: "string",
+            is_multi: 0,
+            hierarchy_kind: "flat",
+            metadata_json: "{}"
+          }
+        ],
+        values: [
+          {
+            namespace: "root",
+            dimension: "LocalStatus",
+            value_id: 1,
+            value: "active",
+            label: "active",
+            metadata_json: "{}"
+          },
+          {
+            namespace: "shared",
+            dimension: "SharedStatus",
+            value_id: 1,
+            value: "inherited",
+            label: "inherited",
+            metadata_json: "{}"
+          }
+        ],
+        entity_types: [],
+        edge_types: []
+      }
+    };
+    const query = vi
+      .fn<DatabaseClient["query"]>()
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          id: "schema-1",
+          workspace_id: "workspace",
+          facets_json: JSON.stringify({
+            schema_id: "workspace::core",
+            target: "ontology",
+            version: 1
+          }),
+          content: JSON.stringify(projection)
+        }
+      ])
+      .mockResolvedValue([]);
+    const database = createMockDatabase(query);
+
+    const result = await schemaSyncApplyTool.handler(
+      {
+        schema_id: "workspace::core",
+        workspace_id: "workspace",
+        action: "create_ontology_from_registry",
+        confirm: true
+      },
+      createToolContext(database)
+    );
+
+    expect(readStructured(result)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_schema_sync_apply",
+      applied: true,
+      action: "create_ontology_from_registry",
+      schema_id: "workspace::core",
+      workspace_id: "workspace"
+    });
+    expect(query).toHaveBeenCalledTimes(9);
+    expect(query.mock.calls[2]?.[0]).toContain("INSERT INTO ontologies");
+    expect(query.mock.calls[3]?.[1]).toEqual([
+      "workspace::core",
+      "root",
+      "root",
+      null,
+      "{}"
+    ]);
+    expect(query.mock.calls[4]?.[1]).toEqual([
+      "workspace::core",
+      "shared",
+      "shared",
+      null,
+      "{}"
+    ]);
+    expect(query.mock.calls[5]?.[1]).toEqual([
+      "workspace::core",
+      "root",
+      "LocalStatus",
+      "string",
+      0,
+      "flat",
+      "{}"
+    ]);
+    expect(query.mock.calls[7]?.[1]).toEqual([
+      "workspace::core",
+      "root",
+      "LocalStatus",
+      1,
+      "active",
+      null,
+      "active",
+      "{}"
+    ]);
   });
 
   describe("FTS5 BM25 wiring", () => {

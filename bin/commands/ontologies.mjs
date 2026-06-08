@@ -228,14 +228,14 @@ async function ontologiesShow(args) {
 function printHelp() {
   console.log(
     `
-Usage: gcp brain schema <subcommand>   (recommended — “structure in the DB”)
+Usage: gcp brain schema <subcommand>   (recommended — local registry schema packs)
        gcp ontologies <subcommand>     (alias)
 
 Subcommands:
-  list [--remote]              List local (or remote) ontologies
-  pull <owner/name> [flags]    Download an ontology from the registry
-  remove <owner/name>          Remove a locally installed ontology
-  show <owner/name>            Print ontology content to stdout
+  list [--remote]              List local (or remote) schema packs
+  pull <owner/name> [flags]    Download a schema pack from the registry
+  remove <owner/name>          Remove a locally installed schema pack
+  show <owner/name>            Print schema pack content to stdout
 
 Pull flags:
   --token <tok>     Override registry.token from config
