@@ -13,6 +13,18 @@
 const [, , cmd, ...rest] = process.argv;
 
 switch (cmd) {
+  case "--version":
+  case "-v":
+  case "version": {
+    const { version } = await readPackageInfo();
+    console.log(version);
+    break;
+  }
+  case "--info":
+  case "info": {
+    await printInfo();
+    break;
+  }
   case "brain": {
     const { cmdBrain } = await import("./commands/brain.mjs");
     await cmdBrain(rest);
@@ -108,6 +120,10 @@ GhostCrab CLI — durable structured memory for AI agents
 
 Usage: gcp <command> [options]
 
+Info:
+  --version | version              Print installed GhostCrab package version
+  --info | info                    Print install paths and offline defaults
+
 ── JTBD (recommended) ──
   brain up [--workspace <id>]       Start MindBrain (Zig) + MCP on stdio
   smoke                            Read-only backend/tool registration check
@@ -160,4 +176,73 @@ IDE skills (Cursor / Claude Code / Codex):
 Run  gcp brain --help   /   gcp agent --help   /   gcp env --help   for details.
 `.trim()
   );
+}
+
+async function printInfo() {
+  const { existsSync } = await import("node:fs");
+  const { dirname } = await import("node:path");
+  const { fileURLToPath } = await import("node:url");
+  const { getConfigPath, readConfig } = await import("./lib/cli-config.mjs");
+  const { resolveGhostcrabSqlite } = await import(
+    "./lib/resolve-ghostcrab-sqlite.mjs"
+  );
+
+  const cliPath = fileURLToPath(import.meta.url);
+  const { packageJsonPath, packageRoot, version, name } =
+    await readPackageInfo();
+  const sqlite = resolveGhostcrabSqlite({
+    workspaceNameFromCli: null,
+    sqlitePathFromCli: null,
+    defaultFromCli: false
+  });
+  const configPath = getConfigPath();
+  const config = readConfig();
+  const mindbrainUrl =
+    process.env.GHOSTCRAB_MINDBRAIN_URL ?? "http://127.0.0.1:8091";
+
+  const lines = [
+    "GhostCrab CLI info",
+    `  Package: ${name}@${version}`,
+    `  Package root: ${packageRoot}`,
+    `  Package manifest: ${packageJsonPath}`,
+    `  CLI script: ${cliPath}`,
+    `  Invoked as: ${process.argv[1] ?? cliPath}`,
+    `  Current dir: ${process.cwd()}`,
+    `  Node: ${process.version}`,
+    `  Platform: ${process.platform}-${process.arch}`,
+    "",
+    "Defaults",
+    `  SQLite database: ${sqlite.sqlitePathResolved}`,
+    `  SQLite source: ${sqlite.sqlitePathSource}`,
+    `  SQLite exists: ${existsSync(sqlite.sqlitePathResolved) ? "yes" : "no"}`,
+    `  Data dir: ${dirname(sqlite.sqlitePathResolved)}`,
+    `  MindBrain URL: ${mindbrainUrl}`,
+    `  Backend addr env: ${process.env.GHOSTCRAB_BACKEND_ADDR ?? "(unset)"}`,
+    "",
+    "User config",
+    `  Config file: ${configPath}`,
+    `  Config exists: ${existsSync(configPath) ? "yes" : "no"}`,
+    `  Default workspace: ${config.defaultWorkspace ?? "(none)"}`,
+    `  Workspaces: ${Object.keys(config.workspaces ?? {}).length}`
+  ];
+
+  console.log(lines.join("\n"));
+}
+
+async function readPackageInfo() {
+  const { readFile } = await import("node:fs/promises");
+  const { dirname } = await import("node:path");
+  const { fileURLToPath } = await import("node:url");
+
+  const packageJsonUrl = new URL("../package.json", import.meta.url);
+  const packageJsonPath = fileURLToPath(packageJsonUrl);
+  const raw = await readFile(packageJsonUrl, "utf8");
+  const pkg = JSON.parse(raw);
+
+  return {
+    name: typeof pkg.name === "string" ? pkg.name : "unknown",
+    version: typeof pkg.version === "string" ? pkg.version : "unknown",
+    packageJsonPath,
+    packageRoot: dirname(packageJsonPath)
+  };
 }
