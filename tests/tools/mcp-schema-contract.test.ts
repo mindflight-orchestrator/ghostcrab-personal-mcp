@@ -40,10 +40,16 @@ import {
 } from "../../src/tools/facets/remember.js";
 import { searchTool, SearchInput } from "../../src/tools/facets/search.js";
 import {
+  schemaGetTool,
   schemaInspectTool,
   schemaListTool,
+  SchemaGetInput,
   SchemaInspectInput,
   SchemaListInput,
+  schemaSyncApplyTool,
+  schemaSyncPreviewTool,
+  SchemaSyncApplyInput,
+  SchemaSyncPreviewInput,
   schemaRegisterTool,
   SchemaRegisterInput,
   schemaOnboardingTool,
@@ -1076,6 +1082,64 @@ describe("MCP inputSchema contract (drift guard)", () => {
       expect(SchemaInspectInput.safeParse({}).success).toBe(false);
       expect(
         SchemaInspectInput.safeParse({ schema_id: "ghostcrab:task" }).success
+      ).toBe(true);
+    });
+  });
+
+  describe("ghostcrab_schema_get", () => {
+    const schema = schemaGetTool.definition.inputSchema as {
+      required?: string[];
+    };
+
+    it("requires schema_id", () => {
+      expect(schema.required).toEqual(expect.arrayContaining(["schema_id"]));
+    });
+
+    it("Zod rejects missing schema_id", () => {
+      expect(SchemaGetInput.safeParse({}).success).toBe(false);
+      expect(
+        SchemaGetInput.safeParse({ schema_id: "ghostcrab:task" }).success
+      ).toBe(true);
+    });
+  });
+
+  describe("ghostcrab_schema_sync_preview", () => {
+    const schema = schemaSyncPreviewTool.definition.inputSchema as {
+      required?: string[];
+    };
+
+    it("requires schema_id", () => {
+      expect(schema.required).toEqual(expect.arrayContaining(["schema_id"]));
+    });
+
+    it("Zod rejects missing schema_id", () => {
+      expect(SchemaSyncPreviewInput.safeParse({}).success).toBe(false);
+      expect(
+        SchemaSyncPreviewInput.safeParse({ schema_id: "ghostcrab:task" })
+          .success
+      ).toBe(true);
+    });
+  });
+
+  describe("ghostcrab_schema_sync_apply", () => {
+    const schema = schemaSyncApplyTool.definition.inputSchema as {
+      required?: string[];
+    };
+
+    it("requires schema_id, action, and confirm", () => {
+      expect(schema.required).toEqual(
+        expect.arrayContaining(["schema_id", "action", "confirm"])
+      );
+    });
+
+    it("Zod accepts confirmed ontology-to-registry actions", () => {
+      expect(SchemaSyncApplyInput.safeParse({}).success).toBe(false);
+      expect(
+        SchemaSyncApplyInput.safeParse({
+          schema_id: "ghostcrab:task",
+          action: "create_registry_projection_from_ontology",
+          confirm: true
+        }).success
       ).toBe(true);
     });
   });

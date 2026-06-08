@@ -17,8 +17,8 @@ operations.
 | **SQLite lock inspection** | `gcp brain db-who [--path \| --workspace]` | Lists host processes holding the resolved GhostCrab SQLite file open via `lsof`. |
 | **Isolate memory (workspace)** | `gcp brain workspace create \| list` | Registers or lists logical MindBrain `workspace_id` partitions. Legacy: `gcp init`. |
 | **Workspace destructive maintenance** | `ghostcrab workspace reset \| delete` | Lower-level launcher operations to wipe workspace-scoped data or remove/archive a workspace row; keep these out of normal agent flows. |
-| **Structure in the DB (ontologies)** | `gcp brain schema …` | Registry ontologies (knowledge schema): `list`, `pull`, `show`, `remove`. Legacy: `gcp ontologies …`. |
-| **Ontology source import/export** | MCP `ghostcrab_ontology_import`; CLI `gcp brain ontology compile\|import\|export\|export-linkml …` | Import LinkML or normalized OWL2/RDF N-Triples into MindBrain native `ontology_*` tables; export preserved N-Triples, taxonomy bundles, or LinkML slices. |
+| **Schema packs (registry/cache)** | `gcp brain schema …` | Local or remote schema packs: `list`, `pull`, `show`, `remove`. Legacy alias: `gcp ontologies …`. |
+| **Native ontology source import/export** | MCP `ghostcrab_ontology_import`; CLI `gcp brain ontology compile\|import\|export\|export-linkml\|inspect …` | Import LinkML or normalized OWL2/RDF N-Triples into MindBrain native `ontology_*` tables; inspect/export preserved N-Triples, taxonomy bundles, or LinkML slices. |
 | **Equip agents (skills)** | `gcp agent skills …` | Registry skills (agent capabilities). Shortcut: `gcp agent equip owner/name` = `agent skills pull`. Legacy: `gcp skills …`. |
 | **CLI / MCP environment** | `gcp env …` | Read/write `~/.ghostcrab/config.json`. Legacy: `gcp config …`. |
 | **Host project bootstrap** | `gcp bootstrap` | Idempotently creates `.env`, `data/`, README doc symlinks, and the PATH shim in the current project. |

@@ -42,9 +42,12 @@ export const EXPECTED_TOOL_NAMES = [
   "ghostcrab_projection_get",
   "ghostcrab_project",
   "ghostcrab_remember",
+  "ghostcrab_schema_get",
   "ghostcrab_schema_inspect",
   "ghostcrab_schema_list",
   "ghostcrab_schema_register",
+  "ghostcrab_schema_sync_apply",
+  "ghostcrab_schema_sync_preview",
   "ghostcrab_search",
   "ghostcrab_status",
   "ghostcrab_tool_search",
@@ -93,7 +96,9 @@ export function diffToolNames(
 ): { missing: string[]; extra: string[] } {
   const actualSet = new Set(actual);
   const expectedSet = new Set(expected);
-  const missing = [...expectedSet].filter((name) => !actualSet.has(name)).sort();
+  const missing = [...expectedSet]
+    .filter((name) => !actualSet.has(name))
+    .sort();
   const extra = [...actualSet].filter((name) => !expectedSet.has(name)).sort();
   return { missing, extra };
 }

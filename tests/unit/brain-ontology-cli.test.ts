@@ -71,7 +71,10 @@ describe("gcp brain ontology helpers", () => {
     ]);
 
     expect(
-      __private__.buildOntologyCompileLinkmlEngineArgs(parsed, "/tmp/brain.sqlite")
+      __private__.buildOntologyCompileLinkmlEngineArgs(
+        parsed,
+        "/tmp/brain.sqlite"
+      )
     ).toEqual([
       "ontology-compile-linkml",
       "--workspace-id",
@@ -106,6 +109,40 @@ describe("gcp brain ontology helpers", () => {
     });
   });
 
+  it("parses ontology inspect flags", () => {
+    expect(
+      __private__.parseOntologyInspectArgs([
+        "--url",
+        "http://127.0.0.1:8092/",
+        "--workspace-id",
+        "immeuble-demo",
+        "--ontology-id",
+        "immeuble-demo::core"
+      ])
+    ).toEqual({
+      url: "http://127.0.0.1:8092/",
+      workspaceId: "immeuble-demo",
+      ontologyId: "immeuble-demo::core"
+    });
+  });
+
+  it("builds ontology inspect HTTP URL", () => {
+    const parsed = __private__.parseOntologyInspectArgs([
+      "--workspace-id",
+      "immeuble-demo",
+      "--ontology-id",
+      "immeuble-demo::core"
+    ]);
+
+    expect(
+      __private__
+        .buildOntologyInspectUrl("http://127.0.0.1:8092", parsed)
+        .toString()
+    ).toBe(
+      "http://127.0.0.1:8092/api/mindbrain/ontology/inspect?ontology_id=immeuble-demo%3A%3Acore&workspace_id=immeuble-demo"
+    );
+  });
+
   it("builds native ontology-compile-linkml args", () => {
     const parsed = __private__.parseOntologyCompileArgs([
       "--workspace-id",
@@ -122,7 +159,10 @@ describe("gcp brain ontology helpers", () => {
     ]);
 
     expect(
-      __private__.buildOntologyCompileLinkmlEngineArgs(parsed, "/tmp/brain.sqlite")
+      __private__.buildOntologyCompileLinkmlEngineArgs(
+        parsed,
+        "/tmp/brain.sqlite"
+      )
     ).toEqual([
       "ontology-compile-linkml",
       "--workspace-id",

@@ -68,6 +68,7 @@ const ADDITIONAL_REQUIRED_ROUTES = [
   route("GET", "/api/mindbrain/ghostcrab/graph-search"),
   route("GET", "/api/mindbrain/ghostcrab/projections/relevance"),
   route("GET", "/api/mindbrain/collections/facet-search"),
+  route("GET", "/api/mindbrain/ontology/inspect"),
   route("POST", "/api/mindbrain/reindex/graph"),
   route("POST", "/api/mindbrain/reindex/all")
 ] as const satisfies readonly BackendRouteSpec[];
@@ -90,7 +91,8 @@ export const GHOSTCRAB_BACKEND_CONTRACT = {
       graph_gap_rules: true,
       graph_gap_rules_import: true,
       graph_gap_rules_delete: true,
-      graph_pattern_query: true
+      graph_pattern_query: true,
+      ontology_inspect: true
     }
   }
 } as const satisfies GhostcrabBackendContract;
