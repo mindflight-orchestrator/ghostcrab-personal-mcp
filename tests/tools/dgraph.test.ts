@@ -450,6 +450,88 @@ describe("dgraph tools", () => {
     });
   });
 
+  it("keeps unsafe 64-bit relation ids distinct when including graph relations", async () => {
+    mockGraphSearchFetch([
+      {
+        entity_id: 1,
+        entity_type: "Document",
+        name: "doc:a",
+        confidence: 1,
+        metadata_json: "{}",
+        score: 1
+      }
+    ]);
+    const relationA = "9162202066626072000";
+    const relationB = "9162202066626072001";
+    const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
+      if (sql.includes("FROM graph_relation_property")) {
+        return [
+          {
+            relation_id: relationA,
+            property_key: "marker",
+            value_type: "text",
+            value_text: "first",
+            value_number: null,
+            value_integer: null,
+            ref_doc_id: null,
+            currency: null
+          },
+          {
+            relation_id: relationB,
+            property_key: "marker",
+            value_type: "text",
+            value_text: "second",
+            value_number: null,
+            value_integer: null,
+            ref_doc_id: null,
+            currency: null
+          }
+        ];
+      }
+      if (sql.includes("FROM graph_relation")) {
+        return [
+          {
+            relation_id: relationA,
+            relation_type: "REFERENCES",
+            source_id: 1,
+            target_id: 2,
+            metadata_json: "{}"
+          },
+          {
+            relation_id: relationB,
+            relation_type: "REFERENCES",
+            source_id: 1,
+            target_id: 3,
+            metadata_json: "{}"
+          }
+        ];
+      }
+      return [];
+    });
+
+    const result = await graphSearchTool.handler(
+      {
+        workspace_id: "mindbrain-seo-audit",
+        query: "doc:a",
+        include_relations: true
+      },
+      createToolContext(createMockDatabase(query))
+    );
+
+    const relations = readStructured(result).relations as Array<{
+      relation_id: string;
+      relation_properties: Array<{ value_text: string | null }>;
+    }>;
+    expect(relations).toHaveLength(2);
+    expect(relations.map((row) => row.relation_id)).toEqual([
+      relationA,
+      relationB
+    ]);
+    expect(
+      relations.map((row) => row.relation_properties[0]?.value_text)
+    ).toEqual(["first", "second"]);
+  });
+
   it("wraps MindBrain graph diagnostics", async () => {
     mockDiagnosticsFetch();
     const context = createToolContext(createMockDatabase(vi.fn()));
@@ -1168,11 +1250,15 @@ describe("dgraph tools", () => {
       ) {
         return [{ entity_id: 2 }];
       }
-      if (sql.includes("FROM graph_relation") && sql.includes("LIMIT 1")) {
+      if (
+        sql.includes("FROM graph_relation") &&
+        sql.includes("LIMIT 1") &&
+        !sql.includes("ORDER BY relation_id DESC")
+      ) {
         return [];
       }
-      if (sql.includes("COALESCE(MAX(relation_id)")) {
-        return [{ next_id: 5 }];
+      if (sql.includes("ORDER BY relation_id DESC")) {
+        return [{ relation_id: "5" }];
       }
       if (sql.includes("INSERT INTO graph_relation")) return [];
       if (sql.includes("INSERT INTO workspaces")) return [];
@@ -1224,6 +1310,81 @@ describe("dgraph tools", () => {
     expect(
       sqlCalls.some((s) => s.includes("INSERT INTO graph_relation_property"))
     ).toBe(true);
+    expect(sqlCalls.some((s) => s.includes("COALESCE(MAX(relation_id)"))).toBe(
+      false
+    );
+  });
+
+  it("creates distinct edges after an unsafe 64-bit relation id without JS number allocation", async () => {
+    const sqlCalls: string[] = [];
+    const createdRelationIds = ["9162202066626072001", "9162202066626072002"];
+    const query = vi.fn(async (sql: string, params?: readonly unknown[]) => {
+      sqlCalls.push(sql);
+
+      if (sql.includes("INSERT INTO graph_entity")) return [];
+      if (sql.includes("INSERT OR IGNORE INTO graph_entity_alias")) return [];
+      if (
+        sql.includes("FROM graph_entity") &&
+        sql.includes("WHERE workspace_id =") &&
+        sql.includes("AND entity_type =")
+      ) {
+        const nodeName = String(params?.[2] ?? "");
+        const entityId = nodeName.endsWith(":a")
+          ? 1
+          : nodeName.endsWith(":b")
+            ? 2
+            : 3;
+        return [{ entity_id: entityId }];
+      }
+      if (
+        sql.includes("FROM graph_relation") &&
+        sql.includes("LIMIT 1") &&
+        !sql.includes("ORDER BY relation_id DESC")
+      ) {
+        return [];
+      }
+      if (sql.includes("INSERT INTO graph_relation")) return [];
+      if (sql.includes("ORDER BY relation_id DESC")) {
+        return [{ relation_id: createdRelationIds.shift() }];
+      }
+      if (sql.includes("INSERT INTO workspaces")) return [];
+      if (sql.includes("INSERT INTO ontologies")) return [];
+      if (sql.includes("INSERT INTO entities_raw")) return [];
+      if (sql.includes("INSERT INTO relations_raw")) return [];
+
+      return [];
+    });
+    const database = createMockDatabase(query);
+
+    const first = await learnTool.handler(
+      {
+        edge: {
+          source: "doc:a",
+          target: "doc:b",
+          label: "REFERENCES"
+        }
+      },
+      createToolContext(database)
+    );
+    const second = await learnTool.handler(
+      {
+        edge: {
+          source: "doc:a",
+          target: "doc:c",
+          label: "REFERENCES"
+        }
+      },
+      createToolContext(database)
+    );
+
+    const firstEdge = readStructured(first).edge as Record<string, unknown>;
+    const secondEdge = readStructured(second).edge as Record<string, unknown>;
+    expect(firstEdge.id).toBe("9162202066626072001");
+    expect(secondEdge.id).toBe("9162202066626072002");
+    expect(firstEdge.id).not.toBe(secondEdge.id);
+    expect(sqlCalls.some((s) => s.includes("COALESCE(MAX(relation_id)"))).toBe(
+      false
+    );
   });
 
   it("updates an existing edge with relation_properties and issues UPDATE + raw property upsert", async () => {

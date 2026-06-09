@@ -141,7 +141,7 @@ export async function mirrorGraphEdgeToRaw(
     [
       workspaceId,
       ontologyId,
-      Number(relationId),
+      relationId,
       label,
       Number(sourceId),
       Number(targetId),
@@ -252,9 +252,9 @@ export async function findGraphRelationByEndpoints(
   }
 ): Promise<{ id: string } | null> {
   const workspaceId = params.workspaceId ?? "default";
-  const [row] = await database.query<{ relation_id: number }>(
+  const [row] = await database.query<{ relation_id: string }>(
     `
-      SELECT r.relation_id
+      SELECT CAST(r.relation_id AS TEXT) AS relation_id
       FROM graph_relation r
       JOIN graph_entity s ON s.entity_id = r.source_id AND s.entity_type = 'entity'
       JOIN graph_entity t ON t.entity_id = r.target_id AND t.entity_type = 'entity'
@@ -291,9 +291,9 @@ export async function upsertGraphRelation(
   const workspaceId = params.workspaceId ?? "default";
   const confidence = params.confidence ?? 1;
 
-  const [existing] = await database.query<{ relation_id: number }>(
+  const [existing] = await database.query<{ relation_id: string }>(
     `
-      SELECT relation_id
+      SELECT CAST(relation_id AS TEXT) AS relation_id
       FROM graph_relation
       WHERE workspace_id = ?
         AND source_id = ?
@@ -301,12 +301,7 @@ export async function upsertGraphRelation(
         AND relation_type = ?
       LIMIT 1
     `,
-    [
-      workspaceId,
-      Number(params.sourceId),
-      Number(params.targetId),
-      params.label
-    ]
+    [workspaceId, params.sourceId, params.targetId, params.label]
   );
   if (existing) {
     await database.query(
@@ -330,15 +325,9 @@ export async function upsertGraphRelation(
     return String(existing.relation_id);
   }
 
-  const [nextRelationRow] = await database.query<{ next_id: number }>(
-    `SELECT COALESCE(MAX(relation_id), 0) + 1 AS next_id FROM graph_relation`
-  );
-  const relationId = nextRelationRow?.next_id ?? 1;
-
   await database.query(
     `
       INSERT INTO graph_relation (
-        relation_id,
         workspace_id,
         relation_type,
         source_id,
@@ -346,23 +335,40 @@ export async function upsertGraphRelation(
         confidence,
         metadata_json
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?)
     `,
     [
-      relationId,
       workspaceId,
       params.label,
-      Number(params.sourceId),
-      Number(params.targetId),
+      params.sourceId,
+      params.targetId,
       confidence,
       JSON.stringify(params.properties)
     ]
   );
 
+  const [created] = await database.query<{ relation_id: string }>(
+    `
+      SELECT CAST(relation_id AS TEXT) AS relation_id
+      FROM graph_relation
+      WHERE workspace_id = ?
+        AND source_id = ?
+        AND target_id = ?
+        AND relation_type = ?
+      ORDER BY relation_id DESC
+      LIMIT 1
+    `,
+    [workspaceId, params.sourceId, params.targetId, params.label]
+  );
+  if (!created) {
+    throw new Error("Failed to create graph relation");
+  }
+  const relationId = String(created.relation_id);
+
   await mirrorGraphEdgeToRaw(
     database,
     workspaceId,
-    String(relationId),
+    relationId,
     params.label,
     params.sourceId,
     params.targetId,
@@ -443,7 +449,7 @@ export async function upsertGraphRelationProperties(
       `,
       [
         workspaceId,
-        Number(relationId),
+        relationId,
         prop.property_key,
         prop.value_type,
         prop.value_text ?? null,
@@ -487,6 +493,6 @@ export async function upsertGraphRelationProperties(
         ref_doc_id = excluded.ref_doc_id,
         currency = excluded.currency
     `,
-    [workspaceId, Number(relationId)]
+    [workspaceId, relationId]
   );
 }

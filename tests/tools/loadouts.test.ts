@@ -78,7 +78,10 @@ describe("ghostcrab_loadout_seed", () => {
         if (sql.includes("INSERT INTO ontologies")) return [];
         if (sql.includes("INSERT INTO entities_raw")) return [];
         if (sql.includes("INSERT INTO relations_raw")) return [];
-        if (sql.includes("UPDATE graph_entity") && sql.includes("workspace_id")) {
+        if (
+          sql.includes("UPDATE graph_entity") &&
+          sql.includes("workspace_id")
+        ) {
           return [];
         }
         if (sql.includes("INSERT INTO graph_entity")) {
@@ -88,13 +91,13 @@ describe("ghostcrab_loadout_seed", () => {
           return [];
         }
         if (
-          sql.includes("SELECT relation_id") &&
-          sql.includes("FROM graph_relation")
+          sql.includes("FROM graph_relation") &&
+          sql.includes("ORDER BY relation_id DESC")
         ) {
-          return [];
+          return [{ relation_id: String(nextRelationId++) }];
         }
-        if (sql.includes("SELECT COALESCE(MAX(relation_id), 0) + 1")) {
-          return [{ next_id: nextRelationId++ }];
+        if (sql.includes("FROM graph_relation")) {
+          return [];
         }
         if (sql.includes("INSERT INTO graph_relation")) {
           return [];
@@ -164,7 +167,10 @@ describe("ghostcrab_loadout_seed", () => {
         if (sql.includes("INSERT INTO ontologies")) return [];
         if (sql.includes("INSERT INTO entities_raw")) return [];
         if (sql.includes("INSERT INTO relations_raw")) return [];
-        if (sql.includes("UPDATE graph_entity") && sql.includes("workspace_id")) {
+        if (
+          sql.includes("UPDATE graph_entity") &&
+          sql.includes("workspace_id")
+        ) {
           return [];
         }
         if (sql.includes("INSERT INTO graph_entity")) {
@@ -174,13 +180,13 @@ describe("ghostcrab_loadout_seed", () => {
           return [];
         }
         if (
-          sql.includes("SELECT relation_id") &&
-          sql.includes("FROM graph_relation")
+          sql.includes("FROM graph_relation") &&
+          sql.includes("ORDER BY relation_id DESC")
         ) {
-          return [];
+          return [{ relation_id: "1" }];
         }
-        if (sql.includes("SELECT COALESCE(MAX(relation_id), 0) + 1")) {
-          return [{ next_id: 1 }];
+        if (sql.includes("FROM graph_relation")) {
+          return [];
         }
         if (sql.includes("INSERT INTO graph_relation")) {
           return [];

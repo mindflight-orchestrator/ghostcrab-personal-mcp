@@ -107,7 +107,7 @@ export interface StandaloneGhostcrabProjectionEntityRow {
 }
 
 export interface StandaloneGhostcrabProjectionEvidenceRow {
-  relation_id: number;
+  relation_id: number | string;
   relation_type: string;
   source_id: number;
   target_id: number;
@@ -445,7 +445,13 @@ export interface StandaloneQualityRemediationStatusParams {
   mindbrainUrl: string;
   timeoutMs?: number;
   actionId: string;
-  status: "proposed" | "approved" | "rejected" | "applied" | "failed" | "skipped";
+  status:
+    | "proposed"
+    | "approved"
+    | "rejected"
+    | "applied"
+    | "failed"
+    | "skipped";
   resultJson?: Record<string, unknown>;
 }
 
@@ -514,9 +520,13 @@ export async function probeMindbrainCapabilities(
     normalizeBaseUrl(mindbrainUrl)
   );
   try {
-    const response = await fetch(url, withTimeout({ method: "GET" }, timeoutMs));
+    const response = await fetch(
+      url,
+      withTimeout({ method: "GET" }, timeoutMs)
+    );
     if (response.ok) {
-      const capabilities = (await response.json()) as MindbrainCapabilitiesResponse;
+      const capabilities =
+        (await response.json()) as MindbrainCapabilitiesResponse;
       return { ok: true, capabilities };
     }
   } catch {
