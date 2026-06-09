@@ -402,6 +402,83 @@ export interface StandaloneGraphGapRulesDeleteResponse {
   deleted: number;
 }
 
+export interface StandaloneQualityConvergenceRunParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  workspaceId: string;
+  ontologyId?: string;
+  persist?: boolean;
+  limit?: number;
+  componentSmallMax?: number;
+}
+
+export interface StandaloneQualityConvergenceListParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  workspaceId: string;
+  limit?: number;
+}
+
+export interface StandaloneQualityConvergenceGetParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  runId: string;
+}
+
+export interface StandaloneQualityRemediationActionsParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  runId: string;
+  status?: string;
+}
+
+export interface StandaloneQualityRemediationDecisionParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  actionId: string;
+  decision: "approved" | "rejected";
+  actor?: string;
+  note?: string;
+}
+
+export interface StandaloneQualityRemediationStatusParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  actionId: string;
+  status: "proposed" | "approved" | "rejected" | "applied" | "failed" | "skipped";
+  resultJson?: Record<string, unknown>;
+}
+
+export interface StandaloneQualityConvergenceReport {
+  kind: "quality_convergence_report";
+  run_id: string;
+  workspace_id: string;
+  ontology_id?: string;
+  canonical_layer?: string;
+  input_fingerprint?: string;
+  layers?: Record<string, unknown>;
+  remediation?: Record<string, unknown>;
+}
+
+export interface StandaloneQualityRunsResponse {
+  kind: "quality_convergence_runs";
+  workspace_id: string;
+  runs: Array<Record<string, unknown>>;
+}
+
+export interface StandaloneQualityRemediationActionsResponse {
+  kind: "quality_remediation_actions";
+  run_id?: string;
+  actions: Array<Record<string, unknown>>;
+}
+
+export interface StandaloneQualityMutationResponse {
+  ok: true;
+  action_id: string;
+  decision?: string;
+  status?: string;
+}
+
 export interface StandaloneMindbrainSqlParams {
   mindbrainUrl: string;
   timeoutMs?: number;
@@ -419,6 +496,8 @@ export interface MindbrainCapabilitiesResponse {
     graph_gap_rules?: boolean;
     graph_gap_rules_import?: boolean;
     graph_gap_rules_delete?: boolean;
+    quality_convergence?: boolean;
+    quality_remediation_actions?: boolean;
     [key: string]: boolean | undefined;
   };
 }
@@ -878,6 +957,128 @@ export async function runStandaloneGraphGapRulesDelete(
     {
       method: "POST",
       body: JSON.stringify(params.payload),
+      headers: { "content-type": "application/json" }
+    },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneQualityConvergence(
+  params: StandaloneQualityConvergenceRunParams
+): Promise<StandaloneQualityConvergenceReport> {
+  const url = new URL(
+    "/api/mindbrain/quality/convergence/run",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  return await fetchJson<StandaloneQualityConvergenceReport>(
+    url,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        workspace_id: params.workspaceId,
+        ...(params.ontologyId ? { ontology_id: params.ontologyId } : {}),
+        persist: params.persist ?? true,
+        ...(params.limit !== undefined ? { limit: params.limit } : {}),
+        ...(params.componentSmallMax !== undefined
+          ? { component_small_max: params.componentSmallMax }
+          : {})
+      }),
+      headers: { "content-type": "application/json" }
+    },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneQualityConvergenceList(
+  params: StandaloneQualityConvergenceListParams
+): Promise<StandaloneQualityRunsResponse> {
+  const url = new URL(
+    "/api/mindbrain/quality/convergence/runs",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  url.searchParams.set("workspace_id", params.workspaceId);
+  if (params.limit !== undefined) {
+    url.searchParams.set("limit", String(params.limit));
+  }
+  return await fetchJson<StandaloneQualityRunsResponse>(
+    url,
+    { method: "GET" },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneQualityConvergenceGet(
+  params: StandaloneQualityConvergenceGetParams
+): Promise<StandaloneQualityConvergenceReport> {
+  const url = new URL(
+    "/api/mindbrain/quality/convergence/run",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  url.searchParams.set("run_id", params.runId);
+  return await fetchJson<StandaloneQualityConvergenceReport>(
+    url,
+    { method: "GET" },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneQualityRemediationActions(
+  params: StandaloneQualityRemediationActionsParams
+): Promise<StandaloneQualityRemediationActionsResponse> {
+  const url = new URL(
+    "/api/mindbrain/quality/remediation/actions",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  url.searchParams.set("run_id", params.runId);
+  if (params.status) {
+    url.searchParams.set("status", params.status);
+  }
+  return await fetchJson<StandaloneQualityRemediationActionsResponse>(
+    url,
+    { method: "GET" },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneQualityRemediationDecision(
+  params: StandaloneQualityRemediationDecisionParams
+): Promise<StandaloneQualityMutationResponse> {
+  const url = new URL(
+    "/api/mindbrain/quality/remediation/decision",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  return await fetchJson<StandaloneQualityMutationResponse>(
+    url,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        action_id: params.actionId,
+        decision: params.decision,
+        ...(params.actor ? { actor: params.actor } : {}),
+        ...(params.note ? { note: params.note } : {})
+      }),
+      headers: { "content-type": "application/json" }
+    },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneQualityRemediationStatus(
+  params: StandaloneQualityRemediationStatusParams
+): Promise<StandaloneQualityMutationResponse> {
+  const url = new URL(
+    "/api/mindbrain/quality/remediation/status",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  return await fetchJson<StandaloneQualityMutationResponse>(
+    url,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        action_id: params.actionId,
+        status: params.status,
+        result_json: JSON.stringify(params.resultJson ?? {})
+      }),
       headers: { "content-type": "application/json" }
     },
     params.timeoutMs
