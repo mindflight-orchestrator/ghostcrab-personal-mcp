@@ -742,7 +742,7 @@ and all `required` facets must be provided.
       "status": "active",
       "layer": "api",
       "language": "Go",
-      "version": "0.5.0",
+      "version": "0.5.1",
       "tags": ["mcp", "ontology", "ghostcrab"]
     }
   }
@@ -1059,12 +1059,12 @@ def onboard(namespace: str, endpoint: str) -> None:
             {
                 "type_name": "Component", "slug": "mindbrain-core",
                 "content": "GhostCrab Personal SQLite ontological database — structured, queryable, persistent context store",
-                "facets": {"status": "active", "layer": "data", "language": "Go", "version": "0.5.0"},
+                "facets": {"status": "active", "layer": "data", "language": "Go", "version": "0.5.1"},
             },
             {
                 "type_name": "Component", "slug": "ghostcrab-mcp",
                 "content": "GhostCrab MCP server — exposes MindBrain operations as Model Context Protocol tools",
-                "facets": {"status": "active", "layer": "api", "language": "Go", "version": "0.5.0"},
+                "facets": {"status": "active", "layer": "api", "language": "Go", "version": "0.5.1"},
             },
             {
                 "type_name": "Component", "slug": "ghostcrab-crewai",

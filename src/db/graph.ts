@@ -8,6 +8,45 @@ import type { Queryable } from "./client.js";
 export const GRAPH_ENTITY_TYPE = "entity" as const;
 
 const DEFAULT_ONTOLOGY_SUFFIX = "ghostcrab_learn";
+const MAX_SAFE_SQLITE_INTEGER = Number.MAX_SAFE_INTEGER;
+
+function toSqlIntegerId(value: bigint, label: string): number {
+  if (
+    value > BigInt(MAX_SAFE_SQLITE_INTEGER) ||
+    value < BigInt(Number.MIN_SAFE_INTEGER)
+  ) {
+    throw new Error(
+      `${label}=${value.toString()} exceeds JavaScript safe integer range for SQLite binding`
+    );
+  }
+  return Number(value);
+}
+
+async function nextSafeIntegerId(
+  database: Queryable,
+  tableName: "graph_entity" | "graph_relation",
+  columnName: "entity_id" | "relation_id"
+): Promise<number> {
+  const [row] = await database.query<{ next_id: number | string | null }>(
+    `
+      SELECT COALESCE(MAX(${columnName}), 0) + 1 AS next_id
+      FROM ${tableName}
+      WHERE ${columnName} BETWEEN 1 AND ?
+    `,
+    [MAX_SAFE_SQLITE_INTEGER - 1]
+  );
+  const nextId = Number(row?.next_id ?? 1);
+  if (
+    !Number.isSafeInteger(nextId) ||
+    nextId < 1 ||
+    nextId >= MAX_SAFE_SQLITE_INTEGER
+  ) {
+    throw new Error(
+      `Could not allocate safe ${tableName}.${columnName}; next_id=${String(row?.next_id)}`
+    );
+  }
+  return nextId;
+}
 
 export function learnOntologyId(workspaceId: string): string {
   return `${workspaceId}::${DEFAULT_ONTOLOGY_SUFFIX}`;
@@ -97,7 +136,7 @@ export async function mirrorGraphNodeToRaw(
         confidence = excluded.confidence,
         metadata_json = excluded.metadata_json
     `,
-    [workspaceId, ontologyId, Number(entityId)]
+    [workspaceId, ontologyId, toSqlIntegerId(entityId, "entity_id")]
   );
 }
 
@@ -143,8 +182,8 @@ export async function mirrorGraphEdgeToRaw(
       ontologyId,
       relationId,
       label,
-      Number(sourceId),
-      Number(targetId),
+      toSqlIntegerId(sourceId, "source_entity_id"),
+      toSqlIntegerId(targetId, "target_entity_id"),
       confidence,
       JSON.stringify(properties)
     ]
@@ -183,7 +222,7 @@ export async function upsertGraphEntity(
         SET metadata_json = ?, workspace_id = ?
         WHERE entity_id = ?
       `,
-      [JSON.stringify(metadata), workspaceId, Number(existing)]
+      [JSON.stringify(metadata), workspaceId, toSqlIntegerId(existing, "entity_id")]
     );
 
     await database.query(
@@ -191,19 +230,31 @@ export async function upsertGraphEntity(
         INSERT OR IGNORE INTO graph_entity_alias (term, entity_id, confidence)
         VALUES (?, ?, 1.0)
       `,
-      [params.nodeId, Number(existing)]
+      [params.nodeId, toSqlIntegerId(existing, "entity_id")]
     );
 
     await mirrorGraphNodeToRaw(database, workspaceId, existing);
     return existing;
   }
 
+  const entityId = await nextSafeIntegerId(
+    database,
+    "graph_entity",
+    "entity_id"
+  );
+
   await database.query(
     `
-      INSERT INTO graph_entity (workspace_id, entity_type, name, metadata_json)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO graph_entity (entity_id, workspace_id, entity_type, name, metadata_json)
+      VALUES (?, ?, ?, ?, ?)
     `,
-    [workspaceId, GRAPH_ENTITY_TYPE, params.nodeId, JSON.stringify(metadata)]
+    [
+      entityId,
+      workspaceId,
+      GRAPH_ENTITY_TYPE,
+      params.nodeId,
+      JSON.stringify(metadata)
+    ]
   );
 
   const created = await resolveGraphEntityId(
@@ -220,7 +271,7 @@ export async function upsertGraphEntity(
       INSERT OR IGNORE INTO graph_entity_alias (term, entity_id, confidence)
       VALUES (?, ?, 1.0)
     `,
-    [params.nodeId, Number(created)]
+    [params.nodeId, toSqlIntegerId(created, "entity_id")]
   );
 
   await mirrorGraphNodeToRaw(database, workspaceId, created);
@@ -238,7 +289,7 @@ export async function setGraphEntityWorkspaceId(
       SET workspace_id = ?
       WHERE entity_id = ?
     `,
-    [workspaceId, Number(entityId)]
+    [workspaceId, toSqlIntegerId(entityId, "entity_id")]
   );
 }
 
@@ -301,7 +352,12 @@ export async function upsertGraphRelation(
         AND relation_type = ?
       LIMIT 1
     `,
-    [workspaceId, params.sourceId, params.targetId, params.label]
+    [
+      workspaceId,
+      toSqlIntegerId(params.sourceId, "source_id"),
+      toSqlIntegerId(params.targetId, "target_id"),
+      params.label
+    ]
   );
   if (existing) {
     await database.query(
@@ -325,9 +381,16 @@ export async function upsertGraphRelation(
     return String(existing.relation_id);
   }
 
+  const allocatedRelationId = await nextSafeIntegerId(
+    database,
+    "graph_relation",
+    "relation_id"
+  );
+
   await database.query(
     `
       INSERT INTO graph_relation (
+        relation_id,
         workspace_id,
         relation_type,
         source_id,
@@ -335,13 +398,14 @@ export async function upsertGraphRelation(
         confidence,
         metadata_json
       )
-      VALUES (?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `,
     [
+      allocatedRelationId,
       workspaceId,
       params.label,
-      params.sourceId,
-      params.targetId,
+      toSqlIntegerId(params.sourceId, "source_id"),
+      toSqlIntegerId(params.targetId, "target_id"),
       confidence,
       JSON.stringify(params.properties)
     ]
@@ -358,17 +422,22 @@ export async function upsertGraphRelation(
       ORDER BY relation_id DESC
       LIMIT 1
     `,
-    [workspaceId, params.sourceId, params.targetId, params.label]
+    [
+      workspaceId,
+      toSqlIntegerId(params.sourceId, "source_id"),
+      toSqlIntegerId(params.targetId, "target_id"),
+      params.label
+    ]
   );
   if (!created) {
     throw new Error("Failed to create graph relation");
   }
-  const relationId = String(created.relation_id);
+  const createdRelationId = String(created.relation_id);
 
   await mirrorGraphEdgeToRaw(
     database,
     workspaceId,
-    relationId,
+    createdRelationId,
     params.label,
     params.sourceId,
     params.targetId,
@@ -376,7 +445,7 @@ export async function upsertGraphRelation(
     params.properties
   );
 
-  return String(relationId);
+  return createdRelationId;
 }
 
 export interface RelationProperty {
