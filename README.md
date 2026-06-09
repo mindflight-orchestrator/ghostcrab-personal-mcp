@@ -22,7 +22,7 @@ mindBrain runs on **SQLite** in this personal distribution, and on **PostgreSQL*
 
 ### What is GhostCrab MCP?
 
-**GhostCrab MCP is the agent-facing interface to mindBrain.** It exposes mindBrain through 53 registered `ghostcrab_*` MCP tools: 12 recommended defaults for day-to-day agents and 41 extended tools for graph, workspace, ontology, loadout, artifact, and maintenance workflows. Any MCP-compatible agent (Cursor, Claude Code, Codex, OpenClaw, and others) can query structured knowledge, update durable memory, and navigate relationships natively, without custom integration code.
+**GhostCrab MCP is the agent-facing interface to mindBrain.** It exposes mindBrain through a compact default `tools/list` surface plus an extended `ghostcrab_*` catalog for graph, workspace, ontology, loadout, artifact, and maintenance workflows. Use `gcp tools verify` for the current generated counts. Any MCP-compatible agent (Cursor, Claude Code, Codex, OpenClaw, and others) can query structured knowledge, update durable memory, and navigate relationships natively, without custom integration code.
 
 GhostCrab MCP does not own the data. mindBrain does. GhostCrab MCP is the door.
 

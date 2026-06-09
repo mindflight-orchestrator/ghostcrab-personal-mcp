@@ -140,3 +140,136 @@ diagnostics ne doivent pas être stockés comme des artefacts:
 
 La règle finale est simple: une réponse sérieuse expose son type
 (`artifact_kind`), son cycle de vie, sa version courante, et ses preuves.
+------
+modifications des libellés pour les projectionsIl faut le faire à trois niveaux, dans cet ordre. Sinon l’agent restera obligé de raisonner avec “Type A / Type B”.
+
+1. Le Point D’entrée Agent : mindCLI
+
+C’est la priorité. Aujourd’hui, l’agent passe par mindCLI mb_pragma projection get, qui retourne une “projection” sans enveloppe métier assez claire.
+
+À modifier dans le repo runtime :
+
+[mindbot/internal/cli/cognitive/memproj.go](/Users/francois/Documents/fevrier2026/mindbot/internal/cli/cognitive/memproj.go:83)
+
+Zones importantes :
+
+
+* lignes 83-98 : commandes projection list/get
+* lignes 353-363 : structure JSON retournée
+* lignes 404-415 : requête projections list
+* lignes 510-521 : requête projection get
+* lignes 540+ : construction de la sortie JSON
+
+À ajouter dans la réponse JSON :
+
+
+{
+  "artifact_kind": "analysis_plan",
+  "public_label": "[Plan] Pilotage hebdomadaire chantier",
+  "lifecycle": "static",
+  "is_terminal_answer": false,
+  "legacy_kind": "projection_type_a"
+}
+
+
+Et il faudrait idéalement ajouter une commande/alias plus claire :
+
+
+mindcli mb_pragma artifact get --kind analysis_plan --scope ...
+
+
+ou :
+
+
+mindcli mindbrain answer get --scope ... --mode plan|live|snapshot|evidence
+
+
+Tant que la commande s’appelle seulement projection get, l’agent doit encore interpréter.
+
+2. Le Modèle De Données / Contrat
+
+Dans le repo courant BTC-full-ontologies, la source déclarative des projections est ici :
+
+[specs/projection_catalog.yaml](/Users/francois/Documents/avril2026/BTC-full-ontologies/specs/projection_catalog.yaml:8)
+
+Et l’import PostgreSQL écrit dans mb_pragma.projections ici :
+
+[scripts/import_postgres_pro.py](/Users/francois/Documents/avril2026/BTC-full-ontologies/scripts/import_postgres_pro.py:308)
+
+Il faudrait enrichir chaque projection avec :
+
+
+artifact_kind: analysis_plan
+public_kind: Plan d’analyse
+lifecycle: static
+terminal_answer: false
+
+
+Puis s’assurer que projection_arguments(...) et l’import mettent ces champs dans le JSON content.
+
+Ça permet à mindCLI de ne pas deviner : il lit artifact_kind.
+
+3. Les Skills / Prompts Agent
+
+Les skills actuels enseignent encore explicitement la distinction Type A / Type B. À modifier après le CLI, pas avant.
+
+Fichiers locaux concernés :
+
+[mindbrain-operator/SKILL.md](/Users/francois/.codex/skills/mindbrain-operator/SKILL.md:25)
+
+[mindbrain-json-answer-builder/SKILL.md](/Users/francois/.codex/skills/mindbrain-json-answer-builder/SKILL.md:14)
+
+Il faut remplacer la logique :
+
+
+Type A = contract
+Type B = snapshot
+
+
+par :
+
+
+Ne raisonne jamais d’abord en Type A / Type B.
+Lis artifact_kind :
+- analysis_plan
+- live_answer_view
+- answer_update_event
+- answer_snapshot
+- evidence_pack
+
+
+Le skill peut encore mentionner Type A/B en annexe technique, mais pas comme route principale.
+
+4. Lecture Type B / Snapshot
+
+Les docs indiquent que ghostcrab_projection_get lit les ProjectionResult dans graph.entity :
+
+[docs/projections/type_b_projections_expliquées.md](/Users/francois/Documents/avril2026/BTC-full-ontologies/docs/projections/type_b_projections_expliquées.md:58)
+
+Là aussi, la sortie devrait être enveloppée comme :
+
+
+{
+  "artifact_kind": "answer_snapshot",
+  "public_label": "[Instantané] ...",
+  "lifecycle": "frozen",
+  "is_terminal_answer": true,
+  "legacy_kind": "projection_type_b"
+}
+
+
+Si on ajoute les vues dynamiques, ce ne doit pas être appelé Type B. Ce sera un nouvel objet : live_answer_view.
+
+5. Documentation Et Démo
+
+À nettoyer ensuite :
+
+[docs/projections/type_b_projections_expliquées.md](/Users/francois/Documents/avril2026/BTC-full-ontologies/docs/projections/type_b_projections_expliquées.md:1)
+
+[docs/projections/comprendre-memoire-mcp-facettes-ontologie-projections.md](/Users/francois/Documents/avril2026/BTC-full-ontologies/docs/projections/comprendre-memoire-mcp-facettes-ontologie-projections.md:130)
+
+[docs/dashboards/chantier_weekly_kpi_dashboard.html](/Users/francois/Documents/avril2026/BTC-full-ontologies/docs/dashboards/chantier_weekly_kpi_dashboard.html:636)
+
+Ces fichiers peuvent garder Type A/B dans une section “compatibilité technique”, mais le vocabulaire principal doit devenir : Plan, Données en direct, Mise à jour, Instantané, Preuves.
+
+Le minimum efficace : modifier mindCLI pour retourner artifact_kind et lifecycle, puis modifier les skills pour router dessus. Le repo ontologie et la documentation viennent ensuite.

@@ -183,7 +183,7 @@ If you self-host a GhostCrab-compatible endpoint over **HTTP** or **SSE** later,
 
 1. **Chat / Agent** — GhostCrab tools should appear under available MCP tools when relevant. You can ask the agent to use a specific `ghostcrab_*` tool by name (see the main README for the tool surface).
 2. **Logs** — **Output** panel (e.g. **Cmd/Ctrl+Shift+U**), select **MCP Logs**, to see connection and runtime errors.
-3. **Approval** — by default, Cursor asks before running MCP tools. `gcp brain setup cursor` applies the **`basic`** preset (12 tools) to `~/.cursor/permissions.json` and installs the GhostCrab skill bundle. See [README_MCP_PERMISSIONS.md](README_MCP_PERMISSIONS.md). Enable auto-run in Cursor settings for allowlists to take effect.
+3. **Approval** — by default, Cursor asks before running MCP tools. `gcp brain setup cursor` applies the generated **`basic`** preset to `~/.cursor/permissions.json` and installs the GhostCrab skill bundle. See [README_MCP_PERMISSIONS.md](README_MCP_PERMISSIONS.md). Enable auto-run in Cursor settings for allowlists to take effect.
 
 ## Verify tools after install
 
@@ -194,7 +194,7 @@ pnpm run build && pnpm run verify:mcp-tools   # from a dev checkout
 gcp tools verify                              # from an installed package (backend must be up)
 ```
 
-This checks that `tools/list` returns the 12 default tools, that all 50 remain registered and callable by name, and runs a short `tools/call` smoke per subsystem (including extended tools not in the default list). Use `ghostcrab_tool_search` to discover extended tools.
+This checks that `tools/list` returns the generated default set, that the full catalog remains registered and callable by name, and runs a short `tools/call` smoke per subsystem (including extended tools not in the default list). Use `ghostcrab_tool_search` to discover extended tools.
 
 ## Install from a local pack (development)
 

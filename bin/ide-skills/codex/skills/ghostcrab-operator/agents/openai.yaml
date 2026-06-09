@@ -1,0 +1,4 @@
+short_description: Business questions via GhostCrab MCP workflows.
+default_prompt: Use $ghostcrab-operator to answer a business question through GhostCrab MCP on this Personal workspace.
+policy:
+  allow_implicit_invocation: false

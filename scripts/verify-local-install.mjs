@@ -14,6 +14,7 @@ import {
 import { tmpdir } from "node:os";
 import { isAbsolute, join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadToolManifestFromDist } from "./load-tool-manifest.mjs";
 import { spawnNpm, spawnPnpm } from "./lib/spawn-npm.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -92,6 +93,8 @@ if (!process.env.GHOSTCRAB_VERIFY_SKIP_BUILD) {
     `pnpm run build failed (exit ${build.status ?? "null"}).\n${build.stderr}`
   );
 }
+
+const expectedToolManifest = loadToolManifestFromDist().manifest;
 
 const packDest = mkdtempSync(join(tmpdir(), "ghostcrab-pack-"));
 let consumerDir;
@@ -490,8 +493,8 @@ try {
   );
   assert.equal(
     permissionsDoc.mcpAllowlist.length,
-    12,
-    `[mcp-setup] expected 12 basic mcpAllowlist entries, got ${permissionsDoc.mcpAllowlist.length}`
+    expectedToolManifest.basic,
+    `[mcp-setup] expected ${expectedToolManifest.basic} basic mcpAllowlist entries, got ${permissionsDoc.mcpAllowlist.length}`
   );
   for (const entry of permissionsDoc.mcpAllowlist) {
     assert.match(

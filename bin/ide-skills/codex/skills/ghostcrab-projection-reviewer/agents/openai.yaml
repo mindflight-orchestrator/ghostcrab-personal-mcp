@@ -1,0 +1,4 @@
+short_description: Review GhostCrab projection readiness via MCP.
+default_prompt: Use $ghostcrab-projection-reviewer to review this projection scope and explain readiness limits.
+policy:
+  allow_implicit_invocation: false

@@ -1,5 +1,7 @@
 # GhostCrab V1 — Canonical onboarding and discipline
 
+Vocabulary (Personal SQLite): [docs/explanation/glossary.md](../../docs/explanation/glossary.md). Operator catalog: [docs/reference/operator-catalog.md](../../docs/reference/operator-catalog.md).
+
 **Single source of truth** for first-turn fuzzy GhostCrab onboarding, **naive domain requests**, and cross-host alignment.  
 Other skill files should **link here** instead of copying long rule lists. Keep behavior aligned; do not contradict this contract.
 
@@ -13,12 +15,14 @@ This block is for **all agents** (with or without extended reasoning). It is the
 
 | Phase | Name               | Allowed write tools | Forbidden write tools                                                                                                                                       |
 | ----- | ------------------ | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A     | **Intake**         | _(none)_            | ALL: `ghostcrab_workspace_create` `ghostcrab_remember` `ghostcrab_upsert` `ghostcrab_learn` `ghostcrab_project` `ghostcrab_schema_register` `ghostcrab_ddl_propose` `ghostcrab_ddl_execute` `ghostcrab_ddl_list_pending` |
+| A     | **Intake**         | _(none)_            | ALL write/model/session mutation tools; see the forbidden surface below. |
 | B     | **Clarify**        | _(none)_            | Same as A                                                                                                                                                   |
 | C     | **Model Proposal** | _(none)_            | Same as A — output proposal text only, no tool calls                                                                                                        |
 | D     | **Execute**        | All, minimally      | `ghostcrab_schema_register` unless user wrote `APPROVE_SCHEMA_FREEZE`                                                                                       |
 
 **Read tools are always allowed:** `ghostcrab_status` `ghostcrab_search` `ghostcrab_schema_inspect` `ghostcrab_schema_list` `ghostcrab_workspace_list` `ghostcrab_modeling_guidance` `ghostcrab_count` `ghostcrab_pack` `ghostcrab_facet_catalog` `ghostcrab_facet_inspect` `ghostcrab_traverse` `ghostcrab_coverage` `ghostcrab_workspace_inspect` `ghostcrab_workspace_export_model`
+
+**Forbidden before Phase D:** `ghostcrab_workspace_create` `ghostcrab_workspace_use` `ghostcrab_workspace_delete` `ghostcrab_workspace_reset` `ghostcrab_remember` `ghostcrab_upsert` `ghostcrab_learn` `ghostcrab_project` `ghostcrab_schema_register` `ghostcrab_facet_register` `ghostcrab_graph_reindex` `ghostcrab_collection_reindex` `ghostcrab_graph_gap_rules_import` `ghostcrab_graph_gap_rules_delete` `ghostcrab_live_refresh` `ghostcrab_loadout_apply` `ghostcrab_loadout_seed` `ghostcrab_ddl_propose` `ghostcrab_ddl_execute`.
 
 ### Phase gate conditions (check in order)
 
@@ -164,7 +168,7 @@ This section applies when the user (human or agent) asks to **create**, **set up
 
 - Restate the goal in user language (one sentence).
 - Ask what they need to **see**, **find later**, and **change over time**.
-- **Forbidden tools this phase:** `ghostcrab_workspace_create` `ghostcrab_remember` `ghostcrab_upsert` `ghostcrab_learn` `ghostcrab_project` `ghostcrab_schema_register` `ghostcrab_ddl_propose` `ghostcrab_ddl_execute` `ghostcrab_ddl_list_pending`
+- **Forbidden tools this phase:** all tools listed in the HARD GATES forbidden surface above.
 
 **Phase B — Clarify**
 
@@ -227,7 +231,7 @@ For **local ingest** (email, messages, calendar, search results): do **not** sta
 - **Query before asserting** durable knowledge. Never treat **one** empty exact read as proof the whole domain is empty.
 - **Read ladder:** count when the domain may be broad; search when the question is concrete; pack when work is complex—after a factual read.
 - **One user-requested write → one write**; finalize the summary before writing.
-- Use `ghostcrab_remember` for durable facts and notes; `ghostcrab_upsert` for in-place current-state changes; `ghostcrab_learn` for stable graph structure; `ghostcrab_project` for provisional compact views—**not** on the first fuzzy onboarding turn, and **not** before Phase D when §9 applies.
+- Use `ghostcrab_remember` for durable facts and notes; `ghostcrab_upsert` for in-place current-state changes; `ghostcrab_learn` for stable graph structure; `ghostcrab_ontology_import` for LinkML/N-Triples ontology source import into native `ontology_*`; `ghostcrab_project` for provisional compact views—**not** on the first fuzzy onboarding turn, and **not** before Phase D when §9 applies.
 
 ## 12. Living tracker and checkpoints
 
@@ -244,7 +248,7 @@ For **local ingest** (email, messages, calendar, search results): do **not** sta
 ## 14. Graph and ontology (optional depth)
 
 - Graph tools (`ghostcrab_coverage`, `ghostcrab_traverse`, `ghostcrab_learn`) support epistemic workflows; they are **not** required for every domain. Prefer them when blockers, dependencies, or coverage matter.
-- **Ontology-heavy** work still begins with §2 and §9: naive callers do not need to say "ontology"; you still owe them a **Model Proposal** before durable structure.
+- **Ontology-heavy** work still begins with §2 and §9: naive callers do not need to say "ontology"; you still owe them a **Model Proposal** before durable structure. Import formal ontology source files with `ghostcrab_ontology_import`, not with memory, graph, schema, or gap-rule tools.
 
 ## 15. Host responsibility
 

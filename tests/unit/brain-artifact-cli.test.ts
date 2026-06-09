@@ -23,4 +23,13 @@ describe("gcp brain artifact command helpers", () => {
       "--repair"
     ]);
   });
+
+  it("prints refresh help with exact-id, no-wildcard, and 405 guidance", () => {
+    const help = __private__.artifactHelpText();
+    expect(help).toContain("The id must be exact");
+    expect(help).toContain("globs/wildcards");
+    expect(help).toContain("live_answer_view__foo_*");
+    expect(help).toContain("The refresh route is POST");
+    expect(help).toContain("405 MethodNotAllowed");
+  });
 });

@@ -11,34 +11,38 @@ Explain why a business question is not fully answerable yet and propose concrete
 
 Use **MCP tool output** as evidence. Do not open SQLite directly. Do not use legacy Pro operators (PostgreSQL CLI) or direct SQL.
 
-References: [glossary](../../../docs/explanation/glossary.md), [operator catalog](../../../docs/reference/operator-catalog.md), [non-artifact gaps (backend)](../../../vendor/mindbrain/docs/artifacts/non-artifact-gaps-and-reports.md).
+References: [GAP_TAXONOMY.md](../ghostcrab-shared/GAP_TAXONOMY.md), [ARTIFACT_KINDS.md](../ghostcrab-shared/ARTIFACT_KINDS.md), [MCP_VS_GCP_ROUTING.md](../ghostcrab-shared/MCP_VS_GCP_ROUTING.md), [IMPORT_CLOSURE_GATES.md](../ghostcrab-shared/IMPORT_CLOSURE_GATES.md).
+
+## Delivery context (optional)
+
+`starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP_SEQUENCE.md` — audit and gate 7–9 phases.
 
 ## Vocabulary boundary
 
-Gap categories below are **`answerability_gap`** findings. They are **not** `artifact_kind` values and must not be stored in `mindbrain_answer_artifacts`.
+Gap categories below are **`answerability_gap`** findings. They are **not** `artifact_kind` values.
 
 | This skill | Not this |
-|------------|----------|
+| --- | --- |
 | `answerability_gap` (audit result) | `graph_gap_rule` (persisted validation rule) |
 | `missing_snapshot` subtype | `answer_snapshot` (frozen answer artifact) |
 | `no_projection` subtype | `analysis_plan` (working-memory artifact) |
 | `missing_edges` subtype | `graph_data_gap` from `ghostcrab_graph_diagnostics` |
-| Contradictory graph facts | `graph_conflict` (planned; not `answerability_gap`) |
+| Contradictory graph facts | `graph_conflict` (not `answerability_gap`) |
 
-For graph invariant violations, point operators to `ghostcrab_graph_diagnostics` and `graph_gap_rules`. For incompatible facts (mutually exclusive, temporal, granularity), see `vendor/mindbrain/docs/graphs/graph-conflict-taxonomy.md`. For ontology coverage, use `ghostcrab_coverage`.
+For graph invariant violations, use `ghostcrab_graph_diagnostics` and `graph_gap_rules`. For ontology coverage, use `ghostcrab_coverage`.
 
 ## Gap categories
 
 All categories are subtypes of **`answerability_gap`**:
 
-- `no_projection`: no matching analysis plan / Type A scope for the question.
-- `projection_contract_only`: Type A / `analysis_plan` exists in `projections` but no supporting facts or graph rows surfaced.
-- `missing_dimensions`: expected business dimensions absent or unclear.
-- `missing_facets`: required facet filters or `agent_facts` rows missing.
-- `missing_edges`: required graph edges absent or not traversed.
-- `missing_snapshot`: no Type B / `answer_snapshot` via `ghostcrab_projection_get`.
-- `tool_surface_gap`: needed MCP tool missing or failed.
-- `ambiguous_intent`: multiple scopes match; narrow with the user.
+- `no_projection` — no matching `analysis_plan` scope for the question.
+- `projection_contract_only` — contract exists but no supporting facts or graph rows surfaced.
+- `missing_dimensions` — expected business dimensions absent or unclear.
+- `missing_facets` — required facet filters or `agent_facts` rows missing.
+- `missing_edges` — required graph edges absent or not traversed.
+- `missing_snapshot` — no `answer_snapshot` via `ghostcrab_projection_get`.
+- `tool_surface_gap` — needed MCP tool missing or failed.
+- `ambiguous_intent` — multiple scopes match; narrow with the user.
 
 ## Audit workflow
 
@@ -50,7 +54,7 @@ All categories are subtypes of **`answerability_gap`**:
 6. `ghostcrab_graph_search` / `ghostcrab_traverse` when graph evidence is required.
 7. Compare results to the user question.
 
-For import pipeline gaps, point operators to `gcp brain structured-import`; for ontology source gaps, prefer MCP `ghostcrab_ontology_import` when an agent owns the workflow, or `gcp brain ontology compile` for CLI/operator maintenance — see product runbooks.
+For import pipeline gaps, point operators to `gcp brain structured-import`. For ontology source gaps, prefer MCP `ghostcrab_ontology_import` when an agent owns the workflow, or `gcp brain ontology compile` for CLI maintenance.
 
 ## Output format
 
@@ -69,11 +73,9 @@ For import pipeline gaps, point operators to `gcp brain structured-import`; for 
 
 Each gap entry: `category` (answerability subtype above), `severity` (`low|medium|high`), `evidence`, `impact`. Do **not** emit `artifact_kind` on gap entries.
 
-Adjustments must be actionable: register schema, `ghostcrab_remember`/`learn`, LinkML compile, structured-import gate, or consumer test.
-
 ## Guardrails
 
-- Do not label a projection ready if only the Type A / `analysis_plan` contract exists and the user asked for live operational facts.
-- Type B / `answer_snapshot` is optional; state when Type A + graph search is enough.
+- Do not label a projection ready if only the `analysis_plan` contract exists and the user asked for live operational facts.
+- `answer_snapshot` is optional; state when `analysis_plan` + graph search is enough.
 - Prefer `recommended_next_test` over vague advice.
 - Never conflate gap audit output with answer artifact registry rows.

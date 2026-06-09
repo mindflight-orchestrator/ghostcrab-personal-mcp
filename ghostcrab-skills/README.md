@@ -11,7 +11,7 @@ This repository contains:
 - shared design rules and portable demo seed data
 - pointers to the GhostCrab Personal StarterKit for clonable SOPs and templates
 - Personal operator catalog: [docs/reference/operator-catalog.md](../docs/reference/operator-catalog.md)
-- Codex investigation skills: `ghostcrab-operator`, `ghostcrab-gap-auditor`, … (replaced deprecated `mindbrain-*` / mindCLI)
+- Ten cross-IDE skills (five general + five operational) synced via `gcp brain setup`
 
 This repository does not contain:
 
@@ -53,12 +53,17 @@ It does not try to solve every domain or every modeling edge case in this first 
 
 ```text
 ghostcrab-skills/
-├── skills/                         # canonical editable SKILL.md sources
+├── skills/                         # canonical editable SKILL.md sources (10 skills)
 │   ├── ghostcrab-memory/
 │   ├── ghostcrab-prompt-guide/
 │   ├── ghostcrab-data-architect/
 │   ├── ghostcrab-integration-sop-editor/
-│   └── mindbrain-comparison-writer/
+│   ├── mindbrain-comparison-writer/
+│   ├── ghostcrab-operator/
+│   ├── ghostcrab-evidence-discovery/
+│   ├── ghostcrab-projection-reviewer/
+│   ├── ghostcrab-gap-auditor/
+│   └── ghostcrab-json-answer-builder/
 ├── codex/
 │   └── <skill> -> ../skills/<skill>
 ├── claude-code/
@@ -85,6 +90,12 @@ ghostcrab-skills/
 │   ├── QUERY_PATTERNS.md
 │   ├── APP_PATTERNS.md
 │   ├── DEMO_CHOOSER.md
+│   ├── ARTIFACT_KINDS.md
+│   ├── RUNTIME_QUERY_PIPELINE.md
+│   ├── MCP_VS_GCP_ROUTING.md
+│   ├── IMPORT_CLOSURE_GATES.md
+│   ├── GAP_TAXONOMY.md
+│   ├── SKILL_ROUTE_MAP_ESSENTIALS.md
 │   ├── demo-profiles/
 │   └── bootstrap_seed.jsonl
 ├── CAPABILITIES.md
@@ -93,7 +104,28 @@ ghostcrab-skills/
 └── GHOSTCRAB_INTEGRATION.md
 ```
 
-Edit only `ghostcrab-skills/skills/<skill>/SKILL.md` for the five common GhostCrab skills. The editor-specific paths are symlinks for discoverability, and `bin/ide-skills/` is regenerated from those canonical sources by `pnpm run sync:ide-skills`.
+Edit only `ghostcrab-skills/skills/<skill>/SKILL.md` for all ten GhostCrab skills. The editor-specific paths are symlinks for discoverability, and `bin/ide-skills/` is regenerated from those canonical sources by `pnpm run sync:ide-skills`.
+
+## Ten skills (cross-IDE)
+
+| # | Skill | Category | Install name |
+| --- | --- | --- | --- |
+| 1 | ghostcrab-memory | General | `ghostcrab-memory` |
+| 2 | ghostcrab-prompt-guide | General | `ghostcrab-prompt-guide` |
+| 3 | ghostcrab-data-architect | General | `ghostcrab-data-architect` |
+| 4 | ghostcrab-integration-sop-editor | General | `ghostcrab-integration-sop-editor` |
+| 5 | mindbrain-comparison-writer | General | `mindbrain-comparison-writer` |
+| 6 | ghostcrab-operator | Operational | `ghostcrab-operator` |
+| 7 | ghostcrab-evidence-discovery | Operational | `ghostcrab-evidence-discovery` |
+| 8 | ghostcrab-projection-reviewer | Operational | `ghostcrab-projection-reviewer` |
+| 9 | ghostcrab-gap-auditor | Operational | `ghostcrab-gap-auditor` |
+| 10 | ghostcrab-json-answer-builder | Operational | `ghostcrab-json-answer-builder` |
+
+**Canonical install:** `gcp brain setup cursor|claude|codex|generic --yes` copies the same ten skills plus shared stubs into `ghostcrab-shared/` next to each skill.
+
+Each skill is **autonomous** at runtime: workflows, guardrails, and output shapes are inline in `SKILL.md`, with links to installed `ghostcrab-shared/` stubs (not repo `docs/`). Operational skills may optionally reference starter-kit delivery SOPs via backtick paths when the user runs a phased import project.
+
+**Out of scope for `gcp brain setup`:** `ghostcrab-projection-visual-report`, `ai-act-projection-interpreter`, OpenClaw agents.
 
 ## Quick Start
 
@@ -122,9 +154,11 @@ npm run demo:choose
 
 This initial pass includes:
 
+- Ten identical skills on Cursor, Claude Code, Codex, and generic via `gcp brain setup`
+- Shared operational stubs (`ARTIFACT_KINDS`, `RUNTIME_QUERY_PIPELINE`, …) installed as `ghostcrab-shared/`
 - Codex-facing skill mirrors with the V1 onboarding contract
-- Claude Code on-demand skill mirrors for the five Codex skills
-- Cursor selectable skill mirrors for the five common skills
+- Claude Code on-demand skill mirrors for all ten skills
+- Cursor selectable skill mirrors for all ten skills
 - a minimal OpenClaw memory skill
 - a fuller OpenClaw epistemic agent profile
 - a Claude Code self-memory starter

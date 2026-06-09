@@ -15,12 +15,17 @@ const errors = [];
 const warnings = [];
 const infos = [];
 
-const COMMON_SKILL_NAMES = [
+const ALL_SKILL_NAMES = [
   "ghostcrab-memory",
   "ghostcrab-prompt-guide",
   "ghostcrab-data-architect",
   "ghostcrab-integration-sop-editor",
-  "mindbrain-comparison-writer"
+  "mindbrain-comparison-writer",
+  "ghostcrab-operator",
+  "ghostcrab-evidence-discovery",
+  "ghostcrab-projection-reviewer",
+  "ghostcrab-gap-auditor",
+  "ghostcrab-json-answer-builder"
 ];
 
 const REQUIRED_DIRECTORIES = [
@@ -30,6 +35,11 @@ const REQUIRED_DIRECTORIES = [
   "skills/ghostcrab-data-architect",
   "skills/ghostcrab-integration-sop-editor",
   "skills/mindbrain-comparison-writer",
+  "skills/ghostcrab-operator",
+  "skills/ghostcrab-evidence-discovery",
+  "skills/ghostcrab-projection-reviewer",
+  "skills/ghostcrab-gap-auditor",
+  "skills/ghostcrab-json-answer-builder",
   "codex",
   "codex/ghostcrab-memory",
   "codex/ghostcrab-prompt-guide",
@@ -51,6 +61,16 @@ const REQUIRED_DIRECTORIES = [
   "claude-code/skills/ghostcrab-data-architect",
   "claude-code/skills/ghostcrab-integration-sop-editor",
   "claude-code/skills/mindbrain-comparison-writer",
+  "claude-code/skills/ghostcrab-operator",
+  "claude-code/skills/ghostcrab-evidence-discovery",
+  "claude-code/skills/ghostcrab-projection-reviewer",
+  "claude-code/skills/ghostcrab-gap-auditor",
+  "claude-code/skills/ghostcrab-json-answer-builder",
+  "cursor/skills/ghostcrab-operator",
+  "cursor/skills/ghostcrab-evidence-discovery",
+  "cursor/skills/ghostcrab-projection-reviewer",
+  "cursor/skills/ghostcrab-gap-auditor",
+  "cursor/skills/ghostcrab-json-answer-builder",
   "claude-code/self-memory/.claude",
   "claude-code/data-architect/templates",
   "claude-code/data-architect/examples/project-management",
@@ -76,6 +96,17 @@ const REQUIRED_FILES = [
   "skills/ghostcrab-data-architect/SKILL.md",
   "skills/ghostcrab-integration-sop-editor/SKILL.md",
   "skills/mindbrain-comparison-writer/SKILL.md",
+  "skills/ghostcrab-operator/SKILL.md",
+  "skills/ghostcrab-evidence-discovery/SKILL.md",
+  "skills/ghostcrab-projection-reviewer/SKILL.md",
+  "skills/ghostcrab-gap-auditor/SKILL.md",
+  "skills/ghostcrab-json-answer-builder/SKILL.md",
+  "shared/ARTIFACT_KINDS.md",
+  "shared/RUNTIME_QUERY_PIPELINE.md",
+  "shared/MCP_VS_GCP_ROUTING.md",
+  "shared/IMPORT_CLOSURE_GATES.md",
+  "shared/GAP_TAXONOMY.md",
+  "shared/SKILL_ROUTE_MAP_ESSENTIALS.md",
   "cursor/README.md",
   "codex/README.md",
   "codex/ghostcrab-memory/SKILL.md",
@@ -94,6 +125,16 @@ const REQUIRED_FILES = [
   "claude-code/skills/ghostcrab-data-architect/SKILL.md",
   "claude-code/skills/ghostcrab-integration-sop-editor/SKILL.md",
   "claude-code/skills/mindbrain-comparison-writer/SKILL.md",
+  "claude-code/skills/ghostcrab-operator/SKILL.md",
+  "claude-code/skills/ghostcrab-evidence-discovery/SKILL.md",
+  "claude-code/skills/ghostcrab-projection-reviewer/SKILL.md",
+  "claude-code/skills/ghostcrab-gap-auditor/SKILL.md",
+  "claude-code/skills/ghostcrab-json-answer-builder/SKILL.md",
+  "cursor/skills/ghostcrab-operator/SKILL.md",
+  "cursor/skills/ghostcrab-evidence-discovery/SKILL.md",
+  "cursor/skills/ghostcrab-projection-reviewer/SKILL.md",
+  "cursor/skills/ghostcrab-gap-auditor/SKILL.md",
+  "cursor/skills/ghostcrab-json-answer-builder/SKILL.md",
   "shared/SCHEMA_DESIGN.md",
   "shared/PATH_CONTENT_FACETS.md",
   "shared/QUERY_PATTERNS.md",
@@ -319,8 +360,26 @@ function assertRequiredPaths() {
   }
 }
 
+function assertCanonicalSkillsAvoidBrokenDocLinks() {
+  for (const name of ALL_SKILL_NAMES) {
+    const skillPath = path.join(repoRoot, "skills", name, "SKILL.md");
+    if (!exists(skillPath)) continue;
+    const content = readFile(skillPath);
+    if (/\]\(\.\.\/\.\.\/\.\.\/docs\//.test(content)) {
+      addError(
+        `skills/${name}/SKILL.md must not link to ../../../docs/ (use ../shared/ stubs)`
+      );
+    }
+    if (/\]\(\.\.\/\.\.\/\.\.\/vendor\//.test(content)) {
+      addError(
+        `skills/${name}/SKILL.md must not link to ../../../vendor/ (use ../shared/ stubs)`
+      );
+    }
+  }
+}
+
 function assertEditorSkillSymlinks() {
-  for (const name of COMMON_SKILL_NAMES) {
+  for (const name of ALL_SKILL_NAMES) {
     const expected = {
       [`codex/${name}`]: `../skills/${name}`,
       [`cursor/skills/${name}`]: `../../skills/${name}`,
@@ -1214,6 +1273,7 @@ function walkSkillMarkdown(dir, onFile) {
 function main() {
   assertRequiredPaths();
   assertEditorSkillSymlinks();
+  assertCanonicalSkillsAvoidBrokenDocLinks();
   validatePersonalSkillTerminology();
   validateJsonFiles();
   validateMarkdownLinks();

@@ -102,6 +102,14 @@ If the server is listed but no tools appear in chat, start a new Codex session a
 
 ## Part 2 — Install the Codex skill mirrors
 
+**Canonical install:**
+
+```bash
+gcp brain setup codex --yes
+```
+
+This installs the same ten skills as Cursor and Claude Code, plus shared contracts under `~/.codex/skills/ghostcrab-shared/`.
+
 This directory contains ten skills:
 
 | Folder                                                                 | Role                                                                              |
@@ -117,22 +125,11 @@ This directory contains ten skills:
 | [ghostcrab-json-answer-builder/](ghostcrab-json-answer-builder/)       | Stable JSON answers from MCP outputs (observed vs inferred vs missing)            |
 | [ghostcrab-projection-reviewer/](ghostcrab-projection-reviewer/)       | Review Type A/B projections and readiness via MCP                                 |
 
-Each skill’s `SKILL.md` links to shared contracts under **`../shared/`** (for example [ONBOARDING_CONTRACT.md](../shared/ONBOARDING_CONTRACT.md)). Those paths assume this layout:
+Each skill’s `SKILL.md` links to shared contracts under **`../ghostcrab-shared/`** after install (for example `ONBOARDING_CONTRACT.md`, `ARTIFACT_KINDS.md`, `RUNTIME_QUERY_PIPELINE.md`). In this authoring repo, the source stubs live under `../shared/`.
 
-```text
-ghostcrab-skills/
-├── codex/
-│   ├── ghostcrab-memory/
-│   ├── ghostcrab-prompt-guide/
-│   └── ghostcrab-data-architect/
-└── shared/
-    ├── ONBOARDING_CONTRACT.md
-    └── …
-```
+Each skill is **autonomous** at runtime: workflows and guardrails are inline in `SKILL.md`. Operational skills may optionally reference starter-kit delivery SOPs (`starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP_SEQUENCE.md`) when you run a phased import project.
 
-**Recommended:** symlink or clone the whole **`ghostcrab-skills`** tree into the place where Codex loads skills, preserving `codex/` and `shared/` as siblings—so relative links in `SKILL.md` keep working.
-
-If your Codex version documents a single skills root directory, point it at the parent of `codex/` and `shared/`, or follow the vendor’s instructions for multi-folder skills.
+**Recommended:** use `gcp brain setup codex` rather than manual symlinks. For manual installs, preserve `codex/skills/` and `ghostcrab-shared/` as siblings under your Codex skills root so relative links keep working.
 
 ## Part 3 — Shared rules of the road
 

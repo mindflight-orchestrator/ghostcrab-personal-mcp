@@ -220,9 +220,8 @@ async function postSql(baseUrl, sql, params) {
   return body;
 }
 
-function printArtifactHelp() {
-  console.log(
-    `
+function artifactHelpText() {
+  return `
 Usage: gcp brain artifact <list|get|refresh|events|migrate> [options]
 
 Answer artifact registry (analysis_plan, live_answer_view, answer_snapshot, evidence_pack).
@@ -235,7 +234,8 @@ Subcommands:
   get <artifact_id> [--url <base>]
        Fetch one artifact by id (HTTP).
   refresh <artifact_id> [--url <base>]
-       Explicitly refresh a live answer view (live_answer_view only).
+       Explicitly refresh one live answer view. The id must be exact; shell
+       globs/wildcards such as live_answer_view__foo_* are not supported.
   events <artifact_id> [--limit <n>] [--url <base>]
        List answer_update_event rows for an artifact (HTTP).
   migrate (--dry-run | --repair) [--db <path>] [--force]
@@ -253,13 +253,26 @@ Examples:
   gcp brain artifact get analysis_plan__pilotage_hebdo
   gcp brain artifact refresh live_answer_view__pilotage_hebdo
   gcp brain artifact events live_answer_view__pilotage_hebdo --limit 5
+  gcp brain artifact list --workspace-id serenity --kind live_answer_view --limit 100
   gcp brain artifact migrate --dry-run --db data/ghostcrab.sqlite
   gcp brain artifact migrate --repair --db data/ghostcrab.sqlite
+
+To refresh many live views, list exact ids first and call refresh once per id:
+  gcp brain artifact list --workspace-id serenity --kind live_answer_view --limit 100 \\
+    | jq -r '.artifacts[].artifact_id' \\
+    | while read -r id; do gcp brain artifact refresh "$id"; done
+
+The refresh route is POST. A 405 MethodNotAllowed usually means the running
+MindBrain backend is stale after an upgrade or the URL was called with GET.
+Restart the backend/MCP, then retry with one exact live_answer_view id.
 
 Backup bundles include mindbrain_answer_artifacts and mindbrain_answer_events
 when exporting a full workspace (gcp brain backup).
 `.trim()
-  );
+}
+
+function printArtifactHelp() {
+  console.log(artifactHelpText());
 }
 
 export const __private__ = {
@@ -271,5 +284,6 @@ export const __private__ = {
   buildArtifactRefreshUrl,
   buildArtifactEventsUrl,
   normalizeArtifactEventsBody,
+  artifactHelpText,
   resolveArtifactWorkspaceId: resolveArtifactWorkspaceId
 };

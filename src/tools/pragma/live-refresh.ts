@@ -31,14 +31,15 @@ export const liveRefreshTool: ToolHandler = {
   definition: {
     name: "ghostcrab_live_refresh",
     description:
-      "Write. Explicitly refresh a live answer view (Données en direct) from current graph/facts. Bumps current_version and records an answer_update_event. Only valid for live_answer_view artifacts. Use ghostcrab_tool_search to discover this extended tool.",
+      "Write. Explicitly refresh one live answer view (Données en direct) from current graph/facts. Requires one exact artifact_id such as live_answer_view__pilotage_hebdomadaire; wildcards/globs are not supported. Bumps current_version and records an answer_update_event. Only valid for live_answer_view artifacts. Use ghostcrab_tool_search to discover this extended tool.",
     inputSchema: {
       type: "object",
       required: ["artifact_id"],
       properties: {
         artifact_id: {
           type: "string",
-          description: "Live answer artifact id (live_answer_view__…)."
+          description:
+            "Exact live answer artifact id (live_answer_view__…). Wildcards/globs such as live_answer_view__foo_* are not supported."
         },
         workspace_id: {
           type: "string",

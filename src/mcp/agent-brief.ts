@@ -94,7 +94,7 @@ ${NON_GOAL_LINE}
 | Model     | \`project\` |
 | Guide     | \`modeling_guidance\` — natural-language domain goals |
 
-The MCP \`tools/list\` surface is intentionally compact: twelve **recommended defaults** for routine work. The remaining tools are **extended** — not listed by default, but still **directly invocable by name** once discovered. Use \`ghostcrab_tool_search\` to browse or filter the full catalog (workspace, graph, loadout, DDL, and more).
+The MCP \`tools/list\` surface is intentionally compact: **recommended defaults** for routine work. The remaining tools are **extended** — not listed by default, but still **directly invocable by name** once discovered. Use \`ghostcrab_tool_search\` to browse or filter the full catalog (workspace, graph, loadout, DDL, and more).
 
 ## First-call checklist
 
