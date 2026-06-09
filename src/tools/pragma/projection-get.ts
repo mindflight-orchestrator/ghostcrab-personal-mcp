@@ -37,7 +37,7 @@ type ProjectionEntity = {
 
 type LinkedEvidence = {
   relation: {
-    relation_id: number;
+    relation_id: string;
     relation_type: string;
     source_id: number;
     target_id: number;
@@ -149,7 +149,7 @@ export const projectionGetTool: ToolHandler = {
     const projectionResults = response.projection_results.map(mapEntity);
     const linkedEvidence = response.linked_evidence.map((row) => ({
       relation: {
-        relation_id: Number(row.relation_id),
+        relation_id: String(row.relation_id),
         relation_type: row.relation_type,
         source_id: Number(row.source_id),
         target_id: Number(row.target_id),

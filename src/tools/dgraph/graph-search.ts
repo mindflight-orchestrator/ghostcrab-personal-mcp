@@ -49,7 +49,7 @@ type RelationPropertyResult = {
 };
 
 type GraphRelationResult = {
-  relation_id: number;
+  relation_id: string;
   relation_type: string;
   source_id: number;
   target_id: number;
@@ -212,13 +212,14 @@ async function loadRelationsForEntitiesSql(
 
   const rows = await database.query<{
     metadata_json: unknown;
-    relation_id: number;
+    relation_id: string;
     relation_type: string;
     source_id: number;
     target_id: number;
   }>(
     `
-      SELECT relation_id, relation_type, source_id, target_id, metadata_json
+      SELECT CAST(relation_id AS TEXT) AS relation_id,
+             relation_type, source_id, target_id, metadata_json
       FROM graph_relation
       WHERE deprecated_at IS NULL
         AND (
@@ -235,9 +236,9 @@ async function loadRelationsForEntitiesSql(
     return [];
   }
 
-  const relationIds = rows.map((r) => Number(r.relation_id));
+  const relationIds = rows.map((r) => r.relation_id);
   const propRows = await database.query<{
-    relation_id: number;
+    relation_id: string;
     property_key: string;
     value_type: string;
     value_text: string | null;
@@ -247,7 +248,8 @@ async function loadRelationsForEntitiesSql(
     currency: string | null;
   }>(
     `
-      SELECT relation_id, property_key, value_type,
+      SELECT CAST(relation_id AS TEXT) AS relation_id,
+             property_key, value_type,
              value_text, value_number, value_integer, ref_doc_id, currency
       FROM graph_relation_property
       WHERE relation_id IN (${relationIds.map(() => "?").join(", ")})
@@ -256,9 +258,9 @@ async function loadRelationsForEntitiesSql(
     relationIds
   );
 
-  const propsByRelation = new Map<number, RelationPropertyResult[]>();
+  const propsByRelation = new Map<string, RelationPropertyResult[]>();
   for (const prop of propRows) {
-    const id = Number(prop.relation_id);
+    const id = prop.relation_id;
     let bucket = propsByRelation.get(id);
     if (!bucket) {
       bucket = [];
@@ -276,12 +278,12 @@ async function loadRelationsForEntitiesSql(
   }
 
   return rows.map((row) => ({
-    relation_id: Number(row.relation_id),
+    relation_id: row.relation_id,
     relation_type: row.relation_type,
     source_id: Number(row.source_id),
     target_id: Number(row.target_id),
     metadata: parseJsonObject(row.metadata_json),
-    relation_properties: propsByRelation.get(Number(row.relation_id)) ?? []
+    relation_properties: propsByRelation.get(row.relation_id) ?? []
   }));
 }
 
