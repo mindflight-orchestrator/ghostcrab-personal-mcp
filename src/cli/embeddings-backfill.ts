@@ -4,7 +4,10 @@ import { encodeEmbedding } from "../embeddings/blob.js";
 import { resolveGhostcrabConfig } from "../config/env.js";
 import { createDatabaseClient } from "../db/client.js";
 import { createEmbeddingProvider } from "../embeddings/provider.js";
-import { FACETS_SEARCH_TABLE_ID } from "../db/fact-store.js";
+import {
+  FACETS_SEARCH_TABLE_ID,
+  SQLITE_FACT_STORE_TABLE
+} from "../db/fact-store.js";
 import { runStandaloneSearchEmbeddingUpsert } from "../db/standalone-mindbrain.js";
 
 interface BackfillOptions {
@@ -123,7 +126,7 @@ export async function runBackfill(
         // indistinguishable from a freshly written one.
         await tx.query(
           `
-            UPDATE facets
+            UPDATE ${SQLITE_FACT_STORE_TABLE}
             SET embedding_blob = ?, updated_at_unix = ?
             WHERE id = ?
               AND embedding_blob IS NULL

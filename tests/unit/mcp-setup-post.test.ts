@@ -5,10 +5,12 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { PKG_ROOT } from "../../bin/lib/mcp-global-setup.mjs";
 import { runSetupPostInstall } from "../../bin/lib/mcp-setup-post.mjs";
+import { getBasicToolNames } from "../../src/tools/catalog.js";
 
 describe("runSetupPostInstall", () => {
   let cwd = "";
   let fakeHome = "";
+  const basicToolCount = getBasicToolNames().length;
   /** @type {string | undefined} */
   let prevHome: string | undefined;
 
@@ -34,7 +36,7 @@ describe("runSetupPostInstall", () => {
     process.env.USERPROFILE = fakeHome;
   }
 
-  it("dry-run cursor reports basic permissions (12 tools) and skill bundle", async () => {
+  it("dry-run cursor reports basic permissions and skill bundle", async () => {
     cwd = mkdtempSync(join(tmpdir(), "gc-setup-post-cwd-"));
     useFakeHome();
 
@@ -53,7 +55,9 @@ describe("runSetupPostInstall", () => {
 
     expect(result.ok).toBe(true);
     const text = (result.messages ?? []).join("\n");
-    expect(text).toMatch(/Would write Cursor mcpAllowlist \(basic, 12 tools\)/);
+    expect(text).toContain(
+      `Would write Cursor mcpAllowlist (basic, ${basicToolCount} tools)`
+    );
     expect(text).toMatch(/Would install cursor skill bundle from .*bin\/ide-skills/);
     expect(text).toContain(join(fakeHome, ".cursor", "skills"));
     expect(text).toMatch(/ghostcrab-memory/);
@@ -105,7 +109,7 @@ describe("runSetupPostInstall", () => {
 
     expect(result.ok).toBe(true);
     const text = (result.messages ?? []).join("\n");
-    expect(text).toMatch(/mcpAllowlist \(basic, 12 tools\)/);
+    expect(text).toContain(`mcpAllowlist (basic, ${basicToolCount} tools)`);
     expect(text).not.toMatch(/skill bundle/);
   });
 
@@ -183,7 +187,7 @@ describe("runSetupPostInstall", () => {
     const doc = JSON.parse(readFileSync(permissionsPath, "utf8")) as {
       mcpAllowlist: string[];
     };
-    expect(doc.mcpAllowlist).toHaveLength(12);
+    expect(doc.mcpAllowlist).toHaveLength(basicToolCount);
     expect(existsSync(join(cwd, ".ghostcrab", "skills", "shared", "ONBOARDING_CONTRACT.md"))).toBe(
       true
     );
