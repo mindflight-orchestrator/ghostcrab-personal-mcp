@@ -16,9 +16,9 @@ still mislead an operator or agent if read too literally.
 
 ## Blindspots found
 
-1. `tools/list` is not the full MCP API. It intentionally returns the 12
-   recommended default tools. The full catalog has 53 registered tools and must
-   be discovered through `gcp tools list`, `gcp tools verify`, or
+1. `tools/list` is not the full MCP API. It intentionally returns the generated
+   recommended default set. The full catalog must be discovered through
+   `gcp tools list`, `gcp tools verify`, or
    `ghostcrab_tool_search`.
 
 2. Older ignored notes and archived planning material can mention historical
@@ -31,35 +31,41 @@ still mislead an operator or agent if read too literally.
    surfaces. Current references must live under tracked docs such as
    `docs/reference/`, `docs/setup/`, `docs/methodology/`, or `docs/explanation/`.
 
-4. The generated MCP reference documents input argument names, required flags,
+4. `gcp brain artifact refresh` and MCP `ghostcrab_live_refresh` refresh one
+   exact `live_answer_view__...` artifact id per call. Wildcards such as
+   `live_answer_view__serenity_*` are not supported. A `405 MethodNotAllowed`
+   on refresh usually means a stale backend after upgrade or a manual `GET`
+   request; the CLI/MCP refresh path uses HTTP `POST`.
+
+5. The generated MCP reference documents input argument names, required flags,
    and coarse JSON-schema types. It does not yet formalize per-tool success
    payload schemas, error code enums, pagination guarantees, or row-level table
    contracts.
 
-5. The `access` facet is a policy hint, not a security boundary. It now marks
+6. The `access` facet is a policy hint, not a security boundary. It now marks
    `_refresh`, `_reindex`, `_delete`, and `_reset` tools as write operations, but
    callers still need host-level permission policies for Cursor, Claude, Codex,
    and other MCP clients.
 
-6. `ghostcrab_tool_search` is discovery-oriented and limited by its `limit`
+7. `ghostcrab_tool_search` is discovery-oriented and limited by its `limit`
    argument. Use `gcp tools list` for a complete flat export of every registered
    tool.
 
-7. `gcp maintenance` is an operator maintenance surface. Some launchers expose
+8. `gcp maintenance` is an operator maintenance surface. Some launchers expose
    help and behavior at `maintenance ddl-approve` / `maintenance ddl-execute`
    rather than a broad interactive group help. Reference docs should name the
    concrete subcommands.
 
-8. Destructive workspace maintenance exists on the lower-level `ghostcrab`
+9. Destructive workspace maintenance exists on the lower-level `ghostcrab`
    launcher as `workspace reset` and `workspace delete`. These are not normal
    product modeling commands and should stay separated from MCP onboarding flows.
 
-9. Backend-authoritative contracts, especially answer-artifact storage, event
+10. Backend-authoritative contracts, especially answer-artifact storage, event
    persistence, and gap/rule/diagnostic table semantics, remain owned by
    MindBrain. This repo may document consumption boundaries, but backend changes
    must be planned in the MindBrain repo first.
 
-10. Ontology import now exists on both surfaces: MCP `ghostcrab_ontology_import`
+11. Ontology import now exists on both surfaces: MCP `ghostcrab_ontology_import`
     for agent workflows, and CLI `gcp brain ontology ...` for operator scripts.
     Do not describe `ghostcrab_remember`, `ghostcrab_upsert`,
     `ghostcrab_learn`, `ghostcrab_schema_register`, or
@@ -81,5 +87,5 @@ git diff --check
 Then search the tracked docs for stale current-contract claims:
 
 ```bash
-rg -n "ghostcrab_facet_tree|ghostcrab_query_geo|ghostcrab_marketplace|ghostcrab_patch|13 public tools|12\\+.*ghostcrab|docs/dev/mcp_tools_contract" README.md docs
+rg -n "53 registered|12 recommended|41 extended|all 50|50 remain|12 default tools|ghostcrab_facet_tree|ghostcrab_query_geo|ghostcrab_marketplace|ghostcrab_patch|docs/dev/mcp_tools_contract" README.md README_*_MCP.md docs/reference docs/setup docs/methodology docs/explanation
 ```

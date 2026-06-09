@@ -7,6 +7,12 @@ description: Build stable JSON answers from GhostCrab MCP outputs for Personal w
 
 Convert MCP tool outputs into honest JSON.
 
+References: [ARTIFACT_KINDS.md](../../shared/ARTIFACT_KINDS.md), [GAP_TAXONOMY.md](../../shared/GAP_TAXONOMY.md), [RUNTIME_QUERY_PIPELINE.md](../../shared/RUNTIME_QUERY_PIPELINE.md).
+
+## Delivery context (optional)
+
+Runtime Q&A tail of `starterkit/personal-mcp/SOP_SEQUENCE.md` — after operator and evidence-discovery.
+
 ## Template
 
 ```json
@@ -30,7 +36,16 @@ Convert MCP tool outputs into honest JSON.
 - `mcp_tools_used`: tool names and key arguments.
 - Do not treat `required_facets` from a projection contract as proof rows unless search/pack returned matching facts.
 
+## Layer vocabulary (when explaining to the user)
+
+- **Facets** — `agent_facts` rows (`ghostcrab_search`)
+- **Graph** — `graph_entity` / `graph_relation` (`ghostcrab_graph_search`, `ghostcrab_traverse`)
+- **Analysis plan** — `analysis_plan` via `ghostcrab_pack`
+- **Snapshot** — `answer_snapshot` via `ghostcrab_projection_get`
+
+See [ARTIFACT_KINDS.md](../../shared/ARTIFACT_KINDS.md) for the full table.
+
 ## Guardrails
 
-- Use `mcp_tools_used` only (legacy JSON field names from Pro CLI are deprecated).
-- Cite [glossary](../../../docs/explanation/glossary.md) terms when explaining layers to the user.
+- Use `mcp_tools_used` only (legacy Pro CLI JSON field names are deprecated).
+- Route `unsupported` answers to `ghostcrab-gap-auditor` for structured gap JSON.

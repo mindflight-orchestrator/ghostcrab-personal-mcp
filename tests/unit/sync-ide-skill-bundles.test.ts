@@ -7,6 +7,19 @@ import { afterEach, describe, expect, it } from "vitest";
 const repoRoot = join(import.meta.dirname, "../..");
 let bundleRoot = "";
 
+const EXPECTED_SKILL_NAMES = [
+  "ghostcrab-memory",
+  "ghostcrab-prompt-guide",
+  "ghostcrab-data-architect",
+  "ghostcrab-integration-sop-editor",
+  "mindbrain-comparison-writer",
+  "ghostcrab-operator",
+  "ghostcrab-evidence-discovery",
+  "ghostcrab-projection-reviewer",
+  "ghostcrab-gap-auditor",
+  "ghostcrab-json-answer-builder"
+];
+
 const EXPECTED_SHARED_FILES = [
   "ONBOARDING_CONTRACT.md",
   "QUERY_PATTERNS.md",
@@ -15,8 +28,16 @@ const EXPECTED_SHARED_FILES = [
   "APP_PATTERNS.md",
   "WORKSPACE_CONTEXT.md",
   "CAPABILITIES.md",
-  "SERVER_INSTRUCTIONS.md"
+  "SERVER_INSTRUCTIONS.md",
+  "ARTIFACT_KINDS.md",
+  "RUNTIME_QUERY_PIPELINE.md",
+  "MCP_VS_GCP_ROUTING.md",
+  "IMPORT_CLOSURE_GATES.md",
+  "GAP_TAXONOMY.md",
+  "SKILL_ROUTE_MAP_ESSENTIALS.md"
 ];
+
+const EXPECTED_FILES_PER_SKILL = 3; // SKILL.md + codex agents/openai.yaml + one IDE bundle copy each
 
 function listBundleTextFiles(dir: string, prefix = ""): string[] {
   const out: string[] = [];
@@ -70,10 +91,16 @@ describe("sync-ide-skill-bundles", () => {
     expect(existsSync(manifestPath)).toBe(true);
     const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
       source: string;
+      skill_names: string[];
       files: { path: string; sha256: string }[];
     };
     expect(manifest.source).toBe("ghostcrab-skills");
-    expect(manifest.files.length).toBeGreaterThanOrEqual(37);
+    expect(manifest.skill_names).toEqual(EXPECTED_SKILL_NAMES);
+    const minFiles =
+      EXPECTED_SHARED_FILES.length +
+      EXPECTED_SKILL_NAMES.length * EXPECTED_FILES_PER_SKILL +
+      5; // README + claude self-memory install artifacts
+    expect(manifest.files.length).toBeGreaterThanOrEqual(minFiles);
     for (const name of EXPECTED_SHARED_FILES) {
       expect(manifest.files.some((f) => f.path === `shared/${name}`)).toBe(true);
     }
@@ -84,6 +111,9 @@ describe("sync-ide-skill-bundles", () => {
     expect(manifest.files.some((f) => f.path === "claude-code/skills/ghostcrab-memory/SKILL.md")).toBe(true);
     expect(manifest.files.some((f) => f.path === "codex/skills/ghostcrab-memory/SKILL.md")).toBe(true);
     expect(manifest.files.some((f) => f.path === "codex/skills/ghostcrab-memory/agents/openai.yaml")).toBe(true);
+    expect(manifest.files.some((f) => f.path === "codex/skills/ghostcrab-operator/SKILL.md")).toBe(true);
+    expect(manifest.files.some((f) => f.path === "cursor/skills/ghostcrab-operator/SKILL.md")).toBe(true);
+    expect(manifest.files.some((f) => f.path === "claude-code/skills/ghostcrab-gap-auditor/SKILL.md")).toBe(true);
     expect(manifest.files.some((f) => f.path === "codex/skills/mindbrain-comparison-writer/references/article-blueprint.md")).toBe(true);
     expect(manifest.files.some((f) => f.path.includes("SKILL-2.md"))).toBe(false);
     for (const entry of manifest.files) {
@@ -150,6 +180,13 @@ describe("sync-ide-skill-bundles", () => {
       "utf8"
     );
     expect(codexPolicy).toContain("allow_implicit_invocation: false");
+
+    const operator = readFileSync(
+      join(bundleRoot, "codex/skills/ghostcrab-operator/SKILL.md"),
+      "utf8"
+    );
+    expect(operator).toContain("../ghostcrab-shared/RUNTIME_QUERY_PIPELINE.md");
+    expect(operator).not.toContain("../../../docs/");
   });
 
   it("re-running sync is a no-op on manifest paths and checksums", () => {

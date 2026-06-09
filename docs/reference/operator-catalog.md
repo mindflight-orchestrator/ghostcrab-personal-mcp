@@ -41,7 +41,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 
 | Surface | Command | Layer | Impact | Access | Prerequisites | Runbook |
 |---------|---------|-------|--------|--------|---------------|-----------|
-| gcp | brain schema list \| pull \| show \| remove | facets | local registry schema packs | read/write | — | skillset-demo-import.md |
+| gcp | brain schema list \| pull \| show \| remove | facets | local schema packs | read/write | — | skillset-demo-import.md |
 | gcp | ontologies … (legacy) | facets | local schema packs | read/write | — | gcp-commands.md |
 
 ### Ontology LinkML / OWL2
@@ -49,7 +49,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | Surface | Command | Layer | Impact | Access | Prerequisites | Runbook |
 |---------|---------|-------|--------|--------|---------------|-----------|
 | gcp | brain ontology compile | ontology | ontology_* (after --import-db) | write | stop MCP | 06-voies-import, ontology/README |
-| gcp | brain ontology import \| export \| inspect | ontology | ontology_* / N-Triples | write/read | stop MCP for offline import/export; backend running for inspect | ontology/linkml-owl2-pipeline.md |
+| gcp | brain ontology import \| export | ontology | ontology_* / N-Triples | write | stop MCP | ontology/linkml-owl2-pipeline.md |
 | gcp | brain ontology export-linkml | ontology | YAML slice export | read | — | ontology/linkml-owl2-pipeline.md |
 
 ### Structured import
@@ -75,7 +75,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | Surface | Command | Layer | Impact | Access | Prerequisites | Runbook |
 |---------|---------|-------|--------|--------|---------------|-----------|
 | gcp | brain artifact list \| get | pragma | mindbrain_answer_artifacts | read | backend running | gcp-commands.md |
-| gcp | brain artifact refresh \| events | pragma | mindbrain_answer_artifacts, mindbrain_answer_events | write/read | backend running; refresh is live_answer_view only | gcp-commands.md |
+| gcp | brain artifact refresh \| events | pragma | mindbrain_answer_artifacts, mindbrain_answer_events | write/read | backend running; refresh requires one exact live_answer_view id; no wildcards | gcp-commands.md |
 | gcp | brain artifact migrate --dry-run \| --repair | pragma | mindbrain_answer_artifacts (offline backfill) | write | stop MCP | gcp-commands.md |
 
 ### Backup / demo / IDE
@@ -93,7 +93,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 
 ---
 
-## B — MCP tools (53 registered)
+## B — MCP tools (62 registered)
 
 | Tool | Basic | Subsystem | Access | Tables / impact |
 |------|-------|-----------|--------|-----------------|
@@ -133,10 +133,19 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | `ghostcrab_pack` | yes | pragma | read | projections + agent_facts |
 | `ghostcrab_project` | yes | pragma | model | projections |
 | `ghostcrab_projection_get` | no | pragma | model | graph_entity (ProjectionResult) |
+| `ghostcrab_quality_convergence_get` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
+| `ghostcrab_quality_convergence_list` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
+| `ghostcrab_quality_convergence_run` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
+| `ghostcrab_quality_remediation_actions` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
+| `ghostcrab_quality_remediation_apply` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
+| `ghostcrab_quality_remediation_decide` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_remember` | yes | facets | write | agent_facts (+ facet_tables FTS when indexed) |
-| `ghostcrab_schema_inspect` | yes | facets | read | schema registry plus matching native ontology_* sync state |
+| `ghostcrab_schema_get` | yes | facets | read | schema registry (agent_facts shapes; not LinkML ontology_*) |
+| `ghostcrab_schema_inspect` | yes | facets | read | schema registry (agent_facts shapes; not LinkML ontology_*) |
 | `ghostcrab_schema_list` | yes | facets | read | schema registry (agent_facts shapes; not LinkML ontology_*) |
 | `ghostcrab_schema_register` | no | facets | write | schema registry (agent_facts shapes; not LinkML ontology_*) |
+| `ghostcrab_schema_sync_apply` | no | facets | write | schema registry (agent_facts shapes; not LinkML ontology_*) |
+| `ghostcrab_schema_sync_preview` | no | facets | read | schema registry (agent_facts shapes; not LinkML ontology_*) |
 | `ghostcrab_search` | yes | facets | read | agent_facts (+ facet_tables FTS when indexed) |
 | `ghostcrab_status` | yes | pragma | bootstrap | — (diagnostic) |
 | `ghostcrab_tool_search` | yes | facets | read | agent_facts (+ facet_tables FTS when indexed) |

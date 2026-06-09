@@ -1,12 +1,17 @@
 {
-  "generated_at": "2026-06-07T06:26:59.888Z",
+  "generated_at": "2026-06-09T12:48:11.506Z",
   "source": "ghostcrab-skills",
   "skill_names": [
     "ghostcrab-memory",
     "ghostcrab-prompt-guide",
     "ghostcrab-data-architect",
     "ghostcrab-integration-sop-editor",
-    "mindbrain-comparison-writer"
+    "mindbrain-comparison-writer",
+    "ghostcrab-operator",
+    "ghostcrab-evidence-discovery",
+    "ghostcrab-projection-reviewer",
+    "ghostcrab-gap-auditor",
+    "ghostcrab-json-answer-builder"
   ],
   "files": [
     {
@@ -30,12 +35,32 @@
       "sha256": "a0e18a1f06162129722d9c2e5184bebeb3a0d69aebfd0347951359e1854377b4"
     },
     {
+      "path": "claude-code/skills/ghostcrab-evidence-discovery/SKILL.md",
+      "sha256": "fb7abba417c470479cec28528d95ad0a3fd719a25258d090c002fb9bba51d172"
+    },
+    {
+      "path": "claude-code/skills/ghostcrab-gap-auditor/SKILL.md",
+      "sha256": "fb4ab2b5d6546f911207186f83fcfed30b24b1c3a9d8e4f25efa6160d747cf19"
+    },
+    {
       "path": "claude-code/skills/ghostcrab-integration-sop-editor/SKILL.md",
       "sha256": "07a816364729d613bbad83ec9486476de6cea2faeaac0e90b206152eb094f476"
     },
     {
+      "path": "claude-code/skills/ghostcrab-json-answer-builder/SKILL.md",
+      "sha256": "422c7b57e9cf013bcf990d32869bfecd5eb612c71fa894f51a6dd17dff904182"
+    },
+    {
       "path": "claude-code/skills/ghostcrab-memory/SKILL.md",
       "sha256": "fa3e8b1823545bd52c186b06e3ac875f46279bf10d6f942651f6bfab1a100a37"
+    },
+    {
+      "path": "claude-code/skills/ghostcrab-operator/SKILL.md",
+      "sha256": "d36c156ff0f4a6662cee66573a45b3399314d3d0091eb5ca7710943110afaa14"
+    },
+    {
+      "path": "claude-code/skills/ghostcrab-projection-reviewer/SKILL.md",
+      "sha256": "8b777ed6598505d8bba60904c595f73428e5bd1f0df2098e8c729fa3e091cd0d"
     },
     {
       "path": "claude-code/skills/ghostcrab-prompt-guide/SKILL.md",
@@ -58,6 +83,22 @@
       "sha256": "a1499d95abd8447558c535fe5554adcc3c9b988a0a39264a6283d430effe1e94"
     },
     {
+      "path": "codex/skills/ghostcrab-evidence-discovery/SKILL.md",
+      "sha256": "fb7abba417c470479cec28528d95ad0a3fd719a25258d090c002fb9bba51d172"
+    },
+    {
+      "path": "codex/skills/ghostcrab-evidence-discovery/agents/openai.yaml",
+      "sha256": "cd20c9328c96aff94fe8855bb4ecabeeab2400a6a8aa5cba142634668a58ab79"
+    },
+    {
+      "path": "codex/skills/ghostcrab-gap-auditor/SKILL.md",
+      "sha256": "fb4ab2b5d6546f911207186f83fcfed30b24b1c3a9d8e4f25efa6160d747cf19"
+    },
+    {
+      "path": "codex/skills/ghostcrab-gap-auditor/agents/openai.yaml",
+      "sha256": "dfe68f5c824df77dd61ea62320d22086670a51d83c2e5549f7b1f412164c0acf"
+    },
+    {
       "path": "codex/skills/ghostcrab-integration-sop-editor/SKILL.md",
       "sha256": "07a816364729d613bbad83ec9486476de6cea2faeaac0e90b206152eb094f476"
     },
@@ -66,12 +107,36 @@
       "sha256": "a1499d95abd8447558c535fe5554adcc3c9b988a0a39264a6283d430effe1e94"
     },
     {
+      "path": "codex/skills/ghostcrab-json-answer-builder/SKILL.md",
+      "sha256": "422c7b57e9cf013bcf990d32869bfecd5eb612c71fa894f51a6dd17dff904182"
+    },
+    {
+      "path": "codex/skills/ghostcrab-json-answer-builder/agents/openai.yaml",
+      "sha256": "70c074e4317d9ca894a2d15a07e54dd9015900f5f7913a6f838d61cdcd33d66d"
+    },
+    {
       "path": "codex/skills/ghostcrab-memory/SKILL.md",
       "sha256": "fa3e8b1823545bd52c186b06e3ac875f46279bf10d6f942651f6bfab1a100a37"
     },
     {
       "path": "codex/skills/ghostcrab-memory/agents/openai.yaml",
       "sha256": "a1499d95abd8447558c535fe5554adcc3c9b988a0a39264a6283d430effe1e94"
+    },
+    {
+      "path": "codex/skills/ghostcrab-operator/SKILL.md",
+      "sha256": "d36c156ff0f4a6662cee66573a45b3399314d3d0091eb5ca7710943110afaa14"
+    },
+    {
+      "path": "codex/skills/ghostcrab-operator/agents/openai.yaml",
+      "sha256": "6306e2f7780ae7fc97a627c4d90d006f6787bef918c5e1cbc9b494a441c07250"
+    },
+    {
+      "path": "codex/skills/ghostcrab-projection-reviewer/SKILL.md",
+      "sha256": "8b777ed6598505d8bba60904c595f73428e5bd1f0df2098e8c729fa3e091cd0d"
+    },
+    {
+      "path": "codex/skills/ghostcrab-projection-reviewer/agents/openai.yaml",
+      "sha256": "5c0d9561e42eeadd14a637b6118cd81682416fd4519210d81c2be1b530bec137"
     },
     {
       "path": "codex/skills/ghostcrab-prompt-guide/SKILL.md",
@@ -98,12 +163,32 @@
       "sha256": "a0e18a1f06162129722d9c2e5184bebeb3a0d69aebfd0347951359e1854377b4"
     },
     {
+      "path": "cursor/skills/ghostcrab-evidence-discovery/SKILL.md",
+      "sha256": "fb7abba417c470479cec28528d95ad0a3fd719a25258d090c002fb9bba51d172"
+    },
+    {
+      "path": "cursor/skills/ghostcrab-gap-auditor/SKILL.md",
+      "sha256": "fb4ab2b5d6546f911207186f83fcfed30b24b1c3a9d8e4f25efa6160d747cf19"
+    },
+    {
       "path": "cursor/skills/ghostcrab-integration-sop-editor/SKILL.md",
       "sha256": "07a816364729d613bbad83ec9486476de6cea2faeaac0e90b206152eb094f476"
     },
     {
+      "path": "cursor/skills/ghostcrab-json-answer-builder/SKILL.md",
+      "sha256": "422c7b57e9cf013bcf990d32869bfecd5eb612c71fa894f51a6dd17dff904182"
+    },
+    {
       "path": "cursor/skills/ghostcrab-memory/SKILL.md",
       "sha256": "fa3e8b1823545bd52c186b06e3ac875f46279bf10d6f942651f6bfab1a100a37"
+    },
+    {
+      "path": "cursor/skills/ghostcrab-operator/SKILL.md",
+      "sha256": "d36c156ff0f4a6662cee66573a45b3399314d3d0091eb5ca7710943110afaa14"
+    },
+    {
+      "path": "cursor/skills/ghostcrab-projection-reviewer/SKILL.md",
+      "sha256": "8b777ed6598505d8bba60904c595f73428e5bd1f0df2098e8c729fa3e091cd0d"
     },
     {
       "path": "cursor/skills/ghostcrab-prompt-guide/SKILL.md",
@@ -122,12 +207,28 @@
       "sha256": "83230826cac13f518eb749e6f6a281be6ef3d73ede75c0fa8428030ab7fbf7a2"
     },
     {
+      "path": "shared/ARTIFACT_KINDS.md",
+      "sha256": "322feb64dd5e9d8da47d5826652102ce436fe18f8ed0db7f0cb0490d2863a8b4"
+    },
+    {
       "path": "shared/CAPABILITIES.md",
       "sha256": "e17364b6ffe9c1f274f6e8ba122bd318032810b025cf65e6917675e4854b125f"
     },
     {
       "path": "shared/DEMO_CHOOSER.md",
       "sha256": "798cfeddbd42c367922b37cef294f6148cf83782e37c70b04952c90bf14b0af7"
+    },
+    {
+      "path": "shared/GAP_TAXONOMY.md",
+      "sha256": "9f45046a8035e4352758dd4a3fbba6dc6e0360d9f83e3d6f4e43c50f6bb223fa"
+    },
+    {
+      "path": "shared/IMPORT_CLOSURE_GATES.md",
+      "sha256": "5063e20a51ec50798c44ef1f19394c5283214b215e9051fcd89c4907a6d6c630"
+    },
+    {
+      "path": "shared/MCP_VS_GCP_ROUTING.md",
+      "sha256": "e169f9491c890b4791ce94986f38c16cfe8c2edebcfaba0df09f80f69d94f02e"
     },
     {
       "path": "shared/ONBOARDING_CONTRACT.md",
@@ -142,12 +243,20 @@
       "sha256": "7f30606428b8316adafe7fbaa60730d65909ec06b80b40ec18bba71c4d82863a"
     },
     {
+      "path": "shared/RUNTIME_QUERY_PIPELINE.md",
+      "sha256": "b1d27d5aabc7ad1ac1834c937f14c557ef686103f5ff0710b6b6550bb2dde615"
+    },
+    {
       "path": "shared/SCHEMA_DESIGN.md",
       "sha256": "a15ea23c66dafd474eb841b3f18dcbdc7ba5294363860009269014bab575b915"
     },
     {
       "path": "shared/SERVER_INSTRUCTIONS.md",
       "sha256": "b618f64b51709c294f8f80a7595a05112fc2d02866be45c801abfb764ed7229e"
+    },
+    {
+      "path": "shared/SKILL_ROUTE_MAP_ESSENTIALS.md",
+      "sha256": "08d9fb94c853ee44c63d779766476899612359c3765ab89773f7309a4b627c9b"
     },
     {
       "path": "shared/TRANSITION_LOGGING.md",

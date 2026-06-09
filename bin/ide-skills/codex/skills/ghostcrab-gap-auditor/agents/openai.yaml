@@ -1,0 +1,4 @@
+short_description: Audit gaps between questions and GhostCrab MCP evidence.
+default_prompt: Use $ghostcrab-gap-auditor to explain what is missing for a reliable answer on this GhostCrab Personal workspace.
+policy:
+  allow_implicit_invocation: false

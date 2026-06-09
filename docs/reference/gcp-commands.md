@@ -40,6 +40,38 @@ commands are intentionally narrow: `serve`, `smoke`, `status`, `tools list`,
 `workspace reset|delete` maintenance. Commands like `search`, `remember`,
 `upsert`, `schema`, `learn`, `project`, `pack`, and agent-driven ontology import are MCP-only.
 
+## Answer artifact refresh
+
+`gcp brain artifact refresh <artifact_id>` refreshes **one** live answer view by
+exact registry id. The id must be a concrete `live_answer_view__...` value, for
+example:
+
+```bash
+gcp brain artifact refresh live_answer_view__pilotage_hebdo
+```
+
+Wildcards and shell globs are not supported by the artifact API. A value like
+`live_answer_view__serenity_*` is not expanded by `gcp` or by the MCP
+`ghostcrab_live_refresh` tool; refresh many views by listing exact ids first and
+calling refresh once per id:
+
+```bash
+gcp brain artifact list --workspace-id serenity --kind live_answer_view --limit 100 \
+  | jq -r '.artifacts[].artifact_id' \
+  | while read -r id; do gcp brain artifact refresh "$id"; done
+```
+
+MCP callers use the same rule: call `ghostcrab_live_refresh` once per exact
+`artifact_id`.
+
+The refresh endpoint is an HTTP `POST` route. If
+`gcp brain artifact refresh live_answer_view__...` fails with
+`405 MethodNotAllowed`, the usual cause is a stale running MindBrain backend
+after an upgrade, or an operator hitting the URL with `GET`. Restart
+`gcp brain up` / the MCP host so the current backend is serving, then retry with
+one exact live view id. Missing ids should fail as missing artifacts, not as a
+405.
+
 ## Why “brain” vs “agent”
 
 - **Brain** = MindBrain / SQLite: persistence, workspaces, **what the data *is*** (schema / ontologies).

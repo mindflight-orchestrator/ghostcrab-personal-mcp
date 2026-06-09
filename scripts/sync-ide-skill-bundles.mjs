@@ -31,7 +31,12 @@ const SKILL_NAMES = [
   "ghostcrab-prompt-guide",
   "ghostcrab-data-architect",
   "ghostcrab-integration-sop-editor",
-  "mindbrain-comparison-writer"
+  "mindbrain-comparison-writer",
+  "ghostcrab-operator",
+  "ghostcrab-evidence-discovery",
+  "ghostcrab-projection-reviewer",
+  "ghostcrab-gap-auditor",
+  "ghostcrab-json-answer-builder"
 ];
 
 const SHARED_FROM_SHARED = [
@@ -42,7 +47,13 @@ const SHARED_FROM_SHARED = [
   "APP_PATTERNS.md",
   "WORKSPACE_CONTEXT.md",
   "PATH_CONTENT_FACETS.md",
-  "DEMO_CHOOSER.md"
+  "DEMO_CHOOSER.md",
+  "ARTIFACT_KINDS.md",
+  "RUNTIME_QUERY_PIPELINE.md",
+  "MCP_VS_GCP_ROUTING.md",
+  "IMPORT_CLOSURE_GATES.md",
+  "GAP_TAXONOMY.md",
+  "SKILL_ROUTE_MAP_ESSENTIALS.md"
 ];
 
 const SHARED_FROM_ROOT = ["CAPABILITIES.md", "SERVER_INSTRUCTIONS.md"];
