@@ -245,7 +245,7 @@ export const upsertTool: ToolHandler = {
         const nowUnix = Math.floor(Date.now() / 1000);
         await queryable.query(
           `
-            UPDATE facets
+            UPDATE ${SQLITE_FACT_STORE_TABLE}
             SET content = ?,
                 facets_json = ?,
                 embedding_blob = ?,

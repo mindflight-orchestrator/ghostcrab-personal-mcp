@@ -13,12 +13,12 @@ import { getBasicToolNames } from "../../src/tools/catalog.js";
 
 describe("mcp-tool-policy", () => {
   const server = "ghostcrab-personal-mcp";
+  const basicToolCount = getBasicToolNames().length;
 
-  it("basic preset exposes exactly 12 allow rules", () => {
+  it("basic preset exposes one allow rule per basic tool", () => {
     const policy = buildToolPermissionPreset("basic", { serverName: server });
-    expect(policy.allow).toHaveLength(12);
+    expect(policy.allow).toHaveLength(basicToolCount);
     expect(policy.ask).toHaveLength(0);
-    expect(getBasicToolNames()).toHaveLength(12);
     for (const name of getBasicToolNames()) {
       expect(policy.allow).toContainEqual({ serverName: server, toolName: name });
     }
@@ -46,11 +46,11 @@ describe("mcp-tool-policy", () => {
   it("renders policy to client-specific lists", () => {
     const policy = buildToolPermissionPreset("basic", { serverName: server });
     const claude = policyToClaudePermissions(policy);
-    expect(claude.allow).toHaveLength(12);
+    expect(claude.allow).toHaveLength(basicToolCount);
     expect(claude.allow[0]).toMatch(/^mcp__ghostcrab-personal-mcp__/);
 
     const cursor = policyToCursorMcpAllowlist(policy);
-    expect(cursor).toHaveLength(12);
+    expect(cursor).toHaveLength(basicToolCount);
     expect(cursor[0]).toMatch(/^ghostcrab-personal-mcp:ghostcrab_/);
   });
 

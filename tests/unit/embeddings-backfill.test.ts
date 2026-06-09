@@ -102,7 +102,7 @@ describe("embeddings backfill", () => {
       updated: 2
     });
     expect(
-      query.mock.calls.some((call) => call[0].includes("UPDATE facets"))
+      query.mock.calls.some((call) => call[0].includes("UPDATE agent_facts"))
     ).toBe(true);
   });
 
@@ -144,7 +144,7 @@ describe("embeddings backfill", () => {
     }
 
     const updateCalls = query.mock.calls.filter((call) =>
-      call[0].includes("UPDATE facets")
+      call[0].includes("UPDATE agent_facts")
     );
     expect(updateCalls.length).toBe(1);
     expect(updateCalls[0]?.[0]).toMatch(/SET\s+embedding_blob\s*=/);

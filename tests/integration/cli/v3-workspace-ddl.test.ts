@@ -2,7 +2,7 @@
  * V3 Plan B integration test — proves the minimal chain on a real database:
  *
  *   migration 009 applied → mindbrain schema exists
- *   migration 011 applied → facets.source_ref column exists
+ *   migration 011 applied → agent_facts.source_ref column exists
  *   ghostcrab_workspace_create → workspace row visible in mindbrain.workspaces
  *   ghostcrab_workspace_list  → workspace visible with stats
  *   ghostcrab_ddl_propose     → migration stored as pending
@@ -93,16 +93,16 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
     expect(rows).toHaveLength(1);
   });
 
-  it("facets.workspace_id column exists", async () => {
+  it("agent_facts.workspace_id column exists", async () => {
     const rows = await harness.database.query<{ name: string }>(
-      `PRAGMA table_info(facets)`
+      `PRAGMA table_info(agent_facts)`
     );
     expect(rows.some((row) => row.name === "workspace_id")).toBe(true);
   });
 
-  it("facets.source_ref column exists", async () => {
+  it("agent_facts.source_ref column exists", async () => {
     const rows = await harness.database.query<{ name: string }>(
-      `PRAGMA table_info(facets)`
+      `PRAGMA table_info(agent_facts)`
     );
     expect(rows.some((row) => row.name === "source_ref")).toBe(true);
   });
@@ -110,7 +110,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   it("unique index on (source_ref, workspace_id) exists", async () => {
     const rows = await harness.database.query<{ name: string }>(
       `SELECT name FROM sqlite_master
-       WHERE type = 'index' AND name = 'idx_facets_source_ref_workspace'`
+       WHERE type = 'index' AND name = 'idx_agent_facts_source_ref_workspace'`
     );
     expect(rows).toHaveLength(1);
   });
