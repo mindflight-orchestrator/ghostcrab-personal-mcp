@@ -203,6 +203,13 @@ export function classifyToolAccess(name: string): ToolAccess {
   }
 
   if (
+    name === "ghostcrab_quality_convergence_run" ||
+    name === "ghostcrab_quality_remediation_decide"
+  ) {
+    return "write";
+  }
+
+  if (
     name.includes("_remember") ||
     name.includes("_learn") ||
     name.includes("_upsert") ||
@@ -265,6 +272,7 @@ function classifySubsystem(name: string): ToolSubsystem {
     name.startsWith("ghostcrab_graph") ||
     name.startsWith("ghostcrab_collection_") ||
     name.startsWith("ghostcrab_coverage") ||
+    name.startsWith("ghostcrab_quality_") ||
     name.startsWith("ghostcrab_learn") ||
     name.startsWith("ghostcrab_patch") ||
     name.startsWith("ghostcrab_marketplace")

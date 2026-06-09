@@ -23,6 +23,7 @@ import "./pragma/pack.js";
 import "./pragma/projection-get.js";
 import "./pragma/project.js";
 import "./pragma/status.js";
+import "./quality/convergence.js";
 import "./search/combined-search.js";
 import "./workspace/use.js";
 import "./workspace/create.js";
