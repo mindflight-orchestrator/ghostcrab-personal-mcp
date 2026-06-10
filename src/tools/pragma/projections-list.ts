@@ -19,6 +19,18 @@ import {
   LEGACY_PROJECTION_TYPE_B
 } from "./answer-artifact-overlay.js";
 
+const PROJECTIONS_LIST_DESCRIPTION = [
+  "Read. Catalogue discoverable projections for a workspace before reading content.",
+  "Sources: (1) mindbrain_answer_artifacts registry — analysis_plan, live_answer_view, answer_snapshot;",
+  "(2) optional graph scan — distinct projection_id on ProjectionResult entities when include_graph is true.",
+  "Returns projections[] with public_label (user-facing), artifact_id, projection_id, artifact_kind, legacy_kind, source (registry|graph), and suggested_tools.",
+  "Routing: analysis_plan → ghostcrab_artifact_get, ghostcrab_pack;",
+  "live_answer_view → ghostcrab_artifact_get, ghostcrab_live_refresh;",
+  "answer_snapshot or graph → ghostcrab_projection_get.",
+  "Does not return pack rows, payloads, or graph evidence. kind filter: analysis_plan | live_answer_view | answer_snapshot | graph.",
+  "With kind analysis_plan or live_answer_view, graph scan is skipped. Operator doc: docs/reference/projections-discovery.md."
+].join(" ");
+
 const PROJECTION_ARTIFACT_KINDS = [
   ANALYSIS_PLAN_KIND,
   "live_answer_view",
@@ -166,43 +178,44 @@ async function listGraphProjectionIds(
 export const projectionsListTool: ToolHandler = {
   definition: {
     name: "ghostcrab_projections_list",
-    description:
-      "Read. List discoverable projections for a workspace: answer-artifact registry rows (analysis_plan, live_answer_view, answer_snapshot) plus graph ProjectionResult projection_id values. Use before ghostcrab_projection_get, ghostcrab_artifact_get, ghostcrab_pack, or ghostcrab_live_refresh.",
+    description: PROJECTIONS_LIST_DESCRIPTION,
     inputSchema: {
       type: "object",
       properties: {
         workspace_id: {
           type: "string",
           description:
-            "Target workspace id. Defaults to the active MCP session workspace."
+            "Target workspace id. Defaults to the active MCP session workspace. Required when the session has no pinned workspace."
         },
         kind: {
           type: "string",
           enum: [...PROJECTION_ARTIFACT_KINDS, "graph"],
           description:
-            "Optional filter. Use graph to list only materialized graph projection_id values."
+            "Optional filter. analysis_plan | live_answer_view | answer_snapshot limit registry rows; graph lists only ProjectionResult projection_id values. Omit for all registry kinds plus optional graph append."
         },
         agent_id: {
           type: "string",
           description:
-            "Optional filter for analysis_plan registry rows tied to an agent."
+            "Optional registry filter — mainly analysis_plan rows bound to an agent (e.g. agent:self)."
         },
         scope: {
           type: "string",
-          description: "Optional scope filter for registry rows."
+          description:
+            "Optional registry filter on artifact scope (often equals workspace id for analysis plans)."
         },
         include_graph: {
           type: "boolean",
           default: true,
           description:
-            "When true, append distinct graph ProjectionResult projection_id values not already listed from the registry."
+            "When true, append graph ProjectionResult projection_id values not already listed. Ignored when kind is analysis_plan or live_answer_view."
         },
         limit: {
           type: "integer",
           minimum: 1,
           maximum: 500,
           default: 100,
-          description: "Maximum rows returned per source (registry and graph)."
+          description:
+            "Maximum rows per source (registry SQL and graph SQL each apply this limit)."
         }
       }
     }
@@ -290,6 +303,8 @@ export const projectionsListTool: ToolHandler = {
       },
       notes: [
         "Use public_label when speaking to the user; artifact_kind and legacy_kind are routing hints only.",
+        "Each projections[] row includes suggested_tools — call those next; this tool does not return payloads or pack content.",
+        "Output fields per row: source, public_label, artifact_kind, artifact_id, projection_id, slug, lifecycle, state, legacy_ref, legacy_kind, suggested_tools.",
         ...notes
       ]
     });

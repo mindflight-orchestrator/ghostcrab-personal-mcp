@@ -169,12 +169,21 @@ function argumentTable(entry) {
   return lines.join("\n");
 }
 
+const TOOL_EXTENDED_DOCS = {
+  ghostcrab_projections_list: "projections-discovery.md"
+};
+
 function mcpToolsReference() {
   const sections = catalog.map((entry) => {
+    const extendedDoc = TOOL_EXTENDED_DOCS[entry.name];
+    const extendedSection = extendedDoc
+      ? `\nExtended guide: [${extendedDoc}](${extendedDoc}).\n`
+      : "";
+
     return `### \`${entry.name}\`
 
 ${entry.description || "_No description._"}
-
+${extendedSection}
 | Field | Value |
 |-------|-------|
 | Visibility | ${entry.visibility} |
@@ -265,6 +274,7 @@ ${mcpTable()}
 
 ## See also
 
+- [projections-discovery.md](projections-discovery.md)
 - [structured-import.md](../setup/structured-import.md)
 - [document-import.md](../setup/document-import.md)
 - [mcp-tools.md](mcp-tools.md)

@@ -4,6 +4,14 @@
 
 These patches are drafts for the public GhostCrab MCP tool descriptions.
 
+## `ghostcrab_projections_list`
+
+- Read-only catalogue: answer-artifact registry rows (`analysis_plan`, `live_answer_view`, `answer_snapshot`) plus optional graph `projection_id` values from `ProjectionResult`.
+- Call when the user asks what projections exist or before `artifact_get` / `projection_get` / `pack` when ids are unknown.
+- Output entries include `public_label` (user-facing), `artifact_id`, `projection_id`, and `suggested_tools` for the next MCP call.
+- Does not return projection payload, pack rows, or graph evidence — follow `suggested_tools`.
+- Full guide: `docs/reference/projections-discovery.md`.
+
 ## `ghostcrab_search`
 
 - Prefer explicit `schema_id` and exact filters before broad free-text search.

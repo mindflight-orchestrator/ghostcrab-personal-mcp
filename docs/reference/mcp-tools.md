@@ -682,7 +682,9 @@ Read. Retrieve a materialized graph projection by projection_id from ProjectionR
 
 ### `ghostcrab_projections_list`
 
-Read. List discoverable projections for a workspace: answer-artifact registry rows (analysis_plan, live_answer_view, answer_snapshot) plus graph ProjectionResult projection_id values. Use before ghostcrab_projection_get, ghostcrab_artifact_get, ghostcrab_pack, or ghostcrab_live_refresh.
+Read. Catalogue discoverable projections for a workspace before reading content. Sources: (1) mindbrain_answer_artifacts registry — analysis_plan, live_answer_view, answer_snapshot; (2) optional graph scan — distinct projection_id on ProjectionResult entities when include_graph is true. Returns projections[] with public_label (user-facing), artifact_id, projection_id, artifact_kind, legacy_kind, source (registry|graph), and suggested_tools. Routing: analysis_plan → ghostcrab_artifact_get, ghostcrab_pack; live_answer_view → ghostcrab_artifact_get, ghostcrab_live_refresh; answer_snapshot or graph → ghostcrab_projection_get. Does not return pack rows, payloads, or graph evidence. kind filter: analysis_plan | live_answer_view | answer_snapshot | graph. With kind analysis_plan or live_answer_view, graph scan is skipped. Operator doc: docs/reference/projections-discovery.md.
+
+Extended guide: [projections-discovery.md](projections-discovery.md).
 
 | Field | Value |
 |-------|-------|
@@ -693,12 +695,12 @@ Read. List discoverable projections for a workspace: answer-artifact registry ro
 
 | Argument | Required | Type | Description |
 |----------|----------|------|-------------|
-| `workspace_id` | no | `string` | Target workspace id. Defaults to the active MCP session workspace. |
-| `kind` | no | `string` | Optional filter. Use graph to list only materialized graph projection_id values. |
-| `agent_id` | no | `string` | Optional filter for analysis_plan registry rows tied to an agent. |
-| `scope` | no | `string` | Optional scope filter for registry rows. |
-| `include_graph` | no | `boolean` | When true, append distinct graph ProjectionResult projection_id values not already listed from the registry. |
-| `limit` | no | `integer` | Maximum rows returned per source (registry and graph). |
+| `workspace_id` | no | `string` | Target workspace id. Defaults to the active MCP session workspace. Required when the session has no pinned workspace. |
+| `kind` | no | `string` | Optional filter. analysis_plan \| live_answer_view \| answer_snapshot limit registry rows; graph lists only ProjectionResult projection_id values. Omit for all registry kinds plus optional graph append. |
+| `agent_id` | no | `string` | Optional registry filter — mainly analysis_plan rows bound to an agent (e.g. agent:self). |
+| `scope` | no | `string` | Optional registry filter on artifact scope (often equals workspace id for analysis plans). |
+| `include_graph` | no | `boolean` | When true, append graph ProjectionResult projection_id values not already listed. Ignored when kind is analysis_plan or live_answer_view. |
+| `limit` | no | `integer` | Maximum rows per source (registry SQL and graph SQL each apply this limit). |
 
 ### `ghostcrab_quality_convergence_get`
 

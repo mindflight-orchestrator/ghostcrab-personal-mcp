@@ -25,7 +25,7 @@ operations.
 | **PATH shim** | `gcp path install\|print\|doctor` | Installs, prints, or diagnoses the cross-platform `~/.ghostcrab/bin/gcp` shim. |
 | **MCP permissions** | `gcp brain permissions print\|apply` | Prints or writes Cursor/Claude MCP permission presets (`basic`, `balanced`, `full`, `none`, `custom`). |
 | **Backup / restore** | `gcp brain backup …`, `gcp brain load …` | Export workspace, collection, or taxonomy backup bundles (includes `mindbrain_answer_artifacts` on full workspace export); restore `ghostcrab_backup_bundle` JSON. `gcp brain export` is an alias for backup. |
-| **Answer artifact registry** | `gcp brain artifact list \| get \| refresh \| events \| migrate …` | List/get/refresh/events via HTTP (backend running); backfill from legacy projections with `migrate --dry-run` / `--repair` (stop MCP first). |
+| **Answer artifact registry** | MCP `ghostcrab_projections_list`, `ghostcrab_artifact_get`, `ghostcrab_live_refresh`; CLI `gcp brain artifact list \| get \| refresh \| events \| migrate …` | MCP list includes registry + graph projection ids with routing hints ([projections-discovery.md](projections-discovery.md)); CLI list is registry-only via HTTP. |
 | **Load demo profile** | `gcp brain load …` | JSONL profile into the DB. Legacy: `gcp load …`. |
 | **Corpus import / profiling** | `gcp brain document …` | Normalize, profile, enqueue/worker, ingest, list qualification vocabulary (stop MCP first). See `gcp brain document --help` and [document-import.md](../setup/document-import.md). |
 | **Tabular structured import** | `gcp brain structured-import …` | CSV/JSON/YAML/XLSX/TOON via native engine (stop MCP first). See `gcp brain structured-import --help` and [structured-import.md](../setup/structured-import.md). |

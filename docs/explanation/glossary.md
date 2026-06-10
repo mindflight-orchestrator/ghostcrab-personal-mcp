@@ -39,10 +39,10 @@ Détail : [03 — Mémoire MCP](03-memoire-mcp-facettes-graphe-projections.md).
 |--------|----------|---------------------|-------------------|
 | **Session** | mémoire process MCP | `ghostcrab_workspace_use` | — |
 | **Faits durables** | `agent_facts` | `remember`, `upsert`, `search`, `count` | — |
-| **Plan d'analyse** | `projections` (legacy Type A) | `project`, `pack` | `analysis_plan` |
+| **Plan d'analyse** | `projections` (legacy Type A) | `projections_list`, `project`, `pack` | `analysis_plan` |
 | **Graphe métier** | raw + `graph_entity` | `learn`, `graph_search`, `traverse`, `graph_reindex` | — |
-| **Instantané** | `ProjectionResult` (legacy Type B) | `projection_get` | `answer_snapshot` |
-| **Données en direct** | registre `mindbrain_answer_artifacts` | routes artifact backend | `live_answer_view` |
+| **Instantané** | `ProjectionResult` (legacy Type B) | `projections_list`, `projection_get` | `answer_snapshot` |
+| **Données en direct** | registre `mindbrain_answer_artifacts` | `projections_list`, routes artifact | `live_answer_view` |
 
 Contrat backend : [`vendor/mindbrain/docs/artifacts/artifact-model.md`](../../vendor/mindbrain/docs/artifacts/artifact-model.md).
 

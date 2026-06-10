@@ -7,7 +7,7 @@ description: Discover which GhostCrab dimensions, facets, graph edges, projectio
 
 Map a business question to MCP surfaces that can answer it on SQLite Personal.
 
-References: [RUNTIME_QUERY_PIPELINE.md](../../shared/RUNTIME_QUERY_PIPELINE.md), [ARTIFACT_KINDS.md](../../shared/ARTIFACT_KINDS.md).
+References: [RUNTIME_QUERY_PIPELINE.md](../../shared/RUNTIME_QUERY_PIPELINE.md), [ARTIFACT_KINDS.md](../../shared/ARTIFACT_KINDS.md), [projections-discovery.md](../../../docs/reference/projections-discovery.md).
 
 ## Delivery context (optional)
 
@@ -16,12 +16,13 @@ References: [RUNTIME_QUERY_PIPELINE.md](../../shared/RUNTIME_QUERY_PIPELINE.md),
 ## Workflow
 
 1. `ghostcrab_status` + active workspace.
-2. `ghostcrab_search` / `ghostcrab_count` on `agent_facts`.
-3. `ghostcrab_combined_search` when graph-linked facts may matter.
-4. `ghostcrab_schema_list` / `ghostcrab_schema_inspect` for registered `ghostcrab:*` shapes.
-5. `ghostcrab_pack` for active `analysis_plan` projections.
-6. `ghostcrab_graph_search` / `ghostcrab_traverse` for graph paths.
-7. `ghostcrab_coverage` for schema population overview.
+2. `ghostcrab_projections_list` when projection ids or scopes are unknown.
+3. `ghostcrab_search` / `ghostcrab_count` on `agent_facts`.
+4. `ghostcrab_combined_search` when graph-linked facts may matter.
+5. `ghostcrab_schema_list` / `ghostcrab_schema_inspect` for registered `ghostcrab:*` shapes.
+6. `ghostcrab_pack` for active `analysis_plan` projections.
+7. `ghostcrab_graph_search` / `ghostcrab_traverse` for graph paths.
+8. `ghostcrab_coverage` for schema population overview.
 
 Formal ontology dimensions (LinkML) live in `ontology_*` — discover via `gcp brain document qualification-vocab-list` after `ghostcrab_ontology_import` or CLI compile, not via `schema_register`.
 

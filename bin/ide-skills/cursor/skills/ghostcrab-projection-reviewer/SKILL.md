@@ -17,18 +17,19 @@ Starter-kit Phase B1: `starterkit/personal-mcp/ROUTE_MAP.md` § projections and 
 
 | Label | `artifact_kind` | Storage | Tools |
 | --- | --- | --- | --- |
-| Working memory | `analysis_plan` | table `projections` | `ghostcrab_project`, `ghostcrab_pack` |
-| Frozen report | `answer_snapshot` | `graph_entity` (`ProjectionResult`) | `ghostcrab_projection_get` |
-| Live view | `live_answer_view` | `mindbrain_answer_artifacts` | `gcp brain artifact refresh` |
+| Working memory | `analysis_plan` | table `projections` | `ghostcrab_projections_list`, `ghostcrab_project`, `ghostcrab_pack` |
+| Frozen report | `answer_snapshot` | `graph_entity` (`ProjectionResult`) | `ghostcrab_projections_list`, `ghostcrab_projection_get` |
+| Live view | `live_answer_view` | `mindbrain_answer_artifacts` | `ghostcrab_projections_list`, `ghostcrab_artifact_get`, `ghostcrab_live_refresh` |
 
 Graph live queries are **not** projections — use `ghostcrab_graph_search`, `ghostcrab_traverse`.
 
 ## Workflow
 
 1. `ghostcrab_status`.
-2. `ghostcrab_pack` for active `analysis_plan` scopes and fact highlights.
-3. `ghostcrab_projection_get` when `answer_snapshot` or calculated bundles are in scope.
-4. `ghostcrab_search` / `ghostcrab_graph_search` to test whether declared requirements have evidence.
+2. `ghostcrab_projections_list` when scopes or snapshot ids are unknown (see [projections-discovery.md](../../../docs/reference/projections-discovery.md)).
+3. `ghostcrab_pack` for active `analysis_plan` scopes and fact highlights.
+4. `ghostcrab_projection_get` when `answer_snapshot` or calculated bundles are in scope.
+5. `ghostcrab_search` / `ghostcrab_graph_search` to test whether declared requirements have evidence.
 
 ## Review sections
 

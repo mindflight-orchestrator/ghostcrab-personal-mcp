@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-10T14:48:41.251Z",
+  "generated_at": "2026-06-10T15:01:14.111Z",
   "source": "ghostcrab-skills",
   "skill_names": [
     "ghostcrab-memory",
@@ -36,7 +36,7 @@
     },
     {
       "path": "claude-code/skills/ghostcrab-evidence-discovery/SKILL.md",
-      "sha256": "fb7abba417c470479cec28528d95ad0a3fd719a25258d090c002fb9bba51d172"
+      "sha256": "d1272a2379818466f2f1c370fc7f7a4ca70071c3628d143c9597ede0034bf779"
     },
     {
       "path": "claude-code/skills/ghostcrab-gap-auditor/SKILL.md",
@@ -60,7 +60,7 @@
     },
     {
       "path": "claude-code/skills/ghostcrab-projection-reviewer/SKILL.md",
-      "sha256": "8b777ed6598505d8bba60904c595f73428e5bd1f0df2098e8c729fa3e091cd0d"
+      "sha256": "deb11f66b1d38e535716a43b2aef3af1eff31b3e14f1691ce38c3477ede27870"
     },
     {
       "path": "claude-code/skills/ghostcrab-prompt-guide/SKILL.md",
@@ -84,7 +84,7 @@
     },
     {
       "path": "codex/skills/ghostcrab-evidence-discovery/SKILL.md",
-      "sha256": "fb7abba417c470479cec28528d95ad0a3fd719a25258d090c002fb9bba51d172"
+      "sha256": "d1272a2379818466f2f1c370fc7f7a4ca70071c3628d143c9597ede0034bf779"
     },
     {
       "path": "codex/skills/ghostcrab-evidence-discovery/agents/openai.yaml",
@@ -132,7 +132,7 @@
     },
     {
       "path": "codex/skills/ghostcrab-projection-reviewer/SKILL.md",
-      "sha256": "8b777ed6598505d8bba60904c595f73428e5bd1f0df2098e8c729fa3e091cd0d"
+      "sha256": "deb11f66b1d38e535716a43b2aef3af1eff31b3e14f1691ce38c3477ede27870"
     },
     {
       "path": "codex/skills/ghostcrab-projection-reviewer/agents/openai.yaml",
@@ -164,7 +164,7 @@
     },
     {
       "path": "cursor/skills/ghostcrab-evidence-discovery/SKILL.md",
-      "sha256": "fb7abba417c470479cec28528d95ad0a3fd719a25258d090c002fb9bba51d172"
+      "sha256": "d1272a2379818466f2f1c370fc7f7a4ca70071c3628d143c9597ede0034bf779"
     },
     {
       "path": "cursor/skills/ghostcrab-gap-auditor/SKILL.md",
@@ -188,7 +188,7 @@
     },
     {
       "path": "cursor/skills/ghostcrab-projection-reviewer/SKILL.md",
-      "sha256": "8b777ed6598505d8bba60904c595f73428e5bd1f0df2098e8c729fa3e091cd0d"
+      "sha256": "deb11f66b1d38e535716a43b2aef3af1eff31b3e14f1691ce38c3477ede27870"
     },
     {
       "path": "cursor/skills/ghostcrab-prompt-guide/SKILL.md",
@@ -208,7 +208,7 @@
     },
     {
       "path": "shared/ARTIFACT_KINDS.md",
-      "sha256": "322feb64dd5e9d8da47d5826652102ce436fe18f8ed0db7f0cb0490d2863a8b4"
+      "sha256": "024481555514e55355a5a863f5845fd59513e0fa7726cf4f9f85ffc7bad8a50e"
     },
     {
       "path": "shared/CAPABILITIES.md",
@@ -224,7 +224,7 @@
     },
     {
       "path": "shared/IMPORT_CLOSURE_GATES.md",
-      "sha256": "5063e20a51ec50798c44ef1f19394c5283214b215e9051fcd89c4907a6d6c630"
+      "sha256": "a8e93f546fe2b63ef179488e8b8c122fd32ef95ae4f2f50cad6200dbc079e512"
     },
     {
       "path": "shared/MCP_VS_GCP_ROUTING.md",
@@ -232,7 +232,7 @@
     },
     {
       "path": "shared/ONBOARDING_CONTRACT.md",
-      "sha256": "ee16a92b4270a58de00b700539b2689311e4d97cb935a2eed4005056dd0b3941"
+      "sha256": "09d4ebbe52bea57cfe4163566cd845c41f369361d687add5bfc5dc6c8f573f6d"
     },
     {
       "path": "shared/PATH_CONTENT_FACETS.md",
@@ -244,7 +244,7 @@
     },
     {
       "path": "shared/RUNTIME_QUERY_PIPELINE.md",
-      "sha256": "b1d27d5aabc7ad1ac1834c937f14c557ef686103f5ff0710b6b6550bb2dde615"
+      "sha256": "ad938f176c870cf3e88fb0894c3121d0d011d81ac9ff8ae5b077756edb81dfea"
     },
     {
       "path": "shared/SCHEMA_DESIGN.md",
