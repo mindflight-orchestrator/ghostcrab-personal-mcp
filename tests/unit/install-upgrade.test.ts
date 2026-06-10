@@ -42,7 +42,7 @@ describe("install upgrade", () => {
       join(pkgRoot, "package.json"),
       JSON.stringify({
         name: "@mindflight/ghostcrab-personal-mcp",
-        version: "0.5.1"
+        version: "0.5.2"
       }),
       "utf8"
     );
