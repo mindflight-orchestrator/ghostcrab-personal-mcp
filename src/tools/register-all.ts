@@ -21,6 +21,7 @@ import "./pragma/guidance.js";
 import "./pragma/live-refresh.js";
 import "./pragma/pack.js";
 import "./pragma/projection-get.js";
+import "./pragma/projections-list.js";
 import "./pragma/project.js";
 import "./pragma/status.js";
 import "./quality/convergence.js";

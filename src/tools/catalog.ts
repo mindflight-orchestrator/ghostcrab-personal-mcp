@@ -230,6 +230,10 @@ export function classifyToolAccess(name: string): ToolAccess {
     return "write";
   }
 
+  if (name === "ghostcrab_projections_list") {
+    return "read";
+  }
+
   if (
     name.includes("_project") ||
     name.includes("_ddl_") ||

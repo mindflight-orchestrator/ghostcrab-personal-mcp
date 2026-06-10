@@ -40,6 +40,7 @@ export const EXPECTED_TOOL_NAMES = [
   "ghostcrab_ontology_import",
   "ghostcrab_pack",
   "ghostcrab_projection_get",
+  "ghostcrab_projections_list",
   "ghostcrab_project",
   "ghostcrab_quality_convergence_get",
   "ghostcrab_quality_convergence_list",

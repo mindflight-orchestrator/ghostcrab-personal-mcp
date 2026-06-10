@@ -32,6 +32,9 @@ function tablesFor(name, subsystem) {
       return "mindbrain_answer_artifacts, mindbrain_answer_events";
     }
     if (name === "ghostcrab_projection_get") return "graph_entity (ProjectionResult)";
+    if (name === "ghostcrab_projections_list") {
+      return "mindbrain_answer_artifacts, graph_entity (ProjectionResult)";
+    }
     if (name === "ghostcrab_project") return "projections";
     if (name === "ghostcrab_pack") return "projections + agent_facts";
     return "— (diagnostic)";
