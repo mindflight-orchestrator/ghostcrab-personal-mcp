@@ -16,10 +16,11 @@ still mislead an operator or agent if read too literally.
 
 ## Blindspots found
 
-1. `tools/list` is not the full MCP API. It intentionally returns the generated
-   recommended default set. The full catalog must be discovered through
-   `gcp tools list`, `gcp tools verify`, or
-   `ghostcrab_tool_search`.
+1. `tools/list` returns the full registered tool catalog so every tool is
+   directly callable on strict MCP clients. A curated subset is flagged as
+   recommended defaults via the tool `title`. Use `gcp tools list`,
+   `gcp tools verify`, or `ghostcrab_tool_search` for discovery metadata,
+   access classes, and domain filtering.
 
 2. Older ignored notes and archived planning material can mention historical
    tool names such as `ghostcrab_facet_tree`, `ghostcrab_query_geo`,

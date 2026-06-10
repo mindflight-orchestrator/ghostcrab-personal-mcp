@@ -22,7 +22,7 @@ mindBrain runs on **SQLite** in this personal distribution, and on **PostgreSQL*
 
 ### What is GhostCrab MCP?
 
-**GhostCrab MCP is the agent-facing interface to mindBrain.** It exposes mindBrain through a compact default `tools/list` surface plus an extended `ghostcrab_*` catalog for graph, workspace, ontology, loadout, artifact, and maintenance workflows. Use `gcp tools verify` for the current generated counts. Any MCP-compatible agent (Cursor, Claude Code, Codex, OpenClaw, and others) can query structured knowledge, update durable memory, and navigate relationships natively, without custom integration code.
+**GhostCrab MCP is the agent-facing interface to mindBrain.** It exposes mindBrain through the full `ghostcrab_*` `tools/list` catalog (memory, graph, workspace, ontology, loadout, artifact, and maintenance workflows), with a curated subset flagged as recommended defaults. Use `gcp tools verify` for the current generated counts. Any MCP-compatible agent (Cursor, Claude Code, Codex, OpenClaw, and others) can query structured knowledge, update durable memory, and navigate relationships natively, without custom integration code.
 
 GhostCrab MCP does not own the data. mindBrain does. GhostCrab MCP is the door.
 
@@ -244,7 +244,7 @@ Use Tier 1 models for first workspace setup or fuzzy onboarding. Lighter models 
 
 ## MCP tool surface
 
-The default MCP `tools/list` surface is intentionally compact: status, search/count, combined search, remember/upsert, schema read, pack/project, modeling guidance, and tool discovery. The complete runtime catalog is available through:
+The MCP `tools/list` surface exposes the full tool catalog so every tool is directly callable on any MCP client (Cursor, Codex, Claude Code, generic). A curated subset is flagged as recommended defaults (status, search/count, combined search, remember/upsert, schema read, pack/project, modeling guidance, tool discovery). Inspect the catalog and recommended subset through:
 
 ```bash
 gcp tools list

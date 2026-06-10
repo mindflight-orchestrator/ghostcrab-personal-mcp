@@ -24,7 +24,10 @@ import {
   buildReadmeMarkdown,
   GHOSTCRAB_README_URI
 } from "./mcp/agent-brief.js";
-import { listBasicRegisteredTools } from "./tools/catalog.js";
+import {
+  getBasicToolNames,
+  listAllRegisteredToolsForMcp
+} from "./tools/catalog.js";
 import { registerAllTools } from "./tools/register-all.js";
 import {
   createToolErrorResult,
@@ -119,11 +122,15 @@ export async function startMcpServer(): Promise<void> {
     }
 
     const allTools = listRegisteredTools();
-    const listedTools = listBasicRegisteredTools(allTools);
+    // List the full direct tool catalog so every tool is agent-callable on
+    // strict clients (Cursor, Codex, Hermes, generic) that treat tools/list as
+    // the usable inventory. A curated subset is still flagged as "recommended".
+    const listedTools = listAllRegisteredToolsForMcp(allTools);
+    const recommendedToolCount = getBasicToolNames().length;
     const instructions = buildMcpInstructions({
       backendUrlRedacted: config.mindbrainUrl,
       listedToolCount: listedTools.length,
-      extendedToolCount: allTools.length,
+      extendedToolCount: recommendedToolCount,
       databaseReachable: databaseIsReachable
     });
 
@@ -176,7 +183,7 @@ export async function startMcpServer(): Promise<void> {
 
     server.setRequestHandler(ListToolsRequestSchema, async () => {
       return {
-        tools: listBasicRegisteredTools(listRegisteredTools())
+        tools: listAllRegisteredToolsForMcp(listRegisteredTools())
       };
     });
 

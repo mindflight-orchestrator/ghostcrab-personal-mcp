@@ -65,7 +65,7 @@ export async function cmdInit(args) {
       console.log(`  Legacy SQLite path ignored for brain up: ${ws.sqlitePath}`);
     }
     console.log(``);
-    printMcpSnippet(workspaceName);
+    printMcpSnippet(workspaceName, sqlitePath);
     maybeInstallIdeSkills({
       cwd: process.cwd(),
       pkgRoot,
@@ -98,7 +98,7 @@ export async function cmdInit(args) {
     console.log(`  Default: yes`);
   }
   console.log(``);
-  printMcpSnippet(workspaceName);
+  printMcpSnippet(workspaceName, sqlitePath);
   maybeInstallIdeSkills({
     cwd: process.cwd(),
     pkgRoot,
@@ -108,16 +108,21 @@ export async function cmdInit(args) {
   });
 }
 
-function printMcpSnippet(workspaceName) {
-  const args =
-    workspaceName === "default"
-      ? ["brain", "up"]
-      : ["brain", "up", "--workspace", workspaceName];
+function printMcpSnippet(workspaceName, sqlitePath) {
+  // Bake an absolute --db and an explicit logical pin so the workspace_id
+  // resolves identically regardless of the MCP host's cwd or flag ordering.
+  const args = ["brain", "up", "--db", sqlitePath];
+  if (workspaceName !== "default") {
+    args.push("--workspace", workspaceName);
+  }
 
   const snippet = {
     "ghostcrab-personal-mcp": {
       command: "gcp",
-      args
+      args,
+      env: {
+        GHOSTCRAB_ACTIVE_WORKSPACE_ID: workspaceName
+      }
     }
   };
 
@@ -126,6 +131,7 @@ function printMcpSnippet(workspaceName) {
   console.log(``);
   console.log(
     `The SQLite database will be created automatically on first start.\n` +
+      `  GHOSTCRAB_ACTIVE_WORKSPACE_ID pins the logical workspace_id for the MCP session.\n` +
       `  Legacy: you can replace "brain", "up" with a single "serve" if you prefer.`
   );
 }

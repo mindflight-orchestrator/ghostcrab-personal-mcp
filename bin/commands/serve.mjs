@@ -42,6 +42,7 @@ import { resolveGhostcrabSqlite } from "../lib/resolve-ghostcrab-sqlite.mjs";
 import { slugifyWorkspace } from "../lib/workspace-slug.mjs";
 import { maybeInstallIdeSkills } from "../lib/install-ide-skills.mjs";
 import { readConfig } from "../lib/cli-config.mjs";
+import { tryRegisterMindbrainWorkspace } from "../lib/mindbrain-workspace-register.mjs";
 
 const DEFAULT_PORT = 8091;
 const PORT_RANGE = 10; // probe 8091–8100 before giving up
@@ -168,14 +169,40 @@ export async function runServe(args) {
     defaultFromCli: defaultDbFromCli
   });
   const config = readConfig();
+  // Workspace pin precedence (highest first):
+  //   1. GHOSTCRAB_ACTIVE_WORKSPACE_ID env  (explicit logical pin)
+  //   2. --workspace <id> CLI flag
+  //   3. config.defaultWorkspace
+  //   4. "default"
+  const envActiveWorkspaceId =
+    process.env.GHOSTCRAB_ACTIVE_WORKSPACE_ID?.trim() || null;
   const effectiveWorkspaceName =
-    workspaceName ?? config.defaultWorkspace ?? "default";
+    envActiveWorkspaceId ?? workspaceName ?? config.defaultWorkspace ?? "default";
+  const pinSource = envActiveWorkspaceId
+    ? "env(GHOSTCRAB_ACTIVE_WORKSPACE_ID)"
+    : workspaceName
+      ? "cli(--workspace)"
+      : config.defaultWorkspace
+        ? "config(defaultWorkspace)"
+        : "default";
+  const activeWorkspaceId = effectiveWorkspaceName;
   let backendAddr = initialBackendAddr;
   process.stderr.write(
     `[ghostcrab] SQLite database: ${sqlitePathResolved}\n` +
       `  (${sqlitePathSource})\n` +
-      `[ghostcrab] Requested workspace_id: ${effectiveWorkspaceName}\n`
+      `[ghostcrab] Workspace pin: ${activeWorkspaceId} (source=${pinSource})\n`
   );
+
+  // Register the logical workspace row so the MCP startup pin resolves to this
+  // workspace_id instead of silently falling back to "default" when the row is
+  // missing (the "data disappears on restart" failure mode). Idempotent and
+  // best-effort: a missing native engine must not abort startup.
+  tryRegisterMindbrainWorkspace({
+    pkgRoot,
+    sqlitePath: sqlitePathResolved,
+    workspaceId: activeWorkspaceId,
+    quiet: true
+  });
 
   // ── Derive sidecar file paths ─────────────────────────────────────────────
   const dataDir = dirname(sqlitePathResolved);
@@ -291,7 +318,8 @@ export async function runServe(args) {
         ...process.env,
         GHOSTCRAB_BACKEND_ADDR: backendAddr,
         GHOSTCRAB_SQLITE_PATH: sqlitePathResolved,
-        GHOSTCRAB_WORKSPACE_NAME: effectiveWorkspaceName
+        GHOSTCRAB_WORKSPACE_NAME: effectiveWorkspaceName,
+        GHOSTCRAB_ACTIVE_WORKSPACE_ID: activeWorkspaceId
       },
       stdio: ["ignore", logFd, logFd],
       detached: true
@@ -389,6 +417,9 @@ export async function runServe(args) {
   // ── Start MCP server on this process's stdio ──────────────────────────────
   process.env.GHOSTCRAB_MINDBRAIN_URL = mindbrainUrl;
   process.env.GHOSTCRAB_WORKSPACE_NAME = effectiveWorkspaceName;
+  // Pin the logical MindBrain workspace_id for the MCP session (highest priority
+  // branch in resolveInitialSessionContext). The row was registered above.
+  process.env.GHOSTCRAB_ACTIVE_WORKSPACE_ID = activeWorkspaceId;
   // So server.ts can point users at native `log.err` / sqlite when seed fails.
   process.env.GHOSTCRAB_NATIVE_LOG = logFile;
   const { startMcpServer } = await import("../../dist/server.js");
