@@ -12,9 +12,20 @@ function createMockDatabase(): {
   const insertedNodeIds = new Set<string>();
   const insertedEdgeKeys = new Set<string>();
   const insertedProjectionKeys = new Set<string>();
+  const nodeNameToEntityId = new Map<string, number>();
   let lastEdgeLookupKey: string | null = null;
+  let maxEntityId = 0;
+  let maxRelationId = 0;
 
   const queryImpl: Queryable["query"] = async (sql, params = []) => {
+    if (sql.includes("COALESCE(MAX(entity_id))")) {
+      return [{ next_id: maxEntityId + 1 }];
+    }
+
+    if (sql.includes("COALESCE(MAX(relation_id))")) {
+      return [{ next_id: maxRelationId + 1 }];
+    }
+
     if (sql.includes("SELECT id") && sql.includes("FROM mb_pragma.agent_facts")) {
       const schemaId = String(params[0]);
       const lookup =
@@ -35,9 +46,34 @@ function createMockDatabase(): {
         sql.includes("FROM graph_entity")) &&
       sql.includes("name =")
     ) {
-      const nodeId = String(params.length >= 2 ? params[1] : params[0]);
+      const nodeId =
+        sql.includes("entity_type =") && params.length >= 3
+          ? String(params[2])
+          : String(params.length >= 2 ? params[1] : params[0]);
 
-      return insertedNodeIds.has(nodeId) ? [{ entity_id: 1 }] : [];
+      if (insertedNodeIds.has(nodeId)) {
+        return [{ entity_id: nodeNameToEntityId.get(nodeId) ?? 1 }];
+      }
+
+      return [];
+    }
+
+    if (
+      sql.includes("FROM graph_relation") &&
+      sql.includes("source_id =") &&
+      sql.includes("target_id =") &&
+      sql.includes("LIMIT 1") &&
+      !sql.includes("ORDER BY relation_id DESC")
+    ) {
+      return [];
+    }
+
+    if (
+      sql.includes("FROM graph_relation") &&
+      sql.includes("ORDER BY relation_id DESC")
+    ) {
+      const relationId = maxRelationId > 0 ? maxRelationId : 1;
+      return [{ relation_id: String(relationId) }];
     }
 
     if (
@@ -90,8 +126,12 @@ function createMockDatabase(): {
       sql.includes("INSERT INTO graph.entity") ||
       sql.includes("INSERT INTO graph_entity")
     ) {
-      insertedNodeIds.add(String(params[1]));
-      return [{ id: "1" }];
+      const nodeName = String(params[3] ?? params[1]);
+      const entityId = Number(params[0]);
+      insertedNodeIds.add(nodeName);
+      nodeNameToEntityId.set(nodeName, entityId);
+      maxEntityId = Math.max(maxEntityId, entityId);
+      return [];
     }
 
     if (
@@ -109,6 +149,19 @@ function createMockDatabase(): {
         insertedEdgeKeys.add(lastEdgeLookupKey);
       }
 
+      maxRelationId = Math.max(maxRelationId, Number(params[0]));
+      return [];
+    }
+
+    if (sql.includes("INSERT INTO entities_raw")) {
+      return [];
+    }
+
+    if (sql.includes("INSERT INTO workspaces")) {
+      return [];
+    }
+
+    if (sql.includes("INSERT INTO ontologies")) {
       return [];
     }
 
