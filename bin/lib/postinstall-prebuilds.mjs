@@ -13,6 +13,7 @@ import { runHostProjectBootstrap } from "./postinstall-host-bootstrap.mjs";
 import { runPostinstallSmoke } from "./postinstall-smoke.mjs";
 import { ensureGhostcrabSkillLinks } from "./postinstall-skill-links.mjs";
 import { installPathShim } from "./path-shim.mjs";
+import { formatGcpCommand } from "./cli-invocation.mjs";
 import { printUpgradeReport, runInstallUpgrade } from "./install-upgrade.mjs";
 
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -98,11 +99,11 @@ if (
     console.error(
       "  2. Register the MCP server in your IDE (includes PATH shim):"
     );
-    console.error("       npx gcp brain setup cursor --force");
-    console.error("       npx gcp brain setup codex");
-    console.error("       npx gcp brain setup claude");
+    console.error(`       ${formatGcpCommand("brain setup cursor --force")}`);
+    console.error(`       ${formatGcpCommand("brain setup codex")}`);
+    console.error(`       ${formatGcpCommand("brain setup claude")}`);
     console.error(
-      "  3. Or install PATH only: npx gcp path install --write-profile"
+      "  3. Or install PATH only: " + formatGcpCommand("path install --write-profile")
     );
     console.error(
       "[ghostcrab] See INSTALL.md / README_CURSOR_MCP.md / README_CODEX_MCP.md / README_CLAUDE_CODE_MCP.md in the package."

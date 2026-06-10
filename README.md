@@ -111,16 +111,18 @@ npm install -g @mindflight/ghostcrab-personal-mcp@latest
 
 After install, postinstall creates a `./data/` directory, copies `.env.example` → `.env` if no `.env` exists, and adds symlinks to key docs at your project root.
 
+Run the commands below from **that same project directory** (or from the folder created by the beta zip’s `install-beta.mjs`). Do not run them from the GhostCrab **git clone** unless you are developing the package — bare `npx gcp` there can trigger npm reify errors (`SIGTERM`). Use the explicit form below, or `node bin/gcp.mjs …` as a contributor.
+
 ### Step 2 — Verify the CLI works
 
 ```bash
-npx gcp brain up --help
-````
+npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up --help
+```
 
 Then a quick smoke check (stops itself after 8 seconds):
 
 ```bash
-timeout 8 npx gcp brain up
+timeout 8 npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up
 ```
 
 You should see mindBrain start and a SQLite path printed. If this fails, fix it before wiring your IDE — the IDE just runs this same command.
@@ -128,7 +130,7 @@ You should see mindBrain start and a SQLite path printed. If this fails, fix it 
 If you see `spawn gcp ENOENT`, run:
 
 ```bash
-npx gcp brain setup cursor --force
+npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup cursor --force
 ```
 
 ### Step 3 — Wire your IDE or agent
@@ -137,19 +139,21 @@ Run the setup command for your environment:
 
 ```bash
 # Cursor
-npx gcp brain setup cursor --force
+npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup cursor --force
 
 # Claude Code
-npx gcp brain setup claude
+npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup claude
 
 # Codex
-npx gcp brain setup codex
+npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup codex
 
 # Generic MCP client / portable agent skills
-npx gcp brain setup generic
+npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup generic
 ```
 
 This writes the correct MCP entry using absolute paths where the client supports it, installs the complete GhostCrab skill bundle for that host, and removes any stale legacy `ghostcrab` entries for Cursor. `generic` prints MCP JSON/TOML snippets and installs portable `.agents/skills`.
+
+After setup completes, open a **new terminal** so `~/.ghostcrab/bin/gcp` is on your PATH — then bare `gcp …` works for day-to-day use.
 
 Detailed config files: `README_CURSOR_MCP.md`, `README_CLAUDE_CODE_MCP.md`, `README_CODEX_MCP.md`.
 
@@ -276,16 +280,16 @@ Full references: `docs/reference/mcp-tools.md` and `docs/reference/operator-cata
 npm install @mindflight/ghostcrab-personal-mcp@latest
 
 # 2. Authorize native binary if prompted
-npx gcp authorize
+npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp authorize
 
 # 3. Smoke-check the backend (expect SQLite path + MCP ready on stdout)
-timeout 8 npx gcp brain up
+timeout 8 npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up
 
 # 4. Register MCP entry for your host
-npx gcp brain setup <cursor|claude|codex|generic> --force
+npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup <cursor|claude|codex|generic> --force
 
 # 5. Confirm entry written
-npx gcp brain up --help
+npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up --help
 ```
 
 ### Environment variables (`.env`)
@@ -302,8 +306,9 @@ npx gcp brain up --help
 
 | Error                                      | Cause                                 | Fix                                                                                                   |
 | ------------------------------------------ | ------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `spawn gcp ENOENT`                         | Stale or relative-path mcp.json entry | `npx gcp brain setup <host> --force`                                                                  |
-| `npm error could not determine executable` | Missing postinstall run               | `npx gcp brain setup <host> --force`                                                                  |
+| `spawn gcp ENOENT`                         | Stale or relative-path mcp.json entry | `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup <host> --force`                                                                  |
+| `npm error could not determine executable` | Missing postinstall run               | `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup <host> --force`                                                                  |
+| `npm error process terminated` / `SIGTERM` on `npx gcp` | Bare `npx gcp` from git clone, npm link, or stale `node_modules` | Use the explicit `--package=@mindflight/ghostcrab-personal-mcp@latest` form above; run `gcp path doctor`; reinstall global from registry (`npm uninstall -g @mindflight/ghostcrab-personal-mcp && npm install -g @mindflight/ghostcrab-personal-mcp@latest`) |
 | `Ignored build scripts` (pnpm)             | pnpm 10+ security default             | `pnpm add --allow-build=@mindflight/ghostcrab-personal-mcp @mindflight/ghostcrab-personal-mcp@latest` |
 | Native binary missing                      | Platform prebuild not pulled          | Add tarball from local build or beta zip — see `INSTALL.md`                                           |
 
