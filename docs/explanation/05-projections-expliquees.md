@@ -53,6 +53,15 @@ flowchart TB
 | **Contenu** | Texte court FACT/GOAL/STEP/CONSTRAINT | Snapshot + preuves + deltas | Entités domaine |
 | **Stale si graphe change ?** | Oui | Oui | Non ([si réindex OK](04-reindexation-ghostcrab.md)) |
 
+### Découvrir ce qui existe — `ghostcrab_projections_list`
+
+Avant `ghostcrab_pack`, `ghostcrab_projection_get` ou `ghostcrab_artifact_get`, lister les projections et artefacts enregistrés pour le workspace :
+
+- **Type A** — lignes actives dans `projections` (plans d'analyse, working memory)
+- **Type B / live** — entrées registre (`ProjectionResult`, `live_answer_view`, `answer_snapshot`, …)
+
+Outil : **`ghostcrab_projections_list`** (extended). Voir aussi le glossaire § [Couches mémoire MCP](glossary.md#couches-mémoire-mcp) et [`src/tools/pragma/projections-list.ts`](../../src/tools/pragma/projections-list.ts).
+
 ---
 
 ## Type A — Working memory (`ghostcrab_project`)

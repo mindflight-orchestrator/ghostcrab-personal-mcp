@@ -48,6 +48,21 @@ Contrat backend : [`vendor/mindbrain/docs/artifacts/artifact-model.md`](../../ve
 
 ---
 
+## Bootstrap et versions (`ghostcrab_status`)
+
+| Champ | Exemple | Usage |
+|-------|---------|-------|
+| `versions.ghostcrab_package` | `0.5.2` | Version npm `@mindflight/ghostcrab-personal-mcp` |
+| `versions.mcp_surface` | `2026-06-10` | Version d'enveloppe JSON des outils MCP |
+| `versions.mindbrain` | `1.7.1` | Semver du backend Zig (`ghostcrab-backend`) |
+| `runtime.capabilities.*` | `graph_diagnostics: true` | Routes HTTP réellement disponibles |
+
+Schémas agent (registre MCP) : **`ghostcrab_schema_get`** (outil recommandé), `ghostcrab_schema_list`, `ghostcrab_schema_inspect`. Distinct de l'ontologie LinkML (`ghostcrab_ontology_import`).
+
+Détail : [03 — Bootstrap § ghostcrab_status](03-memoire-mcp-facettes-graphe-projections.md#bootstrap--ghostcrab_status).
+
+---
+
 ## Trois couches de nommage (artefacts de réponse)
 
 Un libellé ne sert **pas** à la fois humain, agent et filesystem.

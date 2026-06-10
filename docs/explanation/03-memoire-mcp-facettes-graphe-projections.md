@@ -115,6 +115,21 @@ Cette couche ne qualifie rien et ne stocke aucun fait métier. Elle sert seuleme
 
 ---
 
+## Bootstrap : `ghostcrab_status`
+
+Premier appel recommandé avant toute écriture ou audit StarterKit. Implémentation : [`src/tools/pragma/status.ts`](../../src/tools/pragma/status.ts).
+
+| Bloc réponse | Rôle |
+|--------------|------|
+| `workspace_context` | Workspace / schéma actifs, pinning |
+| `runtime.capabilities` | Routes MindBrain disponibles (diagnostics, gap-rules, embeddings…) |
+| `versions` (depuis v0.5.2) | `ghostcrab_package` (npm), `mcp_surface` (date d'enveloppe JSON), `mindbrain` (semver backend Zig, ex. **1.7.1**) |
+| `summary` | Santé embeddings, attention requise |
+
+Lecture schéma agent (registre MCP, pas ontologie LinkML) : `ghostcrab_schema_get` (recommandé), `ghostcrab_schema_list`, `ghostcrab_schema_inspect`.
+
+---
+
 ## Faits agent : table `agent_facts`
 
 | Action | Outil |

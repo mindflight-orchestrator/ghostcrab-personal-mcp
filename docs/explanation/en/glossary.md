@@ -48,6 +48,21 @@ Backend contract: [`vendor/mindbrain/docs/artifacts/artifact-model.md`](../../..
 
 ---
 
+## Bootstrap and versions (`ghostcrab_status`)
+
+| Field | Example | Role |
+|-------|---------|------|
+| `versions.ghostcrab_package` | `0.5.2` | npm `@mindflight/ghostcrab-personal-mcp` version |
+| `versions.mcp_surface` | `2026-06-10` | MCP tool JSON envelope version |
+| `versions.mindbrain` | `1.7.1` | Zig backend semver (`ghostcrab-backend`) |
+| `runtime.capabilities.*` | `graph_diagnostics: true` | HTTP routes actually available |
+
+Agent schemas (MCP registry): **`ghostcrab_schema_get`** (recommended default), `ghostcrab_schema_list`, `ghostcrab_schema_inspect`. Distinct from LinkML ontology (`ghostcrab_ontology_import`).
+
+Details: [03 — Bootstrap § ghostcrab_status](../03-memoire-mcp-facettes-graphe-projections.md#bootstrap--ghostcrab_status) (FR).
+
+---
+
 ## Three naming layers (answer artifacts)
 
 One label must not serve humans, agents, and the filesystem at once.

@@ -112,3 +112,11 @@ node scripts/import-immeuble-demo-llm.mjs --mode mock --reset
 The mock validates the comparison pipeline but **does not persist** the graph in `immeuble-demo-llm`. See [01 — Reference](01-reference-to-graph.md#phase-6--validation).
 
 Next: [How GhostCrab MCP achieves it](how-ghostcrab-mcp-achieves-it.md)
+
+## Troubleshooting
+
+Operational fixes (backend version mismatch, empty Graph Explorer model, coverage probes) are documented in French in [mcp-lab-context § Dépannage](../mcp-lab-context.md#dépannage--diagnostics-l2-renvoie-404). Key points:
+
+- Prefer **`gcp brain up`** (aliases: `gcp up`, legacy `gcp serve`) after rebuilding prebuilds.
+- Confirm **`ghostcrab_status.versions.mindbrain`** matches the expected MindBrain release (e.g. **1.7.1**).
+- Use **`gcp brain down`** before swapping `GHOSTCRAB_BACKEND_BIN` or the platform optional package.

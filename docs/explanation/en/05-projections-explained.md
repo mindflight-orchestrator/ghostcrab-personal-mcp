@@ -6,6 +6,7 @@ That document covers:
 
 - Type A working memory (`ghostcrab_project`, `ghostcrab_pack`, `mb_pragma.projections`)
 - Type B materialized projections (`ProjectionResult`, `ghostcrab_projection_get`)
+- Discovery before read: **`ghostcrab_projections_list`** (Type A rows + registry artefacts)
 - Why a projection is **not** an ad hoc graph query
 - Reindex vs stale Type B (cross-links to [03](../03-memoire-mcp-facettes-graphe-projections.md) and [04](../04-reindexation-ghostcrab.md))
 

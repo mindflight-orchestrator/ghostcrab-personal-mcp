@@ -128,17 +128,18 @@ Suite : [Comment GhostCrab MCP y arrive](how-ghostcrab-mcp-achieves-it.md)
 
 Symptôme : `ghostcrab_graph_diagnostics` ou `curl …/api/mindbrain/graph/diagnostics` renvoie **404/405**, alors que `/health` répond `ok`.
 
-Cause typique : le binaire `ghostcrab-backend` en cours d'exécution est **plus ancien** que le code vendor (routes gap-rules/diagnostics ajoutées récemment). `gcp serve` peut réutiliser un PID au même semver (`0.4.1`) sans redémarrer si le binaire n'a pas changé.
+Cause typique : le binaire `ghostcrab-backend` en cours d'exécution est **plus ancien** que le code vendor (routes gap-rules/diagnostics ajoutées récemment). `gcp brain up` (ou alias `gcp up` / legacy `gcp serve`) peut réutiliser un PID au même semver npm (**ex. 0.5.2**) sans redémarrer si le binaire sur disque n'a pas changé.
 
 Correctif :
 
 ```bash
-pnpm run prebuild:local
-# arrêter l'ancien backend (PID dans data/ghostcrab-backend.pid ou data/<workspace>.sqlite dir)
-export GHOSTCRAB_SQLITE_PATH="/home/dlamotte/Documents/ghostcrab-personal-mcp/data/ghostcrab.sqlite"
-./prebuilds/linux-x64/ghostcrab-backend
+pnpm run prebuild:local   # ou npm install du paquet plateforme à jour
+gcp brain down            # ou tuer le PID dans data/ghostcrab-backend.pid
+export GHOSTCRAB_SQLITE_PATH="${GHOSTCRAB_SQLITE_PATH:-./data/ghostcrab.sqlite}"
+gcp brain up --help       # smoke ; ou lancer le binaire prebuild directement :
+# ./prebuilds/$(node -p "process.platform+'-'+process.arch")/ghostcrab-backend
 curl -sf "http://127.0.0.1:8091/api/mindbrain/capabilities" | jq '.features'
-curl -sf "http://127.0.0.1:8091/api/mindbrain/graph/diagnostics?workspace_id=immo-mcp&ontology_id=immeuble-demo::core"
+curl -sf "http://127.0.0.1:8091/api/mindbrain/graph/diagnostics?workspace_id=immeuble-demo-llm&ontology_id=immeuble-demo::core"
 ```
 
 Vérifications :
@@ -148,8 +149,9 @@ Vérifications :
 | `GET /api/mindbrain/capabilities` | 200, `graph_diagnostics: true` |
 | `GET /api/mindbrain/graph/diagnostics?…` | 200 ou 400 (pas 404) |
 | `POST /api/mindbrain/graph/gap-rules/import` | 200 ou 400 (pas 405) |
+| `ghostcrab_status` → `versions.mindbrain` | semver attendu (ex. **1.7.1**) |
 
-Override binaire : `GHOSTCRAB_BACKEND_BIN=/chemin/vers/ghostcrab-backend gcp serve`. Après redémarrage, `ghostcrab_status` expose `runtime.capabilities.graph_gap_diagnostics` et un directive si les routes manquent encore.
+Override binaire : `GHOSTCRAB_BACKEND_BIN=/chemin/vers/ghostcrab-backend gcp brain up`. Après redémarrage, `ghostcrab_status` expose `runtime.capabilities.graph_gap_diagnostics` (et `versions.mindbrain`) ; un directive apparaît si les routes manquent encore.
 
 ## Dépannage — ontologie vide dans Graph Explorer (Modèle)
 
