@@ -26,7 +26,7 @@ At **`npm install`**, the client tries to install the **optional** package match
 
 ### What the root tarball includes
 
-Aligned with `package.json` **`files`**: `bin/`, `dist/`, `ghostcrab-skills/`, `docs/`, `examples/`, `README.md`, **`INSTALL.md`**, `Licence.md`, `README_CLAUDE_CODE_MCP.md`, `README_CURSOR_MCP.md`, **`README_CODEX_MCP.md`**, `.env.example`.  
+Aligned with `package.json` **`files`**: `bin/`, `dist/`, `ghostcrab-skills/`, `installations/`, `docs/`, `examples/`, `README.md`, **`INSTALL.md`**, `Licence.md`, `.env.example`.  
 **Not** shipped in the root pack: `prebuilds/`, `src/`, `tests/`, `scripts/` (see [`scripts/verify-pack.mjs`](scripts/verify-pack.mjs)).
 
 ### Beta zip vs npm registry (two parallel channels)

@@ -106,7 +106,7 @@ if (
       "  3. Or install PATH only: " + formatGcpCommand("path install --write-profile")
     );
     console.error(
-      "[ghostcrab] See INSTALL.md / README_CURSOR_MCP.md / README_CODEX_MCP.md / README_CLAUDE_CODE_MCP.md in the package."
+      "[ghostcrab] See INSTALL.md and installations/gcp-brain-setup.md in the package."
     );
   }
 }

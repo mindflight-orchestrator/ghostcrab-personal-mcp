@@ -55,4 +55,4 @@ gcp brain permissions print --preset basic --client all
 }
 ```
 
-See [README_MCP_PERMISSIONS.md](../../README_MCP_PERMISSIONS.md) for presets, setup defaults, and skill bundles.
+See [installations/gcp-brain-setup.md](../installations/gcp-brain-setup.md) for presets, setup defaults, and skill bundles.

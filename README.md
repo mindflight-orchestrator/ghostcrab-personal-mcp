@@ -159,7 +159,7 @@ This writes the correct MCP entry using absolute paths where the client supports
 
 After setup completes, open a **new terminal** so `~/.ghostcrab/bin/gcp` is on your PATH — then bare `gcp …` works for day-to-day use.
 
-Detailed config files: `README_CURSOR_MCP.md`, `README_CLAUDE_CODE_MCP.md`, `README_CODEX_MCP.md`.
+More detail: [INSTALL.md](INSTALL.md) and [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) (`gcp brain setup --help`).
 
 ### Step 4 — Start using it
 
@@ -175,13 +175,13 @@ This launches mindBrain, resolves the SQLite file (default `~/.ghostcrab/databas
 
 ## Supported environments
 
-| Environment                                | Setup command                    | Reference                   |
-| ------------------------------------------ | -------------------------------- | --------------------------- |
-| Cursor                                     | `gcp brain setup cursor --force` | `README_CURSOR_MCP.md`      |
-| Claude Code                                | `gcp brain setup claude`         | `README_CLAUDE_CODE_MCP.md` |
-| Codex                                      | `gcp brain setup codex`          | `README_CODEX_MCP.md`       |
-| OpenClaw, Gemini CLI, Hermes-style, custom | `gcp brain setup generic`        | `installations/`            |
-| mindBot (orchestration)                    | —                                | `ghostcrab-skills/`         |
+| Environment                                | Setup command                    | Reference                              |
+| ------------------------------------------ | -------------------------------- | -------------------------------------- |
+| Cursor                                     | `gcp brain setup cursor --force` | [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) |
+| Claude Code                                | `gcp brain setup claude`         | [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) |
+| Codex                                      | `gcp brain setup codex`          | [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) |
+| OpenClaw, Gemini CLI, Hermes-style, custom | `gcp brain setup generic`        | [installations/](installations/)       |
+| mindBot (orchestration)                    | —                                | `ghostcrab-skills/`                    |
 
 ---
 
@@ -337,7 +337,7 @@ pnpm install && pnpm run build
 node bin/gcp.mjs brain up
 ```
 
-Upstream: [github.com/mindflight-orchestrator/mindbrain](https://github.com/mindflight-orchestrator/mindbrain). macOS install and native build notes: [README_MACOSX.md](README_MACOSX.md).
+Upstream: [github.com/mindflight-orchestrator/mindbrain](https://github.com/mindflight-orchestrator/mindbrain). Consumer install: [INSTALL.md](INSTALL.md).
 
 ---
 

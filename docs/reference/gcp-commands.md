@@ -32,7 +32,7 @@ operations.
 | **Full import runbooks (Markdown)** | `gcp brain docs [structured\|document\|import]` | Prints packaged runbooks from `docs/setup/` (same content as the setup guides). |
 | **Native binary permissions** | `gcp authorize` | `chmod` / macOS quarantine cleanup for native binaries (also runs on `postinstall`). |
 | **Human DDL maintenance** | `gcp maintenance ddl-approve \| ddl-execute` | Explicit operator-only approval/execution for pending DDL migrations. Some launchers expose help at the subcommand level even if the group help is intentionally narrow. |
-| **User-global MCP in IDE** | `gcp brain setup <cursor, codex, claude, or generic> […]` | Registers the GhostCrab stdio server where supported: merges `~/.cursor/mcp.json` for Cursor, runs `codex mcp add` (or prints TOML) for Codex, runs `claude mcp add` for Claude Code, or prints generic MCP JSON/TOML snippets. Also installs the matching GhostCrab skill bundle and `.ghostcrab/skills/installed.json`. Aliases: `gcp brain setup_cursor` / `setup_codex` / `setup_claude` / `setup_claudecode` / `setup_generic`. See [gcp-client-setup.md](../setup/gcp-client-setup.md) and the root `README_*_MCP.md` files. |
+| **User-global MCP in IDE** | `gcp brain setup <cursor, codex, claude, or generic> […]` | Registers the GhostCrab stdio server where supported: merges `~/.cursor/mcp.json` for Cursor, runs `codex mcp add` (or prints TOML) for Codex, runs `claude mcp add` for Claude Code, or prints generic MCP JSON/TOML snippets. Also installs the matching GhostCrab skill bundle and `.ghostcrab/skills/installed.json`. Aliases: `gcp brain setup_cursor` / `setup_codex` / `setup_claude` / `setup_claudecode` / `setup_generic`. See [gcp-client-setup.md](../setup/gcp-client-setup.md) and [installations/gcp-brain-setup.md](../../installations/gcp-brain-setup.md). |
 
 For the lower-level `ghostcrab`/`dist/index.js` launcher, the supported CLI
 commands are intentionally narrow: `serve`, `smoke`, `status`, `tools list`,
@@ -102,4 +102,4 @@ Legacy (still supported):
 - [document-import.md](../setup/document-import.md) — document normalization, deterministic import, LLM profiling, qualification vocabulary listing, and no-LLM fallbacks
 - [skillset-demo-import.md](../setup/skillset-demo-import.md) — bundle manifests, schema/skill pulls, vendored `skills install`, JSONL loads
 - [docs index](../index.md) — documentation entry point
-- Root `README_CURSOR_MCP.md`, `README_CODEX_MCP.md`, `README_CLAUDE_CODE_MCP.md` — per-IDE MCP wiring
+- [installations/gcp-brain-setup.md](../installations/gcp-brain-setup.md) — IDE wiring via `gcp brain setup`

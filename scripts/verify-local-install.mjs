@@ -282,10 +282,7 @@ try {
   const expectedDocLinks = [
     "README.md",
     "INSTALL.md",
-    "Licence.md",
-    "README_CURSOR_MCP.md",
-    "README_CODEX_MCP.md",
-    "README_CLAUDE_CODE_MCP.md"
+    "Licence.md"
   ];
   const installedPkgRealPath = realpathSync(installedPkgDir);
   for (const docName of expectedDocLinks) {

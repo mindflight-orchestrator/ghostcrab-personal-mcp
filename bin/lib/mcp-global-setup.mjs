@@ -793,6 +793,6 @@ function claudeNotFound(
     printClaude: true,
     mcpLine,
     shell: cleanShell,
-    message: msgBase + "Run the following, or see README_CLAUDE_CODE_MCP.md:\n"
+    message: msgBase + "Run the following, or see installations/gcp-brain-setup.md:\n"
   };
 }

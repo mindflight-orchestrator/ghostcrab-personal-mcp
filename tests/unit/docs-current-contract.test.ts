@@ -16,9 +16,6 @@ function stripFencedCode(text: string): string {
 describe("current documentation contract", () => {
   const currentDocs = [
     "README.md",
-    "README_CURSOR_MCP.md",
-    "README_CODEX_MCP.md",
-    "README_CLAUDE_CODE_MCP.md",
     "docs/reference/api-reference-blindspots.md",
     "docs/reference/gcp-commands.md",
     "docs/reference/mcp-tools.md",

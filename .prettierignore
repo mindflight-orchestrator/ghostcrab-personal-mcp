@@ -5,7 +5,6 @@ docs
 extensions
 artifacts
 vendor
-README_MACOSX.md
 docker/Docker_postgres_stack.md
 cmd/backend/registry_openapi.yml
 node_modules

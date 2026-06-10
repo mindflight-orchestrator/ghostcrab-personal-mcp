@@ -605,7 +605,7 @@ Usage: gcp brain setup <cursor|codex|claude|generic> [options]
 
 Aliases:  gcp brain setup_cursor | setup_codex | setup_claude | setup_claudecode | setup_generic
 
-Per-IDE details:  README_CURSOR_MCP.md, README_CODEX_MCP.md, README_CLAUDE_CODE_MCP.md
+Per-IDE details:  gcp brain setup --help   ·   installations/gcp-brain-setup.md
 `.trim()
   );
 }

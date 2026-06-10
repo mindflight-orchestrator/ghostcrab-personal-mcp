@@ -11,8 +11,8 @@ This document covers **`@mindflight/ghostcrab-personal-mcp`**: the Node CLI (`gc
 1. **Prérequis:** Node.js **20+**, accès Internet pour les dépendances JS.
 2. **Installer:** `npm install -g @mindflight/ghostcrab-personal-mcp@latest` _ou_ tester avec `npx -y @mindflight/ghostcrab-personal-mcp@latest gcp --help`.
 3. Si besoin après `postinstall` : **`npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp authorize`**.
-4. **Avant l’IDE :** depuis la racine du **projet consommateur** (pas le clone git), `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up --help` ; optionnel : `timeout 8 npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up` (Ctrl+C — attente stdio MCP). Si Cursor affiche **`spawn gcp ENOENT`** ou **`npm error could not determine executable to run`**, relancez le setup (étape 5) — cela reconfigure l'entrée avec un chemin absolu. Détails : [README_CURSOR_MCP.md](README_CURSOR_MCP.md).
-5. **IDE :** `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup cursor --force` | `… setup codex` | `… setup claude` — enregistre le MCP sous **`ghostcrab-personal-mcp`** avec un chemin absolu vers `bin/gcp.mjs` (supprime automatiquement l’ancienne entrée `ghostcrab`). Détails : [README_CURSOR_MCP.md](README_CURSOR_MCP.md), [README_CODEX_MCP.md](README_CODEX_MCP.md), [README_CLAUDE_CODE_MCP.md](README_CLAUDE_CODE_MCP.md).
+4. **Avant l’IDE :** depuis la racine du **projet consommateur** (pas le clone git), `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up --help` ; optionnel : `timeout 8 npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up` (Ctrl+C — attente stdio MCP). Si Cursor affiche **`spawn gcp ENOENT`**, relancez le setup (étape 5) — voir [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md).
+5. **IDE :** `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup cursor --force` | `… setup codex` | `… setup claude` — enregistre le MCP, les permissions et les skills. Détail : [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md).
 6. **Optionnel :** un `.env` est souvent créé à l’install locale ; sinon copiez depuis le paquet (voir § Fichier `.env` ci‑dessous).
 7. Au run, le client MCP lance **`gcp brain up`** / **`gcp serve`** (MindBrain + stdio MCP).
 
@@ -56,7 +56,7 @@ npx -y @mindflight/ghostcrab-personal-mcp@latest gcp --help
 
 Si l’optional échoue (paquet absent du registry, offline, etc.), installez aussi le tarball plateforme depuis une build locale ou un zip bêta, comme en voie 1.
 
-**Après `npm install @mindflight/ghostcrab-personal-mcp` dans un projet** (un `package.json` existe déjà à la racine) : le `postinstall` crée **`./data/`**, copie **`.env`** à partir de `.env.example` du paquet si `.env` est absent, et pose des **liens symboliques** vers `README.md`, `INSTALL.md`, `Licence.md` et les `README_*_MCP.md` du paquet — pour ne pas se retrouver seulement avec `node_modules`. Désactiver : `GHOSTCRAB_SKIP_HOST_BOOTSTRAP=1`.
+**Après `npm install @mindflight/ghostcrab-personal-mcp` dans un projet** (un `package.json` existe déjà à la racine) : le `postinstall` crée **`./data/`**, copie **`.env`** à partir de `.env.example` du paquet si `.env` est absent, et pose des **liens symboliques** vers `README.md`, `INSTALL.md` et `Licence.md` du paquet — pour ne pas se retrouver seulement avec `node_modules`. Désactiver : `GHOSTCRAB_SKIP_HOST_BOOTSTRAP=1`.
 
 **Utilisateurs pnpm :** pnpm 10+ ignore les `postinstall` par défaut (message **`Ignored build scripts: @mindflight/ghostcrab-personal-mcp`**). Pour activer la création de `.env`/`data/`/liens symboliques (et le chmod du binaire natif), lancez une fois **`pnpm approve-builds`** et autorisez `@mindflight/ghostcrab-personal-mcp`, ou installez avec **`pnpm add --allow-build=@mindflight/ghostcrab-personal-mcp @mindflight/ghostcrab-personal-mcp@latest`**. Avec **npm**, rien à configurer.
 
@@ -107,7 +107,7 @@ npx gcp brain setup claude
 
 Le générateur utilise un chemin absolu vers `bin/gcp.mjs` quand le paquet est installé localement, et `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up` en fallback. L’ancienne entrée `ghostcrab` est supprimée automatiquement.
 
-Guides détaillés : [README_CURSOR_MCP.md](README_CURSOR_MCP.md), [README_CODEX_MCP.md](README_CODEX_MCP.md), [README_CLAUDE_CODE_MCP.md](README_CLAUDE_CODE_MCP.md).
+Guide détaillé : [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md).
 
 ---
 
@@ -118,8 +118,8 @@ Guides détaillés : [README_CURSOR_MCP.md](README_CURSOR_MCP.md), [README_CODEX
 1. **Prerequisites:** Node.js **20+** and network access for JS dependencies.
 2. **Install:** `npm install -g @mindflight/ghostcrab-personal-mcp@latest` **or** try `npx -y @mindflight/ghostcrab-personal-mcp@latest gcp --help`.
 3. If `postinstall` asked for it: **`npx gcp authorize`**.
-4. **Verify before the IDE:** `npx gcp brain up --help` from your project root; optionally `timeout 8 npx gcp brain up` (Ctrl+C — it waits on stdio for MCP). If Cursor logs **`spawn gcp ENOENT`** or **`npm error could not determine executable to run`**, re-run setup (step 5) — it regenerates the MCP entry with an absolute path. Details: [README_CURSOR_MCP.md](README_CURSOR_MCP.md).
-5. **Wire your IDE:** `npx gcp brain setup cursor --force` | `npx gcp brain setup codex` | `npx gcp brain setup claude` — registers the MCP server under **`ghostcrab-personal-mcp`** using an absolute path to `bin/gcp.mjs` (auto-removes any stale `ghostcrab` entry). Details: [README_CURSOR_MCP.md](README_CURSOR_MCP.md), [README_CODEX_MCP.md](README_CODEX_MCP.md), [README_CLAUDE_CODE_MCP.md](README_CLAUDE_CODE_MCP.md).
+4. **Verify before the IDE:** `npx gcp brain up --help` from your project root; optionally `timeout 8 npx gcp brain up` (Ctrl+C — it waits on stdio for MCP). If Cursor logs **`spawn gcp ENOENT`**, re-run setup (step 5) — see [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md).
+5. **Wire your IDE:** `npx gcp brain setup cursor --force` | `npx gcp brain setup codex` | `npx gcp brain setup claude` — registers MCP, permissions, and skills. Details: [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md).
 6. **Optional `.env`:** often created automatically on local install; otherwise copy from the package (see **`.env` for embeddings / API keys** below).
 7. At runtime, MCP clients should start **`gcp brain up`** / **`gcp serve`** (MindBrain + MCP on stdio).
 
@@ -163,7 +163,7 @@ npx -y @mindflight/ghostcrab-personal-mcp@latest gcp --help
 
 If the optional install fails, add the platform tarball (local build or beta zip), same as path 1.
 
-**After `npm install @mindflight/ghostcrab-personal-mcp` in a project** (you already have a root `package.json`): `postinstall` creates **`./data/`**, copies **`.env`** from the package `.env.example` if `.env` is missing, and adds **symlinks** to `README.md`, `INSTALL.md`, `Licence.md`, and the `README_*_MCP.md` files from the package. Opt out: `GHOSTCRAB_SKIP_HOST_BOOTSTRAP=1`.
+**After `npm install @mindflight/ghostcrab-personal-mcp` in a project** (you already have a root `package.json`): `postinstall` creates **`./data/`**, copies **`.env`** from the package `.env.example` if `.env` is missing, and adds **symlinks** to `README.md`, `INSTALL.md`, and `Licence.md` from the package. Opt out: `GHOSTCRAB_SKIP_HOST_BOOTSTRAP=1`.
 
 **pnpm users:** pnpm 10+ ignores `postinstall` scripts by default (message **`Ignored build scripts: @mindflight/ghostcrab-personal-mcp`**). To enable `.env`/`data/`/doc symlink creation (and the native backend chmod), run **`pnpm approve-builds`** once and allow `@mindflight/ghostcrab-personal-mcp`, or install with **`pnpm add --allow-build=@mindflight/ghostcrab-personal-mcp @mindflight/ghostcrab-personal-mcp@latest`**. With **npm** no extra step is needed.
 
@@ -239,4 +239,4 @@ npx gcp brain setup claude
 
 The generator uses an absolute path to `bin/gcp.mjs` when the package is installed locally, and falls back to `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up`. The stale `ghostcrab` entry is removed automatically.
 
-Detailed guides: [README_CURSOR_MCP.md](README_CURSOR_MCP.md), [README_CODEX_MCP.md](README_CODEX_MCP.md), [README_CLAUDE_CODE_MCP.md](README_CLAUDE_CODE_MCP.md).
+Detailed guides: [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md).

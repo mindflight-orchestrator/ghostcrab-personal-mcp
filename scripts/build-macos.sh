@@ -100,7 +100,7 @@ if [[ -z "$PGXS_MK" ]] || [[ ! -f "$PGXS_MK" ]]; then
   echo -e "${RED}ERROR: PGXS not found (pg_config --pgxs: '$PGXS_PATH')${NC}"
   echo "  pg_roaringbitmap needs the PostgreSQL extension build system (PGXS)."
   echo ""
-  echo "  Personal SQLite npm install: see README_MACOSX.md"
+  echo "  Personal SQLite npm install: see INSTALL.md"
   echo "  Legacy PostgreSQL extension build (maintainers): see docs/dev/INTERNALS.md"
   echo "  Postgres.app: Some versions may not include PGXS. Try:"
   echo "    - Re-download Postgres.app (ensure it includes extension development files)"

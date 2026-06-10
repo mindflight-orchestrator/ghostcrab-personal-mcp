@@ -4,7 +4,7 @@
 
 To register the GhostCrab stdio server in Cursor (`.cursor/mcp.json` or `~/.cursor/mcp.json`), use the product repo guide:
 
-- [../../README_CURSOR_MCP.md](../../README_CURSOR_MCP.md)
+**Canonical install:** run `gcp brain setup cursor` — see [../../installations/gcp-brain-setup.md](../../installations/gcp-brain-setup.md).
 
 ## Skills
 

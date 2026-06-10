@@ -12,7 +12,7 @@ Use this guide for any agent client that supports local MCP servers over stdio.
 
 ## Generic JSON shape
 
-Use this JSON only for clients that document a JSON `mcpServers` object, for example Cursor-like clients. **Codex CLI does not read this JSON shape.** For Codex, use `codex mcp add ...` or `~/.codex/config.toml` with `[mcp_servers.<name>]`; see [README_CODEX_MCP.md](../README_CODEX_MCP.md).
+Use this JSON only for clients that document a JSON `mcpServers` object, for example Cursor-like clients. **Codex CLI does not read this JSON shape.** For Codex, prefer `gcp brain setup codex`, or `codex mcp add` / `~/.codex/config.toml` with `[mcp_servers.<name>]` — see [gcp-brain-setup.md](gcp-brain-setup.md).
 
 ```json
 {
