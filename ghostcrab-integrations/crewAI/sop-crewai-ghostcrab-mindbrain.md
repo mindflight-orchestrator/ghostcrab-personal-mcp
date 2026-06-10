@@ -742,7 +742,7 @@ and all `required` facets must be provided.
       "status": "active",
       "layer": "api",
       "language": "Go",
-      "version": "0.5.1",
+      "version": "0.5.2",
       "tags": ["mcp", "ontology", "ghostcrab"]
     }
   }
