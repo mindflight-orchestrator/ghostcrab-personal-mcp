@@ -33,16 +33,13 @@ npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up
 | [custom-installation.md](custom-installation.md)                                             | How to add a new client-specific installation guide                  |
 | [templates/universal-ghostcrab-skill/SKILL.md](templates/universal-ghostcrab-skill/SKILL.md) | A portable skill template to adapt for new agents                    |
 
-## Existing dedicated guides
+## Client-specific notes
 
-These root guides remain the client-specific source of truth where they already exist:
+Cursor, Claude Code, and Codex are configured entirely through `gcp brain setup <target>`. Manual `mcp.json` / `claude mcp add` / Codex TOML snippets are only needed when the generator is unavailable — use `gcp brain setup generic` for portable JSON/TOML output.
 
-- [../README_CURSOR_MCP.md](../README_CURSOR_MCP.md)
-- [../README_CLAUDE_CODE_MCP.md](../README_CLAUDE_CODE_MCP.md)
-- [../README_CODEX_MCP.md](../README_CODEX_MCP.md)
+## Related docs
+
 - [../ghostcrab-skills/openclaw/README.md](../ghostcrab-skills/openclaw/README.md)
-
-Use this folder as the hub for agents that do not yet have a full dedicated guide.
 
 ## Baseline config shape
 

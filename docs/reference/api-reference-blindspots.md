@@ -88,5 +88,5 @@ git diff --check
 Then search the tracked docs for stale current-contract claims:
 
 ```bash
-rg -n "53 registered|12 recommended|41 extended|all 50|50 remain|12 default tools|ghostcrab_facet_tree|ghostcrab_query_geo|ghostcrab_marketplace|ghostcrab_patch|docs/dev/mcp_tools_contract" README.md README_*_MCP.md docs/reference docs/setup docs/methodology docs/explanation
+rg -n "53 registered|12 recommended|41 extended|all 50|50 remain|12 default tools|ghostcrab_facet_tree|ghostcrab_query_geo|ghostcrab_marketplace|ghostcrab_patch|docs/dev/mcp_tools_contract" README.md INSTALL.md installations docs/reference docs/setup docs/methodology docs/explanation
 ```

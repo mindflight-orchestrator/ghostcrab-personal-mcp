@@ -24,10 +24,7 @@ const THIS_PACKAGE_NAME = "@mindflight/ghostcrab-personal-mcp";
 const DOC_SYMLINKS = [
   { name: "README.md", optional: false },
   { name: "INSTALL.md", optional: false },
-  { name: "Licence.md", optional: false },
-  { name: "README_CURSOR_MCP.md", optional: true },
-  { name: "README_CODEX_MCP.md", optional: true },
-  { name: "README_CLAUDE_CODE_MCP.md", optional: true }
+  { name: "Licence.md", optional: false }
 ];
 
 /**

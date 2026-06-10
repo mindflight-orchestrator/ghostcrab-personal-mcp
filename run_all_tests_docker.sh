@@ -10,7 +10,7 @@
 # 4. Cleans up
 #
 # If port 5433 is in use: POSTGRES_PORT=5434 ./run_all_tests_docker.sh
-# See README_MACOSX.md for M1-specific details.
+# Personal SQLite install: see INSTALL.md.
 
 set -e
 
