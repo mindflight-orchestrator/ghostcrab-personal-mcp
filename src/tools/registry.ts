@@ -3,8 +3,9 @@ import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types.js";
 import type { DatabaseClient } from "../db/client.js";
 import type { EmbeddingProvider } from "../embeddings/provider.js";
 import type { SessionContext } from "../mcp/session-context.js";
+import { GHOSTCRAB_MCP_SURFACE_VERSION } from "../version.js";
 
-export const GHOSTCRAB_MCP_SURFACE_VERSION = "2026-03-23";
+export { GHOSTCRAB_MCP_SURFACE_VERSION };
 
 export interface ToolExecutionContext {
   database: DatabaseClient;

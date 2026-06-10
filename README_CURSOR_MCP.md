@@ -1,5 +1,7 @@
 # GhostCrab and Cursor (MCP)
 
+**Release:** `@mindflight/ghostcrab-personal-mcp@0.5.2` · MindBrain **1.7.1**
+
 This guide is only about **connecting the GhostCrab MCP server in [Cursor](https://cursor.com/docs/mcp)**. For what GhostCrab does and how the backend is built, see the [main README](README.md).
 
 ## What you are connecting
@@ -194,7 +196,7 @@ pnpm run build && pnpm run verify:mcp-tools   # from a dev checkout
 gcp tools verify                              # from an installed package (backend must be up)
 ```
 
-This checks that `tools/list` returns the full registered catalog, that every tool is callable by name, and runs a short `tools/call` smoke per subsystem. Use `ghostcrab_tool_search` to filter the catalog by domain or access.
+This checks that `tools/list` returns the full registered catalog (**63 tools** in v0.5.2), that every tool is callable by name, and runs a short `tools/call` smoke per subsystem. Use `ghostcrab_tool_search` to filter the catalog by domain or access.
 
 ## Install from a local pack (development)
 
@@ -213,7 +215,22 @@ Cursor enforces a **limit on how many tools** can be active across all MCP serve
 
 ## Cursor skills and onboarding (separate from MCP)
 
-`gcp brain setup cursor` installs selectable GhostCrab skills into `~/.cursor/skills/` and writes `.ghostcrab/skills/installed.json` plus `.ghostcrab/skills/current` so the installed skill folder is easy to find. It does not install Cursor rules. For the source authoring tree, see [ghostcrab-skills/cursor/README.md](ghostcrab-skills/cursor/README.md) and the [ONBOARDING_CONTRACT](ghostcrab-skills/shared/ONBOARDING_CONTRACT.md).
+`gcp brain setup cursor` installs **10 GhostCrab skills** into `~/.cursor/skills/` plus shared contracts in `~/.cursor/skills/ghostcrab-shared/`. It writes `.ghostcrab/skills/installed.json` and `.ghostcrab/skills/current` so the active skill folder is easy to find. It does not install Cursor rules.
+
+| Skill | Role |
+| ----- | ---- |
+| ghostcrab-memory | Durable working memory, onboarding, long-running work |
+| ghostcrab-prompt-guide | Prompt and workflow guidance |
+| ghostcrab-data-architect | Structured domain modeling |
+| ghostcrab-integration-sop-editor | Integration SOP cleanup |
+| mindbrain-comparison-writer | MindBrain comparison articles |
+| ghostcrab-operator | Business questions → MCP workflows |
+| ghostcrab-evidence-discovery | Map questions to facets, graph, projections |
+| ghostcrab-projection-reviewer | Review Type A/B projections |
+| ghostcrab-gap-auditor | Audit evidence gaps |
+| ghostcrab-json-answer-builder | Stable JSON answers from MCP outputs |
+
+For the source authoring tree, see [ghostcrab-skills/cursor/README.md](ghostcrab-skills/cursor/README.md) and the [ONBOARDING_CONTRACT](ghostcrab-skills/shared/ONBOARDING_CONTRACT.md).
 
 ## Related documentation
 

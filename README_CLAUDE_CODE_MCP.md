@@ -1,5 +1,7 @@
 # GhostCrab and Claude Code (MCP)
 
+**Release:** `@mindflight/ghostcrab-personal-mcp@0.5.2` · MindBrain **1.7.1**
+
 This guide is only about **wiring the GhostCrab MCP server into [Claude Code](https://code.claude.com/docs/en/mcp)**. For what GhostCrab does and how the backend is built, see the [main README](README.md).
 
 ## What you are connecting
@@ -21,7 +23,7 @@ npx gcp brain setup claude --scope project   # write to project-scoped .mcp.json
 
 When a local `node_modules/@mindflight/ghostcrab-personal-mcp/bin/gcp.mjs` is reachable from the current directory, the generator uses `node` + the absolute path to avoid any PATH dependency. Otherwise it falls back to `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up`.
 
-By default, setup also applies **MCP permissions preset `basic`** and installs the **GhostCrab skill bundle** (rules + shared onboarding contract). Opt out with `--no-permissions` / `--no-skills`. Details: [README_MCP_PERMISSIONS.md](README_MCP_PERMISSIONS.md).
+By default, setup also applies **MCP permissions preset `basic`** (13 recommended tools) and installs the **full GhostCrab skill bundle** (10 skills + shared contracts under `.ghostcrab/skills/shared/`). Opt out with `--no-permissions` / `--no-skills`. Details: [README_MCP_PERMISSIONS.md](README_MCP_PERMISSIONS.md).
 
 ## Quick add: `claude mcp add`
 

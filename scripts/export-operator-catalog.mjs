@@ -4,7 +4,7 @@
  * Run: node scripts/export-operator-catalog.mjs
  */
 
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -12,6 +12,22 @@ import { loadToolManifestFromDist } from "./load-tool-manifest.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
+
+function readSurfaceVersion() {
+  const src = readFileSync(join(root, "src/version.ts"), "utf8");
+  const match = src.match(
+    /GHOSTCRAB_MCP_SURFACE_VERSION\s*=\s*"([^"]+)"/
+  );
+  if (!match) {
+    throw new Error(
+      "GHOSTCRAB_MCP_SURFACE_VERSION not found in src/version.ts"
+    );
+  }
+  return match[1];
+}
+
+const surfaceVersion = readSurfaceVersion();
+const generatedAt = new Date().toISOString();
 const outPath = join(root, "docs/reference/operator-catalog.md");
 const mcpOutPath = join(root, "docs/reference/mcp-tools.md");
 
@@ -207,8 +223,8 @@ All successful tool calls use the additive envelope:
 {
   "ok": true,
   "tool": "ghostcrab_status",
-  "surface_version": "2026-03-23",
-  "generated_at": "2026-03-23T08:00:00.000Z"
+  "surface_version": "${surfaceVersion}",
+  "generated_at": "${generatedAt}"
 }
 \`\`\`
 

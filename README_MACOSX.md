@@ -1,302 +1,178 @@
-# Building on macOS (Intel & Apple Silicon)
+# GhostCrab Personal MCP on macOS (Intel & Apple Silicon)
 
-This guide covers building `pg_facets` and `pg_dgraph` on macOS, for both **Intel (x86_64)** and **Apple Silicon (M1/M2/M3)** Macs.
+This guide covers **installing and running `@mindflight/ghostcrab-personal-mcp`** on macOS. The Personal edition uses **SQLite + MindBrain (Zig)** — not PostgreSQL extensions.
 
-## Platform Support
+**Current release:** npm **`0.5.2`** · bundled MindBrain backend **`1.7.1`**
 
-| Platform | Native Build | Docker |
-|----------|--------------|--------|
-| **Intel Mac (x86_64)** | Yes | Yes (linux/amd64) |
-| **Apple Silicon (arm64)** | Yes | Yes (linux/arm64) |
+| Platform | npm optional package | Native prebuild |
+| -------- | -------------------- | --------------- |
+| **Apple Silicon (arm64)** | `@mindflight/ghostcrab-personal-mcp-darwin-arm64` | `ghostcrab-backend`, `ghostcrab-document` |
+| **Intel Mac (x86_64)** | `@mindflight/ghostcrab-personal-mcp-darwin-x64` | same |
 
-All Docker containers in this repository support **multi-architecture builds**. On Intel Mac, Docker builds linux/amd64 images; on Apple Silicon, it builds linux/arm64 images. Dockerfiles keep `ZIG_VERSION=0.15.2`, detect runtime architecture via `uname -m`, and pass explicit Zig targets (`x86_64-linux-gnu` or `aarch64-linux-gnu`) for Linux extension builds.
+For architecture, MCP wiring, and tool surface, see the [main README](README.md).
 
 ---
 
 ## Prerequisites
 
-- **PostgreSQL 17+** with development headers (Postgres.app or Homebrew)
-- **Zig 0.15.2+** (`brew install zig` or [ziglang.org](https://ziglang.org/download/))
-- **Xcode Command Line Tools** (`xcode-select --install`)
+- **Node.js 20+** (`node --version`)
+- **Network access** on first install (JS package + platform optional dependency)
+- **Xcode Command Line Tools** recommended (`xcode-select --install`) — required only if you build the Zig backend from source
+
+You do **not** need PostgreSQL, Homebrew Postgres, or `pg_facets` for the Personal SQLite distribution.
 
 ---
 
-## Option 1: Postgres.app (Recommended)
+## Recommended path — npm install
 
-Postgres.app is a pre-built PostgreSQL distribution. No compilation of PostgreSQL or its dependencies (e.g. gettext) is required.
+From your project directory:
 
-1. **Download**: [postgresapp.com](https://postgresapp.com/)
-2. **Install** and start PostgreSQL once
-3. **Add to PATH**:
-   ```bash
-   export PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"
-   ```
-4. **Build**:
-   ```bash
-   ./scripts/build-macos.sh
-   ```
-
-### Postgres.app PGXS
-
-Postgres.app installs PGXS at:
-```
-/Applications/Postgres.app/Contents/Versions/17/lib/postgresql/pgxs/src/makefiles/pgxs.mk
+```bash
+npm install @mindflight/ghostcrab-personal-mcp@0.5.2
 ```
 
-The build script automatically detects this path if `pg_config --pgxs` is non-standard.
+Global install also works:
+
+```bash
+npm install -g @mindflight/ghostcrab-personal-mcp@0.5.2
+```
+
+**pnpm 10+** blocks postinstall by default — allow it once:
+
+```bash
+pnpm add --allow-build=@mindflight/ghostcrab-personal-mcp @mindflight/ghostcrab-personal-mcp@0.5.2
+```
+
+After install, `postinstall`:
+
+1. Pulls the matching **darwin-arm64** or **darwin-x64** optional package
+2. Runs `gcp authorize` prompts if needed (clears macOS quarantine on native binaries)
+3. Creates `./data/`, copies `.env` from `.env.example` when missing, and symlinks key docs at the project root
+
+Verify before wiring your IDE:
+
+```bash
+npx -y --package=@mindflight/ghostcrab-personal-mcp@0.5.2 gcp --info
+timeout 8 npx -y --package=@mindflight/ghostcrab-personal-mcp@0.5.2 gcp brain up
+```
+
+Register MCP + skills (Cursor example):
+
+```bash
+npx -y --package=@mindflight/ghostcrab-personal-mcp@0.5.2 gcp brain setup cursor --force
+```
+
+Details: [README_CURSOR_MCP.md](README_CURSOR_MCP.md), [INSTALL.md](INSTALL.md).
 
 ---
 
-## Option 2: Vendored PostgreSQL (Self-Contained)
+## macOS-specific notes
 
-No external PostgreSQL install. Builds from `ext_pg17_src` submodule.
+### Gatekeeper / quarantine
+
+If the backend fails to start after download, run:
 
 ```bash
-# One-time setup (requires network)
-./scripts/setup_pg17_submodule.sh
-
-# Build (PostgreSQL compiled from source, then extensions)
-./scripts/build-macos.sh
+gcp authorize
 ```
 
-First run compiles PostgreSQL (~5–15 min). Output goes to `.pg_install/` (gitignored).
+This adjusts execute permissions and removes quarantine attributes from `ghostcrab-backend` and `ghostcrab-document` inside `node_modules`.
 
-**Docker** (no apt, uses vendored source):
+### `spawn gcp ENOENT` in Cursor
+
+Cursor does not inherit your shell `PATH`. Re-run setup so `mcp.json` uses **absolute paths** to your system `node` and `bin/gcp.mjs`:
+
 ```bash
-cd extensions/pg_facets/docker
-docker-compose -f docker-compose.vendored.yml build
+gcp brain setup cursor --force
 ```
 
----
+See [README_CURSOR_MCP.md](README_CURSOR_MCP.md#cursor-spawn-gcp-enoent--npm-error-could-not-determine-executable-to-run).
 
-## Option 3: Homebrew
+### SQLite location
 
-If Homebrew's PostgreSQL builds successfully on your macOS version:
+Default resolution order:
 
-```bash
-brew install postgresql@17 zig
-export PATH="$(brew --prefix postgresql@17)/bin:$PATH"
-./scripts/build-macos.sh
-```
+1. `GHOSTCRAB_SQLITE_PATH` env var
+2. `--db` CLI flag
+3. Named `--workspace` mapping in GhostCrab config
+4. `./data/ghostcrab.sqlite` (cwd) or `~/.ghostcrab/databases/ghostcrab.sqlite`
 
-**Note**: On older macOS (e.g. 13 Ventura) or Tier 2/3 configurations, Homebrew may fail to build `postgresql@17` due to dependency issues (e.g. gettext, json-c). Use Postgres.app or vendored (Option 2) in that case.
+Pin a file in MCP config with `--db` or `GHOSTCRAB_SQLITE_PATH` when the IDE's working directory is not your project root.
 
----
+### Apple Silicon vs Rosetta
 
-## Quick Build Script
+Use the **arm64** Node build when possible so npm selects `@mindflight/ghostcrab-personal-mcp-darwin-arm64`. Running x64 Node under Rosetta pulls the Intel prebuild instead.
 
-From the repository root:
-
-```bash
-./scripts/build-macos.sh
-```
-
-The script:
-1. Detects **vendored** (`ext_pg17_src`) or **installed** PostgreSQL (Postgres.app, Homebrew)
-2. If vendored: builds PostgreSQL from source to `.pg_install/`, then extensions
-3. If installed: verifies `pg_config` and PGXS, initializes submodules
-4. Builds `pg_roaringbitmap` (standard Makefile — **never** `Makefile_native` on M1)
-5. Builds `pg_facets` and `pg_dgraph` with Zig
-
----
-
-## Cross-Compilation
-
-### Intel Mac → Apple Silicon (for brother's M1)
+Check:
 
 ```bash
-./scripts/build-macos.sh --target aarch64-macos
-```
-
-Produces `arm64` binaries for the Zig extensions. Note: `pg_roaringbitmap` is built with the system compiler, so it targets the host architecture. For full M1 binaries, your brother can run the script on his M1 Mac.
-
-### Apple Silicon Mac → Intel
-
-```bash
-./scripts/build-macos.sh --target x86_64-macos
+node -p "process.platform + '-' + process.arch"
+# expect: darwin-arm64 or darwin-x64
 ```
 
 ---
 
-## Docker on macOS
+## Build from source (contributors)
 
-**Yes — all Docker containers work on both Intel and Apple Silicon Macs.**
+Only needed when developing this repo or producing local `.tgz` packs — not for normal npm consumers.
 
-The Dockerfiles select the correct Zig tarball and build target:
-- **Intel Mac / linux/amd64**: `zig-x86_64-linux` + `-Dtarget=x86_64-linux-gnu`
-- **Apple Silicon / linux/arm64**: `zig-aarch64-linux` + `-Dtarget=aarch64-linux-gnu`
+### Prerequisites
 
-Runtime architecture checks (`uname -m`) are used to reduce issues caused by `TARGETARCH` mismatches under emulation.
-
-### Build and run
-
-**Standard** (apt postgresql-server-dev):
+- **Zig 0.16.x** ([ziglang.org](https://ziglang.org/download/) or `brew install zig`)
+- **pnpm 10+** and **Node 20+**
+- Git submodules: `vendor/mindbrain` (MindBrain **1.7.1**)
 
 ```bash
-cd extensions/pg_facets/docker
-docker-compose build
-docker-compose up -d
+git clone --recurse-submodules https://github.com/mindflight-orchestrator/ghostcrab-personal-mcp.git
+cd ghostcrab-personal-mcp
+pnpm install
+make backend-vendor sqlite3-download
+make backend-build          # host darwin-arm64 or darwin-x64
+pnpm run build
+node bin/gcp.mjs brain up
 ```
 
-**Vendored** (no apt, uses `ext_pg17_src` submodule):
+Cross-compile all six platform prebuilds (maintainers):
 
 ```bash
-./scripts/setup_pg17_submodule.sh   # one-time, from repo root
-cd extensions/pg_facets/docker
-docker-compose -f docker-compose.vendored.yml build
-docker-compose -f docker-compose.vendored.yml up -d
+pnpm run prebuild:all
+# or: make prebuilds
 ```
 
-Same pattern for pg_dgraph. Base images provide both `linux/amd64` and `linux/arm64` variants.
-
----
-
-## Manual Build
-
-### 1. Initialize submodules
+Local pack for offline install:
 
 ```bash
-git submodule update --init --recursive
+pnpm run pack:local
+# tarballs under dist-pack/
 ```
 
-### 2. Build pg_roaringbitmap
+Beta zip (same tarballs + `install-beta.mjs`): `pnpm run beta:bundle`
 
-**On Apple Silicon**: Use `make` only. Do **not** use `make -f Makefile_native` — it enables `-mavx2` (x86-only) and will fail.
-
-```bash
-cd extensions/pg_facets/deps/pg_roaringbitmap
-make && make install
-cd ../../..
-
-cd extensions/pg_dgraph/deps/pg_roaringbitmap
-make && make install
-cd ../../..
-```
-
-### 3. Build Zig extensions
+### Cross-compile one macOS target from the other arch
 
 ```bash
-cd extensions/pg_facets
-zig build -Doptimize=ReleaseFast
-
-cd ../pg_dgraph
-zig build -Doptimize=ReleaseFast
-```
-
----
-
-## Artifacts
-
-| Platform | Extension files |
-|----------|-----------------|
-| Linux | `libpg_facets.so`, `libpg_dgraph.so` |
-| macOS | `libpg_facets.dylib`, `libpg_dgraph.dylib` |
-
-Verify architecture:
-```bash
-file extensions/pg_facets/zig-out/lib/libpg_facets.*
-# M1: Mach-O 64-bit dynamically linked shared library arm64
-# Intel: Mach-O 64-bit dynamically linked shared library x86_64
-```
-
----
-
-## Installing into PostgreSQL
-
-```bash
-cp extensions/pg_facets/zig-out/lib/libpg_facets.* $(pg_config --pkglibdir)/
-cp extensions/pg_dgraph/zig-out/lib/libpg_dgraph.* $(pg_config --pkglibdir)/
-# Copy control and SQL files if not already installed
+make backend-build ZIG_TARGET=aarch64-macos    # Intel host → Apple Silicon binary
+make backend-build ZIG_TARGET=x86_64-macos       # Apple Silicon host → Intel binary
 ```
 
 ---
 
 ## Troubleshooting
 
-### pg_config not found
-
-Add PostgreSQL to PATH:
-```bash
-export PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"
-# or
-export PATH="$(brew --prefix postgresql@17)/bin:$PATH"
-```
-
-### PostgreSQL 16+ required (found: unknown)
-
-`pg_config` may be from **libpq** instead of full PostgreSQL. Ensure `which pg_config` points to Postgres.app or postgresql@17, not libpq.
-
-### PGXS not found
-
-The script searches for `pgxs.mk` in standard locations and Postgres.app’s layout. If you see this error:
-- Ensure you use Postgres.app or `postgresql@17`, not libpq
-- Or use Docker: `cd extensions/pg_facets/docker && docker-compose build`
-
-### pgxs.mk: No such file (libpq vs postgresql)
-
-**libpq** provides only the client library; it does **not** include PGXS. Use Postgres.app or `postgresql@17`.
-
-### Headers not found
-
-The Zig build uses `pg_config --includedir-server`. Fallbacks include Homebrew paths. Verify PostgreSQL dev headers are present.
-
-### Makefile_native on M1
-
-Errors about `-mavx2` or `-march=native` mean you used the wrong Makefile. Use `make`, not `make -f Makefile_native`.
-
-### Vendored build: ext_pg17_src not found
-
-Run `./scripts/setup_pg17_submodule.sh` first (requires network). Then `git submodule update --init ext_pg17_src` if cloning fresh.
+| Symptom | Fix |
+| ------- | --- |
+| Native binary missing after install | Install platform tarball manually from a beta zip or `dist-pack/` — see [INSTALL.md](INSTALL.md) |
+| `Ignored build scripts` (pnpm) | `pnpm add --allow-build=@mindflight/ghostcrab-personal-mcp …` |
+| Backend exits immediately | Check MCP Logs / run `gcp brain up` in a terminal; verify `gcp authorize` |
+| Wrong SQLite file | Set `GHOSTCRAB_SQLITE_PATH` or `--db` — see precedence in [README_CURSOR_MCP.md](README_CURSOR_MCP.md) |
+| CLI import fails while MCP runs | Stop MCP / backend first, or use `--force` on import commands |
 
 ---
 
-## Docker on Apple Silicon (M1/M2/M3) — Full Test Suite
+## Related docs
 
-### No submodule required
+- [README.md](README.md) — product overview, MCP tool catalog, agent install sequence
+- [README_CURSOR_MCP.md](README_CURSOR_MCP.md) · [README_CLAUDE_CODE_MCP.md](README_CLAUDE_CODE_MCP.md) · [README_CODEX_MCP.md](README_CODEX_MCP.md)
+- [docs/dev/INTERNALS.md](docs/dev/INTERNALS.md) — repository layout (PostgreSQL paths there are maintainer-only)
 
-Docker builds **clone pg_roaringbitmap during the build** — you do not need to run `git submodule update --init` for Docker. This applies to:
-
-- `extensions/pg_facets/docker`
-- `extensions/pg_dgraph/docker`
-- Root `docker/` (combined pg_facets + pg_dgraph)
-
-### Port conflicts
-
-If port 5433 is already in use (e.g. another PostgreSQL container), set `POSTGRES_PORT`:
-
-```bash
-# Combined build (both extensions)
-cd docker
-POSTGRES_PORT=5434 docker compose -f docker-compose.yml up -d
-
-# pg_facets only
-cd extensions/pg_facets/docker
-POSTGRES_PORT=5434 docker-compose up -d
-```
-
-### Running all tests (SQL + Go)
-
-```bash
-# If 5433 is free
-./run_all_tests_docker.sh
-
-# If 5433 is in use
-POSTGRES_PORT=5434 ./run_all_tests_docker.sh
-```
-
-The script:
-
-1. Builds and starts pg_facets (no submodule needed)
-2. Runs SQL/Zig tests
-3. Stops pg_facets, starts pg_facets_test, runs Go tests
-4. Cleans up
-
-### M1-specific fixes (already applied)
-
-| Issue | Fix |
-|-------|-----|
-| `deps/pg_roaringbitmap` not found | Dockerfiles clone pg_roaringbitmap during build; no submodule required |
-| Port 5433 already allocated | Use `POSTGRES_PORT=5434` (or any free port) |
-| "database system is shutting down" | Added startup delay + retry loop for verification |
-| pg_cron in shared_preload | Removed from pg_facets docker config (not in TimescaleDB HA image) |
-| `filter_documents_by_facets_bitmap` crash with NULL | Fixed NULL return handling in Zig (set_return_null for roaringbitmap) |
+**Note:** `scripts/build-macos.sh` in this repo targets legacy **PostgreSQL extension** builds (`pg_facets`, `pg_dgraph`) for Pro/maintainer workflows — not the Personal SQLite npm package.

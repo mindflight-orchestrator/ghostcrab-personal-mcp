@@ -1,115 +1,61 @@
-# GhostCrab README
+# GhostCrab README template
 
-## Aperçu
+> **Do not publish this file as product documentation.** It is a structural stub for drafting new GhostCrab docs. The canonical consumer guide is [README.md](README.md).
 
-GhostCrab est une base de données contextuelle pour agents AI, construite sur PostgreSQL avec les extensions pg_facets, pg_dgraph et pg_pragma. Le serveur MCP connecte les agents AI à cette base pour une gestion unifiée de contexte via protocoles standardisés. [github](https://github.com/cybertec-postgresql/pgfaceting)
+**Package:** `@mindflight/ghostcrab-personal-mcp` (current: **0.5.2**)  
+**Engine:** MindBrain **1.7.1** (Zig, SQLite)  
+**CLI:** `gcp` / `ghostcrab` — entrypoint `gcp brain up` (MCP stdio)
 
-Ce système adopte un paradigme de graphe de connaissances PostgreSQL pour organiser mémoires, ressources et compétences, en résolvant les problèmes de fragmentation et de récupération inefficace dans les agents AI. [github](https://github.com/cybertec-postgresql/pgfaceting)
+---
 
-## Défis en développement d'agents
+## Overview
 
-- Contexte fragmenté : mémoires en code, ressources en bases vectorielles, compétences dispersées.
-- Demande explosive de contexte : tâches longues génèrent du contexte continu, avec perte d'information lors de troncature.
-- Récupération faible : RAG traditionnel utilise stockage plat sans vue globale.
-- Contexte non observable : chaîne de récupération implicite comme boîte noire.
-- Itération mémoire limitée : mémoires limitées aux interactions utilisateur, sans tâches agent-spécifiques. [user-provided]
+One paragraph: GhostCrab MCP is the agent-facing interface to MindBrain — structured memory via facets, graph, and projections on SQLite (Personal) or PostgreSQL (Pro).
 
-## Solution GhostCrab
-
-GhostCrab unifie le contexte via PostgreSQL extensions :
-
-- pg_facets pour facettes rapides avec bitmaps roaring.
-- pg_dgraph pour graphes de connaissances.
-- pg_pragma pour projections mémoire optimisées.
-
-Le serveur MCP expose des outils pour requêtes naturelles, monitoring et optimisation DB. [github](https://github.com/cybertec-postgresql/pgfaceting)
-
-## Concepts clés
-
-### Paradigme graphe PostgreSQL
-
-Contexte mappé en graphes URI postgres:// (nœuds, arêtes avec facettes). Agents naviguent via requêtes SQL sémantiques comme ls/find. [github](https://github.com/cybertec-postgresql/pgfaceting)
+## Architecture (60 seconds)
 
 ```
-postgres://
-├── resources/           # Docs projets, repos
-├── user/                # Préférences utilisateur
-└── agent/               # Compétences, mémoires tâches
+IDE / Agent → MCP stdio → GhostCrab MCP (Node) → HTTP → MindBrain (Zig) → SQLite file
 ```
 
-### Chargement hiérarchique
+## Install (npmjs)
 
-L0 (résumé), L1 (vue d'ensemble), L2 (détails) stockés en facettes, chargés à la demande pour économiser tokens. [user-provided]
+1. `npm install @mindflight/ghostcrab-personal-mcp@<version>`
+2. `gcp authorize` if postinstall prompts
+3. `gcp brain setup <cursor|claude|codex|generic>`
+4. MCP host launches `gcp brain up`
 
-### Récupération récursive
+Platform optional packages: `…-darwin-arm64`, `…-darwin-x64`, `…-linux-x64`, `…-linux-arm64`, `…-win32-x64`, `…-win32-arm64`.
 
-Analyse intent → positionnement facettes → exploration graphe → agrégation résultats via pg_facets/pg_dgraph. [github](https://github.com/cybertec-postgresql/pgfaceting)
+## MCP surface
 
-### Trajectoire observable
+- Full catalog via `tools/list` (63 tools in v0.5.2)
+- 13 recommended defaults; 50 extended — see `gcp tools list` / `docs/reference/mcp-tools.md`
+- Operator CLI (`gcp brain structured-import`, `gcp brain document`, backup, setup) — not duplicated on MCP
 
-Logs MCP tracent requêtes graphe pour débogage. [github](https://github.com/mukul975/postgres-mcp-server)
+## IDE guides
 
-### Gestion sessions auto
+| Client | Doc |
+| ------ | --- |
+| Cursor | [README_CURSOR_MCP.md](README_CURSOR_MCP.md) |
+| Claude Code | [README_CLAUDE_CODE_MCP.md](README_CLAUDE_CODE_MCP.md) |
+| Codex | [README_CODEX_MCP.md](README_CODEX_MCP.md) |
+| Permissions + skills | [README_MCP_PERMISSIONS.md](README_MCP_PERMISSIONS.md) |
+| macOS | [README_MACOSX.md](README_MACOSX.md) |
 
-Extraction automatique mémoires longues via pg_pragma après sessions. [user-provided]
+## Environment variables (common)
 
-## Début rapide
+| Variable | Default | Purpose |
+| -------- | ------- | ------- |
+| `GHOSTCRAB_SQLITE_PATH` | project `./data/ghostcrab.sqlite` or `~/.ghostcrab/databases/ghostcrab.sqlite` | SQLite file |
+| `GHOSTCRAB_BACKEND_ADDR` | `:8091` | MindBrain listen address |
+| `GHOSTCRAB_MINDBRAIN_URL` | `http://127.0.0.1:8091` | MCP → backend URL |
+| `GHOSTCRAB_EMBEDDINGS_MODE` | `disabled` | BM25-only until configured |
 
-### Prérequis
+Full list: [.env.example](.env.example)
 
-- PostgreSQL 15+ avec extensions : pg_roaringbitmap, pgfaceting (pg_facets), pg_dgraph, pg_pragma.
-- Go 1.22+ pour serveur MCP.
-- Connexion réseau pour modèles. [github](https://github.com/cybertec-postgresql/pgfaceting)
+## Further reading
 
-### Installation
-
-1. Installer extensions PostgreSQL :
-   ```
-   CREATE EXTENSION roaringbitmap, pgfaceting, age;  -- pg_dgraph via AGE
-   ```
-2. Installer serveur MCP :
-   ```
-   go install github.com/mukul975/postgres-mcp-server@latest  # Adapté
-   ```
-3. Configurer DB et MCP. [github](https://github.com/mukul975/postgres-mcp-server)
-
-### Configuration
-
-Fichier `~/.ghostcrab/mcp.conf` :
-
-```
-{
-  "postgres": {
-    "dsn": "postgres://user:pass@localhost/ghostcrab_db"
-  },
-  "embedding": {
-    "model": "text-embedding-3-large",
-    "provider": "openai"
-  },
-  "vlm": {
-    "model": "gpt-4o",
-    "provider": "openai"
-  }
-}
-```
-
-Exporter : `export GHOSTCRAB_CONFIG=~/.ghostcrab/mcp.conf`. [user-provided]
-
-### Lancer
-
-```
-ghostcrab-server  # Lance MCP sur :8080
-ov status         # CLI test (adapté OpenViking)
-ghostcrab add-resource https://github.com/volcengine/OpenViking
-ghostcrab find "AI agent context"
-```
-
-## Déploiement
-
-Déployer sur Kubernetes/Docker avec PostgreSQL persistant. Utiliser pour multi-agents via MCP standard. [github](https://github.com/mukul975/postgres-mcp-server)
-
-## Performances
-
-Intégration extensions booste récupération : facettes en ms sur millions lignes. [github](https://github.com/cybertec-postgresql/pgfaceting)
-
-Documentation complète en développement. Licence Apache-2.0. [user-provided]
+- [INSTALL.md](INSTALL.md) — beta zip, git clone, pnpm quirks
+- [docs/setup/gcp-client-setup.md](docs/setup/gcp-client-setup.md) — CLI reference
+- [docs/reference/operator-catalog.md](docs/reference/operator-catalog.md) — MCP operator catalog

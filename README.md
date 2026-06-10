@@ -2,6 +2,8 @@
 
 # GhostCrab Personal MCP
 
+**Current release:** `@mindflight/ghostcrab-personal-mcp@0.5.2` · MindBrain backend **1.7.1** · MCP tool surface **`2026-06-10`**
+
 ### The MCP interface to mindBrain — SQLite edition
 
 **This is the personal, local distribution of GhostCrab MCP.** It runs on SQLite, installs inside your project in seconds, and requires zero infrastructure.
@@ -56,7 +58,7 @@ The short version:
 
 - **vs. vector stores (Pinecone, Weaviate, Chroma):** Those answer "what is similar to X?" GhostCrab answers "what matches these filters, has these relationships, and was last touched in this state?" Complementary tools, not substitutes.
 - **vs. plain memory tools (mem0, basic MCP memory servers):** Those store and retrieve text. GhostCrab stores structured ontologies with typed relationships and multi-dimensional queries into mindBrain.
-- **vs. graph databases (Neo4j, FalkorDB):** Full graph DBs are powerful but heavy. GhostCrab embeds a graph model directly in SQLite via mindBrain — zero infrastructure, same project directory, MCP-native. In the Pro version it manage 4,3 billions objects per table.
+- **vs. graph databases (Neo4j, FalkorDB):** Full graph DBs are powerful but heavy. GhostCrab embeds a graph model directly in SQLite via mindBrain — zero infrastructure, same project directory, MCP-native. In the Pro version it manages 4.3 billion objects per table.
 
 ---
 
@@ -93,20 +95,22 @@ The MCP server never touches the SQLite file directly. mindBrain owns it. This s
 From your project directory:
 
 ```bash
-npm install @mindflight/ghostcrab-personal-mcp@latest
+npm install @mindflight/ghostcrab-personal-mcp@0.5.2
 ```
 
 Or globally if you prefer:
 
 ```bash
-npm install -g @mindflight/ghostcrab-personal-mcp@latest
+npm install -g @mindflight/ghostcrab-personal-mcp@0.5.2
 ```
+
+(`@latest` tracks the same tag once npmjs has propagated the release.)
 
 > **pnpm users:** pnpm 10+ blocks postinstall scripts by default.
 > Run this once:
 
-````bash
-> pnpm add --allow-build=@mindflight/ghostcrab-personal-mcp @mindflight/ghostcrab-personal-mcp@latest
+```bash
+pnpm add --allow-build=@mindflight/ghostcrab-personal-mcp @mindflight/ghostcrab-personal-mcp@0.5.2
 ```
 
 After install, postinstall creates a `./data/` directory, copies `.env.example` → `.env` if no `.env` exists, and adds symlinks to key docs at your project root.
@@ -162,10 +166,10 @@ Detailed config files: `README_CURSOR_MCP.md`, `README_CLAUDE_CODE_MCP.md`, `REA
 Your agent client starts GhostCrab automatically via:
 
 ```bash
-gcp brain up
+gcp brain up    # or: gcp up | gcp start | legacy gcp serve
 ```
 
-This launches mindBrain, creates `~/.ghostcrab/databases/ghostcrab.sqlite`, and holds stdio open for MCP traffic. You do not need to run this manually — your MCP host handles it.
+This launches mindBrain, resolves the SQLite file (default `~/.ghostcrab/databases/ghostcrab.sqlite` when no project-local `./data/ghostcrab.sqlite` applies), and holds stdio open for MCP traffic. You do not need to run this manually — your MCP host handles it. Stop the backend with `gcp brain down` (or `gcp down`) when running database-backed CLI imports.
 
 ---
 
@@ -248,22 +252,24 @@ Use Tier 1 models for first workspace setup or fuzzy onboarding. Lighter models 
 
 ## MCP tool surface
 
-The MCP `tools/list` surface exposes the full tool catalog so every tool is directly callable on any MCP client (Cursor, Codex, Claude Code, generic). A curated subset is flagged as recommended defaults (status, search/count, combined search, remember/upsert, schema read, pack/project, modeling guidance, tool discovery). Inspect the catalog and recommended subset through:
+The MCP `tools/list` surface exposes the **full catalog (63 tools in v0.5.2)** so every tool is directly callable on any MCP client (Cursor, Codex, Claude Code, generic). **13 tools** are flagged as recommended defaults (status, search/count, combined search, remember/upsert, schema get/list/inspect, pack/project, modeling guidance, tool discovery); the other **50** are extended (workspace, graph, loadout, DDL, quality, ontology, and more). Inspect counts and metadata through:
 
 ```bash
 gcp tools list
 gcp tools verify
+gcp --info
 ```
 
 Agents can also discover extended tools at runtime with `ghostcrab_tool_search`.
 
 | Group | Examples |
 | ----- | -------- |
-| **Facets / Search** | `ghostcrab_search`, `ghostcrab_combined_search`, `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_facet_catalog`, `ghostcrab_collection_facet_search` |
-| **Graph** | `ghostcrab_graph_search`, `ghostcrab_graph_subgraph`, `ghostcrab_graph_path`, `ghostcrab_traverse`, `ghostcrab_graph_reindex`, `ghostcrab_graph_gap_rules_import` |
-| **Projections / Artifacts** | `ghostcrab_project`, `ghostcrab_pack`, `ghostcrab_projection_get`, `ghostcrab_artifact_get`, `ghostcrab_live_refresh` |
-| **Schema / Workspace** | `ghostcrab_schema_list`, `ghostcrab_schema_inspect`, `ghostcrab_schema_register`, `ghostcrab_workspace_list`, `ghostcrab_workspace_create`, `ghostcrab_workspace_reset` |
-| **Discovery / Loadout / Ontology** | `ghostcrab_tool_search`, `ghostcrab_loadout_apply`, `ghostcrab_onboarding_schemas`, `ghostcrab_ontology_import` |
+| **Recommended defaults** | `ghostcrab_status`, `ghostcrab_search`, `ghostcrab_count`, `ghostcrab_combined_search`, `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_schema_get`, `ghostcrab_schema_list`, `ghostcrab_schema_inspect`, `ghostcrab_pack`, `ghostcrab_project`, `ghostcrab_modeling_guidance`, `ghostcrab_tool_search` |
+| **Facets / Search (extended)** | `ghostcrab_csearch`, `ghostcrab_facet_catalog`, `ghostcrab_facet_register`, `ghostcrab_collection_facet_search`, `ghostcrab_entity_chunks` |
+| **Graph (extended)** | `ghostcrab_graph_search`, `ghostcrab_graph_subgraph`, `ghostcrab_graph_path`, `ghostcrab_traverse`, `ghostcrab_graph_reindex`, `ghostcrab_graph_gap_rules_import`, `ghostcrab_learn` |
+| **Projections / Artifacts (extended)** | `ghostcrab_projection_get`, `ghostcrab_projections_list`, `ghostcrab_artifact_get`, `ghostcrab_live_refresh` |
+| **Schema / Workspace (extended)** | `ghostcrab_schema_register`, `ghostcrab_schema_sync_preview`, `ghostcrab_workspace_list`, `ghostcrab_workspace_create`, `ghostcrab_workspace_use`, `ghostcrab_workspace_reset`, `ghostcrab_ddl_propose` |
+| **Loadout / Ontology / Quality (extended)** | `ghostcrab_loadout_apply`, `ghostcrab_onboarding_schemas`, `ghostcrab_ontology_import`, `ghostcrab_quality_convergence_run`, `ghostcrab_coverage` |
 
 Full references: `docs/reference/mcp-tools.md` and `docs/reference/operator-catalog.md`.
 
@@ -322,23 +328,23 @@ Enabled by default. Sends anonymous pings to `https://telemetry.ghostcrab.be/v1/
 
 ### Submodule note (contributors only)
 
-mindBrain ships as a Git submodule at `vendor/mindBrain`. Clone with:
+MindBrain ships as a Git submodule at `vendor/mindbrain` (tag **1.7.1** in v0.5.2). Clone with:
 
 ```bash
 git clone --recurse-submodules https://github.com/mindflight-orchestrator/ghostcrab-personal-mcp.git
 cd ghostcrab-personal-mcp
-npm install && npm run build
-npx gcp brain up
+pnpm install && pnpm run build
+node bin/gcp.mjs brain up
 ```
 
-Upstream: `github.com/mindflight-orchestrator/mindBrain`.
+Upstream: [github.com/mindflight-orchestrator/mindbrain](https://github.com/mindflight-orchestrator/mindbrain). macOS install and native build notes: [README_MACOSX.md](README_MACOSX.md).
 
 ---
 
 ## Going further
 
 - `INSTALL.md` — Beta zip, Git install, document import, `gcp brain document`
-- `docs/GCP_CLIENT_SETUP.md` — Full CLI reference
+- `docs/setup/gcp-client-setup.md` — Full CLI reference
 - `installations/` — Agent setup templates
 - `docs/dev/INTERNALS.md` — Repository layout, packaging, Docker dev stack
 

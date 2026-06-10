@@ -10,8 +10,8 @@ All successful tool calls use the additive envelope:
 {
   "ok": true,
   "tool": "ghostcrab_status",
-  "surface_version": "2026-03-23",
-  "generated_at": "2026-03-23T08:00:00.000Z"
+  "surface_version": "2026-06-10",
+  "generated_at": "2026-06-10T15:40:03.249Z"
 }
 ```
 
