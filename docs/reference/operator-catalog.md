@@ -165,6 +165,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 
 ## See also
 
+- [projections-discovery.md](projections-discovery.md)
 - [structured-import.md](../setup/structured-import.md)
 - [document-import.md](../setup/document-import.md)
 - [mcp-tools.md](mcp-tools.md)

@@ -6,13 +6,13 @@ Summary of starter-kit SOP5 gates relevant to projection and consumer audit. Ful
 | --- | --- | --- |
 | 0 | Workspace ready | `ghostcrab_status`, active workspace |
 | 1–6 | Model + mapping + apply | `gcp brain structured-import validate/apply/reindex` |
-| **7** | Projection smoke | `ghostcrab_pack`, `ghostcrab_projection_get` on declared scopes |
+| **7** | Projection smoke | `ghostcrab_projections_list`, `ghostcrab_pack`, `ghostcrab_projection_get` on declared scopes |
 | **8** | Consumer contract | `consumer_contract.yaml` — required projections / tools |
 | **9** | Pipeline audit | import manifest + `audit_import_pipeline` dry-run |
 
 ## Gate 7 (projection smoke)
 
-After bulk import, verify declared `analysis_plan` scopes return pack rows and optional `answer_snapshot` bundles load via `ghostcrab_projection_get`.
+After bulk import, list projections with `ghostcrab_projections_list`, then verify declared `analysis_plan` scopes return pack rows and optional `answer_snapshot` bundles load via `ghostcrab_projection_get`.
 
 Use **`ghostcrab-projection-reviewer`** for human-readable readiness narrative.
 

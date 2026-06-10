@@ -6,11 +6,12 @@ Use this order for business Q&A on a qualified workspace.
 
 1. **`ghostcrab_status`** — workspace + MCP health.
 2. **ghostcrab-operator** skill — shape the question; pick scope if known.
-3. **`ghostcrab_search`** or **`ghostcrab_combined_search`** — facts + graph-linked facts.
-4. **`ghostcrab_count`** — when filters or population shape is unclear.
-5. **`ghostcrab_pack`** — active `analysis_plan` rows + top matching facts.
-6. **`ghostcrab_projection_get`** — when a frozen `answer_snapshot` is in scope.
-7. **`ghostcrab_graph_search`** / **`ghostcrab_traverse`** — dependencies, blockers, evidence paths.
+3. **`ghostcrab_projections_list`** — when the user asks what projections exist or you need `artifact_id` / `projection_id` before reading (see [projections-discovery.md](../../docs/reference/projections-discovery.md)).
+4. **`ghostcrab_search`** or **`ghostcrab_combined_search`** — facts + graph-linked facts.
+5. **`ghostcrab_count`** — when filters or population shape is unclear.
+6. **`ghostcrab_pack`** — active `analysis_plan` rows + top matching facts (scope known or from list).
+7. **`ghostcrab_projection_get`** — when a frozen `answer_snapshot` is in scope (id from list or contract).
+8. **`ghostcrab_graph_search`** / **`ghostcrab_traverse`** — dependencies, blockers, evidence paths.
 
 ## When evidence is thin
 

@@ -10,6 +10,7 @@ Single hub: [GhostCrab MCP — explications (architecture + lab)](explanation/RE
 - [LinkML/OWL2 ontologies](explanation/ontology/README.md)
 - [Operator catalog — `gcp` + MCP tools](reference/operator-catalog.md)
 - [MCP tools reference — generated runtime catalog](reference/mcp-tools.md)
+- [Projection discovery — `ghostcrab_projections_list`](reference/projections-discovery.md)
 
 | Chapitre | Document |
 |----------|----------|
