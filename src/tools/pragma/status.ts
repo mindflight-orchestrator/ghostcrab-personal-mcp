@@ -10,6 +10,10 @@ import { resolveGhostcrabConfig } from "../../config/env.js";
 import { probeMindbrainCapabilities } from "../../db/standalone-mindbrain.js";
 import { isFactsFtsReady } from "../../runtime/facets-fts-state.js";
 import {
+  GHOSTCRAB_MCP_SURFACE_VERSION,
+  getPackageVersion
+} from "../../version.js";
+import {
   createToolSuccessResult,
   registerTool,
   type ToolHandler
@@ -190,8 +194,19 @@ export const statusTool: ToolHandler = {
         ? embeddingsStatus
         : null;
 
+    const ghostcrabPackageVersion = await getPackageVersion();
+
     return createToolSuccessResult("ghostcrab_status", {
       preamble: buildStatusPreamble(),
+      versions: {
+        ghostcrab_package: ghostcrabPackageVersion,
+        mcp_surface: GHOSTCRAB_MCP_SURFACE_VERSION,
+        mindbrain:
+          capabilityProbe.ok &&
+          typeof capabilityProbe.capabilities.mindbrain_version === "string"
+            ? capabilityProbe.capabilities.mindbrain_version
+            : null
+      },
       agent_id: input.agent_id,
       snapshot_at: new Date().toISOString(),
       active_workspace_id: context.session.workspace_id,

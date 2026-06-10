@@ -1,6 +1,6 @@
 # MCP permission templates
 
-Generated reference for preset **`basic`** (12 recommended GhostCrab tools).
+Generated reference for preset **`basic`** (13 recommended GhostCrab tools).
 
 Regenerate live output:
 
@@ -21,6 +21,7 @@ gcp brain permissions print --preset basic --client all
       "mcp__ghostcrab-personal-mcp__ghostcrab_combined_search",
       "mcp__ghostcrab-personal-mcp__ghostcrab_remember",
       "mcp__ghostcrab-personal-mcp__ghostcrab_upsert",
+      "mcp__ghostcrab-personal-mcp__ghostcrab_schema_get",
       "mcp__ghostcrab-personal-mcp__ghostcrab_schema_list",
       "mcp__ghostcrab-personal-mcp__ghostcrab_schema_inspect",
       "mcp__ghostcrab-personal-mcp__ghostcrab_pack",
@@ -43,6 +44,7 @@ gcp brain permissions print --preset basic --client all
     "ghostcrab-personal-mcp:ghostcrab_combined_search",
     "ghostcrab-personal-mcp:ghostcrab_remember",
     "ghostcrab-personal-mcp:ghostcrab_upsert",
+    "ghostcrab-personal-mcp:ghostcrab_schema_get",
     "ghostcrab-personal-mcp:ghostcrab_schema_list",
     "ghostcrab-personal-mcp:ghostcrab_schema_inspect",
     "ghostcrab-personal-mcp:ghostcrab_pack",
