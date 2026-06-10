@@ -46,6 +46,11 @@ switch (cmd) {
     await runServe(rest);
     break;
   }
+  case "down": {
+    const { cmdBrainDown } = await import("./commands/brain-down.mjs");
+    await cmdBrainDown(rest);
+    break;
+  }
   case "smoke":
   case "status":
   case "tools":
@@ -126,6 +131,7 @@ Info:
 
 ── JTBD (recommended) ──
   brain up [--workspace <id>]       Start MindBrain (Zig) + MCP on stdio
+  brain down [--all]                Stop the MindBrain backend (current DB or all)
   smoke                            Read-only backend/tool registration check
   status                           Read-only operational snapshot
   tools list                       List MCP tools (recommended + full catalog metadata)
@@ -152,6 +158,7 @@ Info:
   env path
 
   gcp up | gcp start              Same as  gcp brain up
+  gcp down                        Same as  gcp brain down
 
 ── Legacy (same behavior) ──
   serve, init, config, ontologies, skills, load, authorize, bootstrap, path

@@ -22,6 +22,12 @@ export async function cmdBrain(args) {
       await runServe(rest);
       break;
     }
+    case "down":
+    case "stop": {
+      const { cmdBrainDown } = await import("./brain-down.mjs");
+      await cmdBrainDown(rest);
+      break;
+    }
     case "workspace": {
       await cmdBrainWorkspace(rest);
       break;
@@ -348,7 +354,7 @@ async function cmdBrainSetup(args) {
  * @param {string[]} args
  * @returns {"help" | { error: string } | { target: string, runner: string, package: string | null, workspace: string | null, dbPath: string | null, serverName: string | null, dryRun: boolean, force: boolean, extraEnv: Record<string, string>, scope: "local" | "user" | "project", skillsScope: "user" | "project" } }
  */
-function parseSetupArgs(args) {
+export function parseSetupArgs(args) {
   if (args[0] === "--help" || args[0] === "-h") {
     return "help";
   }
@@ -525,8 +531,18 @@ function parseSetupArgs(args) {
     out.permissionsScope = "project";
   }
 
+  // Bake an explicit logical workspace pin into the MCP launch env so every IDE
+  // starts on the same workspace_id. Precedence: --mindbrain-workspace-id,
+  // then --workspace, then the configured default workspace.
   if (out.mindbrainWorkspaceId) {
     out.extraEnv.GHOSTCRAB_ACTIVE_WORKSPACE_ID = out.mindbrainWorkspaceId;
+  } else if (out.workspace && !out.extraEnv.GHOSTCRAB_ACTIVE_WORKSPACE_ID) {
+    out.extraEnv.GHOSTCRAB_ACTIVE_WORKSPACE_ID = out.workspace;
+  } else if (!out.extraEnv.GHOSTCRAB_ACTIVE_WORKSPACE_ID) {
+    const defaultWorkspace = readConfig().defaultWorkspace;
+    if (defaultWorkspace) {
+      out.extraEnv.GHOSTCRAB_ACTIVE_WORKSPACE_ID = defaultWorkspace;
+    }
   }
 
   if (!["gcp", "pnpm", "npx", "node", "auto"].includes(out.runner)) {
@@ -790,6 +806,8 @@ MindBrain (storage + native ontologies) — start the Zig backend, isolate memor
 Subcommands:
   up [--workspace <id>] [--db <path>|--default] [--install-skills]
                                            Start MindBrain backend + MCP on stdio
+  down [--db <path>|--default] [--all]    Stop the MindBrain backend (current DB)
+                                           or every GhostCrab process (--all)
   workspace create [name]                 Register a workspace & data paths
   workspace list                          List workspaces
   schema <list|pull|remove|show>           Local schema packs from the registry/cache
@@ -812,6 +830,8 @@ Subcommands:
 Examples:
   gcp brain up --workspace my-app
   gcp brain up --default
+  gcp brain down
+  gcp brain down --all
   gcp brain workspace create my-app
   gcp brain schema pull mindflight/mindbrain
   gcp brain ontology import --workspace-id my_ws --ontology-id my_ws::owl --input ./ontology.nt --materialize-graph

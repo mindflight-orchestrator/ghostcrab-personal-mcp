@@ -65,4 +65,27 @@ describe("resolveInitialSessionContext", () => {
     expect(result.resolved_workspace_id).toBe("default");
     expect(result.pin_status).toBe("unresolved");
   });
+
+  it("prefers the env pin over the cli slug when both resolve", async () => {
+    const result = await resolveInitialSessionContext({
+      activeWorkspaceIdFromEnv: "serenity-coproprietes",
+      cliWorkspaceName: "other",
+      database: mockDatabase(["default", "serenity-coproprietes", "other"])
+    });
+    expect(result.resolved_workspace_id).toBe("serenity-coproprietes");
+    expect(result.pin_source).toBe("env");
+    expect(result.pin_status).toBe("resolved");
+  });
+
+  it("resolves a registered workspace_id so facts under it are not orphaned to default", async () => {
+    // Reproduces the original failure mode: facts live under
+    // "serenity-coproprietes" and the registry row now exists, so the pin holds.
+    const result = await resolveInitialSessionContext({
+      activeWorkspaceIdFromEnv: "serenity-coproprietes",
+      database: mockDatabase(["default", "serenity-coproprietes"])
+    });
+    expect(result.resolved_workspace_id).toBe("serenity-coproprietes");
+    expect(result.pin_status).toBe("resolved");
+    expect(getSessionContext().workspace_id).toBe("serenity-coproprietes");
+  });
 });

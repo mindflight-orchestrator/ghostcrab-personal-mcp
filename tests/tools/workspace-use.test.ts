@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
+  getSessionContext,
   getSessionPinMetadata,
   resetSessionContext,
   setSessionPinMetadata
@@ -56,5 +57,53 @@ describe("ghostcrab_workspace_use", () => {
     expect(getSessionPinMetadata().workspace_switched_at).toBeTruthy();
     const directives = buildWorkspaceContextDirectives();
     expect(directives.some((d) => d.includes("other-ws"))).toBe(true);
+  });
+
+  it("switches to another workspace and back to the pinned default", async () => {
+    setSessionPinMetadata({
+      source: "env",
+      requested_workspace_id: "default",
+      resolved_workspace_id: "default",
+      pinned_workspace_id: "default",
+      pin_status: "resolved",
+      cli_workspace_name: null
+    });
+
+    const ctx = mockCtx(["default", "serenity-coproprietes"]);
+
+    const switched = await workspaceUseTool.handler(
+      { workspace_id: "serenity-coproprietes" },
+      ctx
+    );
+    expect(switched.isError).toBeFalsy();
+    expect(getSessionContext().workspace_id).toBe("serenity-coproprietes");
+
+    const back = await workspaceUseTool.handler(
+      { workspace_id: "default" },
+      ctx
+    );
+    expect(back.isError).toBeFalsy();
+    expect(getSessionContext().workspace_id).toBe("default");
+  });
+
+  it("keeps the schema filter when only the workspace switches, then back", async () => {
+    const ctx = mockCtx(["default", "serenity-coproprietes"]);
+
+    await workspaceUseTool.handler(
+      { workspace_id: "default", schema_id: "ghostcrab:task" },
+      ctx
+    );
+    expect(getSessionContext().schema_id).toBe("ghostcrab:task");
+
+    await workspaceUseTool.handler(
+      { workspace_id: "serenity-coproprietes" },
+      ctx
+    );
+    expect(getSessionContext().workspace_id).toBe("serenity-coproprietes");
+    expect(getSessionContext().schema_id).toBe("ghostcrab:task");
+
+    await workspaceUseTool.handler({ workspace_id: "default" }, ctx);
+    expect(getSessionContext().workspace_id).toBe("default");
+    expect(getSessionContext().schema_id).toBe("ghostcrab:task");
   });
 });

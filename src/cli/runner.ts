@@ -188,7 +188,8 @@ async function runSmoke(argv: string[]): Promise<void> {
   const verbose = argv.includes("--verbose") || argv.includes("-v");
   registerAllTools();
   const tools = listRegisteredTools();
-  const basicTools = listBasicRegisteredTools(tools);
+  const listedTools = listAllRegisteredToolsForMcp(tools);
+  const recommendedTools = listBasicRegisteredTools(tools);
   const version = await getPackageVersion();
 
   let cleanup: (() => Promise<void>) | undefined;
@@ -208,7 +209,8 @@ async function runSmoke(argv: string[]): Promise<void> {
         version,
         backend_reachable: true,
         registered_tools: tools.length,
-        listed_by_default: basicTools.map((tool) => tool.name),
+        listed_by_default: listedTools.map((tool) => tool.name),
+        recommended_default_tools: recommendedTools.map((tool) => tool.name),
         status_ok: exitCode === 0,
         status_tool: status.tool ?? null
       })}\n`
@@ -225,7 +227,8 @@ async function runSmoke(argv: string[]): Promise<void> {
         version,
         backend_reachable: false,
         registered_tools: tools.length,
-        listed_by_default: basicTools.map((tool) => tool.name),
+        listed_by_default: listedTools.map((tool) => tool.name),
+        recommended_default_tools: recommendedTools.map((tool) => tool.name),
         error: {
           code: "smoke_failed",
           message: error instanceof Error ? error.message : String(error)
@@ -507,16 +510,19 @@ export async function runCli(argv: string[]): Promise<void> {
   if (firstArg === "tools" && argv[1] === "list") {
     registerAllTools();
     const tools = listRegisteredTools();
-    const basicTools = listBasicRegisteredTools(tools);
+    const listedTools = listAllRegisteredToolsForMcp(tools);
+    const recommendedTools = listBasicRegisteredTools(tools);
     const toolCatalog = buildToolCatalog(tools);
     const manifest = getExpectedToolManifest();
     const output = {
       ok: true,
-      recommended_default_tools: basicTools.map((t) => t.name),
-      listed_by_default: basicTools.map((t) => t.name),
+      // tools/list now returns the full catalog; "recommended" is a curated
+      // subset surfaced via titles and ghostcrab_tool_search.
+      recommended_default_tools: recommendedTools.map((t) => t.name),
+      listed_by_default: listedTools.map((t) => t.name),
       full_catalog_size: tools.length,
-      mcp_list_size: basicTools.length,
-      all_tools: listAllRegisteredToolsForMcp(tools).map((t) => ({
+      mcp_list_size: listedTools.length,
+      all_tools: listedTools.map((t) => ({
         name: t.name,
         description: t.description,
         title: t.title ?? null,
@@ -524,13 +530,13 @@ export async function runCli(argv: string[]): Promise<void> {
           t.title === "GhostCrab recommended default" ? "basic" : "extended",
         cli_command: cliLabelForMcpTool(t.name)
       })),
-      tools: basicTools.map((t) => ({
+      tools: listedTools.map((t) => ({
         name: t.name,
         description: t.description,
         inputSchema: t.inputSchema,
         cli_command: cliLabelForMcpTool(t.name)
       })),
-      hidden_tools: toolCatalog
+      extended_tools: toolCatalog
         .filter((tool) => tool.visibility === "extended")
         .map((tool) => ({
           name: tool.name,

@@ -287,7 +287,7 @@ function copySqliteWithSidecars(dbPath, backupPath) {
   }
 }
 
-function listGhostcrabProcesses(io = {}) {
+export function listGhostcrabProcesses(io = {}) {
   const spawnSyncFn = io.spawnSync ?? spawnSync;
   if (process.platform === "win32") {
     return listWindowsGhostcrabProcesses(spawnSyncFn);
@@ -354,7 +354,7 @@ function isGhostcrabProcess(proc) {
   );
 }
 
-function terminateGhostcrabProcesses(processes, io = {}) {
+export function terminateGhostcrabProcesses(processes, io = {}) {
   const spawnSyncFn = io.spawnSync ?? spawnSync;
   const out = [];
   for (const p of processes) {

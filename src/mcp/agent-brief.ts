@@ -94,7 +94,7 @@ ${NON_GOAL_LINE}
 | Model     | \`project\` |
 | Guide     | \`modeling_guidance\` — natural-language domain goals |
 
-The MCP \`tools/list\` surface is intentionally compact: **recommended defaults** for routine work. The remaining tools are **extended** — not listed by default, but still **directly invocable by name** once discovered. Use \`ghostcrab_tool_search\` to browse or filter the full catalog (workspace, graph, loadout, DDL, and more).
+The MCP \`tools/list\` surface exposes the **full GhostCrab catalog**: every tool is listed and **directly callable by name** on any MCP client. A curated subset is flagged as **recommended defaults** for routine work; the rest are **extended** (workspace, graph, loadout, DDL, and more). Use \`ghostcrab_tool_search\` to filter the catalog by domain or access.
 
 ## First-call checklist
 
@@ -210,7 +210,7 @@ export function buildMcpInstructions(params: McpInstructionsParams): string {
     `  Model — project\n` +
     `  Guide — modeling_guidance (natural-language domain goals)\n` +
     `  Bootstrap — status (call first)\n\n` +
-    `The MCP tools/list surface is intentionally compact: ${listedToolCount} recommended defaults for routine work. All ${extendedToolCount} registered tools remain directly invocable by name — use ghostcrab_tool_search to discover extended tools (workspace, graph, loadout, DDL, and more).\n\n` +
-    `Backend: ${backendUrlRedacted}. Backend is reachable. ${listedToolCount} tools are listed by default; ${extendedToolCount} tools are registered in the full catalog.`
+    `The MCP tools/list surface exposes the full GhostCrab catalog: all ${listedToolCount} tools are listed and directly callable by name (${extendedToolCount} are flagged as recommended defaults for routine work). Use ghostcrab_tool_search to filter the catalog by domain or access (workspace, graph, loadout, DDL, and more).\n\n` +
+    `Backend: ${backendUrlRedacted}. Backend is reachable. ${listedToolCount} tools are listed in tools/list.`
   );
 }
