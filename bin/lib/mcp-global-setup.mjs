@@ -17,6 +17,7 @@ import { homedir } from "node:os";
 import { dirname, join, delimiter } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { resolveRuntimeNodePath } from "./runtime-node.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const PKG_ROOT = join(__dirname, "..", "..");
@@ -180,7 +181,7 @@ export function buildMcpLaunch({
     // Re-run "gcp brain setup cursor --force" after a Node version upgrade to refresh.
     return {
       runner: "node",
-      command: process.execPath,
+      command: resolveRuntimeNodePath(),
       args: [target, "brain", "up", ...commonArgs]
     };
   }
@@ -223,7 +224,7 @@ export function buildMcpLaunch({
       // Same reasoning as the explicit "node" runner: use the system node absolute path.
       return {
         runner: "node",
-        command: process.execPath,
+        command: resolveRuntimeNodePath(),
         args: [localGcpMjs, "brain", "up", ...commonArgs]
       };
     }

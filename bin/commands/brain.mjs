@@ -169,6 +169,16 @@ async function cmdBrainSetup(args) {
     PKG_ROOT
   } = await import("../lib/mcp-global-setup.mjs");
 
+  const { formatCliInvocationWarnings } =
+    await import("../lib/cli-invocation.mjs");
+  for (const line of formatCliInvocationWarnings({
+    pkgRoot: PKG_ROOT,
+    cwd: process.cwd(),
+    subcommand: `brain setup ${p.target}${p.force ? " --force" : ""}`
+  })) {
+    console.error(line);
+  }
+
   let packageName = p.package;
   if (!packageName) {
     try {

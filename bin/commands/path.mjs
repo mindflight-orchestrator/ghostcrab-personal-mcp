@@ -9,6 +9,7 @@ import {
   installPathShim,
   runPathDoctor
 } from "../lib/path-shim.mjs";
+import { auditCliInvocation, formatGcpCommand } from "../lib/cli-invocation.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(__dirname, "..", "..");
@@ -104,13 +105,27 @@ function runPathPrint(rest) {
 
 async function runPathDoctorCmd() {
   const report = await runPathDoctor(pkgRoot);
+  const audit = auditCliInvocation({ pkgRoot, cwd: process.cwd() });
   const lines = [
     `gcp on PATH: ${report.gcpOnPath ? "yes" : "no"}`,
     `shim exists: ${report.shimExists ? "yes" : "no"} (${report.shimPath})`,
     `~/.ghostcrab/bin on PATH: ${report.binDirOnPath ? "yes" : "no"}`,
-    `ghostcrab-document: ${report.documentOk ? "yes" : "missing"}${report.documentPath ? ` (${report.documentPath})` : ""}`
+    `ghostcrab-document: ${report.documentOk ? "yes" : "missing"}${report.documentPath ? ` (${report.documentPath})` : ""}`,
+    `install kind: ${audit.installKind}`,
+    `running version: ${audit.runningVersion ?? "unknown"}`
   ];
   console.log(lines.join("\n"));
+
+  if (!audit.ok) {
+    console.error("\n[ghostcrab] Install issues detected:");
+    for (const issue of audit.issues) {
+      console.error(`  - ${issue}`);
+    }
+    console.error(`  Recommended: ${formatGcpCommand("brain setup cursor --force")}`);
+    for (const fix of audit.fixes) {
+      console.error(`  Fix: ${fix}`);
+    }
+  }
 
   if (!report.gcpOnPath && !report.binDirOnPath) {
     console.error("\n[ghostcrab] Run: gcp path install --write-profile");

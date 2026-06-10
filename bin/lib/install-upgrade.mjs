@@ -16,6 +16,7 @@ import {
 } from "./prebuild-permissions.mjs";
 import { resolveGhostcrabSqlite } from "./resolve-ghostcrab-sqlite.mjs";
 import { parsePidFile } from "./backend-pid.mjs";
+import { resolveRuntimeNodePath } from "./runtime-node.mjs";
 
 const SERVER_KEY = "ghostcrab-personal-mcp";
 const PACKAGE_NAME = "@mindflight/ghostcrab-personal-mcp";
@@ -501,7 +502,7 @@ function cleanCursorMcpConfig(opts) {
     const gcpMjs = join(opts.pkgRoot, "bin", "gcp.mjs");
     servers[SERVER_KEY] = {
       type: "stdio",
-      command: process.execPath,
+      command: resolveRuntimeNodePath(),
       args: [
         gcpMjs,
         "brain",
@@ -590,7 +591,7 @@ function formatCodexBlock(pkgRoot, dbPath) {
   ];
   return [
     `[mcp_servers.${SERVER_KEY}]`,
-    `command = ${JSON.stringify(process.execPath)}`,
+    `command = ${JSON.stringify(resolveRuntimeNodePath())}`,
     `args = [${args.map((arg) => JSON.stringify(arg)).join(", ")}]`,
     "",
     `[mcp_servers.${SERVER_KEY}.env]`,

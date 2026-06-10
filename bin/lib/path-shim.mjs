@@ -13,6 +13,7 @@ import {
 import { homedir } from "node:os";
 import { delimiter, join, resolve } from "node:path";
 import { findOnPath } from "./mcp-global-setup.mjs";
+import { resolveRuntimeNodePath } from "./runtime-node.mjs";
 
 export const SHIM_MARKER = "# ghostcrab-path-shim";
 
@@ -161,7 +162,7 @@ export function isGhostcrabBinOnPath(binDir = getGhostcrabBinDir()) {
 export function installPathShim(opts) {
   const binDir = getGhostcrabBinDir();
   const gcpMjsPath = resolveGcpMjsPath(opts.pkgRoot);
-  const nodePath = opts.nodePath ?? process.execPath;
+  const nodePath = opts.nodePath ?? resolveRuntimeNodePath();
   const shell = detectShellKind();
   const snippet = getPathSnippet(shell, binDir);
   const profilePath = resolveProfilePath(binDir);

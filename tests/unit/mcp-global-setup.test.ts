@@ -18,6 +18,7 @@ import {
   runSetupClaude,
   runSetupCodex
 } from "../../bin/lib/mcp-global-setup.mjs";
+import { resolveRuntimeNodePath } from "../../bin/lib/runtime-node.mjs";
 
 const SERVER_KEY = "ghostcrab-personal-mcp";
 
@@ -119,7 +120,7 @@ describe("mcp-global-setup", () => {
       cwd: cleanCwd
     });
     expect(l.runner).toBe("node");
-    expect(l.command).toBe(process.execPath);
+    expect(l.command).toBe(resolveRuntimeNodePath());
     expect(l.args).toEqual([gcpMjs, "brain", "up"]);
   });
 
