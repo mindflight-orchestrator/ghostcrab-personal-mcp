@@ -93,7 +93,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 
 ---
 
-## B — MCP tools (62 registered)
+## B — MCP tools (63 registered)
 
 | Tool | Basic | Subsystem | Access | Tables / impact |
 |------|-------|-----------|--------|-----------------|
@@ -133,6 +133,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | `ghostcrab_pack` | yes | pragma | read | projections + agent_facts |
 | `ghostcrab_project` | yes | pragma | model | projections |
 | `ghostcrab_projection_get` | no | pragma | model | graph_entity (ProjectionResult) |
+| `ghostcrab_projections_list` | no | pragma | read | mindbrain_answer_artifacts, graph_entity (ProjectionResult) |
 | `ghostcrab_quality_convergence_get` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_quality_convergence_list` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_quality_convergence_run` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |

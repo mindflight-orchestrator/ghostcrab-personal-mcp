@@ -62,6 +62,10 @@ import {
   projectionGetTool,
   ProjectionGetInput
 } from "../../src/tools/pragma/projection-get.js";
+import {
+  projectionsListTool,
+  ProjectionsListInput
+} from "../../src/tools/pragma/projections-list.js";
 import { statusTool, StatusInput } from "../../src/tools/pragma/status.js";
 import {
   toolSearchTool,
@@ -712,6 +716,25 @@ describe("MCP inputSchema contract (drift guard)", () => {
       expect(PackInput.safeParse({ query: "  " }).success).toBe(false);
       expect(
         PackInput.safeParse({ query: "sprint status", limit: 10 }).success
+      ).toBe(true);
+    });
+  });
+
+  describe("ghostcrab_projections_list", () => {
+    const schema = projectionsListTool.definition.inputSchema as {
+      properties: {
+        include_graph: { default?: boolean };
+        kind: { enum?: string[] };
+      };
+    };
+
+    it("defaults include_graph and accepts workspace-only calls", () => {
+      expect(schema.properties.include_graph.default).toBe(true);
+      expect(schema.properties.kind.enum).toEqual(
+        expect.arrayContaining(["analysis_plan", "graph"])
+      );
+      expect(
+        ProjectionsListInput.parse({ workspace_id: "ws_demo" }).include_graph
       ).toBe(true);
     });
   });
