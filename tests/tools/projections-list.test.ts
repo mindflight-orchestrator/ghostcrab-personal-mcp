@@ -126,6 +126,8 @@ describe("ghostcrab_projections_list", () => {
     expect(projections[2]?.suggested_tools).toEqual([
       "ghostcrab_projection_get"
     ]);
+    const notes = body.notes as string[];
+    expect(notes.some((note) => note.includes("suggested_tools"))).toBe(true);
   });
 
   it("returns missing_workspace when session and input omit workspace_id", async () => {

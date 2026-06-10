@@ -1241,6 +1241,12 @@ describe("dgraph tools", () => {
     const query = vi.fn(async (sql: string) => {
       sqlCalls.push(sql);
 
+      if (sql.includes("AS next_id") && sql.includes("graph_entity")) {
+        return [{ next_id: 2 }];
+      }
+      if (sql.includes("AS next_id") && sql.includes("graph_relation")) {
+        return [{ next_id: 5 }];
+      }
       if (sql.includes("INSERT INTO graph_entity")) return [];
       if (sql.includes("INSERT OR IGNORE INTO graph_entity_alias")) return [];
       if (
@@ -1310,17 +1316,26 @@ describe("dgraph tools", () => {
     expect(
       sqlCalls.some((s) => s.includes("INSERT INTO graph_relation_property"))
     ).toBe(true);
-    expect(sqlCalls.some((s) => s.includes("COALESCE(MAX(relation_id)"))).toBe(
-      false
-    );
+    expect(
+      sqlCalls.some(
+        (s) => s.includes("AS next_id") && s.includes("graph_relation")
+      )
+    ).toBe(true);
   });
 
-  it("creates distinct edges after an unsafe 64-bit relation id without JS number allocation", async () => {
+  it("allocates safe relation ids when legacy rows exceed JS safe integer range", async () => {
     const sqlCalls: string[] = [];
-    const createdRelationIds = ["9162202066626072001", "9162202066626072002"];
+    let allocatedRelationId = 0;
     const query = vi.fn(async (sql: string, params?: readonly unknown[]) => {
       sqlCalls.push(sql);
 
+      if (sql.includes("AS next_id") && sql.includes("graph_entity")) {
+        return [{ next_id: 1 }];
+      }
+      if (sql.includes("AS next_id") && sql.includes("graph_relation")) {
+        allocatedRelationId += 1;
+        return [{ next_id: allocatedRelationId }];
+      }
       if (sql.includes("INSERT INTO graph_entity")) return [];
       if (sql.includes("INSERT OR IGNORE INTO graph_entity_alias")) return [];
       if (
@@ -1345,7 +1360,7 @@ describe("dgraph tools", () => {
       }
       if (sql.includes("INSERT INTO graph_relation")) return [];
       if (sql.includes("ORDER BY relation_id DESC")) {
-        return [{ relation_id: createdRelationIds.shift() }];
+        return [{ relation_id: String(allocatedRelationId) }];
       }
       if (sql.includes("INSERT INTO workspaces")) return [];
       if (sql.includes("INSERT INTO ontologies")) return [];
@@ -1379,12 +1394,14 @@ describe("dgraph tools", () => {
 
     const firstEdge = readStructured(first).edge as Record<string, unknown>;
     const secondEdge = readStructured(second).edge as Record<string, unknown>;
-    expect(firstEdge.id).toBe("9162202066626072001");
-    expect(secondEdge.id).toBe("9162202066626072002");
+    expect(firstEdge.id).toBe("1");
+    expect(secondEdge.id).toBe("2");
     expect(firstEdge.id).not.toBe(secondEdge.id);
-    expect(sqlCalls.some((s) => s.includes("COALESCE(MAX(relation_id)"))).toBe(
-      false
-    );
+    expect(
+      sqlCalls.some(
+        (s) => s.includes("AS next_id") && s.includes("graph_relation")
+      )
+    ).toBe(true);
   });
 
   it("updates an existing edge with relation_properties and issues UPDATE + raw property upsert", async () => {

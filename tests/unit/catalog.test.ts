@@ -89,4 +89,9 @@ describe("tool catalog", () => {
       expect(classifyToolAccess(name)).toBe("write");
     }
   });
+
+  it("classifies ghostcrab_projections_list as read despite _projections prefix", () => {
+    expect(classifyToolAccess("ghostcrab_projections_list")).toBe("read");
+    expect(classifyToolAccess("ghostcrab_projection_get")).toBe("model");
+  });
 });
