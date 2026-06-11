@@ -19,6 +19,7 @@ import { resolveGhostcrabSqlite } from "../../bin/lib/resolve-ghostcrab-sqlite.m
 import type { DatabaseClient } from "../../src/db/client.js";
 import { collectionReindexTool } from "../../src/tools/dgraph/collection-reindex.js";
 import { graphReindexTool } from "../../src/tools/dgraph/graph-reindex.js";
+import { workspaceReindexAllTool } from "../../src/tools/dgraph/workspace-reindex-all.js";
 import { graphSearchTool } from "../../src/tools/dgraph/graph-search.js";
 import { learnTool } from "../../src/tools/dgraph/learn.js";
 import { traverseTool } from "../../src/tools/dgraph/traverse.js";
@@ -473,6 +474,37 @@ describeIfSqliteFile("immeuble-demo import → reindex → MCP coherence", () =>
     expect(facetStructured.ok).toBe(true);
     expect(facetStructured.source).toBe("facet_postings");
     expect(facetStructured.returned).toBeGreaterThan(0);
+  });
+
+  it("ghostcrab_reindex_all rebuilds workspace collection indexes", async (ctx) => {
+    skipUnlessBackendAligned(ctx);
+
+    const result = await workspaceReindexAllTool.handler(
+      { workspace_id: WS_ID, scope: "all" },
+      toolContext(harness.database)
+    );
+    const structured = readStructured(result);
+
+    expect(structured.ok).toBe(true);
+    expect(structured.workspace_id).toBe(WS_ID);
+    expect(structured.graph_only_fallback).toBe(false);
+
+    const collections = structured.collections_reindexed as Array<{
+      collection_id: string;
+      table_id: number;
+      ok: boolean;
+      bm25_documents?: number;
+      facet_assignments?: number;
+      graph_projected?: number;
+    }>;
+    expect(collections.length).toBeGreaterThanOrEqual(1);
+    expect(collections.some((row) => row.collection_id === COLL_ID)).toBe(true);
+    const primary = collections.find((row) => row.collection_id === COLL_ID);
+    expect(primary?.ok).toBe(true);
+    expect(primary?.bm25_documents).toBeGreaterThan(0);
+    expect(primary?.facet_assignments).toBeGreaterThan(0);
+    expect(primary?.graph_projected).toBeGreaterThan(0);
+    expect(structured.agent_facts_fts).toBeTruthy();
   });
 
   it("ghostcrab_traverse walks contains edges from the building", async (ctx) => {

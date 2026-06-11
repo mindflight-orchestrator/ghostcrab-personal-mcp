@@ -17,6 +17,7 @@ import {
 import { resolveGhostcrabSqlite } from "./resolve-ghostcrab-sqlite.mjs";
 import { parsePidFile } from "./backend-pid.mjs";
 import { resolveRuntimeNodePath } from "./runtime-node.mjs";
+import { readSchemaMigrations } from "./sqlite-file-count.mjs";
 
 const SERVER_KEY = "ghostcrab-personal-mcp";
 const PACKAGE_NAME = "@mindflight/ghostcrab-personal-mcp";
@@ -111,6 +112,7 @@ export async function runInstallUpgrade(options) {
     };
     if (status.exists) {
       dbReport.backup = buildBackupPath(dbPath, backupDir, currentVersion, now);
+      const migrationsBefore = readSchemaMigrations(dbPath);
       if (!options.dryRun) {
         copySqliteWithSidecars(dbPath, dbReport.backup);
       }
@@ -118,12 +120,33 @@ export async function runInstallUpgrade(options) {
         dryRun: options.dryRun,
         io: options.io
       });
+      const migrationsAfter =
+        !options.dryRun && migration.ok
+          ? readSchemaMigrations(dbPath)
+          : migrationsBefore;
+      const appliedThisRun = diffSchemaMigrations(
+        migrationsBefore,
+        migrationsAfter
+      );
       dbReport.migration = options.dryRun
         ? "would-apply"
         : migration.ok
-          ? "applied"
+          ? appliedThisRun.length > 0
+            ? "applied"
+            : "up-to-date"
           : "failed";
-      report.migrations.push({ db: dbPath, ...migration });
+      dbReport.migrationsBefore = migrationsBefore;
+      dbReport.migrationsAfter = migrationsAfter;
+      dbReport.appliedThisRun = appliedThisRun;
+      dbReport.schemaStatus = migration.schemaStatus ?? null;
+      dbReport.migrationLogs = migration.stderrLines ?? [];
+      report.migrations.push({
+        db: dbPath,
+        ...migration,
+        before: migrationsBefore,
+        after: migrationsAfter,
+        appliedThisRun
+      });
       if (!migration.ok) {
         report.ok = false;
         report.errors.push(
@@ -183,13 +206,103 @@ export function printUpgradeReport(report, out = console.log) {
     out(`    exists: ${db.exists}`);
     if (db.backup) out(`    backup: ${db.backup}`);
     out(`    migration: ${db.migration}`);
+    printSchemaMigrationDetails(db, out);
   }
   for (const cfg of report.configs) {
     out(
       `  config ${cfg.kind}: ${cfg.status}${cfg.path ? ` (${cfg.path})` : ""}`
     );
+    if (cfg.removed?.length) {
+      out(`    removed entries: ${cfg.removed.join(", ")}`);
+    }
+    if (cfg.message) out(`    note: ${cfg.message}`);
   }
   for (const err of report.errors) out(`  error: ${err}`);
+}
+
+/**
+ * @param {object} db
+ * @param {(line: string) => void} out
+ */
+function printSchemaMigrationDetails(db, out) {
+  if (!db.exists) return;
+
+  const before = db.migrationsBefore;
+  const after = db.migrationsAfter;
+  const applied = db.appliedThisRun ?? [];
+
+  if (before === null && after === null) {
+    out(
+      "    schema migrations: unavailable (node:sqlite required or database unreadable)"
+    );
+    return;
+  }
+
+  if (db.migration === "would-apply") {
+    const count = before?.length ?? 0;
+    out(
+      `    schema migrations on disk: ${count}${count === 1 ? " migration" : " migrations"}`
+    );
+    out(
+      "    would start native backend once to apply any pending MindBrain schema migrations"
+    );
+    if (before?.length) {
+      for (const row of before) {
+        out(`      - ${row.id}`);
+      }
+    }
+    return;
+  }
+
+  if (applied.length > 0) {
+    out(`    migrations applied this run (${applied.length}):`);
+    for (const row of applied) {
+      const when = row.appliedAt ? ` @ ${row.appliedAt}` : "";
+      out(`      + ${row.id}${when}`);
+    }
+  } else if (db.migration === "up-to-date") {
+    out("    migrations applied this run: none (schema already up to date)");
+  } else if (db.migration === "failed") {
+    out("    migrations applied this run: none (backend migration step failed)");
+  }
+
+  const total = after?.length ?? before?.length ?? 0;
+  out(
+    `    schema migrations on disk: ${total}${total === 1 ? " migration" : " migrations"}`
+  );
+  for (const row of after ?? before ?? []) {
+    out(`      - ${row.id}`);
+  }
+
+  if (db.schemaStatus) {
+    const status = db.schemaStatus;
+    out(`    mindbrain version: ${status.mindbrain_version ?? "unknown"}`);
+    out(`    schema tables: ${status.schema_tables_count ?? "unknown"}`);
+    const missing = status.missing_columns ?? [];
+    if (missing.length === 0) {
+      out("    missing columns: none");
+    } else {
+      out(`    missing columns (${missing.length}):`);
+      for (const col of missing) {
+        out(`      - ${col.table}.${col.column}`);
+      }
+    }
+  }
+
+  for (const line of db.migrationLogs ?? []) {
+    if (line.includes("[mindbrain]")) out(`    ${line}`);
+  }
+}
+
+/**
+ * @param {import("./sqlite-file-count.mjs").SchemaMigrationRow[] | null} before
+ * @param {import("./sqlite-file-count.mjs").SchemaMigrationRow[] | null} after
+ * @returns {import("./sqlite-file-count.mjs").SchemaMigrationRow[]}
+ */
+export function diffSchemaMigrations(before, after) {
+  if (!after) return [];
+  const beforeIds = new Set((before ?? []).map((row) => row.id));
+  return after.filter((row) => !beforeIds.has(row.id));
 }
 
 function readPackageVersion(pkgRoot) {
@@ -422,6 +535,7 @@ async function migrateViaBackend(pkgRoot, dbPath, opts) {
     /* stale or unreadable sidecar */
   }
 
+  const stderrLines = [];
   const child = (opts.io?.spawn ?? spawn)(backend.path, [], {
     env: {
       ...process.env,
@@ -429,19 +543,39 @@ async function migrateViaBackend(pkgRoot, dbPath, opts) {
       GHOSTCRAB_SQLITE_PATH: dbPath,
       GHOSTCRAB_WORKSPACE_NAME: "default"
     },
-    stdio: ["ignore", "ignore", "ignore"],
+    stdio: ["ignore", "ignore", "pipe"],
     detached: true
   });
+  child.stderr?.on("data", (chunk) => {
+    for (const line of chunk.toString("utf8").split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (trimmed) stderrLines.push(trimmed);
+    }
+  });
   child.unref?.();
-  const healthy = await waitForHealth(`http://127.0.0.1:${port}/health`, 15000);
+  const baseUrl = `http://127.0.0.1:${port}`;
+  const healthy = await waitForHealth(`${baseUrl}/health`, 15000);
+  const schemaStatus = healthy
+    ? await fetchSchemaStatus(`${baseUrl}/api/mindbrain/schema/status`)
+    : null;
   try {
     if (child.pid) process.kill(child.pid, "SIGTERM");
   } catch {
     /* process may already be gone */
   }
   return healthy
-    ? { ok: true, reason: "backend schema startup completed" }
-    : { ok: false, reason: "backend did not become healthy during migration" };
+    ? {
+        ok: true,
+        reason: "backend schema startup completed",
+        schemaStatus,
+        stderrLines
+      }
+    : {
+        ok: false,
+        reason: "backend did not become healthy during migration",
+        schemaStatus,
+        stderrLines
+      };
 }
 
 async function findFreePort(base, range) {
@@ -456,6 +590,16 @@ async function findFreePort(base, range) {
     if (free) return p;
   }
   throw new Error(`no free migration port in ${base}-${base + range - 1}`);
+}
+
+async function fetchSchemaStatus(url) {
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
 }
 
 async function waitForHealth(url, timeoutMs) {
@@ -607,6 +751,9 @@ Usage: gcp brain upgrade [options]
   Prepare an existing GhostCrab install for the current package version:
   stop GhostCrab MCP/backend processes, back up SQLite files, start the native
   backend once so its SQLite migrations run, and refresh known MCP config entries.
+
+  The report lists MindBrain schema migrations from mindbrain_schema_migrations:
+  which migrations were applied during this run, and the full set on disk.
 
 Options:
   --db <path>              Upgrade this SQLite file

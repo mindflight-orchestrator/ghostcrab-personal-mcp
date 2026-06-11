@@ -155,11 +155,22 @@ npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup codex
 npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup generic
 ```
 
-This writes the correct MCP entry using absolute paths where the client supports it, installs the complete GhostCrab skill bundle for that host, and removes any stale legacy `ghostcrab` entries for Cursor. `generic` prints MCP JSON/TOML snippets and installs portable `.agents/skills`.
+This registers the MCP server, installs the GhostCrab skill bundle + MCP permission presets for that host, and removes stale legacy `ghostcrab` entries for Cursor. `generic` prints MCP JSON/TOML snippets and installs portable `.agents/skills`.
+
+**Setup installs three things:** MCP registration, IDE skills + permissions, and the `~/.ghostcrab/bin` PATH shim. Skills and permissions are applied **even when MCP registration fails** (the command warns and exits non-zero so CI still notices). Verify skills with the log line `Installed IDE skill bundle (…)` — MCP alone is not enough.
+
+**Claude Code:** install the `claude` CLI on PATH before setup (`npm install -g @anthropic-ai/claude-code`). Prefer setup **without** `--force` on first install; use manual `claude mcp remove` if you need to replace an existing entry.
+
+**Skills only** (no MCP registration — repair after a partial install, or refresh skills without touching `mcp.json` / `claude mcp add`):
+
+```bash
+npx gcp brain setup_skills claude
+npx gcp brain setup_skills cursor --force   # overwrite existing skill files
+```
 
 After setup completes, open a **new terminal** so `~/.ghostcrab/bin/gcp` is on your PATH — then bare `gcp …` works for day-to-day use.
 
-More detail: [INSTALL.md](INSTALL.md) and [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) (`gcp brain setup --help`).
+More detail: [INSTALL.md](INSTALL.md) and [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) (`gcp brain setup --help`, `gcp brain setup_skills --help`).
 
 ### Step 4 — Start using it
 
@@ -187,12 +198,27 @@ To target a specific database:
 npx gcp brain upgrade --db /path/to/ghostcrab.sqlite
 ```
 
+The upgrade stops running GhostCrab processes, backs up each database under `~/.ghostcrab/backups/`, starts the native MindBrain backend once per database to apply schema changes, then prints a report. Look for lines such as:
+
+```
+  db: /path/to/ghostcrab.sqlite
+    migration: applied | up-to-date | failed
+    migrations applied this run (N):
+      + 2026-06-03-…
+    schema migrations on disk: N migrations
+      - …
+```
+
+`migration: up-to-date` means no pending MindBrain schema migrations were left to apply. `--dry-run` lists what would run without writing backups or starting the backend.
+
+**Schema evolution:** new tables are created automatically on startup (`CREATE IF NOT EXISTS`). Destructive or complex changes run as tracked migrations in `mindbrain_schema_migrations`. Upgrading an older database adds missing **tables** but does not yet add missing **columns** on tables that already existed — run `upgrade` before importing a backup from an older export if the target DB predates the release.
+
 Useful options:
 
 - `--default` uses `~/.ghostcrab/databases/ghostcrab.sqlite`
 - `--dry-run` shows what would be migrated, without writes
 - `--no-kill-mcp` skips stopping running GhostCrab processes
-- `--skip-config-cleanup` skips MCP config file refresh
+- `--skip-config-cleanup` skips MCP config file refresh (use when upgrading a client DB that is not your primary IDE database)
 
 You can also force package resolution:
 
@@ -200,17 +226,37 @@ You can also force package resolution:
 npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain upgrade
 ```
 
+### Restore a backup onto an upgraded database
+
+Backups are logical JSON bundles (`kind: ghostcrab_backup_bundle`), not raw SQLite dumps. To import an export from an older GhostCrab version onto a database at the current release:
+
+```bash
+# 1. Stop MCP / backend on the target DB
+gcp brain down --db /path/to/ghostcrab.sqlite
+
+# 2. Apply schema + MindBrain migrations
+gcp brain upgrade --db /path/to/ghostcrab.sqlite --skip-config-cleanup
+
+# 3. Preflight import (no writes)
+gcp brain load ./my_ws.backup.json --db /path/to/ghostcrab.sqlite --dry-run
+
+# 4. Import and rebuild derived indexes
+gcp brain load ./my_ws.backup.json --db /path/to/ghostcrab.sqlite --reindex all
+```
+
+Use `--skip-config-cleanup` on step 2 when the SQLite file belongs to a project-specific database rather than your default IDE install.
+
 ---
 
 ## Supported environments
 
-| Environment                                | Setup command                    | Reference                              |
-| ------------------------------------------ | -------------------------------- | -------------------------------------- |
-| Cursor                                     | `gcp brain setup cursor --force` | [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) |
-| Claude Code                                | `gcp brain setup claude`         | [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) |
-| Codex                                      | `gcp brain setup codex`          | [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) |
-| OpenClaw, Gemini CLI, Hermes-style, custom | `gcp brain setup generic`        | [installations/](installations/)       |
-| mindBot (orchestration)                    | —                                | `ghostcrab-skills/`                    |
+| Environment                                | Setup command                    | Skills only                         | Reference                              |
+| ------------------------------------------ | -------------------------------- | ----------------------------------- | -------------------------------------- |
+| Cursor                                     | `gcp brain setup cursor --force` | `gcp brain setup_skills cursor`     | [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) |
+| Claude Code                                | `gcp brain setup claude`         | `gcp brain setup_skills claude`     | [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) |
+| Codex                                      | `gcp brain setup codex`          | `gcp brain setup_skills codex`      | [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) |
+| OpenClaw, Gemini CLI, Hermes-style, custom | `gcp brain setup generic`        | `gcp brain setup_skills generic`    | [installations/](installations/)       |
+| mindBot (orchestration)                    | —                                | —                                   | `ghostcrab-skills/`                    |
 
 ---
 
@@ -255,12 +301,13 @@ After import, agents query via MCP (`ghostcrab_search`, `ghostcrab_graph_search`
 - `docs/setup/document-import.md` — document operator guide
 - `docs/architecture/universal_methodology.md` — facets → projections → import → reports
 
-Backup / ontology (same SQLite file):
+Backup / ontology (same SQLite file). For cross-version restore, see [Restore a backup onto an upgraded database](#restore-a-backup-onto-an-upgraded-database) under UPGRADE.
 
 ```bash
 npx gcp brain backup --workspace-id my_ws --output ./my_ws.backup.json
 npx gcp brain ontology import --workspace-id my_ws --ontology-id my_ws::owl --input ./ontology.nt --materialize-graph
 npx gcp brain load ./my_ws.backup.json --dry-run
+npx gcp brain load ./my_ws.backup.json --db /path/to/ghostcrab.sqlite --reindex all
 ```
 
 ---
@@ -342,6 +389,7 @@ npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up --help
 | Error                                      | Cause                                 | Fix                                                                                                   |
 | ------------------------------------------ | ------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | `spawn gcp ENOENT`                         | Stale or relative-path mcp.json entry | `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup <host> --force`                                                                  |
+| MCP registered but skills missing         | Partial setup (MCP failed before decoupling fix, or manual MCP edit) | `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup_skills <host>` — installs skills + permissions without touching MCP |
 | `npm error could not determine executable` | Missing postinstall run               | `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup <host> --force`                                                                  |
 | `npm error process terminated` / `SIGTERM` on `npx gcp` | Bare `npx gcp` from git clone, npm link, or stale `node_modules` | Use the explicit `--package=@mindflight/ghostcrab-personal-mcp@latest` form above; run `gcp path doctor`; reinstall global from registry (`npm uninstall -g @mindflight/ghostcrab-personal-mcp && npm install -g @mindflight/ghostcrab-personal-mcp@latest`) |
 | `Ignored build scripts` (pnpm)             | pnpm 10+ security default             | `pnpm add --allow-build=@mindflight/ghostcrab-personal-mcp @mindflight/ghostcrab-personal-mcp@latest` |

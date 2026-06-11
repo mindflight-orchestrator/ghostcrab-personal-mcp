@@ -28,6 +28,8 @@ export async function cmdLoad(args) {
         `       gcp load --file <path/to/profile.jsonl|backup.json>\n\n` +
         `Loads a portable JSONL demo profile, or restores a ghostcrab_backup_bundle JSON object.\n` +
         `JSONL supports profile / remember / learn_node / learn_edge / answer_artifact / legacy projection lines.\n` +
+        `Backup bundles: run gcp brain upgrade --db <path> on the target database before load when upgrading from an older export.\n` +
+        `Use gcp brain load --dry-run to preview bundle counts and schema preflight (missing columns).\n` +
         `Backup bundles default to --reindex graph. Use --reindex none for raw-only import.\n` +
         `JSONL profiles require a built package (dist/cli/demo-load.js). Run: pnpm run build`
     );
@@ -54,6 +56,10 @@ export async function cmdLoad(args) {
   }
 
   if (detectLoadKind(resolved) === "backup-bundle") {
+    console.error(
+      "[ghostcrab] backup load: ensure the target database is upgraded first " +
+        "(gcp brain upgrade --db <path> --skip-config-cleanup) if it predates this package."
+    );
     const { sqlitePathResolved } = resolveGhostcrabSqlite({
       workspaceNameFromCli: parsed.workspaceName,
       sqlitePathFromCli: parsed.sqlitePathFromCli

@@ -100,6 +100,11 @@ export async function cmdBrain(args) {
       await cmdBrainSetup(r);
       break;
     }
+    case "setup_skills":
+    case "setup-skills": {
+      await cmdBrainSetupSkills(rest);
+      break;
+    }
     case "permissions": {
       await cmdBrainPermissions(rest);
       break;
@@ -143,6 +148,51 @@ async function cmdBrainUpgrade(args) {
     printUpgradeReport(report);
   }
   if (!report.ok) process.exit(1);
+}
+
+/**
+ * Build the post-install options (permissions + IDE skills + PATH shim) from
+ * parsed setup args. Shared by `setup` and `setup_skills` so neither duplicates
+ * the option mapping.
+ * @param {ReturnType<typeof parseSetupArgs> & object} p
+ * @param {string} pkgRoot
+ */
+function buildPostOpts(p, pkgRoot) {
+  return {
+    target: p.target,
+    cwd: process.cwd(),
+    pkgRoot,
+    serverName: p.serverName ?? "ghostcrab-personal-mcp",
+    permissionsPreset: p.permissionsPreset,
+    permissionsScope: p.permissionsScope,
+    skipPermissions: p.noPermissions,
+    skipSkills: p.noSkills,
+    force: p.force,
+    dryRun: p.dryRun,
+    skillsScope: p.skillsScope,
+    allowTools: p.allowTools,
+    askTools: p.askTools
+  };
+}
+
+/**
+ * Run the shared post-install (permissions + IDE skills + PATH shim) and exit.
+ * When MCP registration failed, `mcpFailCode` is the non-zero code to exit with
+ * AFTER skills/permissions are installed (decoupled install).
+ * @param {ReturnType<typeof buildPostOpts>} postOpts
+ * @param {object} p
+ * @param {number | null} mcpFailCode
+ */
+async function runPostInstallAndExit(postOpts, p, mcpFailCode) {
+  const { runSetupPostInstall } = await import("../lib/mcp-setup-post.mjs");
+  const post = await runSetupPostInstall(postOpts);
+  if (!post.ok) {
+    console.error(post.message ?? "Post-setup failed.");
+    process.exit(1);
+  }
+  for (const m of post.messages ?? []) console.log(m);
+  printWorkspacePinHint(p);
+  if (mcpFailCode != null) process.exit(mcpFailCode);
 }
 
 /**
@@ -219,21 +269,7 @@ async function cmdBrainSetup(args) {
     cwd: process.cwd()
   };
 
-  const postOpts = {
-    target: p.target,
-    cwd: process.cwd(),
-    pkgRoot: PKG_ROOT,
-    serverName: base.serverName,
-    permissionsPreset: p.permissionsPreset,
-    permissionsScope: p.permissionsScope,
-    skipPermissions: p.noPermissions,
-    skipSkills: p.noSkills,
-    force: p.force,
-    dryRun: p.dryRun,
-    skillsScope: p.skillsScope,
-    allowTools: p.allowTools,
-    askTools: p.askTools
-  };
+  const postOpts = buildPostOpts(p, PKG_ROOT);
 
   if (p.target === "cursor") {
     const out = runSetupCursor({
@@ -257,17 +293,12 @@ async function cmdBrainSetup(args) {
     if (p.dryRun && out.doc) {
       console.log(JSON.stringify(out.doc, null, 2));
     }
-    if (!out.ok) process.exit(out.code ?? EX_ERR);
-    if (out.ok) {
-      const { runSetupPostInstall } = await import("../lib/mcp-setup-post.mjs");
-      const post = await runSetupPostInstall(postOpts);
-      if (!post.ok) {
-        console.error(post.message ?? "Post-setup failed.");
-        process.exit(1);
-      }
-      for (const m of post.messages ?? []) console.log(m);
-      printWorkspacePinHint(p);
+    if (!out.ok) {
+      console.error(
+        "MCP registration failed. Installing IDE skills + permissions anyway (decoupled)."
+      );
     }
+    await runPostInstallAndExit(postOpts, p, out.ok ? null : (out.code ?? EX_ERR));
     return;
   }
 
@@ -285,18 +316,11 @@ async function cmdBrainSetup(args) {
     if (!out.ok) {
       if (out.shell) console.error("Equivalent shell:\n" + out.shell);
       if (out.toml) console.error("\n" + out.toml);
-      process.exit(out.code ?? EX_ERR);
+      console.error(
+        "MCP registration failed. Installing IDE skills + permissions anyway (decoupled)."
+      );
     }
-    if (out.ok) {
-      const { runSetupPostInstall } = await import("../lib/mcp-setup-post.mjs");
-      const post = await runSetupPostInstall(postOpts);
-      if (!post.ok) {
-        console.error(post.message ?? "Post-setup failed.");
-        process.exit(1);
-      }
-      for (const m of post.messages ?? []) console.log(m);
-      printWorkspacePinHint(p);
-    }
+    await runPostInstallAndExit(postOpts, p, out.ok ? null : (out.code ?? EX_ERR));
     return;
   }
 
@@ -316,21 +340,11 @@ async function cmdBrainSetup(args) {
       if (out.printClaude && out.shell) {
         console.error(String(out.shell));
       }
-      process.exit(out.code ?? EX_ERR);
+      console.error(
+        "MCP registration failed. Installing IDE skills + permissions anyway (decoupled)."
+      );
     }
-    if (out.ok) {
-      const { runSetupPostInstall } = await import("../lib/mcp-setup-post.mjs");
-      const post = await runSetupPostInstall({
-        ...postOpts,
-        permissionsScope: p.permissionsScope
-      });
-      if (!post.ok) {
-        console.error(post.message ?? "Post-setup failed.");
-        process.exit(1);
-      }
-      for (const m of post.messages ?? []) console.log(m);
-      printWorkspacePinHint(p);
-    }
+    await runPostInstallAndExit(postOpts, p, out.ok ? null : (out.code ?? EX_ERR));
     return;
   }
 
@@ -341,23 +355,73 @@ async function cmdBrainSetup(args) {
     console.log(JSON.stringify(out.json, null, 2));
     console.log("--- TOML fallback:");
     console.log(out.toml);
-    const { runSetupPostInstall } = await import("../lib/mcp-setup-post.mjs");
-    const post = await runSetupPostInstall({
-      ...postOpts,
-      skipPermissions: true,
-      permissionsPreset: "none"
-    });
-    if (!post.ok) {
-      console.error(post.message ?? "Post-setup failed.");
-      process.exit(1);
-    }
-    for (const m of post.messages ?? []) console.log(m);
-    printWorkspacePinHint(p);
+    await runPostInstallAndExit(
+      { ...postOpts, skipPermissions: true, permissionsPreset: "none" },
+      p,
+      null
+    );
     return;
   }
 
   printSetupHelp();
   process.exit(1);
+}
+
+/**
+ * gcp brain setup_skills <target> — install IDE skills + MCP permissions +
+ * PATH shim only. Never registers the MCP server (no `claude mcp add` /
+ * `codex mcp add`, no mcp.json write), so it can repair skills after a failed
+ * `setup` or run standalone. Reuses parseSetupArgs + buildPostOpts +
+ * runSetupPostInstall to avoid duplicating any install logic.
+ * @param {string[]} args
+ */
+async function cmdBrainSetupSkills(args) {
+  const p = parseSetupArgs(args);
+  if (p === "help") {
+    printSetupSkillsHelp();
+    return;
+  }
+  if (p.error) {
+    console.error(p.error);
+    printSetupSkillsHelp();
+    process.exit(1);
+  }
+
+  const { PKG_ROOT } = await import("../lib/mcp-global-setup.mjs");
+  const { runSetupPostInstall } = await import("../lib/mcp-setup-post.mjs");
+
+  const postOpts = buildPostOpts(p, PKG_ROOT);
+  const post = await runSetupPostInstall(postOpts);
+  if (!post.ok) {
+    console.error(post.message ?? "Skill setup failed.");
+    process.exit(1);
+  }
+  for (const m of post.messages ?? []) console.log(m);
+}
+
+function printSetupSkillsHelp() {
+  console.log(
+    `
+Usage: gcp brain setup_skills <cursor|codex|claude|generic> [options]
+
+  Install the GhostCrab IDE skill bundle, MCP tool permissions, and the
+  ~/.ghostcrab/bin PATH shim — WITHOUT registering the MCP server. Use this
+  when MCP is already configured, or to repair skills after a failed setup.
+
+  --skills-scope user|project        skill install scope (default: user)
+  --permissions <preset>             MCP permission preset (default: basic)
+  --no-permissions                   skip MCP permission rules
+  --permissions-scope user|project   Claude settings scope (default: user)
+  --no-skills                        skip the IDE skill bundle (permissions only)
+  --force, --force-skills            overwrite existing skill files
+  --dry-run                          print what would be installed; write nothing
+
+Aliases:  gcp brain setup-skills
+
+This never runs "claude mcp add" / "codex mcp add" or writes mcp.json.
+For full setup (MCP + skills):  gcp brain setup <target>
+`.trim()
+  );
 }
 
 /**
@@ -603,6 +667,10 @@ Usage: gcp brain setup <cursor|codex|claude|generic> [options]
   --permissions-tool <name>    repeat for custom preset allow list
   --permissions-ask-tool <name> repeat for custom preset ask list (Claude)
 
+  Note: IDE skills + permissions are installed even if MCP registration fails
+  (the command warns and exits non-zero). To (re)install skills only, without
+  touching MCP, use:  gcp brain setup_skills <target>
+
 Aliases:  gcp brain setup_cursor | setup_codex | setup_claude | setup_claudecode | setup_generic
 
 Per-IDE details:  gcp brain setup --help   ·   installations/gcp-brain-setup.md
@@ -835,6 +903,9 @@ Subcommands:
   load <file.jsonl|backup.json>           Load JSONL profile or restore backup bundle
   setup <cursor|codex|claude|generic> [opts]
                                            User-global MCP: ~/.cursor/mcp.json, codex mcp add, claude mcp add, or generic snippets
+                                           (installs skills + permissions even if MCP registration fails)
+  setup_skills <cursor|codex|claude|generic> [opts]
+                                           Install IDE skills + permissions + PATH shim only (no MCP registration)
   permissions <print|apply> [opts]       MCP tool permission presets (Claude / Cursor)
 
 Examples:
@@ -857,6 +928,8 @@ Examples:
   gcp brain load ./backup.json --dry-run
   gcp brain setup cursor --dry-run
   gcp brain setup claude --runner pnpm
+  gcp brain setup_skills claude
+  gcp brain setup_skills cursor --force
 
 Shorthand:  gcp up   and   gcp start   mean the same as   gcp brain up
 Legacy:     gcp serve  (same as gcp brain up)

@@ -79,6 +79,7 @@ _ = try pipeline.reindexGraphWithDocumentTable("ws", facet_table_id);
 | Besoin | Mécanisme | Portée |
 |--------|-----------|--------|
 | Graphe illisible après import raw, extract, ou SQL sur `*_raw` | **`ghostcrab_graph_reindex`** ou CLI `--reindex graph` | Graphe + adjacence (+ liens doc/chunk si `document_table_id`) |
+| Tout le workspace (collections + FTS agent) | **`ghostcrab_reindex_all`** (`scope: all`) | Toutes les collections enregistrées + bootstrap `agent_facts` |
 | BM25 collection + facettes collection + graphe | **`ghostcrab_collection_reindex`** ou CLI `--reindex all` | Une collection (`collection_id` + `table_id`) |
 | Seulement BM25 ou seulement facettes collection | Pipeline Zig `reindexBm25` / `reindexFacets` (appel direct) | **Pas** d'outil MCP ni de flag CLI isolé : passer par `ghostcrab_collection_reindex` / `--reindex all` (reconstruit les trois) ou un appel Zig direct au pipeline |
 | Faits agent (`agent_facts`) | Bootstrap FTS + rattrapage à la recherche | Pas `graph_reindex` — voir §6 |
@@ -92,10 +93,13 @@ _ = try pipeline.reindexGraphWithDocumentTable("ws", facet_table_id);
 
 | Outil | Endpoint natif | Paramètres clés |
 |-------|----------------|-----------------|
+| **`ghostcrab_reindex_all`** | orchestration MCP (boucle `/reindex/all` + bootstrap FTS agent) | `workspace_id`, optionnel `scope` (`all` \| `collections` \| `graph`), `include_agent_facts` |
 | **`ghostcrab_graph_reindex`** | `POST /api/mindbrain/reindex/graph` | `workspace_id`, optionnel `document_table_id`, `include_document_links`, `include_chunk_links` |
-| **`ghostcrab_collection_reindex`** | `POST /api/mindbrain/reindex/all` | `workspace_id`, **`collection_id`**, **`table_id`** (requis) |
+| **`ghostcrab_collection_reindex`** | `POST /api/mindbrain/reindex/all` | `workspace_id`, **`collection_id`**, **`table_id`** (requis) — une collection ciblée |
 
-Fichiers GhostCrab : [`src/tools/dgraph/graph-reindex.ts`](../../src/tools/dgraph/graph-reindex.ts), [`src/tools/dgraph/collection-reindex.ts`](../../src/tools/dgraph/collection-reindex.ts).
+Fichiers GhostCrab : [`src/tools/dgraph/workspace-reindex-all.ts`](../../src/tools/dgraph/workspace-reindex-all.ts), [`src/tools/dgraph/graph-reindex.ts`](../../src/tools/dgraph/graph-reindex.ts), [`src/tools/dgraph/collection-reindex.ts`](../../src/tools/dgraph/collection-reindex.ts).
+
+**`ghostcrab_reindex_all`** découvre les collections du workspace (`collections` + `facet_tables`, repli `documents_raw`) et appelle `reindexAll` pour chacune, puis `ensureFactsFtsSync` pour `agent_facts` par défaut. Préférer cet outil pour « tout le workspace » ; garder `ghostcrab_collection_reindex` quand `collection_id` et `table_id` sont connus.
 
 `ghostcrab_graph_reindex` tente d'abord le backend MindBrain natif. Le chemin natif fait un **rebuild strict** par workspace : il purge les lignes dérivées (`graph_entity`, `graph_relation`, `graph_relation_property`, `graph_entity_alias`), rejoue le raw, puis reconstruit l'**adjacence** Roaring (`graph_lj_out` / `graph_lj_in`) depuis `graph_relation`. Les suppressions/éditions du raw sont donc reflétées (pas d'accumulation périmée). En échec, fallback SQL ([`src/db/graph-reindex-sql.ts`](../../src/db/graph-reindex-sql.ts)) — entités/relations OK, mais `adjacency_rebuilt: false` et l'adjacence reste incomplète jusqu'au prochain reindex natif.
 
@@ -228,8 +232,10 @@ Validation métier graphe : `ghostcrab_graph_search`, `ghostcrab_traverse` — p
 |-------|---------|
 | Pipeline reindex | `vendor/mindbrain/src/standalone/import_pipeline.zig` |
 | Routes HTTP | `vendor/mindbrain/src/standalone/http_app.zig` |
+| MCP workspace reindex | `src/tools/dgraph/workspace-reindex-all.ts` |
 | MCP graph reindex | `src/tools/dgraph/graph-reindex.ts` |
 | MCP collection reindex | `src/tools/dgraph/collection-reindex.ts` |
+| Discovery collections | `src/db/reindex-workspace.ts` |
 | Learn → graphe runtime | `src/tools/dgraph/learn.ts`, `src/db/graph.ts` |
 | FTS faits agent | `src/db/facets-fts-sync.ts`, `src/db/facets-fts-search.ts` |
 | Mémoire et projections | [03 — Mémoire MCP](03-memoire-mcp-facettes-graphe-projections.md) |

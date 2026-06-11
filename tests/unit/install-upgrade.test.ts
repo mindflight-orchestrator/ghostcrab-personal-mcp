@@ -5,13 +5,21 @@ import {
   rmSync,
   writeFileSync
 } from "node:fs";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+
+const require = createRequire(import.meta.url);
 import {
   parseUpgradeArgs,
-  runInstallUpgrade
+  runInstallUpgrade,
+  printUpgradeReport,
+  diffSchemaMigrations
 } from "../../bin/lib/install-upgrade.mjs";
+import {
+  readSchemaMigrations
+} from "../../bin/lib/sqlite-file-count.mjs";
 
 describe("install upgrade", () => {
   let root = "";
@@ -202,5 +210,138 @@ describe("install upgrade", () => {
     expect(updated).toContain("[mcp_servers.other]");
     expect(updated).toContain("[mcp_servers.ghostcrab-personal-mcp]");
     expect(updated).toContain("gcp.mjs");
+  });
+
+  it("diffSchemaMigrations returns rows present only after upgrade", () => {
+    const before = [{ id: "a", appliedAt: "2026-01-01" }];
+    const after = [
+      { id: "a", appliedAt: "2026-01-01" },
+      { id: "b", appliedAt: "2026-06-11" }
+    ];
+    expect(diffSchemaMigrations(before, after)).toEqual([
+      { id: "b", appliedAt: "2026-06-11" }
+    ]);
+  });
+
+  it("printUpgradeReport lists migrations applied this run", () => {
+    const lines: string[] = [];
+    printUpgradeReport(
+      {
+        ok: true,
+        version: "0.5.2",
+        installKind: "source",
+        consumerRoot: null,
+        processes: [],
+        killed: [],
+        databases: [
+          {
+            path: "/tmp/x.sqlite",
+            exists: true,
+            backup: "/tmp/x.bak.sqlite",
+            migration: "applied",
+            migrationsBefore: [{ id: "old", appliedAt: "2026-01-01" }],
+            migrationsAfter: [
+              { id: "old", appliedAt: "2026-01-01" },
+              { id: "new", appliedAt: "2026-06-11" }
+            ],
+            appliedThisRun: [{ id: "new", appliedAt: "2026-06-11" }]
+          }
+        ],
+        migrations: [],
+        configs: [],
+        errors: []
+      },
+      (line) => lines.push(line)
+    );
+    expect(lines.some((line) => line.includes("migrations applied this run"))).toBe(
+      true
+    );
+    expect(lines.some((line) => line.includes("+ new"))).toBe(true);
+    expect(lines.some((line) => line.includes("schema migrations on disk: 2"))).toBe(
+      true
+    );
+  });
+
+  it("printUpgradeReport lists schema status and mindbrain stderr", () => {
+    const lines: string[] = [];
+    printUpgradeReport(
+      {
+        ok: true,
+        version: "0.5.2",
+        installKind: "source",
+        consumerRoot: null,
+        processes: [],
+        killed: [],
+        databases: [
+          {
+            path: "/tmp/x.sqlite",
+            exists: true,
+            backup: "/tmp/x.bak.sqlite",
+            migration: "up-to-date",
+            migrationsBefore: [{ id: "old", appliedAt: "2026-01-01" }],
+            migrationsAfter: [{ id: "old", appliedAt: "2026-01-01" }],
+            appliedThisRun: [],
+            schemaStatus: {
+              mindbrain_version: "1.7.1",
+              schema_tables_count: 82,
+              missing_columns: []
+            },
+            migrationLogs: [
+              "[mindbrain] schema column added: documents_raw.summary"
+            ]
+          }
+        ],
+        migrations: [],
+        configs: [],
+        errors: []
+      },
+      (line) => lines.push(line)
+    );
+    expect(lines.some((line) => line.includes("mindbrain version: 1.7.1"))).toBe(
+      true
+    );
+    expect(lines.some((line) => line.includes("missing columns: none"))).toBe(
+      true
+    );
+    expect(
+      lines.some((line) =>
+        line.includes("[mindbrain] schema column added: documents_raw.summary")
+      )
+    ).toBe(true);
+  });
+
+  it("readSchemaMigrations reads mindbrain_schema_migrations when node:sqlite is available", () => {
+    const DatabaseSync = (() => {
+      try {
+        return require("node:sqlite").DatabaseSync as new (path: string) => {
+          close(): void;
+          exec(sql: string): void;
+        };
+      } catch {
+        return null;
+      }
+    })();
+    if (!DatabaseSync) return;
+
+    const dir = mkdtempSync(join(tmpdir(), "gc-migrations-"));
+    const dbPath = join(dir, "test.sqlite");
+    const db = new DatabaseSync(dbPath);
+    db.exec(`
+      CREATE TABLE mindbrain_schema_migrations (
+        id TEXT PRIMARY KEY,
+        applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+      INSERT INTO mindbrain_schema_migrations (id, applied_at)
+      VALUES ('2026-05-30-facets-to-agent-facts-applied', '2026-05-30T12:00:00Z');
+    `);
+    db.close();
+
+    expect(readSchemaMigrations(dbPath)).toEqual([
+      {
+        id: "2026-05-30-facets-to-agent-facts-applied",
+        appliedAt: "2026-05-30T12:00:00Z"
+      }
+    ]);
+    rmSync(dir, { recursive: true, force: true });
   });
 });
