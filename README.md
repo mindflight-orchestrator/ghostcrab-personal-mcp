@@ -173,6 +173,35 @@ This launches mindBrain, resolves the SQLite file (default `~/.ghostcrab/databas
 
 ---
 
+## UPGRADE
+
+After updating to a new GhostCrab release, run the upgrade helper to migrate all detected SQLite databases (including old versions and sidecar files):
+
+```bash
+npx gcp brain upgrade
+```
+
+To target a specific database:
+
+```bash
+npx gcp brain upgrade --db /path/to/ghostcrab.sqlite
+```
+
+Useful options:
+
+- `--default` uses `~/.ghostcrab/databases/ghostcrab.sqlite`
+- `--dry-run` shows what would be migrated, without writes
+- `--no-kill-mcp` skips stopping running GhostCrab processes
+- `--skip-config-cleanup` skips MCP config file refresh
+
+You can also force package resolution:
+
+```bash
+npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain upgrade
+```
+
+---
+
 ## Supported environments
 
 | Environment                                | Setup command                    | Reference                              |
