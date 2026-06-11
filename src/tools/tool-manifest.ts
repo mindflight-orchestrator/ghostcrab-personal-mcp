@@ -8,6 +8,7 @@ export const EXPECTED_TOOL_NAMES = [
   "ghostcrab_artifact_get",
   "ghostcrab_collection_facet_search",
   "ghostcrab_collection_reindex",
+  "ghostcrab_reindex_all",
   "ghostcrab_combined_search",
   "ghostcrab_count",
   "ghostcrab_coverage",

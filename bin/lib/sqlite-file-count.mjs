@@ -34,3 +34,47 @@ export function readSqliteCount(sqlitePath, sql, params = []) {
     db.close();
   }
 }
+
+/**
+ * @typedef {{ id: string, appliedAt: string | null }} SchemaMigrationRow
+ */
+
+/**
+ * Read applied MindBrain schema migration ids from mindbrain_schema_migrations.
+ * Returns [] when the table is absent, null when the file is unreadable or
+ * node:sqlite is unavailable.
+ * @param {string} sqlitePath
+ * @returns {SchemaMigrationRow[] | null}
+ */
+export function readSchemaMigrations(sqlitePath) {
+  let DatabaseSync;
+  try {
+    DatabaseSync = loadDatabaseSync();
+  } catch {
+    return null;
+  }
+  try {
+    const db = new DatabaseSync(sqlitePath);
+    try {
+      const table = db
+        .prepare(
+          "SELECT 1 AS ok FROM sqlite_master WHERE type = 'table' AND name = 'mindbrain_schema_migrations' LIMIT 1"
+        )
+        .get();
+      if (!table) return [];
+      const rows = db
+        .prepare(
+          "SELECT id, applied_at AS appliedAt FROM mindbrain_schema_migrations ORDER BY applied_at, id"
+        )
+        .all();
+      return rows.map((row) => ({
+        id: String(row.id),
+        appliedAt: row.appliedAt != null ? String(row.appliedAt) : null
+      }));
+    } finally {
+      db.close();
+    }
+  } catch {
+    return null;
+  }
+}

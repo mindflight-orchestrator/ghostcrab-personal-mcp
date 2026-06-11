@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { __private__ } from "../../bin/commands/load.mjs";
+import { __private__, cmdLoad } from "../../bin/commands/load.mjs";
 
 describe("gcp load helpers", () => {
   it("detects backup bundle JSON objects separately from JSONL profiles", () => {
@@ -89,5 +89,17 @@ describe("gcp load helpers", () => {
       "--table-id",
       "9"
     ]);
+  });
+
+  it("help mentions upgrade before backup load", async () => {
+    const logs: string[] = [];
+    const log = console.log;
+    console.log = (...args) => logs.push(args.join(" "));
+    try {
+      await cmdLoad(["--help"]);
+    } finally {
+      console.log = log;
+    }
+    expect(logs.join("\n")).toContain("gcp brain upgrade --db");
   });
 });

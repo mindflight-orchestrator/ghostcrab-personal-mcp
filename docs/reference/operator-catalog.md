@@ -93,7 +93,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 
 ---
 
-## B — MCP tools (63 registered)
+## B — MCP tools (64 registered)
 
 | Tool | Basic | Subsystem | Access | Tables / impact |
 |------|-------|-----------|--------|-----------------|
@@ -140,6 +140,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | `ghostcrab_quality_remediation_actions` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_quality_remediation_apply` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_quality_remediation_decide` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
+| `ghostcrab_reindex_all` | no | facets | write | agent_facts (+ facet_tables FTS when indexed) |
 | `ghostcrab_remember` | yes | facets | write | agent_facts (+ facet_tables FTS when indexed) |
 | `ghostcrab_schema_get` | yes | facets | read | schema registry (agent_facts shapes; not LinkML ontology_*) |
 | `ghostcrab_schema_inspect` | yes | facets | read | schema registry (agent_facts shapes; not LinkML ontology_*) |
