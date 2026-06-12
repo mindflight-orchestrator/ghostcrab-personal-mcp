@@ -7,7 +7,7 @@ const FALLBACK_VERSION = "0.1.0";
  * release date, e.g. v0.5.2 → 2026-06-10). Also bump `mindbrain_version` in
  * mindbrain-perso `src/standalone/http_app.zig` when tagging MindBrain.
  */
-export const GHOSTCRAB_MCP_SURFACE_VERSION = "2026-06-10";
+export const GHOSTCRAB_MCP_SURFACE_VERSION = "2026-06-12";
 
 export async function getPackageVersion(): Promise<string> {
   try {
