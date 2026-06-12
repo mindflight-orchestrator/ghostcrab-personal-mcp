@@ -34,6 +34,7 @@ let skipPreflight = null;
 let skipProvenanceValidation = false;
 let engine = "legacy";
 let compareOutputPath = null;
+let forceBackend = false;
 
 for (let i = 0; i < args.length; i++) {
   const a = args[i];
@@ -67,6 +68,10 @@ for (let i = 0; i < args.length; i++) {
   }
   if (a === "--skip-provenance-validation" || a === "--no-validate-provenance") {
     skipProvenanceValidation = true;
+    continue;
+  }
+  if (a === "--force") {
+    forceBackend = true;
     continue;
   }
   if (a === "--preflight") {
@@ -1072,7 +1077,12 @@ function runHybrid(manifestConfig, runDbPath) {
 }
 
 function runGcp({ commandArgs, label, dbPath }) {
-  const cmd = [gcp, "brain", ...commandArgs];
+  const cmd = [gcp, "brain"];
+  if (forceBackend && commandArgs[0] === "structured-import") {
+    cmd.push("structured-import", "--force", ...commandArgs.slice(1));
+  } else {
+    cmd.push(...commandArgs);
+  }
   console.log(`run-structured-import-system: gcp ${commandArgs.join(" ")}`);
   const ioDir = mkdtempSync(join(tmpdir(), "gcp-structured-import-command-"));
   const stdoutPath = join(ioDir, "stdout.log");
@@ -1171,6 +1181,7 @@ Usage:
     [--db <sqlite-path>] \
     [--skip-preflight|--preflight]
     [--skip-provenance-validation|--no-validate-provenance]
+    [--force]
 
 Modes:
   legacy  Use existing StarterKit bridge command (default).

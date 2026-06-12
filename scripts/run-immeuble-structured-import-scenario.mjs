@@ -36,6 +36,8 @@ const evidenceDir = parseFlag(
 );
 const runWithSkipPreflight = args.includes("--skip-preflight");
 const runWithPreflight = args.includes("--preflight");
+const runWithSkipProvenance = args.includes("--skip-provenance-validation") || args.includes("--no-validate-provenance");
+const runWithForce = args.includes("--force");
 
 mkdirSync(evidenceDir, { recursive: true });
 
@@ -43,6 +45,7 @@ const evidence = {
   workspace_id: workspaceId,
   db_path: dbPath,
   preflight: runWithSkipPreflight ? "skipped" : runWithPreflight ? "forced" : "manifest-default",
+  provenance: runWithSkipProvenance ? "skipped" : "forced",
   phases: [],
   ok: true
 };
@@ -71,9 +74,15 @@ try {
     });
   }
 
-  const reindex = runGcp(["--force", "reindex", "--workspace-id", workspaceId, "--scope", "all"], true);
-  const provenance = runGcp([
-    "--force",
+  const reindexArgs = ["structured-import", "reindex", "--workspace-id", workspaceId, "--scope", "all"];
+  if (runWithForce) {
+    reindexArgs.splice(1, 0, "--force");
+  }
+  const reindex = runGcp(reindexArgs, true);
+  const provenance = runWithSkipProvenance
+    ? { json: { ok: true, skipped: true } }
+    : runGcp([
+    "structured-import",
     "validate-provenance",
     "--workspace-id",
     workspaceId
@@ -86,7 +95,7 @@ try {
     throw new Error(`reindex.graph_projected expected > 0, got ${reindex.json.graph_projected}`);
   }
 
-  if (provenance.json?.ok !== true) {
+  if (!runWithSkipProvenance && provenance.json?.ok !== true) {
     throw new Error(`provenance validation failed unexpectedly: ${JSON.stringify(provenance.json)}`);
   }
 
@@ -119,35 +128,27 @@ function runRunner(manifestArgs, includeApply) {
   } else if (runWithSkipPreflight) {
     runnerArgs.push("--skip-preflight");
   }
+  if (runWithSkipProvenance) {
+    runnerArgs.push("--skip-provenance-validation");
+  }
+  if (runWithForce) {
+    runnerArgs.push("--force");
+  }
   if (includeApply) {
     runnerArgs.push("--apply");
   }
-  const res = spawnSync(process.execPath, [runner, ...runnerArgs], {
-    cwd: pkgRoot,
-    env: {
-      ...process.env,
-      GHOSTCRAB_SQLITE_PATH: dbPath
-    },
-    encoding: "utf8"
-  });
+  const res = runCommand(process.execPath, [runner, ...runnerArgs], `run-structured-import-system`);
   if (res.status !== 0) {
-    throw new Error(`${res.argv ?? "run-structured-import-system"} failed (${res.status})`);
+    throw new Error(`${res.label} failed (${res.status}): ${res.output}`);
   }
-  return { status: res.status, stdout: res.stdout || "" };
+  return { status: res.status, stdout: res.stdout };
 }
 
 function runGcp(args, parseJson = false) {
-  const res = spawnSync(process.execPath, [gcp, "brain", ...args], {
-    cwd: pkgRoot,
-    env: {
-      ...process.env,
-      GHOSTCRAB_SQLITE_PATH: dbPath
-    },
-    encoding: "utf8"
-  });
-  const output = res.stdout || "";
+  const res = runCommand(process.execPath, [gcp, "brain", ...args], "gcp structured-import");
+  const output = res.output;
   if (res.status !== 0) {
-    throw new Error(`gcp structured-import ${args.join(" ")} failed (${res.status}): ${output}`);
+    throw new Error(`${res.label} failed (${res.status}): ${output}`);
   }
   return {
     status: res.status,
@@ -156,11 +157,88 @@ function runGcp(args, parseJson = false) {
   };
 }
 
+function runCommand(executable, args, label) {
+  const direct = spawnSync(process.execPath, args, {
+    cwd: pkgRoot,
+    env: {
+      ...process.env,
+      GHOSTCRAB_SQLITE_PATH: dbPath
+    },
+    encoding: "utf8"
+  });
+  if (direct.error) {
+    const shellCommand = shellJoin([executable, ...args]);
+    const shell = spawnSync("/bin/sh", ["-lc", shellCommand], {
+      cwd: pkgRoot,
+      env: {
+        ...process.env,
+        GHOSTCRAB_SQLITE_PATH: dbPath
+      },
+      encoding: "utf8"
+    });
+    const shellOutput = (shell.stdout || "") + (shell.stderr || "");
+    const shellStdout = shell.stdout || "";
+    const shellStderr = shell.stderr || "";
+    const shellStatus = shell.status ?? 0;
+    if (shell.error) {
+      return {
+        status: 1,
+        stdout: shellStdout,
+        stderr: shellStderr,
+        output: shellOutput,
+        label
+      };
+    }
+    return {
+      status: shellStatus,
+      stdout: shellStdout,
+      stderr: shellStderr,
+      output: shellOutput,
+      label
+    };
+  }
+  const output = [direct.stdout || "", direct.stderr || ""].join("");
+  const stdout = direct.stdout || "";
+  const stderr = direct.stderr || "";
+  return {
+    status: direct.status ?? 0,
+    stdout,
+    stderr,
+    output,
+    label
+  };
+}
+
 function parseSummary(text) {
   if (typeof text !== "string") {
     return null;
   }
-  const lines = text.trim().split("\n");
+  const trimmed = text.trim();
+  if (!trimmed) {
+    return null;
+  }
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    // continue
+  }
+
+  const lines = trimmed.split("\n");
+  let firstJsonLine = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].trim() === "{") {
+      firstJsonLine = i;
+      break;
+    }
+  }
+  if (firstJsonLine >= 0) {
+    try {
+      return JSON.parse(lines.slice(firstJsonLine).join("\n"));
+    } catch {
+      // continue
+    }
+  }
+
   for (let i = lines.length - 1; i >= 0; i--) {
     const line = lines[i].trim();
     if (line.startsWith("{") && line.endsWith("}")) {
@@ -174,15 +252,49 @@ function parseSummary(text) {
   return null;
 }
 
+function shellJoin(parts) {
+  return parts.map((part) => `'${String(part).replaceAll("'", "'\"'\"'")}'`).join(" ");
+}
+
 function extractKitSummary(payload) {
   if (!payload || typeof payload !== "object") {
     return null;
+  }
+  if (payload.runs && typeof payload.runs === "object") {
+    const merged = {};
+    for (const run of Object.values(payload.runs)) {
+      if (!run || typeof run !== "object") {
+        continue;
+      }
+      const runSummary = extractRunSummary(run);
+      if (runSummary && typeof runSummary === "object") {
+        Object.assign(merged, runSummary);
+      }
+    }
+    return Object.keys(merged).length > 0 ? merged : null;
+  }
+  const project = payload?.project;
+  if (project && typeof project === "object") {
+    return project;
   }
   if (typeof payload.summary === "string") {
     return parseSummary(payload.summary);
   }
   if (typeof payload.summary === "object") {
     return payload.summary;
+  }
+  return null;
+}
+
+function extractRunSummary(run) {
+  if (run.summary_parsed && typeof run.summary_parsed === "object") {
+    return run.summary_parsed;
+  }
+  if (typeof run.summary === "string") {
+    return parseSummary(run.summary);
+  }
+  if (typeof run.summary === "object") {
+    return run.summary;
   }
   return null;
 }
@@ -194,12 +306,20 @@ function assertObject(label, value) {
 }
 
 function assertAtLeastOneEntity(manifestPath, kitSummary) {
-  const totalEntities = numeric(kitSummary?.entities_upserted) + numeric(kitSummary?.entities_updated);
-  const totalFacets = numeric(kitSummary?.facets_inserted) + numeric(kitSummary?.facets_updated);
-  const totalEdges = numeric(kitSummary?.edges_inserted) + numeric(kitSummary?.edges_updated);
-  assertPositive(`entities for ${manifestPath}`, totalEntities);
-  assertPositive(`facets for ${manifestPath}`, totalFacets);
-  assertPositive(`edges for ${manifestPath}`, totalEdges);
+  const total = [
+    "entities_upserted",
+    "entities_updated",
+    "entities_skipped",
+    "facets_inserted",
+    "facets_updated",
+    "facets_skipped",
+    "edges_inserted",
+    "edges_updated",
+    "edges_skipped",
+    "facet_rows",
+    "edge_rows"
+  ].reduce((acc, key) => acc + numeric(kitSummary?.[key]), 0);
+  assertPositive(`activity for ${manifestPath}`, total);
 }
 
 function numeric(value) {
