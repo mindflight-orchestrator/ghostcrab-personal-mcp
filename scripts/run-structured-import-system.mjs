@@ -31,6 +31,7 @@ let apply = false;
 let extraWorkspace = null;
 let dbPath = null;
 let skipPreflight = null;
+let skipProvenanceValidation = false;
 let engine = "legacy";
 let compareOutputPath = null;
 
@@ -62,6 +63,10 @@ for (let i = 0; i < args.length; i++) {
   }
   if (a === "--skip-preflight" || a === "--no-preflight") {
     skipPreflight = true;
+    continue;
+  }
+  if (a === "--skip-provenance-validation" || a === "--no-validate-provenance") {
+    skipProvenanceValidation = true;
     continue;
   }
   if (a === "--preflight") {
@@ -198,7 +203,8 @@ function loadManifest(path) {
     mapping_meta: mappingMeta,
     import: {
       ...parsed.import,
-      preflight_validate: preflightValidate
+      preflight_validate: preflightValidate,
+      skip_provenance_validation: skipProvenanceValidation
     },
     starterkit_root: starterkitRoot,
     output_dir: outDir,
@@ -432,16 +438,19 @@ function runPipelineForEngine({ mode, dbPath: runDbPath, outputSuffix, suffixOut
         ],
         label: "reindex"
       });
-      runGcp({
-        dbPath: runDbPath,
-        commandArgs: ["structured-import", "validate-provenance", "--workspace-id", manifestRun.workspace_id],
-        label: "validate-provenance"
-      });
+      if (!manifestRun.import?.skip_provenance_validation) {
+        runGcp({
+          dbPath: runDbPath,
+          commandArgs: ["structured-import", "validate-provenance", "--workspace-id", manifestRun.workspace_id],
+          label: "validate-provenance"
+        });
+      }
       summary = JSON.stringify(
         {
           engine: "hybrid",
           project: summaryParsed,
-          reindex: parseSummary(reindexSummary)
+          reindex: parseSummary(reindexSummary),
+          provenance_validation_skipped: manifestRun.import?.skip_provenance_validation === true
         },
         null,
         2
@@ -1114,8 +1123,8 @@ function parseSummary(text) {
 }
 
 function compareSummaries(legacy, hybrid) {
-  const left = legacy.summary_parsed || {};
-  const right = hybrid.summary_parsed || {};
+  const left = normalizeComparableSummary(legacy.summary_parsed || {});
+  const right = normalizeComparableSummary(hybrid.summary_parsed || {});
   const keys = new Set([...Object.keys(left), ...Object.keys(right)]);
   const deltas = {};
 
@@ -1134,6 +1143,22 @@ function compareSummaries(legacy, hybrid) {
   };
 }
 
+function normalizeComparableSummary(summary) {
+  if (!summary || typeof summary !== "object") {
+    return {};
+  }
+  if (summary.engine !== "hybrid") {
+    return summary;
+  }
+  const project = typeof summary.project === "object" && summary.project ? summary.project : {};
+  const reindex = typeof summary.reindex === "object" && summary.reindex ? summary.reindex : {};
+  return {
+    ...reindex,
+    ...project,
+    provenance_validation_skipped: summary.provenance_validation_skipped
+  };
+}
+
 function printHelp() {
   console.log(`
 Usage:
@@ -1145,6 +1170,7 @@ Usage:
     [--workspace-id <override-workspace>] \
     [--db <sqlite-path>] \
     [--skip-preflight|--preflight]
+    [--skip-provenance-validation|--no-validate-provenance]
 
 Modes:
   legacy  Use existing StarterKit bridge command (default).
@@ -1161,6 +1187,7 @@ Manifest keys (minimal):
     mode                          append | reset | ignore-duplicates
     preflight_validate             true|false (default: true when ontology.model exists)
     allow_workspace_mismatch       true|false (default: false)
+    skip_provenance_validation     true|false (default: false)
     output_dir                    Optional artifacts directory
     reindex.enabled               default true
     reindex.scope                 all|graph|facets|provenance
