@@ -203,6 +203,14 @@ pnpm run demo:load -- --profile <profile-id>
 
 By default it looks for a sibling **`../ghostcrab-skills`**; override with **`--skills-repo-root /path/to/ghostcrab-skills`**.
 
+You can also bootstrap a workspace directly from CLI:
+
+```bash
+gcp brain workspace bootstrap <workspace-id> --profile <profile-id>
+# or
+gcp brain workspace bootstrap <workspace-id> --profile-file /path/to/profile.jsonl
+```
+
 **Starter kit default seed** (aligned with **starter-kit-ghostcrab-perso** template layout, shipped in this repo under `examples/starterkit-perso/`):
 
 ```bash

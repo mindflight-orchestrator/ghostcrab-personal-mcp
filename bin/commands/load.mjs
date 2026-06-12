@@ -28,6 +28,7 @@ export async function cmdLoad(args) {
         `       gcp load --file <path/to/profile.jsonl|backup.json>\n\n` +
         `Loads a portable JSONL demo profile, or restores a ghostcrab_backup_bundle JSON object.\n` +
         `JSONL supports profile / remember / learn_node / learn_edge / answer_artifact / legacy projection lines.\n` +
+        `Use --workspace <id> to force demo profile imports into a specific workspace.\n` +
         `Backup bundles: run gcp brain upgrade --db <path> on the target database before load when upgrading from an older export.\n` +
         `Use gcp brain load --dry-run to preview bundle counts and schema preflight (missing columns).\n` +
         `Backup bundles default to --reindex graph. Use --reindex none for raw-only import.\n` +
@@ -102,7 +103,11 @@ export async function cmdLoad(args) {
   }
 
   const { runDemoLoad } = await import(pathToFileURL(demoLoadJs).href);
-  await runDemoLoad(["--profile-file", resolved]);
+  const demoLoadArgs = ["--profile-file", resolved];
+  if (parsed.workspaceName) {
+    demoLoadArgs.push("--workspace", parsed.workspaceName);
+  }
+  await runDemoLoad(demoLoadArgs);
 }
 
 export function parseLoadArgs(args) {

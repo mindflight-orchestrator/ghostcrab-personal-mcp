@@ -69,7 +69,7 @@ const DEFAULT_TELEMETRY_TIMEOUT_MS = 1500;
 const DEFAULT_TELEMETRY_STATE_DIR = path.join(os.homedir(), ".ghostcrab");
 const DEFAULT_MINDBRAIN_URL = "http://127.0.0.1:8091";
 const DEFAULT_MINDBRAIN_HTTP_TIMEOUT_MS = 30_000;
-const DEFAULT_BOOTSTRAP_SEED_ENABLED = true;
+const DEFAULT_BOOTSTRAP_SEED_ENABLED = false;
 
 const TELEMETRY_AGENT_HOSTS: readonly TelemetryAgentHost[] = [
   "claude-code",

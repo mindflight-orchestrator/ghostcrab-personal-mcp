@@ -159,4 +159,52 @@ describe("demo-load answer_artifact entries", () => {
       ])
     );
   });
+
+  it("loads demo profile imports into a target workspace", async () => {
+    const query = vi.fn<Queryable["query"]>(async (sql, params = []) => {
+      if (sql.includes("SELECT id FROM mb_pragma.agent_facts")) {
+        return [];
+      }
+      if (sql.includes("INSERT INTO mb_pragma.agent_facts")) {
+        return [];
+      }
+      if (sql.includes("INSERT INTO graph_relation")) {
+        return [];
+      }
+      if (sql.includes("INSERT INTO graph_entity")) {
+        return [];
+      }
+      return [];
+    });
+    const queryable: Queryable = { kind: "sqlite", query };
+
+    const entries = [
+      {
+        kind: "remember" as const,
+        profile_id: "demo",
+        schema_id: "demo:schema",
+        facets: { key: "value" },
+        content: "sample content"
+      }
+    ];
+
+    const summary = await loadDemoProfile(
+      config,
+      queryable,
+      entries,
+      "demo",
+      "my-app"
+    );
+
+    expect(summary.insertedFacts).toBe(1);
+    expect(summary.insertedEdges).toBe(0);
+    expect(summary.insertedNodes).toBe(0);
+    expect(summary.insertedArtifacts).toBe(0);
+    expect(summary.insertedProjections).toBe(0);
+    expect(summary.skipped).toBe(0);
+    expect(query).toHaveBeenCalledWith(
+      expect.stringContaining("SELECT id FROM mb_pragma.agent_facts"),
+      ["demo:schema", "sample content", JSON.stringify({ key: "value" }), "my-app"]
+    );
+  });
 });

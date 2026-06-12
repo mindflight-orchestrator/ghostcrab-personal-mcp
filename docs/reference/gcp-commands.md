@@ -16,6 +16,7 @@ operations.
 | **Local smoke / diagnostics** | `gcp smoke`, `gcp status`, `gcp tools list`, `gcp tools verify` | Read-only checks for backend reachability, package/version, MCP tool registration, catalog drift, and operational status. |
 | **SQLite lock inspection** | `gcp brain db-who [--path \| --workspace]` | Lists host processes holding the resolved GhostCrab SQLite file open via `lsof`. |
 | **Isolate memory (workspace)** | `gcp brain workspace create \| list` | Registers or lists logical MindBrain `workspace_id` partitions. Legacy: `gcp init`. |
+| **Load demo into workspace** | `gcp brain workspace bootstrap` | Import a demo profile JSONL into a specific workspace with `--profile` or `--profile-file`, instead of loading into `profile_id` by default. |
 | **Workspace destructive maintenance** | `ghostcrab workspace reset \| delete` | Lower-level launcher operations to wipe workspace-scoped data or remove/archive a workspace row; keep these out of normal agent flows. |
 | **Schema packs (registry/cache)** | `gcp brain schema …` | Local or remote schema packs: `list`, `pull`, `show`, `remove`. Legacy alias: `gcp ontologies …`. |
 | **Native ontology source import/export** | MCP `ghostcrab_ontology_import`; CLI `gcp brain ontology compile\|import\|export\|export-linkml\|inspect …` | Import LinkML or normalized OWL2/RDF N-Triples into MindBrain native `ontology_*` tables; inspect/export preserved N-Triples, taxonomy bundles, or LinkML slices. |

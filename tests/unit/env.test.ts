@@ -11,7 +11,7 @@ describe("resolveGhostcrabConfig", () => {
     const config = resolveGhostcrabConfig({});
 
     expect(config).toEqual({
-      bootstrapSeedEnabled: true,
+      bootstrapSeedEnabled: false,
       embeddingApiKey: undefined,
       embeddingBaseUrl: "https://openrouter.ai/api/v1",
       embeddingDimensions: 1536,
@@ -49,7 +49,7 @@ describe("resolveGhostcrabConfig", () => {
     });
 
     expect(config).toEqual({
-      bootstrapSeedEnabled: true,
+      bootstrapSeedEnabled: false,
       embeddingApiKey: undefined,
       embeddingBaseUrl: "https://openrouter.ai/api/v1",
       embeddingDimensions: 768,

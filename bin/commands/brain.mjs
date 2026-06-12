@@ -6,6 +6,7 @@
 
 import { readConfig } from "../lib/cli-config.mjs";
 import { resolve } from "node:path";
+import { slugifyWorkspace } from "../lib/workspace-slug.mjs";
 
 export async function cmdBrain(args) {
   const sub = args[0];
@@ -802,6 +803,8 @@ Subcommands:
   create [name]     Create / register a workspace (default name: default)
                       Same flags as gcp init: --no-skills, --force-skills
   list                List registered logical workspace_ids
+  bootstrap <name> --profile <id>|--profile-file <path>
+                      Load demo profile data into an explicit workspace
   reset --id <id> --confirm
                       Wipe workspace-scoped MindBrain data (MCP mirror)
   delete --id <id> --confirm [--mode hard|soft]
@@ -821,6 +824,11 @@ Aliases:  gcp init [name]  →  gcp brain workspace create [name]
 
   if (sub === "list" || sub === "ls") {
     cmdWorkspaceList();
+    return;
+  }
+
+  if (sub === "bootstrap") {
+    await cmdWorkspaceBootstrap(rest);
     return;
   }
 
@@ -859,6 +867,120 @@ function cmdWorkspaceList() {
   }
 }
 
+async function cmdWorkspaceBootstrap(args) {
+  if (!args[0] || args[0] === "--help" || args[0] === "-h") {
+    printWorkspaceBootstrapHelp();
+    return;
+  }
+
+  const workspace = slugifyWorkspace(args[0]);
+  if (!workspace) {
+    console.error("gcp brain workspace bootstrap: workspace id is required.");
+    process.exit(1);
+  }
+
+  let profileId = null;
+  let profileFile = null;
+  let skillsRepoRoot = null;
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+
+    if (arg === "--help" || arg === "-h") {
+      printWorkspaceBootstrapHelp();
+      return;
+    }
+
+    if (arg === "--profile") {
+      profileId = args[i + 1] ?? null;
+      if (!profileId) {
+        console.error("gcp brain workspace bootstrap: --profile requires an id.");
+        process.exit(1);
+      }
+      i += 1;
+      continue;
+    }
+
+    if (arg === "--profile-file") {
+      profileFile = args[i + 1] ?? null;
+      if (!profileFile) {
+        console.error(
+          "gcp brain workspace bootstrap: --profile-file requires a path."
+        );
+        process.exit(1);
+      }
+      i += 1;
+      continue;
+    }
+
+    if (arg === "--skills-repo-root") {
+      skillsRepoRoot = args[i + 1] ?? null;
+      if (!skillsRepoRoot) {
+        console.error(
+          "gcp brain workspace bootstrap: --skills-repo-root requires a path."
+        );
+        process.exit(1);
+      }
+      i += 1;
+      continue;
+    }
+
+    if (arg === args[0]) {
+      continue;
+    }
+
+    console.error(
+      `gcp brain workspace bootstrap: unknown argument "${arg}".`
+    );
+    process.exit(1);
+  }
+
+  if (!profileId && !profileFile) {
+    console.error(
+      "gcp brain workspace bootstrap requires --profile <id> or --profile-file <path>."
+    );
+    process.exit(1);
+  }
+
+  if (profileId && profileFile) {
+    console.error(
+      "gcp brain workspace bootstrap supports only one of --profile or --profile-file."
+    );
+    process.exit(1);
+  }
+
+  const { cmdLoad } = await import("./load.mjs");
+  const loadArgs = ["--workspace", workspace];
+  if (profileFile) {
+    loadArgs.push("--profile-file", profileFile);
+  } else if (profileId) {
+    loadArgs.push("--profile", profileId);
+  }
+  if (skillsRepoRoot) {
+    loadArgs.push("--skills-repo-root", skillsRepoRoot);
+  }
+
+  await cmdLoad(loadArgs);
+}
+
+function printWorkspaceBootstrapHelp() {
+  console.log(
+    `
+Usage: gcp brain workspace bootstrap <name> [--profile <id>|--profile-file <path>]
+
+Load demo profile data into an explicit workspace.
+
+  --profile <id>            Demo profile id (shared/demo-profiles/<id>.jsonl)
+  --profile-file <path>     Custom demo JSONL file
+  --skills-repo-root <path> Override demo profile root for --profile
+
+Examples:
+  gcp brain workspace bootstrap demo-casino --profile casino
+  gcp brain workspace bootstrap demo-casino --profile-file /tmp/custom-demo.jsonl
+`.trim()
+  );
+}
+
 /**
  * @param {{ mindbrainWorkspaceId?: string | null, workspace?: string | null }} p
  */
@@ -888,6 +1010,8 @@ Subcommands:
                                            or every GhostCrab process (--all)
   workspace create [name]                 Register a workspace & data paths
   workspace list                          List workspaces
+  workspace bootstrap <name> --profile <id>|--profile-file <path>
+                                         Load demo profile into workspace
   schema <list|pull|remove|show>           Local schema packs from the registry/cache
   ontology import|export|inspect [opts]   Native ontology_* import/export/inspection
   db-who [--path] [--workspace]            Which processes have the SQLite file open (lsof)
@@ -914,6 +1038,7 @@ Examples:
   gcp brain down
   gcp brain down --all
   gcp brain workspace create my-app
+  gcp brain workspace bootstrap my-app --profile casino
   gcp brain schema pull mindflight/mindbrain
   gcp brain ontology import --workspace-id my_ws --ontology-id my_ws::owl --input ./ontology.nt --materialize-graph
   gcp brain ontology export --ontology-id my_ws::owl --format ntriples -o ./ontology.nt

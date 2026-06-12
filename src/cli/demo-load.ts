@@ -117,12 +117,14 @@ interface DemoLoadSummary {
 
 function parseArgs(argv: string[]): {
   profileId: string;
+  workspaceId: string | null;
   skillsRepoRoot: string;
   profileFile: string | null;
 } {
   let profileId: string | null = null;
   let profileFile: string | null = null;
   let skillsRepoRoot = path.resolve(process.cwd(), "..", "ghostcrab-skills");
+  let workspaceId: string | null = null;
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
@@ -144,6 +146,14 @@ function parseArgs(argv: string[]): {
       index += 1;
       continue;
     }
+    if (arg === "--workspace" || arg === "-w") {
+      workspaceId = argv[index + 1] ?? null;
+      if (!workspaceId) {
+        throw new Error("Demo load --workspace requires an id.");
+      }
+      index += 1;
+      continue;
+    }
   }
 
   if (profileFile) {
@@ -153,12 +163,14 @@ function parseArgs(argv: string[]): {
   } else if (!profileId) {
     throw new Error(
       "Usage: pnpm run demo:load -- --profile <profile-id> [--skills-repo-root <path>]\n" +
-        "   or: pnpm run demo:load -- --profile-file <path.jsonl>"
+        "   or: pnpm run demo:load -- --profile-file <path.jsonl>\n" +
+        "Optional: --workspace <id> to force all imported facts/nodes/edges into that workspace"
     );
   }
 
   return {
     profileId: profileId ?? "",
+    workspaceId,
     skillsRepoRoot,
     profileFile
   };
@@ -215,9 +227,17 @@ async function ensureRememberEntry(
       WHERE schema_id = $1
         AND content = $2
         AND facets_json = $3::jsonb
+        AND (
+          workspace_id = $4 OR (workspace_id IS NULL AND $4 IS NULL)
+        )
       LIMIT 1
     `,
-    [entry.schema_id, entry.content, JSON.stringify(entry.facets)]
+    [
+      entry.schema_id,
+      entry.content,
+      JSON.stringify(entry.facets),
+      workspaceId
+    ]
   );
 
   if (existing) {
@@ -571,9 +591,10 @@ export async function loadDemoProfile(
   config: GhostcrabConfig,
   queryable: Queryable,
   entries: DemoSeedEntry[],
-  profileId: string
+  profileId: string,
+  targetWorkspaceId?: string | null
 ): Promise<DemoLoadSummary> {
-  const workspaceId = profileId;
+  const workspaceId = targetWorkspaceId || profileId;
   const summary: DemoLoadSummary = {
     insertedArtifacts: 0,
     insertedEdges: 0,
@@ -635,7 +656,7 @@ export async function loadDemoProfile(
 
 /** Load a portable demo profile into the configured MindBrain backend. */
 export async function runDemoLoad(argv: string[]): Promise<void> {
-  const { profileId, skillsRepoRoot, profileFile } = parseArgs(argv);
+  const { profileId, skillsRepoRoot, profileFile, workspaceId } = parseArgs(argv);
   const config = resolveGhostcrabConfig();
   const database = createDatabaseClient(config);
 
@@ -647,12 +668,13 @@ export async function runDemoLoad(argv: string[]): Promise<void> {
     const resolvedProfileId = profileFile
       ? inferProfileIdFromEntries(entries, profileFile)
       : profileId;
+    const resolvedWorkspaceId = workspaceId || resolvedProfileId;
 
     console.error(
-      `[ghostcrab] Loading demo profile ${resolvedProfileId} from ${profileFile ?? path.join(skillsRepoRoot, "shared", "demo-profiles", `${profileId}.jsonl`)} against ${config.mindbrainUrl}`
+      `[ghostcrab] Loading demo profile ${resolvedProfileId} into workspace ${resolvedWorkspaceId} from ${profileFile ?? path.join(skillsRepoRoot, "shared", "demo-profiles", `${profileId}.jsonl`)} against ${config.mindbrainUrl}`
     );
     const summary = await database.transaction((queryable) =>
-      loadDemoProfile(config, queryable, entries, resolvedProfileId)
+      loadDemoProfile(config, queryable, entries, resolvedProfileId, resolvedWorkspaceId)
     );
 
     console.error(
