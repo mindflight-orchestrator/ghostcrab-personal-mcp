@@ -92,6 +92,7 @@
     "start": "node dist/index.js",
     "test": "vitest run",
     "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:integration:live": "sh scripts/run-integration-tests.sh",
     "typecheck": "tsc --noEmit --project tsconfig.json",
     "verify:pack": "node scripts/verify-pack.mjs",
     "verify:local-install": "node scripts/verify-local-install.mjs",

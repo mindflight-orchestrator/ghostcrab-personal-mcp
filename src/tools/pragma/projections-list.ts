@@ -162,14 +162,14 @@ async function listGraphProjectionIds(
       SELECT DISTINCT
         json_extract(ge.metadata_json, '$.projection_id') AS projection_id,
         ge.name,
-        ge.collection_id
+        json_extract(ge.metadata_json, '$.collection_id') AS collection_id
       FROM graph_entity ge
-      WHERE ge.workspace_id = ?
+      WHERE ge.workspace_id = $1
         AND ge.entity_type = 'ProjectionResult'
         AND json_extract(ge.metadata_json, '$.projection_id') IS NOT NULL
         AND trim(json_extract(ge.metadata_json, '$.projection_id')) != ''
       ORDER BY projection_id
-      LIMIT ?
+      LIMIT $2
     `,
     [workspaceId, limit]
   );

@@ -61,12 +61,13 @@ describe("answer-artifact-cli helpers", () => {
         scope: "ws_demo",
         limit: 25
       });
-      expect(sql).toContain("workspace_id = ?");
+      expect(sql).toContain("(workspace_id = ? OR scope = ?)");
       expect(sql).toContain("artifact_kind = ?");
       expect(sql).toContain("agent_id = ?");
       expect(sql).toContain("scope = ?");
       expect(sql).toContain("LIMIT 25");
       expect(params).toEqual([
+        "ws_demo",
         "ws_demo",
         "live_answer_view",
         "agent:self",

@@ -1,5 +1,5 @@
 import { mkdtempSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { beforeAll } from "vitest";
 
@@ -51,12 +51,28 @@ const TOOL_HANDLERS = {
   ghostcrab_upsert: upsertTool
 } satisfies Record<string, ToolHandler>;
 
-const SQLITE_TEST_DIR = mkdtempSync(join(tmpdir(), "ghostcrab-sqlite-tests-"));
-const SQLITE_TEST_DB_PATH = join(SQLITE_TEST_DIR, "integration.sqlite");
+function resolveIntegrationSqlitePaths(): { dir: string; dbPath: string } {
+  const configuredPath = process.env.GHOSTCRAB_SQLITE_PATH?.trim();
+  if (configuredPath) {
+    return {
+      dir: dirname(configuredPath),
+      dbPath: configuredPath
+    };
+  }
+
+  const dir = mkdtempSync(join(tmpdir(), "ghostcrab-sqlite-tests-"));
+  return {
+    dir,
+    dbPath: join(dir, "integration.sqlite")
+  };
+}
+
+const { dir: SQLITE_TEST_DIR, dbPath: SQLITE_TEST_DB_PATH } =
+  resolveIntegrationSqlitePaths();
 
 function ensureSqliteTestEnv(): void {
   process.env.GHOSTCRAB_MINDBRAIN_URL =
-    process.env.GHOSTCRAB_MINDBRAIN_URL ?? "http://127.0.0.1:8091";
+    process.env.GHOSTCRAB_MINDBRAIN_URL ?? "http://127.0.0.1:18191";
   process.env.GHOSTCRAB_MINDBRAIN_HTTP_TIMEOUT_MS =
     process.env.GHOSTCRAB_MINDBRAIN_HTTP_TIMEOUT_MS ?? "30000";
   process.env.GHOSTCRAB_SQLITE_PATH = SQLITE_TEST_DB_PATH;
@@ -113,6 +129,9 @@ export async function closeIntegrationDatabase(
   database: DatabaseClient
 ): Promise<void> {
   await database.close();
+  if (process.env.GHOSTCRAB_INTEGRATION_EXTERNALLY_MANAGED === "1") {
+    return;
+  }
   rmSync(SQLITE_TEST_DIR, { force: true, recursive: true });
 }
 
