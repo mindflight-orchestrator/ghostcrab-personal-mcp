@@ -18,12 +18,12 @@ import { spawnSync } from "node:child_process";
 const pkgRoot = resolve(fileURLToPath(import.meta.url), "..", "..");
 const gcp = join(pkgRoot, "bin", "gcp.mjs");
 const runner = join(pkgRoot, "scripts", "run-structured-import-system.mjs");
-const manifests = [
-  resolve(pkgRoot, "examples/immeuble/structured-import/manifests/manifest.yaml")
-];
+const defaultManifest = resolve(pkgRoot, "examples/immeuble/structured-import/manifests/manifest-fake-data.yaml");
+const manifests = [parseFlag(process.argv.slice(2), "--manifest", defaultManifest)];
 
 const args = process.argv.slice(2);
-const workspaceId = parseFlag(args, "--workspace-id", "immeuble-structured-import");
+const workspaceId = parseFlag(args, "--workspace-id", "immeuble");
+const engine = parseFlag(args, "--engine", "legacy");
 const dbPath = parseFlag(
   args,
   "--db",
@@ -113,6 +113,7 @@ function runRunner(manifestArgs, includeApply) {
     "--db",
     dbPath
   ];
+  runnerArgs.push("--engine", engine);
   if (runWithPreflight) {
     runnerArgs.push("--preflight");
   } else if (runWithSkipPreflight) {

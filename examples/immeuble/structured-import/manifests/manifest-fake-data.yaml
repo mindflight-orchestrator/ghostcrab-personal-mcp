@@ -1,0 +1,21 @@
+project_id: immeuble-structured-import-demo
+workspace_id: immeuble
+source:
+  kind: auto
+  input: ../fixtures/fake_data
+  delimiter: ","
+ontology:
+  model: ../contracts/immeuble_structured_import_model.json
+mapping:
+  file: ../contracts/mapping_external_to_canonical.json
+expected_taxonomies:
+  - core:copropriete
+  - core:personne
+  - core:lot
+import:
+  mode: append
+  skip_profile_validation: false
+  reindex:
+    enabled: true
+    scope: all
+  output_dir: /tmp/immeuble-structured-import-fake-data

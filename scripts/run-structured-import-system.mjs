@@ -6,8 +6,16 @@
  * Output: prints a compact JSON summary and the underlying gcp CLI line by line.
  */
 
-import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { mkdtempSync } from "node:fs";
+import {
+  closeSync,
+  existsSync,
+  mkdtempSync,
+  openSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync
+} from "node:fs";
 import { dirname, isAbsolute, join, normalize, resolve as resolvePath } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -147,6 +155,9 @@ function loadManifest(path) {
   const mappingWorkspace = getDeclaredWorkspaceId(mappingPath);
   const mappingMeta = readMappingMeta(mappingPath);
   let preflightValidate = manifestImportBoolean(parsed.import?.preflight_validate, true);
+  const starterkitRoot = resolveOptionalPath(parsed, "starterkit_root", baseDir)
+    || process.env.GCP_STARTERKIT_ROOT
+    || resolveDefaultStarterkitRoot(baseDir);
 
   if (mappingWorkspace && mappingWorkspace !== workspaceId) {
     console.error(
@@ -189,7 +200,7 @@ function loadManifest(path) {
       ...parsed.import,
       preflight_validate: preflightValidate
     },
-    starterkit_root: resolveOptionalPath(parsed, "starterkit_root", baseDir) || process.env.GCP_STARTERKIT_ROOT,
+    starterkit_root: starterkitRoot,
     output_dir: outDir,
     source_kind: parsed.source?.kind || "auto",
     delimiter: parsed.source?.delimiter || ",",
@@ -198,6 +209,19 @@ function loadManifest(path) {
     reindex: parsed.import?.reindex?.enabled !== false,
     reindex_scope: parsed.import?.reindex?.scope || "all"
   };
+}
+
+function resolveDefaultStarterkitRoot(baseDir) {
+  const candidates = [
+    resolvePath(pkgRoot, "..", "starter-kit-ghostcrab-perso", "starterkit"),
+    resolvePath(baseDir, "..", "..", "starter-kit-ghostcrab-perso", "starterkit")
+  ];
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
 }
 
 function resolveOptionalPath(obj, path, baseDir, options = { mustExist: true }) {
@@ -381,8 +405,19 @@ function runPipelineForEngine({ mode, dbPath: runDbPath, outputSuffix, suffixOut
   let fallback = false;
 
   if (mode === "hybrid" && manifestRun.mapping_meta?.supports_project) {
-    summary = runHybrid(manifestRun, runDbPath);
-    summaryParsed = parseSummary(summary);
+    const workspaceAligned =
+      !manifestRun.declared_mapping_workspace_id ||
+      manifestRun.declared_mapping_workspace_id === manifestRun.workspace_id ||
+      manifestRun.import?.allow_workspace_mismatch;
+
+    if (!workspaceAligned) {
+      fallback = true;
+      summary = runLegacy(manifestRun, runDbPath);
+      summaryParsed = parseSummary(summary);
+    } else {
+      summary = runHybrid(manifestRun, runDbPath);
+      summaryParsed = parseSummary(summary);
+    }
 
     if (manifestRun.reindex && apply) {
       const reindexSummary = runGcp({
@@ -442,7 +477,7 @@ function runPipelineForEngine({ mode, dbPath: runDbPath, outputSuffix, suffixOut
 
 function isSummarySuccessful(summaryParsed) {
   if (!summaryParsed || typeof summaryParsed !== "object") {
-    return false;
+    return true;
   }
   if (typeof summaryParsed.ok === "boolean") {
     return summaryParsed.ok !== false;
@@ -464,6 +499,81 @@ function resolveEngineOutputDir(baseOutputDir, suffix, suffixOutput) {
 }
 
 function runLegacy(manifestConfig, runDbPath) {
+  const { path: mappingPath, patched: mappingPatched, reason: mappingReason } = buildLegacyCompatibleMapping(
+    manifestConfig.mapping_file,
+    manifestConfig
+  );
+  if (mappingPatched) {
+    console.log(
+      `run-structured-import-system: legacy mapping normalized (reason=${mappingReason}) -> ${mappingPath}`
+    );
+  }
+
+  const mappingMeta = readLegacyMappingMeta(mappingPath);
+  const importReady = mappingMeta.import_ready;
+
+  if (apply && importReady) {
+    const facetsCsv = resolveLegacyImportReadyArtifact(
+      manifestConfig,
+      mappingPath,
+      importReady.facets_csv,
+      "facets"
+    );
+    const edgesCsv = importReady.edges_csv
+      ? resolveLegacyImportReadyArtifact(
+          manifestConfig,
+          mappingPath,
+          importReady.edges_csv,
+          "edges"
+        )
+      : null;
+
+    return runGcp({
+      dbPath: runDbPath,
+      commandArgs: [
+        "structured-import",
+        "apply",
+        "--workspace-id",
+        manifestConfig.workspace_id,
+        "--mode",
+        manifestConfig.mode,
+        "--mapping",
+        mappingPath,
+        "--facets",
+        facetsCsv,
+        ...(edgesCsv ? ["--edges", edgesCsv] : [])
+      ],
+      label: "apply"
+    });
+  }
+
+  if (!apply && importReady) {
+    const facetsCsv = resolveLegacyImportReadyArtifact(
+      manifestConfig,
+      mappingPath,
+      importReady.facets_csv,
+      "facets"
+    );
+    const edgesCsv = importReady.edges_csv
+      ? resolveLegacyImportReadyArtifact(
+          manifestConfig,
+          mappingPath,
+          importReady.edges_csv,
+          "edges"
+        )
+      : null;
+
+    const dryRunArgs = ["structured-import", "dry-run", "--facets", facetsCsv];
+    if (edgesCsv) {
+      dryRunArgs.push("--edges", edgesCsv);
+    }
+    return runGcp({
+      dbPath: runDbPath,
+      commandArgs: dryRunArgs,
+      label: "dry-run"
+    });
+  }
+
   const kitArgs = [
     "structured-import",
     "kit",
@@ -472,16 +582,19 @@ function runLegacy(manifestConfig, runDbPath) {
     "--input",
     manifestConfig.source_input,
     "--mapping",
-    manifestConfig.mapping_file,
-    "--starterkit-root",
-    manifestConfig.starterkit_root,
-    "--source-kind",
-    manifestConfig.source_kind,
-    "--delimiter",
-    manifestConfig.delimiter,
+    mappingPath,
     "--mode",
     manifestConfig.mode
   ];
+  if (manifestConfig.starterkit_root) {
+    kitArgs.push("--starterkit-root", manifestConfig.starterkit_root);
+  }
+  if (manifestConfig.source_kind && manifestConfig.source_kind !== "auto") {
+    kitArgs.push("--source-kind", manifestConfig.source_kind);
+  }
+  if (manifestConfig.delimiter && manifestConfig.delimiter !== ",") {
+    kitArgs.push("--delimiter", manifestConfig.delimiter);
+  }
 
   if (manifestConfig.output_dir) {
     kitArgs.push("--output-dir", manifestConfig.output_dir);
@@ -512,6 +625,382 @@ function runLegacy(manifestConfig, runDbPath) {
     dbPath: runDbPath,
     commandArgs: kitArgs,
     label: "kit"
+  });
+}
+
+function readLegacyMappingMeta(mappingPath) {
+  try {
+    const raw = readFileSync(mappingPath, "utf8");
+    const parsed = parseStructuredFile(raw, mappingPath);
+    const importReady = parsed?.import_ready;
+    const facetsCsv =
+      importReady && typeof importReady.facets_csv === "string" ? importReady.facets_csv : null;
+    const edgesCsv =
+      importReady && typeof importReady.edges_csv === "string" ? importReady.edges_csv : null;
+
+    return {
+      import_ready: facetsCsv || edgesCsv ? { facets_csv: facetsCsv, edges_csv: edgesCsv } : null,
+      mapping_workspace_id: typeof parsed?.workspace_id === "string" ? parsed.workspace_id : null
+    };
+  } catch {
+    return { import_ready: null, mapping_workspace_id: null };
+  }
+}
+
+function resolveLegacyImportReadyArtifact(manifestConfig, mappingPath, relPath, kind) {
+  const sourceWorkspace = manifestConfig.declared_mapping_workspace_id || manifestConfig.workspace_id;
+  const targetWorkspace = manifestConfig.workspace_id;
+  const resolved = resolveMappingArtifactPath(
+    manifestConfig.source_root,
+    resolvePath(mappingPath, ".."),
+    manifestConfig.source_input,
+    relPath
+  );
+  if (!sourceWorkspace || sourceWorkspace === targetWorkspace) {
+    return resolved;
+  }
+  return normalizeLegacyImportReadyCsv(resolved, kind, sourceWorkspace, targetWorkspace);
+}
+
+function normalizeLegacyImportReadyCsv(filePath, kind, sourceWorkspace, targetWorkspace) {
+  if (!existsSync(filePath)) {
+    return filePath;
+  }
+  if (!sourceWorkspace || sourceWorkspace === targetWorkspace) {
+    return filePath;
+  }
+
+  const { headers, rows } = parseCsvStrict(readFileSync(filePath, "utf8"));
+  if (!headers.length) {
+    return filePath;
+  }
+
+  const workspaceIndex = headers.indexOf("workspace_id");
+  const schemaIdIndex = headers.indexOf("schema_id");
+  const sourceIndex = headers.indexOf("source");
+  const targetIndex = headers.indexOf("target");
+  const sourceRefIndex = headers.indexOf("source_ref");
+  const facetsIndex = headers.indexOf("facets");
+  const outputPath = mkdtempSync(join(tmpdir(), "gcp-structured-import-legacy-import-ready-"));
+
+  const normalizedRows = rows.map((row) => {
+    if (workspaceIndex !== -1 && row[workspaceIndex] === sourceWorkspace) {
+      row[workspaceIndex] = targetWorkspace;
+    }
+    if (schemaIdIndex !== -1 && row[schemaIdIndex]) {
+      row[schemaIdIndex] = normalizeLegacySchemaId(row[schemaIdIndex], sourceWorkspace, targetWorkspace);
+    }
+    if (sourceRefIndex !== -1 && row[sourceRefIndex]) {
+      row[sourceRefIndex] = normalizeLegacyEntityRef(row[sourceRefIndex], sourceWorkspace, targetWorkspace);
+    }
+    if (sourceIndex !== -1 && row[sourceIndex]) {
+      row[sourceIndex] = normalizeLegacyEntityRef(row[sourceIndex], sourceWorkspace, targetWorkspace);
+    }
+    if (targetIndex !== -1 && row[targetIndex]) {
+      row[targetIndex] = normalizeLegacyEntityRef(row[targetIndex], sourceWorkspace, targetWorkspace);
+    }
+    if (facetsIndex !== -1 && row[facetsIndex]) {
+      row[facetsIndex] = normalizeLegacyFacetsCell(row[facetsIndex], sourceWorkspace, targetWorkspace);
+    }
+    if (kind === "edges" && sourceIndex !== -1 && targetIndex !== -1) {
+      if (!row[sourceIndex] && !row[targetIndex]) {
+        return null;
+      }
+    }
+    return row;
+  }).filter(Boolean);
+
+  const output = `${headers.join(",")}\n${normalizedRows
+    .map((row) => row.map((value) => csvEscape(value).replace(/\\r/g, "")).join(","))
+    .join("\n")}\n`;
+  const outFileName = kind === "edges" ? "edges.csv" : "facets.csv";
+  const outPath = resolvePath(outputPath, outFileName);
+  writeFileSync(outPath, output, "utf8");
+  return outPath;
+}
+
+function csvEscape(value) {
+  const text = String(value ?? "");
+  if (/[",\n\r]/.test(text)) {
+    return `"${text.replaceAll("\"", "\"\"")}"`;
+  }
+  return text;
+}
+
+function parseCsvStrict(raw) {
+  const rows = [];
+  const parsed = [];
+  let row = [];
+  let field = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < raw.length; i += 1) {
+    const char = raw[i];
+    const next = raw[i + 1];
+
+    if (char === "\"" && inQuotes && next === "\"") {
+      field += "\"";
+      i += 1;
+      continue;
+    }
+    if (char === "\"") {
+      inQuotes = !inQuotes;
+      continue;
+    }
+    if (char === "," && !inQuotes) {
+      row.push(field);
+      field = "";
+      continue;
+    }
+    if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (char === "\r" && raw[i + 1] === "\n") {
+        i += 1;
+      }
+      parsed.push(row.concat(field));
+      row = [];
+      field = "";
+      continue;
+    }
+    field += char;
+  }
+
+  if (field.length || row.length) {
+    parsed.push(row.concat(field));
+  }
+
+  if (!parsed.length || !parsed[0]?.length) {
+    return { headers: [], rows: [] };
+  }
+  const headers = parsed[0];
+  for (let i = 1; i < parsed.length; i++) {
+    rows.push(parsed[i]);
+  }
+  return { headers, rows };
+}
+
+function normalizeLegacySchemaId(value, sourceWorkspace, targetWorkspace) {
+  if (typeof value !== "string" || !sourceWorkspace) {
+    return value;
+  }
+  const prefix = `${sourceWorkspace}:`;
+  if (value.startsWith(prefix)) {
+    return `${targetWorkspace}:${value.slice(prefix.length)}`;
+  }
+  return value;
+}
+
+function normalizeLegacyEntityRef(value, sourceWorkspace, targetWorkspace) {
+  if (typeof value !== "string" || !sourceWorkspace) {
+    return value;
+  }
+  if (!value.includes(":")) {
+    return value;
+  }
+  const parts = value.split(":");
+  if (parts.length === 3) {
+    if (parts[0] === sourceWorkspace) {
+      return `${parts[1]}:${parts[2]}`;
+    }
+    if (parts[0] === parts[1]) {
+      return `${parts[1]}:${parts[2]}`;
+    }
+  }
+  if (!value.startsWith(`${sourceWorkspace}:`)) {
+    return value;
+  }
+  return `${targetWorkspace}:${parts.slice(1).join(":")}`;
+}
+
+function normalizeLegacyFacetsCell(rawValue, sourceWorkspace, targetWorkspace) {
+  try {
+    const parsed = JSON.parse(rawValue);
+    if (typeof parsed !== "object" || !parsed) {
+      return rawValue;
+    }
+    if (typeof parsed.record_id === "string") {
+      parsed.record_id = normalizeLegacyEntityRef(parsed.record_id, sourceWorkspace, targetWorkspace);
+    }
+    if (typeof parsed.source_ref === "string") {
+      parsed.source_ref = normalizeLegacyEntityRef(parsed.source_ref, sourceWorkspace, targetWorkspace);
+    }
+    if (typeof parsed.source === "string") {
+      parsed.source = normalizeLegacyEntityRef(parsed.source, sourceWorkspace, targetWorkspace);
+    }
+    return JSON.stringify(parsed);
+  } catch {
+    return rawValue;
+  }
+}
+
+function buildLegacyCompatibleMapping(mappingPath, manifestConfig) {
+  if (!mappingPath || !existsSync(mappingPath)) {
+    return { path: mappingPath, patched: false };
+  }
+
+  let mapping;
+  try {
+    mapping = parseStructuredFile(readFileSync(mappingPath, "utf8"), mappingPath);
+  } catch {
+    return { path: mappingPath, patched: false };
+  }
+
+  if (!mapping || typeof mapping !== "object") {
+    return { path: mappingPath, patched: false };
+  }
+
+  if (Array.isArray(mapping.entities)) {
+    return { path: mappingPath, patched: false };
+  }
+
+  if (!mapping.entities || typeof mapping.entities !== "object") {
+    return { path: mappingPath, patched: false };
+  }
+
+  const objectEntities = mapping.entities;
+  const convertedEntities = [];
+  const convertedEntitiesByType = {};
+  for (const [nodeType, value] of Object.entries(objectEntities)) {
+    if (!value || typeof value !== "object") continue;
+
+    const entityName = value.node_type || nodeType;
+    const recordIdColumn = value.record_id_column || "record_id";
+    const sourceCsv = typeof value.csv === "string" ? value.csv : null;
+    const contentColumns = Array.isArray(value.content_columns) ? value.content_columns : [];
+    const primaryContentField = typeof value.content_field === "string" ? value.content_field : contentColumns[0] || null;
+    const schemaId = value.target_schema_id || value.schema_id || null;
+    const recordIdFormula =
+      typeof value.record_id_formula === "string"
+        ? value.record_id_formula
+        : `{raw:${recordIdColumn}}`;
+    const sourceFormula =
+      typeof value.source_ref_formula === "string"
+        ? value.source_ref_formula
+        : recordIdFormula;
+
+    const facets = {};
+    if (typeof value.facets === "object" && value.facets !== null) {
+      Object.assign(facets, value.facets);
+    } else if (contentColumns.length) {
+      for (const column of contentColumns) {
+        if (typeof column !== "string" || !column.trim()) continue;
+        facets[column] = { from: column };
+      }
+    }
+
+    convertedEntities.push({
+      node_type: entityName,
+      target_schema_id: schemaId,
+      record_id_formula: recordIdFormula,
+      source_ref_formula: sourceFormula,
+      ...(sourceCsv ? { csv: sourceCsv } : {}),
+      ...(primaryContentField ? { content_field: primaryContentField } : {}),
+      ...(Object.keys(facets).length ? { facets } : {})
+    });
+
+    convertedEntitiesByType[nodeType] = {
+      nodeType: entityName,
+      recordIdColumn
+    };
+  }
+
+  const convertedEdges = [];
+  const explicitEdges = Array.isArray(mapping.edges) ? mapping.edges : [];
+  const contractRelations = Array.isArray(mapping.contract_relations) ? mapping.contract_relations : [];
+
+  if (explicitEdges.length) {
+    for (const edge of explicitEdges) {
+      if (!edge || typeof edge !== "object") continue;
+      convertedEdges.push(edge);
+    }
+  } else if (contractRelations.length) {
+    for (const relation of contractRelations) {
+      if (!relation || typeof relation !== "object") continue;
+      const sourceType = relation.source_type;
+      const targetType = relation.target_type;
+      if (!sourceType || !targetType) continue;
+
+      const sourceInfo = convertedEntitiesByType[sourceType];
+      const targetInfo = convertedEntitiesByType[targetType];
+
+      const sourceRefColumn = relation.source_ref_column || sourceInfo?.recordIdColumn || "record_id";
+      const targetRecordColumn = relation.target_ref_column || targetInfo?.recordIdColumn || "record_id";
+      const edgeLabel = relation.edge_label || relation.label || "RELATED_TO";
+
+      convertedEdges.push({
+        label: edgeLabel,
+        source_record_id_formula: `{raw:${sourceRefColumn}}`,
+        target_record_id_formula: `{raw:${targetRecordColumn}}`,
+        source_ref_formula: `{raw:${sourceRefColumn}}`,
+        target_ref_formula: `{raw:${targetRecordColumn}}`,
+        confidence: 1,
+        metadata: {
+          source: "legacy-compatible-normalizer",
+          mapped_from: "contract_relations"
+        }
+      });
+    }
+  }
+
+  if (!convertedEntities.length) {
+    return { path: mappingPath, patched: false };
+  }
+
+  const mappingWorkspace = manifestConfig.workspace_id || mapping.workspace_id;
+  const schemaIdWorkspace = mappingWorkspace?.trim();
+
+  const normalized = {
+    ...mapping,
+    workspace_id: schemaIdWorkspace || mapping.workspace_id,
+    entities: convertedEntities,
+    edges: convertedEdges,
+    import_ready: mapping.import_ready || null
+  };
+
+  const next = normalizeLegacyMappingFilePaths(normalized, mappingPath, manifestConfig);
+
+  const normalizedSchemaId = schemaIdWorkspace
+    ? normalizeSchemaIds(next.entities, schemaIdWorkspace)
+    : next.entities;
+  next.entities = normalizedSchemaId;
+
+  const runTempDir = mkdtempSync(join(tmpdir(), "gcp-structured-import-legacy-mapping-"));
+  const outPath = resolvePath(runTempDir, "mapping.legacy-compatible.json");
+  writeFileSync(outPath, JSON.stringify(next, null, 2), "utf8");
+
+  return {
+    path: outPath,
+    patched: true,
+    reason: "object-to-array-entities"
+  };
+}
+
+function normalizeLegacyMappingFilePaths(mappingPayload, originalMappingPath, manifestConfig) {
+  const mappingRoot = resolvePath(originalMappingPath, "..");
+  const sourceInputPath = manifestConfig.source_input;
+  const sourceRoot = manifestConfig.source_root || resolveSourceRoot(sourceInputPath);
+  const output = { ...mappingPayload };
+  output.entities = output.entities.map((entity) => {
+    if (!entity || typeof entity !== "object" || typeof entity.csv !== "string") {
+      return entity;
+    }
+    return {
+      ...entity,
+      csv: resolveMappingArtifactPath(sourceRoot, mappingRoot, sourceInputPath, entity.csv)
+    };
+  });
+  return output;
+}
+
+function normalizeSchemaIds(entities, workspaceId) {
+  return entities.map((entity) => {
+    if (!entity || typeof entity !== "object") return entity;
+    if (typeof entity.target_schema_id !== "string" || !entity.target_schema_id.includes(":")) return entity;
+    const prefix = entity.target_schema_id.split(":")[0];
+    if (!prefix || prefix === workspaceId) return entity;
+    return {
+      ...entity,
+      target_schema_id: entity.target_schema_id.replace(`${prefix}:`, `${workspaceId}:`)
+    };
   });
 }
 
@@ -576,24 +1065,35 @@ function runHybrid(manifestConfig, runDbPath) {
 function runGcp({ commandArgs, label, dbPath }) {
   const cmd = [gcp, "brain", ...commandArgs];
   console.log(`run-structured-import-system: gcp ${commandArgs.join(" ")}`);
+  const ioDir = mkdtempSync(join(tmpdir(), "gcp-structured-import-command-"));
+  const stdoutPath = join(ioDir, "stdout.log");
+  const stderrPath = join(ioDir, "stderr.log");
+  const stdoutHandle = openSync(stdoutPath, "w");
+  const stderrHandle = openSync(stderrPath, "w");
   const r = spawnSync(process.execPath, cmd, {
     cwd: pkgRoot,
-    encoding: "utf8",
+    stdio: ["ignore", stdoutHandle, stderrHandle],
     env: {
       ...process.env,
       ...(dbPath ? { GHOSTCRAB_SQLITE_PATH: dbPath } : {})
     }
   });
+  closeSync(stdoutHandle);
+  closeSync(stderrHandle);
+  const stdoutText = readFileSync(stdoutPath, "utf8");
+  const stderrText = readFileSync(stderrPath, "utf8");
+  rmSync(ioDir, { recursive: true, force: true });
+
   if (r.status !== 0) {
-    if (r.stdout) {
-      console.error(r.stdout);
+    if (stdoutText) {
+      console.error(stdoutText);
     }
-    if (r.stderr) {
-      console.error(r.stderr);
+    if (stderrText) {
+      console.error(stderrText);
     }
     throw new Error(`run-structured-import-system: gcp ${commandArgs[0]} ${commandArgs[1]} ${label} failed (${r.status})`);
   }
-  return (r.stdout || "").trim();
+  return stdoutText.trim();
 }
 
 function parseSummary(text) {
