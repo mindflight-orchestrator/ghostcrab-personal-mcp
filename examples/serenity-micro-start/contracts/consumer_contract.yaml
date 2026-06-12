@@ -1,0 +1,23 @@
+workspace_id: serenity-micro-start
+
+orphan_entities:
+  max_ratio: 0.05
+  exempt_entity_types: []
+
+facet_queries:
+  - name: services
+    tool: ghostcrab_search
+    schema_id: serenity-micro-start:administrative:FormuleService
+    min_rows: 2
+  - name: mandats
+    tool: ghostcrab_search
+    schema_id: serenity-micro-start:administrative:StatutMandatGestion
+    min_rows: 2
+
+graph_traversals:
+  - name: mandat_to_service
+    start_entity_type: serenity-micro-start:administrative:StatutMandatGestion
+    edge_label: ASSIGNE_A
+    min_edges: 2
+
+answer_artifacts: []

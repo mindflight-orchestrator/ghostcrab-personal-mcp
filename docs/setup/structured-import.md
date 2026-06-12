@@ -1,7 +1,7 @@
 # Structured Import Runbook
 
-Operator guide for tabular data import (CSV, JSON, YAML, XLSX, TOON) into MindBrain
-SQLite via `gcp brain structured-import`.
+Operator guide for tabular data import (CSV, JSON, JSONL, YAML, XLSX, TOON) into
+MindBrain SQLite via `gcp brain structured-import`.
 
 For unstructured documents (PDF, HTML), use [document-import.md](./document-import.md).
 
@@ -52,7 +52,7 @@ Workspace id: `immeuble-structured-import`.
 Structured import is **one-way**: tabular source → semantics (control plane) → raw facts/entities/relations → reindex → graph + search. Edits via MCP (`ghostcrab_remember`, graph patches) do **not** write back to staging CSVs.
 
 ```
-CSV/TOON/XLSX  →  infer / register-semantics  →  table_semantics + source_mappings
+CSV/JSON/JSONL/TOON/XLSX  →  infer / register-semantics  →  table_semantics + source_mappings
 import_ready   →  apply                       →  agent_facts + entities_raw + relations_raw + provenance
 raw            →  reindex (--scope all)       →  graph_entity/graph_relation + agent_facts FTS
 ```
@@ -117,6 +117,53 @@ gcp brain structured-import profile \
   --output /tmp/copropriete.profile.json
 ```
 
+### StarterKit bridge (`kit`)
+
+`gcp brain structured-import kit` executes a StarterKit-compatible pipeline and can end
+at CSV generation only or at full DB apply.
+
+```bash
+# 1) Préparation + audit (sans apply DB)
+gcp brain structured-import kit \
+  --workspace-id immeuble-structured-import \
+  --input examples/immeuble/structured-import/fixtures/fake_data \
+  --mapping examples/immeuble/structured-import/contracts/mapping_external_to_canonical.json \
+  --starterkit-root /path/to/starter-kit-ghostcrab-perso/starterkit \
+  --expect-taxonomy administrative:FormuleService,administrative:StatutMandatGestion
+
+# 2) Préparation + register-semantics + apply + reindex
+gcp brain structured-import kit \
+  --workspace-id immeuble-structured-import \
+  --input examples/immeuble/structured-import/fixtures/fake_data \
+  --model examples/immeuble/structured-import/contracts/immeuble_structured_import_model.json \
+  --mapping examples/immeuble/structured-import/contracts/mapping_external_to_canonical.json \
+  --starterkit-root /path/to/starter-kit-ghostcrab-perso/starterkit \
+  --apply
+```
+
+- `--input` peut être un dossier ou un fichier (`.csv`, `.json`, `.jsonl`).
+- `--expect-taxonomy` fait échouer vite si le mapping ne contient pas ces préfixes attendus.
+- `--output-dir` préserve les artefacts (`normalized_records.jsonl`, `pending_review.json`, `pipeline_audit.json`, ...).
+- Sans `--apply`, le pipeline écrit uniquement les artefacts de préparation.
+- Avec `--apply`, la commande lance `register-semantics`, `apply`, puis `reindex` (scope par défaut: `all`) et `validate-provenance`.
+
+### Orchestration générique (manifestes de projet)
+
+`scripts/run-structured-import-system.mjs` permet de piloter plusieurs projets avec un même flux.
+
+```bash
+node scripts/run-structured-import-system.mjs \
+  --manifest docs/explanation/methode-starterkit/structured-import-system.example.yaml \
+  --apply
+```
+
+- `--manifest` : manifeste YAML/JSON (source, mapping, ontologie, options `kit`)
+- `--apply` : active l’écriture DB (sans flag, préparation seule)
+- `--workspace-id` : override du manifeste
+- `--db` : chemin SQLite explicite
+
+Le runner exécute en série : validate (si possible) → kit (artefacts) → apply/reindex (si demandé).
+
 ## Import modes
 
 | Mode | Behaviour |
@@ -178,5 +225,6 @@ npm run verify:semantic-golden
 ## Related
 
 - [document-import.md](./document-import.md) — PDF/HTML corpus pipeline
-- [02-methode-starterkit.md](../explanation/methode-starterkit/02-methode-starterkit.md) — SOP5 gates
+- [03 — Méthode StarterKit](../explanation/methode-starterkit/03-methode-starterkit.md) — SOP5 gates
+- [07-kit-structured-import.md](../explanation/methode-starterkit/07-kit-structured-import.md) — full decomposition: mapping gates + JSON/JSONL flow
 - `examples/immeuble/structured-import/README.md` — bundle layout

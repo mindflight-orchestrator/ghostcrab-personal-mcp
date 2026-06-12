@@ -1,0 +1,20 @@
+project_id: serenity-micro-start-demo
+workspace_id: serenity-micro-start
+starterkit_root: ../starter-kit-ghostcrab-perso/starterkit
+source:
+  kind: csv
+  input: ../source/services.csv
+  delimiter: ","
+ontology:
+  model: ../contracts/ontology.json
+mapping:
+  file: ../contracts/mapping_services.json
+expected_taxonomies:
+  - administrative:FormuleService
+import:
+  mode: append
+  skip_profile_validation: false
+  reindex:
+    enabled: true
+    scope: all
+  output_dir: /tmp/serenity-micro-start-csv

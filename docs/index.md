@@ -36,6 +36,8 @@ Single hub: [GhostCrab MCP — explications (architecture + lab)](explanation/RE
 - [CLI and MCP client setup](setup/gcp-client-setup.md) — install and wire `gcp` into Cursor, Claude Code, Codex, and OpenClaw-style MCP clients.
 - [Document import runbook](setup/document-import.md) — normalize, ingest, profile, qualify, and operate no-LLM fallbacks for `gcp brain document`.
 - [Skillset and demo import](setup/skillset-demo-import.md) — pull registry skills, install vendored skills, and load JSONL demo profiles.
+- [Structured import + StarterKit kit guide](setup/structured-import.md) — JSON/CSV/JSONL import, mapping checks, and structured-import `kit`.
+- [Système d’import tabulaire générique par manifeste](explanation/methode-starterkit/08-systeme-generique-import.md) — démarrage Serenity avec un seul template projet.
 - [Beta bundle Makefile workflow](installers/beta-bundle/README.md) — install from a beta bundle on macOS, Linux, WSL, or Git Bash.
 
 ## Reference

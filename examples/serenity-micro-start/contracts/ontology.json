@@ -1,0 +1,39 @@
+{
+  "workspace_id": "serenity-micro-start",
+  "label": "Serenity micro ontologie",
+  "version": "2026-06-12",
+  "closed_edge_labels": ["ASSIGNE_A", "DANS_FORMULE"],
+  "entity_types": [
+    {
+      "name": "service",
+      "label": "FormuleService",
+      "schema_id": "serenity-micro-start:administrative:FormuleService",
+      "ontology": "administrative",
+      "node_type": "FormuleService",
+      "record_id_pattern": "FormuleService:{service_id}",
+      "facets": [
+        { "name": "record_id", "type": "string", "required": true },
+        { "name": "service_id", "type": "string", "required": true },
+        { "name": "code", "type": "string", "required": true },
+        { "name": "label", "type": "string", "required": true },
+        { "name": "tier", "type": "string", "required": false },
+        { "name": "active", "type": "boolean", "required": false }
+      ]
+    },
+    {
+      "name": "mandat",
+      "label": "StatutMandatGestion",
+      "schema_id": "serenity-micro-start:administrative:StatutMandatGestion",
+      "ontology": "administrative",
+      "node_type": "StatutMandatGestion",
+      "record_id_pattern": "StatutMandatGestion:{mandat_id}",
+      "facets": [
+        { "name": "record_id", "type": "string", "required": true },
+        { "name": "mandat_id", "type": "string", "required": true },
+        { "name": "client", "type": "string", "required": true },
+        { "name": "statut", "type": "string", "required": true },
+        { "name": "service_id", "type": "string", "required": true }
+      ]
+    }
+  ]
+}
