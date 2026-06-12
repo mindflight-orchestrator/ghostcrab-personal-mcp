@@ -574,7 +574,7 @@ function runHybrid(manifestConfig, runDbPath) {
 }
 
 function runGcp({ commandArgs, label, dbPath }) {
-  const cmd = [gcp, ...commandArgs];
+  const cmd = [gcp, "brain", ...commandArgs];
   console.log(`run-structured-import-system: gcp ${commandArgs.join(" ")}`);
   const r = spawnSync(process.execPath, cmd, {
     cwd: pkgRoot,
