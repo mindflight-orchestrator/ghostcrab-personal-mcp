@@ -33,7 +33,17 @@ pub fn main(init: std.process.Init) !void {
     else
         options.workspace_name;
 
-    var app = try mindbrain.http_app.MindbrainHttpApp.initWithOptions(init.gpa, init.io, .{
+    log.info(
+        "starting backend init: addr={s}, db={s}, max_body_bytes={d}, max_connections={d}",
+        .{
+            options.addr_text,
+            options.db_path,
+            options.max_body_bytes,
+            options.max_connections,
+        },
+    );
+
+    var app = mindbrain.http_app.MindbrainHttpApp.initWithOptions(init.gpa, init.io, .{
         .addr_text = options.addr_text,
         .db_path = options.db_path,
         .static_dir = options.static_dir,
@@ -50,7 +60,13 @@ pub fn main(init: std.process.Init) !void {
             .label = workspace_label,
             .description = workspace_description,
         },
-    });
+    }) catch |err| {
+        log.err(
+            "standalone HTTP init failed: addr={s}, sqlite={s}, error={s}",
+            .{ options.addr_text, options.db_path, @errorName(err) },
+        );
+        return err;
+    };
     defer app.deinit();
 
     log.info("sqlite ready at {s} (workspace: {s})", .{
@@ -64,6 +80,7 @@ pub fn main(init: std.process.Init) !void {
 
     if (options.init_only) return;
 
+    log.info("starting listener: addr={s}", .{options.addr_text});
     app.serve() catch |err| {
         log.err(
             "standalone HTTP serve failed: addr={s}, sqlite={s}, error={s}",

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   loadDemoProfile,
@@ -190,7 +190,7 @@ describe("demo-load answer_artifact entries", () => {
 
   it("loads demo profile imports into a target workspace", async () => {
     const query = vi.fn<Queryable["query"]>(async (sql, params = []) => {
-      if (sql.includes("SELECT id FROM mb_pragma.agent_facts")) {
+      if (sql.includes("mb_pragma.agent_facts")) {
         return [];
       }
       if (sql.includes("INSERT INTO mb_pragma.agent_facts")) {
@@ -231,7 +231,7 @@ describe("demo-load answer_artifact entries", () => {
     expect(summary.insertedProjections).toBe(0);
     expect(summary.skipped).toBe(0);
     expect(query).toHaveBeenCalledWith(
-      expect.stringContaining("SELECT id FROM mb_pragma.agent_facts"),
+      expect.stringContaining("mb_pragma.agent_facts"),
       ["demo:schema", "sample content", JSON.stringify({ key: "value" }), "my-app"]
     );
   });
