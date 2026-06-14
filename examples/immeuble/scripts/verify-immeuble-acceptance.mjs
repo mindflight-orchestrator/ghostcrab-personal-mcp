@@ -20,6 +20,7 @@ const args = process.argv.slice(2);
 const dbPath = parseFlag(args, "--db", process.env.GHOSTCRAB_SQLITE_PATH ?? "");
 const requireHybrid = args.includes("--require-hybrid");
 const requireBundle = args.includes("--require-bundle");
+const projectionStrict = args.includes("--projection-strict");
 
 const acceptance = parseYaml(readFileSync(join(immeubleRoot, "ACCEPTANCE.yaml"), "utf8"));
 const results = { ok: true, checks: [], workspace_id: acceptance.workspace_id };
@@ -114,6 +115,50 @@ if (dbPath && existsSync(dbPath)) {
   );
 } else {
   results.checks.push({ name: "db checks", ok: true, detail: "skipped (no --db)" });
+}
+
+const starterkitAudit = acceptance.starterkit_projection_audit;
+const auditReportPath = join(reportsDir, `projection_audit_${acceptance.workspace_id}.json`);
+if (starterkitAudit && existsSync(auditReportPath)) {
+  const auditReport = JSON.parse(readFileSync(auditReportPath, "utf8"));
+  const summary = auditReport.summary ?? {};
+  const enforce = !starterkitAudit.strict_only || projectionStrict;
+
+  if (enforce) {
+    check(
+      "starterkit.quality_score",
+      Number(summary.quality_score ?? 0) >= Number(starterkitAudit.quality_score_min ?? 0),
+      `${summary.quality_score} >= ${starterkitAudit.quality_score_min}`
+    );
+    check(
+      "starterkit.facet_gaps",
+      Number(summary.required_facet_observation_gap_count ?? 0) <= Number(starterkitAudit.required_facet_observation_gap_max ?? 0),
+      String(summary.required_facet_observation_gap_count)
+    );
+    check(
+      "starterkit.schema_gaps",
+      Number(summary.required_schema_record_gap_count ?? 0) <= Number(starterkitAudit.required_schema_record_gap_max ?? 0),
+      String(summary.required_schema_record_gap_count)
+    );
+    check(
+      "starterkit.edge_gaps",
+      Number(summary.required_edge_type_gap_count ?? 0) <= Number(starterkitAudit.required_edge_type_gap_max ?? 0),
+      String(summary.required_edge_type_gap_count)
+    );
+    check(
+      "starterkit.planned_missing",
+      Number(summary.planned_missing_count ?? 0) <= Number(starterkitAudit.planned_missing_count_max ?? 0),
+      String(summary.planned_missing_count)
+    );
+  } else {
+    results.checks.push({
+      name: "starterkit_projection_audit",
+      ok: true,
+      detail: "informational (use --projection-strict to enforce)"
+    });
+  }
+} else if (starterkitAudit && projectionStrict) {
+  check("starterkit_projection_audit report", false, `missing ${auditReportPath}`);
 }
 
 if (requireBundle) {

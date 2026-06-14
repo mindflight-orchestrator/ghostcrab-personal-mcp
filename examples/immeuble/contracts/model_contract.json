@@ -1,0 +1,943 @@
+{
+  "workspace_id": "immeuble",
+  "label": "Immeuble StarterKit model contract",
+  "version": "2026-06-14",
+  "schemas": {
+    "immeuble:core:bank_account": {
+      "label": "bank_account",
+      "facets": {
+        "bank_account.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "bank_account.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "bank_account.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "bank_account.iban": {
+          "type": "string",
+          "storage_key": "iban"
+        },
+        "bank_account.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "bank_account.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "bank_account.source": {
+          "type": "string",
+          "storage_key": "source"
+        }
+      }
+    },
+    "immeuble:core:billing_group": {
+      "label": "billing_group",
+      "facets": {
+        "billing_group.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "billing_group.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "billing_group.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "billing_group.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "billing_group.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "billing_group.source": {
+          "type": "string",
+          "storage_key": "source"
+        },
+        "billing_group.split": {
+          "type": "string",
+          "storage_key": "split"
+        },
+        "billing_group.status": {
+          "type": "string",
+          "storage_key": "status"
+        },
+        "billing_group.unit_id": {
+          "type": "string",
+          "storage_key": "unit_id"
+        }
+      }
+    },
+    "immeuble:core:block": {
+      "label": "block",
+      "facets": {
+        "block.building": {
+          "type": "string",
+          "storage_key": "building"
+        },
+        "block.building_id": {
+          "type": "string",
+          "storage_key": "building_id"
+        },
+        "block.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "block.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "block.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "block.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "block.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "block.source": {
+          "type": "string",
+          "storage_key": "source"
+        }
+      }
+    },
+    "immeuble:core:building": {
+      "label": "building",
+      "facets": {
+        "building.address": {
+          "type": "string",
+          "storage_key": "address"
+        },
+        "building.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "building.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "building.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "building.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "building.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "building.quota_basis": {
+          "type": "string",
+          "storage_key": "quota_basis"
+        },
+        "building.source": {
+          "type": "string",
+          "storage_key": "source"
+        }
+      }
+    },
+    "immeuble:core:cellar": {
+      "label": "cellar",
+      "facets": {
+        "cellar.block": {
+          "type": "string",
+          "storage_key": "block"
+        },
+        "cellar.building_id": {
+          "type": "string",
+          "storage_key": "building_id"
+        },
+        "cellar.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "cellar.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "cellar.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "cellar.lot": {
+          "type": "string",
+          "storage_key": "lot"
+        },
+        "cellar.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "cellar.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "cellar.source": {
+          "type": "string",
+          "storage_key": "source"
+        }
+      }
+    },
+    "immeuble:core:charge_call": {
+      "label": "charge_call",
+      "facets": {
+        "charge_call.amount": {
+          "type": "string",
+          "storage_key": "amount"
+        },
+        "charge_call.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "charge_call.currency": {
+          "type": "string",
+          "storage_key": "currency"
+        },
+        "charge_call.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "charge_call.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "charge_call.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "charge_call.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "charge_call.period": {
+          "type": "string",
+          "storage_key": "period"
+        },
+        "charge_call.source": {
+          "type": "string",
+          "storage_key": "source"
+        }
+      }
+    },
+    "immeuble:core:coda_entry": {
+      "label": "coda_entry",
+      "facets": {
+        "coda_entry.amount": {
+          "type": "string",
+          "storage_key": "amount"
+        },
+        "coda_entry.communication": {
+          "type": "string",
+          "storage_key": "communication"
+        },
+        "coda_entry.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "coda_entry.currency": {
+          "type": "string",
+          "storage_key": "currency"
+        },
+        "coda_entry.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "coda_entry.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "coda_entry.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "coda_entry.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "coda_entry.source": {
+          "type": "string",
+          "storage_key": "source"
+        },
+        "coda_entry.status": {
+          "type": "string",
+          "storage_key": "status"
+        }
+      }
+    },
+    "immeuble:core:decision": {
+      "label": "decision",
+      "facets": {
+        "decision.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "decision.date": {
+          "type": "string",
+          "storage_key": "date"
+        },
+        "decision.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "decision.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "decision.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "decision.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "decision.source": {
+          "type": "string",
+          "storage_key": "source"
+        }
+      }
+    },
+    "immeuble:core:household": {
+      "label": "household",
+      "facets": {
+        "household.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "household.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "household.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "household.household_status": {
+          "type": "string",
+          "storage_key": "household_status"
+        },
+        "household.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "household.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "household.source": {
+          "type": "string",
+          "storage_key": "source"
+        },
+        "household.unit_id": {
+          "type": "string",
+          "storage_key": "unit_id"
+        }
+      }
+    },
+    "immeuble:core:lease_contract": {
+      "label": "lease_contract",
+      "facets": {
+        "lease_contract.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "lease_contract.currency": {
+          "type": "string",
+          "storage_key": "currency"
+        },
+        "lease_contract.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "lease_contract.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "lease_contract.household_id": {
+          "type": "string",
+          "storage_key": "household_id"
+        },
+        "lease_contract.landlord_id": {
+          "type": "string",
+          "storage_key": "landlord_id"
+        },
+        "lease_contract.monthly_rent": {
+          "type": "string",
+          "storage_key": "monthly_rent"
+        },
+        "lease_contract.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "lease_contract.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "lease_contract.source": {
+          "type": "string",
+          "storage_key": "source"
+        },
+        "lease_contract.unit_id": {
+          "type": "string",
+          "storage_key": "unit_id"
+        },
+        "lease_contract.validFrom": {
+          "type": "string",
+          "storage_key": "validFrom"
+        }
+      }
+    },
+    "immeuble:core:organization": {
+      "label": "organization",
+      "facets": {
+        "organization.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "organization.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "organization.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "organization.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "organization.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "organization.role": {
+          "type": "string",
+          "storage_key": "role"
+        },
+        "organization.source": {
+          "type": "string",
+          "storage_key": "source"
+        }
+      }
+    },
+    "immeuble:core:parking_space": {
+      "label": "parking_space",
+      "facets": {
+        "parking_space.block": {
+          "type": "string",
+          "storage_key": "block"
+        },
+        "parking_space.building_id": {
+          "type": "string",
+          "storage_key": "building_id"
+        },
+        "parking_space.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "parking_space.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "parking_space.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "parking_space.lot": {
+          "type": "string",
+          "storage_key": "lot"
+        },
+        "parking_space.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "parking_space.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "parking_space.parking_kind": {
+          "type": "string",
+          "storage_key": "parking_kind"
+        },
+        "parking_space.source": {
+          "type": "string",
+          "storage_key": "source"
+        }
+      }
+    },
+    "immeuble:core:person": {
+      "label": "person",
+      "facets": {
+        "person.age_band": {
+          "type": "string",
+          "storage_key": "age_band"
+        },
+        "person.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "person.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "person.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "person.external_id": {
+          "type": "string",
+          "storage_key": "external_id"
+        },
+        "person.household_role": {
+          "type": "string",
+          "storage_key": "household_role"
+        },
+        "person.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "person.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "person.role": {
+          "type": "string",
+          "storage_key": "role"
+        },
+        "person.source": {
+          "type": "string",
+          "storage_key": "source"
+        }
+      }
+    },
+    "immeuble:core:private_garden": {
+      "label": "private_garden",
+      "facets": {
+        "private_garden.block": {
+          "type": "string",
+          "storage_key": "block"
+        },
+        "private_garden.building_id": {
+          "type": "string",
+          "storage_key": "building_id"
+        },
+        "private_garden.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "private_garden.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "private_garden.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "private_garden.exclusive_use": {
+          "type": "string",
+          "storage_key": "exclusive_use"
+        },
+        "private_garden.lot": {
+          "type": "string",
+          "storage_key": "lot"
+        },
+        "private_garden.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "private_garden.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "private_garden.source": {
+          "type": "string",
+          "storage_key": "source"
+        }
+      }
+    },
+    "immeuble:core:receipt": {
+      "label": "receipt",
+      "facets": {
+        "receipt.amount": {
+          "type": "string",
+          "storage_key": "amount"
+        },
+        "receipt.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "receipt.currency": {
+          "type": "string",
+          "storage_key": "currency"
+        },
+        "receipt.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "receipt.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "receipt.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "receipt.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "receipt.source": {
+          "type": "string",
+          "storage_key": "source"
+        }
+      }
+    },
+    "immeuble:core:reminder": {
+      "label": "reminder",
+      "facets": {
+        "reminder.amount_due": {
+          "type": "string",
+          "storage_key": "amount_due"
+        },
+        "reminder.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "reminder.currency": {
+          "type": "string",
+          "storage_key": "currency"
+        },
+        "reminder.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "reminder.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "reminder.level": {
+          "type": "string",
+          "storage_key": "level"
+        },
+        "reminder.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "reminder.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "reminder.source": {
+          "type": "string",
+          "storage_key": "source"
+        }
+      }
+    },
+    "immeuble:core:shared_equipment": {
+      "label": "shared_equipment",
+      "facets": {
+        "shared_equipment.building_id": {
+          "type": "string",
+          "storage_key": "building_id"
+        },
+        "shared_equipment.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "shared_equipment.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "shared_equipment.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "shared_equipment.equipment_type": {
+          "type": "string",
+          "storage_key": "equipment_type"
+        },
+        "shared_equipment.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "shared_equipment.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "shared_equipment.source": {
+          "type": "string",
+          "storage_key": "source"
+        }
+      }
+    },
+    "immeuble:core:shared_space": {
+      "label": "shared_space",
+      "facets": {
+        "shared_space.building_id": {
+          "type": "string",
+          "storage_key": "building_id"
+        },
+        "shared_space.category": {
+          "type": "string",
+          "storage_key": "category"
+        },
+        "shared_space.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "shared_space.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "shared_space.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "shared_space.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "shared_space.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "shared_space.source": {
+          "type": "string",
+          "storage_key": "source"
+        }
+      }
+    },
+    "immeuble:core:unit": {
+      "label": "unit",
+      "facets": {
+        "unit.bedrooms": {
+          "type": "string",
+          "storage_key": "bedrooms"
+        },
+        "unit.block": {
+          "type": "string",
+          "storage_key": "block"
+        },
+        "unit.block_id": {
+          "type": "string",
+          "storage_key": "block_id"
+        },
+        "unit.building": {
+          "type": "string",
+          "storage_key": "building"
+        },
+        "unit.building_id": {
+          "type": "string",
+          "storage_key": "building_id"
+        },
+        "unit.confidence": {
+          "type": "string",
+          "storage_key": "confidence"
+        },
+        "unit.door_label": {
+          "type": "string",
+          "storage_key": "door_label"
+        },
+        "unit.entity_id": {
+          "type": "string",
+          "storage_key": "entity_id"
+        },
+        "unit.entity_type": {
+          "type": "string",
+          "storage_key": "entity_type"
+        },
+        "unit.external_id": {
+          "type": "string",
+          "storage_key": "external_id"
+        },
+        "unit.floor": {
+          "type": "string",
+          "storage_key": "floor"
+        },
+        "unit.lot": {
+          "type": "string",
+          "storage_key": "lot"
+        },
+        "unit.name": {
+          "type": "string",
+          "storage_key": "name"
+        },
+        "unit.ontology": {
+          "type": "string",
+          "storage_key": "ontology"
+        },
+        "unit.quota_basis": {
+          "type": "string",
+          "storage_key": "quota_basis"
+        },
+        "unit.source": {
+          "type": "string",
+          "storage_key": "source"
+        },
+        "unit.tantiemes": {
+          "type": "string",
+          "storage_key": "tantiemes"
+        },
+        "unit.usage_status": {
+          "type": "string",
+          "storage_key": "usage_status"
+        }
+      }
+    }
+  },
+  "edge_types": [
+    {
+      "type": "CONTAINS"
+    },
+    {
+      "type": "OWNS"
+    },
+    {
+      "type": "OCCUPIES"
+    },
+    {
+      "type": "HOUSEHOLD_MEMBER"
+    },
+    {
+      "type": "PRIMARY_RESIDENCE_OF"
+    },
+    {
+      "type": "LEASES"
+    },
+    {
+      "type": "RENTED_TO"
+    },
+    {
+      "type": "ASSIGNED_CELLAR"
+    },
+    {
+      "type": "ASSIGNED_GARAGE"
+    },
+    {
+      "type": "USES_EXCLUSIVE"
+    },
+    {
+      "type": "USES_COMMON"
+    },
+    {
+      "type": "MATCHED_TO"
+    },
+    {
+      "type": "ALLOCATED_TO"
+    },
+    {
+      "type": "REQUIRES_REVIEW"
+    },
+    {
+      "type": "DOCUMENTS"
+    },
+    {
+      "type": "MEMBER_OF"
+    },
+    {
+      "type": "BILLS_TO"
+    },
+    {
+      "type": "LINKED_TO"
+    }
+  ],
+  "projections": {
+    "immeuble_competency_questions": {
+      "scope": "immeuble:competency:questions",
+      "label": "Plan d'analyse immeuble — questions métier",
+      "business_question": "Quelles questions métier le workspace immeuble doit-il pouvoir traiter ?",
+      "artifact_kind": "analysis_plan",
+      "required_schemas": [
+        "immeuble:core:building",
+        "immeuble:core:unit",
+        "immeuble:core:lease_contract",
+        "immeuble:core:coda_entry"
+      ],
+      "required_facets": [
+        "building.name",
+        "unit.usage_status",
+        "lease_contract.validFrom",
+        "coda_entry.amount"
+      ],
+      "required_edges": [
+        "CONTAINS",
+        "LEASES",
+        "MATCHED_TO"
+      ]
+    },
+    "annuaire_coproprietes": {
+      "scope": "immeuble:core:annuaire_coproprietes",
+      "label": "Annuaire immeubles gérés",
+      "business_question": "Quels immeubles sont gérés et où sont-ils situés ?",
+      "artifact_kind": "live_answer_view",
+      "required_schemas": [
+        "immeuble:core:building",
+        "immeuble:core:block"
+      ],
+      "required_facets": [
+        "building.address",
+        "building.name",
+        "building.quota_basis",
+        "block.name"
+      ],
+      "required_edges": [
+        "CONTAINS"
+      ]
+    },
+    "baux_actifs": {
+      "scope": "immeuble:core:baux_actifs",
+      "label": "Baux locatifs actifs",
+      "business_question": "Quels appartements sont loués, à qui, depuis quelle date ?",
+      "artifact_kind": "live_answer_view",
+      "required_schemas": [
+        "immeuble:core:unit",
+        "immeuble:core:lease_contract",
+        "immeuble:core:person"
+      ],
+      "required_facets": [
+        "unit.usage_status",
+        "unit.lot",
+        "lease_contract.validFrom",
+        "lease_contract.monthly_rent",
+        "person.name"
+      ],
+      "required_edges": [
+        "LEASES",
+        "RENTED_TO",
+        "OCCUPIES"
+      ]
+    },
+    "quotites_par_immeuble": {
+      "scope": "immeuble:core:quotites_par_immeuble",
+      "label": "Quotités par immeuble",
+      "business_question": "Les quotités de chaque immeuble totalisent-elles 1000 ?",
+      "artifact_kind": "live_answer_view",
+      "required_schemas": [
+        "immeuble:core:building",
+        "immeuble:core:unit"
+      ],
+      "required_facets": [
+        "building.quota_basis",
+        "unit.tantiemes",
+        "unit.quota_basis"
+      ],
+      "required_edges": [
+        "CONTAINS"
+      ]
+    }
+  }
+}

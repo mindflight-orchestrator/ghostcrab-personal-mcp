@@ -11,6 +11,15 @@ projections:
       - unit
       - lease_contract
       - coda_entry
+    required_facets:
+      - building.name
+      - unit.usage_status
+      - lease_contract.validFrom
+      - coda_entry.amount
+    required_edges:
+      - CONTAINS
+      - LEASES
+      - MATCHED_TO
     retrieval_jobs:
       - summary
   - name: annuaire_coproprietes
@@ -22,6 +31,13 @@ projections:
     required_schemas:
       - building
       - block
+    required_facets:
+      - building.address
+      - building.name
+      - building.quota_basis
+      - block.name
+    required_edges:
+      - CONTAINS
     retrieval_jobs:
       - summary
   - name: baux_actifs
@@ -34,6 +50,16 @@ projections:
       - unit
       - lease_contract
       - person
+    required_facets:
+      - unit.usage_status
+      - unit.lot
+      - lease_contract.validFrom
+      - lease_contract.monthly_rent
+      - person.name
+    required_edges:
+      - LEASES
+      - RENTED_TO
+      - OCCUPIES
     retrieval_jobs:
       - summary
   - name: quotites_par_immeuble
@@ -45,5 +71,11 @@ projections:
     required_schemas:
       - building
       - unit
+    required_facets:
+      - building.quota_basis
+      - unit.tantiemes
+      - unit.quota_basis
+    required_edges:
+      - CONTAINS
     retrieval_jobs:
       - summary

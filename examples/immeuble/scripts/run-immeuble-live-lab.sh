@@ -21,6 +21,9 @@ BACKUP_DIR="$REPO_ROOT/data/immeuble-lab-backups"
 RUN_BUNDLE=0
 RUN_ARTIFACT_SEED=0
 RUN_LIVE_VERIFY=0
+RUN_PROJECTION_PLAN=0
+RUN_LEGACY_AUDIT=0
+PROJECTION_STRICT=0
 AUTO_ARTIFACT_SEED=0
 STOP_AFTER=""
 SKIP_PREFLIGHT=1
@@ -44,7 +47,10 @@ Options:
   --with-bundle-load           load examples/immeuble/bundle/immeuble.bundle.json after import
   --with-artifact-seed         load answer artifact seed after import
   --with-live-verify           run live refresh verification (requires running backend, and enables answer artifact seed)
-  --stop-after <stage>         stop after one stage: build|import|verify|bundle|artifact_seed|audit|live_verify
+  --with-projection-plan       run StarterKit projection candidate analysis before import
+  --with-legacy-audit          run legacy audit-immeuble-projections.mjs smoke (optional)
+  --projection-strict          fail on projection plan/audit gaps (facets, edges, schemas, missing scopes)
+  --stop-after <stage>         stop after one stage: build|projection_plan|import|verify|bundle|artifact_seed|audit|live_verify
   --preflight                 force preflight checks during import
   --validate-provenance        force provenance validation during import
   --require-hybrid             require hybrid deltas to be 0 after import
@@ -110,10 +116,22 @@ while [[ $# -gt 0 ]]; do
       RUN_LIVE_VERIFY=1
       shift
       ;;
+    --with-projection-plan)
+      RUN_PROJECTION_PLAN=1
+      shift
+      ;;
+    --with-legacy-audit)
+      RUN_LEGACY_AUDIT=1
+      shift
+      ;;
+    --projection-strict)
+      PROJECTION_STRICT=1
+      shift
+      ;;
     --stop-after)
       STOP_AFTER="${2:?--stop-after requires a stage}"
       case "$STOP_AFTER" in
-        build|import|verify|bundle|artifact_seed|audit|live_verify)
+        build|projection_plan|import|verify|bundle|artifact_seed|audit|live_verify)
           ;;
         *)
           echo "[immeuble-lab] invalid stage for --stop-after: $STOP_AFTER" >&2
@@ -293,6 +311,9 @@ verify_step() {
   if [[ "$REQUIRE_HYBRID" -eq 1 ]]; then
     flags+=("--require-hybrid")
   fi
+  if [[ "$PROJECTION_STRICT" -eq 1 ]]; then
+    flags+=("--projection-strict")
+  fi
   "$NODE_BIN" "$IMMEUBLE_ROOT/scripts/verify-immeuble-acceptance.mjs" "${flags[@]}"
 }
 
@@ -310,7 +331,42 @@ bundle_step() {
     --force
 }
 
+STARTERKIT_DIR="$IMMEUBLE_ROOT/scripts/starterkit"
+MODEL_CONTRACT="$IMMEUBLE_ROOT/contracts/model_contract.json"
+PROJECTION_CATALOG="$IMMEUBLE_ROOT/contracts/projection_catalog.yaml"
+ARTIFACT_SEED="$IMMEUBLE_ROOT/contracts/answer_artifacts.seed.jsonl"
+
+projection_plan_step() {
+  local flags=(
+    "--db" "$DB_PATH"
+    "--workspace" "$WORKSPACE_ID"
+    "--projection-catalog" "$PROJECTION_CATALOG"
+    "--model-contract" "$MODEL_CONTRACT"
+    "--output-dir" "$REPORTS_DIR"
+    "--include-blind-spots"
+    "--include-jtbd"
+  )
+  if [[ "$PROJECTION_STRICT" -eq 1 ]]; then
+    flags+=("--strict")
+  fi
+  "$NODE_BIN" "$STARTERKIT_DIR/analyze-projection-candidates.mjs" "${flags[@]}"
+}
+
 audit_step() {
+  local flags=(
+    "--db" "$DB_PATH"
+    "--workspace" "$WORKSPACE_ID"
+    "--model" "$MODEL_CONTRACT"
+    "--answer-artifacts-seed" "$ARTIFACT_SEED"
+    "--output-dir" "$REPORTS_DIR"
+  )
+  if [[ "$PROJECTION_STRICT" -eq 1 ]]; then
+    flags+=("--strict")
+  fi
+  "$NODE_BIN" "$STARTERKIT_DIR/audit-ghostcrab-projections.mjs" "${flags[@]}"
+}
+
+legacy_audit_step() {
   "$NODE_BIN" "$IMMEUBLE_ROOT/scripts/audit-immeuble-projections.mjs" \
     --workspace-id "$WORKSPACE_ID"
 }
@@ -325,8 +381,12 @@ live_verify_step() {
 take_snapshot "00-start"
 
 run_step "build" build_step
+
+if [[ "$RUN_PROJECTION_PLAN" -eq 1 ]]; then
+  run_step "projection_plan" projection_plan_step
+fi
+
 run_step "import" import_step
-run_step "verify" verify_step
 
 if [[ "$RUN_ARTIFACT_SEED" -eq 1 ]]; then
   if (( AUTO_ARTIFACT_SEED == 1 )); then
@@ -340,6 +400,18 @@ if [[ "$RUN_BUNDLE" -eq 1 ]]; then
 fi
 
 run_step "audit" audit_step
+run_step "verify" verify_step
+
+if [[ "$RUN_LEGACY_AUDIT" -eq 1 ]]; then
+  echo "[immeuble-lab] running legacy projection smoke audit"
+  legacy_audit_step || {
+    if [[ "$PROJECTION_STRICT" -eq 1 ]]; then
+      echo "[immeuble-lab] legacy audit failed in strict mode" >&2
+      exit 1
+    fi
+    echo "[immeuble-lab] legacy audit failed (informational, non-blocking)"
+  }
+fi
 
 if [[ "$RUN_LIVE_VERIFY" -eq 1 ]]; then
   run_step "live_verify" live_verify_step
