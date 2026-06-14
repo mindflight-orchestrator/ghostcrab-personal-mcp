@@ -10,6 +10,7 @@
  *   --keep-db                Do not delete existing file first
  *   --with-bundle-load       After import, load bundle/immeuble.bundle.json
  *   --with-artifact-seed     Seed answer artifacts via demo-load profile
+ *   --with-business-capabilities  Seed ghostcrab:business-capability records
  *   --engine legacy|both     Import engine (default: legacy)
  *   --skip-provenance-validation
  *   --require-hybrid         Fail if hybrid-compare missing or non-zero deltas
@@ -31,6 +32,7 @@ const engine = parseFlag(args, "--engine", "legacy");
 const keepDb = args.includes("--keep-db");
 const withBundle = args.includes("--with-bundle-load");
 const withArtifacts = args.includes("--with-artifact-seed");
+const withBusinessCapabilities = args.includes("--with-business-capabilities");
 const skipProvenance = args.includes("--skip-provenance-validation");
 const requireHybrid = args.includes("--require-hybrid");
 
@@ -72,6 +74,14 @@ try {
     ], { env: { GHOSTCRAB_SQLITE_PATH: dbPath } });
   }
 
+  if (withBusinessCapabilities) {
+    runStep("business_capability_seed", [
+      join(pkgRoot, "bin/gcp.mjs"),
+      "load", join(immeubleRoot, "contracts/business_capabilities.seed.jsonl"),
+      "--workspace", "immeuble"
+    ], { env: { GHOSTCRAB_SQLITE_PATH: dbPath } });
+  }
+
   if (withBundle) {
     runStep("bundle_load", [
       join(pkgRoot, "bin/gcp.mjs"),
@@ -87,6 +97,7 @@ try {
   ];
   if (requireHybrid) verifyArgs.push("--require-hybrid");
   if (withBundle) verifyArgs.push("--require-bundle");
+  if (withBusinessCapabilities) verifyArgs.push("--require-business-capabilities");
   runStep("verify_acceptance", verifyArgs);
 
   runStep("audit_projections", [join(immeubleRoot, "scripts/audit-immeuble-projections.mjs")], { optional: true });

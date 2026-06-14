@@ -203,7 +203,7 @@ export async function readLiveRows(params: {
     ORDER BY created_at_unix ${built.order}
     LIMIT ?
   `;
-  const params = [schemaId, ...built.params, built.limit];
+  const queryParams = [schemaId, ...built.params, built.limit];
 
   const rows = await context.database.query<{
     id: string;
@@ -212,7 +212,7 @@ export async function readLiveRows(params: {
     facets_json: string;
     created_at_unix: number;
     version: number;
-  }>(query, params);
+  }>(query, queryParams);
 
   return {
     rows: rows.map((row) => ({
