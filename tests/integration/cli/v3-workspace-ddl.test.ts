@@ -13,7 +13,7 @@
  * They run in the same job as other integration tests (tests/integration/).
  */
 
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { randomUUID } from "node:crypto";
 
 import {
@@ -30,6 +30,7 @@ import {
 import { createToolContext } from "../../helpers/tool-context.js";
 
 const harness = createIntegrationHarness();
+let backendReachable = false;
 
 /** Unique prefix per test run to avoid cross-run collisions. */
 const RUN_ID = randomUUID().slice(0, 8);
@@ -67,10 +68,25 @@ async function cleanupV3(db: typeof harness.database): Promise<void> {
 
 describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () => {
   beforeAll(async () => {
+    backendReachable = await harness.database.ping();
+    if (!backendReachable) {
+      return;
+    }
     await cleanupV3(harness.database);
   });
 
+  beforeEach(async ({ skip }) => {
+    if (!backendReachable) {
+      skip("Integration backend unavailable; skipping V3 Plan B integration tests.");
+      return;
+    }
+  });
+
   afterAll(async () => {
+    if (!backendReachable) {
+      await closeIntegrationDatabase(harness.database);
+      return;
+    }
     await cleanupV3(harness.database);
     await closeIntegrationDatabase(harness.database);
   });

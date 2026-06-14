@@ -86,6 +86,14 @@ pub fn main(init: std.process.Init) !void {
             "standalone HTTP serve failed: addr={s}, sqlite={s}, error={s}",
             .{ options.addr_text, options.db_path, @errorName(err) },
         );
+        if (err == error.Unexpected) {
+            log.err(
+                "hint: a network syscall (socket/bind) was likely denied (EPERM/EACCES). " ++
+                    "Run the backend OUTSIDE any seccomp/agent sandbox, or rebuild in debug " ++
+                    "(pnpm run backend:build:debug) to surface the raw errno.",
+                .{},
+            );
+        }
         return err;
     };
 }

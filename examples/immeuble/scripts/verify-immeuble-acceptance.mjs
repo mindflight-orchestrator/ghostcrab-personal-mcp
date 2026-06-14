@@ -21,6 +21,7 @@ const dbPath = parseFlag(args, "--db", process.env.GHOSTCRAB_SQLITE_PATH ?? "");
 const requireHybrid = args.includes("--require-hybrid");
 const requireBundle = args.includes("--require-bundle");
 const projectionStrict = args.includes("--projection-strict");
+const requireBusinessCapabilities = args.includes("--require-business-capabilities");
 
 const acceptance = parseYaml(readFileSync(join(immeubleRoot, "ACCEPTANCE.yaml"), "utf8"));
 const results = { ok: true, checks: [], workspace_id: acceptance.workspace_id };
@@ -113,6 +114,37 @@ if (dbPath && existsSync(dbPath)) {
     Number(graph?.[0]?.count ?? 0) >= acceptance.db_after_import.graph_entity_min,
     String(graph?.[0]?.count)
   );
+
+  if (requireBusinessCapabilities) {
+    const businessCapabilities = acceptance.business_capabilities ?? {};
+    const activeMin = Number(businessCapabilities.active_min ?? 1);
+    const active = q(
+      `SELECT COUNT(*) AS count FROM agent_facts WHERE workspace_id='${ws}' AND schema_id='ghostcrab:business-capability' AND json_extract(facets_json, '$.activation_status') = 'active'`
+    );
+    const activeCount = Number(active?.[0]?.count ?? 0);
+    check(
+      "db.business_capability_active_count",
+      activeCount >= activeMin,
+      `${activeCount} >= ${activeMin}`
+    );
+
+    const requiredArtifacts = Array.isArray(businessCapabilities.required_artifact_ids)
+      ? businessCapabilities.required_artifact_ids.map((value) => String(value)).filter(Boolean)
+      : [];
+    if (requiredArtifacts.length > 0) {
+      const rows = q(
+        `SELECT json_extract(facets_json, '$.artifact_id') AS artifact_id FROM agent_facts WHERE workspace_id='${ws}' AND schema_id='ghostcrab:business-capability' AND json_extract(facets_json, '$.activation_status') = 'active' AND json_extract(facets_json, '$.artifact_id') IS NOT NULL`
+      );
+      const present = new Set((rows ?? []).map((row) => String(row.artifact_id)));
+      for (const artifactId of requiredArtifacts) {
+        check(
+          `db.business_capability_artifact_id.${artifactId}`,
+          present.has(artifactId),
+          present.has(artifactId) ? "present" : "missing"
+        );
+      }
+    }
+  }
 } else {
   results.checks.push({ name: "db checks", ok: true, detail: "skipped (no --db)" });
 }

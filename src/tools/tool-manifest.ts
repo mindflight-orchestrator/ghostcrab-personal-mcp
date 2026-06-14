@@ -60,6 +60,8 @@ export const EXPECTED_TOOL_NAMES = [
   "ghostcrab_status",
   "ghostcrab_tool_search",
   "ghostcrab_traverse",
+  "ghostcrab_business_query_answer",
+  "ghostcrab_business_query_register_proposal",
   "ghostcrab_upsert",
   "ghostcrab_workspace_create",
   "ghostcrab_workspace_delete",

@@ -74,30 +74,36 @@ export async function withMcpStdioClient<T>(
   );
 
   try {
-    try {
-      await withTimeout(
-        client.connect(transport),
-        options.timeoutMs ?? defaultTimeoutMs,
-        "connect"
-      );
-    } catch (error) {
-      const suffix =
-        stderrOutput.trim().length > 0
-          ? `\nServer stderr:\n${stderrOutput.trim()}`
-          : "";
-      throw new Error(`Failed to connect to GhostCrab MCP server.${suffix}`, {
-        cause: error
-      });
-    }
+    await withTimeout(
+      client.connect(transport),
+      options.timeoutMs ?? defaultTimeoutMs,
+      "connect"
+    );
+  } catch (error) {
+    const suffix =
+      stderrOutput.trim().length > 0
+        ? `\nServer stderr:\n${stderrOutput.trim()}`
+        : "";
+    throw new Error(`Failed to connect to GhostCrab MCP server.${suffix}`, {
+      cause: error
+    });
+  }
 
-    return await runScenario({
+  try {
+    const result = await runScenario({
       client,
       getStderrOutput: () => stderrOutput,
       getTrace: () => traceRecords
     });
-  } finally {
+
     await client.close().catch(() => undefined);
     await transport.close().catch(() => undefined);
+
+    return result;
+  } catch (error) {
+    await client.close().catch(() => undefined);
+    await transport.close().catch(() => undefined);
+    throw error;
   }
 }
 

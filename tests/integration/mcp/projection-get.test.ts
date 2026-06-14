@@ -3,7 +3,7 @@
  */
 
 import { randomUUID } from "node:crypto";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import {
   projectionGetTool,
@@ -26,9 +26,21 @@ const RUN_ID = randomUUID().slice(0, 8).replace(/-/g, "");
 const WS_ID = `projget${RUN_ID}`;
 const COLLECTION_ID = `${WS_ID}::docs`;
 const PROJECTION_ID = `proj_keyword_${RUN_ID}`;
+let backendReachable = false;
+let seeded = false;
 
 describe.sequential("ghostcrab_projection_get (integration, no mocks)", () => {
-  beforeAll(async () => {
+  beforeEach(async ({ skip }) => {
+    backendReachable = await harness.database.ping();
+    if (!backendReachable) {
+      skip("Integration backend unavailable; skipping projection-get tests.");
+      return;
+    }
+
+    if (seeded) {
+      return;
+    }
+
     await deleteWorkspaceProjectionsData(harness.database, WS_ID);
 
     const projectionEntityId = await seedGraphProjectionResult(
@@ -68,9 +80,15 @@ describe.sequential("ghostcrab_projection_get (integration, no mocks)", () => {
       },
       confidence: 0.8
     });
+
+    seeded = true;
   });
 
   afterAll(async () => {
+    if (!backendReachable) {
+      return;
+    }
+
     await deleteWorkspaceProjectionsData(harness.database, WS_ID);
   });
 

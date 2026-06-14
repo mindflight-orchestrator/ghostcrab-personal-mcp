@@ -1,5 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
+import { resolveGhostcrabConfig } from "../../../src/config/env.js";
+import { createDatabaseClient } from "../../../src/db/client.js";
 import {
   BASIC_TOOL_NAMES,
   EXPECTED_TOOL_NAMES,
@@ -11,7 +13,26 @@ import {
   withMcpStdioClient
 } from "../../helpers/mcp-stdio.js";
 
+process.env.GHOSTCRAB_MINDBRAIN_URL =
+  process.env.GHOSTCRAB_MINDBRAIN_URL ?? "http://127.0.0.1:8091";
+
+const config = resolveGhostcrabConfig(process.env);
+const database = createDatabaseClient(config);
+
 describe.sequential("MCP server contract", () => {
+  beforeEach(async ({ skip }) => {
+    const reachable = await database.ping();
+    if (!reachable) {
+      skip(
+        `Integration MindBrain backend is unreachable at ${config.mindbrainUrl}. Skipping server-contract suite.`
+      );
+    }
+  });
+
+  afterAll(async () => {
+    await database.close();
+  });
+
   it("starts on stdio and lists the full direct tool catalog", async () => {
     await withMcpStdioClient(
       "contract-list-tools",

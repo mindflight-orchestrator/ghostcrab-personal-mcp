@@ -84,6 +84,7 @@ Expected counts (narrative Tilleuls/Érables): see [`success-criteria.yaml`](suc
 |------------|-----|--------------|
 | `contracts/projection_catalog.yaml` | — | 1 analysis_plan + 3 live_answer_view |
 | `contracts/answer_artifacts.seed.jsonl` | `mindbrain_answer_artifacts` (after load) | artifact ids listed |
+| `contracts/business_capabilities.seed.jsonl` | `agent_facts` (`ghostcrab:business-capability`) | router live routes (see below) |
 | `reports/projection_audit_immeuble.json` | — | registry matches catalog + coverage facets/edges/schemas |
 
 ```bash
@@ -92,6 +93,22 @@ node examples/immeuble/scripts/starterkit/audit-ghostcrab-projections.mjs --db "
 gcp brain artifact list --workspace-id immeuble --kind live_answer_view
 gcp brain artifact refresh live_answer_view__annuaire_coproprietes
 ```
+
+### Business query router (Option A)
+
+Load registered capabilities so `ghostcrab_business_query_answer` can route immeuble questions in SQLite-only mode (without relying on `mindbrain_answer_artifacts`):
+
+```bash
+node bin/gcp.mjs load examples/immeuble/contracts/business_capabilities.seed.jsonl --workspace immeuble
+# or via reset / live lab:
+node examples/immeuble/scripts/reset-immeuble-workspace.mjs --with-business-capabilities
+examples/immeuble/scripts/run-immeuble-live-lab.sh --with-business-capabilities
+pnpm test:integration -- tests/integration/immeuble-business-query.test.ts
+```
+
+Convention: each record requires `workspace_id`, `availability` (`live_answer_view`), and `activation_status` (`active`) in `facets`. Verification: `tests/integration/immeuble-business-query.test.ts`.
+
+For a future `live_query` path (Option B — core router + model facets), see [plan détaillé](../../docs/plan/2026-06-14-plan-adaptation-demo-immeuble-business-query.md#4-plan-dimplémentation--option-b-suivi-pour-atteindre-live_query).
 
 ## Étape 7 — Bundle final
 

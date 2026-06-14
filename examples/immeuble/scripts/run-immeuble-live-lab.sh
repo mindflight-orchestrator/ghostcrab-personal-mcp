@@ -20,6 +20,7 @@ REPORTS_DIR="$IMMEUBLE_ROOT/reports"
 BACKUP_DIR="$REPO_ROOT/data/immeuble-lab-backups"
 RUN_BUNDLE=0
 RUN_ARTIFACT_SEED=0
+RUN_BUSINESS_CAPABILITIES=0
 RUN_LIVE_VERIFY=0
 RUN_PROJECTION_PLAN=0
 RUN_LEGACY_AUDIT=0
@@ -46,6 +47,7 @@ Options:
   --backup-dir <path>         directory where sqlite snapshots are stored
   --with-bundle-load           load examples/immeuble/bundle/immeuble.bundle.json after import
   --with-artifact-seed         load answer artifact seed after import
+  --with-business-capabilities  load business capability seed after import
   --with-live-verify           run live refresh verification (requires running backend, and enables answer artifact seed)
   --with-projection-plan       run StarterKit projection candidate analysis before import
   --with-legacy-audit          run legacy audit-immeuble-projections.mjs smoke (optional)
@@ -112,6 +114,10 @@ while [[ $# -gt 0 ]]; do
       RUN_ARTIFACT_SEED=1
       shift
       ;;
+    --with-business-capabilities)
+      RUN_BUSINESS_CAPABILITIES=1
+      shift
+      ;;
     --with-live-verify)
       RUN_LIVE_VERIFY=1
       shift
@@ -131,7 +137,7 @@ while [[ $# -gt 0 ]]; do
     --stop-after)
       STOP_AFTER="${2:?--stop-after requires a stage}"
       case "$STOP_AFTER" in
-        build|projection_plan|import|verify|bundle|artifact_seed|audit|live_verify)
+        build|projection_plan|import|verify|bundle|artifact_seed|business_capability_seed|audit|live_verify)
           ;;
         *)
           echo "[immeuble-lab] invalid stage for --stop-after: $STOP_AFTER" >&2
@@ -314,12 +320,21 @@ verify_step() {
   if [[ "$PROJECTION_STRICT" -eq 1 ]]; then
     flags+=("--projection-strict")
   fi
+  if [[ "$RUN_BUSINESS_CAPABILITIES" -eq 1 ]]; then
+    flags+=("--require-business-capabilities")
+  fi
   "$NODE_BIN" "$IMMEUBLE_ROOT/scripts/verify-immeuble-acceptance.mjs" "${flags[@]}"
 }
 
 artifact_seed_step() {
   "$NODE_BIN" "$REPO_ROOT/bin/gcp.mjs" \
     load "$IMMEUBLE_ROOT/contracts/answer_artifacts.seed.jsonl" \
+    --workspace "$WORKSPACE_ID"
+}
+
+business_capability_seed_step() {
+  "$NODE_BIN" "$REPO_ROOT/bin/gcp.mjs" \
+    load "$IMMEUBLE_ROOT/contracts/business_capabilities.seed.jsonl" \
     --workspace "$WORKSPACE_ID"
 }
 
@@ -393,6 +408,10 @@ if [[ "$RUN_ARTIFACT_SEED" -eq 1 ]]; then
     echo "[immeuble-lab] loading artifact seed for live verification preconditions"
   fi
   run_step "artifact_seed" artifact_seed_step
+fi
+
+if [[ "$RUN_BUSINESS_CAPABILITIES" -eq 1 ]]; then
+  run_step "business_capability_seed" business_capability_seed_step
 fi
 
 if [[ "$RUN_BUNDLE" -eq 1 ]]; then
