@@ -127,13 +127,15 @@ const missingFromRegistry = expectedLiveArtifactIds.filter((id) => !listedIds.in
 const missingFromSeed = catalogIds.filter((id) => !expectedSeedById[id]);
 
 const audit = {
-  ok: payloadIssues.length === 0 && consumer.workspace_id === workspaceId && (missingFromRegistry.length === 0 || !listOk),
+  ok: payloadIssues.length === 0 && consumer.workspace_id === workspaceId && listOk,
   workspace_id: workspaceId,
   catalog_count: catalogIds.length,
   seed_live_views: expectedLiveArtifactIds.length,
   listed_live_views: listedLiveIds.length,
   missing_from_registry: missingFromRegistry,
   missing_from_seed: missingFromSeed,
+  required_live_views: expectedLiveArtifactIds,
+  listed_live_views_ids: listedLiveIds,
   list_ok: listOk,
   payload_issues: payloadIssues,
   consumer_workspace: consumer.workspace_id,
@@ -143,7 +145,6 @@ const audit = {
 };
 
 if (consumer.workspace_id !== workspaceId) {
-  audit.ok = false;
   payloadIssues.push({
     label: "consumer_contract",
     detail: `consumer workspace mismatch: expected ${workspaceId}, got ${consumer.workspace_id}`
@@ -153,12 +154,24 @@ if (consumer.workspace_id !== workspaceId) {
 if (!listOk) {
   audit.list_skipped = true;
   audit.list_stderr = (listRes.stderr || listRes.stdout || "").slice(0, 500);
+  payloadIssues.push({
+    label: "registry_list",
+    detail: "artifact list command failed; cannot validate live answer registry state"
+  });
+}
+
+if (missingFromRegistry.length > 0 && listOk) {
+  payloadIssues.push({
+    label: "missing_from_registry",
+    detail: `missing live_answer_view ids: ${missingFromRegistry.join(", ")}`
+  });
 }
 
 if (catalog.projections && catalogIds.length > 0 && expectedLiveArtifactIds.length === 0) {
-  audit.ok = false;
   payloadIssues.push({ label: "seed", detail: "no live_answer_view entries in answer_artifacts.seed.jsonl" });
 }
+
+audit.ok = payloadIssues.length === 0 && consumer.workspace_id === workspaceId && listOk;
 
 writeFileSync(join(reportsDir, "projection_audit.json"), JSON.stringify(audit, null, 2) + "\n", "utf8");
 

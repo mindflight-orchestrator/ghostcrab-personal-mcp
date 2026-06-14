@@ -21,6 +21,7 @@ BACKUP_DIR="$REPO_ROOT/data/immeuble-lab-backups"
 RUN_BUNDLE=0
 RUN_ARTIFACT_SEED=0
 RUN_LIVE_VERIFY=0
+AUTO_ARTIFACT_SEED=0
 STOP_AFTER=""
 SKIP_PREFLIGHT=1
 SKIP_PROVENANCE=1
@@ -42,7 +43,7 @@ Options:
   --backup-dir <path>         directory where sqlite snapshots are stored
   --with-bundle-load           load examples/immeuble/bundle/immeuble.bundle.json after import
   --with-artifact-seed         load answer artifact seed after import
-  --with-live-verify           run live refresh verification (requires running backend)
+  --with-live-verify           run live refresh verification (requires running backend, and enables answer artifact seed)
   --stop-after <stage>         stop after one stage: build|import|verify|bundle|artifact_seed|audit|live_verify
   --preflight                 force preflight checks during import
   --validate-provenance        force provenance validation during import
@@ -144,6 +145,12 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+if (( RUN_LIVE_VERIFY == 1 && RUN_ARTIFACT_SEED == 0 )); then
+  AUTO_ARTIFACT_SEED=1
+  RUN_ARTIFACT_SEED=1
+  echo "[immeuble-lab] auto-enabling artifact seed because --with-live-verify was requested"
+fi
 
 mkdir -p "$BACKUP_DIR"
 mkdir -p "$REPORTS_DIR"
@@ -322,6 +329,9 @@ run_step "import" import_step
 run_step "verify" verify_step
 
 if [[ "$RUN_ARTIFACT_SEED" -eq 1 ]]; then
+  if (( AUTO_ARTIFACT_SEED == 1 )); then
+    echo "[immeuble-lab] loading artifact seed for live verification preconditions"
+  fi
   run_step "artifact_seed" artifact_seed_step
 fi
 
