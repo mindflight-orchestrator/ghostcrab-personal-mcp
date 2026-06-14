@@ -3,7 +3,7 @@
  */
 
 import { randomUUID } from "node:crypto";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import {
   artifactGetTool,
@@ -27,15 +27,26 @@ const harness = createIntegrationHarness();
 const RUN_ID = randomUUID().slice(0, 8).replace(/-/g, "");
 const WS_ID = `artif${RUN_ID}`;
 const ARTIFACT_PREFIX = `artif_${RUN_ID}`;
+let backendReachable = false;
+let seeded = false;
 
 describe.sequential("answer artifact MCP tools (integration, no mocks)", () => {
-  beforeAll(async () => {
+  beforeEach(async ({ skip }) => {
+    backendReachable = await harness.database.ping();
+    if (!backendReachable) {
+      skip("Integration backend unavailable; skipping artifact tool tests.");
+      return;
+    }
+
+    if (seeded) {
+      return;
+    }
+
     await deleteWorkspaceProjectionsData(
       harness.database,
       WS_ID,
       ARTIFACT_PREFIX
     );
-
     await seedAnswerArtifact(harness.database, {
       artifactId: `${ARTIFACT_PREFIX}__plan`,
       slug: "demo",
@@ -64,9 +75,15 @@ describe.sequential("answer artifact MCP tools (integration, no mocks)", () => {
       lifecycle: "frozen",
       state: "closed"
     });
+
+    seeded = true;
   });
 
   afterAll(async () => {
+    if (!backendReachable) {
+      return;
+    }
+
     await deleteWorkspaceProjectionsData(
       harness.database,
       WS_ID,

@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import { resolveGhostcrabConfig } from "../../../src/config/env.js";
 import { createDatabaseClient } from "../../../src/db/client.js";
@@ -23,11 +23,11 @@ const config = resolveGhostcrabConfig(process.env);
 const database = createDatabaseClient(config);
 
 describe.sequential("MCP scenario pack baseline", () => {
-  beforeAll(async () => {
+  beforeEach(async ({ skip }) => {
     const reachable = await database.ping();
     if (!reachable) {
-      throw new Error(
-        `Integration MindBrain backend is unreachable at ${config.mindbrainUrl}.`
+      skip(
+        `Integration MindBrain backend is unreachable at ${config.mindbrainUrl}. Skipping MCP scenario baseline tests.`
       );
     }
   });

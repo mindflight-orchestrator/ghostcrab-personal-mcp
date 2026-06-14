@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
-import { beforeAll } from "vitest";
+import { beforeAll, beforeEach } from "vitest";
 
 import { resolveGhostcrabConfig } from "../../src/config/env.js";
 import {
@@ -91,13 +91,17 @@ export function createIntegrationHarness() {
     hybridVectorWeight: config.hybridVectorWeight
   });
 
+  let backendReachable = false;
+
   beforeAll(async () => {
     registerAllTools();
-    const reachable = await database.ping();
+    backendReachable = await database.ping();
+  });
 
-    if (!reachable) {
-      throw new Error(
-        `Integration MindBrain backend is unreachable at ${config.mindbrainUrl}.`
+  beforeEach(({ skip }) => {
+    if (!backendReachable) {
+      skip(
+        `Integration MindBrain backend is unreachable at ${config.mindbrainUrl}. Skipping integration suite.`
       );
     }
   });
@@ -128,7 +132,7 @@ export async function cleanupTestDatabase(
 export async function closeIntegrationDatabase(
   database: DatabaseClient
 ): Promise<void> {
-  await database.close();
+  await database.close().catch(() => undefined);
   if (process.env.GHOSTCRAB_INTEGRATION_EXTERNALLY_MANAGED === "1") {
     return;
   }

@@ -3,7 +3,7 @@
  */
 
 import { randomUUID } from "node:crypto";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import {
   projectionsListTool,
@@ -28,14 +28,25 @@ const ARTIFACT_PREFIX = `projlist_${RUN_ID}`;
 describe.sequential("ghostcrab_projections_list (integration, no mocks)", () => {
   const graphProjectionId = `proj_graph_${RUN_ID}`;
   const registryLegacyProjectionId = `p_legacy_${RUN_ID}`;
+  let backendReachable = false;
+  let seeded = false;
 
-  beforeAll(async () => {
+  beforeEach(async ({ skip }) => {
+    backendReachable = await harness.database.ping();
+    if (!backendReachable) {
+      skip("Integration backend unavailable; skipping projections-list tests.");
+      return;
+    }
+
+    if (seeded) {
+      return;
+    }
+
     await deleteWorkspaceProjectionsData(
       harness.database,
       WS_ID,
       ARTIFACT_PREFIX
     );
-
     await seedAnswerArtifact(harness.database, {
       artifactId: `${ARTIFACT_PREFIX}__live`,
       slug: "weekly",
@@ -58,9 +69,15 @@ describe.sequential("ghostcrab_projections_list (integration, no mocks)", () => 
       collectionId: `${WS_ID}::docs`,
       label: "Keyword opportunities"
     });
+
+    seeded = true;
   });
 
   afterAll(async () => {
+    if (!backendReachable) {
+      return;
+    }
+
     await deleteWorkspaceProjectionsData(
       harness.database,
       WS_ID,
