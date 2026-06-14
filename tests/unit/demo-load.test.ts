@@ -7,10 +7,38 @@ import {
 import type { GhostcrabConfig } from "../../src/config/env.js";
 import type { Queryable } from "../../src/db/client.js";
 
+const factWriteResponse = {
+  created: true,
+  doc_id: 123,
+  id: "fact:1",
+  ok: true,
+  updated: false
+};
+
 const config = {
   mindbrainHttpTimeoutMs: 1000,
   mindbrainUrl: "http://127.0.0.1:8091"
 } as GhostcrabConfig;
+
+beforeEach(() => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/api/mindbrain/facts/write")) {
+        return new Response(JSON.stringify(factWriteResponse), {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        });
+      }
+      return new Response(null, { status: 404 });
+    })
+  );
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe("demo-load answer_artifact entries", () => {
   it("normalizes analysis plans and live answer views", () => {

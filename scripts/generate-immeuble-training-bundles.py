@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Generate immeuble-training draft/resolved bundles from immeuble-demo (pg_mindbrain).
+"""Generate immeuble-training draft/resolved bundles from the canonical immeuble bundle.
 
-Source narrative stays in examples/immeuble-demo/bundle.json (immutable).
-Outputs examples/immeuble-training/bundle.draft.json, bundle.resolved.json,
+Source narrative stays in examples/immeuble/bundle/immeuble.bundle.json.
+Outputs examples/immeuble/training/bundle.draft.json, bundle.resolved.json,
 and training-manifest.yaml.
 """
 from __future__ import annotations
@@ -13,12 +13,12 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE_BUNDLE = ROOT / "examples/immeuble/reference/bundle.json"
+SOURCE_BUNDLE = ROOT / "examples/immeuble/bundle/immeuble.bundle.json"
 OUT_DIR = ROOT / "examples/immeuble/training"
 
-SRC_WS = "immeuble-demo"
-SRC_ONTO = "immeuble-demo::core"
-SRC_COLL = "immeuble-demo::docs"
+SRC_WS = "immeuble"
+SRC_ONTO = "immeuble::core"
+SRC_COLL = "immeuble::docs"
 
 DRAFT_WS = "immeuble-training-draft"
 GOLDEN_WS = "immeuble-training-golden"
@@ -86,8 +86,8 @@ def remap_doc_nanoids(bundle: dict, workspace_id: str) -> None:
     prefix = workspace_id.replace("_", "-")
     for doc in bundle.get("documents_raw", []):
         nanoid = doc.get("doc_nanoid")
-        if isinstance(nanoid, str) and nanoid.startswith("immeuble-demo-doc-"):
-            doc["doc_nanoid"] = nanoid.replace("immeuble-demo", prefix, 1)
+        if isinstance(nanoid, str) and nanoid.startswith("immeuble-doc-"):
+            doc["doc_nanoid"] = nanoid.replace("immeuble", prefix, 1)
 
 
 def clone_bundle(workspace_id: str) -> dict:
@@ -239,7 +239,7 @@ def write_manifest(draft: dict, golden: dict) -> None:
 
 def ensure_document_symlinks() -> None:
     docs_dir = OUT_DIR / "documents"
-    src_dir = ROOT / "examples/immeuble/reference/documents"
+    src_dir = ROOT / "examples/immeuble/sources/documents"
     if not src_dir.is_dir():
         return
     docs_dir.mkdir(parents=True, exist_ok=True)
@@ -247,7 +247,7 @@ def ensure_document_symlinks() -> None:
         dst = docs_dir / src.name
         if dst.exists() or dst.is_symlink():
             continue
-        rel = Path("..") / "reference" / "documents" / src.name
+        rel = Path("..") / "sources" / "documents" / src.name
         dst.symlink_to(rel)
 
 

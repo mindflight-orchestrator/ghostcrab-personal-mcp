@@ -39,11 +39,11 @@ import {
 import { createToolContext } from "../helpers/tool-context.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
-const WS_ID = "immeuble-demo";
-const COLL_ID = "immeuble-demo::docs";
+const WS_ID = "immeuble";
+const COLL_ID = "immeuble::docs";
 const FACET_TABLE_ID = 77001;
-const BUNDLE_PATH = join(__dirname, "../../examples/immeuble-demo/bundle.json");
-const LEARN_TEST_NODE_ID = "immeuble-demo:audit-test-node";
+const BUNDLE_PATH = join(__dirname, "../../examples/immeuble/bundle/immeuble.bundle.json");
+const LEARN_TEST_NODE_ID = "immeuble:audit-test-node";
 
 const harness = createIntegrationHarness();
 let sqlitePath = "";
@@ -289,7 +289,7 @@ function skipUnlessBackendAligned(ctx: {
 
 const describeIfSqliteFile = canReadSqliteFile() ? describe : describe.skip;
 
-describeIfSqliteFile("immeuble-demo import → reindex → MCP coherence", () => {
+describeIfSqliteFile("immeuble import → reindex → MCP coherence", () => {
   beforeAll(async () => {
     const bundle = JSON.parse(readFileSync(BUNDLE_PATH, "utf8")) as {
       entities_raw: unknown[];
@@ -556,7 +556,7 @@ describeIfSqliteFile("immeuble-demo import → reindex → MCP coherence", () =>
           id: LEARN_TEST_NODE_ID,
           node_type: "audit_marker",
           label: "Audit marker node",
-          properties: { source: "immeuble-demo-coherence-test" }
+          properties: { source: "immeuble-coherence-test" }
         }
       },
       toolContext(harness.database)

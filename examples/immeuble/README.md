@@ -1,76 +1,114 @@
-# Immeuble syndic examples
+# Immeuble — exemple canonique GhostCrab
 
-Four tracks, four workspaces, one narrative (Belgian fictional syndic demo).
+Unique domain example for the GhostCrab Personal methodology. Structure mirrors [MVP_Serenity_2](https://github.com/mindflight-orchestrator/ghostcrab-personal-mcp) (model → CSV → import_ready → reports → bundle).
 
-| Track | Folder | Workspace(s) | Purpose |
-|-------|--------|--------------|---------|
-| **Structured import** | [`structured-import/`](structured-import/) | `immeuble-structured-import` | Tabular CSV → semantics → apply / Phase D `ws_*` smoke |
-| **Reference** | [`reference/`](reference/) | `immeuble-demo` | Golden bundle, Studio smoke, comparison target |
-| **Training** | [`training/`](training/) | `immeuble-training-draft`, `immeuble-training-golden` | Gap diagnostics curriculum (E01–E03, modules A1–B3) |
-| **MCP lab** | [`mcp-lab/`](mcp-lab/) | `immeuble-demo-llm` | Agent reconstructs ontology + graph from raw corpus |
+**Workspace:** `immeuble`  
+**Ontology:** `immeuble::core` ([`ontologies/immeuble/core.yaml`](../../ontologies/immeuble/core.yaml))
 
-```mermaid
-flowchart LR
-  ref[reference/bundle.json]
-  draft[training/bundles/draft.json]
-  golden[training/bundles/resolved.json]
-  corpus[mcp-lab/corpus]
-
-  ref --> wsDemo[immeuble-demo]
-  draft --> wsDraft[immeuble-training-draft]
-  golden --> wsTrainGolden[immeuble-training-golden]
-  corpus --> wsLlm[immeuble-demo-llm]
-  wsLlm -->|compare| wsDemo
-```
-
-## Quick start — structured import
+## Quick start
 
 ```bash
-npm run structured-import:smoke
-STRUCTURED_IMPORT_PHASE_D=1 npm run structured-import:smoke
+# 1) Generate fake_data, import_ready, reports from bundle
+npm run immeuble:build
+
+# 2) Dry-run structured import
+node examples/immeuble/scripts/run-immeuble-import.mjs --skip-preflight --skip-provenance-validation
+
+# 3) Apply + reindex + prefix checks
+npm run immeuble:import
+
+# 4) Load full bundle (documents + graph + projections seed)
+export GHOSTCRAB_SQLITE_PATH="$PWD/data/immeuble.sqlite"
+node bin/gcp.mjs load examples/immeuble/bundle/immeuble.bundle.json \
+  --workspace immeuble --reindex all
+
+# 5) Audit projections registry
+npm run immeuble:verify   # acceptance criteria (filesystem + optional --db)
+npm run immeuble:reset -- --db /tmp/immeuble-test/immeuble.sqlite  # workspace propre
 ```
 
-## Quick start — reference
+Pour le mode live (backend+snapshots), il existe un wrapper dédié :
+```bash
+npm run immeuble:backend:run -- \
+  --db /tmp/immeuble-lab/immeuble.sqlite \
+  --ready-timeout 40
+```
+Ou directement :
+```bash
+bash examples/immeuble/scripts/run-immeuble-backend.sh \
+  --db /tmp/immeuble-lab/immeuble.sqlite \
+  --ready-timeout 40
+```
+Il lance le binaire `ghostcrab-backend` en standalone HTTP (via `env GHOSTCRAB_*=...`),
+retourne `BACKEND_PID`, `BACKEND_URL` et `BACKEND_LOG`, puis laisse le processus tourner.
+
+Hybrid legacy/compare:
 
 ```bash
-export GHOSTCRAB_SQLITE_PATH="$PWD/data/immeuble-demo.sqlite"
-node bin/gcp.mjs load examples/immeuble/reference/bundle.json \
-  --workspace immeuble-demo --reindex all
-bash vendor/mindbrain/scripts/demo-immeuble-gaps.sh \
-  --rules examples/immeuble/reference/gap-rules/demo.json
+node examples/immeuble/scripts/run-immeuble-import.mjs \
+  --apply --engine both --skip-preflight --skip-provenance-validation \
+  --compare-output examples/immeuble/reports/hybrid-compare.json
 ```
 
-## Quick start — training
+### Orchestrer tout le pipeline avec DB fraîche + backups de progression
 
 ```bash
-node scripts/generate-immeuble-demo.mjs --training --emit draft,resolved
-export GHOSTCRAB_SQLITE_PATH="$PWD/data/immeuble-training.sqlite"
-bash scripts/load-immeuble-training.sh --both --force
-bash scripts/compare-immeuble-training.sh --rules gap-rules/L2-syndic-filtered.json
-bash scripts/verify-training-module.sh --module A2
-bash scripts/verify-training-module.sh --module A3
+bash examples/immeuble/scripts/run-immeuble-live-lab.sh \
+  --db /tmp/immeuble-lab/immeuble.sqlite \
+  --engine both \
+  --with-artifact-seed \
+  --with-live-verify \
+  --stop-after live_verify
 ```
 
-## Quick start — MCP lab (agent)
+Le script :
+- démarre le backend local `ghostcrab-backend` en mode standalone HTTP (`:8091` par défaut),
+- exécute les étapes `build → import → verify → audit` (et ceux explicitement demandés),
+- fait un snapshot SQLite après chaque étape (`.sqlite`, `-.wal`, `-.shm` quand présents),
+- permet d’évaluer la progression entre chaque snapshot.
 
-1. Read [`mcp-lab/README.md`](mcp-lab/README.md)
-2. Follow [`mcp-lab/prompts/00-prerequisites.md`](mcp-lab/prompts/00-prerequisites.md) through `06-validate-and-compare.md`
+C’est bien un pipeline via les outils **HTTP (gcp + scripts Immeuble)** contre un backend en marche, pas des appels standalone directs sur sqlite depuis les scripts.
 
-Mock CI:
+Comparer deux snapshots :
 
 ```bash
-node scripts/import-immeuble-demo-llm.mjs --mode mock --reset
+npm run immeuble:compare:snapshots -- \
+  --from data/immeuble-lab-backups/20260614-120101-00-start.sqlite \
+  --to data/immeuble-lab-backups/20260614-120223-import.sqlite \
+  --workspace immeuble \
+  --label-a start --label-b import
 ```
 
-## Regenerate narrative demo
+Version JSON (utile pour rapporter l’évolution dans un script CI) :
 
 ```bash
-node scripts/generate-immeuble-demo.mjs
-pnpm run test -- tests/examples/immeuble-demo.test.ts
+npm run immeuble:compare:snapshots -- \
+  --from data/immeuble-lab-backups/20260614-120101-00-start.sqlite \
+  --to data/immeuble-lab-backups/20260614-120223-import.sqlite \
+  --workspace immeuble \
+  --json --out /tmp/immeuble-compare.json
 ```
 
-## Legacy paths
+## Layout
 
-[`../immeuble-demo/`](../immeuble-demo/) contains symlinks to this tree for backward compatibility.
+| Path | Role |
+|------|------|
+| [`sources/documents/`](sources/documents/) | Raw markdown corpus (Tilleuls / Érables narrative) |
+| [`sources/agent-prompts/`](sources/agent-prompts/) | Optional agent reconstruction prompts |
+| [`model/immeuble_model.json`](model/immeuble_model.json) | Global entity/edge contract |
+| [`contracts/`](contracts/) | Mapping, consumer contract, projection catalog, answer seeds |
+| [`fake_data/`](fake_data/) | One CSV per entity type (generated) |
+| [`import_ready/`](import_ready/) | `mfo_facets_import.csv` + `graph_edges_import.csv` |
+| [`reports/`](reports/) | Step checkpoints (JSON/JSONL) |
+| [`bundle/immeuble.bundle.json`](bundle/immeuble.bundle.json) | Importable workspace snapshot |
+| [`gap-rules/`](gap-rules/) | Gap diagnostics curriculum (optional) |
+| [`scripts/`](scripts/) | Build, import, audit runners |
 
-Ontology source: [`ontologies/immeuble-demo/core.yaml`](../../ontologies/immeuble-demo/core.yaml)
+## Methodology
+
+Step-by-step walkthrough: [`index.md`](index.md)  
+Voir aussi : [`CHECKLIST.md`](CHECKLIST.md) · [`ACCEPTANCE.yaml`](ACCEPTANCE.yaml)
+
+## Success criteria
+
+Counts and graph checks: [`success-criteria.yaml`](success-criteria.yaml)

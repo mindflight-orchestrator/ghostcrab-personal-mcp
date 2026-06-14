@@ -1,0 +1,7 @@
+record_id,name,entity_type,entity_id,confidence,building_id,category
+shared_space:30,Tilleuls Hall commun,shared_space,30,1,1,circulation
+shared_space:31,Tilleuls Buanderie commune,shared_space,31,1,1,laundry
+shared_space:32,Tilleuls Jardin commun,shared_space,32,1,1,garden
+shared_space:33,Érables Jardin commun,shared_space,33,1,2,garden
+shared_space:34,Érables Local vélos,shared_space,34,1,2,bike_room
+shared_space:35,Érables Chaufferie,shared_space,35,1,2,technical

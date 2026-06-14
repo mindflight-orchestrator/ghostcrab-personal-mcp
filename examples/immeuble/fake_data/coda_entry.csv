@@ -1,0 +1,4 @@
+record_id,name,entity_type,entity_id,confidence,amount,currency,communication,status
+coda_entry:920,CODA 2026-01-05 CP LOT A3 CHGE JANV,coda_entry,920,1,1847.23,EUR,CP LOT A3 CHGE JANV,matched
+coda_entry:921,CODA 2026-01-07 LOT B2 PARTIEL,coda_entry,921,1,500,EUR,LOT B2 PARTIEL,partial
+coda_entry:922,CODA 2026-01-08 VIR INCONNU,coda_entry,922,1,650,EUR,VIR INCONNU,manual_review

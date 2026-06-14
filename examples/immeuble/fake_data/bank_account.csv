@@ -1,0 +1,3 @@
+record_id,name,entity_type,entity_id,confidence,iban
+bank_account:900,Compte CODA ACP Tilleuls,bank_account,900,1,BE12000000000001
+bank_account:901,Compte CODA ACP Érables,bank_account,901,1,BE12000000000002

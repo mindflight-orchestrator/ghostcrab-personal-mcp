@@ -367,6 +367,18 @@ function runPipeline() {
       compare: compareSummaries(legacy, hybrid)
     };
 
+    if (apply && dbPath) {
+      const targetMode = manifest.mapping_meta?.supports_project ? "hybrid" : "legacy";
+      const targetApply = runPipelineForEngine({
+        mode: targetMode,
+        dbPath,
+        outputSuffix: "target",
+        suffixOutput: true
+      });
+      report.target_apply = targetApply;
+      report.ok = Boolean(report.ok && targetApply.ok);
+    }
+
     if (compareOutputPath) {
       writeFileSync(compareOutputPath, JSON.stringify(report, null, 2) + "\n", "utf8");
     }
@@ -1018,6 +1030,14 @@ function normalizeSchemaIds(entities, workspaceId) {
   });
 }
 
+function resolveProjectInputRoot(manifestConfig) {
+  const dataPlane = manifestConfig.mapping_meta?.data_plane;
+  if (dataPlane === "import_ready" || dataPlane === "ws") {
+    return manifestConfig.__baseDir;
+  }
+  return manifestConfig.source_root;
+}
+
 function runHybrid(manifestConfig, runDbPath) {
   const importReady = manifestConfig.mapping_meta?.import_ready || null;
 
@@ -1068,7 +1088,7 @@ function runHybrid(manifestConfig, runDbPath) {
       "--mapping",
       manifestConfig.mapping_file,
       "--input",
-      manifestConfig.source_root,
+      resolveProjectInputRoot(manifestConfig),
       "--mode",
       manifestConfig.mode
     ],

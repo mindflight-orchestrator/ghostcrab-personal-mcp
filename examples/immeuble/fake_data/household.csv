@@ -1,0 +1,14 @@
+record_id,name,entity_type,entity_id,confidence,unit_id,household_status
+household:300,Ménage Dupont seniors,household,300,1,100,owner_occupant
+household:301,Ménage Sofia Martin,household,301,1,101,owner_occupant
+household:302,Ménage Nicolas Dupont,household,302,1,102,owner_occupant
+household:303,Ménage Karim Benali,household,303,1,103,tenant
+household:304,Ménage Peeters-De Smet,household,304,1,104,owner_occupant
+household:305,Ménage Alice Bernard,household,305,1,110,owner_occupant
+household:306,Ménage Legrand,household,306,1,111,tenant
+household:307,Ménage Victor Moreau,household,307,1,112,owner_occupant
+household:308,Lot Érables A4 vacant travaux,household,308,1,113,vacant_works
+household:309,Ménage succession Renard,household,309,1,120,owner_occupant
+household:310,Ménage El Idrissi,household,310,1,121,tenant
+household:311,Ménage Klein,household,311,1,122,tenant
+household:312,Ménage colocation Laurent-Vermeulen,household,312,1,123,tenant

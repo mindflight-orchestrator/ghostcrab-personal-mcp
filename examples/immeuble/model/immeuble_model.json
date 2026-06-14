@@ -1,0 +1,181 @@
+{
+  "workspace_id": "immeuble",
+  "ontology_id": "immeuble::core",
+  "label": "Immeuble syndic reference model",
+  "version": "2026-06-14",
+  "closed_edge_labels": [
+    "CONTAINS",
+    "OWNS",
+    "OCCUPIES",
+    "HOUSEHOLD_MEMBER",
+    "PRIMARY_RESIDENCE_OF",
+    "LEASES",
+    "RENTED_TO",
+    "ASSIGNED_CELLAR",
+    "ASSIGNED_GARAGE",
+    "USES_EXCLUSIVE",
+    "USES_COMMON",
+    "MATCHED_TO",
+    "ALLOCATED_TO",
+    "REQUIRES_REVIEW",
+    "DOCUMENTS",
+    "MEMBER_OF",
+    "BILLS_TO",
+    "LINKED_TO"
+  ],
+  "entity_types": [
+    {
+      "name": "bank_account",
+      "label": "bank_account",
+      "schema_id": "immeuble:core:bank_account",
+      "ontology": "core",
+      "node_type": "bank_account",
+      "record_id_pattern": "bank_account:<stable-key>"
+    },
+    {
+      "name": "billing_group",
+      "label": "billing_group",
+      "schema_id": "immeuble:core:billing_group",
+      "ontology": "core",
+      "node_type": "billing_group",
+      "record_id_pattern": "billing_group:<stable-key>"
+    },
+    {
+      "name": "block",
+      "label": "block",
+      "schema_id": "immeuble:core:block",
+      "ontology": "core",
+      "node_type": "block",
+      "record_id_pattern": "block:<stable-key>"
+    },
+    {
+      "name": "building",
+      "label": "building",
+      "schema_id": "immeuble:core:building",
+      "ontology": "core",
+      "node_type": "building",
+      "record_id_pattern": "building:<stable-key>"
+    },
+    {
+      "name": "cellar",
+      "label": "cellar",
+      "schema_id": "immeuble:core:cellar",
+      "ontology": "core",
+      "node_type": "cellar",
+      "record_id_pattern": "cellar:<stable-key>"
+    },
+    {
+      "name": "charge_call",
+      "label": "charge_call",
+      "schema_id": "immeuble:core:charge_call",
+      "ontology": "core",
+      "node_type": "charge_call",
+      "record_id_pattern": "charge_call:<stable-key>"
+    },
+    {
+      "name": "coda_entry",
+      "label": "coda_entry",
+      "schema_id": "immeuble:core:coda_entry",
+      "ontology": "core",
+      "node_type": "coda_entry",
+      "record_id_pattern": "coda_entry:<stable-key>"
+    },
+    {
+      "name": "decision",
+      "label": "decision",
+      "schema_id": "immeuble:core:decision",
+      "ontology": "core",
+      "node_type": "decision",
+      "record_id_pattern": "decision:<stable-key>"
+    },
+    {
+      "name": "household",
+      "label": "household",
+      "schema_id": "immeuble:core:household",
+      "ontology": "core",
+      "node_type": "household",
+      "record_id_pattern": "household:<stable-key>"
+    },
+    {
+      "name": "lease_contract",
+      "label": "lease_contract",
+      "schema_id": "immeuble:core:lease_contract",
+      "ontology": "core",
+      "node_type": "lease_contract",
+      "record_id_pattern": "lease_contract:<stable-key>"
+    },
+    {
+      "name": "organization",
+      "label": "organization",
+      "schema_id": "immeuble:core:organization",
+      "ontology": "core",
+      "node_type": "organization",
+      "record_id_pattern": "organization:<stable-key>"
+    },
+    {
+      "name": "parking_space",
+      "label": "parking_space",
+      "schema_id": "immeuble:core:parking_space",
+      "ontology": "core",
+      "node_type": "parking_space",
+      "record_id_pattern": "parking_space:<stable-key>"
+    },
+    {
+      "name": "person",
+      "label": "person",
+      "schema_id": "immeuble:core:person",
+      "ontology": "core",
+      "node_type": "person",
+      "record_id_pattern": "person:<stable-key>"
+    },
+    {
+      "name": "private_garden",
+      "label": "private_garden",
+      "schema_id": "immeuble:core:private_garden",
+      "ontology": "core",
+      "node_type": "private_garden",
+      "record_id_pattern": "private_garden:<stable-key>"
+    },
+    {
+      "name": "receipt",
+      "label": "receipt",
+      "schema_id": "immeuble:core:receipt",
+      "ontology": "core",
+      "node_type": "receipt",
+      "record_id_pattern": "receipt:<stable-key>"
+    },
+    {
+      "name": "reminder",
+      "label": "reminder",
+      "schema_id": "immeuble:core:reminder",
+      "ontology": "core",
+      "node_type": "reminder",
+      "record_id_pattern": "reminder:<stable-key>"
+    },
+    {
+      "name": "shared_equipment",
+      "label": "shared_equipment",
+      "schema_id": "immeuble:core:shared_equipment",
+      "ontology": "core",
+      "node_type": "shared_equipment",
+      "record_id_pattern": "shared_equipment:<stable-key>"
+    },
+    {
+      "name": "shared_space",
+      "label": "shared_space",
+      "schema_id": "immeuble:core:shared_space",
+      "ontology": "core",
+      "node_type": "shared_space",
+      "record_id_pattern": "shared_space:<stable-key>"
+    },
+    {
+      "name": "unit",
+      "label": "unit",
+      "schema_id": "immeuble:core:unit",
+      "ontology": "core",
+      "node_type": "unit",
+      "record_id_pattern": "unit:<stable-key>"
+    }
+  ],
+  "contract_relations": []
+}

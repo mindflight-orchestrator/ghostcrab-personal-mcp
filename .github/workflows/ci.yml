@@ -30,6 +30,9 @@ jobs:
       - name: Verify npm pack
         run: npm run verify:pack
 
+      - name: Immeuble hybrid CI gate
+        run: npm run immeuble:import:hybrid
+
       - name: Test
         run: npm run test
 
@@ -51,3 +54,36 @@ jobs:
       - name: Run sequential E2E verification
         run: |
           GHOSTCRAB_POSTGRES_STACK=native PG_PORT=5432 DATABASE_URL=postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab npm run verify:e2e
+
+  immeuble-live:
+    name: Immeuble live backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Set up Zig 0.16.0
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.16.0
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build ghostcrab-backend
+        run: BACKEND_VENDOR_UPDATE=0 npm run backend:build
+
+      - name: Run Immeuble live-lab (backend + live verify)
+        run: |
+          bash examples/immeuble/scripts/run-immeuble-live-lab.sh \
+            --db "$RUNNER_TEMP/immeuble.sqlite" \
+            --engine both \
+            --with-artifact-seed \
+            --with-live-verify \
+            --stop-after live_verify

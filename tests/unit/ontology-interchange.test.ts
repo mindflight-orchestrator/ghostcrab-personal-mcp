@@ -7,8 +7,8 @@ import { runNativeEngineSync } from "../../bin/lib/brain-engine-runner.mjs";
 
 const repoRoot = resolve(import.meta.dirname, "../..");
 const pkgRoot = repoRoot;
-const demoBundlePath = resolve(repoRoot, "examples/immeuble-demo/bundle.json");
-const demoLinkmlPath = resolve(repoRoot, "ontologies/immeuble-demo/core.yaml");
+const demoBundlePath = resolve(repoRoot, "examples/immeuble/bundle/immeuble.bundle.json");
+const demoLinkmlPath = resolve(repoRoot, "ontologies/immeuble/core.yaml");
 
 function sortedEntityTypes(rows: Array<{ entity_type: string }>) {
   return rows.map((row) => row.entity_type).sort();
@@ -25,7 +25,7 @@ function runNative(args: string[]) {
 }
 
 describe("ontology interchange", () => {
-  it("compiles immeuble-demo LinkML to native entity and edge types", () => {
+  it("compiles immeuble LinkML to native entity and edge types", () => {
     const outputPath = join(
       mkdtempSync(join(tmpdir(), "ontology-compile-")),
       "slice.json"
@@ -34,9 +34,9 @@ describe("ontology interchange", () => {
     runNative([
       "ontology-compile-linkml",
       "--workspace-id",
-      "immeuble-demo",
+      "immeuble",
       "--ontology-id",
-      "immeuble-demo::core",
+      "immeuble::core",
       "--input",
       demoLinkmlPath,
       "--output",
@@ -117,7 +117,7 @@ describe("ontology interchange", () => {
     expect(slice.ontologies[0]?.source_kind).toBe("linkml");
   });
 
-  it("exports immeuble-demo bundle to LinkML with native type annotations", () => {
+  it("exports immeuble bundle to LinkML with native type annotations", () => {
     const outputPath = join(
       mkdtempSync(join(tmpdir(), "ontology-export-")),
       "exported.yaml"
@@ -126,7 +126,7 @@ describe("ontology interchange", () => {
     runNative([
       "ontology-export-linkml",
       "--ontology-id",
-      "immeuble-demo::core",
+      "immeuble::core",
       "--input-bundle",
       demoBundlePath,
       "--output",
@@ -151,12 +151,12 @@ describe("ontology interchange", () => {
 
     const expectedEntities = sortedEntityTypes(
       bundle.ontology_entity_types.filter(
-        (row) => row.ontology_id === "immeuble-demo::core"
+        (row) => row.ontology_id === "immeuble::core"
       )
     );
     const expectedEdges = sortedEdgeTypes(
       bundle.ontology_edge_types.filter(
-        (row) => row.ontology_id === "immeuble-demo::core"
+        (row) => row.ontology_id === "immeuble::core"
       )
     );
 
@@ -167,7 +167,7 @@ describe("ontology interchange", () => {
     runNative([
       "ontology-export-linkml",
       "--ontology-id",
-      "immeuble-demo::core",
+      "immeuble::core",
       "--input-bundle",
       demoBundlePath,
       "--output",
@@ -177,9 +177,9 @@ describe("ontology interchange", () => {
     runNative([
       "ontology-compile-linkml",
       "--workspace-id",
-      "immeuble-demo",
+      "immeuble",
       "--ontology-id",
-      "immeuble-demo::core",
+      "immeuble::core",
       "--input",
       exportedPath,
       "--output",

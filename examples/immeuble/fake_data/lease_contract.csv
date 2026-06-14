@@ -1,0 +1,6 @@
+record_id,name,entity_type,entity_id,confidence,unit_id,landlord_id,household_id,validFrom,monthly_rent,currency
+lease_contract:800,Bail Tilleuls A4 - Karim Benali,lease_contract,800,1,103,203,303,2025-09-01,835,EUR
+lease_contract:801,Bail Érables A2 - Famille Legrand,lease_contract,801,1,111,204,306,2024-07-01,1120,EUR
+lease_contract:802,Bail Érables B2 - Famille El Idrissi,lease_contract,802,1,121,203,310,2025-02-01,1040,EUR
+lease_contract:803,Bail Érables B3 - Famille Klein,lease_contract,803,1,122,204,311,2023-11-01,990,EUR
+lease_contract:804,Bail Érables B4 - Colocation,lease_contract,804,1,123,234,312,2026-01-01,1250,EUR

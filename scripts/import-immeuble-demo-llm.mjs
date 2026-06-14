@@ -17,11 +17,11 @@ import { resolveNativeEnginePath } from "../bin/lib/brain-engine-runner.mjs";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "..");
 
-const GOLDEN_WORKSPACE = "immeuble-demo";
+const GOLDEN_WORKSPACE = "immeuble";
 const LLM_WORKSPACE = "immeuble-demo-llm";
-const GOLDEN_COLLECTION = "immeuble-demo::docs";
+const GOLDEN_COLLECTION = "immeuble::docs";
 const LLM_COLLECTION = "immeuble-demo-llm::docs";
-const ONTOLOGY_ID = "immeuble-demo::core";
+const ONTOLOGY_ID = "immeuble::core";
 const SOURCE_TABLE_ID = 78001;
 const SOURCE_FACETS = [
   "domain.building",
@@ -47,22 +47,22 @@ const args = parseArgs(process.argv.slice(2));
 loadLocalEnv();
 
 const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-const dbPath = resolve(repoRoot, args.db ?? "data/immeuble-demo-llm.sqlite");
+const dbPath = resolve(repoRoot, args.db ?? "data/immeuble-llm.sqlite");
 const reportDir = resolve(
   repoRoot,
-  args.reportDir ?? `reports/immeuble-demo-llm/${timestamp}`
+  args.reportDir ?? `reports/immeuble-llm/${timestamp}`
 );
 const manifestPath = join(
   repoRoot,
-  "examples/immeuble/mcp-lab/corpus/manifest.json"
+  "examples/immeuble/sources/documents/manifest.json"
 );
 const expectedPath = join(
   repoRoot,
-  "examples/immeuble/mcp-lab/corpus/expected-coverage.json"
+  "examples/immeuble/sources/documents/expected-coverage.json"
 );
-const bundlePath = join(repoRoot, "examples/immeuble/reference/bundle.json");
-const corpusDir = join(repoRoot, "examples/immeuble/mcp-lab/corpus");
-const ontologyPath = join(repoRoot, "ontologies/immeuble-demo/core.yaml");
+const bundlePath = join(repoRoot, "examples/immeuble/bundle/immeuble.bundle.json");
+const corpusDir = join(repoRoot, "examples/immeuble/sources/documents");
+const ontologyPath = join(repoRoot, "ontologies/immeuble/core.yaml");
 
 main().catch((error) => {
   console.error(error instanceof Error ? error.stack || error.message : error);
@@ -478,7 +478,7 @@ function printHelp() {
 
 Options:
   --mode live|mock|dry-run   LLM mode. Default: live.
-  --db <path>                SQLite target. Default: data/immeuble-demo-llm.sqlite.
+  --db <path>                SQLite target. Default: data/immeuble-llm.sqlite.
   --report-dir <path>        Report output directory.
   --reset                    Delete the target SQLite file before running.
   --resume-from qualification|extraction

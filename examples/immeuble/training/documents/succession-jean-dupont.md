@@ -1,1 +1,0 @@
-../reference/documents/succession-jean-dupont.md

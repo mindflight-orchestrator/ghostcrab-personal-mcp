@@ -1,0 +1,49 @@
+workspace_id: immeuble
+projections:
+  - name: immeuble_competency_questions
+    label: Plan d'analyse immeuble — questions métier
+    description: Six questions de compétence du narratif Tilleuls/Érables
+    business_question: Quelles questions métier le workspace immeuble doit-il pouvoir traiter ?
+    artifact_kind: analysis_plan
+    scope: immeuble:competency:questions
+    required_schemas:
+      - building
+      - unit
+      - lease_contract
+      - coda_entry
+    retrieval_jobs:
+      - summary
+  - name: annuaire_coproprietes
+    label: Annuaire immeubles gérés
+    description: Fiche synthétique des immeubles (buildings) du portefeuille
+    business_question: Quels immeubles sont gérés et où sont-ils situés ?
+    artifact_kind: live_answer_view
+    scope: immeuble:core:annuaire_coproprietes
+    required_schemas:
+      - building
+      - block
+    retrieval_jobs:
+      - summary
+  - name: baux_actifs
+    label: Baux locatifs actifs
+    description: Appartements loués, locataires et dates de bail
+    business_question: Quels appartements sont loués, à qui, depuis quelle date ?
+    artifact_kind: live_answer_view
+    scope: immeuble:core:baux_actifs
+    required_schemas:
+      - unit
+      - lease_contract
+      - person
+    retrieval_jobs:
+      - summary
+  - name: quotites_par_immeuble
+    label: Quotités par immeuble
+    description: Vérification quota_basis = 1000 par building
+    business_question: Les quotités de chaque immeuble totalisent-elles 1000 ?
+    artifact_kind: live_answer_view
+    scope: immeuble:core:quotites_par_immeuble
+    required_schemas:
+      - building
+      - unit
+    retrieval_jobs:
+      - summary

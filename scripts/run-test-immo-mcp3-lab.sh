@@ -6,7 +6,7 @@ DB="$INSTALL/data/ghostcrab.sqlite"
 WS=test-immo-mcp3
 COL=test-immo-mcp3::docs
 ONTO=test-immo-mcp3::core
-CORPUS="$REPO/examples/immeuble/mcp-lab/corpus"
+CORPUS="$REPO/examples/immeuble/sources/documents"
 LOG_DIR="$INSTALL/reports/test-immo-mcp3"
 GCP="node $INSTALL/node_modules/@mindflight/ghostcrab-personal-mcp/bin/gcp.mjs"
 
@@ -35,9 +35,9 @@ DELETE FROM graph_relation WHERE workspace_id='$WS';
 SQL
 
 echo "=== phase 2: ontology compile --profile syndic ==="
-$GCP brain ontology compile \
+ $GCP brain ontology compile \
   --workspace-id "$WS" --ontology-id "$ONTO" \
-  --input "$REPO/ontologies/immeuble-demo/core.yaml" \
+  --input "$REPO/ontologies/immeuble/core.yaml" \
   --profile syndic --import-db --force
 
 echo "=== phase 3: gap rules ==="
@@ -46,8 +46,8 @@ import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 const WS = "$WS";
 for (const file of [
-  "$REPO/examples/immeuble/training/gap-rules/L1-syndic-naive.json",
-  "$REPO/examples/immeuble/training/gap-rules/L2-syndic-filtered.json",
+  "$REPO/examples/immeuble/gap-rules/L1-syndic-naive.json",
+  "$REPO/examples/immeuble/gap-rules/L2-syndic-filtered.json",
 ]) {
   const payload = JSON.parse(readFileSync(file, "utf8"));
   payload.workspace_id = WS;
@@ -70,7 +70,7 @@ for pair in \
   "4:composition-occupants.md" "5:baux-locatifs.md" "6:pv-ag-budget-2026.md" \
   "7:coda-janvier-2026.md" "8:annexes-caves-garages-jardins.md" "9:groupes-facturation.md"; do
   doc_id="${pair%%:*}"; file="${pair#*:}"
-  $GCP brain document document-ingest --workspace-id "$WS" --collection-id "$COL" \
+$GCP brain document document-ingest --workspace-id "$WS" --collection-id "$COL" \
     --doc-id "$doc_id" --source-ref "$CORPUS/$file" --language fr --strategy paragraph \
     --content-file "$CORPUS/$file" --force >/dev/null
   echo "ingested $doc_id"
@@ -86,7 +86,7 @@ $GCP brain document document-qualify \
 echo "=== phase 5: business extract + reindex ==="
 $GCP brain document document-business-extract \
   --workspace-id "$WS" --collection-id "$COL" --ontology-id "$ONTO" \
-  --expected-coverage-json "$REPO/examples/immeuble/mcp-lab/corpus/expected-coverage.json" \
+  --expected-coverage-json "$REPO/examples/immeuble/sources/documents/expected-coverage.json" \
   --output "$LOG_DIR/business-extraction.parsed.json" \
   --raw-output "$LOG_DIR/business-extraction.raw.json" \
   --reindex graph --limit 9 --batch-size 1 --llm-parallel 2 --force 2>&1 | tee "$LOG_DIR/extract.log"

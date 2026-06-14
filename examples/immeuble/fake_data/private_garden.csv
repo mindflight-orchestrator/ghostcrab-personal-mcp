@@ -1,0 +1,7 @@
+record_id,name,entity_type,entity_id,confidence,building_id,lot,block,exclusive_use
+private_garden:700,Tilleuls Appartement A1 Jardin privatif,private_garden,700,1,1,A1,A,true
+private_garden:701,Tilleuls Appartement A2 Jardin privatif,private_garden,701,1,1,A2,A,true
+private_garden:705,Érables Appartement A1 Jardin privatif,private_garden,705,1,2,A1,A,true
+private_garden:706,Érables Appartement A2 Jardin privatif,private_garden,706,1,2,A2,A,true
+private_garden:709,Érables Appartement B1 Jardin privatif,private_garden,709,1,2,B1,B,true
+private_garden:710,Érables Appartement B2 Jardin privatif,private_garden,710,1,2,B2,B,true

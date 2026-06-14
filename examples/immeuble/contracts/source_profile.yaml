@@ -1,0 +1,38 @@
+workspace_id: immeuble
+ontology_id: immeuble::core
+source_tag: structured_import
+data_plane: import_ready
+
+import_ready:
+  facets_csv: import_ready/mfo_facets_import.csv
+  edges_csv: import_ready/graph_edges_import.csv
+
+sources:
+  - id: fake_data_building
+    kind: csv
+    path: fake_data/building.csv
+    entity: building
+  - id: fake_data_unit
+    kind: csv
+    path: fake_data/unit.csv
+    entity: unit
+  - id: fake_data_person
+    kind: csv
+    path: fake_data/person.csv
+    entity: person
+  - id: fake_data_lease_contract
+    kind: csv
+    path: fake_data/lease_contract.csv
+    entity: lease_contract
+  - id: import_ready_facets
+    kind: csv
+    path: import_ready/mfo_facets_import.csv
+    role: facets_bundle
+  - id: import_ready_edges
+    kind: csv
+    path: import_ready/graph_edges_import.csv
+    role: graph_bundle
+
+notes: >
+  Canonical workspace profile for the `immeuble` example.
+  Legacy structured-import profiles can be regenerated from mapping_external_to_canonical.json.

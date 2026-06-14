@@ -1,0 +1,6 @@
+record_id,name,entity_type,entity_id,confidence,role
+organization:200,Syndic Horizon Gestion,organization,200,1,syndic
+organization:201,ACP Résidence Les Tilleuls,organization,201,1,association_coproprietaires
+organization:202,ACP Résidence Les Érables,organization,202,1,association_coproprietaires
+organization:203,Immo Invest SRL,organization,203,1,investor_landlord
+organization:204,Patrimoine Nord SRL,organization,204,1,investor_landlord

@@ -1,0 +1,3 @@
+record_id,name,entity_type,entity_id,confidence,address,quota_basis
+building:1,Résidence Les Tilleuls,building,1,1,"12 rue des Tilleuls, 5000 Namur",1000
+building:2,Résidence Les Érables,building,2,1,"8 avenue des Érables, 1300 Wavre",1000

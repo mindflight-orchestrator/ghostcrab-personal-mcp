@@ -4,21 +4,20 @@ import { describe, expect, it } from "vitest";
 
 const repoRoot = join(import.meta.dirname, "..", "..");
 
-describe("immeuble MCP lab paths", () => {
-  it("expected-coverage.json lives under corpus/", () => {
+describe("immeuble example paths", () => {
+  it("expected-coverage.json lives under sources/documents/", () => {
     const coveragePath = join(
       repoRoot,
-      "examples/immeuble/mcp-lab/corpus/expected-coverage.json"
+      "examples/immeuble/sources/documents/expected-coverage.json"
     );
     expect(() => readFileSync(coveragePath, "utf8")).not.toThrow();
   });
 
-  it("lab script references corpus/expected-coverage.json not the stale root path", () => {
-    const script = readFileSync(
-      join(repoRoot, "scripts/run-test-immo-mcp3-lab.sh"),
+  it("success-criteria.yaml uses workspace immeuble", () => {
+    const yaml = readFileSync(
+      join(repoRoot, "examples/immeuble/success-criteria.yaml"),
       "utf8"
     );
-    expect(script).toContain("mcp-lab/corpus/expected-coverage.json");
-    expect(script).not.toContain("mcp-lab/expected-coverage.json");
+    expect(yaml).toContain("workspace_id: immeuble");
   });
 });

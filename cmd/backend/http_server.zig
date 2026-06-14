@@ -64,7 +64,13 @@ pub fn main(init: std.process.Init) !void {
 
     if (options.init_only) return;
 
-    try app.serve();
+    app.serve() catch |err| {
+        log.err(
+            "standalone HTTP serve failed: addr={s}, sqlite={s}, error={s}",
+            .{ options.addr_text, options.db_path, @errorName(err) },
+        );
+        return err;
+    };
 }
 
 fn writePidFile(io: std.Io, pid_file: []const u8) !void {

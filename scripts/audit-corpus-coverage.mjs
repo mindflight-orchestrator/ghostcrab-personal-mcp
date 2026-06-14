@@ -8,8 +8,8 @@
  *     --db /path/to/ghostcrab.sqlite \
  *     [--collection-id test-immo-mcp3::docs] \
  *     [--ontology-id test-immo-mcp3::core] \
- *     [--manifest examples/immeuble/mcp-lab/corpus/manifest.json] \
- *     [--expected-coverage examples/immeuble/mcp-lab/corpus/expected-coverage.json] \
+ *     [--manifest examples/immeuble/sources/documents/manifest.json] \
+ *     [--expected-coverage examples/immeuble/sources/documents/expected-coverage.json] \
  *     [--parsed-json /path/to/business-extraction.parsed.json] \
  *     [--output reports/corpus-audit-test-immo-mcp3.md]
  */
@@ -38,8 +38,8 @@ function parseArgs(argv) {
     dbPath: null,
     collectionId: null,
     ontologyId: null,
-    manifestPath: join(repoRoot, "examples/immeuble/mcp-lab/corpus/manifest.json"),
-    expectedPath: join(repoRoot, "examples/immeuble/mcp-lab/corpus/expected-coverage.json"),
+    manifestPath: join(repoRoot, "examples/immeuble/sources/documents/manifest.json"),
+    expectedPath: join(repoRoot, "examples/immeuble/sources/documents/expected-coverage.json"),
     parsedJsonPath: null,
     outputPath: null
   };

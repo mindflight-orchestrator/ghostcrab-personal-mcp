@@ -211,11 +211,11 @@ gcp brain workspace bootstrap <workspace-id> --profile <profile-id>
 gcp brain workspace bootstrap <workspace-id> --profile-file /path/to/profile.jsonl
 ```
 
-**Starter kit default seed** (aligned with **starter-kit-ghostcrab-perso** template layout, shipped in this repo under `examples/starterkit-perso/`):
+**Starter kit default seed** (aligned with **starter-kit-ghostcrab-perso** template layout, shipped in this repo under `examples/immeuble/`):
 
 ```bash
 pnpm run demo:load:starterkit
-# same as: pnpm run demo:load -- --profile-file examples/starterkit-perso/starterkit-default.jsonl
+# same as: pnpm run demo:load -- --profile-file examples/immeuble/starterkit-default.jsonl
 ```
 
 You can also pass **`--profile-file /any/path/profile.jsonl`** for custom JSONL in the same format as other demo profiles.

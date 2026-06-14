@@ -1,0 +1,14 @@
+record_id,name,entity_type,entity_id,confidence,building_id,lot,block
+cellar:500,Tilleuls Appartement A1 Cave,cellar,500,1,1,A1,A
+cellar:501,Tilleuls Appartement A2 Cave,cellar,501,1,1,A2,A
+cellar:502,Tilleuls Appartement A3 Cave,cellar,502,1,1,A3,A
+cellar:503,Tilleuls Appartement A4 Cave,cellar,503,1,1,A4,A
+cellar:504,Tilleuls Appartement A5 Cave,cellar,504,1,1,A5,A
+cellar:505,Érables Appartement A1 Cave,cellar,505,1,2,A1,A
+cellar:506,Érables Appartement A2 Cave,cellar,506,1,2,A2,A
+cellar:507,Érables Appartement A3 Cave,cellar,507,1,2,A3,A
+cellar:508,Érables Appartement A4 Cave,cellar,508,1,2,A4,A
+cellar:509,Érables Appartement B1 Cave,cellar,509,1,2,B1,B
+cellar:510,Érables Appartement B2 Cave,cellar,510,1,2,B2,B
+cellar:511,Érables Appartement B3 Cave,cellar,511,1,2,B3,B
+cellar:512,Érables Appartement B4 Cave,cellar,512,1,2,B4,B

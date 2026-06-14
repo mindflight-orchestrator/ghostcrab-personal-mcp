@@ -1,0 +1,31 @@
+record_id,name,entity_type,entity_id,confidence,role,age_band,external_id,household_role
+person:210,Marie Lambert,person,210,1,comptable,40-49,X7KkmZgkst1XwsvPIg-MG,
+person:211,Henri Dupont,person,211,1,,75-84,2D60GDt6y8b8O9mcYBtNT,conjoint
+person:212,Madeleine Dupont,person,212,1,,75-84,nSy1zdKLkQ958E4W1_W7A,conjoint
+person:213,Nicolas Dupont,person,213,1,,45-54,05KWFvM7LKa_RGYHl8IEo,parent
+person:214,Pauline Dupont,person,214,1,,45-54,ncIoD7jCVe5pN-dE4nyEk,parent
+person:215,Lina Dupont,person,215,1,,10-17,vbqG9x0tykjc7pX7F7o3B,enfant
+person:216,Tom Dupont,person,216,1,,6-9,yfc2viE5ZdI_PTgOb6-0m,enfant
+person:217,Sofia Martin,person,217,1,,30-39,VGPn1XBMYeOSv4MSKzAPA,single
+person:218,Karim Benali,person,218,1,,30-39,opTm2eaf8XczBjlIQIP37,single
+person:219,Lena Peeters,person,219,1,,35-44,HEYQaoeGTgQ00-STMC562,parent
+person:220,Noah De Smet,person,220,1,,35-44,mTIlRXrhbep1tQYkaTZNm,parent
+person:221,Mila De Smet,person,221,1,,0-5,W9a9QrEHhVj7AqeXvGheV,enfant
+person:222,Alice Bernard,person,222,1,,55-64,ERcWPojZzTDboi6_nEfju,single
+person:223,Marc Legrand,person,223,1,,40-49,IAeZtBDZ887MQrnK6dcio,parent
+person:224,Eva Legrand,person,224,1,,40-49,roF0UhYuTqkm9SkF-EqRf,parent
+person:225,Nora Legrand,person,225,1,,10-17,SV2zNjPCWRH-Mo6z8_IdJ,enfant
+person:226,Victor Moreau,person,226,1,,30-39,VgKIcvYiLx8ZDl9LlO_8-,single
+person:227,Claire Dubois,person,227,1,,30-39,-JqJfp8w67gQrNcAu2EWb,single
+person:228,Fatima El Idrissi,person,228,1,,35-44,Y-9BOeXohcU87Qv6vfC2n,parent
+person:229,Samir El Idrissi,person,229,1,,35-44,t_hrPJLAfbEHpAoZQKlZm,parent
+person:230,Yanis El Idrissi,person,230,1,,6-9,8sydsl2uzyCYS0umtGZE3,enfant
+person:231,Amel El Idrissi,person,231,1,,0-5,otZGubeyxocs2qu7bbk7y,enfant
+person:232,Olivier Renard,person,232,1,,45-54,RpBX13G9bbkKKjYqHtpMS,usufruitier
+person:233,Julie Renard,person,233,1,,18-24,zlaoEs7LmUQAXTu6-UoaY,nu_proprietaire
+person:234,Marta Rossi,person,234,1,,65-74,z-VEg_SAKSufP8GPe-DAd,owner_abroad
+person:235,Thomas Klein,person,235,1,,35-44,7D-E8sJPMupsjxZB5XG7U,tenant
+person:236,Sarah Klein,person,236,1,,35-44,bMyXsIGZ4CnV8rK2E-69a,tenant
+person:237,Eliott Klein,person,237,1,,6-9,tN1G-PBsAFGTfaYAG9hFw,enfant
+person:238,Camille Laurent,person,238,1,,25-34,dutLeMqM2oKI56jlPMxoK,tenant
+person:239,Jonas Vermeulen,person,239,1,,25-34,1tuazwVfvXxQJ55hbuel0,tenant

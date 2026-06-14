@@ -1,0 +1,14 @@
+record_id,name,entity_type,entity_id,confidence,unit_id,status,split
+billing_group:400,Groupe facturation Tilleuls A1,billing_group,400,1,100,active,50/50
+billing_group:401,Groupe facturation Tilleuls A2,billing_group,401,1,101,active,single
+billing_group:402,Groupe facturation Tilleuls A3,billing_group,402,1,102,active,50/50
+billing_group:403,Groupe facturation Tilleuls A4 bailleur,billing_group,403,1,103,active,landlord
+billing_group:404,Groupe facturation Tilleuls A5,billing_group,404,1,104,active,50/50
+billing_group:405,Groupe facturation Érables A1,billing_group,405,1,110,active,single
+billing_group:406,Groupe facturation Érables A2 bailleur,billing_group,406,1,111,active,landlord
+billing_group:407,Groupe facturation Érables A3,billing_group,407,1,112,active,single
+billing_group:408,Groupe facturation Érables A4 travaux,billing_group,408,1,113,active,works
+billing_group:409,Groupe facturation Érables B1 succession,billing_group,409,1,120,active,usufruit_nue_propriete
+billing_group:410,Groupe facturation Érables B2 bailleur,billing_group,410,1,121,active,landlord
+billing_group:411,Groupe facturation Érables B3 bailleur,billing_group,411,1,122,active,landlord
+billing_group:412,Groupe facturation Érables B4 mandataire,billing_group,412,1,123,active,owner_abroad

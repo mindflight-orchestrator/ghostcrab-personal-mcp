@@ -1,6 +1,6 @@
 # Skillset and demo import
 
-This document describes how to **equip a GhostCrab setup** with a curated **skillset** (registry and/or vendored skills) and **demo data** (JSONL profiles), especially using the companion bundle under [`examples/remote-demos/`](../../examples/remote-demos/).
+This document describes how to **equip a GhostCrab setup** with a curated **skillset** (registry and/or vendored skills) and **demo data** (JSONL profiles), especially using the companion bundle under [`examples/immeuble/`](../../examples/immeuble/).
 
 ## What you are importing
 
@@ -13,7 +13,7 @@ This document describes how to **equip a GhostCrab setup** with a curated **skil
 
 JSONL line kinds and fields: see [`src/cli/demo-load.ts`](../../src/cli/demo-load.ts) (`profile`, `remember`, `learn_node`, `learn_edge`, `answer_artifact`; legacy `projection` remains accepted). The `profile` line is metadata only for the file; it is not inserted as a row.
 
-## Bundled example: `examples/remote-demos`
+## Bundled example: `examples/immeuble`
 
 The **remote-demos** tree is a template for "clone, install npm deps, run one script":
 
@@ -21,7 +21,7 @@ The **remote-demos** tree is a template for "clone, install npm deps, run one sc
 2. **`npm run setup`** — runs `scripts/setup.mjs`, which chains the `gcp` commands above in that order.
 3. **`npm run load`** — runs profile loads only (`--profiles-only`), useful when schemas/skills are already in place.
 
-Full steps and publishing notes: [examples/remote-demos/README.md](../../examples/remote-demos/README.md).
+Full steps and publishing notes: [examples/immeuble/README.md](../../examples/immeuble/README.md).
 
 ## Prerequisites
 

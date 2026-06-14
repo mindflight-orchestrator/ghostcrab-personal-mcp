@@ -1,9 +1,0 @@
-{
-  "workspace_id": "immeuble-demo-llm",
-  "collection_id": "immeuble-demo-llm::docs",
-  "ontology_id": "immeuble-demo::core",
-  "golden_workspace_id": "immeuble-demo",
-  "golden_bundle": "../reference/bundle.json",
-  "sqlite_suggested": "data/immeuble-mcp-lab.sqlite",
-  "language": "fr"
-}

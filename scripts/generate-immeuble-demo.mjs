@@ -27,8 +27,8 @@ function parseTrainingArgs(argv) {
       opts.emit = arg.slice("--emit=".length).split(",").filter(Boolean);
     } else if (arg === "-h" || arg === "--help") {
       console.error(`Usage:
-  node scripts/generate-immeuble-demo.mjs
-  node scripts/generate-immeuble-demo.mjs --training --emit draft,resolved
+  node scripts/generate-immeuble.mjs
+  node scripts/generate-immeuble.mjs --training --emit draft,resolved
 
 Flags:
   --training              Emit immeuble/training draft/golden bundles
@@ -58,14 +58,15 @@ if (trainingOpts.training) {
   process.exit(result.status ?? 1);
 }
 
-const WS = "immeuble-demo";
-const ONT = "immeuble-demo::core";
-const COLL = "immeuble-demo::docs";
+const WS = "immeuble";
+const ONT = "immeuble::core";
+const COLL = "immeuble::docs";
 const FACET_TABLE_ID = 77001;
 const ARTIFACT_TS = 1760000000;
-const REFERENCE_DIR = join(REPO_ROOT, "examples/immeuble/reference");
-const DOCS_DIR = join(REFERENCE_DIR, "documents");
-const SOURCES_DIR = join(REPO_ROOT, "examples/immeuble/mcp-lab/corpus");
+const REFERENCE_DIR = join(REPO_ROOT, "examples/immeuble");
+const DOCS_DIR = join(REFERENCE_DIR, "sources/documents");
+const SOURCES_DIR = join(REFERENCE_DIR, "sources/documents");
+const BUNDLE_OUT = join(REFERENCE_DIR, "bundle/immeuble.bundle.json");
 
 mkdirSync(DOCS_DIR, { recursive: true });
 mkdirSync(SOURCES_DIR, { recursive: true });
@@ -88,7 +89,7 @@ function resolveMindbrainTool() {
 
 function compileLinkmlOntologySlice() {
   const tool = resolveMindbrainTool();
-  const inputPath = join(REPO_ROOT, "ontologies/immeuble-demo/core.yaml");
+  const inputPath = join(REPO_ROOT, "ontologies/immeuble/core.yaml");
   const tmpDir = mkdtempSync(join(tmpdir(), "immeuble-linkml-"));
   const outputPath = join(tmpDir, "ontology-slice.json");
   const result = spawnSync(
@@ -331,13 +332,13 @@ function moneyProp(
 }
 
 function document(doc_id, filename, title, content, facets) {
-  const source_ref = `examples/immeuble/reference/documents/${filename}`;
+  const source_ref = `examples/immeuble/sources/documents/${filename}`;
   writeFileSync(join(DOCS_DIR, filename), `${content.trim()}\n`);
   rows.docs.push({
     workspace_id: WS,
     collection_id: COLL,
     doc_id,
-    doc_nanoid: `immeuble-demo-doc-${doc_id}`,
+    doc_nanoid: `immeuble-doc-${doc_id}`,
     content,
     language: "fr",
     source_ref,
@@ -1415,12 +1416,12 @@ writeFileSync(
   join(SOURCES_DIR, "manifest.json"),
   `${JSON.stringify(
     {
-      workspace_id: "immeuble-demo-llm",
-      collection_id: "immeuble-demo-llm::docs",
+      workspace_id: "immeuble",
+      collection_id: "immeuble::docs",
       ontology_id: ONT,
       language: "fr",
       source_kind: "fictional_realistic_belgian_syndic",
-      generated_from: "scripts/generate-immeuble-demo.mjs",
+      generated_from: "scripts/generate-immeuble.mjs",
       files: sourceFiles.map((source, index) => ({
         doc_id: index + 1,
         filename: source.filename,
@@ -1437,7 +1438,7 @@ writeFileSync(
   join(SOURCES_DIR, "expected-coverage.json"),
   `${JSON.stringify(
     {
-      workspace_id: "immeuble-demo-llm",
+      workspace_id: "immeuble",
       golden_workspace_id: WS,
       buildings: [
         {
@@ -1518,7 +1519,7 @@ Agent workflow: start at ../README.md and follow ../prompts/00-prerequisites.md.
 ## Import target
 
 \`\`\`bash
-export GHOSTCRAB_SQLITE_PATH="$PWD/data/immeuble-demo-llm.sqlite"
+export GHOSTCRAB_SQLITE_PATH="$PWD/data/immeuble.sqlite"
 export MB_DOCUMENTS_LLM_MODE=live
 export MB_DOCUMENTS_LLM_BASE_URL="\${MB_DOCUMENTS_LLM_BASE_URL:-https://api.openai.com/v1}"
 export MB_DOCUMENTS_LLM_MODEL="\${MB_DOCUMENTS_LLM_MODEL:-gpt-4.1-mini}"
@@ -1532,51 +1533,51 @@ workspace and the source-import workspace in the same SQLite database, records
 LLM prompts/responses, and writes a comparison report:
 
 \`\`\`bash
-node scripts/import-immeuble-demo-llm.mjs --reset
+node scripts/import-immeuble.mjs --reset
 \`\`\`
 
 Use a bounded live smoke first when iterating on prompts:
 
 \`\`\`bash
-node scripts/import-immeuble-demo-llm.mjs --reset --limit-docs 1 --debug-prompts
+node scripts/import-immeuble.mjs --reset --limit-docs 1 --debug-prompts
 \`\`\`
 
 Use mock or dry-run mode when validating the pipeline without network/API calls:
 
 \`\`\`bash
-node scripts/import-immeuble-demo-llm.mjs --mode mock --reset
-node scripts/import-immeuble-demo-llm.mjs --mode dry-run --reset --debug-prompts
+node scripts/import-immeuble.mjs --mode mock --reset
+node scripts/import-immeuble.mjs --mode dry-run --reset --debug-prompts
 \`\`\`
 
 Manual equivalent:
 
 \`\`\`bash
 node bin/gcp.mjs brain ontology compile \\
-  --workspace-id immeuble-demo-llm \\
-  --ontology-id immeuble-demo::core \\
-  --input ontologies/immeuble-demo/core.yaml \\
+  --workspace-id immeuble \\
+  --ontology-id immeuble::core \\
+  --input ontologies/immeuble/core.yaml \\
   --import-db \\
   --db "$GHOSTCRAB_SQLITE_PATH"
 
 while read -r doc_id filename; do
   node bin/gcp.mjs brain document --force document-profile-enqueue \\
-    --content-file "examples/immeuble/mcp-lab/corpus/$filename" \\
-    --workspace-id immeuble-demo-llm \\
-    --collection-id immeuble-demo-llm::docs \\
+    --content-file "examples/immeuble/sources/documents/$filename" \\
+    --workspace-id immeuble \\
+    --collection-id immeuble::docs \\
     --doc-id "$doc_id" \\
     --language fr
-done < <(node -e 'const m=require("./examples/immeuble/mcp-lab/corpus/manifest.json"); for (const f of m.files) console.log(f.doc_id, f.filename)')
+done < <(node -e 'const m=require("./examples/immeuble/sources/documents/manifest.json"); for (const f of m.files) console.log(f.doc_id, f.filename)')
 
 node bin/gcp.mjs brain document --force document-profile-worker --limit 20
 
 node bin/gcp.mjs brain document --force qualification-vocab-list \\
-  --workspace-id immeuble-demo-llm \\
-  --collection-id immeuble-demo-llm::docs
+  --workspace-id immeuble \\
+  --collection-id immeuble::docs
 
 node bin/gcp.mjs brain document --force document-qualify \\
-  --workspace-id immeuble-demo-llm \\
-  --collection-id immeuble-demo-llm::docs \\
-  --taxonomies immeuble-demo::core \\
+  --workspace-id immeuble \\
+  --collection-id immeuble::docs \\
+  --taxonomies immeuble::core \\
   --facets source.document_type,domain.building,domain.unit,domain.role,domain.scenario,finance.payment_status
 \`\`\`
 
@@ -1671,13 +1672,13 @@ const scenarios = [
 
 const answerArtifacts = [
   {
-    artifact_id: "analysis_plan__immeuble_demo_competency_questions",
-    slug: "immeuble_demo_competency_questions",
+    artifact_id: "analysis_plan__immeuble_competency_questions",
+    slug: "immeuble_competency_questions",
     workspace_id: null,
-    agent_id: "agent:immeuble-demo",
+    agent_id: "agent:immeuble",
     scope: WS,
     artifact_kind: "analysis_plan",
-    public_label_key: "analysis_plan.immeuble_demo.competency_questions",
+    public_label_key: "analysis_plan.immeuble.competency_questions",
     public_label: "Plan d'analyse immeuble demo",
     lifecycle: "active",
     state: "open",
@@ -1701,21 +1702,21 @@ const answerArtifacts = [
     updated_at_unix: ARTIFACT_TS
   },
   {
-    artifact_id: "live_answer_view__immeuble_demo_pilotage",
-    slug: "immeuble_demo_pilotage",
+    artifact_id: "live_answer_view__immeuble_pilotage",
+    slug: "immeuble_pilotage",
     workspace_id: WS,
     agent_id: null,
     scope: null,
     artifact_kind: "live_answer_view",
-    public_label_key: "live_answer_view.immeuble_demo.pilotage",
+    public_label_key: "live_answer_view.immeuble.pilotage",
     public_label: "Vue live immeuble demo",
     lifecycle: "stale",
     state: "dirty",
     current_version: 1,
     payload_json: j({
-      source_plan_id: "analysis_plan__immeuble_demo_competency_questions",
+      source_plan_id: "analysis_plan__immeuble_competency_questions",
       summary:
-        "Vue courante a rafraichir apres import/reindex du bundle immeuble-demo.",
+        "Vue courante a rafraichir apres import/reindex du bundle immeuble.",
       refresh_checks: [
         "entity counts vs success-criteria.yaml",
         "graph diagnostics L2 syndic",
@@ -1762,7 +1763,7 @@ const bundle = {
       source_kind: "linkml",
       metadata_json: j({
         profile: "syndic",
-        source: "ontologies/immeuble-demo/core.yaml"
+        source: "ontologies/immeuble/core.yaml"
       })
     }
   ],
@@ -1836,7 +1837,7 @@ const bundle = {
 };
 
 writeFileSync(
-  join(REFERENCE_DIR, "bundle.json"),
+  join(BUNDLE_OUT),
   `${JSON.stringify(bundle, null, 2)}\n`
 );
 

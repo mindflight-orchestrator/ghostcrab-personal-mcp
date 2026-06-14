@@ -1,5 +1,0 @@
-record_id,code_abrege,nom_usuel,numero_bce,adresse_siege,nombre_lots,langue_gestion,statut,exercice_comptable_standard,compte_bancaire_principal_iban
-copropriete:0001,ACP01,Residence Horizon 1,BE0942621108,"Rue Immeuble demo 1, 1000 Bruxelles",11,fr,en gestion active,1er juillet,BE3836304733616459
-copropriete:0002,ACP02,Residence Horizon 2,BE0571432881,"Rue Immeuble demo 2, 1000 Bruxelles",62,nl,en gestion active,1er juillet,BE2936308574149614
-copropriete:0003,ACP03,Residence Horizon 3,BE0509747451,"Rue Immeuble demo 3, 1000 Bruxelles",19,nl,en gestion active,1er janvier,BE5536308934927891
-copropriete:0004,ACP04,Residence Horizon 4,BE0684027113,"Rue Immeuble demo 4, 1000 Bruxelles",13,nl,en gestion active,1er janvier,BE5836309928378856

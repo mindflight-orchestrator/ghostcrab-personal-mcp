@@ -1,0 +1,62 @@
+# Definition of Done — workspace immeuble
+# Validated by: node examples/immeuble/scripts/verify-immeuble-acceptance.mjs
+
+workspace_id: immeuble
+ontology_id: immeuble::core
+schema_id_prefix: "immeuble:"
+
+# Structured-import generated artifacts (from build-immeuble-model.mjs)
+import_ready:
+  facet_rows: 131
+  edge_rows: 265
+  fake_data_csv_min: 19
+  entity_type_counts:
+    building: 2
+    block: 3
+    unit: 13
+    household: 13
+    cellar: 13
+    lease_contract: 5
+    coda_entry: 3
+    person: 30
+
+# Post-apply DB minimums (structured-import path only)
+db_after_import:
+  agent_facts_min: 131
+  relations_raw_min: 265
+  graph_entity_min: 1
+  schema_id_violations: 0
+
+# Hybrid engine compare (optional gate — run with --engine both)
+hybrid_compare:
+  required: false
+  max_deltas:
+    facets_inserted: 0
+    edges_inserted: 0
+    entities_upserted: 0
+
+# Minimal guaranteed projection surface (must match consumer_contract + projection_catalog)
+projections:
+  analysis_plan:
+    - analysis_plan__immeuble_competency_questions
+  live_answer_view:
+    - live_answer_view__annuaire_coproprietes
+    - live_answer_view__baux_actifs
+    - live_answer_view__quotites_par_immeuble
+
+consumer_contract:
+  facet_queries_min: 2
+  graph_traversals_min: 1
+  answer_artifacts_min: 3
+
+# Bundle reload (optional gate — run reset with --with-bundle-load)
+bundle:
+  path: bundle/immeuble.bundle.json
+  documents_raw: 7
+  entities_raw_min: 131
+  relations_raw_min: 265
+
+# Graph narrative checks (from success-criteria.yaml)
+graph_search_min:
+  query: appartement
+  min_hits: 13

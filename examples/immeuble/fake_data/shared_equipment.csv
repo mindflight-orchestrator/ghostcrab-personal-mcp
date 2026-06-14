@@ -1,0 +1,5 @@
+record_id,name,entity_type,entity_id,confidence,building_id,equipment_type
+shared_equipment:40,Tilleuls Machine à laver 1,shared_equipment,40,1,1,washing_machine
+shared_equipment:41,Tilleuls Sèche-linge 1,shared_equipment,41,1,1,dryer
+shared_equipment:42,Érables Machine à laver A,shared_equipment,42,1,2,washing_machine
+shared_equipment:43,Érables Machine à laver B,shared_equipment,43,1,2,washing_machine

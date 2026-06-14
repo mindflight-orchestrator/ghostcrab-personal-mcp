@@ -6,14 +6,9 @@ import { runAudit } from "../../scripts/audit-corpus-coverage.mjs";
 
 const repoRoot = join(import.meta.dirname, "..", "..");
 const require = createRequire(import.meta.url);
-const manifestPath = join(
-  repoRoot,
-  "examples/immeuble/mcp-lab/corpus/manifest.json"
-);
-const expectedPath = join(
-  repoRoot,
-  "examples/immeuble/mcp-lab/corpus/expected-coverage.json"
-);
+const documentsDir = join(repoRoot, "examples/immeuble/sources/documents");
+const manifestPath = join(documentsDir, "manifest.json");
+const expectedPath = join(documentsDir, "expected-coverage.json");
 const installRoot =
   process.env.GHOSTCRAB_INSTALL ??
   "/home/dlamotte/Documents/ghostcrab-personal-mcp";
@@ -30,9 +25,7 @@ describe("audit-corpus-coverage.mjs", () => {
     };
     expect(manifest.files).toHaveLength(9);
     for (const file of manifest.files as Array<{ filename: string }>) {
-      expect(
-        existsSync(join(repoRoot, "examples/immeuble/mcp-lab/corpus", file.filename))
-      ).toBe(true);
+      expect(existsSync(join(documentsDir, file.filename))).toBe(true);
     }
   });
 

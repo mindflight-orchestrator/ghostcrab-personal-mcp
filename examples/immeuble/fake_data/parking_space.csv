@@ -1,0 +1,8 @@
+record_id,name,entity_type,entity_id,confidence,building_id,lot,block,parking_kind
+parking_space:600,Tilleuls Appartement A1 Garage,parking_space,600,1,1,A1,A,garage_box
+parking_space:602,Tilleuls Appartement A3 Garage,parking_space,602,1,1,A3,A,garage_box
+parking_space:604,Tilleuls Appartement A5 Garage,parking_space,604,1,1,A5,A,garage_box
+parking_space:605,Érables Appartement A1 Garage,parking_space,605,1,2,A1,A,garage_box
+parking_space:608,Érables Appartement A4 Garage,parking_space,608,1,2,A4,A,garage_box
+parking_space:609,Érables Appartement B1 Garage,parking_space,609,1,2,B1,B,garage_box
+parking_space:612,Érables Appartement B4 Garage,parking_space,612,1,2,B4,B,garage_box

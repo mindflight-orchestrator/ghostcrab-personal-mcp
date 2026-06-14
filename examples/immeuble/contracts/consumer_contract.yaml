@@ -1,0 +1,35 @@
+workspace_id: immeuble
+
+orphan_entities:
+  max_ratio: 0.50
+  exempt_entity_types: [person, organization, role]
+
+facet_queries:
+  - name: search_building
+    tool: ghostcrab_search
+    schema_id: immeuble:core:building
+    min_rows: 2
+  - name: search_unit
+    tool: ghostcrab_search
+    schema_id: immeuble:core:unit
+    min_rows: 13
+
+graph_traversals:
+  - name: building_contains_units
+    start_entity_type: immeuble:building
+    edge_label: contains
+    min_edges: 13
+
+answer_artifacts:
+  - name: annuaire_coproprietes
+    artifact_kind: live_answer_view
+    workspace_id: immeuble
+    min_items: 1
+  - name: baux_actifs
+    artifact_kind: live_answer_view
+    workspace_id: immeuble
+    min_items: 1
+  - name: quotites_par_immeuble
+    artifact_kind: live_answer_view
+    workspace_id: immeuble
+    min_items: 1

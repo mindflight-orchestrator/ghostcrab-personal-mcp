@@ -7,7 +7,7 @@ GhostCrab uses **two different workspace concepts**. Agents must not confuse the
 | Concept | Example | What it selects |
 |---------|---------|-----------------|
 | **SQLite database** | `--db ~/.ghostcrab/databases/ghostcrab.sqlite` | Which **SQLite file** the MCP process opens |
-| **MindBrain workspace_id** | `--workspace my-app`, `default`, `immeuble-demo` | Logical **partition inside** that SQLite file |
+| **MindBrain workspace_id** | `--workspace my-app`, `default`, `immeuble` | Logical **partition inside** that SQLite file |
 
 `ghostcrab_status` echoes both via `active_workspace_id` and `workspace_context` (pin source, CLI name, sqlite path source).
 

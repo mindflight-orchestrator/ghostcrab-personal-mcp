@@ -1,0 +1,40 @@
+{
+  "ontology_id": "immeuble::core",
+  "workspace_id": "immeuble",
+  "replace": true,
+  "rules": [
+    {
+      "rule_id": "unit-has-owner",
+      "entity_type": "unit",
+      "relation_type": "owns",
+      "direction": "in",
+      "target_entity_type": null,
+      "min_count": 1,
+      "severity": "error",
+      "label": "Chaque lot occupé doit avoir un copropriétaire (owns entrant)",
+      "metadata_json": "{\"entity_filter\":{\"metadata\":{\"usage_status\":{\"not_one_of\":[\"vacant_works\",\"vacant\"]}}}}"
+    },
+    {
+      "rule_id": "occupied-unit-has-occupant",
+      "entity_type": "unit",
+      "relation_type": "occupies",
+      "direction": "in",
+      "target_entity_type": "person",
+      "min_count": 1,
+      "severity": "error",
+      "label": "Lot occupé sans occupant déclaré",
+      "metadata_json": "{\"entity_filter\":{\"metadata\":{\"usage_status\":{\"not_one_of\":[\"vacant_works\",\"vacant\"]}}}}"
+    },
+    {
+      "rule_id": "tenant-occupied-has-lease",
+      "entity_type": "unit",
+      "relation_type": "leases",
+      "direction": "in",
+      "target_entity_type": "lease_contract",
+      "min_count": 1,
+      "severity": "warning",
+      "label": "Lot en location sans contrat de bail lié",
+      "metadata_json": "{\"entity_filter\":{\"metadata\":{\"usage_status\":{\"one_of\":[\"tenant_occupied\",\"owner_abroad_tenant\"]}}}}"
+    }
+  ]
+}

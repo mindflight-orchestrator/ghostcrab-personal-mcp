@@ -18,7 +18,7 @@ import { spawnSync } from "node:child_process";
 const pkgRoot = resolve(fileURLToPath(import.meta.url), "..", "..");
 const gcp = join(pkgRoot, "bin", "gcp.mjs");
 const runner = join(pkgRoot, "scripts", "run-structured-import-system.mjs");
-const defaultManifest = resolve(pkgRoot, "examples/immeuble/structured-import/manifests/manifest-fake-data.yaml");
+const defaultManifest = resolve(pkgRoot, "examples/immeuble/import_manifest.yaml");
 const manifests = [parseFlag(process.argv.slice(2), "--manifest", defaultManifest)];
 
 const args = process.argv.slice(2);
@@ -32,7 +32,7 @@ const dbPath = parseFlag(
 const evidenceDir = parseFlag(
   args,
   "--evidence-dir",
-  resolve(pkgRoot, "artifacts", "immeuble-structured-import")
+  resolve(pkgRoot, "examples/immeuble/reports")
 );
 const runWithSkipPreflight = args.includes("--skip-preflight");
 const runWithPreflight = args.includes("--preflight");

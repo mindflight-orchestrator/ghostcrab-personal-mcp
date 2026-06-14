@@ -1,0 +1,14 @@
+record_id,name,entity_type,entity_id,confidence,building_id,building,block_id,block,floor,lot,door_label,bedrooms,tantiemes,quota_basis,usage_status,external_id
+unit:100,Tilleuls Appartement A1,unit,100,1,1,Résidence Les Tilleuls,10,A,0,A1,A-00-01,2,190,1000,owner_occupied,dtT-kEOEnk5F1_NmLXhIL
+unit:101,Tilleuls Appartement A2,unit,101,1,1,Résidence Les Tilleuls,10,A,0,A2,A-00-02,1,180,1000,owner_occupied,vmXYu4GFh8qN3byIj28KP
+unit:102,Tilleuls Appartement A3,unit,102,1,1,Résidence Les Tilleuls,10,A,1,A3,A-01-01,3,220,1000,owner_occupied,3KnMKciQQPmOBvkEs023K
+unit:103,Tilleuls Appartement A4,unit,103,1,1,Résidence Les Tilleuls,10,A,1,A4,A-01-02,1,190,1000,tenant_occupied,xIJUDMOPEVFHcv-z8AG2I
+unit:104,Tilleuls Appartement A5,unit,104,1,1,Résidence Les Tilleuls,10,A,2,A5,A-02-01,3,220,1000,owner_occupied,7SRKffKR419-V_SskpfjP
+unit:110,Érables Appartement A1,unit,110,1,2,Résidence Les Érables,20,A,0,A1,A-00-01,2,120,1000,owner_occupied,fgFQMnVpB1TxFXV8FZL2P
+unit:111,Érables Appartement A2,unit,111,1,2,Résidence Les Érables,20,A,0,A2,A-00-02,2,125,1000,tenant_occupied,A3psvxH96t1DIOYB9Z--0
+unit:112,Érables Appartement A3,unit,112,1,2,Résidence Les Érables,20,A,1,A3,A-01-01,1,125,1000,owner_occupied,xuXi4JSAIwE1QJo_vWC03
+unit:113,Érables Appartement A4,unit,113,1,2,Résidence Les Érables,20,A,1,A4,A-01-02,3,130,1000,vacant_works,ZIU4SLPLwZWsjvlyMQo7q
+unit:120,Érables Appartement B1,unit,120,1,2,Résidence Les Érables,21,B,0,B1,B-00-01,2,120,1000,owner_occupied,DXEhBrXtcBCwj5ghx8GZZ
+unit:121,Érables Appartement B2,unit,121,1,2,Résidence Les Érables,21,B,0,B2,B-00-02,2,125,1000,tenant_occupied,8pw_ZQiMzudKKUbgpKUEr
+unit:122,Érables Appartement B3,unit,122,1,2,Résidence Les Érables,21,B,1,B3,B-01-01,2,125,1000,tenant_occupied,oI_mcy_jYCmw_ZW2JlVH1
+unit:123,Érables Appartement B4,unit,123,1,2,Résidence Les Érables,21,B,1,B4,B-01-02,4,130,1000,owner_abroad_tenant,1_nBrCoZqSUOUxV8_QM9N

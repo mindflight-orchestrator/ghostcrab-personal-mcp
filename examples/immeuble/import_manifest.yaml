@@ -1,0 +1,25 @@
+project_id: immeuble
+workspace_id: immeuble
+source:
+  kind: auto
+  input: fake_data
+  delimiter: ","
+ontology:
+  model: model/immeuble_model.json
+mapping:
+  file: contracts/mapping_external_to_canonical.json
+expected_taxonomies:
+  - core:building
+  - core:unit
+  - core:person
+  - core:household
+  - core:lease_contract
+  - core:coda_entry
+import:
+  mode: append
+  skip_profile_validation: false
+  allow_workspace_mismatch: false
+  reindex:
+    enabled: true
+    scope: all
+  output_dir: reports/structured-import-run

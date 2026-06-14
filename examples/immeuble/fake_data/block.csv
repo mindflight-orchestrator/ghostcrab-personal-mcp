@@ -1,0 +1,4 @@
+record_id,name,entity_type,entity_id,confidence,building_id,building
+block:10,Tilleuls Bloc A,block,10,1,1,Résidence Les Tilleuls
+block:20,Érables Bloc A,block,20,1,2,Résidence Les Érables
+block:21,Érables Bloc B,block,21,1,2,Résidence Les Érables

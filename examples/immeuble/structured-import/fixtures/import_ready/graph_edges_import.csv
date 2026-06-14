@@ -1,5 +1,0 @@
-confidence,label,metadata_json,source,target,workspace_id
-0.85,CONTAINS,"{""source"": ""fake_data"", ""relation_contract"": {""source_type"": ""copropriete"", ""target_type"": ""lot"", ""edge_label"": ""CONTAINS""}}",copropriete:copropriete:0001,lot:lot:0001,immeuble-structured-import
-0.85,CONTAINS,"{""source"": ""fake_data"", ""relation_contract"": {""source_type"": ""copropriete"", ""target_type"": ""lot"", ""edge_label"": ""CONTAINS""}}",copropriete:copropriete:0002,lot:lot:0002,immeuble-structured-import
-0.85,CONTAINS,"{""source"": ""fake_data"", ""relation_contract"": {""source_type"": ""copropriete"", ""target_type"": ""lot"", ""edge_label"": ""CONTAINS""}}",copropriete:copropriete:0003,lot:lot:0003,immeuble-structured-import
-0.85,CONTAINS,"{""source"": ""fake_data"", ""relation_contract"": {""source_type"": ""copropriete"", ""target_type"": ""lot"", ""edge_label"": ""CONTAINS""}}",copropriete:copropriete:0004,lot:lot:0004,immeuble-structured-import
