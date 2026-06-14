@@ -56,6 +56,8 @@ node examples/immeuble/scripts/run-immeuble-import.mjs \
 bash examples/immeuble/scripts/run-immeuble-live-lab.sh \
   --db /tmp/immeuble-lab/immeuble.sqlite \
   --engine both \
+  --with-projection-plan \
+  --projection-strict \
   --with-artifact-seed \
   --with-live-verify \
   --stop-after live_verify
@@ -63,7 +65,7 @@ bash examples/immeuble/scripts/run-immeuble-live-lab.sh \
 
 Le script :
 - démarre le backend local `ghostcrab-backend` en mode standalone HTTP (`:8091` par défaut),
-- exécute les étapes `build → import → verify → audit` (et ceux explicitement demandés),
+- exécute les étapes `build → projection_plan → import → artifact_seed → audit (StarterKit) → verify → live_verify` (et `bundle` si demandé),
 - fait un snapshot SQLite après chaque étape (`.sqlite`, `-.wal`, `-.shm` quand présents),
 - permet d’évaluer la progression entre chaque snapshot.
 

@@ -84,10 +84,11 @@ Expected counts (narrative Tilleuls/Érables): see [`success-criteria.yaml`](suc
 |------------|-----|--------------|
 | `contracts/projection_catalog.yaml` | — | 1 analysis_plan + 3 live_answer_view |
 | `contracts/answer_artifacts.seed.jsonl` | `mindbrain_answer_artifacts` (after load) | artifact ids listed |
-| `reports/projection_audit.json` | — | registry matches catalog |
+| `reports/projection_audit_immeuble.json` | — | registry matches catalog + coverage facets/edges/schemas |
 
 ```bash
-npm run immeuble:audit
+node examples/immeuble/scripts/starterkit/analyze-projection-candidates.mjs --db "$GHOSTCRAB_SQLITE_PATH" --workspace immeuble --projection-catalog contracts/projection_catalog.yaml --model-contract contracts/model_contract.json --output-dir reports --include-blind-spots --include-jtbd
+node examples/immeuble/scripts/starterkit/audit-ghostcrab-projections.mjs --db "$GHOSTCRAB_SQLITE_PATH" --workspace immeuble --model contracts/model_contract.json --answer-artifacts-seed contracts/answer_artifacts.seed.jsonl --output-dir reports
 gcp brain artifact list --workspace-id immeuble --kind live_answer_view
 gcp brain artifact refresh live_answer_view__annuaire_coproprietes
 ```

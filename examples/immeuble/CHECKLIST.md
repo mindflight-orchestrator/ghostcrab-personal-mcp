@@ -89,7 +89,8 @@ Surface documentée dans `ACCEPTANCE.yaml` → section `projections` :
 | 5.1 | `npm run immeuble:reset -- --with-artifact-seed` | seeds chargés |
 | 5.2 | `gcp brain artifact list --workspace-id immeuble --kind live_answer_view` | ≥3 ids listés |
 | 5.3 | `gcp brain artifact refresh live_answer_view__annuaire_coproprietes` | POST 200, lifecycle mis à jour |
-| 5.4 | `npm run immeuble:audit` | consumer_contract workspace = immeuble |
+| 5.4 | `node examples/immeuble/scripts/starterkit/analyze-projection-candidates.mjs --db data/immeuble.sqlite --workspace immeuble --projection-catalog contracts/projection_catalog.yaml --model-contract contracts/model_contract.json --output-dir reports --include-blind-spots --include-jtbd` | report `projection_candidates.json` généré |
+| 5.5 | `node examples/immeuble/scripts/starterkit/audit-ghostcrab-projections.mjs --db data/immeuble.sqlite --workspace immeuble --model contracts/model_contract.json --answer-artifacts-seed contracts/answer_artifacts.seed.jsonl --output-dir reports` | `projection_audit_immeuble.json` généré, coverage conforme `ACCEPTANCE.yaml` |
 
 ---
 
