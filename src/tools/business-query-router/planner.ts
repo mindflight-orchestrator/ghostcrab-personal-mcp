@@ -6,7 +6,8 @@ import type {
   Gap,
   RankedCapabilityScore,
   RouteDecision,
-  RouteMode
+  RouteMode,
+  Availability
 } from "./types.js";
 import { ROUTE_THRESHOLDS } from "./router-thresholds.js";
 
@@ -20,6 +21,24 @@ const MODE_ORDER: Record<RouteMode, number> = {
   gap_report: 1,
   clarification: 0
 };
+
+function toRouteMode(availability: Availability | undefined): RouteMode {
+  if (
+    availability === "analysis_plan" ||
+    availability === "live_answer_view" ||
+    availability === "answer_snapshot" ||
+    availability === "live_query" ||
+    availability === "gap_report"
+  ) {
+    return availability;
+  }
+
+  if (availability === "evidence_pack") {
+    return "gap_report";
+  }
+
+  return "gap_report";
+}
 
 function parseScoreFreshness(value: BusinessCapability["version"]): number {
   if (typeof value === "number") return value;
@@ -77,8 +96,10 @@ function compareCandidates(left: RankedRoute, right: RankedRoute): number {
 
   const rightMode = right.capability.availability ?? "gap_report";
   const leftMode = left.capability.availability ?? "gap_report";
-  const rightModeOrder = MODE_ORDER[rightMode] ?? 0;
-  const leftModeOrder = MODE_ORDER[leftMode] ?? 0;
+  const rightRouteMode = toRouteMode(rightMode);
+  const leftRouteMode = toRouteMode(leftMode);
+  const rightModeOrder = MODE_ORDER[rightRouteMode];
+  const leftModeOrder = MODE_ORDER[leftRouteMode];
   if (rightModeOrder !== leftModeOrder) return rightModeOrder - leftModeOrder;
 
   const rightFreshness = parseScoreFreshness(right.capability.version);
@@ -97,14 +118,14 @@ function bestForMode(
   mode: RouteMode
 ): RankedRoute | undefined {
   return ranked
-    .filter((entry) => entry.capability.availability === mode)
+    .filter((entry) => toRouteMode(entry.capability.availability) === mode)
     .sort(compareCandidates)[0];
 }
 
 function buildRouteScores(ranked: RankedRoute[]): RankedCapabilityScore[] {
   return ranked.slice(0, 10).map((entry) => ({
     capability_id: entry.capability.capability_id,
-    mode: entry.capability.availability,
+    mode: toRouteMode(entry.capability.availability),
     score: entry.score,
     artifact_id: entry.capability.artifact_id,
     capability_label: entry.capability.label
@@ -119,12 +140,12 @@ function buildAlternativeRoutes(
     .filter((entry) => entry.capability.capability_id !== excludeId)
     .slice(0, 4)
     .map((entry) => ({
-      mode: entry.capability.availability,
+      mode: toRouteMode(entry.capability.availability),
       capability_id: entry.capability.capability_id,
       schema_id: entry.capability.required_schemas?.[0],
       artifact_id: entry.capability.artifact_id,
       score: entry.score,
-      reason: `fallback-${entry.capability.availability}`
+      reason: `fallback-${toRouteMode(entry.capability.availability)}`
     }));
 }
 

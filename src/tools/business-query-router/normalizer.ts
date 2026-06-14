@@ -51,7 +51,7 @@ function normalizeText(question: string): string {
     .replace(/\p{Diacritic}/gu, "");
 }
 
-function extractWeek(question: string): Record<string, unknown> {
+function extractWeek(question: string): StructuredFacets {
   const match =
     /\b(?:semaine|week|s)\s*0?(\d{1,2})\b/i.exec(question) ??
     /\bS\s*0?(\d{1,2})\b/.exec(question);
@@ -138,11 +138,12 @@ function buildStructuredFacets(question: string, normalized: string): {
   slots: Record<string, unknown>;
   structured: StructuredFacets;
 } {
+  const extractedWeek = extractWeek(question);
   const slots: Record<string, unknown> = {
-    ...extractWeek(question)
+    ...extractedWeek
   };
   const structured: StructuredFacets = {
-    ...slots
+    ...extractedWeek
   };
 
   const intentType = extractObjectOrIntentType(question, normalized);
