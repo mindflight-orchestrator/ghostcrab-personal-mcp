@@ -54,6 +54,8 @@ importers:
 
   packages/prebuild-linux-x64: {}
 
+  packages/prebuild-win32-arm64: {}
+
   packages/prebuild-win32-x64: {}
 
 packages:
