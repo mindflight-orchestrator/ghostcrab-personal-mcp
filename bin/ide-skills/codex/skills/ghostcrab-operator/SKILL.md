@@ -7,11 +7,11 @@ description: Convert natural-language business or operations questions into dete
 
 Translate business intent into an MCP investigation. Product language first unless the user asks for internals.
 
-References: [RUNTIME_QUERY_PIPELINE.md](../ghostcrab-shared/RUNTIME_QUERY_PIPELINE.md), [MCP_VS_GCP_ROUTING.md](../ghostcrab-shared/MCP_VS_GCP_ROUTING.md), [ARTIFACT_KINDS.md](../ghostcrab-shared/ARTIFACT_KINDS.md).
+References: [RUNTIME_QUERY_PIPELINE.md](../ghostcrab-shared/RUNTIME_QUERY_PIPELINE.md), [MCP_VS_GCP_ROUTING.md](../ghostcrab-shared/MCP_VS_GCP_ROUTING.md), [ARTIFACT_KINDS.md](../ghostcrab-shared/ARTIFACT_KINDS.md), [ENUM_BUSINESS_FACETS.md](../ghostcrab-shared/ENUM_BUSINESS_FACETS.md).
 
 ## Delivery context (optional)
 
-When the user runs a starter-kit delivery project: `starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP_SEQUENCE.md` and [SKILL_ROUTE_MAP_ESSENTIALS.md](../ghostcrab-shared/SKILL_ROUTE_MAP_ESSENTIALS.md).
+When the user runs a starter-kit delivery project: resolve `{starterkit}` via [STARTERKIT_PATHS.md](../ghostcrab-shared/STARTERKIT_PATHS.md), then load `{starterkit}/personal-mcp/SOP_SEQUENCE.md` and [SKILL_ROUTE_MAP_ESSENTIALS.md](../ghostcrab-shared/SKILL_ROUTE_MAP_ESSENTIALS.md).
 
 ## Surface
 
@@ -41,4 +41,5 @@ Do not use legacy Pro CLI tools, `DATABASE_URL`, or direct SQL.
 
 - `ghostcrab_pack` does not prove a full domain graph.
 - LinkML ontologies (`ontology_*`) are separate from `ghostcrab:task` schemas — use ontology compile/import for formal taxonomies, `ghostcrab_schema_register` for agent facet schemas.
+- For domain enum filters, use `<module>.<slot_snake_case>` facet keys — never bare slot names (see [ENUM_BUSINESS_FACETS.md](../ghostcrab-shared/ENUM_BUSINESS_FACETS.md)).
 - If tools are configured but not visible in session, stay diagnostic; do not claim MCP validation.

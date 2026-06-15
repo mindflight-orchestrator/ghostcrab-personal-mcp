@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import {
+  createToolErrorFromException,
   createToolErrorResult,
   createToolSuccessResult,
   registerTool,
@@ -27,7 +28,7 @@ export const coverageTool: ToolHandler = {
   definition: {
     name: "ghostcrab_coverage",
     description:
-      "Read. Ontology/taxonomy instantiation coverage: which schema nodes are not yet reflected as graph instances. Complements ghostcrab_graph_diagnostics (instance invariants + native checks) and ghostcrab_graph_gap_rules (closed-world contract). Requires domain (workspace id or domain name). Example: { \"domain\": \"immeuble-demo\" }. Returns coverage_score, gap_nodes, can_proceed_autonomously, recommended_action.",
+      "Read. Ontology/taxonomy instantiation coverage: which ontology taxonomy nodes are not yet reflected as graph instances. This is about instantiation completeness, not schema registry synchronization.",
     inputSchema: {
       type: "object",
       required: ["domain"],
@@ -273,10 +274,11 @@ export const coverageTool: ToolHandler = {
         });
       }
 
-      return createToolErrorResult(
+      return createToolErrorFromException(
         "ghostcrab_coverage",
-        error instanceof Error ? error.message : "coverage backend unavailable",
-        "backend_unavailable"
+        error,
+        "backend_unavailable",
+        "coverage backend unavailable"
       );
     }
   }

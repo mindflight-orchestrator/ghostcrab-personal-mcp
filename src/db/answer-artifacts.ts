@@ -192,17 +192,22 @@ export async function runRefreshLiveAnswerView(params: {
   };
   answer_update_event: StandaloneAnswerArtifactEventRow | null;
 }> {
+  const artifact = await runStandaloneAnswerArtifactGet({
+    mindbrainUrl: params.mindbrainUrl,
+    timeoutMs: params.timeoutMs,
+    artifactId: params.artifactId
+  });
+  if (artifact.artifact_kind !== "live_answer_view") {
+    throw new Error(
+      `ghostcrab_live_refresh only applies to live answer views; got "${artifact.artifact_kind}".`
+    );
+  }
+
   const refresh = await runStandaloneAnswerArtifactRefresh({
     mindbrainUrl: params.mindbrainUrl,
     timeoutMs: params.timeoutMs,
     artifactId: params.artifactId
   });
-
-  if (refresh.artifact_kind !== "live_answer_view") {
-    throw new Error(
-      `ghostcrab_live_refresh only applies to live answer views; got "${refresh.artifact_kind}".`
-    );
-  }
 
   let answer_update_event: StandaloneAnswerArtifactEventRow | null = null;
   if (params.includeLatestEvent !== false) {

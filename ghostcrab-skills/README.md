@@ -96,6 +96,9 @@ ghostcrab-skills/
 │   ├── IMPORT_CLOSURE_GATES.md
 │   ├── GAP_TAXONOMY.md
 │   ├── SKILL_ROUTE_MAP_ESSENTIALS.md
+│   ├── STARTERKIT_PATHS.md
+│   ├── ENUM_BUSINESS_FACETS.md
+│   ├── PROJECTIONS_DISCOVERY.md
 │   ├── demo-profiles/
 │   └── bootstrap_seed.jsonl
 ├── CAPABILITIES.md
@@ -123,7 +126,7 @@ Edit only `ghostcrab-skills/skills/<skill>/SKILL.md` for all ten GhostCrab skill
 
 **Canonical install:** `gcp brain setup cursor|claude|codex|generic --yes` copies the same ten skills plus shared stubs into `ghostcrab-shared/` next to each skill.
 
-Each skill is **autonomous** at runtime: workflows, guardrails, and output shapes are inline in `SKILL.md`, with links to installed `ghostcrab-shared/` stubs (not repo `docs/`). Operational skills may optionally reference starter-kit delivery SOPs via backtick paths when the user runs a phased import project.
+Each skill is **autonomous** at runtime: workflows, guardrails, and output shapes are inline in `SKILL.md`, with links to installed `ghostcrab-shared/` stubs (not repo `docs/`). Operational skills may optionally reference starter-kit delivery SOPs via [shared/STARTERKIT_PATHS.md](./shared/STARTERKIT_PATHS.md) when the user runs a phased import project. Business enum facets use `<module>.<slot_snake_case>` per [shared/ENUM_BUSINESS_FACETS.md](./shared/ENUM_BUSINESS_FACETS.md).
 
 **Out of scope for `gcp brain setup`:** `ghostcrab-projection-visual-report`, `ai-act-projection-interpreter`, OpenClaw agents.
 

@@ -92,6 +92,137 @@ export function createToolSuccessResult(
   });
 }
 
+export interface BackendErrorInfo {
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
+}
+
+const MAX_ERROR_BODY_LENGTH = 4096;
+
+function clampText(value: string, maxLength: number): string {
+  return value.length > maxLength ? `${value.slice(0, maxLength)}…` : value;
+}
+
+function parseMaybeJson(value: string): unknown {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    return trimmed;
+  }
+}
+
+function normalizeBackendStatus(status: unknown): number | null {
+  return typeof status === "number" && Number.isFinite(status)
+    ? status
+    : null;
+}
+
+function normalizeErrorCode(
+  status: number | null,
+  fallbackCode: string
+): string {
+  if (status === null) {
+    return fallbackCode;
+  }
+  const shouldMapBackendCode =
+    fallbackCode === "tool_execution_error" ||
+    fallbackCode === "tool_error" ||
+    fallbackCode === "backend_unavailable" ||
+    fallbackCode === "backend_error" ||
+    fallbackCode === "backend_not_found";
+  if (status === 404) {
+    return shouldMapBackendCode ? "backend_not_found" : fallbackCode;
+  }
+  if (status >= 500) {
+    return shouldMapBackendCode ? "backend_unavailable" : fallbackCode;
+  }
+  if (status >= 400) {
+    return shouldMapBackendCode ? "backend_error" : fallbackCode;
+  }
+  return fallbackCode;
+}
+
+export function createToolErrorFromException(
+  toolName: string,
+  error: unknown,
+  fallbackCode = "tool_execution_error",
+  fallbackMessage = "Tool execution failed"
+): CallToolResult {
+  const message =
+    error instanceof Error ? error.message : String(error) || fallbackMessage;
+
+  const cause = error instanceof Error ? error.cause : undefined;
+  const causeObj =
+    cause && typeof cause === "object" ? (cause as Record<string, unknown>) : {};
+  const status = normalizeBackendStatus(causeObj.status);
+
+  const rawBody =
+    typeof causeObj.body === "string"
+      ? clampText(causeObj.body, MAX_ERROR_BODY_LENGTH)
+      : typeof causeObj.body === "object" && causeObj.body !== null
+        ? clampText(JSON.stringify(causeObj.body), MAX_ERROR_BODY_LENGTH)
+        : undefined;
+  const parsedBody =
+    typeof rawBody === "string" ? parseMaybeJson(rawBody) : undefined;
+
+  const bodyMessage =
+    typeof parsedBody === "object" &&
+    parsedBody !== null &&
+    "detail" in parsedBody
+      ? typeof parsedBody.detail === "string"
+        ? parsedBody.detail
+        : undefined
+      : undefined;
+  const errorSymbol =
+    typeof parsedBody === "object" &&
+    parsedBody !== null &&
+    "error" in parsedBody
+      ? typeof parsedBody.error === "string"
+        ? parsedBody.error
+        : undefined
+      : undefined;
+
+  const details: Record<string, unknown> = {
+    ...(causeObj.path ? { path: causeObj.path } : {}),
+    ...(status !== null ? { status } : {}),
+    ...(rawBody ? { backend_body: rawBody } : {}),
+    ...(errorSymbol ? { backend_error: errorSymbol } : {}),
+    ...(bodyMessage ? { backend_message: bodyMessage } : {})
+  };
+
+  if (Object.keys(details).length === 0) {
+    if (parsedBody !== null && parsedBody !== undefined) {
+      details.body = parsedBody;
+    } else if (message) {
+      details.message = message;
+    } else {
+      details.message = fallbackMessage;
+    }
+  }
+
+  const normalizedMessage =
+    message !== fallbackMessage
+      ? message
+      : fallbackMessage;
+  const detailsMessage =
+    normalizedMessage.includes("MindBrain request failed") && errorSymbol
+      ? `${normalizedMessage} (${errorSymbol})`
+      : normalizedMessage;
+
+  return createToolErrorResult(
+    toolName,
+    detailsMessage,
+    normalizeErrorCode(status, fallbackCode),
+    details
+  );
+}
+
 export function createToolErrorResult(
   toolName: string,
   message: string,

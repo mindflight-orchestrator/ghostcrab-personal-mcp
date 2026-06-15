@@ -70,7 +70,7 @@ function runPack(cwd) {
     }
   });
 
-  if (result.status !== 0 || result.error) {
+  if (result.status !== 0 || (result.error && result.error.code !== "EPERM")) {
     throw new Error(
       `pnpm pack failed in ${cwd} (${formatSpawnFailure(result)}).\n` +
         `${result.stderr}\n${result.stdout}`

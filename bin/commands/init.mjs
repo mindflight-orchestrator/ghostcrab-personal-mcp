@@ -22,7 +22,7 @@ const pkgRoot = join(__dirname, "..", "..");
 
 export async function cmdInit(args) {
   let skipIdeSkills = false;
-  let forceIdeSkills = false;
+  let forceIdeSkills = true;
   const pos = [];
   for (const a of args) {
     if (a === "--no-skills") {

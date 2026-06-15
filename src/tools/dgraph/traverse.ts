@@ -3,6 +3,7 @@ import { z } from "zod";
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import { runStandaloneTraverse } from "../../db/standalone-mindbrain.js";
 import {
+  createToolErrorFromException,
   createToolErrorResult,
   createToolSuccessResult,
   registerTool,
@@ -113,10 +114,11 @@ export const traverseTool: ToolHandler = {
       }));
       targetFound = input.target ? result.target_found : null;
     } catch (error) {
-      return createToolErrorResult(
+      return createToolErrorFromException(
         "ghostcrab_traverse",
-        error instanceof Error ? error.message : "traverse backend unavailable",
-        "backend_unavailable"
+        error,
+        "backend_unavailable",
+        "traverse backend unavailable"
       );
     }
 

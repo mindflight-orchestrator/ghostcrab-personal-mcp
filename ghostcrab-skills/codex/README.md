@@ -127,7 +127,7 @@ This directory contains ten skills:
 
 Each skill’s `SKILL.md` links to shared contracts under **`../ghostcrab-shared/`** after install (for example `ONBOARDING_CONTRACT.md`, `ARTIFACT_KINDS.md`, `RUNTIME_QUERY_PIPELINE.md`). In this authoring repo, the source stubs live under `../shared/`.
 
-Each skill is **autonomous** at runtime: workflows and guardrails are inline in `SKILL.md`. Operational skills may optionally reference starter-kit delivery SOPs (`starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP_SEQUENCE.md`) when you run a phased import project.
+Each skill is **autonomous** at runtime: workflows and guardrails are inline in `SKILL.md`. Operational skills may optionally reference starter-kit delivery SOPs — resolve paths via [STARTERKIT_PATHS.md](../shared/STARTERKIT_PATHS.md) (`{starterkit}/personal-mcp/SOP_SEQUENCE.md`) when you run a phased import project.
 
 **Recommended:** use `gcp brain setup codex` rather than manual symlinks. For manual installs, preserve `codex/skills/` and `ghostcrab-shared/` as siblings under your Codex skills root so relative links keep working.
 
@@ -136,13 +136,7 @@ Each skill is **autonomous** at runtime: workflows and guardrails are inline in 
 - **First fuzzy onboarding** is **intake-only**: follow [ONBOARDING_CONTRACT.md](../shared/ONBOARDING_CONTRACT.md) in full.
 - **Product language first** in skills; avoid leading with low-level mechanics unless the user asks.
 - **Demo data** (optional): portable profiles live under [shared/demo-profiles/](../shared/demo-profiles/); loading them uses product-side tooling, not Codex itself.
-- **Project artifacts**: use the GhostCrab Personal StarterKit for clonable SOPs and templates.
-
-```bash
-git clone https://gitlab.com/webigniter/starter-kit-ghostcrab-perso.git
-```
-
-For source imports: StarterKit `SOP5` (§1 bis `gcp brain structured-import`), `SOP6` (documents), plus product runbooks [`structured-import.md`](../../docs/setup/structured-import.md) and [`operator-catalog.md`](../../docs/reference/operator-catalog.md).
+- **Project artifacts**: use the GhostCrab Personal StarterKit for clonable SOPs and templates — resolve paths via [STARTERKIT_PATHS.md](../shared/STARTERKIT_PATHS.md).
 
 ## See also
 

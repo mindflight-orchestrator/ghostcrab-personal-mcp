@@ -59,6 +59,25 @@ describe("answer-artifacts refresh and events client", () => {
       vi.stubGlobal(
         "fetch",
         vi.fn(async (url: URL, init?: RequestInit) => {
+          if (url.pathname.endsWith("/artifact/live_answer_view__demo")) {
+            return new Response(
+              JSON.stringify({
+                artifact_id: "live_answer_view__demo",
+                artifact_kind: "live_answer_view",
+                slug: "live",
+                workspace_id: null,
+                agent_id: null,
+                scope: null,
+                public_label: "Live",
+                lifecycle: "open",
+                state: "open",
+                current_version: 1,
+                payload_json: "{}",
+                legacy_ref: null
+              }),
+              { status: 200, headers: { "content-type": "application/json" } }
+            );
+          }
           if (url.pathname.endsWith("/refresh")) {
             expect(init?.method).toBe("POST");
             refreshVersion += 1;
@@ -112,11 +131,18 @@ describe("answer-artifacts refresh and events client", () => {
         vi.fn(async () =>
           new Response(
             JSON.stringify({
-              ok: true,
               artifact_id: "answer_snapshot__demo",
               artifact_kind: "answer_snapshot",
+              slug: "snap",
+              workspace_id: null,
+              agent_id: null,
+              scope: null,
+              public_label: "Snapshot",
+              lifecycle: "closed",
+              state: "closed",
               current_version: 1,
-              state: "closed"
+              payload_json: "{}",
+              legacy_ref: null
             }),
             { status: 200, headers: { "content-type": "application/json" } }
           )
@@ -133,6 +159,25 @@ describe("answer-artifacts refresh and events client", () => {
 
     it("skips event fetch when includeLatestEvent is false", async () => {
       const fetchMock = vi.fn(async (url: URL, init?: RequestInit) => {
+        if (url.pathname.endsWith("/artifact/live_answer_view__demo")) {
+          return new Response(
+            JSON.stringify({
+              artifact_id: "live_answer_view__demo",
+              artifact_kind: "live_answer_view",
+              slug: "live",
+              workspace_id: null,
+              agent_id: null,
+              scope: null,
+              public_label: "Live",
+              lifecycle: "open",
+              state: "open",
+              current_version: 1,
+              payload_json: "{}",
+              legacy_ref: null
+            }),
+            { status: 200, headers: { "content-type": "application/json" } }
+          );
+        }
         if (init?.method === "POST") {
           return new Response(
             JSON.stringify({
@@ -156,7 +201,7 @@ describe("answer-artifacts refresh and events client", () => {
       });
 
       expect(result.answer_update_event).toBeNull();
-      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
     });
   });
 });

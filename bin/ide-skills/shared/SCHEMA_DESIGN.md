@@ -39,13 +39,23 @@ If the domain is new, also answer:
 
 ## Facet Rules
 
+Two facet families — use the right doc for each:
+
+| Family | Naming | Doc |
+| --- | --- | --- |
+| Path/content ingest | Keys like `path_top_level`, `content_class`, `facets.domain` | [PATH_CONTENT_FACETS.md](./PATH_CONTENT_FACETS.md) |
+| Business enum (LinkML) | **Always** `<module>.<slot_snake_case>` (e.g. `administrative.formule_service`) | [ENUM_BUSINESS_FACETS.md](./ENUM_BUSINESS_FACETS.md) |
+
+General rules:
+
 - every schema should have a small required core
 - optional facets should reflect real retrieval filters
 - avoid decorative facets that never influence search, count, or pack behavior
 - lifecycle facets should be explicit when records can stale, expire, or be superseded
-- if the domain is provisional, keep facet names simple and reversible
+- for **business enum facets**, never use bare slot names — module prefix is mandatory
+- for provisional **agent** schemas (`ghostcrab:*`), keep non-enum facet names simple and reversible
 
-For ingesting **repository files** (paths, markdown sections, code/config shape), use the shared vocabulary in [PATH_CONTENT_FACETS.md](./PATH_CONTENT_FACETS.md) so path- and content-derived dimensions stay consistent and search-oriented.
+For ingesting **repository files** (paths, markdown sections, code/config shape), use [PATH_CONTENT_FACETS.md](./PATH_CONTENT_FACETS.md). For LinkML-derived domain enums, follow [ENUM_BUSINESS_FACETS.md](./ENUM_BUSINESS_FACETS.md) automatically — do not wait for the user to request prefixing.
 
 ## Retrieval-Oriented Design
 

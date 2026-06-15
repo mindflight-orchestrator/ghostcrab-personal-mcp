@@ -41,37 +41,33 @@ After clarification:
 
 When the user wants concrete project files, import templates, source-to-canonical mappings, or consumer validation gates, use the GhostCrab Personal StarterKit as the canonical artifact source instead of inventing project-local templates from scratch.
 
-Canonical clone URL:
-
-```bash
-git clone https://gitlab.com/webigniter/starter-kit-ghostcrab-perso.git
-```
+**Resolve paths first:** [STARTERKIT_PATHS.md](../../shared/STARTERKIT_PATHS.md) — then load from `{starterkit}` and write domain files under `{project}/ontology/`.
 
 Load only what is needed:
 
-- `starterkit/QUICKSTART.md` for phase selection
-- `starterkit/SOP0_import_path_choices.md` for ontology and tabular path choices (before writes)
-- `starterkit/SOP2_obsidian_ontologie.md` for ontology modeling (§6 bis LinkML or §7 MCP)
-- `starterkit/SOP5_source_import_compiler.md` for CSV/API/JSON/app exports (§1 bis CLI or §3 scripts)
-- `starterkit/templates/source_profile.yaml`
-- `starterkit/templates/mapping_external_to_canonical.yaml`
-- `starterkit/templates/consumer_contract.yaml`
-- `starterkit/templates/import_manifest.yaml`
-- `starterkit/templates/import_path_choices.yaml`
-- `starterkit/templates/linkml_ontology.stub.yaml`
+- `{starterkit}/QUICKSTART.md` for phase selection
+- `{starterkit}/personal-mcp/SOP0_import_path_choices.md` for ontology and tabular path choices (before writes)
+- `{starterkit}/personal-mcp/SOP2_obsidian_ontologie.md` for ontology modeling (§6 bis LinkML or §7 MCP)
+- `{starterkit}/personal-mcp/SOP5_structured_import.md` for CSV/API/JSON/tabular imports (Personal CLI default)
+- `{starterkit}/templates/source_profile.yaml`
+- `{starterkit}/templates/mapping_external_to_canonical.yaml`
+- `{starterkit}/templates/consumer_contract.yaml`
+- `{starterkit}/templates/import_manifest.yaml`
+- `{starterkit}/templates/import_path_choices.yaml`
+- `{starterkit}/templates/linkml_ontology.stub.yaml`
 
 ## Import Path Discipline
 
-Before ontology or tabular import writes, follow `SOP0_import_path_choices.md`:
+Before ontology or tabular import writes, follow `{starterkit}/personal-mcp/SOP0_import_path_choices.md`:
 
 1. Present two numbered options; do not remove the historical path.
-2. **Ontology default (Personal):** LinkML — LLM generates `ontology/core.yaml`, validates when needed with dry-run compile, imports native `ontology_*` via `ghostcrab_ontology_import` or CLI after user confirmation.
+2. **Ontology default (Personal):** LinkML — LLM generates `{project}/ontology/core.yaml` (or per-module `ontology/<module>.yaml`), validates with dry-run compile, imports native `ontology_*` via `ghostcrab_ontology_import` or CLI after user confirmation.
 3. **Ontology alternative:** MCP incremental modeling — `ghostcrab_schema_register` / `remember` / `upsert` / `learn` sequence (SOP2 §7 Voie A), not a native ontology import.
-4. **Tabular default (Personal SQLite):** `gcp brain structured-import` — see `docs/setup/structured-import.md`.
+4. **Tabular default (Personal SQLite):** `gcp brain structured-import` — see `{starterkit}/personal-mcp/SOP5_structured_import.md`.
 5. **Tabular alternative:** SOP5 scripts + gates (Voie A).
-6. Record choices in `templates/import_path_choices.yaml`.
+6. Record choices in `{project}/<workspace-slug>/import_path_choices.yaml` or project root per SOP0.
 
-MCP native import (default agent path):
+MCP native import (default agent path, single module):
 
 ```json
 {
@@ -97,11 +93,24 @@ After exit 0 and user confirmation for CLI import:
 gcp brain ontology compile ... --import-db --force
 ```
 
-Canonical LinkML examples in this repo: `ontologies/immeuble-demo/core.yaml`, `ontologies/ghostcrab/profile.yaml`.
+Optional canonical LinkML examples when working inside the `ghostcrab-personal-mcp` monorepo: `ontologies/immeuble-demo/core.yaml`, `ontologies/ghostcrab/profile.yaml`.
 
-**Documentation epistemology (MECE slices):** `docs/explanation/ontology/linkml/ghostcrab-docs/` — workspace `ghostcrab-docs`. Human docs: `docs/explanation/ontology/diagrams/` + chapters 03→05. Compile JSON (optional audit): `docs/explanation/ontology/compiled-slices/`. Before import: `docs/explanation/ontology/mece-validation.md`. Import native ontologies with `ghostcrab_ontology_import` or CLI, not `ghostcrab_schema_register` agent schemas.
+Import native ontologies with `ghostcrab_ontology_import` or CLI — not `ghostcrab_schema_register` for LinkML source import.
 
-Personal bridge doc: `docs/explanation/methode-starterkit/06-voies-import-ontologie-et-tabulaire.md`.
+## Enum facet layer (LinkML / multi-module)
+
+After LinkML import per module, register the **business enum facet layer** automatically — see [ENUM_BUSINESS_FACETS.md](../../shared/ENUM_BUSINESS_FACETS.md).
+
+**Mandatory naming:** `<module>.<slot_snake_case>` (e.g. `administrative.formule_service`, `comptabilite.statut_exercice`). Never use bare slot names.
+
+Workflow (after user confirmation):
+
+1. `ghostcrab_ontology_import` per module — `ontology_id: "<ws>::<module>"`, `input_path: "ontology/<module>.yaml"`
+2. `ghostcrab_schema_register` with `target: "facets"` — one schema per module (`<ws>:<module>`) with `facet_keys`, `enum_facets`, `ontology_id`, `source_linkml`, `status: "provisional"`
+3. `ghostcrab_facet_register` for each enum key in `enum_facets`
+4. Validate: `ghostcrab_schema_list(domain="<ws>", target="facets")`, `ghostcrab_facet_inspect("<module>.<slot>")`
+
+Empty `ghostcrab_workspace_inspect` or `ghostcrab_projections_list` **before structured-import / projections** is expected — not an error.
 
 ## Freeze Policy
 

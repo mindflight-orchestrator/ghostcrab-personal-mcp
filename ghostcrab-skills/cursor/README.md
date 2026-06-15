@@ -29,7 +29,7 @@ This installs ten GhostCrab skills under `~/.cursor/skills/` plus shared contrac
 | ghostcrab-gap-auditor | Audit evidence gaps |
 | ghostcrab-json-answer-builder | Stable JSON answers from MCP outputs |
 
-Each skill is **autonomous** at runtime (workflows inline in `SKILL.md`, shared stubs in `ghostcrab-shared/`). Operational skills may optionally reference starter-kit delivery SOPs when you run a phased import project.
+Each skill is **autonomous** at runtime (workflows inline in `SKILL.md`, shared stubs in `ghostcrab-shared/`). Operational skills may optionally reference starter-kit delivery SOPs — resolve via [../shared/STARTERKIT_PATHS.md](../shared/STARTERKIT_PATHS.md) when you run a phased import project.
 
 Canonical onboarding and gates: [../shared/ONBOARDING_CONTRACT.md](../shared/ONBOARDING_CONTRACT.md).
 

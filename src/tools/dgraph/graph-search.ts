@@ -4,6 +4,7 @@ import { resolveGhostcrabConfig } from "../../config/env.js";
 import type { Queryable } from "../../db/client.js";
 import { runStandaloneGhostcrabGraphSearch } from "../../db/standalone-mindbrain.js";
 import {
+  createToolErrorFromException,
   createToolErrorResult,
   createToolSuccessResult,
   registerTool,
@@ -164,12 +165,11 @@ export const graphSearchTool: ToolHandler = {
         limit: input.limit
       });
     } catch (error) {
-      return createToolErrorResult(
+      return createToolErrorFromException(
         "ghostcrab_graph_search",
-        error instanceof Error
-          ? error.message
-          : "MindBrain graph-search backend unavailable",
-        "backend_unavailable"
+        error,
+        "backend_unavailable",
+        "MindBrain graph-search backend unavailable"
       );
     }
 

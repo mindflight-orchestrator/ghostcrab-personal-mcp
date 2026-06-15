@@ -102,24 +102,21 @@ Across demo profiles, favor a simple progression:
 
 When a user asks for concrete project artifacts, source imports, ontology templates, mapping contracts, or consumer-readiness gates, use the GhostCrab Personal StarterKit instead of duplicating templates in the skill.
 
-Canonical clone URL:
+**Resolve paths first:** [STARTERKIT_PATHS.md](./STARTERKIT_PATHS.md) — never hardcode the clone directory name.
 
-```bash
-git clone https://gitlab.com/webigniter/starter-kit-ghostcrab-perso.git
-```
+Load from `{starterkit}` as needed (Personal edition):
 
-Load from the starterkit as needed:
+- `{starterkit}/QUICKSTART.md`
+- `{starterkit}/personal-mcp/SOP0_import_path_choices.md`
+- `{starterkit}/personal-mcp/SOP2_obsidian_ontologie.md`
+- `{starterkit}/personal-mcp/SOP5_structured_import.md`
+- `{starterkit}/templates/`
 
-- `starterkit/QUICKSTART.md`
-- `starterkit/SOP0_import_path_choices.md`
-- `starterkit/SOP2_obsidian_ontologie.md`
-- `starterkit/SOP3_parsing_pipeline.md`
-- `starterkit/SOP5_source_import_compiler.md`
-- `starterkit/templates/`
+Domain ontologies live in `{project}/ontology/` — not inside the starter-kit clone.
 
 ## Import Path Choice Before Write
 
-Before ontology registration or tabular import, follow `SOP0`:
+Before ontology registration or tabular import, follow `{starterkit}/personal-mcp/SOP0_import_path_choices.md`:
 
 - Present LinkML native import (`ghostcrab_ontology_import` or CLI) vs MCP incremental modeling, and structured-import CLI vs SOP5 scripts (tabular).
 - Record the user's choice in `import_path_choices.yaml`.

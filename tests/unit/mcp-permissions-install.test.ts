@@ -234,6 +234,26 @@ describe("install-ide-skills bundles", () => {
     expect(existsSync(join(root!, "shared", "ONBOARDING_CONTRACT.md"))).toBe(true);
   });
 
+  it("replaces an existing skill directory by default (force defaults to true)", () => {
+    cwd = mkdtempSync(join(tmpdir(), "gc-skills-overwrite-"));
+    useFakeHome();
+    const skillDir = join(fakeHome, ".cursor", "skills", "ghostcrab-operator");
+    mkdirSync(skillDir, { recursive: true });
+    writeFileSync(join(skillDir, "SKILL.md"), "# stale operator skill\n");
+
+    const result = installIdeSkillsBundleForTarget({
+      target: "cursor",
+      cwd,
+      pkgRoot: PKG_ROOT,
+      context: "setup"
+    });
+    expect(result.ok).toBe(true);
+    expect(result.skippedPaths ?? []).toHaveLength(0);
+    const skill = readFileSync(join(skillDir, "SKILL.md"), "utf8");
+    expect(skill).toContain("STARTERKIT_PATHS.md");
+    expect(skill).not.toContain("stale operator skill");
+  });
+
   it("installs cursor bundle globally as selectable skills without rules", () => {
     cwd = mkdtempSync(join(tmpdir(), "gc-skills-cursor-"));
     useFakeHome();

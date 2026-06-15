@@ -1,6 +1,6 @@
 # Import closure gates (Personal)
 
-Summary of starter-kit SOP5 gates relevant to projection and consumer audit. Full runbook lives in starter-kit `SOP5_structured_import.md`.
+Summary of starter-kit SOP5 gates relevant to projection and consumer audit. Full runbook: `{starterkit}/personal-mcp/SOP5_structured_import.md` — resolve `{starterkit}` via [STARTERKIT_PATHS.md](./STARTERKIT_PATHS.md).
 
 | Gate | Purpose | Agent / operator check |
 | --- | --- | --- |

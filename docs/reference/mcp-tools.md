@@ -124,7 +124,9 @@ Count items grouped by facet dimensions without loading the full content.
 
 ### `ghostcrab_coverage`
 
-Read. Ontology/taxonomy instantiation coverage: which schema nodes are not yet reflected as graph instances. Complements ghostcrab_graph_diagnostics (instance invariants + native checks) and ghostcrab_graph_gap_rules (closed-world contract). Requires domain (workspace id or domain name). Example: { "domain": "immeuble-demo" }. Returns coverage_score, gap_nodes, can_proceed_autonomously, recommended_action.
+Read. Ontology/taxonomy instantiation coverage: which schema nodes are not yet reflected as graph instances. This checks whether imported ontology/taxonomy concepts and required states are represented as graph entities for a domain workspace.
+
+Use `ghostcrab_schema_inspect` and `ghostcrab_schema_sync_preview`/`ghostcrab_schema_sync_apply` for registry-vs-native ontology synchronization checks.
 
 | Field | Value |
 |-------|-------|

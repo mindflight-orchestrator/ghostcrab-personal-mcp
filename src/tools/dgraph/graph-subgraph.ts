@@ -3,6 +3,7 @@ import { z } from "zod";
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import { runStandaloneGraphSubgraph } from "../../db/standalone-mindbrain.js";
 import {
+  createToolErrorFromException,
   createToolErrorResult,
   createToolSuccessResult,
   registerTool,
@@ -70,12 +71,11 @@ export const graphSubgraphTool: ToolHandler = {
         edgeTypes: input.edge_types.length > 0 ? input.edge_types : undefined
       });
     } catch (error) {
-      return createToolErrorResult(
+      return createToolErrorFromException(
         "ghostcrab_graph_subgraph",
-        error instanceof Error
-          ? error.message
-          : "MindBrain graph-subgraph backend unavailable",
-        "backend_unavailable"
+        error,
+        "backend_unavailable",
+        "MindBrain graph-subgraph backend unavailable"
       );
     }
 

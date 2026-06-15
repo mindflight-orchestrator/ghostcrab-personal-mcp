@@ -6,7 +6,7 @@ import {
 } from "../../db/answer-artifacts.js";
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import {
-  createToolErrorResult,
+  createToolErrorFromException,
   createToolSuccessResult,
   registerTool,
   type ToolHandler
@@ -50,12 +50,11 @@ export const artifactGetTool: ToolHandler = {
         artifactId: input.artifact_id
       });
     } catch (error) {
-      return createToolErrorResult(
+      return createToolErrorFromException(
         "ghostcrab_artifact_get",
-        error instanceof Error
-          ? error.message
-          : "MindBrain artifact backend unavailable",
-        "backend_unavailable"
+        error,
+        "backend_unavailable",
+        "MindBrain artifact backend unavailable"
       );
     }
 

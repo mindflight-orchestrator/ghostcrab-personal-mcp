@@ -175,7 +175,7 @@ const SYSTEM_ENTRIES: BootstrapEntry[] = [
   {
     schemaId: "mindbrain:system",
     content:
-      "ghostcrab_coverage checks how well this agent knows a domain by comparing its graph against a domain ontology. Below 0.70 means escalate.",
+      "ghostcrab_coverage checks ontology/taxonomy instantiation coverage: whether imported schema nodes are reflected as graph instances for the domain. Below 0.70 means escalate.",
     facets: {
       entry_slug: "tool:ghostcrab_coverage",
       entry_type: "tool",
@@ -185,6 +185,20 @@ const SYSTEM_ENTRIES: BootstrapEntry[] = [
     },
     lookupFacets: {
       entry_slug: "tool:ghostcrab_coverage"
+    }
+  },
+  {
+    schemaId: "mindbrain:system",
+    content:
+      "Use ghostcrab_schema_inspect and ghostcrab_schema_sync_preview to verify registry-native ontology synchronization status before running coverage checks on newly imported schemas.",
+    facets: {
+      entry_slug: "rule:schema-coverage-sync-check",
+      entry_type: "rule",
+      level: "intermediate",
+      use_when: "After ontology import when deciding if registry and native ontology data are aligned"
+    },
+    lookupFacets: {
+      entry_slug: "rule:schema-coverage-sync-check"
     }
   },
   {
@@ -231,6 +245,54 @@ const SYSTEM_ENTRIES: BootstrapEntry[] = [
     },
     lookupFacets: {
       entry_slug: "tool:ghostcrab_schema_register"
+    }
+  },
+  {
+    schemaId: "mindbrain:system",
+    content:
+      "ghostcrab_schema_inspect checks whether a schema exists in the MCP registry and whether a native ontology exists for the same schema_id.",
+    facets: {
+      entry_slug: "tool:ghostcrab_schema_inspect",
+      entry_type: "tool",
+      level: "intermediate",
+      tool_name: "ghostcrab_schema_inspect",
+      use_when:
+        "Before deciding whether to re-run ontology import or regenerate projection-like schemas"
+    },
+    lookupFacets: {
+      entry_slug: "tool:ghostcrab_schema_inspect"
+    }
+  },
+  {
+    schemaId: "mindbrain:system",
+    content:
+      "ghostcrab_schema_sync_preview shows whether registry/native ontology are drifted, missing, or in sync; use confirm=false to inspect, then apply only with explicit intent.",
+    facets: {
+      entry_slug: "tool:ghostcrab_schema_sync_preview",
+      entry_type: "tool",
+      level: "intermediate",
+      tool_name: "ghostcrab_schema_sync_preview",
+      use_when:
+        "Before importing or syncing schema definitions and ontology definitions"
+    },
+    lookupFacets: {
+      entry_slug: "tool:ghostcrab_schema_sync_preview"
+    }
+  },
+  {
+    schemaId: "mindbrain:system",
+    content:
+      "ghostcrab_schema_sync_apply writes confirmed schema sync decisions (registry projection or ontology creation).",
+    facets: {
+      entry_slug: "tool:ghostcrab_schema_sync_apply",
+      entry_type: "tool",
+      level: "intermediate",
+      tool_name: "ghostcrab_schema_sync_apply",
+      use_when:
+        "After review, when registry and ontology records must be made mutually consistent"
+    },
+    lookupFacets: {
+      entry_slug: "tool:ghostcrab_schema_sync_apply"
     }
   },
   {

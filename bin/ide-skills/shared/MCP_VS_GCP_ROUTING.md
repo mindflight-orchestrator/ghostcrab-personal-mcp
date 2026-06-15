@@ -28,4 +28,10 @@
 ## Modeling split
 
 - **`ghostcrab:*` agent schemas** — `ghostcrab_schema_register` + facets table
-- **LinkML formal ontology** — `ontology_*` tables via compile/import path (SOP2 §6 bis in starter-kit)
+- **LinkML formal ontology** — `ontology_*` tables via compile/import path (SOP2 §6 bis — see [STARTERKIT_PATHS.md](./STARTERKIT_PATHS.md))
+- **Business enum facet layer** — after `ghostcrab_ontology_import` per module:
+  1. `ghostcrab_schema_register` with `target: "facets"` (one schema per module, `facet_keys` + `enum_facets`)
+  2. `ghostcrab_facet_register` for each `<module>.<slot_snake_case>` key
+  3. Validate with `ghostcrab_facet_inspect` and `ghostcrab_schema_list(domain=…, target="facets")`
+
+Convention and Serenity V4 reference: [ENUM_BUSINESS_FACETS.md](./ENUM_BUSINESS_FACETS.md).

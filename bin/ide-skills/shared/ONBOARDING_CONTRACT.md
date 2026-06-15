@@ -1,6 +1,6 @@
 # GhostCrab V1 — Canonical onboarding and discipline
 
-Vocabulary (Personal SQLite): [docs/explanation/glossary.md](../../docs/explanation/glossary.md). Operator catalog: [docs/reference/operator-catalog.md](../../docs/reference/operator-catalog.md).
+Vocabulary (Personal SQLite): product repo `docs/explanation/glossary.md` (when working inside ghostcrab-personal-mcp). Operator catalog: product repo `docs/reference/operator-catalog.md`.
 
 **Single source of truth** for first-turn fuzzy GhostCrab onboarding, **naive domain requests**, and cross-host alignment.  
 Other skill files should **link here** instead of copying long rule lists. Keep behavior aligned; do not contradict this contract.
@@ -249,6 +249,8 @@ For **local ingest** (email, messages, calendar, search results): do **not** sta
 
 - Graph tools (`ghostcrab_coverage`, `ghostcrab_traverse`, `ghostcrab_learn`) support epistemic workflows; they are **not** required for every domain. Prefer them when blockers, dependencies, or coverage matter.
 - **Ontology-heavy** work still begins with §2 and §9: naive callers do not need to say "ontology"; you still owe them a **Model Proposal** before durable structure. Import formal ontology source files with `ghostcrab_ontology_import`, not with memory, graph, schema, or gap-rule tools.
+- **Multi-module LinkML domains:** after ontology import, register business enum facets with the mandatory `<module>.<slot_snake_case>` convention — see [ENUM_BUSINESS_FACETS.md](./ENUM_BUSINESS_FACETS.md). Apply prefixing automatically; do not use bare slot names or legacy prefixes (`com_*`, `tec_*`).
+- **Starter-kit delivery files:** resolve paths via [STARTERKIT_PATHS.md](./STARTERKIT_PATHS.md) before reading SOPs or templates.
 
 ## 15. Host responsibility
 

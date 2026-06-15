@@ -30,7 +30,7 @@ This installs ten GhostCrab skills plus shared contracts in `ghostcrab-shared/` 
 | [skills/ghostcrab-gap-auditor/](skills/ghostcrab-gap-auditor/) | Audit gaps between questions and evidence |
 | [skills/ghostcrab-json-answer-builder/](skills/ghostcrab-json-answer-builder/) | Stable JSON answers from MCP outputs |
 
-Each skill is **autonomous** at runtime. Operational skills may optionally reference starter-kit delivery SOPs when you run a phased import project.
+Each skill is **autonomous** at runtime. Operational skills may optionally reference starter-kit delivery SOPs — resolve via [../shared/STARTERKIT_PATHS.md](../shared/STARTERKIT_PATHS.md) when you run a phased import project.
 
 ## Starter fragments
 

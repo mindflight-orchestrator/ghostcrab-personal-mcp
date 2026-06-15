@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 
 import { EmbeddingProviderError } from "../embeddings/errors.js";
 import {
+  createToolErrorFromException,
   createToolErrorResult,
   getRegisteredTool,
   listRegisteredTools,
@@ -94,21 +95,17 @@ export async function executeTool(
       exitCode: exitCodeForResult(result)
     };
   } catch (error) {
-    const message =
-      error instanceof ZodError
-        ? "Invalid tool arguments. Check the tool schema."
-        : error instanceof Error
-          ? error.message
-          : "Unknown tool execution error";
-
     if (error instanceof ZodError) {
       console.error("[ghostcrab] ZodError:", JSON.stringify(error.issues));
     }
 
-    const result = createToolErrorResult(
+    const result = createToolErrorFromException(
       mcpToolName,
-      message,
-      classifyToolExecutionError(error)
+      error,
+      classifyToolExecutionError(error),
+      error instanceof ZodError
+        ? "Invalid tool arguments. Check the tool schema."
+        : "Unknown tool execution error"
     );
 
     return {

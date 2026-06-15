@@ -11,7 +11,7 @@ References: [ARTIFACT_KINDS.md](../../shared/ARTIFACT_KINDS.md), [GAP_TAXONOMY.m
 
 ## Delivery context (optional)
 
-Runtime Q&A tail of `starterkit/personal-mcp/SOP_SEQUENCE.md` — after operator and evidence-discovery.
+Resolve `{starterkit}` via [STARTERKIT_PATHS.md](../../shared/STARTERKIT_PATHS.md) — runtime Q&A tail of `{starterkit}/personal-mcp/SOP_SEQUENCE.md` after operator and evidence-discovery.
 
 ## Template
 

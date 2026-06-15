@@ -3,7 +3,7 @@ import { z } from "zod";
 import { runRefreshLiveAnswerView } from "../../db/answer-artifacts.js";
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import {
-  createToolErrorResult,
+  createToolErrorFromException,
   createToolSuccessResult,
   registerTool,
   type ToolHandler
@@ -73,7 +73,12 @@ export const liveRefreshTool: ToolHandler = {
         message.includes("live_answer_view")
           ? "invalid_artifact_kind"
           : "backend_unavailable";
-      return createToolErrorResult("ghostcrab_live_refresh", message, code);
+      return createToolErrorFromException(
+        "ghostcrab_live_refresh",
+        error,
+        code,
+        message
+      );
     }
 
     const event = result.answer_update_event;

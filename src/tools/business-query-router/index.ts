@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import {
-  createToolErrorResult,
+  createToolErrorFromException,
   createToolSuccessResult,
   registerTool,
   type ToolExecutionContext,
@@ -368,10 +368,11 @@ export const businessQueryAnswerTool: ToolHandler = {
         ...result
       });
     } catch (error) {
-      return createToolErrorResult(
+      return createToolErrorFromException(
         "ghostcrab_business_query_answer",
-        error instanceof Error ? error.message : "Failed to route business query.",
-        "business_query_route_error"
+        error,
+        "business_query_route_error",
+        "Failed to route business query."
       );
     }
   }

@@ -131,7 +131,6 @@ export async function runServe(args) {
       cwd: process.cwd(),
       pkgRoot,
       skip: false,
-      force: false,
       context: "serve"
     });
   }

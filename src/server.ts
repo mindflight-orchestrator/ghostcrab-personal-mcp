@@ -31,6 +31,7 @@ import {
 import { registerAllTools } from "./tools/register-all.js";
 import {
   createToolErrorResult,
+  createToolErrorFromException,
   createToolSuccessResult,
   getRegisteredTool,
   listRegisteredTools
@@ -272,15 +273,11 @@ export async function startMcpServer(): Promise<void> {
           );
         }
 
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Unknown tool execution error";
-
-        return createToolErrorResult(
+        return createToolErrorFromException(
           request.params.name,
-          message,
-          classifyToolExecutionError(error)
+          error,
+          classifyToolExecutionError(error),
+          "Unknown tool execution error"
         );
       }
     });

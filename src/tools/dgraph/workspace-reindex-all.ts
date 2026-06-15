@@ -8,6 +8,7 @@ import {
   runStandaloneReindexGraph
 } from "../../db/standalone-mindbrain.js";
 import {
+  createToolErrorFromException,
   createToolErrorResult,
   createToolSuccessResult,
   registerTool,
@@ -100,10 +101,11 @@ export const workspaceReindexAllTool: ToolHandler = {
       try {
         await runGraphReindex(input.document_table_id);
       } catch (error) {
-        return createToolErrorResult(
+        return createToolErrorFromException(
           "ghostcrab_reindex_all",
-          error instanceof Error ? error.message : "workspace graph reindex failed",
-          "backend_reindex_failed"
+          error,
+          "backend_reindex_failed",
+          "workspace graph reindex failed"
         );
       }
 
@@ -152,11 +154,11 @@ export const workspaceReindexAllTool: ToolHandler = {
       try {
         await runGraphReindex(input.document_table_id);
       } catch (error) {
-        return createToolErrorResult(
+        return createToolErrorFromException(
           "ghostcrab_reindex_all",
-          error instanceof Error ? error.message : "workspace graph fallback reindex failed",
+          error,
           "backend_reindex_failed",
-          { workspace_id: workspaceId, graph_only_fallback: true }
+          "workspace graph fallback reindex failed"
         );
       }
     } else {

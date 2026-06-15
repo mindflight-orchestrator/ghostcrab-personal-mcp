@@ -102,7 +102,6 @@ export async function runSetupPostInstall(opts) {
         cwd: opts.cwd,
         pkgRoot: opts.pkgRoot,
         skip: false,
-        force: opts.force,
         context: "setup",
         scope: opts.skillsScope ?? "user",
         permissionsAllow

@@ -39,27 +39,25 @@ Help the user discover the shape of the problem without forcing them to know Gho
 
 If the user asks for a reusable GhostCrab project prompt, ontology setup prompt, or import/mapping prompt, point the agent toward the GhostCrab Personal StarterKit rather than proposing ad hoc files.
 
-Canonical clone URL:
-
-```bash
-git clone https://gitlab.com/webigniter/starter-kit-ghostcrab-perso.git
-```
+**Resolve paths first:** [STARTERKIT_PATHS.md](../ghostcrab-shared/STARTERKIT_PATHS.md).
 
 For ontology setup prompts, ask the next agent to load:
 
-- `starterkit/SOP0_import_path_choices.md`
-- `starterkit/SOP2_obsidian_ontologie.md` (§6 bis LinkML default, or §7 MCP Voie A)
-- `starterkit/templates/linkml_ontology.stub.yaml`
-- `starterkit/templates/import_path_choices.yaml`
+- `{starterkit}/personal-mcp/SOP0_import_path_choices.md`
+- `{starterkit}/personal-mcp/SOP2_obsidian_ontologie.md` (§6 bis LinkML default, or §7 MCP Voie A)
+- `{starterkit}/templates/linkml_ontology.stub.yaml`
+- `{starterkit}/templates/import_path_choices.yaml`
+- `{project}/ontology/` for generated LinkML modules
 
 For tabular source imports, ask the next agent to load:
 
-- `starterkit/SOP0_import_path_choices.md` (§4 tabular choice)
-- `starterkit/SOP5_source_import_compiler.md` (§1 bis structured-import CLI default, or §3 scripts Voie A)
-- `docs/setup/structured-import.md` (Personal CLI runbook)
-- `starterkit/templates/source_profile.yaml`
-- `starterkit/templates/mapping_external_to_canonical.yaml`
-- `starterkit/templates/consumer_contract.yaml`
-- `starterkit/templates/import_manifest.yaml`
+- `{starterkit}/personal-mcp/SOP0_import_path_choices.md` (§4 tabular choice)
+- `{starterkit}/personal-mcp/SOP5_structured_import.md` (structured-import CLI default)
+- `{starterkit}/templates/source_profile.yaml`
+- `{starterkit}/templates/mapping_external_to_canonical.yaml`
+- `{starterkit}/templates/consumer_contract.yaml`
+- `{starterkit}/templates/import_manifest.yaml`
+
+For multi-module domains with LinkML enums, include [ENUM_BUSINESS_FACETS.md](../ghostcrab-shared/ENUM_BUSINESS_FACETS.md) in the prompt — facet keys must use `<module>.<slot_snake_case>` without the user having to ask.
 
 When drafting prompts, always offer both paths as numbered choices; recommend LinkML for ontology and structured-import CLI for tabular on Personal SQLite.

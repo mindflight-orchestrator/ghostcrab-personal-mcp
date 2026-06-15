@@ -3,7 +3,7 @@ import { z } from "zod";
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import { runStandaloneGhostcrabProjectionGet } from "../../db/standalone-mindbrain.js";
 import {
-  createToolErrorResult,
+  createToolErrorFromException,
   createToolSuccessResult,
   registerTool,
   type ToolHandler
@@ -137,12 +137,11 @@ export const projectionGetTool: ToolHandler = {
         includeDeltas: input.include_deltas
       });
     } catch (error) {
-      return createToolErrorResult(
+      return createToolErrorFromException(
         "ghostcrab_projection_get",
-        error instanceof Error
-          ? error.message
-          : "MindBrain projection-get backend unavailable",
-        "backend_unavailable"
+        error,
+        "backend_unavailable",
+        "MindBrain projection-get backend unavailable"
       );
     }
 

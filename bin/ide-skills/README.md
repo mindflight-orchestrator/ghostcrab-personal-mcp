@@ -15,4 +15,4 @@ pnpm run sync:ide-skills
 | `codex` | `codex/skills/`, `shared/` | `~/.codex/skills/<skill>/`, `~/.codex/skills/ghostcrab-shared/` |
 | `generic` | `codex/skills/`, `shared/` | `~/.agents/skills/<skill>/`, `~/.agents/skills/ghostcrab-shared/` |
 
-Installed globally by `gcp brain setup` by default (opt-out: `--no-skills`; project install: `--skills-scope project`).
+Installed globally by `gcp brain setup` by default (opt-out: `--no-skills`; project install: `--skills-scope project`). Managed skill directories and `ghostcrab-shared/` are **always replaced** on install so bundle updates take effect without `--force`.

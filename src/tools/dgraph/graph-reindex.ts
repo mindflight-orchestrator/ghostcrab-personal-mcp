@@ -4,6 +4,7 @@ import { resolveGhostcrabConfig } from "../../config/env.js";
 import { runSqlGraphReindex } from "../../db/graph-reindex-sql.js";
 import { runStandaloneReindexGraph } from "../../db/standalone-mindbrain.js";
 import {
+  createToolErrorFromException,
   createToolErrorResult,
   createToolSuccessResult,
   registerTool,
@@ -81,10 +82,11 @@ export const graphReindexTool: ToolHandler = {
       });
     } catch (error) {
       if (!shouldFallbackToSqlReindex(error)) {
-        return createToolErrorResult(
+        return createToolErrorFromException(
           "ghostcrab_graph_reindex",
-          error instanceof Error ? error.message : "native graph reindex failed",
-          "backend_reindex_failed"
+          error,
+          "backend_reindex_failed",
+          "native graph reindex failed"
         );
       }
 

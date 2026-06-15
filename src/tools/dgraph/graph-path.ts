@@ -3,6 +3,7 @@ import { z } from "zod";
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import { runStandaloneGraphPath } from "../../db/standalone-mindbrain.js";
 import {
+  createToolErrorFromException,
   createToolErrorResult,
   createToolSuccessResult,
   registerTool,
@@ -73,12 +74,11 @@ export const graphPathTool: ToolHandler = {
         edgeLabels: input.edge_labels
       });
     } catch (error) {
-      return createToolErrorResult(
+      return createToolErrorFromException(
         "ghostcrab_graph_path",
-        error instanceof Error
-          ? error.message
-          : "MindBrain graph-path backend unavailable",
-        "backend_unavailable"
+        error,
+        "backend_unavailable",
+        "MindBrain graph-path backend unavailable"
       );
     }
 

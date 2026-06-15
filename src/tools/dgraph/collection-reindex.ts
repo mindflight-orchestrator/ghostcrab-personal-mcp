@@ -3,6 +3,7 @@ import { z } from "zod";
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import { runStandaloneReindexAll } from "../../db/standalone-mindbrain.js";
 import {
+  createToolErrorFromException,
   createToolErrorResult,
   createToolSuccessResult,
   registerTool,
@@ -61,10 +62,11 @@ export const collectionReindexTool: ToolHandler = {
         ...result
       });
     } catch (error) {
-      return createToolErrorResult(
+      return createToolErrorFromException(
         "ghostcrab_collection_reindex",
-        error instanceof Error ? error.message : "native collection reindex failed",
-        "backend_reindex_failed"
+        error,
+        "backend_reindex_failed",
+        "native collection reindex failed"
       );
     }
   }

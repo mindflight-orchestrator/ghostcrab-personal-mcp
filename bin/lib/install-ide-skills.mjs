@@ -560,7 +560,7 @@ function installGenericBundle(bundleRoot, cwd, force, scope) {
  * @param {string} opts.cwd
  * @param {string} opts.pkgRoot
  * @param {boolean} [opts.skip]
- * @param {boolean} [opts.force]
+ * @param {boolean} [opts.force] Overwrite existing managed skill directories (default: true).
  * @param {'init' | 'serve' | 'setup'} [opts.context]
  * @param {IdeSkillsScope} [opts.scope]
  * @param {string[]} [opts.permissionsAllow] Claude project settings allow rules
@@ -571,7 +571,7 @@ export function installIdeSkillsBundleForTarget(opts) {
     cwd,
     pkgRoot,
     skip = false,
-    force = false,
+    force = true,
     context = "setup",
     scope = context === "setup" ? "user" : "project",
     permissionsAllow
@@ -688,11 +688,11 @@ export function describeIdeSkillsBundleForTarget(opts) {
  * @param {string} opts.cwd
  * @param {string} opts.pkgRoot
  * @param {boolean} [opts.skip]
- * @param {boolean} [opts.force]
+ * @param {boolean} [opts.force] Overwrite existing managed skill directories (default: true).
  * @param {'init' | 'serve'} [opts.context]
  */
 export function maybeInstallIdeSkills(opts) {
-  const { cwd, pkgRoot, skip = false, force = false, context = "init" } = opts;
+  const { cwd, pkgRoot, skip = false, force = true, context = "init" } = opts;
 
   if (skip || process.env.GHOSTCRAB_SKIP_IDE_SKILLS === "1") {
     return;

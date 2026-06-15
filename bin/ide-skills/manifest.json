@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-14T17:10:28.667Z",
+  "generated_at": "2026-06-15T13:19:45.310Z",
   "source": "ghostcrab-skills",
   "skill_names": [
     "ghostcrab-memory",
@@ -32,15 +32,15 @@
     },
     {
       "path": "claude-code/skills/ghostcrab-data-architect/SKILL.md",
-      "sha256": "a0e18a1f06162129722d9c2e5184bebeb3a0d69aebfd0347951359e1854377b4"
+      "sha256": "88a495ccf4d0eb0946de8404b2eb9b9994978c60af49a829170a7d04ffbda1a0"
     },
     {
       "path": "claude-code/skills/ghostcrab-evidence-discovery/SKILL.md",
-      "sha256": "d1272a2379818466f2f1c370fc7f7a4ca70071c3628d143c9597ede0034bf779"
+      "sha256": "b5e2b4162a6bfa3bda6f26e6a31175c3ff6e59ca367190858c2ddb59142b3afe"
     },
     {
       "path": "claude-code/skills/ghostcrab-gap-auditor/SKILL.md",
-      "sha256": "fb4ab2b5d6546f911207186f83fcfed30b24b1c3a9d8e4f25efa6160d747cf19"
+      "sha256": "5db7cb4eb8891855179792015687aee241577617ee3db33025d55473aba6db82"
     },
     {
       "path": "claude-code/skills/ghostcrab-integration-sop-editor/SKILL.md",
@@ -48,7 +48,7 @@
     },
     {
       "path": "claude-code/skills/ghostcrab-json-answer-builder/SKILL.md",
-      "sha256": "422c7b57e9cf013bcf990d32869bfecd5eb612c71fa894f51a6dd17dff904182"
+      "sha256": "5e4d9c56d82501d1fee6db8626eed8dd869a3d87ef4a493df66bfdc4f048b44b"
     },
     {
       "path": "claude-code/skills/ghostcrab-memory/SKILL.md",
@@ -56,15 +56,15 @@
     },
     {
       "path": "claude-code/skills/ghostcrab-operator/SKILL.md",
-      "sha256": "d36c156ff0f4a6662cee66573a45b3399314d3d0091eb5ca7710943110afaa14"
+      "sha256": "c454e920943f4ede7640cbf93060abd9af2492213faefc6cac81f2b1765b52e0"
     },
     {
       "path": "claude-code/skills/ghostcrab-projection-reviewer/SKILL.md",
-      "sha256": "deb11f66b1d38e535716a43b2aef3af1eff31b3e14f1691ce38c3477ede27870"
+      "sha256": "6996afde913cba04986c2275f0ed6bb7568b40576357bb9b1cd722a07a75f39c"
     },
     {
       "path": "claude-code/skills/ghostcrab-prompt-guide/SKILL.md",
-      "sha256": "b11b497f841a16369dd0bd7bba3fe9566a52223a920ef68f9289962937a97e94"
+      "sha256": "a7f2b86e007ae97323695a5eb8ec720312c07bd4da213b9dd08c1d78e5610426"
     },
     {
       "path": "claude-code/skills/mindbrain-comparison-writer/SKILL.md",
@@ -76,7 +76,7 @@
     },
     {
       "path": "codex/skills/ghostcrab-data-architect/SKILL.md",
-      "sha256": "a0e18a1f06162129722d9c2e5184bebeb3a0d69aebfd0347951359e1854377b4"
+      "sha256": "88a495ccf4d0eb0946de8404b2eb9b9994978c60af49a829170a7d04ffbda1a0"
     },
     {
       "path": "codex/skills/ghostcrab-data-architect/agents/openai.yaml",
@@ -84,7 +84,7 @@
     },
     {
       "path": "codex/skills/ghostcrab-evidence-discovery/SKILL.md",
-      "sha256": "d1272a2379818466f2f1c370fc7f7a4ca70071c3628d143c9597ede0034bf779"
+      "sha256": "b5e2b4162a6bfa3bda6f26e6a31175c3ff6e59ca367190858c2ddb59142b3afe"
     },
     {
       "path": "codex/skills/ghostcrab-evidence-discovery/agents/openai.yaml",
@@ -92,7 +92,7 @@
     },
     {
       "path": "codex/skills/ghostcrab-gap-auditor/SKILL.md",
-      "sha256": "fb4ab2b5d6546f911207186f83fcfed30b24b1c3a9d8e4f25efa6160d747cf19"
+      "sha256": "5db7cb4eb8891855179792015687aee241577617ee3db33025d55473aba6db82"
     },
     {
       "path": "codex/skills/ghostcrab-gap-auditor/agents/openai.yaml",
@@ -108,7 +108,7 @@
     },
     {
       "path": "codex/skills/ghostcrab-json-answer-builder/SKILL.md",
-      "sha256": "422c7b57e9cf013bcf990d32869bfecd5eb612c71fa894f51a6dd17dff904182"
+      "sha256": "5e4d9c56d82501d1fee6db8626eed8dd869a3d87ef4a493df66bfdc4f048b44b"
     },
     {
       "path": "codex/skills/ghostcrab-json-answer-builder/agents/openai.yaml",
@@ -124,7 +124,7 @@
     },
     {
       "path": "codex/skills/ghostcrab-operator/SKILL.md",
-      "sha256": "d36c156ff0f4a6662cee66573a45b3399314d3d0091eb5ca7710943110afaa14"
+      "sha256": "c454e920943f4ede7640cbf93060abd9af2492213faefc6cac81f2b1765b52e0"
     },
     {
       "path": "codex/skills/ghostcrab-operator/agents/openai.yaml",
@@ -132,7 +132,7 @@
     },
     {
       "path": "codex/skills/ghostcrab-projection-reviewer/SKILL.md",
-      "sha256": "deb11f66b1d38e535716a43b2aef3af1eff31b3e14f1691ce38c3477ede27870"
+      "sha256": "6996afde913cba04986c2275f0ed6bb7568b40576357bb9b1cd722a07a75f39c"
     },
     {
       "path": "codex/skills/ghostcrab-projection-reviewer/agents/openai.yaml",
@@ -140,7 +140,7 @@
     },
     {
       "path": "codex/skills/ghostcrab-prompt-guide/SKILL.md",
-      "sha256": "b11b497f841a16369dd0bd7bba3fe9566a52223a920ef68f9289962937a97e94"
+      "sha256": "a7f2b86e007ae97323695a5eb8ec720312c07bd4da213b9dd08c1d78e5610426"
     },
     {
       "path": "codex/skills/ghostcrab-prompt-guide/agents/openai.yaml",
@@ -160,15 +160,15 @@
     },
     {
       "path": "cursor/skills/ghostcrab-data-architect/SKILL.md",
-      "sha256": "a0e18a1f06162129722d9c2e5184bebeb3a0d69aebfd0347951359e1854377b4"
+      "sha256": "88a495ccf4d0eb0946de8404b2eb9b9994978c60af49a829170a7d04ffbda1a0"
     },
     {
       "path": "cursor/skills/ghostcrab-evidence-discovery/SKILL.md",
-      "sha256": "d1272a2379818466f2f1c370fc7f7a4ca70071c3628d143c9597ede0034bf779"
+      "sha256": "b5e2b4162a6bfa3bda6f26e6a31175c3ff6e59ca367190858c2ddb59142b3afe"
     },
     {
       "path": "cursor/skills/ghostcrab-gap-auditor/SKILL.md",
-      "sha256": "fb4ab2b5d6546f911207186f83fcfed30b24b1c3a9d8e4f25efa6160d747cf19"
+      "sha256": "5db7cb4eb8891855179792015687aee241577617ee3db33025d55473aba6db82"
     },
     {
       "path": "cursor/skills/ghostcrab-integration-sop-editor/SKILL.md",
@@ -176,7 +176,7 @@
     },
     {
       "path": "cursor/skills/ghostcrab-json-answer-builder/SKILL.md",
-      "sha256": "422c7b57e9cf013bcf990d32869bfecd5eb612c71fa894f51a6dd17dff904182"
+      "sha256": "5e4d9c56d82501d1fee6db8626eed8dd869a3d87ef4a493df66bfdc4f048b44b"
     },
     {
       "path": "cursor/skills/ghostcrab-memory/SKILL.md",
@@ -184,15 +184,15 @@
     },
     {
       "path": "cursor/skills/ghostcrab-operator/SKILL.md",
-      "sha256": "d36c156ff0f4a6662cee66573a45b3399314d3d0091eb5ca7710943110afaa14"
+      "sha256": "c454e920943f4ede7640cbf93060abd9af2492213faefc6cac81f2b1765b52e0"
     },
     {
       "path": "cursor/skills/ghostcrab-projection-reviewer/SKILL.md",
-      "sha256": "deb11f66b1d38e535716a43b2aef3af1eff31b3e14f1691ce38c3477ede27870"
+      "sha256": "6996afde913cba04986c2275f0ed6bb7568b40576357bb9b1cd722a07a75f39c"
     },
     {
       "path": "cursor/skills/ghostcrab-prompt-guide/SKILL.md",
-      "sha256": "b11b497f841a16369dd0bd7bba3fe9566a52223a920ef68f9289962937a97e94"
+      "sha256": "a7f2b86e007ae97323695a5eb8ec720312c07bd4da213b9dd08c1d78e5610426"
     },
     {
       "path": "cursor/skills/mindbrain-comparison-writer/SKILL.md",
@@ -204,7 +204,7 @@
     },
     {
       "path": "shared/APP_PATTERNS.md",
-      "sha256": "83230826cac13f518eb749e6f6a281be6ef3d73ede75c0fa8428030ab7fbf7a2"
+      "sha256": "ab925ac4fa8ba63e92a14afe98852d492850ba2277ceb58f1c0cff5f0e3c4d72"
     },
     {
       "path": "shared/ARTIFACT_KINDS.md",
@@ -219,24 +219,32 @@
       "sha256": "798cfeddbd42c367922b37cef294f6148cf83782e37c70b04952c90bf14b0af7"
     },
     {
+      "path": "shared/ENUM_BUSINESS_FACETS.md",
+      "sha256": "c4f2637f857b53273f0c6a75828fa19b4897503957208e32f78cad65e818db7a"
+    },
+    {
       "path": "shared/GAP_TAXONOMY.md",
-      "sha256": "9f45046a8035e4352758dd4a3fbba6dc6e0360d9f83e3d6f4e43c50f6bb223fa"
+      "sha256": "d024c039461b9df05b0f53246d68c2cc8b756c9cf220ce590a5d245feb6e9df4"
     },
     {
       "path": "shared/IMPORT_CLOSURE_GATES.md",
-      "sha256": "a8e93f546fe2b63ef179488e8b8c122fd32ef95ae4f2f50cad6200dbc079e512"
+      "sha256": "a1d0320f790104833a510e283dd05026aa522cd840bd3854b68d003870317bc5"
     },
     {
       "path": "shared/MCP_VS_GCP_ROUTING.md",
-      "sha256": "e169f9491c890b4791ce94986f38c16cfe8c2edebcfaba0df09f80f69d94f02e"
+      "sha256": "902bb2dfde9fcdf662f89be4eb0e7b4a2ab5ea44e0e9289fcdfba995320e172a"
     },
     {
       "path": "shared/ONBOARDING_CONTRACT.md",
-      "sha256": "27144291162276b23ab8da8a8497c4d6a35eacc0e09a48b10576a49d6b675d3f"
+      "sha256": "0d958d47ddde3a48bc6800a029fb8c653fa9a796fa45d0ab95efd2066d85aeb9"
     },
     {
       "path": "shared/PATH_CONTENT_FACETS.md",
       "sha256": "c328c6f891d69ec61d6c17592cf44efeb2bf820bfcb3e7ec89403134d94258ab"
+    },
+    {
+      "path": "shared/PROJECTIONS_DISCOVERY.md",
+      "sha256": "54f33c8c30cb0c84ac7f89aed0d1c3500729742ce03c628da0b74ebe0102fc27"
     },
     {
       "path": "shared/QUERY_PATTERNS.md",
@@ -248,7 +256,7 @@
     },
     {
       "path": "shared/SCHEMA_DESIGN.md",
-      "sha256": "a15ea23c66dafd474eb841b3f18dcbdc7ba5294363860009269014bab575b915"
+      "sha256": "73ec245035ba249570fc478d4dd45a163381cc1cf94124621f57d1e395807b93"
     },
     {
       "path": "shared/SERVER_INSTRUCTIONS.md",
@@ -256,7 +264,11 @@
     },
     {
       "path": "shared/SKILL_ROUTE_MAP_ESSENTIALS.md",
-      "sha256": "08d9fb94c853ee44c63d779766476899612359c3765ab89773f7309a4b627c9b"
+      "sha256": "0728c24bf93c0ea57fcba5b266db217eff590394d1e26e011677e5890414d34e"
+    },
+    {
+      "path": "shared/STARTERKIT_PATHS.md",
+      "sha256": "0ac21a14da4fe99b7ad64983ec68ad996e2a22550bb7376387064e0134f8d044"
     },
     {
       "path": "shared/TRANSITION_LOGGING.md",

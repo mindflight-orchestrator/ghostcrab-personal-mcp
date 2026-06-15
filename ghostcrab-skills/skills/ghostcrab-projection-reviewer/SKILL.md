@@ -7,11 +7,11 @@ description: Review GhostCrab projections and explain purpose, readiness, requir
 
 Review projections for readers who may not know GhostCrab internals.
 
-References: [ARTIFACT_KINDS.md](../../shared/ARTIFACT_KINDS.md), [IMPORT_CLOSURE_GATES.md](../../shared/IMPORT_CLOSURE_GATES.md).
+References: [ARTIFACT_KINDS.md](../../shared/ARTIFACT_KINDS.md), [IMPORT_CLOSURE_GATES.md](../../shared/IMPORT_CLOSURE_GATES.md), [PROJECTIONS_DISCOVERY.md](../../shared/PROJECTIONS_DISCOVERY.md).
 
 ## Delivery context (optional)
 
-Starter-kit Phase B1: `starterkit/personal-mcp/ROUTE_MAP.md` § projections and `README_projection_tools.md`.
+Resolve `{starterkit}` via [STARTERKIT_PATHS.md](../../shared/STARTERKIT_PATHS.md) — Phase B1: `{starterkit}/personal-mcp/ROUTE_MAP.md` § projections and `{starterkit}/scripts/README_projection_tools.md`.
 
 ## Types (Personal SQLite)
 
@@ -26,7 +26,7 @@ Graph live queries are **not** projections — use `ghostcrab_graph_search`, `gh
 ## Workflow
 
 1. `ghostcrab_status`.
-2. `ghostcrab_projections_list` when scopes or snapshot ids are unknown (see [projections-discovery.md](../../../docs/reference/projections-discovery.md)).
+2. `ghostcrab_projections_list` when scopes or snapshot ids are unknown (see [PROJECTIONS_DISCOVERY.md](../../shared/PROJECTIONS_DISCOVERY.md)).
 3. `ghostcrab_pack` for active `analysis_plan` scopes and fact highlights.
 4. `ghostcrab_projection_get` when `answer_snapshot` or calculated bundles are in scope.
 5. `ghostcrab_search` / `ghostcrab_graph_search` to test whether declared requirements have evidence.

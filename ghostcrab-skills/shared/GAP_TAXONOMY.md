@@ -21,7 +21,7 @@ Separate **answerability** from **graph quality** from **answer artifacts**.
 - `no_projection` — no matching `analysis_plan` scope
 - `projection_contract_only` — contract exists, no supporting facts/graph
 - `missing_dimensions` — business dimensions absent or unclear
-- `missing_facets` — required facet rows or filters missing
+- `missing_facets` — required facet rows or filters missing; also when a business enum is referenced without the `<module>.<slot_snake_case>` prefix (check via `ghostcrab_facet_inspect` — see [ENUM_BUSINESS_FACETS.md](ENUM_BUSINESS_FACETS.md))
 - `missing_edges` — required graph edges absent
 - `missing_snapshot` — no `answer_snapshot` when user expected frozen report
 - `tool_surface_gap` — MCP tool missing or failed

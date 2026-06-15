@@ -8,6 +8,7 @@ import {
   runStandaloneGraphGapRulesImport
 } from "../../db/standalone-mindbrain.js";
 import {
+  createToolErrorFromException,
   createToolErrorResult,
   createToolSuccessResult,
   registerTool,
@@ -116,12 +117,11 @@ export const graphDiagnosticsTool: ToolHandler = {
         issues: Array.isArray(report.issues) ? report.issues : []
       });
     } catch (error) {
-      return createToolErrorResult(
+      return createToolErrorFromException(
         "ghostcrab_graph_diagnostics",
-        error instanceof Error
-          ? error.message
-          : "MindBrain graph diagnostics backend unavailable",
-        "backend_unavailable"
+        error,
+        "backend_unavailable",
+        "MindBrain graph diagnostics backend unavailable"
       );
     }
   }
@@ -168,12 +168,11 @@ export const graphGapRulesTool: ToolHandler = {
         rules: Array.isArray(response.rules) ? response.rules : []
       });
     } catch (error) {
-      return createToolErrorResult(
+      return createToolErrorFromException(
         "ghostcrab_graph_gap_rules",
-        error instanceof Error
-          ? error.message
-          : "MindBrain graph gap rules backend unavailable",
-        "backend_unavailable"
+        error,
+        "backend_unavailable",
+        "MindBrain graph gap rules backend unavailable"
       );
     }
   }
@@ -301,12 +300,11 @@ export const graphGapRulesImportTool: ToolHandler = {
         imported: response.imported
       });
     } catch (error) {
-      return createToolErrorResult(
+      return createToolErrorFromException(
         "ghostcrab_graph_gap_rules_import",
-        error instanceof Error
-          ? error.message
-          : "MindBrain graph gap rules import backend unavailable",
-        "backend_unavailable"
+        error,
+        "backend_unavailable",
+        "MindBrain graph gap rules import backend unavailable"
       );
     }
   }
@@ -364,12 +362,11 @@ export const graphGapRulesDeleteTool: ToolHandler = {
         deleted: response.deleted
       });
     } catch (error) {
-      return createToolErrorResult(
+      return createToolErrorFromException(
         "ghostcrab_graph_gap_rules_delete",
-        error instanceof Error
-          ? error.message
-          : "MindBrain graph gap rules delete backend unavailable",
-        "backend_unavailable"
+        error,
+        "backend_unavailable",
+        "MindBrain graph gap rules delete backend unavailable"
       );
     }
   }

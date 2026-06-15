@@ -7,6 +7,7 @@ import {
 } from "../../db/answer-artifacts.js";
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import {
+  createToolErrorFromException,
   createToolErrorResult,
   createToolSuccessResult,
   registerTool,
@@ -248,12 +249,11 @@ export const projectionsListTool: ToolHandler = {
         });
         entries.push(...registryRows.map(mapRegistryRow));
       } catch (error) {
-        return createToolErrorResult(
+        return createToolErrorFromException(
           "ghostcrab_projections_list",
-          error instanceof Error
-            ? error.message
-            : "Failed to list answer-artifact registry projections.",
-          "backend_unavailable"
+          error,
+          "backend_unavailable",
+          "Failed to list answer-artifact registry projections."
         );
       }
     }

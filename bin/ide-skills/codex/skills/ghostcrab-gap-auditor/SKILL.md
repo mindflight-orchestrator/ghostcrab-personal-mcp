@@ -11,11 +11,11 @@ Explain why a business question is not fully answerable yet and propose concrete
 
 Use **MCP tool output** as evidence. Do not open SQLite directly. Do not use legacy Pro operators (PostgreSQL CLI) or direct SQL.
 
-References: [GAP_TAXONOMY.md](../ghostcrab-shared/GAP_TAXONOMY.md), [ARTIFACT_KINDS.md](../ghostcrab-shared/ARTIFACT_KINDS.md), [MCP_VS_GCP_ROUTING.md](../ghostcrab-shared/MCP_VS_GCP_ROUTING.md), [IMPORT_CLOSURE_GATES.md](../ghostcrab-shared/IMPORT_CLOSURE_GATES.md).
+References: [GAP_TAXONOMY.md](../ghostcrab-shared/GAP_TAXONOMY.md), [ARTIFACT_KINDS.md](../ghostcrab-shared/ARTIFACT_KINDS.md), [MCP_VS_GCP_ROUTING.md](../ghostcrab-shared/MCP_VS_GCP_ROUTING.md), [IMPORT_CLOSURE_GATES.md](../ghostcrab-shared/IMPORT_CLOSURE_GATES.md), [ENUM_BUSINESS_FACETS.md](../ghostcrab-shared/ENUM_BUSINESS_FACETS.md).
 
 ## Delivery context (optional)
 
-`starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP_SEQUENCE.md` — audit and gate 7–9 phases.
+Resolve `{starterkit}` via [STARTERKIT_PATHS.md](../ghostcrab-shared/STARTERKIT_PATHS.md) — audit and gate 7–9 phases in `{starterkit}/personal-mcp/SOP_SEQUENCE.md`.
 
 ## Vocabulary boundary
 
@@ -38,7 +38,7 @@ All categories are subtypes of **`answerability_gap`**:
 - `no_projection` — no matching `analysis_plan` scope for the question.
 - `projection_contract_only` — contract exists but no supporting facts or graph rows surfaced.
 - `missing_dimensions` — expected business dimensions absent or unclear.
-- `missing_facets` — required facet filters or `agent_facts` rows missing.
+- `missing_facets` — required facet filters or `agent_facts` rows missing; also when enum keys lack `<module>.<slot_snake_case>` prefix (verify with `ghostcrab_facet_inspect`).
 - `missing_edges` — required graph edges absent or not traversed.
 - `missing_snapshot` — no `answer_snapshot` via `ghostcrab_projection_get`.
 - `tool_surface_gap` — needed MCP tool missing or failed.
@@ -49,10 +49,11 @@ All categories are subtypes of **`answerability_gap`**:
 1. `ghostcrab_status` — workspace and health.
 2. `ghostcrab_workspace_use` if workspace unclear.
 3. `ghostcrab_search` / `ghostcrab_combined_search` with the user question.
-4. `ghostcrab_schema_inspect` / `ghostcrab_schema_list` for expected shapes.
-5. `ghostcrab_pack` or `ghostcrab_projection_get` when answer artifacts matter.
-6. `ghostcrab_graph_search` / `ghostcrab_traverse` when graph evidence is required.
-7. Compare results to the user question.
+4. `ghostcrab_schema_inspect` / `ghostcrab_schema_list` for expected shapes (include `target=facets` module schemas).
+5. `ghostcrab_facet_inspect` for expected business enum keys — must match [ENUM_BUSINESS_FACETS.md](../ghostcrab-shared/ENUM_BUSINESS_FACETS.md) naming.
+6. `ghostcrab_pack` or `ghostcrab_projection_get` when answer artifacts matter.
+7. `ghostcrab_graph_search` / `ghostcrab_traverse` when graph evidence is required.
+8. Compare results to the user question.
 
 For import pipeline gaps, point operators to `gcp brain structured-import`. For ontology source gaps, prefer MCP `ghostcrab_ontology_import` when an agent owns the workflow, or `gcp brain ontology compile` for CLI maintenance.
 

@@ -53,7 +53,10 @@ const SHARED_FROM_SHARED = [
   "MCP_VS_GCP_ROUTING.md",
   "IMPORT_CLOSURE_GATES.md",
   "GAP_TAXONOMY.md",
-  "SKILL_ROUTE_MAP_ESSENTIALS.md"
+  "SKILL_ROUTE_MAP_ESSENTIALS.md",
+  "STARTERKIT_PATHS.md",
+  "ENUM_BUSINESS_FACETS.md",
+  "PROJECTIONS_DISCOVERY.md"
 ];
 
 const SHARED_FROM_ROOT = ["CAPABILITIES.md", "SERVER_INSTRUCTIONS.md"];
@@ -301,7 +304,7 @@ pnpm run sync:ide-skills
 | \`codex\` | \`codex/skills/\`, \`shared/\` | \`~/.codex/skills/<skill>/\`, \`~/.codex/skills/ghostcrab-shared/\` |
 | \`generic\` | \`codex/skills/\`, \`shared/\` | \`~/.agents/skills/<skill>/\`, \`~/.agents/skills/ghostcrab-shared/\` |
 
-Installed globally by \`gcp brain setup\` by default (opt-out: \`--no-skills\`; project install: \`--skills-scope project\`).
+Installed globally by \`gcp brain setup\` by default (opt-out: \`--no-skills\`; project install: \`--skills-scope project\`). Managed skill directories and \`ghostcrab-shared/\` are **always replaced** on install so bundle updates take effect without \`--force\`.
 `;
   writeFileSync(join(outRoot, "README.md"), readme, "utf8");
 }

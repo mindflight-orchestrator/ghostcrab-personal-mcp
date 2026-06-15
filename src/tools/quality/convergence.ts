@@ -11,6 +11,7 @@ import {
   runStandaloneQualityRemediationStatus
 } from "../../db/standalone-mindbrain.js";
 import {
+  createToolErrorFromException,
   createToolErrorResult,
   createToolSuccessResult,
   registerTool,
@@ -150,10 +151,11 @@ export const qualityConvergenceRunTool: ToolHandler = {
         asToolPayload(report)
       );
     } catch (error) {
-      return createToolErrorResult(
+      return createToolErrorFromException(
         "ghostcrab_quality_convergence_run",
-        error instanceof Error ? error.message : String(error),
-        "mindbrain_quality_convergence_failed"
+        error,
+        "mindbrain_quality_convergence_failed",
+        "MindBrain quality convergence execution failed."
       );
     }
   }

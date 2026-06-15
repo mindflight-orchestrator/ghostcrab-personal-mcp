@@ -414,7 +414,7 @@ Usage: gcp brain setup_skills <cursor|codex|claude|generic> [options]
   --no-permissions                   skip MCP permission rules
   --permissions-scope user|project   Claude settings scope (default: user)
   --no-skills                        skip the IDE skill bundle (permissions only)
-  --force, --force-skills            overwrite existing skill files
+  --force, --force-skills            overwrite MCP permissions / Claude settings (skills always replace)
   --dry-run                          print what would be installed; write nothing
 
 Aliases:  gcp brain setup-skills
@@ -664,7 +664,7 @@ Usage: gcp brain setup <cursor|codex|claude|generic> [options]
                                Claude settings scope (default: user)
   --skills-scope user|project  skill install scope (default: user)
   --no-skills                  skip IDE skill bundle install
-  --force-skills               overwrite existing skill files (alias: --force)
+  --force-skills               overwrite MCP permissions / settings (skills always replace; alias: --force)
   --permissions-tool <name>    repeat for custom preset allow list
   --permissions-ask-tool <name> repeat for custom preset ask list (Claude)
 

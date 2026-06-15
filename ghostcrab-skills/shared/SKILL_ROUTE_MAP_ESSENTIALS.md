@@ -2,8 +2,9 @@
 
 Which GhostCrab skill to invoke by delivery phase. Install all skills: `gcp brain setup cursor|claude|codex|generic`.
 
-**Optional full SOP:** `starter-kit-ghostcrab-perso/starterkit/personal-mcp/SOP_SEQUENCE.md`  
-**Optional companion map:** `starterkit/personal-mcp/SKILL_ROUTE_MAP.md` (when shipped in starter-kit)
+**Path resolution:** [STARTERKIT_PATHS.md](./STARTERKIT_PATHS.md)  
+**Optional full SOP:** `{starterkit}/personal-mcp/SOP_SEQUENCE.md`  
+**Optional companion map:** `{starterkit}/personal-mcp/SKILL_ROUTE_MAP.md`
 
 | Phase | Primary skill(s) | MCP / CLI | Avoid |
 | --- | --- | --- | --- |

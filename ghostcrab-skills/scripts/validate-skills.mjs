@@ -107,6 +107,9 @@ const REQUIRED_FILES = [
   "shared/IMPORT_CLOSURE_GATES.md",
   "shared/GAP_TAXONOMY.md",
   "shared/SKILL_ROUTE_MAP_ESSENTIALS.md",
+  "shared/STARTERKIT_PATHS.md",
+  "shared/ENUM_BUSINESS_FACETS.md",
+  "shared/PROJECTIONS_DISCOVERY.md",
   "cursor/README.md",
   "codex/README.md",
   "codex/ghostcrab-memory/SKILL.md",
@@ -373,6 +376,63 @@ function assertCanonicalSkillsAvoidBrokenDocLinks() {
     if (/\]\(\.\.\/\.\.\/\.\.\/vendor\//.test(content)) {
       addError(
         `skills/${name}/SKILL.md must not link to ../../../vendor/ (use ../shared/ stubs)`
+      );
+    }
+    if (/starter-kit-ghostcrab-perso\//.test(content)) {
+      addError(
+        `skills/${name}/SKILL.md must not hardcode starter-kit-ghostcrab-perso/ (use STARTERKIT_PATHS.md and {starterkit}/ notation)`
+      );
+    }
+    if (/starterkit\/SOP5_source_import_compiler/.test(content)) {
+      addError(
+        `skills/${name}/SKILL.md must use personal-mcp/SOP5_structured_import.md for Personal tabular imports`
+      );
+    }
+  }
+}
+
+function assertSharedStarterkitAndFacetDocs() {
+  const sharedPaths = [
+    "shared/STARTERKIT_PATHS.md",
+    "shared/ENUM_BUSINESS_FACETS.md",
+    "shared/PROJECTIONS_DISCOVERY.md"
+  ];
+  for (const relativePath of sharedPaths) {
+    const fullPath = path.join(repoRoot, relativePath);
+    if (!exists(fullPath)) {
+      addError(`Missing required shared doc: ${relativePath}`);
+    }
+  }
+
+  const sharedMdFiles = walkFiles(path.join(repoRoot, "shared")).filter((p) =>
+    p.endsWith(".md")
+  );
+  for (const filePath of sharedMdFiles) {
+    if (filePath.endsWith("STARTERKIT_PATHS.md")) continue;
+    const content = readFile(filePath);
+    if (/starter-kit-ghostcrab-perso\//.test(content)) {
+      addError(
+        `${relativeRepoPath(filePath)} must not hardcode starter-kit-ghostcrab-perso/ (use STARTERKIT_PATHS.md)`
+      );
+    }
+  }
+
+  const dataArchitectPath = path.join(
+    repoRoot,
+    "skills",
+    "ghostcrab-data-architect",
+    "SKILL.md"
+  );
+  if (exists(dataArchitectPath)) {
+    const content = readFile(dataArchitectPath);
+    if (!/ENUM_BUSINESS_FACETS\.md/.test(content)) {
+      addError(
+        "skills/ghostcrab-data-architect/SKILL.md must link ENUM_BUSINESS_FACETS.md"
+      );
+    }
+    if (!/STARTERKIT_PATHS\.md/.test(content)) {
+      addError(
+        "skills/ghostcrab-data-architect/SKILL.md must link STARTERKIT_PATHS.md"
       );
     }
   }
@@ -1274,6 +1334,7 @@ function main() {
   assertRequiredPaths();
   assertEditorSkillSymlinks();
   assertCanonicalSkillsAvoidBrokenDocLinks();
+  assertSharedStarterkitAndFacetDocs();
   validatePersonalSkillTerminology();
   validateJsonFiles();
   validateMarkdownLinks();
