@@ -9,7 +9,6 @@ import {
 } from "../../db/standalone-mindbrain.js";
 import {
   createToolErrorFromException,
-  createToolErrorResult,
   createToolSuccessResult,
   registerTool,
   type ToolHandler
@@ -49,6 +48,7 @@ export const GraphGapRulesImportInput = z.object({
   ontology_id: z.string().trim().min(1),
   workspace_id: z.string().trim().min(1).optional(),
   replace: z.boolean().default(false),
+  validation_mode: z.enum(["warn", "strict"]).default("warn"),
   rules: z.array(GapRuleInput).min(1).max(200)
 });
 
@@ -131,14 +131,14 @@ export const graphGapRulesTool: ToolHandler = {
   definition: {
     name: "ghostcrab_graph_gap_rules",
     description:
-      "Read. List active closed-world gap rules (rule_id, entity/relation types, direction, min/max counts, severity, enabled, metadata). Use before and after ghostcrab_graph_gap_rules_import to audit the contract. Returns global rules (workspace_id null) plus workspace-scoped rules. Example: { \"workspace_id\": \"immeuble-demo\" }. Pair with ghostcrab_graph_diagnostics to see violations.",
+      "Read. List active closed-world gap rules (rule_id, entity/relation types, direction, min/max counts, severity, enabled, metadata) for one workspace. Use before and after ghostcrab_graph_gap_rules_import to audit the contract. Example: { \"workspace_id\": \"immeuble-demo\" }. Pair with ghostcrab_graph_diagnostics to see violations.",
     inputSchema: {
       type: "object",
       properties: {
         workspace_id: {
           type: "string",
           description:
-            "Workspace id used to resolve the default ontology and include workspace-scoped rules. Example: immeuble-demo."
+            "Workspace id used to resolve the default ontology and filter rules. Example: immeuble-demo."
         },
         ontology_id: {
           type: "string",
@@ -195,13 +195,20 @@ export const graphGapRulesImportTool: ToolHandler = {
         workspace_id: {
           type: "string",
           description:
-            "Optional workspace scope for workspace-specific rules. Example: immeuble-demo. Defaults to MCP session workspace."
+            "Workspace scope for the imported rules. Example: immeuble-demo. Defaults to MCP session workspace."
         },
         replace: {
           type: "boolean",
           default: false,
           description:
             "When true, delete all existing rules for this ontology_id and workspace_id scope before importing. When false (default), upsert each rule_id without removing omitted rules."
+        },
+        validation_mode: {
+          type: "string",
+          enum: ["warn", "strict"],
+          default: "warn",
+          description:
+            "warn stores rules even when ontology references are missing; strict rejects unknown entity, relation, or target types."
         },
         rules: {
           type: "array",
@@ -289,6 +296,7 @@ export const graphGapRulesImportTool: ToolHandler = {
           ontology_id: input.ontology_id,
           workspace_id: workspaceId,
           replace: input.replace,
+          validation_mode: input.validation_mode,
           rules: input.rules
         }
       });
@@ -297,6 +305,7 @@ export const graphGapRulesImportTool: ToolHandler = {
         workspace_id: workspaceId,
         ontology_id: input.ontology_id,
         backend: "mindbrain/graph/gap-rules/import",
+        validation_mode: input.validation_mode,
         imported: response.imported
       });
     } catch (error) {
@@ -314,7 +323,7 @@ export const graphGapRulesDeleteTool: ToolHandler = {
   definition: {
     name: "ghostcrab_graph_gap_rules_delete",
     description:
-      "Write. Delete one or more closed-world gap rules by rule_id. Prefer enabled:false on ghostcrab_graph_gap_rules_import to disable without deleting. For bulk replacement of a rule pack, use replace:true on import instead. Optional ontology_id and workspace_id scope the delete for safety.",
+      "Write. Delete one or more closed-world gap rules by rule_id within one workspace. Prefer enabled:false on ghostcrab_graph_gap_rules_import to disable without deleting. For bulk replacement of a rule pack, use replace:true on import instead.",
     inputSchema: {
       type: "object",
       required: ["rule_ids"],
@@ -334,7 +343,7 @@ export const graphGapRulesDeleteTool: ToolHandler = {
         workspace_id: {
           type: "string",
           description:
-            "Optional workspace scope. When set with ontology_id, restricts deletion to that workspace."
+            "Workspace scope for deletion. Defaults to MCP session workspace."
         }
       }
     }

@@ -44,14 +44,8 @@ export function buildListArtifactsQuery(filters = {}) {
   const params = [];
 
   if (filters.workspaceId) {
-    clauses.push(
-      "(workspace_id = ? OR (artifact_kind = 'analysis_plan' AND (scope = ? OR scope LIKE ?)))"
-    );
-    params.push(
-      filters.workspaceId,
-      filters.workspaceId,
-      `${filters.workspaceId}:%`
-    );
+    clauses.push("workspace_id = ?");
+    params.push(filters.workspaceId);
   }
   if (filters.kind) {
     assertAnswerArtifactKind(filters.kind);

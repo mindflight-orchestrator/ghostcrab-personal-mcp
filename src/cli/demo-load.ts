@@ -332,9 +332,9 @@ export function normalizeAnswerArtifactEntry(
   }
 
   if (artifactKind === "analysis_plan") {
-    if (workspaceId !== null || !agentId || !scope) {
+    if (!workspaceId || !agentId || !scope) {
       throw new Error(
-        "answer_artifact analysis_plan requires agent_id and scope, and must not set workspace_id."
+        "answer_artifact analysis_plan requires workspace_id, agent_id, and scope."
       );
     }
   } else if (

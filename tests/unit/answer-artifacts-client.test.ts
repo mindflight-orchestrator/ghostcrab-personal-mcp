@@ -23,7 +23,7 @@ describe("answer-artifacts TS client", () => {
       });
       expect(sql).toContain("artifact_kind = ?");
       expect(sql).toContain("LIMIT 5");
-      expect(params).toEqual(["ws_a", "ws_a", "ws_a:%", "evidence_pack"]);
+      expect(params).toEqual(["ws_a", "evidence_pack"]);
     });
   });
 
@@ -93,12 +93,7 @@ describe("answer-artifacts TS client", () => {
           expect(init?.method).toBe("POST");
           const body = JSON.parse(String(init?.body));
           expect(body.sql).toContain("mindbrain_answer_artifacts");
-          expect(body.params).toEqual([
-            "ws_demo",
-            "ws_demo",
-            "ws_demo:%",
-            "analysis_plan"
-          ]);
+          expect(body.params).toEqual(["ws_demo", "analysis_plan"]);
           return new Response(
             JSON.stringify({
               ok: true,
@@ -194,7 +189,7 @@ describe("answer-artifacts TS client", () => {
             JSON.stringify({
               artifact_id: "bad",
               slug: "bad",
-              workspace_id: null,
+              workspace_id: "ws_demo",
               agent_id: null,
               scope: null,
               artifact_kind: "graph_data_gap",

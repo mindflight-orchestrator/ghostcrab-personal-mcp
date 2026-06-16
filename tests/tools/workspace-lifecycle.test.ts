@@ -76,13 +76,9 @@ describe("ghostcrab_workspace_reset", () => {
     const answerArtifactCount = calls.find(([sql]) =>
       sql.includes("FROM mindbrain_answer_artifacts")
     );
-    expect(answerArtifactCount?.[0]).toContain("artifact_kind = 'analysis_plan'");
-    expect(answerArtifactCount?.[0]).toContain("scope LIKE ?");
-    expect(answerArtifactCount?.[1]).toEqual([
-      "serenity-v4",
-      "serenity-v4",
-      "serenity-v4:%"
-    ]);
+    expect(answerArtifactCount?.[0]).toContain("workspace_id = ?");
+    expect(answerArtifactCount?.[0]).not.toContain("scope LIKE ?");
+    expect(answerArtifactCount?.[1]).toEqual(["serenity-v4"]);
 
     const projectionCount = calls.find(([sql]) =>
       sql.includes("FROM projections")

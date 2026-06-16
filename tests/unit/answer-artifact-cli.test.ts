@@ -62,16 +62,13 @@ describe("answer-artifact-cli helpers", () => {
         limit: 25
       });
       expect(sql).toContain("workspace_id = ?");
-      expect(sql).toContain("artifact_kind = 'analysis_plan'");
-      expect(sql).toContain("scope LIKE ?");
+      expect(sql).not.toContain("scope LIKE ?");
       expect(sql).toContain("artifact_kind = ?");
       expect(sql).toContain("agent_id = ?");
       expect(sql).toContain("scope = ?");
       expect(sql).toContain("LIMIT 25");
       expect(params).toEqual([
         "ws_demo",
-        "ws_demo",
-        "ws_demo:%",
         "live_answer_view",
         "agent:self",
         "ws_demo"
@@ -110,7 +107,7 @@ describe("answer-artifact-cli helpers", () => {
         [
           "analysis_plan__pilotage",
           "pilotage",
-          null,
+          "ws_demo",
           "agent:self",
           "ws_demo",
           "analysis_plan",
@@ -125,7 +122,7 @@ describe("answer-artifact-cli helpers", () => {
         {
           artifact_id: "analysis_plan__pilotage",
           slug: "pilotage",
-          workspace_id: null,
+          workspace_id: "ws_demo",
           agent_id: "agent:self",
           scope: "ws_demo",
           artifact_kind: "analysis_plan",

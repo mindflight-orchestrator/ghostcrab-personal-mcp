@@ -27,7 +27,7 @@ export interface StandaloneTraverseParams {
   edgeLabels: string[];
   depth: number;
   target?: string;
-  workspaceId?: string;
+  workspaceId: string;
 }
 
 export interface StandaloneTraverseRow {
@@ -350,10 +350,32 @@ export interface StandaloneGraphDiagnosticsResponse {
   issues: StandaloneGraphDiagnosticsIssue[];
 }
 
+export interface StandaloneOntologyReconciliationParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  workspaceId: string;
+  ontologyId?: string;
+  limit?: number;
+}
+
+export interface StandaloneOntologyReconciliationIssue {
+  kind: string;
+  severity: string;
+  section: string;
+  label: string;
+  suggested_action: string;
+}
+
+export interface StandaloneOntologyReconciliationResponse {
+  kind: "ontology_reconciliation_report";
+  summary: Record<string, unknown>;
+  issues: StandaloneOntologyReconciliationIssue[];
+}
+
 export interface StandaloneGraphGapRulesParams {
   mindbrainUrl: string;
   timeoutMs?: number;
-  workspaceId?: string;
+  workspaceId: string;
   ontologyId?: string;
 }
 
@@ -580,9 +602,7 @@ export async function runStandaloneTraverse(
   for (const edgeLabel of params.edgeLabels) {
     url.searchParams.append("edge_label", edgeLabel);
   }
-  if (params.workspaceId) {
-    url.searchParams.set("workspace_id", params.workspaceId);
-  }
+  url.searchParams.set("workspace_id", params.workspaceId);
 
   return await fetchJson<StandaloneTraverseResult>(
     url,
@@ -911,6 +931,27 @@ export async function runStandaloneGraphDiagnostics(
     );
   }
   return await fetchJson<StandaloneGraphDiagnosticsResponse>(
+    url,
+    { method: "GET" },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneOntologyReconciliation(
+  params: StandaloneOntologyReconciliationParams
+): Promise<StandaloneOntologyReconciliationResponse> {
+  const url = new URL(
+    "/api/mindbrain/ontology/reconciliation",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  url.searchParams.set("workspace_id", params.workspaceId);
+  if (params.ontologyId) {
+    url.searchParams.set("ontology_id", params.ontologyId);
+  }
+  if (params.limit !== undefined) {
+    url.searchParams.set("limit", String(params.limit));
+  }
+  return await fetchJson<StandaloneOntologyReconciliationResponse>(
     url,
     { method: "GET" },
     params.timeoutMs

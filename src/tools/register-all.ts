@@ -21,6 +21,7 @@ import "./business-query-learning/index.js";
 import "./business-query-router/index.js";
 import "./ontology/import.js";
 import "./ontology/list.js";
+import "./ontology/reconciliation.js";
 import "./pragma/artifact-get.js";
 import "./pragma/guidance.js";
 import "./pragma/live-refresh.js";
