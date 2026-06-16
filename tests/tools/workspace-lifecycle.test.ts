@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { resetWorkspaceData } from "../../src/db/workspace-lifecycle.js";
 import { workspaceDeleteTool } from "../../src/tools/workspace/delete.js";
 import { workspaceResetTool } from "../../src/tools/workspace/reset.js";
 import type { ToolExecutionContext } from "../../src/tools/registry.js";
@@ -59,6 +60,35 @@ describe("ghostcrab_workspace_reset", () => {
     ) as Record<string, unknown>;
     expect(data.ok).toBe(false);
     expect((data.error as { code: string }).code).toBe("workspace_not_found");
+  });
+
+  it("clears analysis plans and legacy projections by workspace scope prefix", async () => {
+    const query = vi.fn().mockResolvedValue([{ count: 0 }]);
+
+    await resetWorkspaceData(
+      {
+        query
+      } as unknown as Parameters<typeof resetWorkspaceData>[0],
+      "serenity-v4"
+    );
+
+    const calls = query.mock.calls as Array<[string, readonly unknown[]]>;
+    const answerArtifactCount = calls.find(([sql]) =>
+      sql.includes("FROM mindbrain_answer_artifacts")
+    );
+    expect(answerArtifactCount?.[0]).toContain("artifact_kind = 'analysis_plan'");
+    expect(answerArtifactCount?.[0]).toContain("scope LIKE ?");
+    expect(answerArtifactCount?.[1]).toEqual([
+      "serenity-v4",
+      "serenity-v4",
+      "serenity-v4:%"
+    ]);
+
+    const projectionCount = calls.find(([sql]) =>
+      sql.includes("FROM projections")
+    );
+    expect(projectionCount?.[0]).toContain("scope = ? OR scope LIKE ?");
+    expect(projectionCount?.[1]).toEqual(["serenity-v4", "serenity-v4:%"]);
   });
 });
 
