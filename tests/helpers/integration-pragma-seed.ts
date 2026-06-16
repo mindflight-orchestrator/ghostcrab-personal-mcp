@@ -151,8 +151,7 @@ export async function seedAnswerArtifact(
     currentVersion?: number;
   }
 ): Promise<void> {
-  const workspaceId =
-    params.artifactKind === "analysis_plan" ? null : params.workspaceId;
+  const workspaceId = params.workspaceId;
   const agentId =
     params.artifactKind === "analysis_plan"
       ? (params.agentId ?? "agent:self")

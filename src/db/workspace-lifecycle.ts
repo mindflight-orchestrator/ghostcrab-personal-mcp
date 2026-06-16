@@ -31,6 +31,7 @@ export async function resetWorkspaceData(
   workspaceId: string
 ): Promise<WorkspaceCleanupReport> {
   const tables_cleared: Array<{ table: string; rows_deleted: number }> = [];
+  const projectionScopeParams = [workspaceId, `${workspaceId}:%`] as const;
 
   async function clear(
     table: string,
@@ -217,22 +218,31 @@ export async function resetWorkspaceData(
     "mindbrain_answer_events",
     `SELECT COUNT(*) AS count FROM mindbrain_answer_events
      WHERE artifact_id IN (
-       SELECT artifact_id FROM mindbrain_answer_artifacts WHERE workspace_id = ?
+       SELECT artifact_id FROM mindbrain_answer_artifacts
+       WHERE workspace_id = ?
      )`,
     `DELETE FROM mindbrain_answer_events
      WHERE artifact_id IN (
-       SELECT artifact_id FROM mindbrain_answer_artifacts WHERE workspace_id = ?
-     )`
+       SELECT artifact_id FROM mindbrain_answer_artifacts
+       WHERE workspace_id = ?
+     )`,
+    [workspaceId]
   );
   await clear(
     "mindbrain_answer_artifacts",
-    `SELECT COUNT(*) AS count FROM mindbrain_answer_artifacts WHERE workspace_id = ?`,
-    `DELETE FROM mindbrain_answer_artifacts WHERE workspace_id = ?`
+    `SELECT COUNT(*) AS count FROM mindbrain_answer_artifacts
+     WHERE workspace_id = ?`,
+    `DELETE FROM mindbrain_answer_artifacts
+     WHERE workspace_id = ?`,
+    [workspaceId]
   );
   await clear(
     "projections",
-    `SELECT COUNT(*) AS count FROM projections WHERE scope = ?`,
-    `DELETE FROM projections WHERE scope = ?`
+    `SELECT COUNT(*) AS count FROM projections
+     WHERE scope = ? OR scope LIKE ?`,
+    `DELETE FROM projections
+     WHERE scope = ? OR scope LIKE ?`,
+    projectionScopeParams
   );
 
   const rows_deleted = tables_cleared.reduce(

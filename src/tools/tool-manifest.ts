@@ -40,6 +40,8 @@ export const EXPECTED_TOOL_NAMES = [
   "ghostcrab_onboarding_schemas",
   "ghostcrab_ontology_import",
   "ghostcrab_ontology_list",
+  "ghostcrab_ontology_reconciliation_apply",
+  "ghostcrab_ontology_reconciliation_report",
   "ghostcrab_pack",
   "ghostcrab_projection_get",
   "ghostcrab_projections_list",

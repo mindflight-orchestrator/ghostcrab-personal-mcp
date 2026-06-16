@@ -7,6 +7,7 @@ import {
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import {
   createToolErrorFromException,
+  createToolErrorResult,
   createToolSuccessResult,
   registerTool,
   type ToolHandler
@@ -21,7 +22,7 @@ export const artifactGetTool: ToolHandler = {
   definition: {
     name: "ghostcrab_artifact_get",
     description:
-      "Read. Fetch one answer artifact from the registry by artifact_id (analysis plan, live answer, snapshot, or evidence pack). Returns public_label for user-facing text. Use ghostcrab_tool_search to discover this extended tool.",
+      "Read. Fetch one answer artifact from the registry by artifact_id (analysis plan, live answer, snapshot, or evidence pack). When workspace_id is provided or active in session, validates that the artifact belongs to that workspace. Returns public_label for user-facing text. Use ghostcrab_tool_search to discover this extended tool.",
     inputSchema: {
       type: "object",
       required: ["artifact_id"],
@@ -34,7 +35,7 @@ export const artifactGetTool: ToolHandler = {
         workspace_id: {
           type: "string",
           description:
-            "Optional workspace context for the call (does not filter the registry row)."
+            "Optional workspace context for the call. The returned artifact must match this workspace."
         }
       }
     }
@@ -58,8 +59,21 @@ export const artifactGetTool: ToolHandler = {
       );
     }
 
+    if (workspaceId && row.workspace_id !== workspaceId) {
+      return createToolErrorResult(
+        "ghostcrab_artifact_get",
+        `Artifact ${row.artifact_id} belongs to workspace ${row.workspace_id ?? "<none>"}, not ${workspaceId}.`,
+        "workspace_mismatch",
+        {
+          requested_workspace_id: workspaceId,
+          artifact_workspace_id: row.workspace_id ?? null,
+          artifact_id: row.artifact_id
+        }
+      );
+    }
+
     return createToolSuccessResult("ghostcrab_artifact_get", {
-      workspace_id: workspaceId,
+      workspace_id: row.workspace_id,
       backend: "native",
       artifact_id: row.artifact_id,
       slug: row.slug,

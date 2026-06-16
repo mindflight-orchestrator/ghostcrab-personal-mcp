@@ -44,8 +44,8 @@ export function buildListArtifactsQuery(filters = {}) {
   const params = [];
 
   if (filters.workspaceId) {
-    clauses.push("(workspace_id = ? OR scope = ?)");
-    params.push(filters.workspaceId, filters.workspaceId);
+    clauses.push("workspace_id = ?");
+    params.push(filters.workspaceId);
   }
   if (filters.kind) {
     assertAnswerArtifactKind(filters.kind);

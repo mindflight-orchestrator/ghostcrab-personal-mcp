@@ -4,6 +4,10 @@ import {
   runStandaloneGhostcrabPack,
   runStandaloneGhostcrabSearch
 } from "../../db/standalone-mindbrain.js";
+import {
+  runListAnswerArtifacts,
+  type AnswerArtifactListRow
+} from "../../db/answer-artifacts.js";
 import { FACETS_SEARCH_TABLE_ID } from "../../db/fact-store.js";
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import {
@@ -20,6 +24,29 @@ interface FactRow {
   content: string;
   id: string;
   score: number;
+}
+
+type PackRow = {
+  id?: string;
+  content: string;
+  proj_type: string;
+  source_ref: string | null;
+  status: string;
+  weight: number;
+} & AnalysisPlanOverlay;
+
+function packRowFromAnalysisPlanArtifact(row: AnswerArtifactListRow): PackRow {
+  return {
+    id: row.artifact_id,
+    content: row.public_label,
+    proj_type: "GOAL",
+    source_ref: row.legacy_ref,
+    status: row.state,
+    weight: 1,
+    artifact_kind: "analysis_plan",
+    legacy_kind: "projection_type_a",
+    public_label: row.public_label
+  };
 }
 
 export const PackInput = z.object({
@@ -79,15 +106,6 @@ export const packTool: ToolHandler = {
     const notes: string[] = [];
 
     const config = resolveGhostcrabConfig();
-type PackRow = {
-  id?: string;
-  content: string;
-  proj_type: string;
-  source_ref: string | null;
-  status: string;
-  weight: number;
-} & AnalysisPlanOverlay;
-
     let packBackend: "native" | "sql" = "native";
     let packRows: PackRow[];
 
@@ -107,6 +125,17 @@ type PackRow = {
       notes.push(
         `MindBrain native pack endpoint unavailable: ${error instanceof Error ? error.message : "Unknown backend error"} Falling back to SQL pack queries.`
       );
+      const registryRows = await runListAnswerArtifacts({
+        mindbrainUrl: config.mindbrainUrl,
+        workspaceId: effectiveWorkspaceId,
+        kind: "analysis_plan",
+        agentId: input.agent_id,
+        scope: input.scope,
+        limit: input.limit
+      });
+      const registryPackRows = registryRows.map(packRowFromAnalysisPlanArtifact);
+
+      const remainingLimit = Math.max(input.limit - registryPackRows.length, 0);
       const projectionParams: unknown[] = [input.agent_id];
       const projectionWhereClauses = [
         "agent_id = ?",
@@ -119,27 +148,36 @@ type PackRow = {
         projectionParams.push(input.scope);
       }
 
-      projectionParams.push(input.limit);
-      const sqlRows = await context.database.query<{
-        content: string;
-        proj_type: string;
-        source_ref: string | null;
-        status: string;
-        weight: number;
-      }>(
-        `
-          SELECT proj_type, content, weight, source_ref, status
-          FROM mb_pragma.projections
-          WHERE ${projectionWhereClauses.join(" AND ")}
-          ORDER BY
-            CASE proj_type WHEN 'CONSTRAINT' THEN 0 ELSE 1 END,
-            weight DESC,
-            created_at_unix DESC
-          LIMIT ?
-        `,
-        projectionParams
-      );
-      packRows = sqlRows.map((row) => withAnalysisPlanOverlay(row));
+      projectionParams.push(remainingLimit);
+      const sqlRows =
+        remainingLimit > 0
+          ? await context.database.query<{
+              content: string;
+              proj_type: string;
+              source_ref: string | null;
+              status: string;
+              weight: number;
+            }>(
+              `
+            SELECT proj_type, content, weight, source_ref, status
+            FROM mb_pragma.projections
+            WHERE ${projectionWhereClauses.join(" AND ")}
+            ORDER BY
+              CASE proj_type WHEN 'CONSTRAINT' THEN 0 ELSE 1 END,
+              weight DESC,
+              created_at_unix DESC
+            LIMIT ?
+          `,
+              projectionParams
+            )
+          : [];
+      const legacyPackRows = sqlRows.map((row) => withAnalysisPlanOverlay(row));
+      if (legacyPackRows.length > 0) {
+        notes.push(
+          "legacy_projection_fallback: included legacy mb_pragma.projections rows after workspace-scoped answer artifact registry rows."
+        );
+      }
+      packRows = [...registryPackRows, ...legacyPackRows];
     }
 
     // Phase 2: hybrid BM25+vector fact retrieval via MindBrain ghostcrab/search.

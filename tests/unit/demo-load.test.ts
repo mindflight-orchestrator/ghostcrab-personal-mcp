@@ -52,7 +52,8 @@ describe("demo-load answer_artifact entries", () => {
         public_label: "Plan demo",
         scope: "demo",
         slug: "demo",
-        state: "open"
+        state: "open",
+        workspace_id: "demo"
       })
     ).toMatchObject({
       agent_id: "agent:demo",
@@ -60,7 +61,7 @@ describe("demo-load answer_artifact entries", () => {
       current_version: 1,
       payload_json: '{"steps":["inspect"]}',
       scope: "demo",
-      workspace_id: null
+      workspace_id: "demo"
     });
 
     expect(
@@ -100,12 +101,13 @@ describe("demo-load answer_artifact entries", () => {
         artifact_id: "analysis_plan__demo",
         artifact_kind: "analysis_plan",
         lifecycle: "active",
+        agent_id: "agent:demo",
         public_label: "Bad plan",
+        scope: "demo",
         slug: "demo",
-        state: "open",
-        workspace_id: "demo"
+        state: "open"
       })
-    ).toThrow(/analysis_plan requires agent_id and scope/);
+    ).toThrow(/analysis_plan requires workspace_id, agent_id, and scope/);
 
     expect(() =>
       normalizeAnswerArtifactEntry({
@@ -163,7 +165,8 @@ describe("demo-load answer_artifact entries", () => {
           public_label: "Plan demo",
           scope: "demo",
           slug: "demo",
-          state: "open"
+          state: "open",
+          workspace_id: "demo"
         }
       }
     ];
@@ -180,7 +183,7 @@ describe("demo-load answer_artifact entries", () => {
       expect.arrayContaining([
         "analysis_plan__demo",
         "demo",
-        null,
+        "demo",
         "agent:demo",
         "demo",
         "analysis_plan"

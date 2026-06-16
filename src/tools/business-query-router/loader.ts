@@ -9,6 +9,7 @@ import type { BusinessCapability, EvidenceRef } from "./types.js";
 
 interface AnswerArtifactRow {
   artifact_id: string;
+  workspace_id: string;
   scope: string | null;
   agent_id: string | null;
   artifact_kind: AnswerArtifactKind;
@@ -65,7 +66,7 @@ function mapPayloadToCapability(
       str(artifact.slug) ??
       str(artifact.artifact_id) ??
       "analysis_plan",
-    workspace_id: str(artifact.scope) ?? undefined,
+    workspace_id: str(artifact.workspace_id),
     label: str(payload.label) ?? str(payload.title) ?? artifact.public_label,
     business_question: str(payload.business_question) ?? artifact.public_label,
     example_queries: stringArray(payload.example_queries),
@@ -168,16 +169,15 @@ export async function loadRuntimeCapabilities(params: {
   try {
     const artifactRows = await context.database.query<AnswerArtifactRow>(
       `
-        SELECT artifact_id, scope, agent_id, artifact_kind, public_label,
+        SELECT artifact_id, workspace_id, scope, agent_id, artifact_kind, public_label,
                lifecycle, state, slug, payload_json
         FROM mindbrain_answer_artifacts
-        WHERE (workspace_id = ? OR scope = ?)
+        WHERE workspace_id = ?
           AND artifact_kind IN (?, ?, ?)
         ORDER BY artifact_id
         LIMIT ?
       `,
       [
-        workspaceId,
         workspaceId,
         ANALYSIS_PLAN_KIND,
         "live_answer_view",

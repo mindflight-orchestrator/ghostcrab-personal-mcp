@@ -56,12 +56,13 @@ describe.sequential("ghostcrab_projections_list (integration, no mocks)", () => 
     });
     await seedAnswerArtifact(harness.database, {
       artifactId: `${ARTIFACT_PREFIX}__plan`,
-      slug: WS_ID,
+      slug: "copropriete_360",
       workspaceId: WS_ID,
       artifactKind: "analysis_plan",
       publicLabel: "Plan chantier",
       legacyRef: `projection:${registryLegacyProjectionId}`,
-      agentId: "agent:self"
+      agentId: "agent:self",
+      scope: `${WS_ID}:production:copropriete_360`
     });
     await seedGraphProjectionResult(harness.database, {
       workspaceId: WS_ID,
