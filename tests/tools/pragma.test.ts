@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { DatabaseClient, Queryable } from "../../src/db/client.js";
 import { createToolContext } from "../helpers/tool-context.js";
+import { artifactGetTool } from "../../src/tools/pragma/artifact-get.js";
 import { packTool } from "../../src/tools/pragma/pack.js";
 import { projectTool } from "../../src/tools/pragma/project.js";
 import { statusTool } from "../../src/tools/pragma/status.js";
@@ -167,6 +168,155 @@ describe("pragma tools", () => {
     >;
     expect(searchBody.table_id).toBe(1);
     expect(searchBody.workspace_id).toBe("default");
+  });
+
+  it("rejects artifact_get when the returned artifact belongs to another workspace", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            artifact_id: "analysis_plan__shared",
+            slug: "shared",
+            workspace_id: "serenity-v4-shadow",
+            agent_id: "agent:self",
+            scope: "serenity-v4:production:shared",
+            artifact_kind: "analysis_plan",
+            public_label: "Shadow plan",
+            lifecycle: "active",
+            state: "open",
+            current_version: 1,
+            payload_json: "{}",
+            legacy_ref: null
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        )
+      )
+    );
+
+    const context = createToolContext(createMockDatabase(vi.fn()));
+    context.session.workspace_id = "serenity-v4";
+
+    const result = await artifactGetTool.handler(
+      { artifact_id: "analysis_plan__shared" },
+      context
+    );
+
+    expect(result.isError).toBe(true);
+    const body = readStructured(result);
+    expect((body.error as Record<string, unknown>).code).toBe(
+      "workspace_mismatch"
+    );
+  });
+
+  it("uses workspace-scoped answer artifacts before legacy projections when native pack fails", async () => {
+    const fetchMock = vi.fn(async (url: string | URL) => {
+      const path =
+        typeof url === "string"
+          ? url
+          : ((url as URL).pathname ?? url.toString());
+
+      if (String(path).includes("pack-projections")) {
+        return new Response("bad request", { status: 400 });
+      }
+
+      if (String(path).includes("/api/mindbrain/sql")) {
+        return new Response(
+          JSON.stringify({
+            ok: true,
+            columns: [
+              "artifact_id",
+              "slug",
+              "workspace_id",
+              "agent_id",
+              "scope",
+              "artifact_kind",
+              "public_label",
+              "lifecycle",
+              "state",
+              "current_version",
+              "legacy_ref"
+            ],
+            rows: [
+              [
+                "analysis_plan__copropriete_360",
+                "copropriete_360",
+                "serenity-v4",
+                "agent:self",
+                "serenity-v4:production:copropriete_360",
+                "analysis_plan",
+                "Copropriete 360",
+                "active",
+                "open",
+                1,
+                "projection:copropriete_360"
+              ]
+            ],
+            changes: 0
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        );
+      }
+
+      if (String(path).includes("ghostcrab/search")) {
+        return new Response(
+          JSON.stringify({
+            workspace_id: "serenity-v4",
+            query: "Aurora",
+            returned: 0,
+            matches: []
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        );
+      }
+
+      return new Response("{}", {
+        status: 200,
+        headers: { "content-type": "application/json" }
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
+      if (sql.includes("FROM mb_pragma.projections")) {
+        return [
+          {
+            content: "Legacy fallback row",
+            proj_type: "GOAL",
+            source_ref: null,
+            status: "active",
+            weight: 0.4
+          }
+        ];
+      }
+      return [];
+    });
+    const context = createToolContext(createMockDatabase(query));
+    context.session.workspace_id = "serenity-v4";
+
+    const result = await packTool.handler(
+      {
+        query: "Aurora",
+        agent_id: "agent:self",
+        scope: "serenity-v4:production:copropriete_360"
+      },
+      context
+    );
+
+    expect(result.isError).not.toBe(true);
+    const body = readStructured(result);
+    expect(body.backend).toBe("sql");
+    const pack = body.pack as Array<Record<string, unknown>>;
+    expect(pack[0]).toMatchObject({
+      id: "analysis_plan__copropriete_360",
+      public_label: "Copropriete 360",
+      artifact_kind: "analysis_plan"
+    });
+    expect(body.notes).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("legacy_projection_fallback")
+      ])
+    );
   });
 
   it("returns status directives from health, gaps, and blocking constraints", async () => {

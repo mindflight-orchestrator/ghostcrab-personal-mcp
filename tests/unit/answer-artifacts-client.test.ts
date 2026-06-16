@@ -114,7 +114,7 @@ describe("answer-artifacts TS client", () => {
                 [
                   "analysis_plan__demo",
                   "demo",
-                  null,
+                  "ws_demo",
                   "agent:self",
                   "ws_demo",
                   "analysis_plan",
