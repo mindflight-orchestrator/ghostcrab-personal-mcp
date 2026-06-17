@@ -60,6 +60,9 @@ const ADDITIONAL_REQUIRED_ROUTES = [
   route("GET", "/api/mindbrain/graph/gap-rules"),
   route("POST", "/api/mindbrain/graph/gap-rules/import"),
   route("POST", "/api/mindbrain/graph/gap-rules/delete"),
+  route("POST", "/api/mindbrain/graph/rule-evaluations/run"),
+  route("GET", "/api/mindbrain/graph/rule-evaluations"),
+  route("GET", "/api/mindbrain/graph/rule-events"),
   route("GET", "/api/mindbrain/graph/subgraph"),
   route("POST", "/api/mindbrain/facts/write"),
   route("POST", "/api/mindbrain/search-embedding-upsert"),
@@ -91,6 +94,9 @@ export const GHOSTCRAB_BACKEND_CONTRACT = {
       graph_gap_rules: true,
       graph_gap_rules_import: true,
       graph_gap_rules_delete: true,
+      graph_rule_evaluations: true,
+      graph_rule_evaluations_run: true,
+      graph_rule_events: true,
       graph_pattern_query: true,
       ontology_inspect: true
     }

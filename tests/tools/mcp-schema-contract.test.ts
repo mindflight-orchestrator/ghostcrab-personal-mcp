@@ -12,7 +12,12 @@ import {
   graphGapRulesDeleteTool,
   graphGapRulesImportTool,
   GraphGapRulesInput,
-  graphGapRulesTool
+  graphGapRulesTool,
+  GraphRuleEvaluationsInput,
+  GraphRuleEvaluationsRunInput,
+  graphRuleEvaluationsRunTool,
+  graphRuleEvaluationsTool,
+  graphRuleEventsTool
 } from "../../src/tools/dgraph/diagnostics.js";
 import {
   graphSearchTool,
@@ -984,6 +989,68 @@ describe("MCP inputSchema contract (drift guard)", () => {
           ontology_id: "immeuble-demo::core"
         }).success
       ).toBe(true);
+    });
+  });
+
+  describe("ghostcrab_graph_rule_evaluations_run", () => {
+    const schema = graphRuleEvaluationsRunTool.definition.inputSchema as {
+      properties: {
+        limit: { minimum?: number; maximum?: number; default?: number };
+        create_remediation_actions: { default?: boolean };
+      };
+    };
+
+    it("documents limit and remediation defaults", () => {
+      expect(schema.properties.limit.minimum).toBe(1);
+      expect(schema.properties.limit.maximum).toBe(500);
+      expect(schema.properties.limit.default).toBe(200);
+      expect(schema.properties.create_remediation_actions.default).toBe(true);
+    });
+
+    it("Zod parses run args with defaults", () => {
+      const parsed = GraphRuleEvaluationsRunInput.safeParse({
+        workspace_id: "immeuble-demo"
+      });
+      expect(parsed.success).toBe(true);
+      expect(
+        parsed.success ? parsed.data.create_remediation_actions : false
+      ).toBe(true);
+    });
+  });
+
+  describe("ghostcrab_graph_rule_evaluations", () => {
+    it("has no required arguments", () => {
+      const schema = graphRuleEvaluationsTool.definition.inputSchema as {
+        required?: string[];
+      };
+      expect(schema.required ?? []).toHaveLength(0);
+    });
+
+    it("Zod accepts workspace_id and limit", () => {
+      expect(
+        GraphRuleEvaluationsInput.safeParse({
+          workspace_id: "immeuble-demo",
+          limit: 25
+        }).success
+      ).toBe(true);
+    });
+  });
+
+  describe("ghostcrab_graph_rule_events", () => {
+    it("has no required arguments", () => {
+      const schema = graphRuleEventsTool.definition.inputSchema as {
+        required?: string[];
+      };
+      expect(schema.required ?? []).toHaveLength(0);
+    });
+
+    it("Zod rejects limit below 1", () => {
+      expect(
+        GraphRuleEvaluationsInput.safeParse({
+          workspace_id: "immeuble-demo",
+          limit: 0
+        }).success
+      ).toBe(false);
     });
   });
 

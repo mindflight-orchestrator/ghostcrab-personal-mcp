@@ -5,7 +5,10 @@ import {
   runStandaloneGraphDiagnostics,
   runStandaloneGraphGapRules,
   runStandaloneGraphGapRulesDelete,
-  runStandaloneGraphGapRulesImport
+  runStandaloneGraphGapRulesImport,
+  runStandaloneGraphRuleEvaluations,
+  runStandaloneGraphRuleEvaluationsRun,
+  runStandaloneGraphRuleEvents
 } from "../../db/standalone-mindbrain.js";
 import {
   createToolErrorFromException,
@@ -58,11 +61,21 @@ export const GraphGapRulesDeleteInput = z.object({
   workspace_id: z.string().trim().min(1).optional()
 });
 
+export const GraphRuleEvaluationsInput = z.object({
+  workspace_id: z.string().trim().min(1).optional(),
+  ontology_id: z.string().trim().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(500).default(200)
+});
+
+export const GraphRuleEvaluationsRunInput = GraphRuleEvaluationsInput.extend({
+  create_remediation_actions: z.boolean().default(true)
+});
+
 export const graphDiagnosticsTool: ToolHandler = {
   definition: {
     name: "ghostcrab_graph_diagnostics",
     description:
-      "Read. Unified graph gap report after closed-world rules are loaded. Evaluates imported gap rules (missing_required_relation, too_many_relations) plus native checks: isolated_entity, small_component, relation_type_mismatch, entity_without_evidence, relation_without_evidence, ontology_coverage_gap. Not a substitute for ghostcrab_coverage (schema instantiation) or ghostcrab_graph_gap_rules (rule audit). Workflow: import rules → list rules → run diagnostics. Example: { \"workspace_id\": \"immeuble-demo\" }.",
+      'Read. Unified graph gap report after closed-world rules are loaded. Evaluates imported gap rules (missing_required_relation, too_many_relations) plus native checks: isolated_entity, small_component, relation_type_mismatch, entity_without_evidence, relation_without_evidence, ontology_coverage_gap. Not a substitute for ghostcrab_coverage (schema instantiation) or ghostcrab_graph_gap_rules (rule audit). Workflow: import rules → list rules → run diagnostics. Example: { "workspace_id": "immeuble-demo" }.',
     inputSchema: {
       type: "object",
       properties: {
@@ -131,7 +144,7 @@ export const graphGapRulesTool: ToolHandler = {
   definition: {
     name: "ghostcrab_graph_gap_rules",
     description:
-      "Read. List active closed-world gap rules (rule_id, entity/relation types, direction, min/max counts, severity, enabled, metadata) for one workspace. Use before and after ghostcrab_graph_gap_rules_import to audit the contract. Example: { \"workspace_id\": \"immeuble-demo\" }. Pair with ghostcrab_graph_diagnostics to see violations.",
+      'Read. List active closed-world gap rules (rule_id, entity/relation types, direction, min/max counts, severity, enabled, metadata) for one workspace. Use before and after ghostcrab_graph_gap_rules_import to audit the contract. Example: { "workspace_id": "immeuble-demo" }. Pair with ghostcrab_graph_diagnostics to see violations.',
     inputSchema: {
       type: "object",
       properties: {
@@ -255,7 +268,8 @@ export const graphGapRulesImportTool: ToolHandler = {
               max_count: {
                 type: ["integer", "null"],
                 minimum: 0,
-                description: "Maximum allowed relation count (cardinality upper bound)."
+                description:
+                  "Maximum allowed relation count (cardinality upper bound)."
               },
               severity: {
                 type: "string",
@@ -264,7 +278,8 @@ export const graphGapRulesImportTool: ToolHandler = {
               },
               label: {
                 type: "string",
-                description: "Human-readable business label for diagnostics issues."
+                description:
+                  "Human-readable business label for diagnostics issues."
               },
               enabled: {
                 type: "boolean",
@@ -333,7 +348,7 @@ export const graphGapRulesDeleteTool: ToolHandler = {
           minItems: 1,
           maxItems: 200,
           items: { type: "string" },
-          description: "Rule ids to delete, e.g. [\"leased-unit-has-lease\"]."
+          description: 'Rule ids to delete, e.g. ["leased-unit-has-lease"].'
         },
         ontology_id: {
           type: "string",
@@ -381,7 +396,201 @@ export const graphGapRulesDeleteTool: ToolHandler = {
   }
 };
 
+export const graphRuleEvaluationsRunTool: ToolHandler = {
+  definition: {
+    name: "ghostcrab_graph_rule_evaluations_run",
+    description:
+      "Write. Evaluate active graph gap rules for a workspace, persist current rule state per (workspace, rule, subject entity), and emit graph_rule_events only when state changes (unknown/invalid/valid transitions). When a rule has metadata_json.remediation_action and changes invalid→valid, this can propose a quality_remediation_action with an idempotency key. Use after graph mutations or rule import.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        workspace_id: {
+          type: "string",
+          description:
+            "Workspace id to evaluate. Defaults to the current MCP session workspace."
+        },
+        ontology_id: {
+          type: "string",
+          description:
+            "Optional ontology id. When omitted, MindBrain uses the workspace default ontology."
+        },
+        limit: {
+          type: "integer",
+          minimum: 1,
+          maximum: 500,
+          default: 200,
+          description: "Maximum transition events to include in the response."
+        },
+        create_remediation_actions: {
+          type: "boolean",
+          default: true,
+          description:
+            "When true, invalid→valid transitions may create proposed quality_remediation_action rows if the rule metadata declares remediation_action."
+        }
+      }
+    }
+  },
+  async handler(args, context) {
+    const input = GraphRuleEvaluationsRunInput.parse(args);
+    const workspaceId = input.workspace_id ?? context.session.workspace_id;
+    const config = resolveGhostcrabConfig();
+
+    try {
+      const response = await runStandaloneGraphRuleEvaluationsRun({
+        mindbrainUrl: config.mindbrainUrl,
+        timeoutMs: config.mindbrainHttpTimeoutMs,
+        workspaceId,
+        ontologyId: input.ontology_id,
+        limit: input.limit,
+        createRemediationActions: input.create_remediation_actions
+      });
+
+      return createToolSuccessResult("ghostcrab_graph_rule_evaluations_run", {
+        workspace_id: response.workspace_id,
+        ontology_id: response.ontology_id,
+        backend: "mindbrain/graph/rule-evaluations/run",
+        evaluated: response.evaluated,
+        changed: response.changed,
+        events_created: response.events_created,
+        invalid_count: response.invalid_count,
+        remediation_actions_created: response.remediation_actions_created,
+        events: Array.isArray(response.events) ? response.events : []
+      });
+    } catch (error) {
+      return createToolErrorFromException(
+        "ghostcrab_graph_rule_evaluations_run",
+        error,
+        "backend_unavailable",
+        "MindBrain graph rule evaluation backend unavailable"
+      );
+    }
+  }
+};
+
+export const graphRuleEvaluationsTool: ToolHandler = {
+  definition: {
+    name: "ghostcrab_graph_rule_evaluations",
+    description:
+      "Read. List persisted current graph rule states for one workspace: valid|invalid per (rule_id, subject_entity_id), observed count, expected min/max, and evaluation timestamps. Run ghostcrab_graph_rule_evaluations_run first to refresh state.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        workspace_id: {
+          type: "string",
+          description:
+            "Workspace id to inspect. Defaults to the current MCP session workspace."
+        },
+        ontology_id: {
+          type: "string",
+          description:
+            "Optional ontology id. When omitted, MindBrain uses the workspace default ontology."
+        },
+        limit: {
+          type: "integer",
+          minimum: 1,
+          maximum: 500,
+          default: 200,
+          description: "Maximum evaluation rows to return."
+        }
+      }
+    }
+  },
+  async handler(args, context) {
+    const input = GraphRuleEvaluationsInput.parse(args);
+    const workspaceId = input.workspace_id ?? context.session.workspace_id;
+    const config = resolveGhostcrabConfig();
+
+    try {
+      const response = await runStandaloneGraphRuleEvaluations({
+        mindbrainUrl: config.mindbrainUrl,
+        timeoutMs: config.mindbrainHttpTimeoutMs,
+        workspaceId,
+        ontologyId: input.ontology_id,
+        limit: input.limit
+      });
+
+      return createToolSuccessResult("ghostcrab_graph_rule_evaluations", {
+        workspace_id: response.workspace_id,
+        ontology_id: response.ontology_id,
+        backend: "mindbrain/graph/rule-evaluations",
+        evaluations: Array.isArray(response.evaluations)
+          ? response.evaluations
+          : []
+      });
+    } catch (error) {
+      return createToolErrorFromException(
+        "ghostcrab_graph_rule_evaluations",
+        error,
+        "backend_unavailable",
+        "MindBrain graph rule evaluations backend unavailable"
+      );
+    }
+  }
+};
+
+export const graphRuleEventsTool: ToolHandler = {
+  definition: {
+    name: "ghostcrab_graph_rule_events",
+    description:
+      "Read. List graph rule transition events emitted by ghostcrab_graph_rule_evaluations_run. Events represent state changes only, such as invalid→valid or valid→invalid, and include the idempotency key used for downstream workflow/action mapping.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        workspace_id: {
+          type: "string",
+          description:
+            "Workspace id to inspect. Defaults to the current MCP session workspace."
+        },
+        ontology_id: {
+          type: "string",
+          description:
+            "Optional ontology id. When omitted, MindBrain uses the workspace default ontology."
+        },
+        limit: {
+          type: "integer",
+          minimum: 1,
+          maximum: 500,
+          default: 200,
+          description: "Maximum event rows to return."
+        }
+      }
+    }
+  },
+  async handler(args, context) {
+    const input = GraphRuleEvaluationsInput.parse(args);
+    const workspaceId = input.workspace_id ?? context.session.workspace_id;
+    const config = resolveGhostcrabConfig();
+
+    try {
+      const response = await runStandaloneGraphRuleEvents({
+        mindbrainUrl: config.mindbrainUrl,
+        timeoutMs: config.mindbrainHttpTimeoutMs,
+        workspaceId,
+        ontologyId: input.ontology_id,
+        limit: input.limit
+      });
+
+      return createToolSuccessResult("ghostcrab_graph_rule_events", {
+        workspace_id: response.workspace_id,
+        ontology_id: response.ontology_id,
+        backend: "mindbrain/graph/rule-events",
+        events: Array.isArray(response.events) ? response.events : []
+      });
+    } catch (error) {
+      return createToolErrorFromException(
+        "ghostcrab_graph_rule_events",
+        error,
+        "backend_unavailable",
+        "MindBrain graph rule events backend unavailable"
+      );
+    }
+  }
+};
+
 registerTool(graphDiagnosticsTool);
 registerTool(graphGapRulesTool);
 registerTool(graphGapRulesImportTool);
 registerTool(graphGapRulesDeleteTool);
+registerTool(graphRuleEvaluationsRunTool);
+registerTool(graphRuleEvaluationsTool);
+registerTool(graphRuleEventsTool);

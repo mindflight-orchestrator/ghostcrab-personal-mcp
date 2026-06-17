@@ -7,7 +7,10 @@ import {
   graphDiagnosticsTool,
   graphGapRulesDeleteTool,
   graphGapRulesImportTool,
-  graphGapRulesTool
+  graphGapRulesTool,
+  graphRuleEvaluationsRunTool,
+  graphRuleEvaluationsTool,
+  graphRuleEventsTool
 } from "../../src/tools/dgraph/diagnostics.js";
 import { entityChunksTool } from "../../src/tools/dgraph/entity-chunks.js";
 import { graphPathTool } from "../../src/tools/dgraph/graph-path.js";
@@ -164,6 +167,95 @@ function mockDiagnosticsFetch(): ReturnType<typeof vi.fn> {
           status: 200,
           headers: { "content-type": "application/json" }
         });
+      }
+
+      if (url.includes("/api/mindbrain/graph/rule-evaluations/run")) {
+        expect(init?.method).toBe("POST");
+        const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+        expect(body).toMatchObject({
+          workspace_id: "immeuble-demo",
+          limit: 25,
+          create_remediation_actions: true
+        });
+        return new Response(
+          JSON.stringify({
+            kind: "graph_rule_evaluation_run",
+            workspace_id: "immeuble-demo",
+            ontology_id: "immeuble-demo::core",
+            evaluated: 2,
+            changed: 1,
+            events_created: 1,
+            invalid_count: 1,
+            remediation_actions_created: 0,
+            events: [
+              {
+                event_id: "event-1",
+                rule_id: "unit-one-building",
+                subject_entity_id: 7,
+                from_state: "unknown",
+                to_state: "invalid",
+                observed_count: 2,
+                expected_min: 1,
+                expected_max: 1,
+                idempotency_key: "key-1",
+                created_at_unix: 123
+              }
+            ]
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        );
+      }
+
+      if (url.includes("/api/mindbrain/graph/rule-evaluations")) {
+        expect(url).toContain("workspace_id=immeuble-demo");
+        expect(url).toContain("limit=25");
+        return new Response(
+          JSON.stringify({
+            kind: "graph_rule_evaluations",
+            workspace_id: "immeuble-demo",
+            ontology_id: "immeuble-demo::core",
+            evaluations: [
+              {
+                rule_id: "unit-one-building",
+                subject_entity_id: 7,
+                state: "invalid",
+                observed_count: 2,
+                expected_min: 1,
+                expected_max: 1,
+                last_evaluated_at_unix: 123,
+                updated_at_unix: 123
+              }
+            ]
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        );
+      }
+
+      if (url.includes("/api/mindbrain/graph/rule-events")) {
+        expect(url).toContain("workspace_id=immeuble-demo");
+        expect(url).toContain("limit=25");
+        return new Response(
+          JSON.stringify({
+            kind: "graph_rule_events",
+            workspace_id: "immeuble-demo",
+            ontology_id: "immeuble-demo::core",
+            events: [
+              {
+                event_id: "event-1",
+                rule_id: "unit-one-building",
+                subject_entity_id: 7,
+                from_state: "unknown",
+                to_state: "invalid",
+                observed_count: 2,
+                expected_min: 1,
+                expected_max: 1,
+                idempotency_key: "key-1",
+                created_at_unix: 123
+              }
+            ]
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        );
       }
 
       if (url.includes("/api/mindbrain/graph/gap-rules")) {
@@ -637,6 +729,75 @@ describe("dgraph tools", () => {
       deleted: 1
     });
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("runs and reads MindBrain graph rule evaluations and events", async () => {
+    const fetchMock = mockDiagnosticsFetch();
+    const context = createToolContext(createMockDatabase(vi.fn()));
+    context.session.workspace_id = "immeuble-demo";
+
+    const run = await graphRuleEvaluationsRunTool.handler(
+      {
+        limit: 25,
+        create_remediation_actions: true
+      },
+      context
+    );
+
+    expect(readStructured(run)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_graph_rule_evaluations_run",
+      backend: "mindbrain/graph/rule-evaluations/run",
+      workspace_id: "immeuble-demo",
+      ontology_id: "immeuble-demo::core",
+      evaluated: 2,
+      changed: 1,
+      events_created: 1,
+      invalid_count: 1,
+      remediation_actions_created: 0,
+      events: [
+        expect.objectContaining({
+          rule_id: "unit-one-building",
+          from_state: "unknown",
+          to_state: "invalid"
+        })
+      ]
+    });
+
+    const evaluations = await graphRuleEvaluationsTool.handler(
+      { workspace_id: "immeuble-demo", limit: 25 },
+      context
+    );
+    expect(readStructured(evaluations)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_graph_rule_evaluations",
+      backend: "mindbrain/graph/rule-evaluations",
+      workspace_id: "immeuble-demo",
+      evaluations: [
+        expect.objectContaining({
+          rule_id: "unit-one-building",
+          state: "invalid"
+        })
+      ]
+    });
+
+    const events = await graphRuleEventsTool.handler(
+      { workspace_id: "immeuble-demo", limit: 25 },
+      context
+    );
+    expect(readStructured(events)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_graph_rule_events",
+      backend: "mindbrain/graph/rule-events",
+      workspace_id: "immeuble-demo",
+      events: [
+        expect.objectContaining({
+          event_id: "event-1",
+          idempotency_key: "key-1"
+        })
+      ]
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 
   it("returns backend_unavailable when MindBrain graph-search endpoint is offline", async () => {

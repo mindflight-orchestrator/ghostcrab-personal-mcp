@@ -97,6 +97,9 @@ export const statusTool: ToolHandler = {
       graph_gap_rules: false,
       graph_gap_rules_import: false,
       graph_gap_rules_delete: false,
+      graph_rule_evaluations: false,
+      graph_rule_evaluations_run: false,
+      graph_rule_events: false,
       pragma_pack: sqliteReadiness.pragma.pack,
       mb_ontology_available: sqliteReadiness.ontology.available,
       mb_ontology: {
@@ -138,7 +141,17 @@ export const statusTool: ToolHandler = {
         capabilityProbe.capabilities.features.graph_gap_rules_import === true,
       graph_gap_rules_delete:
         capabilityProbe.ok === true &&
-        capabilityProbe.capabilities.features.graph_gap_rules_delete === true
+        capabilityProbe.capabilities.features.graph_gap_rules_delete === true,
+      graph_rule_evaluations:
+        capabilityProbe.ok === true &&
+        capabilityProbe.capabilities.features.graph_rule_evaluations === true,
+      graph_rule_evaluations_run:
+        capabilityProbe.ok === true &&
+        capabilityProbe.capabilities.features.graph_rule_evaluations_run ===
+          true,
+      graph_rule_events:
+        capabilityProbe.ok === true &&
+        capabilityProbe.capabilities.features.graph_rule_events === true
     };
 
     const directives: string[] = [...buildWorkspaceContextDirectives()];

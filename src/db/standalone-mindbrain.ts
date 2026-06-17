@@ -424,6 +424,68 @@ export interface StandaloneGraphGapRulesDeleteResponse {
   deleted: number;
 }
 
+export interface StandaloneGraphRuleEvaluationsParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  workspaceId: string;
+  ontologyId?: string;
+  limit?: number;
+}
+
+export interface StandaloneGraphRuleEvaluationsRunParams extends StandaloneGraphRuleEvaluationsParams {
+  createRemediationActions?: boolean;
+}
+
+export interface StandaloneGraphRuleEvent {
+  event_id: string;
+  rule_id: string;
+  subject_entity_id: number;
+  from_state: "unknown" | "valid" | "invalid" | string;
+  to_state: "valid" | "invalid" | string;
+  observed_count: number;
+  expected_min: number;
+  expected_max?: number | null;
+  idempotency_key: string;
+  created_at_unix: number;
+}
+
+export interface StandaloneGraphRuleEvaluation {
+  rule_id: string;
+  subject_entity_id: number;
+  state: "valid" | "invalid" | string;
+  observed_count: number;
+  expected_min: number;
+  expected_max?: number | null;
+  last_evaluated_at_unix: number;
+  updated_at_unix: number;
+}
+
+export interface StandaloneGraphRuleEvaluationRunResponse {
+  kind: "graph_rule_evaluation_run";
+  workspace_id: string;
+  ontology_id: string;
+  evaluated: number;
+  changed: number;
+  events_created: number;
+  invalid_count: number;
+  remediation_actions_created: number;
+  events: StandaloneGraphRuleEvent[];
+}
+
+export interface StandaloneGraphRuleEvaluationsResponse {
+  kind: "graph_rule_evaluations";
+  workspace_id: string;
+  ontology_id: string;
+  evaluations: StandaloneGraphRuleEvaluation[];
+}
+
+export interface StandaloneGraphRuleEventsResponse {
+  kind: "graph_rule_events";
+  workspace_id: string;
+  ontology_id: string;
+  events: StandaloneGraphRuleEvent[];
+}
+
 export interface StandaloneQualityConvergenceRunParams {
   mindbrainUrl: string;
   timeoutMs?: number;
@@ -524,6 +586,9 @@ export interface MindbrainCapabilitiesResponse {
     graph_gap_rules?: boolean;
     graph_gap_rules_import?: boolean;
     graph_gap_rules_delete?: boolean;
+    graph_rule_evaluations?: boolean;
+    graph_rule_evaluations_run?: boolean;
+    graph_rule_events?: boolean;
     quality_convergence?: boolean;
     quality_remediation_actions?: boolean;
     [key: string]: boolean | undefined;
@@ -1010,6 +1075,71 @@ export async function runStandaloneGraphGapRulesDelete(
       body: JSON.stringify(params.payload),
       headers: { "content-type": "application/json" }
     },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneGraphRuleEvaluationsRun(
+  params: StandaloneGraphRuleEvaluationsRunParams
+): Promise<StandaloneGraphRuleEvaluationRunResponse> {
+  const url = new URL(
+    "/api/mindbrain/graph/rule-evaluations/run",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  return await fetchJson<StandaloneGraphRuleEvaluationRunResponse>(
+    url,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        workspace_id: params.workspaceId,
+        ontology_id: params.ontologyId,
+        limit: params.limit,
+        create_remediation_actions: params.createRemediationActions ?? true
+      }),
+      headers: { "content-type": "application/json" }
+    },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneGraphRuleEvaluations(
+  params: StandaloneGraphRuleEvaluationsParams
+): Promise<StandaloneGraphRuleEvaluationsResponse> {
+  const url = new URL(
+    "/api/mindbrain/graph/rule-evaluations",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  url.searchParams.set("workspace_id", params.workspaceId);
+  if (params.ontologyId) {
+    url.searchParams.set("ontology_id", params.ontologyId);
+  }
+  if (params.limit !== undefined) {
+    url.searchParams.set("limit", String(params.limit));
+  }
+  return await fetchJson<StandaloneGraphRuleEvaluationsResponse>(
+    url,
+    { method: "GET" },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneGraphRuleEvents(
+  params: StandaloneGraphRuleEvaluationsParams
+): Promise<StandaloneGraphRuleEventsResponse> {
+  const url = new URL(
+    "/api/mindbrain/graph/rule-events",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  url.searchParams.set("workspace_id", params.workspaceId);
+  if (params.ontologyId) {
+    url.searchParams.set("ontology_id", params.ontologyId);
+  }
+  if (params.limit !== undefined) {
+    url.searchParams.set("limit", String(params.limit));
+  }
+  return await fetchJson<StandaloneGraphRuleEventsResponse>(
+    url,
+    { method: "GET" },
     params.timeoutMs
   );
 }

@@ -192,6 +192,11 @@ After updating to a new GhostCrab release, run the upgrade helper to migrate all
 npx gcp brain upgrade
 ```
 
+**v0.6.0 database break:** v0.6.0 makes answer artifacts workspace-owned. Older
+Personal SQLite databases may need a one-time preparation step before upgrade if
+they contain legacy `analysis_plan` rows with `workspace_id = NULL`. Test on a
+copy first and follow [the special v0.6 migration runbook](docs/setup/special_migration_v0.6.md).
+
 To target a specific database:
 
 ```bash

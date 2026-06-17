@@ -204,6 +204,7 @@ export function classifyToolAccess(name: string): ToolAccess {
 
   if (
     name === "ghostcrab_quality_convergence_run" ||
+    name === "ghostcrab_graph_rule_evaluations_run" ||
     name === "ghostcrab_quality_remediation_decide"
   ) {
     return "write";

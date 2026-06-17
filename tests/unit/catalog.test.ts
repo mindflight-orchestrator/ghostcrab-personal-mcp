@@ -82,6 +82,7 @@ describe("tool catalog", () => {
       "ghostcrab_graph_reindex",
       "ghostcrab_collection_reindex",
       "ghostcrab_graph_gap_rules_delete",
+      "ghostcrab_graph_rule_evaluations_run",
       "ghostcrab_workspace_delete",
       "ghostcrab_workspace_reset",
       "ghostcrab_live_refresh"
