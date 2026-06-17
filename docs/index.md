@@ -45,6 +45,7 @@ Single hub: [GhostCrab MCP — explications (architecture + lab)](explanation/RE
 - [Command reference](reference/gcp-commands.md) — job-to-be-done overview for `gcp brain`, `gcp agent`, `gcp env`, and related aliases.
 - [MCP tools reference](reference/mcp-tools.md) — generated API reference for the registered `ghostcrab_*` MCP tools.
 - [Operator catalog](reference/operator-catalog.md) — generated impact matrix for `gcp` commands and MCP tools.
+- [MindBrain HTTP API used by GhostCrab](reference/mindbrain-http-api.md) — backend routes consumed by MCP wrappers.
 - [API reference blindspots](reference/api-reference-blindspots.md) — audit notes for coverage limits, ignored/stale docs, and non-contract surfaces.
 - [OpenAPI specification](reference/openapi.yaml) — telemetry HTTP contract only; this is not the MCP tool API.
 

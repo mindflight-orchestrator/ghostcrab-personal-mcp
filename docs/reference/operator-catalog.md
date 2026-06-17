@@ -93,11 +93,13 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 
 ---
 
-## B — MCP tools (64 registered)
+## B — MCP tools (72 registered)
 
 | Tool | Basic | Subsystem | Access | Tables / impact |
 |------|-------|-----------|--------|-----------------|
 | `ghostcrab_artifact_get` | no | pragma | read | mindbrain_answer_artifacts |
+| `ghostcrab_business_query_answer` | no | facets | read | agent_facts (+ facet_tables FTS when indexed) |
+| `ghostcrab_business_query_register_proposal` | no | facets | write | agent_facts (+ facet_tables FTS when indexed) |
 | `ghostcrab_collection_facet_search` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_collection_reindex` | no | graph | write | documents_raw, search_fts, graph |
 | `ghostcrab_combined_search` | yes | facets | read | agent_facts (+ facet_tables FTS when indexed) |
@@ -118,6 +120,9 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | `ghostcrab_graph_gap_rules_import` | no | graph | write | gap_rules store |
 | `ghostcrab_graph_path` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_graph_reindex` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
+| `ghostcrab_graph_rule_evaluations` | no | graph | read | graph_rule_evaluations |
+| `ghostcrab_graph_rule_evaluations_run` | no | graph | write | graph_rule_evaluations, graph_rule_events; optional quality_remediation_action |
+| `ghostcrab_graph_rule_events` | no | graph | read | graph_rule_events |
 | `ghostcrab_graph_search` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_graph_subgraph` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_learn` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
@@ -130,6 +135,9 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | `ghostcrab_modeling_guidance` | yes | pragma | guide | — (diagnostic) |
 | `ghostcrab_onboarding_schemas` | no | facets | read | schema registry (agent_facts shapes; not LinkML ontology_*) |
 | `ghostcrab_ontology_import` | no | ontology | write | ontology_* native tables; optional graph materialization for N-Triples |
+| `ghostcrab_ontology_list` | no | ontology | read | ontology_* |
+| `ghostcrab_ontology_reconciliation_apply` | no | ontology | write | ontology_* |
+| `ghostcrab_ontology_reconciliation_report` | no | ontology | read | ontology_* |
 | `ghostcrab_pack` | yes | pragma | read | projections + agent_facts |
 | `ghostcrab_project` | yes | pragma | model | projections |
 | `ghostcrab_projection_get` | no | pragma | model | graph_entity (ProjectionResult) |

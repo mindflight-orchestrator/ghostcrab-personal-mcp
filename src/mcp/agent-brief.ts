@@ -151,7 +151,7 @@ For local ingest (email, messages, calendar, search results): skip \`ghostcrab_s
 ## Gap handling
 
 - If \`ghostcrab_status\` or \`ghostcrab_coverage\` shows gaps, continue only with disclosure when acceptable; otherwise escalate with the specific gap.
-- For graph instance validation (closed-world business rules), use \`ghostcrab_tool_search\` to find \`ghostcrab_graph_gap_rules_import\`, \`ghostcrab_graph_gap_rules\`, \`ghostcrab_graph_diagnostics\`, and \`ghostcrab_graph_gap_rules_delete\`. Workflow: import rules → list rules → run diagnostics. \`ghostcrab_coverage\` checks ontology instantiation, not instance invariants.
+- For graph instance validation (closed-world business rules), use \`ghostcrab_tool_search\` to find \`ghostcrab_graph_gap_rules_import\`, \`ghostcrab_graph_gap_rules\`, \`ghostcrab_graph_diagnostics\`, \`ghostcrab_graph_rule_evaluations_run\`, \`ghostcrab_graph_rule_evaluations\`, \`ghostcrab_graph_rule_events\`, and \`ghostcrab_graph_gap_rules_delete\`. Workflow: import rules → list rules → run diagnostics → run rule evaluations → inspect current states/events. \`ghostcrab_coverage\` checks ontology instantiation, not instance invariants.
 - For local tasks, do not import unrelated global gaps unless they affect the answer.
 
 ${buildImportPipelinesMarkdownSection()}`;

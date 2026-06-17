@@ -255,13 +255,13 @@ Use `--skip-config-cleanup` on step 2 when the SQLite file belongs to a project-
 
 ## Supported environments
 
-| Environment                                | Setup command                    | Skills only                         | Reference                              |
-| ------------------------------------------ | -------------------------------- | ----------------------------------- | -------------------------------------- |
-| Cursor                                     | `gcp brain setup cursor --force` | `gcp brain setup_skills cursor`     | [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) |
-| Claude Code                                | `gcp brain setup claude`         | `gcp brain setup_skills claude`     | [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) |
-| Codex                                      | `gcp brain setup codex`          | `gcp brain setup_skills codex`      | [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) |
-| OpenClaw, Gemini CLI, Hermes-style, custom | `gcp brain setup generic`        | `gcp brain setup_skills generic`    | [installations/](installations/)       |
-| mindBot (orchestration)                    | —                                | —                                   | `ghostcrab-skills/`                    |
+| Environment                                | Setup command                    | Skills only                      | Reference                                                            |
+| ------------------------------------------ | -------------------------------- | -------------------------------- | -------------------------------------------------------------------- |
+| Cursor                                     | `gcp brain setup cursor --force` | `gcp brain setup_skills cursor`  | [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) |
+| Claude Code                                | `gcp brain setup claude`         | `gcp brain setup_skills claude`  | [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) |
+| Codex                                      | `gcp brain setup codex`          | `gcp brain setup_skills codex`   | [installations/gcp-brain-setup.md](installations/gcp-brain-setup.md) |
+| OpenClaw, Gemini CLI, Hermes-style, custom | `gcp brain setup generic`        | `gcp brain setup_skills generic` | [installations/](installations/)                                     |
+| mindBot (orchestration)                    | —                                | —                                | `ghostcrab-skills/`                                                  |
 
 ---
 
@@ -285,11 +285,11 @@ gcp brain ontology --help
 
 ### Import pipelines
 
-| Pipeline | CLI | Full runbook (installed package) |
-| -------- | --- | -------------------------------- |
-| **Ontology** (LinkML YAML, OWL/RDF N-Triples) | `ghostcrab_ontology_import` (MCP) or `gcp brain ontology` (CLI) | `docs/explanation/ontology/` |
-| **Tabular** (CSV, JSON, YAML, XLSX, TOON) | `gcp brain structured-import` | `gcp brain docs structured` |
-| **Documents** (PDF, HTML, MD corpus) | `gcp brain document` | `gcp brain docs document` |
+| Pipeline                                      | CLI                                                             | Full runbook (installed package) |
+| --------------------------------------------- | --------------------------------------------------------------- | -------------------------------- |
+| **Ontology** (LinkML YAML, OWL/RDF N-Triples) | `ghostcrab_ontology_import` (MCP) or `gcp brain ontology` (CLI) | `docs/explanation/ontology/`     |
+| **Tabular** (CSV, JSON, YAML, XLSX, TOON)     | `gcp brain structured-import`                                   | `gcp brain docs structured`      |
+| **Documents** (PDF, HTML, MD corpus)          | `gcp brain document`                                            | `gcp brain docs document`        |
 
 Typical tabular order: `register-semantics` → `apply` (or Phase D: `ddl-propose` → `ddl-execute` → `load-ws` → `apply` with mapping `data_plane=ws`) → `reindex --scope all`.
 
@@ -333,7 +333,7 @@ Use Tier 1 models for first workspace setup or fuzzy onboarding. Lighter models 
 
 ## MCP tool surface
 
-The MCP `tools/list` surface exposes the **full catalog (63 tools in v0.5.2)** so every tool is directly callable on any MCP client (Cursor, Codex, Claude Code, generic). **13 tools** are flagged as recommended defaults (status, search/count, combined search, remember/upsert, schema get/list/inspect, pack/project, modeling guidance, tool discovery); the other **50** are extended (workspace, graph, loadout, DDL, quality, ontology, and more). Inspect counts and metadata through:
+The MCP `tools/list` surface exposes the **full catalog (72 tools in v0.6.0)** so every tool is directly callable on any MCP client (Cursor, Codex, Claude Code, generic). **13 tools** are flagged as recommended defaults (status, search/count, combined search, remember/upsert, schema get/list/inspect, pack/project, modeling guidance, tool discovery); the other **59** are extended (workspace, graph, loadout, DDL, quality, ontology, and more). Inspect counts and metadata through:
 
 ```bash
 gcp tools list
@@ -343,14 +343,14 @@ gcp --info
 
 Agents can also discover extended tools at runtime with `ghostcrab_tool_search`.
 
-| Group | Examples |
-| ----- | -------- |
-| **Recommended defaults** | `ghostcrab_status`, `ghostcrab_search`, `ghostcrab_count`, `ghostcrab_combined_search`, `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_schema_get`, `ghostcrab_schema_list`, `ghostcrab_schema_inspect`, `ghostcrab_pack`, `ghostcrab_project`, `ghostcrab_modeling_guidance`, `ghostcrab_tool_search` |
-| **Facets / Search (extended)** | `ghostcrab_csearch`, `ghostcrab_facet_catalog`, `ghostcrab_facet_register`, `ghostcrab_collection_facet_search`, `ghostcrab_entity_chunks` |
-| **Graph (extended)** | `ghostcrab_graph_search`, `ghostcrab_graph_subgraph`, `ghostcrab_graph_path`, `ghostcrab_traverse`, `ghostcrab_graph_reindex`, `ghostcrab_graph_gap_rules_import`, `ghostcrab_learn` |
-| **Projections / Artifacts (extended)** | `ghostcrab_projection_get`, `ghostcrab_projections_list`, `ghostcrab_artifact_get`, `ghostcrab_live_refresh` |
-| **Schema / Workspace (extended)** | `ghostcrab_schema_register`, `ghostcrab_schema_sync_preview`, `ghostcrab_workspace_list`, `ghostcrab_workspace_create`, `ghostcrab_workspace_use`, `ghostcrab_workspace_reset`, `ghostcrab_ddl_propose` |
-| **Loadout / Ontology / Quality (extended)** | `ghostcrab_loadout_apply`, `ghostcrab_onboarding_schemas`, `ghostcrab_ontology_import`, `ghostcrab_quality_convergence_run`, `ghostcrab_coverage` |
+| Group                                       | Examples                                                                                                                                                                                                                                                                                                     |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Recommended defaults**                    | `ghostcrab_status`, `ghostcrab_search`, `ghostcrab_count`, `ghostcrab_combined_search`, `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_schema_get`, `ghostcrab_schema_list`, `ghostcrab_schema_inspect`, `ghostcrab_pack`, `ghostcrab_project`, `ghostcrab_modeling_guidance`, `ghostcrab_tool_search` |
+| **Facets / Search (extended)**              | `ghostcrab_csearch`, `ghostcrab_facet_catalog`, `ghostcrab_facet_register`, `ghostcrab_collection_facet_search`, `ghostcrab_entity_chunks`                                                                                                                                                                   |
+| **Graph (extended)**                        | `ghostcrab_graph_search`, `ghostcrab_graph_subgraph`, `ghostcrab_graph_path`, `ghostcrab_traverse`, `ghostcrab_graph_reindex`, `ghostcrab_graph_gap_rules_import`, `ghostcrab_graph_rule_evaluations_run`, `ghostcrab_graph_rule_evaluations`, `ghostcrab_graph_rule_events`, `ghostcrab_learn`              |
+| **Projections / Artifacts (extended)**      | `ghostcrab_projection_get`, `ghostcrab_projections_list`, `ghostcrab_artifact_get`, `ghostcrab_live_refresh`                                                                                                                                                                                                 |
+| **Schema / Workspace (extended)**           | `ghostcrab_schema_register`, `ghostcrab_schema_sync_preview`, `ghostcrab_workspace_list`, `ghostcrab_workspace_create`, `ghostcrab_workspace_use`, `ghostcrab_workspace_reset`, `ghostcrab_ddl_propose`                                                                                                      |
+| **Loadout / Ontology / Quality (extended)** | `ghostcrab_loadout_apply`, `ghostcrab_onboarding_schemas`, `ghostcrab_ontology_import`, `ghostcrab_quality_convergence_run`, `ghostcrab_coverage`                                                                                                                                                            |
 
 Full references: `docs/reference/mcp-tools.md` and `docs/reference/operator-catalog.md`.
 
@@ -383,22 +383,22 @@ npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up --help
 
 `.env` is created from `.env.example` during postinstall. Key overrides:
 
-| Variable                 | Default                   | Purpose                         |
-| ------------------------ | ------------------------- | ------------------------------- |
+| Variable                 | Default                                   | Purpose                         |
+| ------------------------ | ----------------------------------------- | ------------------------------- |
 | `GHOSTCRAB_SQLITE_PATH`  | `~/.ghostcrab/databases/ghostcrab.sqlite` | SQLite file location            |
-| `GHOSTCRAB_BACKEND_ADDR` | `:8091`                   | mindBrain HTTP listen address   |
-| `MCP_TELEMETRY`          | `1`                       | Set to `0` to disable telemetry |
+| `GHOSTCRAB_BACKEND_ADDR` | `:8091`                                   | mindBrain HTTP listen address   |
+| `MCP_TELEMETRY`          | `1`                                       | Set to `0` to disable telemetry |
 
 ### Error recovery
 
-| Error                                      | Cause                                 | Fix                                                                                                   |
-| ------------------------------------------ | ------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `spawn gcp ENOENT`                         | Stale or relative-path mcp.json entry | `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup <host> --force`                                                                  |
-| MCP registered but skills missing         | Partial setup (MCP failed before decoupling fix, or manual MCP edit) | `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup_skills <host>` — installs skills + permissions without touching MCP |
-| `npm error could not determine executable` | Missing postinstall run               | `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup <host> --force`                                                                  |
-| `npm error process terminated` / `SIGTERM` on `npx gcp` | Bare `npx gcp` from git clone, npm link, or stale `node_modules` | Use the explicit `--package=@mindflight/ghostcrab-personal-mcp@latest` form above; run `gcp path doctor`; reinstall global from registry (`npm uninstall -g @mindflight/ghostcrab-personal-mcp && npm install -g @mindflight/ghostcrab-personal-mcp@latest`) |
-| `Ignored build scripts` (pnpm)             | pnpm 10+ security default             | `pnpm add --allow-build=@mindflight/ghostcrab-personal-mcp @mindflight/ghostcrab-personal-mcp@latest` |
-| Native binary missing                      | Platform prebuild not pulled          | Add tarball from local build or beta zip — see `INSTALL.md`                                           |
+| Error                                                   | Cause                                                                | Fix                                                                                                                                                                                                                                                          |
+| ------------------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `spawn gcp ENOENT`                                      | Stale or relative-path mcp.json entry                                | `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup <host> --force`                                                                                                                                                                  |
+| MCP registered but skills missing                       | Partial setup (MCP failed before decoupling fix, or manual MCP edit) | `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup_skills <host>` — installs skills + permissions without touching MCP                                                                                                              |
+| `npm error could not determine executable`              | Missing postinstall run                                              | `npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain setup <host> --force`                                                                                                                                                                  |
+| `npm error process terminated` / `SIGTERM` on `npx gcp` | Bare `npx gcp` from git clone, npm link, or stale `node_modules`     | Use the explicit `--package=@mindflight/ghostcrab-personal-mcp@latest` form above; run `gcp path doctor`; reinstall global from registry (`npm uninstall -g @mindflight/ghostcrab-personal-mcp && npm install -g @mindflight/ghostcrab-personal-mcp@latest`) |
+| `Ignored build scripts` (pnpm)                          | pnpm 10+ security default                                            | `pnpm add --allow-build=@mindflight/ghostcrab-personal-mcp @mindflight/ghostcrab-personal-mcp@latest`                                                                                                                                                        |
+| Native binary missing                                   | Platform prebuild not pulled                                         | Add tarball from local build or beta zip — see `INSTALL.md`                                                                                                                                                                                                  |
 
 ### Native binary
 
@@ -430,7 +430,7 @@ Upstream: [github.com/mindflight-orchestrator/mindbrain](https://github.com/mind
 - `installations/` — Agent setup templates
 - `docs/dev/INTERNALS.md` — Repository layout, packaging, Docker dev stack
 
-***
+---
 
 ## A starter Kit
 
