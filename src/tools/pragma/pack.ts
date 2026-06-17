@@ -11,6 +11,10 @@ import {
 import { FACETS_SEARCH_TABLE_ID } from "../../db/fact-store.js";
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import {
+  buildFtsMatchExpression,
+  ensureSearchFtsCaughtUp
+} from "../../db/facets-fts-search.js";
+import {
   createToolSuccessResult,
   registerTool,
   type ToolHandler
@@ -194,7 +198,7 @@ export const packTool: ToolHandler = {
     }
 
     let factRows: FactRow[] = [];
-    const factsModeApplied = "mindbrain_hybrid";
+    let factsModeApplied = "mindbrain_hybrid";
 
     try {
       const searchResponse = await runStandaloneGhostcrabSearch({
@@ -211,13 +215,27 @@ export const packTool: ToolHandler = {
         factRows = await fetchFacetsByDocIds(
           context.database,
           searchResponse.matches,
+          effectiveWorkspaceId,
           effectiveSchemaId
         );
       }
     } catch (error) {
       notes.push(
-        `Pack facts: ghostcrab/search failed (${error instanceof Error ? error.message : "unknown error"}); no facts added.`
+        `Pack facts: ghostcrab/search failed (${error instanceof Error ? error.message : "unknown error"}); falling back to local SQL/FTS.`
       );
+      factRows = await fetchFacetsByLocalFts(
+        context.database,
+        effectiveWorkspaceId,
+        input.query,
+        effectiveSchemaId,
+        5
+      );
+      if (factRows.length > 0) {
+        factsModeApplied = "sql_fts";
+        notes.push(
+          `Pack facts: local SQL/FTS fallback returned ${factRows.length} workspace-scoped fact(s).`
+        );
+      }
     }
 
     const hasBlockingConstraint = packRows.some(
@@ -288,8 +306,10 @@ export const packTool: ToolHandler = {
 async function fetchFacetsByDocIds(
   database: import("../../db/client.js").Queryable,
   matches: Array<{ doc_id: number; combined_score: number }>,
+  workspaceId: string,
   schemaId: string | undefined
 ): Promise<FactRow[]> {
+  if (matches.length === 0) return [];
   const docIds = matches.map((m) => m.doc_id);
   const scoreByDocId = new Map(
     matches.map((m) => [m.doc_id, m.combined_score])
@@ -297,9 +317,10 @@ async function fetchFacetsByDocIds(
 
   const whereClauses = [
     `doc_id IN (${docIds.map(() => "?").join(", ")})`,
+    "workspace_id = ?",
     "(valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))"
   ];
-  const sqlParams: unknown[] = [...docIds];
+  const sqlParams: unknown[] = [...docIds, workspaceId];
 
   if (schemaId) {
     whereClauses.push("schema_id = ?");
@@ -320,6 +341,63 @@ async function fetchFacetsByDocIds(
       id: row.id,
       content: row.content,
       score: scoreByDocId.get(Number(row.doc_id)) ?? 0
+    }))
+    .sort((a, b) => b.score - a.score);
+}
+
+async function fetchFacetsByLocalFts(
+  database: import("../../db/client.js").Queryable,
+  workspaceId: string,
+  query: string,
+  schemaId: string | undefined,
+  limit: number
+): Promise<FactRow[]> {
+  const ftsExpression = buildFtsMatchExpression(query);
+  if (!ftsExpression) return [];
+
+  await ensureSearchFtsCaughtUp(database, FACETS_SEARCH_TABLE_ID);
+
+  const whereClauses = [
+    "f.workspace_id = ?",
+    "(f.valid_until_unix IS NULL OR f.valid_until_unix > strftime('%s','now'))"
+  ];
+  const sqlParams: unknown[] = [
+    FACETS_SEARCH_TABLE_ID,
+    ftsExpression,
+    workspaceId
+  ];
+
+  if (schemaId) {
+    whereClauses.push("f.schema_id = ?");
+    sqlParams.push(schemaId);
+  }
+  sqlParams.push(limit);
+
+  const rows = await database.query<{
+    id: string;
+    content: string;
+    score: number;
+  }>(
+    `
+      SELECT f.id, f.content, -bm25(search_fts) AS score
+      FROM mb_pragma.agent_facts AS f
+      JOIN mb_pragma.search_fts_docs AS sd
+        ON sd.table_id = ? AND sd.doc_id = f.doc_id
+      JOIN mb_pragma.search_fts
+        ON search_fts.rowid = sd.fts_rowid
+      WHERE search_fts MATCH ?
+        AND ${whereClauses.join(" AND ")}
+      ORDER BY bm25(search_fts)
+      LIMIT ?
+    `,
+    sqlParams
+  );
+
+  return rows
+    .map((row) => ({
+      id: row.id,
+      content: row.content,
+      score: Number(row.score)
     }))
     .sort((a, b) => b.score - a.score);
 }

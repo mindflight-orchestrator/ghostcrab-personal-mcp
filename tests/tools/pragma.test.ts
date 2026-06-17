@@ -170,6 +170,140 @@ describe("pragma tools", () => {
     expect(searchBody.workspace_id).toBe("default");
   });
 
+  it("falls back to workspace-scoped local FTS facts when native ghostcrab search fails", async () => {
+    const fetchMock = vi.fn(async (url: string | URL) => {
+      const path =
+        typeof url === "string"
+          ? url
+          : ((url as URL).pathname ?? url.toString());
+
+      if (String(path).includes("pack-projections")) {
+        return new Response(JSON.stringify({ rows: [] }), {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        });
+      }
+
+      if (String(path).includes("ghostcrab/search")) {
+        return new Response("bad request", { status: 400 });
+      }
+
+      return new Response("{}", {
+        status: 200,
+        headers: { "content-type": "application/json" }
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const query = vi.fn<DatabaseClient["query"]>(async (sql, params) => {
+      if (
+        sql.includes("FROM mb_pragma.agent_facts AS f") &&
+        sql.includes("JOIN mb_pragma.search_fts_docs")
+      ) {
+        expect(params).toEqual([
+          1,
+          '"Aurora"',
+          "serenity-v4",
+          "serenity",
+          5
+        ]);
+        return [
+          {
+            id: "fact-serenity",
+            content: "Aurora has a complete practical situation.",
+            score: 1.25
+          }
+        ];
+      }
+      return [];
+    });
+    const context = createToolContext(createMockDatabase(query));
+    context.session.workspace_id = "serenity-v4";
+    context.session.schema_id = "serenity";
+
+    const result = await packTool.handler(
+      {
+        query: "Aurora",
+        agent_id: "agent:self"
+      },
+      context
+    );
+
+    const body = readStructured(result);
+    expect(body.facts_mode_applied).toBe("sql_fts");
+    expect(body.pack_text).toContain("FACT: Aurora has a complete practical situation.");
+    expect(body.notes).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("local SQL/FTS fallback returned 1")
+      ])
+    );
+  });
+
+  it("keeps native ghostcrab search fact hydration workspace scoped", async () => {
+    const fetchMock = vi.fn(async (url: string | URL) => {
+      const path =
+        typeof url === "string"
+          ? url
+          : ((url as URL).pathname ?? url.toString());
+
+      if (String(path).includes("pack-projections")) {
+        return new Response(JSON.stringify({ rows: [] }), {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        });
+      }
+
+      if (String(path).includes("ghostcrab/search")) {
+        return new Response(
+          JSON.stringify({
+            workspace_id: "serenity-v4",
+            query: "Aurora",
+            returned: 2,
+            matches: [
+              { doc_id: 7, bm25_score: 1, vector_score: 0, combined_score: 1 },
+              { doc_id: 9, bm25_score: 0.8, vector_score: 0, combined_score: 0.8 }
+            ]
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        );
+      }
+
+      return new Response("{}", {
+        status: 200,
+        headers: { "content-type": "application/json" }
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const query = vi.fn<DatabaseClient["query"]>(async (sql, params) => {
+      if (sql.includes("FROM mb_pragma.agent_facts") && sql.includes("doc_id IN")) {
+        expect(params).toEqual([7, 9, "serenity-v4"]);
+        return [
+          {
+            id: "fact-serenity",
+            content: "Aurora belongs to the Serenity workspace.",
+            doc_id: 7
+          }
+        ];
+      }
+      return [];
+    });
+    const context = createToolContext(createMockDatabase(query));
+    context.session.workspace_id = "serenity-v4";
+
+    const result = await packTool.handler(
+      {
+        query: "Aurora",
+        agent_id: "agent:self"
+      },
+      context
+    );
+
+    const body = readStructured(result);
+    expect(body.facts_mode_applied).toBe("mindbrain_hybrid");
+    expect(body.pack_text).toContain("FACT: Aurora belongs to the Serenity workspace.");
+  });
+
   it("rejects artifact_get when the returned artifact belongs to another workspace", async () => {
     vi.stubGlobal(
       "fetch",
