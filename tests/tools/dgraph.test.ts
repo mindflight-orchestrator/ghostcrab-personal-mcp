@@ -310,6 +310,50 @@ describe("dgraph tools", () => {
     expect(subgraphProperties).toHaveProperty("workspace_id");
   });
 
+  it("counts backend node events in graph-subgraph results", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      expect(url).toContain("/api/mindbrain/graph/subgraph");
+      expect(url).toContain("workspace_id=serenity-v4");
+      return new Response(
+        JSON.stringify([
+          { seq: 0, kind: "seed_node", payload: { entity: { entity_id: 33 } } },
+          { seq: 1, kind: "node", payload: { entity: { entity_id: 85 } } },
+          { seq: 2, kind: "edge", payload: { relation: { relation_id: 520 } } },
+          {
+            seq: 3,
+            kind: "done",
+            payload: { kind: "subgraph", node_count: 2, edge_count: 1 }
+          }
+        ]),
+        { status: 200, headers: { "content-type": "application/json" } }
+      );
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const database = createMockDatabase(vi.fn());
+    const context = createToolContext(database);
+    context.session.workspace_id = "default";
+
+    const result = await graphSubgraphTool.handler(
+      {
+        workspace_id: "serenity-v4",
+        seed_ids: [33],
+        hops: 1,
+        edge_types: ["ouvrir"]
+      },
+      context
+    );
+
+    expect(readStructured(result)).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_graph_subgraph",
+      workspace_id: "serenity-v4",
+      node_count: 2,
+      edge_count: 1
+    });
+  });
+
   it("passes workspace_id to graph-path backend", async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);

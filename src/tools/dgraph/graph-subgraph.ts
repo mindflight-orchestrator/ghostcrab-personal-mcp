@@ -80,7 +80,10 @@ export const graphSubgraphTool: ToolHandler = {
     }
 
     const nodeCount = events.filter(
-      (e) => e.kind === "seed_node" || e.kind === "neighbor_node"
+      (e) =>
+        e.kind === "seed_node" ||
+        e.kind === "neighbor_node" ||
+        e.kind === "node"
     ).length;
     const edgeCount = events.filter((e) => e.kind === "edge").length;
 

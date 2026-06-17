@@ -348,7 +348,7 @@ describe("facet tools", () => {
         mode: "hybrid",
         limit: 5
       },
-      createToolContext(database, { embeddingsMode: "fake" })
+      createToolContext(database, { embeddingsMode: "disabled" })
     );
 
     const facetsCalls = query.mock.calls.filter((call) =>
@@ -365,9 +365,9 @@ describe("facet tools", () => {
       mode_applied: "keyword_sql",
       semantic_available: false,
       embedding_runtime: expect.objectContaining({
-        mode: "fake",
-        vectorSearchReady: true,
-        writeEmbeddingsEnabled: true
+        mode: "disabled",
+        vectorSearchReady: false,
+        writeEmbeddingsEnabled: false
       })
     });
   });
