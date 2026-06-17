@@ -48,6 +48,20 @@ describe("tool manifest", () => {
     }
   });
 
+  it("keeps combined server and tool names within client limits", () => {
+    const serverName = "ghostcrab-personal-mcp";
+    const separator = ":";
+    const maxCombinedNameLength = 60;
+
+    for (const name of EXPECTED_TOOL_NAMES) {
+      const combinedName = `${serverName}${separator}${name}`;
+      expect(
+        combinedName.length,
+        `${combinedName} exceeds ${maxCombinedNameLength} characters`
+      ).toBeLessThanOrEqual(maxCombinedNameLength);
+    }
+  });
+
   it("keeps basic tools in the recommended default set", () => {
     registerAllTools();
     const byName = new Map(

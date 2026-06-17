@@ -99,7 +99,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 |------|-------|-----------|--------|-----------------|
 | `ghostcrab_artifact_get` | no | pragma | read | mindbrain_answer_artifacts |
 | `ghostcrab_business_query_answer` | no | facets | read | agent_facts (+ facet_tables FTS when indexed) |
-| `ghostcrab_business_query_register_proposal` | no | facets | write | agent_facts (+ facet_tables FTS when indexed) |
+| `ghostcrab_business_query_register` | no | facets | write | agent_facts (+ facet_tables FTS when indexed) |
 | `ghostcrab_collection_facet_search` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_collection_reindex` | no | graph | write | documents_raw, search_fts, graph |
 | `ghostcrab_combined_search` | yes | facets | read | agent_facts (+ facet_tables FTS when indexed) |
@@ -136,8 +136,8 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | `ghostcrab_onboarding_schemas` | no | facets | read | schema registry (agent_facts shapes; not LinkML ontology_*) |
 | `ghostcrab_ontology_import` | no | ontology | write | ontology_* native tables; optional graph materialization for N-Triples |
 | `ghostcrab_ontology_list` | no | ontology | read | ontology_* |
-| `ghostcrab_ontology_reconciliation_apply` | no | ontology | write | ontology_* |
-| `ghostcrab_ontology_reconciliation_report` | no | ontology | read | ontology_* |
+| `ghostcrab_ontology_reconcile_apply` | no | ontology | write | ontology_* |
+| `ghostcrab_ontology_reconcile_report` | no | ontology | read | ontology_* |
 | `ghostcrab_pack` | yes | pragma | read | projections + agent_facts |
 | `ghostcrab_project` | yes | pragma | model | projections |
 | `ghostcrab_projection_get` | no | pragma | model | graph_entity (ProjectionResult) |

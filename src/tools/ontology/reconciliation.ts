@@ -255,7 +255,7 @@ async function upsertGeneratedSchema(
 
 export const ontologyReconciliationReportTool: ToolHandler = {
   definition: {
-    name: "ghostcrab_ontology_reconciliation_report",
+    name: "ghostcrab_ontology_reconcile_report",
     description:
       "Read. Compare one workspace ontology with MCP schema registry projections, raw graph rows, runtime graph rows, collection facet assignments, collection ontology bindings, and closed-world gap rules.",
     inputSchema: {
@@ -294,7 +294,7 @@ export const ontologyReconciliationReportTool: ToolHandler = {
         ontologyId: input.ontology_id,
         limit: input.limit
       });
-      return createToolSuccessResult("ghostcrab_ontology_reconciliation_report", {
+      return createToolSuccessResult("ghostcrab_ontology_reconcile_report", {
         workspace_id: workspaceId,
         ontology_id:
           typeof report.summary.ontology_id === "string"
@@ -306,7 +306,7 @@ export const ontologyReconciliationReportTool: ToolHandler = {
       });
     } catch (error) {
       return createToolErrorFromException(
-        "ghostcrab_ontology_reconciliation_report",
+        "ghostcrab_ontology_reconcile_report",
         error,
         "backend_unavailable",
         "MindBrain ontology reconciliation backend unavailable"
@@ -317,7 +317,7 @@ export const ontologyReconciliationReportTool: ToolHandler = {
 
 export const ontologyReconciliationApplyTool: ToolHandler = {
   definition: {
-    name: "ghostcrab_ontology_reconciliation_apply",
+    name: "ghostcrab_ontology_reconcile_apply",
     description:
       "Write. Apply only safe ontology reconciliation actions: generate or refresh ontology-derived MCP schema registry rows in agent_facts. Does not mutate raw graph, runtime graph, facets, or gap rules.",
     inputSchema: {
@@ -402,7 +402,7 @@ export const ontologyReconciliationApplyTool: ToolHandler = {
       }
     }
 
-    return createToolSuccessResult("ghostcrab_ontology_reconciliation_apply", {
+    return createToolSuccessResult("ghostcrab_ontology_reconcile_apply", {
       workspace_id: workspaceId,
       ontology_id: input.ontology_id,
       applied_scope: "mcp_schema_registry",

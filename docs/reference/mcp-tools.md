@@ -11,7 +11,7 @@ All successful tool calls use the additive envelope:
   "ok": true,
   "tool": "ghostcrab_status",
   "surface_version": "2026-06-12",
-  "generated_at": "2026-06-17T12:49:10.846Z"
+  "generated_at": "2026-06-17T16:32:27.903Z"
 }
 ```
 
@@ -53,7 +53,7 @@ Read. Route a natural-language business question to answer_snapshot, live_answer
 | `explain_route` | no | `boolean` | When true, include more evidence references. |
 | `dry_run` | no | `boolean` | When true, plan and route without executing live fact reads. |
 
-### `ghostcrab_business_query_register_proposal`
+### `ghostcrab_business_query_register`
 
 Write. Register an explicitly accepted business capability proposal as ghostcrab:business-capability.
 
@@ -726,7 +726,7 @@ Read. List imported native ontologies. Use domain to filter ontology_id namespac
 | `domain` | no | `string` | Optional ontology namespace filter by ontology_id prefix (part before '::'). Example: 'serenity'. |
 | `summary_only` | no | `boolean` | When true, return only ontology_id, workspace_id, name, source_kind, and version. |
 
-### `ghostcrab_ontology_reconciliation_apply`
+### `ghostcrab_ontology_reconcile_apply`
 
 Write. Apply only safe ontology reconciliation actions: generate or refresh ontology-derived MCP schema registry rows in agent_facts. Does not mutate raw graph, runtime graph, facets, or gap rules.
 
@@ -744,7 +744,7 @@ Write. Apply only safe ontology reconciliation actions: generate or refresh onto
 | `include_per_type` | no | `boolean` | When true, also generate per-entity and per-edge registry schema projections. |
 | `overwrite_custom` | no | `boolean` | When false, existing custom registry rows are skipped unless they were previously generated from ontology. |
 
-### `ghostcrab_ontology_reconciliation_report`
+### `ghostcrab_ontology_reconcile_report`
 
 Read. Compare one workspace ontology with MCP schema registry projections, raw graph rows, runtime graph rows, collection facet assignments, collection ontology bindings, and closed-world gap rules.
 

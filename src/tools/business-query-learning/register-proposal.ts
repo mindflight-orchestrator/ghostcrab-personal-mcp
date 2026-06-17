@@ -100,7 +100,7 @@ function buildProposalFingerprint(
 
 export const businessQueryRegisterProposalTool: ToolHandler = {
   definition: {
-    name: "ghostcrab_business_query_register_proposal",
+    name: "ghostcrab_business_query_register",
     description:
       "Write. Register an explicitly accepted business capability proposal as ghostcrab:business-capability.",
     inputSchema: {
@@ -131,7 +131,7 @@ export const businessQueryRegisterProposalTool: ToolHandler = {
     const input = RegisterProposalInput.parse(args);
     if (!input.persist_to.includes("mindbrain")) {
       return createToolErrorResult(
-        "ghostcrab_business_query_register_proposal",
+        "ghostcrab_business_query_register",
         "Only persist_to=['mindbrain'] is supported in this branch.",
         "unsupported_persistence_target"
       );
@@ -139,7 +139,7 @@ export const businessQueryRegisterProposalTool: ToolHandler = {
 
     if (!input.proposal) {
       return createToolErrorResult(
-        "ghostcrab_business_query_register_proposal",
+        "ghostcrab_business_query_register",
         "A full proposal object is required to register a capability.",
         "proposal_required",
         { proposal_id: input.proposal_id }
@@ -170,7 +170,7 @@ export const businessQueryRegisterProposalTool: ToolHandler = {
     const proposalStorageId = input.proposal.proposal_id ?? input.proposal_id ?? null;
     if (existing && existing.activation_status === "pending_review") {
       return createToolSuccessResult(
-        "ghostcrab_business_query_register_proposal",
+        "ghostcrab_business_query_register",
         {
           schema_id: "ghostcrab:business-capability",
           id: existing.id,
@@ -250,7 +250,7 @@ export const businessQueryRegisterProposalTool: ToolHandler = {
     );
 
     return createToolSuccessResult(
-      "ghostcrab_business_query_register_proposal",
+      "ghostcrab_business_query_register",
       {
         schema_id: "ghostcrab:business-capability",
         id: stored?.id ?? existing?.id ?? null,
