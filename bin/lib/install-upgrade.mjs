@@ -1,4 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   copyFileSync,
   existsSync,
@@ -21,6 +22,10 @@ import { readSchemaMigrations } from "./sqlite-file-count.mjs";
 
 const SERVER_KEY = "ghostcrab-personal-mcp";
 const PACKAGE_NAME = "@mindflight/ghostcrab-personal-mcp";
+export const REQUIRED_SCHEMA_MIGRATIONS = [
+  "2026-06-16-answer-artifacts-workspace-strict-applied",
+  "2026-06-16-graph-gap-rules-workspace-strict-applied"
+];
 
 export function parseUpgradeArgs(args) {
   const out = {
@@ -118,7 +123,9 @@ export async function runInstallUpgrade(options) {
       }
       const migration = await migrateViaBackend(pkgRoot, dbPath, {
         dryRun: options.dryRun,
-        io: options.io
+        io: options.io,
+        schemaStatusTimeoutMs: options.schemaStatusTimeoutMs,
+        healthTimeoutMs: options.healthTimeoutMs
       });
       const migrationsAfter =
         !options.dryRun && migration.ok
@@ -128,17 +135,18 @@ export async function runInstallUpgrade(options) {
         migrationsBefore,
         migrationsAfter
       );
-      dbReport.migration = options.dryRun
-        ? "would-apply"
-        : migration.ok
-          ? appliedThisRun.length > 0
-            ? "applied"
-            : "up-to-date"
-          : "failed";
+      dbReport.migration = classifyMigrationResult({
+        dryRun: options.dryRun,
+        migrationOk: migration.ok,
+        appliedThisRun,
+        migrationsAfter
+      });
       dbReport.migrationsBefore = migrationsBefore;
       dbReport.migrationsAfter = migrationsAfter;
       dbReport.appliedThisRun = appliedThisRun;
       dbReport.schemaStatus = migration.schemaStatus ?? null;
+      dbReport.schemaStatusError = migration.schemaStatusError ?? null;
+      dbReport.backend = migration.backend ?? null;
       dbReport.migrationLogs = migration.stderrLines ?? [];
       report.migrations.push({
         db: dbPath,
@@ -183,6 +191,19 @@ export async function runInstallUpgrade(options) {
   }
 
   return report;
+}
+
+export function classifyMigrationResult({
+  dryRun,
+  migrationOk,
+  appliedThisRun,
+  migrationsAfter
+}) {
+  if (dryRun) return "would-apply";
+  if (!migrationOk) return "failed";
+  if (appliedThisRun.length > 0) return "applied";
+  if (migrationsAfter === null) return "verified";
+  return "up-to-date";
 }
 
 export function printUpgradeReport(report, out = console.log) {
@@ -260,6 +281,10 @@ function printSchemaMigrationDetails(db, out) {
       const when = row.appliedAt ? ` @ ${row.appliedAt}` : "";
       out(`      + ${row.id}${when}`);
     }
+  } else if (db.migration === "verified") {
+    out(
+      "    migrations applied this run: unknown (verified by backend schema status)"
+    );
   } else if (db.migration === "up-to-date") {
     out("    migrations applied this run: none (schema already up to date)");
   } else if (db.migration === "failed") {
@@ -272,6 +297,23 @@ function printSchemaMigrationDetails(db, out) {
   );
   for (const row of after ?? before ?? []) {
     out(`      - ${row.id}`);
+  }
+
+  if (db.backend) {
+    out(
+      `    backend: ${db.backend.source ?? "unknown"} ${db.backend.path ?? ""}`.trimEnd()
+    );
+    if (db.backend.sha256) out(`    backend sha256: ${db.backend.sha256}`);
+  }
+
+  if (db.schemaStatusError) {
+    out(`    schema status error: ${db.schemaStatusError.reason}`);
+    if (db.schemaStatusError.status) {
+      out(`    schema status HTTP: ${db.schemaStatusError.status}`);
+    }
+    if (db.schemaStatusError.body) {
+      out(`    schema status body: ${db.schemaStatusError.body}`);
+    }
   }
 
   if (db.schemaStatus) {
@@ -501,20 +543,37 @@ export function terminateGhostcrabProcesses(processes, io = {}) {
 async function migrateViaBackend(pkgRoot, dbPath, opts) {
   if (opts.dryRun) return { ok: true, reason: "dry-run" };
   const backend = resolveNativeBackendPath(pkgRoot);
+  const backendInfo = backend.ok
+    ? {
+        path: backend.path,
+        source: backend.source,
+        platformKey: backend.platformKey,
+        sha256: sha256Prefix(backend.path)
+      }
+    : {
+        path: backend.path,
+        source: backend.source,
+        platformKey: backend.platformKey,
+        sha256: null
+      };
   if (!backend.ok) {
     return {
       ok: false,
-      reason: `native backend missing for ${backend.platformKey}`
+      reason: `native backend missing for ${backend.platformKey}`,
+      backend: backendInfo
     };
   }
   const ex = ensureUnixExecuteBit(backend.path);
   if (!ex.ok) {
     return {
       ok: false,
-      reason: `backend is not executable: ${ex.error?.message ?? ex}`
+      reason: `backend is not executable: ${ex.error?.message ?? ex}`,
+      backend: backendInfo
     };
   }
-  const port = await findFreePort(18191, 20);
+  const port = opts.io?.findFreePort
+    ? await opts.io.findFreePort()
+    : await findFreePort(18191, 20);
   const pidFile = join(dirname(dbPath), "ghostcrab-backend.pid");
   try {
     if (existsSync(pidFile)) {
@@ -524,7 +583,8 @@ async function migrateViaBackend(pkgRoot, dbPath, opts) {
           process.kill(parsed.pid, 0);
           return {
             ok: false,
-            reason: `backend still running at pid ${parsed.pid}`
+            reason: `backend still running at pid ${parsed.pid}`,
+            backend: backendInfo
           };
         } catch {
           unlinkSync(pidFile);
@@ -554,28 +614,60 @@ async function migrateViaBackend(pkgRoot, dbPath, opts) {
   });
   child.unref?.();
   const baseUrl = `http://127.0.0.1:${port}`;
-  const healthy = await waitForHealth(`${baseUrl}/health`, 15000);
-  const schemaStatus = healthy
-    ? await fetchSchemaStatus(`${baseUrl}/api/mindbrain/schema/status`)
+  const healthy = await waitForHealth(
+    `${baseUrl}/health`,
+    opts.healthTimeoutMs ?? 15000
+  );
+  const schemaStatusResult = healthy
+    ? await waitForSchemaStatus(
+        `${baseUrl}/api/mindbrain/schema/status`,
+        opts.schemaStatusTimeoutMs ?? 10000
+      )
     : null;
   try {
     if (child.pid) process.kill(child.pid, "SIGTERM");
   } catch {
     /* process may already be gone */
   }
-  return healthy
-    ? {
-        ok: true,
-        reason: "backend schema startup completed",
-        schemaStatus,
-        stderrLines
-      }
-    : {
-        ok: false,
-        reason: "backend did not become healthy during migration",
-        schemaStatus,
-        stderrLines
-      };
+  if (!healthy) {
+    return {
+      ok: false,
+      reason: "backend did not become healthy during migration",
+      backend: backendInfo,
+      schemaStatus: null,
+      stderrLines
+    };
+  }
+  if (!schemaStatusResult?.ok) {
+    return {
+      ok: false,
+      reason: `backend schema status unavailable: ${schemaStatusResult?.reason ?? "unknown"}`,
+      backend: backendInfo,
+      schemaStatus: null,
+      schemaStatusError: schemaStatusResult,
+      stderrLines
+    };
+  }
+  const schemaValidation = validateSchemaStatus(schemaStatusResult.payload);
+  if (!schemaValidation.ok) {
+    return {
+      ok: false,
+      reason: `backend schema status incomplete: ${schemaValidation.errors.join("; ")}`,
+      backend: backendInfo,
+      schemaStatus: schemaStatusResult.payload,
+      schemaStatusError: {
+        reason: schemaValidation.errors.join("; ")
+      },
+      stderrLines
+    };
+  }
+  return {
+    ok: true,
+    reason: "backend schema startup completed",
+    backend: backendInfo,
+    schemaStatus: schemaStatusResult.payload,
+    stderrLines
+  };
 }
 
 async function findFreePort(base, range) {
@@ -592,11 +684,66 @@ async function findFreePort(base, range) {
   throw new Error(`no free migration port in ${base}-${base + range - 1}`);
 }
 
+async function waitForSchemaStatus(url, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  let last = { ok: false, reason: "not attempted" };
+  while (Date.now() < deadline) {
+    last = await fetchSchemaStatus(url);
+    if (last.ok) return last;
+    await new Promise((r) => setTimeout(r, 150));
+  }
+  return last;
+}
+
 async function fetchSchemaStatus(url) {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
-    if (!res.ok) return null;
-    return await res.json();
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      return {
+        ok: false,
+        reason: `HTTP ${res.status}`,
+        status: res.status,
+        body
+      };
+    }
+    return { ok: true, payload: await res.json() };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: error instanceof Error ? error.message : String(error)
+    };
+  }
+}
+
+export function validateSchemaStatus(schemaStatus) {
+  const errors = [];
+  if (!schemaStatus || typeof schemaStatus !== "object") {
+    return { ok: false, errors: ["schema status payload is missing"] };
+  }
+  const applied = Array.isArray(schemaStatus.applied_migrations)
+    ? schemaStatus.applied_migrations
+    : [];
+  for (const id of REQUIRED_SCHEMA_MIGRATIONS) {
+    if (!applied.includes(id)) {
+      errors.push(`missing required migration ${id}`);
+    }
+  }
+  const missingColumns = Array.isArray(schemaStatus.missing_columns)
+    ? schemaStatus.missing_columns
+    : [];
+  if (missingColumns.length > 0) {
+    errors.push(`missing schema columns: ${missingColumns.length}`);
+  }
+  return { ok: errors.length === 0, errors };
+}
+
+function sha256Prefix(path) {
+  try {
+    return createHash("sha256")
+      .update(readFileSync(path))
+      .digest("hex")
+      .slice(0, 16);
   } catch {
     return null;
   }

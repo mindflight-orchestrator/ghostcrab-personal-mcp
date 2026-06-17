@@ -1,10 +1,12 @@
 import {
+  chmodSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
   writeFileSync
 } from "node:fs";
+import { EventEmitter } from "node:events";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -15,7 +17,10 @@ import {
   parseUpgradeArgs,
   runInstallUpgrade,
   printUpgradeReport,
-  diffSchemaMigrations
+  diffSchemaMigrations,
+  classifyMigrationResult,
+  validateSchemaStatus,
+  REQUIRED_SCHEMA_MIGRATIONS
 } from "../../bin/lib/install-upgrade.mjs";
 import {
   readSchemaMigrations
@@ -23,8 +28,10 @@ import {
 
 describe("install upgrade", () => {
   let root = "";
+  const originalFetch = globalThis.fetch;
 
   afterEach(() => {
+    globalThis.fetch = originalFetch;
     if (root) {
       rmSync(root, { recursive: true, force: true });
       root = "";
@@ -57,6 +64,49 @@ describe("install upgrade", () => {
     mkdirSync(join(pkgRoot, "bin"), { recursive: true });
     writeFileSync(join(pkgRoot, "bin", "gcp.mjs"), "", "utf8");
     return pkgRoot;
+  }
+
+  function addFakeBackend(pkgRoot: string) {
+    const platformKey = `${process.platform}-${process.arch}`;
+    const binaryName =
+      process.platform === "win32" ? "ghostcrab-backend.exe" : "ghostcrab-backend";
+    const backendPath = join(pkgRoot, "prebuilds", platformKey, binaryName);
+    mkdirSync(join(pkgRoot, "prebuilds", platformKey), { recursive: true });
+    writeFileSync(backendPath, "fake backend", "utf8");
+    chmodSync(backendPath, 0o755);
+    return backendPath;
+  }
+
+  function fakeSpawn() {
+    return {
+      pid: 4242,
+      stderr: new EventEmitter(),
+      unref() {}
+    };
+  }
+
+  function mockBackendFetch(schemaResponse: () => Response) {
+    globalThis.fetch = (async (url: string | URL) => {
+      const text = String(url);
+      if (text.endsWith("/health")) {
+        return new Response("ok\n", { status: 200 });
+      }
+      if (text.endsWith("/api/mindbrain/schema/status")) {
+        return schemaResponse();
+      }
+      return new Response("not found", { status: 404 });
+    }) as typeof fetch;
+  }
+
+  function validSchemaStatus(extra: Record<string, unknown> = {}) {
+    return {
+      kind: "mindbrain_schema_status",
+      mindbrain_version: "1.7.2",
+      schema_tables_count: 80,
+      applied_migrations: [...REQUIRED_SCHEMA_MIGRATIONS],
+      missing_columns: [],
+      ...extra
+    };
   }
 
   it("parses upgrade flags", () => {
@@ -221,6 +271,119 @@ describe("install upgrade", () => {
     expect(diffSchemaMigrations(before, after)).toEqual([
       { id: "b", appliedAt: "2026-06-11" }
     ]);
+  });
+
+  it("classifies sqlite-unreadable but schema-verified upgrades as verified", () => {
+    expect(
+      classifyMigrationResult({
+        dryRun: false,
+        migrationOk: true,
+        appliedThisRun: [],
+        migrationsAfter: null
+      })
+    ).toBe("verified");
+  });
+
+  it("validates required v0.6 schema migrations", () => {
+    expect(validateSchemaStatus(validSchemaStatus()).ok).toBe(true);
+    const missing = validateSchemaStatus({
+      ...validSchemaStatus(),
+      applied_migrations: []
+    });
+    expect(missing.ok).toBe(false);
+    expect(missing.errors.join("\n")).toContain(
+      "2026-06-16-answer-artifacts-workspace-strict-applied"
+    );
+  });
+
+  it("fails upgrade when backend is healthy but schema status lacks v0.6 migrations", async () => {
+    const pkgRoot = makePackageRoot();
+    addFakeBackend(pkgRoot);
+    const dbPath = join(root, "legacy.sqlite");
+    writeFileSync(dbPath, "not a real sqlite file", "utf8");
+    mockBackendFetch(
+      () =>
+        new Response(
+          JSON.stringify({
+            ...validSchemaStatus(),
+            applied_migrations: []
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        )
+    );
+
+    const report = await runInstallUpgrade({
+      pkgRoot,
+      dryRun: false,
+      noKillMcp: true,
+      skipConfigCleanup: true,
+      sqlitePathFromCli: dbPath,
+      home: root,
+      io: { spawn: fakeSpawn, findFreePort: async () => 18191 },
+      schemaStatusTimeoutMs: 10,
+      healthTimeoutMs: 10
+    });
+
+    expect(report.ok).toBe(false);
+    expect(report.databases[0]?.migration).toBe("failed");
+    expect(report.errors.join("\n")).toContain("missing required migration");
+  });
+
+  it("reports verified when node sqlite cannot read migrations but backend schema status is complete", async () => {
+    const pkgRoot = makePackageRoot();
+    addFakeBackend(pkgRoot);
+    const dbPath = join(root, "legacy.sqlite");
+    writeFileSync(dbPath, "not a real sqlite file", "utf8");
+    mockBackendFetch(
+      () =>
+        new Response(JSON.stringify(validSchemaStatus()), {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        })
+    );
+
+    const report = await runInstallUpgrade({
+      pkgRoot,
+      dryRun: false,
+      noKillMcp: true,
+      skipConfigCleanup: true,
+      sqlitePathFromCli: dbPath,
+      home: root,
+      io: { spawn: fakeSpawn, findFreePort: async () => 18191 },
+      schemaStatusTimeoutMs: 10,
+      healthTimeoutMs: 10
+    });
+
+    expect(report.ok).toBe(true);
+    expect(report.databases[0]?.migration).toBe("verified");
+    expect(report.databases[0]?.backend?.path).toContain("ghostcrab-backend");
+  });
+
+  it("fails upgrade and reports schema status HTTP details", async () => {
+    const pkgRoot = makePackageRoot();
+    addFakeBackend(pkgRoot);
+    const dbPath = join(root, "legacy.sqlite");
+    writeFileSync(dbPath, "not a real sqlite file", "utf8");
+    mockBackendFetch(() => new Response("schema exploded", { status: 500 }));
+
+    const report = await runInstallUpgrade({
+      pkgRoot,
+      dryRun: false,
+      noKillMcp: true,
+      skipConfigCleanup: true,
+      sqlitePathFromCli: dbPath,
+      home: root,
+      io: { spawn: fakeSpawn, findFreePort: async () => 18191 },
+      schemaStatusTimeoutMs: 1,
+      healthTimeoutMs: 10
+    });
+
+    expect(report.ok).toBe(false);
+    expect(report.databases[0]?.migration).toBe("failed");
+    expect(report.databases[0]?.schemaStatusError?.status).toBe(500);
+    expect(report.databases[0]?.schemaStatusError?.body).toContain(
+      "schema exploded"
+    );
   });
 
   it("printUpgradeReport lists migrations applied this run", () => {
