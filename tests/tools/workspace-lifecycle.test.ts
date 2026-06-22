@@ -112,13 +112,17 @@ describe("ghostcrab_workspace_reset", () => {
     const evaluationIndex = deleteCalls.findIndex(
       (call) => call.table === "graph_rule_evaluations"
     );
+    const entityIndex = deleteCalls.findIndex(
+      (call) => call.table === "graph_entity"
+    );
     const ruleIndex = deleteCalls.findIndex(
       (call) => call.table === "graph_gap_rules"
     );
 
     expect(eventIndex).toBeGreaterThanOrEqual(0);
     expect(evaluationIndex).toBeGreaterThan(eventIndex);
-    expect(ruleIndex).toBeGreaterThan(evaluationIndex);
+    expect(entityIndex).toBeGreaterThan(evaluationIndex);
+    expect(ruleIndex).toBeGreaterThan(entityIndex);
     expect(deleteCalls[eventIndex]?.params).toEqual(["serenity-v4"]);
     expect(deleteCalls[evaluationIndex]?.params).toEqual(["serenity-v4"]);
   });

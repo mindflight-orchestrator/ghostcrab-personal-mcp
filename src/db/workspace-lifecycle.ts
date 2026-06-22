@@ -67,6 +67,16 @@ export async function resetWorkspaceData(
      )`
   );
   await clear(
+    "graph_rule_events",
+    `SELECT COUNT(*) AS count FROM graph_rule_events WHERE workspace_id = ?`,
+    `DELETE FROM graph_rule_events WHERE workspace_id = ?`
+  );
+  await clear(
+    "graph_rule_evaluations",
+    `SELECT COUNT(*) AS count FROM graph_rule_evaluations WHERE workspace_id = ?`,
+    `DELETE FROM graph_rule_evaluations WHERE workspace_id = ?`
+  );
+  await clear(
     "graph_entity_document",
     `SELECT COUNT(*) AS count FROM graph_entity_document
      WHERE entity_id IN (
@@ -98,16 +108,6 @@ export async function resetWorkspaceData(
     "graph_entity",
     `SELECT COUNT(*) AS count FROM graph_entity WHERE workspace_id = ?`,
     `DELETE FROM graph_entity WHERE workspace_id = ?`
-  );
-  await clear(
-    "graph_rule_events",
-    `SELECT COUNT(*) AS count FROM graph_rule_events WHERE workspace_id = ?`,
-    `DELETE FROM graph_rule_events WHERE workspace_id = ?`
-  );
-  await clear(
-    "graph_rule_evaluations",
-    `SELECT COUNT(*) AS count FROM graph_rule_evaluations WHERE workspace_id = ?`,
-    `DELETE FROM graph_rule_evaluations WHERE workspace_id = ?`
   );
   await clear(
     "graph_gap_rules",
