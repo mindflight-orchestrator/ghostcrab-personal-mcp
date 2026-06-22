@@ -86,6 +86,42 @@ describe("ghostcrab_workspace_reset", () => {
     expect(projectionCount?.[0]).toContain("scope = ? OR scope LIKE ?");
     expect(projectionCount?.[1]).toEqual(["serenity-v4", "serenity-v4:%"]);
   });
+
+  it("clears graph rule evaluation state before graph gap rules", async () => {
+    const query = vi.fn().mockResolvedValue([{ count: 1 }]);
+
+    await resetWorkspaceData(
+      {
+        query
+      } as unknown as Parameters<typeof resetWorkspaceData>[0],
+      "serenity-v4"
+    );
+
+    const deleteCalls = (
+      query.mock.calls as Array<[string, readonly unknown[]]>
+    )
+      .filter(([sql]) => sql.trimStart().startsWith("DELETE FROM"))
+      .map(([sql, params]) => ({
+        sql,
+        params,
+        table: sql.match(/DELETE FROM\s+([a-z_]+)/)?.[1]
+      }));
+    const eventIndex = deleteCalls.findIndex(
+      (call) => call.table === "graph_rule_events"
+    );
+    const evaluationIndex = deleteCalls.findIndex(
+      (call) => call.table === "graph_rule_evaluations"
+    );
+    const ruleIndex = deleteCalls.findIndex(
+      (call) => call.table === "graph_gap_rules"
+    );
+
+    expect(eventIndex).toBeGreaterThanOrEqual(0);
+    expect(evaluationIndex).toBeGreaterThan(eventIndex);
+    expect(ruleIndex).toBeGreaterThan(evaluationIndex);
+    expect(deleteCalls[eventIndex]?.params).toEqual(["serenity-v4"]);
+    expect(deleteCalls[evaluationIndex]?.params).toEqual(["serenity-v4"]);
+  });
 });
 
 describe("ghostcrab_workspace_delete", () => {
