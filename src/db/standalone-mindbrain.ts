@@ -70,6 +70,7 @@ export interface StandalonePackParams {
 export interface StandaloneGhostcrabPackParams {
   mindbrainUrl: string;
   timeoutMs?: number;
+  workspaceId?: string;
   agentId: string;
   query: string;
   scope?: string;
@@ -727,6 +728,9 @@ export async function runStandaloneGhostcrabPack(
   url.searchParams.set("agent_id", params.agentId);
   url.searchParams.set("query", params.query);
   url.searchParams.set("limit", String(params.limit));
+  if (params.workspaceId) {
+    url.searchParams.set("workspace_id", params.workspaceId);
+  }
   if (params.scope) {
     url.searchParams.set("scope", params.scope);
   }

@@ -116,6 +116,7 @@ export const packTool: ToolHandler = {
     try {
       const nativeRows = await runStandaloneGhostcrabPack({
         mindbrainUrl: config.mindbrainUrl,
+        workspaceId: effectiveWorkspaceId,
         agentId: input.agent_id,
         query: input.query,
         scope: input.scope,
@@ -137,7 +138,9 @@ export const packTool: ToolHandler = {
         scope: input.scope,
         limit: input.limit
       });
-      const registryPackRows = registryRows.map(packRowFromAnalysisPlanArtifact);
+      const registryPackRows = registryRows.map(
+        packRowFromAnalysisPlanArtifact
+      );
 
       const remainingLimit = Math.max(input.limit - registryPackRows.length, 0);
       const projectionParams: unknown[] = [input.agent_id];

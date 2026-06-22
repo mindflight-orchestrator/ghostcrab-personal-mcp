@@ -106,7 +106,10 @@ describe("pragma tools", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
-      if (sql.includes("FROM mb_pragma.agent_facts") && sql.includes("doc_id IN")) {
+      if (
+        sql.includes("FROM mb_pragma.agent_facts") &&
+        sql.includes("doc_id IN")
+      ) {
         return [
           {
             id: "facet-1",
@@ -158,6 +161,13 @@ describe("pragma tools", () => {
       artifact_kind: "analysis_plan",
       legacy_kind: "projection_type_a"
     });
+    const packCall = fetchMock.mock.calls.find(([url]) =>
+      String(url).includes("pack-projections")
+    );
+    expect(packCall).toBeDefined();
+    const packUrl = new URL(String(packCall?.[0]));
+    expect(packUrl.searchParams.get("workspace_id")).toBe("default");
+    expect(packUrl.searchParams.get("scope")).toBe("project-delivery-board");
     const searchCall = fetchMock.mock.calls.find(([url]) =>
       String(url).includes("ghostcrab/search")
     );
@@ -200,13 +210,7 @@ describe("pragma tools", () => {
         sql.includes("FROM mb_pragma.agent_facts AS f") &&
         sql.includes("JOIN mb_pragma.search_fts_docs")
       ) {
-        expect(params).toEqual([
-          1,
-          '"Aurora"',
-          "serenity-v4",
-          "serenity",
-          5
-        ]);
+        expect(params).toEqual([1, '"Aurora"', "serenity-v4", "serenity", 5]);
         return [
           {
             id: "fact-serenity",
@@ -231,7 +235,9 @@ describe("pragma tools", () => {
 
     const body = readStructured(result);
     expect(body.facts_mode_applied).toBe("sql_fts");
-    expect(body.pack_text).toContain("FACT: Aurora has a complete practical situation.");
+    expect(body.pack_text).toContain(
+      "FACT: Aurora has a complete practical situation."
+    );
     expect(body.notes).toEqual(
       expect.arrayContaining([
         expect.stringContaining("local SQL/FTS fallback returned 1")
@@ -261,7 +267,12 @@ describe("pragma tools", () => {
             returned: 2,
             matches: [
               { doc_id: 7, bm25_score: 1, vector_score: 0, combined_score: 1 },
-              { doc_id: 9, bm25_score: 0.8, vector_score: 0, combined_score: 0.8 }
+              {
+                doc_id: 9,
+                bm25_score: 0.8,
+                vector_score: 0,
+                combined_score: 0.8
+              }
             ]
           }),
           { status: 200, headers: { "content-type": "application/json" } }
@@ -276,7 +287,10 @@ describe("pragma tools", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const query = vi.fn<DatabaseClient["query"]>(async (sql, params) => {
-      if (sql.includes("FROM mb_pragma.agent_facts") && sql.includes("doc_id IN")) {
+      if (
+        sql.includes("FROM mb_pragma.agent_facts") &&
+        sql.includes("doc_id IN")
+      ) {
         expect(params).toEqual([7, 9, "serenity-v4"]);
         return [
           {
@@ -301,30 +315,33 @@ describe("pragma tools", () => {
 
     const body = readStructured(result);
     expect(body.facts_mode_applied).toBe("mindbrain_hybrid");
-    expect(body.pack_text).toContain("FACT: Aurora belongs to the Serenity workspace.");
+    expect(body.pack_text).toContain(
+      "FACT: Aurora belongs to the Serenity workspace."
+    );
   });
 
   it("rejects artifact_get when the returned artifact belongs to another workspace", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () =>
-        new Response(
-          JSON.stringify({
-            artifact_id: "analysis_plan__shared",
-            slug: "shared",
-            workspace_id: "serenity-v4-shadow",
-            agent_id: "agent:self",
-            scope: "serenity-v4:production:shared",
-            artifact_kind: "analysis_plan",
-            public_label: "Shadow plan",
-            lifecycle: "active",
-            state: "open",
-            current_version: 1,
-            payload_json: "{}",
-            legacy_ref: null
-          }),
-          { status: 200, headers: { "content-type": "application/json" } }
-        )
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              artifact_id: "analysis_plan__shared",
+              slug: "shared",
+              workspace_id: "serenity-v4-shadow",
+              agent_id: "agent:self",
+              scope: "serenity-v4:production:shared",
+              artifact_kind: "analysis_plan",
+              public_label: "Shadow plan",
+              lifecycle: "active",
+              state: "open",
+              current_version: 1,
+              payload_json: "{}",
+              legacy_ref: null
+            }),
+            { status: 200, headers: { "content-type": "application/json" } }
+          )
       )
     );
 
