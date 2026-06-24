@@ -143,9 +143,14 @@ export const packTool: ToolHandler = {
       );
 
       const remainingLimit = Math.max(input.limit - registryPackRows.length, 0);
-      const projectionParams: unknown[] = [input.agent_id];
+      const projectionParams: unknown[] = [
+        input.agent_id,
+        effectiveWorkspaceId,
+        `${effectiveWorkspaceId}:%`
+      ];
       const projectionWhereClauses = [
         "agent_id = ?",
+        "(scope = ? OR scope LIKE ? OR scope IS NULL)",
         "status IN ('active', 'blocking')",
         "(expires_at_unix IS NULL OR expires_at_unix > strftime('%s','now'))"
       ];

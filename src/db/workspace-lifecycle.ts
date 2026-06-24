@@ -93,6 +93,28 @@ export async function resetWorkspaceData(
     `DELETE FROM graph_entity_chunk WHERE workspace_id = ?`
   );
   await clear(
+    "graph_lj_out",
+    `SELECT COUNT(*) AS count FROM graph_lj_out
+     WHERE entity_id IN (
+       SELECT entity_id FROM graph_entity WHERE workspace_id = ?
+     )`,
+    `DELETE FROM graph_lj_out
+     WHERE entity_id IN (
+       SELECT entity_id FROM graph_entity WHERE workspace_id = ?
+     )`
+  );
+  await clear(
+    "graph_lj_in",
+    `SELECT COUNT(*) AS count FROM graph_lj_in
+     WHERE entity_id IN (
+       SELECT entity_id FROM graph_entity WHERE workspace_id = ?
+     )`,
+    `DELETE FROM graph_lj_in
+     WHERE entity_id IN (
+       SELECT entity_id FROM graph_entity WHERE workspace_id = ?
+     )`
+  );
+  await clear(
     "graph_relation",
     `SELECT COUNT(*) AS count FROM graph_relation WHERE workspace_id = ?`,
     `DELETE FROM graph_relation WHERE workspace_id = ?`
@@ -113,6 +135,16 @@ export async function resetWorkspaceData(
     "graph_gap_rules",
     `SELECT COUNT(*) AS count FROM graph_gap_rules WHERE workspace_id = ?`,
     `DELETE FROM graph_gap_rules WHERE workspace_id = ?`
+  );
+  await clear(
+    "quality_remediation_action",
+    `SELECT COUNT(*) AS count FROM quality_remediation_action WHERE workspace_id = ?`,
+    `DELETE FROM quality_remediation_action WHERE workspace_id = ?`
+  );
+  await clear(
+    "quality_convergence_run",
+    `SELECT COUNT(*) AS count FROM quality_convergence_run WHERE workspace_id = ?`,
+    `DELETE FROM quality_convergence_run WHERE workspace_id = ?`
   );
   await clear(
     "relation_properties_raw",
@@ -200,6 +232,94 @@ export async function resetWorkspaceData(
     `DELETE FROM workspace_settings WHERE workspace_id = ?`
   );
   await clear(
+    "ontology_values",
+    `SELECT COUNT(*) AS count FROM ontology_values
+     WHERE ontology_id IN (
+       SELECT ontology_id FROM ontologies WHERE workspace_id = ?
+     )`,
+    `DELETE FROM ontology_values
+     WHERE ontology_id IN (
+       SELECT ontology_id FROM ontologies WHERE workspace_id = ?
+     )`
+  );
+  await clear(
+    "ontology_dimensions",
+    `SELECT COUNT(*) AS count FROM ontology_dimensions
+     WHERE ontology_id IN (
+       SELECT ontology_id FROM ontologies WHERE workspace_id = ?
+     )`,
+    `DELETE FROM ontology_dimensions
+     WHERE ontology_id IN (
+       SELECT ontology_id FROM ontologies WHERE workspace_id = ?
+     )`
+  );
+  await clear(
+    "ontology_namespaces",
+    `SELECT COUNT(*) AS count FROM ontology_namespaces
+     WHERE ontology_id IN (
+       SELECT ontology_id FROM ontologies WHERE workspace_id = ?
+     )`,
+    `DELETE FROM ontology_namespaces
+     WHERE ontology_id IN (
+       SELECT ontology_id FROM ontologies WHERE workspace_id = ?
+     )`
+  );
+  await clear(
+    "ontology_entities_raw",
+    `SELECT COUNT(*) AS count FROM ontology_entities_raw
+     WHERE ontology_id IN (
+       SELECT ontology_id FROM ontologies WHERE workspace_id = ?
+     )`,
+    `DELETE FROM ontology_entities_raw
+     WHERE ontology_id IN (
+       SELECT ontology_id FROM ontologies WHERE workspace_id = ?
+     )`
+  );
+  await clear(
+    "ontology_relations_raw",
+    `SELECT COUNT(*) AS count FROM ontology_relations_raw
+     WHERE ontology_id IN (
+       SELECT ontology_id FROM ontologies WHERE workspace_id = ?
+     )`,
+    `DELETE FROM ontology_relations_raw
+     WHERE ontology_id IN (
+       SELECT ontology_id FROM ontologies WHERE workspace_id = ?
+     )`
+  );
+  await clear(
+    "ontology_triples_raw",
+    `SELECT COUNT(*) AS count FROM ontology_triples_raw
+     WHERE ontology_id IN (
+       SELECT ontology_id FROM ontologies WHERE workspace_id = ?
+     )`,
+    `DELETE FROM ontology_triples_raw
+     WHERE ontology_id IN (
+       SELECT ontology_id FROM ontologies WHERE workspace_id = ?
+     )`
+  );
+  await clear(
+    "ontology_entity_types",
+    `SELECT COUNT(*) AS count FROM ontology_entity_types
+     WHERE ontology_id IN (
+       SELECT ontology_id FROM ontologies WHERE workspace_id = ?
+     )`,
+    `DELETE FROM ontology_entity_types
+     WHERE ontology_id IN (
+       SELECT ontology_id FROM ontologies WHERE workspace_id = ?
+     )`
+  );
+  await clear(
+    "ontology_edge_types",
+    `SELECT COUNT(*) AS count FROM ontology_edge_types
+     WHERE ontology_id IN (
+       SELECT ontology_id FROM ontologies WHERE workspace_id = ?
+     )`,
+    `DELETE FROM ontology_edge_types
+     WHERE ontology_id IN (
+       SELECT ontology_id FROM ontologies WHERE workspace_id = ?
+     )`
+  );
+  await clear(
     "ontologies",
     `SELECT COUNT(*) AS count FROM ontologies WHERE workspace_id = ?`,
     `DELETE FROM ontologies WHERE workspace_id = ?`
@@ -208,6 +328,71 @@ export async function resetWorkspaceData(
     "pending_migrations",
     `SELECT COUNT(*) AS count FROM pending_migrations WHERE workspace_id = ?`,
     `DELETE FROM pending_migrations WHERE workspace_id = ?`
+  );
+  await clear(
+    "facet_deltas",
+    `SELECT COUNT(*) AS count FROM facet_deltas
+     WHERE table_id IN (
+       SELECT table_id FROM table_semantics WHERE workspace_id = ?
+     )`,
+    `DELETE FROM facet_deltas
+     WHERE table_id IN (
+       SELECT table_id FROM table_semantics WHERE workspace_id = ?
+     )`
+  );
+  await clear(
+    "facet_postings",
+    `SELECT COUNT(*) AS count FROM facet_postings
+     WHERE table_id IN (
+       SELECT table_id FROM table_semantics WHERE workspace_id = ?
+     )`,
+    `DELETE FROM facet_postings
+     WHERE table_id IN (
+       SELECT table_id FROM table_semantics WHERE workspace_id = ?
+     )`
+  );
+  await clear(
+    "facet_value_nodes",
+    `SELECT COUNT(*) AS count FROM facet_value_nodes
+     WHERE table_id IN (
+       SELECT table_id FROM table_semantics WHERE workspace_id = ?
+     )`,
+    `DELETE FROM facet_value_nodes
+     WHERE table_id IN (
+       SELECT table_id FROM table_semantics WHERE workspace_id = ?
+     )`
+  );
+  await clear(
+    "facet_definitions",
+    `SELECT COUNT(*) AS count FROM facet_definitions
+     WHERE table_id IN (
+       SELECT table_id FROM table_semantics WHERE workspace_id = ?
+     )`,
+    `DELETE FROM facet_definitions
+     WHERE table_id IN (
+       SELECT table_id FROM table_semantics WHERE workspace_id = ?
+     )`
+  );
+  await clear(
+    "facet_tables",
+    `SELECT COUNT(*) AS count FROM facet_tables
+     WHERE table_id IN (
+       SELECT table_id FROM table_semantics WHERE workspace_id = ?
+     )`,
+    `DELETE FROM facet_tables
+     WHERE table_id IN (
+       SELECT table_id FROM table_semantics WHERE workspace_id = ?
+     )`
+  );
+  await clear(
+    "source_mappings",
+    `SELECT COUNT(*) AS count FROM source_mappings WHERE workspace_id = ?`,
+    `DELETE FROM source_mappings WHERE workspace_id = ?`
+  );
+  await clear(
+    "structured_import_provenance",
+    `SELECT COUNT(*) AS count FROM structured_import_provenance WHERE workspace_id = ?`,
+    `DELETE FROM structured_import_provenance WHERE workspace_id = ?`
   );
   await clear(
     "column_semantics",

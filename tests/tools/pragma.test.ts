@@ -428,8 +428,17 @@ describe("pragma tools", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
+    const query = vi.fn<DatabaseClient["query"]>(async (sql, params) => {
       if (sql.includes("FROM mb_pragma.projections")) {
+        expect(sql).toContain("(scope = ? OR scope LIKE ? OR scope IS NULL)");
+        expect(sql).toContain("(scope = ? OR scope IS NULL)");
+        expect(params).toEqual([
+          "agent:self",
+          "serenity-v4",
+          "serenity-v4:%",
+          "serenity-v4:production:copropriete_360",
+          14
+        ]);
         return [
           {
             content: "Legacy fallback row",
