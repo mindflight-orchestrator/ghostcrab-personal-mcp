@@ -1,6 +1,6 @@
 {
   "name": "@mindflight/ghostcrab-personal-mcp",
-  "version": "0.6.1",
+  "version": "0.6.3",
   "description": "SQLite-backed MCP memory server (MindBrain + Zig backend), part of the MindBrain ecosystem.",
   "license": "SEE LICENSE IN Licence.md",
   "type": "module",
@@ -106,6 +106,7 @@
     "immeuble:run:live-lab": "bash examples/immeuble/scripts/run-immeuble-live-lab.sh",
     "immeuble:backend:run": "bash examples/immeuble/scripts/run-immeuble-backend.sh",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage --coverage.reporter=text-summary --coverage.reporter=json-summary",
     "test:integration": "sh scripts/run-integration-tests.sh",
     "test:integration:optional": "vitest run --config vitest.integration.config.ts",
     "test:integration:live": "sh scripts/run-integration-tests.sh",
@@ -126,6 +127,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^25.5.0",
+    "@vitest/coverage-v8": "4.1.0",
     "eslint": "^10.1.0",
     "globals": "^17.4.0",
     "prettier": "^3.8.1",
@@ -140,11 +142,11 @@
     "zod": "^4.3.6"
   },
   "optionalDependencies": {
-    "@mindflight/ghostcrab-personal-mcp-darwin-arm64": "0.6.1",
-    "@mindflight/ghostcrab-personal-mcp-darwin-x64": "0.6.1",
-    "@mindflight/ghostcrab-personal-mcp-linux-arm64": "0.6.1",
-    "@mindflight/ghostcrab-personal-mcp-linux-x64": "0.6.1",
-    "@mindflight/ghostcrab-personal-mcp-win32-x64": "0.6.1",
-    "@mindflight/ghostcrab-personal-mcp-win32-arm64": "0.6.1"
+    "@mindflight/ghostcrab-personal-mcp-darwin-arm64": "0.6.3",
+    "@mindflight/ghostcrab-personal-mcp-darwin-x64": "0.6.3",
+    "@mindflight/ghostcrab-personal-mcp-linux-arm64": "0.6.3",
+    "@mindflight/ghostcrab-personal-mcp-linux-x64": "0.6.3",
+    "@mindflight/ghostcrab-personal-mcp-win32-x64": "0.6.3",
+    "@mindflight/ghostcrab-personal-mcp-win32-arm64": "0.6.3"
   }
 }
