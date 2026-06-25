@@ -247,6 +247,9 @@ gcp brain load ./my_ws.backup.json --db /path/to/ghostcrab.sqlite --dry-run
 
 # 4. Import and rebuild derived indexes
 gcp brain load ./my_ws.backup.json --db /path/to/ghostcrab.sqlite --reindex all
+
+# If the bundle workspace already exists and should be replaced:
+gcp brain load ./my_ws.backup.json --db /path/to/ghostcrab.sqlite --overwrite --confirm --reindex all
 ```
 
 Use `--skip-config-cleanup` on step 2 when the SQLite file belongs to a project-specific database rather than your default IDE install.
@@ -313,6 +316,7 @@ npx gcp brain backup --workspace-id my_ws --output ./my_ws.backup.json
 npx gcp brain ontology import --workspace-id my_ws --ontology-id my_ws::owl --input ./ontology.nt --materialize-graph
 npx gcp brain load ./my_ws.backup.json --dry-run
 npx gcp brain load ./my_ws.backup.json --db /path/to/ghostcrab.sqlite --reindex all
+npx gcp brain load ./my_ws.backup.json --db /path/to/ghostcrab.sqlite --overwrite --confirm --reindex all
 ```
 
 ---

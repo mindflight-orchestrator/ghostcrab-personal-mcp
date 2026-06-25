@@ -12,10 +12,8 @@ import {
   type ToolHandler
 } from "../registry.js";
 
-export const CombinedSearchInput = z.object({
-  query: z.string().trim().max(4_096).default(""),
-  workspace_id: z.string().trim().min(1).optional(),
-  collection_id: z.preprocess((value) => {
+const optionalNullableStringInput = z
+  .preprocess((value) => {
     if (value === null) return undefined;
     if (typeof value === "string") {
       const normalized = value.trim().toLowerCase();
@@ -24,7 +22,13 @@ export const CombinedSearchInput = z.object({
       }
     }
     return value;
-  }, z.string().trim().min(1).optional()),
+  }, z.union([z.string().trim().min(1), z.undefined()]))
+  .optional();
+
+export const CombinedSearchInput = z.object({
+  query: z.string().trim().max(4_096).default(""),
+  workspace_id: z.string().trim().min(1).optional(),
+  collection_id: optionalNullableStringInput,
   limit: z.coerce.number().int().min(1).max(50).default(10),
   graph_limit: z.coerce.number().int().min(1).max(100).optional(),
   facet_limit: z.coerce.number().int().min(1).max(100).optional(),

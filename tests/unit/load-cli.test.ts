@@ -25,6 +25,8 @@ describe("gcp load helpers", () => {
         "--db",
         "/tmp/brain.sqlite",
         "--dry-run",
+        "--overwrite",
+        "--confirm",
         "--force",
         "backup.json"
       ])
@@ -37,7 +39,9 @@ describe("gcp load helpers", () => {
       reindex: "graph",
       documentTableId: null,
       collectionId: null,
-      tableId: null
+      tableId: null,
+      overwrite: true,
+      confirm: true
     });
   });
 
@@ -65,6 +69,8 @@ describe("gcp load helpers", () => {
       __private__.buildBackupLoadEngineArgs(
         {
           dryRun: true,
+          overwrite: true,
+          confirm: true,
           reindex: "all",
           documentTableId: "7",
           collectionId: "ws::main",
@@ -80,6 +86,8 @@ describe("gcp load helpers", () => {
       "--bundle",
       "/tmp/backup.json",
       "--dry-run",
+      "--overwrite",
+      "--confirm",
       "--reindex",
       "all",
       "--document-table-id",
@@ -101,5 +109,6 @@ describe("gcp load helpers", () => {
       console.log = log;
     }
     expect(logs.join("\n")).toContain("gcp brain upgrade --db");
+    expect(logs.join("\n")).toContain("--overwrite --confirm");
   });
 });

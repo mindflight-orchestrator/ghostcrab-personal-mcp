@@ -295,9 +295,10 @@ export function getNativeDocumentEnginePath(pkgRoot) {
  * Override: GHOSTCRAB_DOCUMENT_ENGINE=/absolute/path/to/ghostcrab-document
  *
  * @param {string} pkgRoot
+ * @param {{ ignoreOptionalDependency?: boolean }} [opts]
  * @returns {{ ok: true, path: string, platformKey: string, binaryName: string, source: "env" | "optionalDependency" | "bundled-prebuild" | "vendor-dev", packageName: string | null } | { ok: false, path: string, platformKey: string, binaryName: string, source: "missing", packageName: string | null }}
  */
-export function resolveDocumentEnginePath(pkgRoot) {
+export function resolveDocumentEnginePath(pkgRoot, opts = {}) {
   const override = process.env.GHOSTCRAB_DOCUMENT_ENGINE?.trim();
   if (override) {
     const { platformKey, documentBinaryName, packageName } =
@@ -316,7 +317,7 @@ export function resolveDocumentEnginePath(pkgRoot) {
 
   const bundled = getNativeDocumentEnginePath(pkgRoot);
 
-  if (bundled.packageName) {
+  if (bundled.packageName && !opts.ignoreOptionalDependency) {
     try {
       const packageJsonPath = require.resolve(
         `${bundled.packageName}/package.json`,
@@ -494,7 +495,9 @@ export function warnDocumentEngineMissing(docResolved) {
 function prepareDocumentEngineForInstall(pkgRoot, opts) {
   const { verbose, silent, tryQuarantine, softFail, platformKey, actions } =
     opts;
-  const docResolved = resolveDocumentEnginePath(pkgRoot);
+  const docResolved = resolveDocumentEnginePath(pkgRoot, {
+    ignoreOptionalDependency: opts.ignoreOptionalDependency
+  });
 
   if (docResolved.ok) {
     const docEx = ensureUnixExecuteBit(docResolved.path);
@@ -530,7 +533,7 @@ function prepareDocumentEngineForInstall(pkgRoot, opts) {
 
 /**
  * @param {string} pkgRoot
- * @param {{ verbose?: boolean, silent?: boolean, tryQuarantine?: boolean, softFail?: boolean, ignorePostinstallEnv?: boolean }} o
+ * @param {{ verbose?: boolean, silent?: boolean, tryQuarantine?: boolean, softFail?: boolean, ignorePostinstallEnv?: boolean, ignoreOptionalDependency?: boolean }} o
  * @returns {object}
  */
 export function preparePrebuildForInstall(pkgRoot, o = {}) {
@@ -570,13 +573,17 @@ export function preparePrebuildForInstall(pkgRoot, o = {}) {
       packageName: resolved.packageName,
       documentOk: false,
       documentMissing: true,
-      documentPath: resolveDocumentEnginePath(pkgRoot).path,
+      documentPath: resolveDocumentEnginePath(pkgRoot, {
+        ignoreOptionalDependency: o.ignoreOptionalDependency
+      }).path,
       documentSource: "missing"
     };
   }
 
   if (process.platform === "win32") {
-    const docResolvedW = resolveDocumentEnginePath(pkgRoot);
+    const docResolvedW = resolveDocumentEnginePath(pkgRoot, {
+      ignoreOptionalDependency: o.ignoreOptionalDependency
+    });
     if (verbose) {
       console.log(
         `[ghostcrab] Windows (${platformKey}): using ${resolved.source}\n` +
@@ -598,6 +605,7 @@ export function preparePrebuildForInstall(pkgRoot, o = {}) {
       silent,
       tryQuarantine,
       softFail,
+      ignoreOptionalDependency: o.ignoreOptionalDependency,
       platformKey,
       actions: []
     });
@@ -640,7 +648,9 @@ export function preparePrebuildForInstall(pkgRoot, o = {}) {
       source: resolved.source,
       documentOk: false,
       documentMissing: true,
-      documentPath: resolveDocumentEnginePath(pkgRoot).path,
+      documentPath: resolveDocumentEnginePath(pkgRoot, {
+        ignoreOptionalDependency: o.ignoreOptionalDependency
+      }).path,
       documentSource: "missing"
     };
   }
@@ -680,6 +690,7 @@ export function preparePrebuildForInstall(pkgRoot, o = {}) {
     silent,
     tryQuarantine,
     softFail,
+    ignoreOptionalDependency: o.ignoreOptionalDependency,
     platformKey,
     actions
   });

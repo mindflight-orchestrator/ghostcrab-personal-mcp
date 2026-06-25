@@ -31,6 +31,7 @@ export async function cmdLoad(args) {
         `Use --workspace <id> to force demo profile imports into a specific workspace.\n` +
         `Backup bundles: run gcp brain upgrade --db <path> on the target database before load when upgrading from an older export.\n` +
         `Use gcp brain load --dry-run to preview bundle counts and schema preflight (missing columns).\n` +
+        `Backup bundle restore refuses to replace an existing workspace unless both --overwrite --confirm are passed.\n` +
         `Backup bundles default to --reindex graph. Use --reindex none for raw-only import.\n` +
         `JSONL profiles require a built package (dist/cli/demo-load.js). Run: pnpm run build`
     );
@@ -120,6 +121,8 @@ export function parseLoadArgs(args) {
   let documentTableId = null;
   let collectionId = null;
   let tableId = null;
+  let overwrite = false;
+  let confirm = false;
 
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
@@ -146,6 +149,14 @@ export function parseLoadArgs(args) {
     }
     if (a === "--dry-run") {
       dryRun = true;
+      continue;
+    }
+    if (a === "--overwrite") {
+      overwrite = true;
+      continue;
+    }
+    if (a === "--confirm") {
+      confirm = true;
       continue;
     }
     if (a === "--reindex") {
@@ -192,7 +203,9 @@ export function parseLoadArgs(args) {
     reindex,
     documentTableId,
     collectionId,
-    tableId
+    tableId,
+    overwrite,
+    confirm
   };
 }
 
@@ -227,6 +240,8 @@ export function buildBackupLoadEngineArgs(
     bundlePath
   ];
   if (parsed.dryRun) args.push("--dry-run");
+  if (parsed.overwrite) args.push("--overwrite");
+  if (parsed.confirm) args.push("--confirm");
   if (parsed.reindex && parsed.reindex !== "none") {
     args.push("--reindex", parsed.reindex);
   }

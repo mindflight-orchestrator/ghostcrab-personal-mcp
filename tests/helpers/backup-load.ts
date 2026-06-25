@@ -69,6 +69,8 @@ export function spawnBackupLoad(options: {
   collectionId?: string;
   tableId?: number;
   dryRun?: boolean;
+  overwrite?: boolean;
+  confirm?: boolean;
 }): BackupLoadResult {
   const enginePath = resolveNativeEnginePath();
   if (!enginePath) {
@@ -91,6 +93,12 @@ export function spawnBackupLoad(options: {
 
   if (options.dryRun) {
     args.push("--dry-run");
+  }
+  if (options.overwrite) {
+    args.push("--overwrite");
+  }
+  if (options.confirm) {
+    args.push("--confirm");
   }
   if (options.reindex && options.reindex !== "none") {
     args.push("--reindex", options.reindex);

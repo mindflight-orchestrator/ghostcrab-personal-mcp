@@ -159,6 +159,7 @@ Usage: gcp brain backup [--workspace <name>] [--workspace-id <id>] [--db <path>]
 
   Export a canonical MindBrain backup bundle. The bundle can be loaded with:
     gcp brain load <bundle.json>
+    gcp brain load <bundle.json> --overwrite --confirm   # replace existing workspace
 
   --workspace <name>     Workspace_id fallback when --workspace-id is omitted
   --workspace-id <id>    MindBrain workspace_id to export (defaults to --workspace/config/default)

@@ -11,11 +11,8 @@ import {
   type ToolHandler
 } from "../registry.js";
 
-export const GraphSearchInput = z.object({
-  query: z.string().trim().max(4_096).default(""),
-  entity_types: z.array(z.string().trim().min(1)).max(50).default([]),
-  metadata_filters: z.record(z.string(), z.unknown()).default({}),
-  collection_id: z.preprocess((value) => {
+const optionalNullableStringInput = z
+  .preprocess((value) => {
     if (value === null) return undefined;
     if (typeof value === "string") {
       const normalized = value.trim().toLowerCase();
@@ -24,7 +21,14 @@ export const GraphSearchInput = z.object({
       }
     }
     return value;
-  }, z.string().trim().min(1).optional()),
+  }, z.union([z.string().trim().min(1), z.undefined()]))
+  .optional();
+
+export const GraphSearchInput = z.object({
+  query: z.string().trim().max(4_096).default(""),
+  entity_types: z.array(z.string().trim().min(1)).max(50).default([]),
+  metadata_filters: z.record(z.string(), z.unknown()).default({}),
+  collection_id: optionalNullableStringInput,
   include_relations: z.boolean().default(false),
   limit: z.coerce.number().int().min(1).max(100).default(20),
   workspace_id: z.string().trim().min(1).optional()

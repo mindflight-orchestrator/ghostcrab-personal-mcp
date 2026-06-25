@@ -1048,6 +1048,7 @@ Examples:
   gcp brain upgrade --dry-run
   gcp brain backup --workspace-id my_ws --scope taxonomies --output ./taxonomies.json
   gcp brain export --workspace-id my_ws --scope collection --collection-id my_ws::docs -o ./docs.json
+  gcp brain load ./backup.json --overwrite --confirm
   gcp brain document document-profile-worker --base-url https://api.openai.com/v1 --model gpt-4.1-mini --limit 2
   gcp brain load ./profile.jsonl
   gcp brain load ./backup.json --dry-run

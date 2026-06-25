@@ -43,6 +43,7 @@ describe("prebuild-permissions document engine", () => {
     const warnSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     const result = preparePrebuildForInstall(root, {
+      ignoreOptionalDependency: true,
       ignorePostinstallEnv: true,
       silent: true
     });
@@ -66,6 +67,7 @@ describe("prebuild-permissions document engine", () => {
     }
 
     const result = preparePrebuildForInstall(root, {
+      ignoreOptionalDependency: true,
       ignorePostinstallEnv: true,
       silent: true
     });

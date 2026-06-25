@@ -144,7 +144,7 @@ Info:
   brain ontology import|export    Import/export OWL2 N-Triples
   brain backup [opts]             Export workspace/collection/taxonomy backup
   brain export [opts]             Alias for brain backup
-  brain load <file>               Load JSONL profile or restore backup bundle
+  brain load <file>               Load JSONL profile or restore backup bundle (--overwrite --confirm to replace)
   brain document <cmd> [args]     Corpus normalize/profile/ingest (stop MCP first)
   brain structured-import <cmd>   Tabular CSV/JSON import (stop MCP first)
   brain docs [topic]              Full import runbooks (structured | document | import)

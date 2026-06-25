@@ -196,6 +196,7 @@ Validate or restore a backup bundle:
 ```bash
 gcp brain load ./my_ws_docs.backup.json --dry-run
 gcp brain load ./my_ws_docs.backup.json --force
+gcp brain load ./my_ws_docs.backup.json --overwrite --confirm --force
 ```
 
 ## Workflow 3: Profile And Persist
