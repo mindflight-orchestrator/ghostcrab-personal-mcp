@@ -137,7 +137,7 @@ async function runExportLinkml(args) {
       workspaceNameFromCli: parsed.workspaceName,
       sqlitePathFromCli: parsed.sqlitePathFromCli
     }));
-    await preflightBrainDatabaseOrExit(sqlitePathResolved, false);
+    await preflightBrainDatabaseOrExit(sqlitePathResolved, parsed.force);
   }
 
   if (parsed.outputPath) {
@@ -299,6 +299,7 @@ export function parseOntologyExportLinkmlArgs(args) {
   let ontologyId = null;
   let bundlePath = null;
   let outputPath = null;
+  let force = false;
 
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
@@ -351,6 +352,10 @@ export function parseOntologyExportLinkmlArgs(args) {
       outputPath = args[++i];
       continue;
     }
+    if (a === "--force") {
+      force = true;
+      continue;
+    }
     return {
       error: `gcp brain ontology export-linkml: unknown argument "${a}".`
     };
@@ -373,7 +378,8 @@ export function parseOntologyExportLinkmlArgs(args) {
     sqlitePathFromCli,
     ontologyId,
     bundlePath,
-    outputPath
+    outputPath,
+    force
   };
 }
 
@@ -662,7 +668,7 @@ Usage: gcp brain ontology import [--workspace <name>] [--db <path>] [--force]
                                   [--import-db] [--workspace <name>] [--db <path>]
        gcp brain ontology export-linkml --ontology-id <id>
                                         (--input <bundle.json> | --db <path> | --workspace <name>)
-                                        [--output <schema.yaml>]
+                                        [--output <schema.yaml>] [--force]
        gcp brain ontology inspect --ontology-id <id> [--workspace-id <id>] [--url <backend>]
 
   Import/export normalized OWL2/RDF N-Triples through the native MindBrain ontology importer.

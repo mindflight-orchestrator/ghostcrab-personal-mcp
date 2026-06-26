@@ -98,14 +98,16 @@ describe("gcp brain ontology helpers", () => {
         "--input",
         "bundle.json",
         "-o",
-        "exported.yaml"
+        "exported.yaml",
+        "--force"
       ])
     ).toEqual({
       workspaceName: null,
       sqlitePathFromCli: null,
       ontologyId: "immeuble-demo::core",
       bundlePath: "bundle.json",
-      outputPath: "exported.yaml"
+      outputPath: "exported.yaml",
+      force: true
     });
   });
 
