@@ -62,6 +62,19 @@ export const collectionReindexTool: ToolHandler = {
         ...result
       });
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes("MissingRow") || message.includes("404")) {
+        return createToolErrorResult(
+          "ghostcrab_collection_reindex",
+          `Collection ${input.collection_id} was not found in workspace ${workspaceId}.`,
+          "collection_not_found",
+          {
+            workspace_id: workspaceId,
+            collection_id: input.collection_id,
+            table_id: input.table_id
+          }
+        );
+      }
       return createToolErrorFromException(
         "ghostcrab_collection_reindex",
         error,

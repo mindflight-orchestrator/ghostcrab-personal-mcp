@@ -214,10 +214,29 @@ export const qualityConvergenceGetTool: ToolHandler = {
   },
   async handler(args) {
     const input = QualityRunGetInput.parse(args);
-    const report = await runStandaloneQualityConvergenceGet({
-      ...configForQualityTools(),
-      runId: input.run_id
-    });
+    let report;
+    try {
+      report = await runStandaloneQualityConvergenceGet({
+        ...configForQualityTools(),
+        runId: input.run_id
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes("404") || message.includes("NotFound")) {
+        return createToolErrorResult(
+          "ghostcrab_quality_convergence_get",
+          `Quality convergence run ${input.run_id} was not found.`,
+          "quality_run_not_found",
+          { run_id: input.run_id }
+        );
+      }
+      return createToolErrorFromException(
+        "ghostcrab_quality_convergence_get",
+        error,
+        "backend_unavailable",
+        "MindBrain quality convergence get failed."
+      );
+    }
     return createToolSuccessResult(
       "ghostcrab_quality_convergence_get",
       asToolPayload(report)

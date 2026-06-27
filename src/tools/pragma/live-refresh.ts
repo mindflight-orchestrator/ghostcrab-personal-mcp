@@ -4,6 +4,7 @@ import { runRefreshLiveAnswerView } from "../../db/answer-artifacts.js";
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import {
   createToolErrorFromException,
+  createToolErrorResult,
   createToolSuccessResult,
   registerTool,
   type ToolHandler
@@ -68,6 +69,14 @@ export const liveRefreshTool: ToolHandler = {
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "MindBrain refresh failed";
+      if (message.includes("404") || message.includes("NotFound")) {
+        return createToolErrorResult(
+          "ghostcrab_live_refresh",
+          `Live answer artifact ${input.artifact_id} was not found.`,
+          "artifact_not_found",
+          { artifact_id: input.artifact_id }
+        );
+      }
       const code =
         message.includes("live answer views") ||
         message.includes("live_answer_view")

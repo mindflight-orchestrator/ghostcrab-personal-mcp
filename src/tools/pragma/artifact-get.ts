@@ -51,6 +51,15 @@ export const artifactGetTool: ToolHandler = {
         artifactId: input.artifact_id
       });
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes("404") || message.includes("NotFound")) {
+        return createToolErrorResult(
+          "ghostcrab_artifact_get",
+          `Artifact ${input.artifact_id} was not found.`,
+          "artifact_not_found",
+          { artifact_id: input.artifact_id }
+        );
+      }
       return createToolErrorFromException(
         "ghostcrab_artifact_get",
         error,

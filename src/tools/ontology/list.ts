@@ -74,12 +74,11 @@ export const ontologyListTool: ToolHandler = {
       source_kind: string;
       frozen: number;
       metadata_json: string;
-      created_at_unix: number;
-      updated_at_unix: number;
+      created_at: string;
     }>(
       `
         SELECT ontology_id, workspace_id, name, version, source_kind, frozen,
-               metadata_json, created_at_unix, updated_at_unix
+               metadata_json, created_at
         FROM ontologies
         WHERE ${whereClauses.join(" AND ")}
         ORDER BY ontology_id ASC
@@ -103,8 +102,7 @@ export const ontologyListTool: ToolHandler = {
 
       return {
         ...base,
-        created_at_unix: row.created_at_unix,
-        updated_at_unix: row.updated_at_unix,
+        created_at: row.created_at,
         metadata: parseMetadata(row.metadata_json)
       };
     });
