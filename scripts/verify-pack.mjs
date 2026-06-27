@@ -134,6 +134,7 @@ assert.equal(
 
 const allowedScriptPaths = new Set([
   "scripts/verify-mcp-tools.mjs",
+  "scripts/verify-mcp-all-tools.mjs",
   "scripts/mcp-smoke-shared.mjs",
   "scripts/load-tool-manifest.mjs",
   "scripts/sync-ide-skill-bundles.mjs"
