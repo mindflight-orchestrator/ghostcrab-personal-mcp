@@ -10222,7 +10222,7 @@
     {
       "artifact_id": "analysis_plan__immeuble_competency_questions",
       "slug": "immeuble_competency_questions",
-      "workspace_id": null,
+      "workspace_id": "immeuble",
       "agent_id": "agent:immeuble",
       "scope": "immeuble",
       "artifact_kind": "analysis_plan",

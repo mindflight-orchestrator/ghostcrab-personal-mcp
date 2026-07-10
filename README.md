@@ -95,13 +95,13 @@ The MCP server never touches the SQLite file directly. mindBrain owns it. This s
 From your project directory:
 
 ```bash
-npm install @mindflight/ghostcrab-personal-mcp@0.5.2
+npm install @mindflight/ghostcrab-personal-mcp@latest
 ```
 
 Or globally if you prefer:
 
 ```bash
-npm install -g @mindflight/ghostcrab-personal-mcp@0.5.2
+npm install -g @mindflight/ghostcrab-personal-mcp@latest
 ```
 
 (`@latest` tracks the same tag once npmjs has propagated the release.)
@@ -110,7 +110,7 @@ npm install -g @mindflight/ghostcrab-personal-mcp@0.5.2
 > Run this once:
 
 ```bash
-pnpm add --allow-build=@mindflight/ghostcrab-personal-mcp @mindflight/ghostcrab-personal-mcp@0.5.2
+pnpm add --allow-build=@mindflight/ghostcrab-personal-mcp @mindflight/ghostcrab-personal-mcp@latest
 ```
 
 After install, postinstall creates a `./data/` directory, copies `.env.example` → `.env` if no `.env` exists, and adds symlinks to key docs at your project root.
@@ -253,6 +253,18 @@ gcp brain load ./my_ws.backup.json --db /path/to/ghostcrab.sqlite --overwrite --
 ```
 
 Use `--skip-config-cleanup` on step 2 when the SQLite file belongs to a project-specific database rather than your default IDE install.
+
+### Load the immeuble demo bundle
+
+The canonical immeuble demo dataset ships with `@mindflight/mindbrain-personal-studio` (`examples/immeuble/bundle/immeuble.bundle.json` there; run `pnpm load:demo` from the Studio). To load any demo/backup bundle directly with this package, always pass `--workspace immeuble`:
+
+```bash
+gcp load path/to/immeuble.bundle.json --workspace immeuble --reindex all
+# or, from a GhostCrab package checkout:
+pnpm run demo:load
+```
+
+Note: there is no `pnpm load demo` shorthand — the script name is `demo:load` in this package and `load:demo` in the Studio.
 
 ---
 

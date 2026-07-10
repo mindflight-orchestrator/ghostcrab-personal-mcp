@@ -7,8 +7,9 @@
  * (MindBrain backend). Uses the same pipeline as `pnpm run demo:load`.
  */
 
-import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { resolveGhostcrabSqlite } from "../lib/resolve-ghostcrab-sqlite.mjs";
 import { slugifyWorkspace } from "../lib/workspace-slug.mjs";
@@ -62,6 +63,21 @@ export async function cmdLoad(args) {
       "[ghostcrab] backup load: ensure the target database is upgraded first " +
         "(gcp brain upgrade --db <path> --skip-config-cleanup) if it predates this package."
     );
+    const preflight = preflightWorkspaceStrictBundle(
+      resolved,
+      parsed.workspaceName
+    );
+    if (!preflight.ok) {
+      console.error(preflight.message);
+      process.exit(1);
+    }
+    if (preflight.backfilled.length > 0) {
+      console.error(
+        `[ghostcrab] backup load: backfilled null workspace_id -> '${parsed.workspaceName}' ` +
+          `for ${preflight.backfilled.length} answer artifact(s): ${preflight.backfilled.join(", ")}`
+      );
+    }
+    const bundleForEngine = preflight.bundlePath;
     const { sqlitePathResolved } = resolveGhostcrabSqlite({
       workspaceNameFromCli: parsed.workspaceName,
       sqlitePathFromCli: parsed.sqlitePathFromCli
@@ -71,7 +87,7 @@ export async function cmdLoad(args) {
     }
     const loadResult = runNativeEngineSync(
       pkgRoot,
-      buildBackupLoadEngineArgs(parsed, sqlitePathResolved, resolved),
+      buildBackupLoadEngineArgs(parsed, sqlitePathResolved, bundleForEngine),
       { preferDev: true }
     );
     if (!loadResult.ok) {
@@ -89,7 +105,7 @@ export async function cmdLoad(args) {
     if (!parsed.dryRun) {
       await assertBackendSqliteAlignedOrExit({
         sqlitePathResolved,
-        bundlePath: resolved
+        bundlePath: bundleForEngine
       });
     }
     return;
@@ -227,6 +243,64 @@ export function detectLoadKind(filePath) {
   return "jsonl-profile";
 }
 
+/**
+ * The 2026-06-16 workspace-strict migration made
+ * mindbrain_answer_artifacts.workspace_id NOT NULL. Bundles exported before
+ * it can carry rows with workspace_id null, which the engine rejects on a
+ * fresh load. Catch those rows up front: with --workspace, backfill them
+ * into a patched temp copy of the bundle; without it, fail with the exact
+ * offending rows instead of a bare engine error.
+ */
+export function preflightWorkspaceStrictBundle(bundlePath, workspaceName) {
+  let doc;
+  try {
+    doc = JSON.parse(readFileSync(bundlePath, "utf8"));
+  } catch {
+    // Unreadable JSON is the engine's problem to report.
+    return { ok: true, bundlePath, backfilled: [] };
+  }
+  const rows = Array.isArray(doc?.mindbrain_answer_artifacts)
+    ? doc.mindbrain_answer_artifacts
+    : [];
+  const offenders = rows.filter(
+    (row) => row && typeof row === "object" && row.workspace_id == null
+  );
+  if (offenders.length === 0) {
+    return { ok: true, bundlePath, backfilled: [] };
+  }
+  if (!workspaceName) {
+    const lines = offenders.map(
+      (row) =>
+        `  - ${row.artifact_id ?? "<missing artifact_id>"} (scope: ${row.scope ?? "null"})`
+    );
+    return {
+      ok: false,
+      bundlePath,
+      backfilled: [],
+      offenders: offenders.map((row) => row.artifact_id ?? null),
+      message:
+        `gcp load: bundle preflight failed — ${offenders.length} mindbrain_answer_artifacts ` +
+        `row(s) have null workspace_id, which violates the workspace-strict schema ` +
+        `(workspace_id NOT NULL since the 2026-06-16 migration):\n` +
+        `${lines.join("\n")}\n` +
+        `Pass --workspace <id> to backfill these rows at load time, or fix the bundle JSON.`
+    };
+  }
+  for (const row of offenders) {
+    row.workspace_id = workspaceName;
+  }
+  const patchedPath = join(
+    mkdtempSync(join(tmpdir(), "gcp-load-")),
+    basename(bundlePath)
+  );
+  writeFileSync(patchedPath, JSON.stringify(doc, null, 2));
+  return {
+    ok: true,
+    bundlePath: patchedPath,
+    backfilled: offenders.map((row) => row.artifact_id ?? "<missing artifact_id>")
+  };
+}
+
 export function buildBackupLoadEngineArgs(
   parsed,
   sqlitePathResolved,
@@ -260,5 +334,6 @@ export function buildBackupLoadEngineArgs(
 export const __private__ = {
   buildBackupLoadEngineArgs,
   detectLoadKind,
-  parseLoadArgs
+  parseLoadArgs,
+  preflightWorkspaceStrictBundle
 };
