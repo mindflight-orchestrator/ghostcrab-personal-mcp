@@ -195,7 +195,8 @@ const SYSTEM_ENTRIES: BootstrapEntry[] = [
       entry_slug: "rule:schema-coverage-sync-check",
       entry_type: "rule",
       level: "intermediate",
-      use_when: "After ontology import when deciding if registry and native ontology data are aligned"
+      use_when:
+        "After ontology import when deciding if registry and native ontology data are aligned"
     },
     lookupFacets: {
       entry_slug: "rule:schema-coverage-sync-check"

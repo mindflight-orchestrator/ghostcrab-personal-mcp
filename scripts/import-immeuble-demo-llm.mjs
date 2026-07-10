@@ -60,7 +60,10 @@ const expectedPath = join(
   repoRoot,
   "examples/immeuble/sources/documents/expected-coverage.json"
 );
-const bundlePath = join(repoRoot, "examples/immeuble/bundle/immeuble.bundle.json");
+const bundlePath = join(
+  repoRoot,
+  "examples/immeuble/bundle/immeuble.bundle.json"
+);
 const corpusDir = join(repoRoot, "examples/immeuble/sources/documents");
 const ontologyPath = join(repoRoot, "ontologies/immeuble/core.yaml");
 
@@ -295,9 +298,8 @@ async function main() {
         String(selectedFiles.length)
       ]);
     } else {
-      let qualificationPrompt = null;
       if (args.debugPrompts) {
-        qualificationPrompt = captureQualificationDryRun({
+        const qualificationPrompt = captureQualificationDryRun({
           selectedFiles,
           manifest
         });
@@ -825,8 +827,6 @@ function buildSourceFacetBootstrapBundle() {
 
 async function extractBusinessBundle({
   mode,
-  manifest,
-  expected,
   goldenBundle,
   selectedFiles,
   extractionMaxTokens,

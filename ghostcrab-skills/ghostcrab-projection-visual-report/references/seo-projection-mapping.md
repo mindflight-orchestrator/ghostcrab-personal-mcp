@@ -138,4 +138,3 @@ Best visuals:
   - position
   - recommended canonical target
 - Before/after resolution timeline.
-

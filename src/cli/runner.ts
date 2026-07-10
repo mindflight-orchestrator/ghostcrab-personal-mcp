@@ -10,7 +10,6 @@ import {
   listAllRegisteredToolsForMcp,
   listBasicRegisteredTools
 } from "../tools/catalog.js";
-import { getExpectedToolManifest } from "../tools/tool-manifest.js";
 import { registerAllTools } from "../tools/register-all.js";
 import { listRegisteredTools } from "../tools/registry.js";
 import { getPackageVersion } from "../version.js";
@@ -426,7 +425,10 @@ export async function runCli(argv: string[]): Promise<void> {
     return;
   }
 
-  if (firstArg === "workspace" && (argv[1] === "reset" || argv[1] === "delete")) {
+  if (
+    firstArg === "workspace" &&
+    (argv[1] === "reset" || argv[1] === "delete")
+  ) {
     registerAllTools();
     const action = argv[1];
     const { values } = parseArgs({
@@ -473,7 +475,9 @@ export async function runCli(argv: string[]): Promise<void> {
         payload,
         toolContext
       );
-      process.stdout.write(`${JSON.stringify(extractStructuredJson(result))}\n`);
+      process.stdout.write(
+        `${JSON.stringify(extractStructuredJson(result))}\n`
+      );
       await cleanup();
       process.exit(exitCode);
     } catch (error) {
@@ -513,7 +517,6 @@ export async function runCli(argv: string[]): Promise<void> {
     const listedTools = listAllRegisteredToolsForMcp(tools);
     const recommendedTools = listBasicRegisteredTools(tools);
     const toolCatalog = buildToolCatalog(tools);
-    const manifest = getExpectedToolManifest();
     const output = {
       ok: true,
       // tools/list now returns the full catalog; "recommended" is a curated

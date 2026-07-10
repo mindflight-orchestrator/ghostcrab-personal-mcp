@@ -285,8 +285,7 @@ describe("facet tools", () => {
   });
 
   it("stores embeddings when the fake provider is enabled", async () => {
-    const fetchMock = vi.fn(async (url: string | URL) => {
-      const path = typeof url === "string" ? url : url.toString();
+    const fetchMock = vi.fn(async (_url: string | URL) => {
       return new Response(
         JSON.stringify({
           ok: true,

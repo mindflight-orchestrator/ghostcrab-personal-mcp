@@ -4,10 +4,10 @@ GhostCrab skills reference delivery SOPs and templates from the **GhostCrab Pers
 
 ## Notation
 
-| Token | Meaning |
-| --- | --- |
-| `{starterkit}` | The `starterkit/` folder **inside** the Git clone (edition router + templates + scripts) |
-| `{project}` | Delivery project root (where `ontology/`, `generated/`, and `import_path_choices.yaml` live) |
+| Token          | Meaning                                                                                      |
+| -------------- | -------------------------------------------------------------------------------------------- |
+| `{starterkit}` | The `starterkit/` folder **inside** the Git clone (edition router + templates + scripts)     |
+| `{project}`    | Delivery project root (where `ontology/`, `generated/`, and `import_path_choices.yaml` live) |
 
 Example paths:
 
@@ -43,19 +43,19 @@ git clone https://gitlab.com/webigniter/starter-kit-ghostcrab-perso.git
 
 Always prefer **`personal-mcp/`** edition files over root stubs.
 
-| Usage | Path |
-| --- | --- |
-| SOP sequence | `{starterkit}/personal-mcp/SOP_SEQUENCE.md` |
-| Route map | `{starterkit}/personal-mcp/ROUTE_MAP.md` |
-| Skill route map | `{starterkit}/personal-mcp/SKILL_ROUTE_MAP.md` |
-| Import path choices (SOP0) | `{starterkit}/personal-mcp/SOP0_import_path_choices.md` |
-| Ontology modeling (SOP2) | `{starterkit}/personal-mcp/SOP2_obsidian_ontologie.md` |
-| Structured import (SOP5 Personal) | `{starterkit}/personal-mcp/SOP5_structured_import.md` |
-| Environment bootstrap (SOP4) | `{starterkit}/personal-mcp/SOP4_environment_bootstrap.md` |
-| Edition router | `{starterkit}/QUICKSTART.md` |
-| YAML templates | `{starterkit}/templates/*` |
-| Gate scripts | `{starterkit}/scripts/*` |
-| Projection tools readme | `{starterkit}/scripts/README_projection_tools.md` |
+| Usage                             | Path                                                      |
+| --------------------------------- | --------------------------------------------------------- |
+| SOP sequence                      | `{starterkit}/personal-mcp/SOP_SEQUENCE.md`               |
+| Route map                         | `{starterkit}/personal-mcp/ROUTE_MAP.md`                  |
+| Skill route map                   | `{starterkit}/personal-mcp/SKILL_ROUTE_MAP.md`            |
+| Import path choices (SOP0)        | `{starterkit}/personal-mcp/SOP0_import_path_choices.md`   |
+| Ontology modeling (SOP2)          | `{starterkit}/personal-mcp/SOP2_obsidian_ontologie.md`    |
+| Structured import (SOP5 Personal) | `{starterkit}/personal-mcp/SOP5_structured_import.md`     |
+| Environment bootstrap (SOP4)      | `{starterkit}/personal-mcp/SOP4_environment_bootstrap.md` |
+| Edition router                    | `{starterkit}/QUICKSTART.md`                              |
+| YAML templates                    | `{starterkit}/templates/*`                                |
+| Gate scripts                      | `{starterkit}/scripts/*`                                  |
+| Projection tools readme           | `{starterkit}/scripts/README_projection_tools.md`         |
 
 **Do not use for Personal SQLite:** `pro-mcp/`, `SOP5_source_import_compiler.md` (Pro track), PostgreSQL COPY scripts.
 

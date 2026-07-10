@@ -12,10 +12,10 @@ Cursor MCP (`.cursor/mcp.json`) uses a **single** database:
 /home/dlamotte/Documents/ghostcrab-personal-mcp/data/ghostcrab.sqlite
 ```
 
-| Workspace | Role | How it is populated |
-|-----------|------|---------------------|
-| **`immo-mcp`** | **Process** — what GhostCrab MCP built from the 8 corpus docs (phases 2–5) | Agent + CLI on this workspace only |
-| **`immeuble`** | **Reference** — expected golden snapshot | Load `bundle/immeuble.bundle.json` **once** for comparison (never into `immo-mcp`) |
+| Workspace      | Role                                                                       | How it is populated                                                                |
+| -------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| **`immo-mcp`** | **Process** — what GhostCrab MCP built from the 8 corpus docs (phases 2–5) | Agent + CLI on this workspace only                                                 |
+| **`immeuble`** | **Reference** — expected golden snapshot                                   | Load `bundle/immeuble.bundle.json` **once** for comparison (never into `immo-mcp`) |
 
 ```mermaid
 flowchart TB
@@ -84,18 +84,22 @@ Deliverable: markdown report with pass/fail on immo-mcp; immeuble is the expecte
 # Immeuble MCP lab — comparison report (immo-mcp)
 
 ## Summary
+
 - Status: pass | fail
 - SQLite: ghostcrab.sqlite (Cursor MCP --db)
 - Process workspace: immo-mcp
 - Reference workspace: immeuble (bundle golden)
 
 ## Entity counts
+
 | type | criteria | immo-mcp | immeuble | immo-mcp ok |
 
 ## Relation / search / diagnostics
+
 | check | criteria | immo-mcp | immeuble | immo-mcp ok |
 
 ## Gaps on immo-mcp (max 3)
+
 1. …
 ```
 

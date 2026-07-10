@@ -57,7 +57,10 @@ describe("cli-invocation", () => {
       "ghostcrab-personal-mcp"
     );
     mkdirSync(localRoot, { recursive: true });
-    writeFileSync(join(localRoot, "package.json"), JSON.stringify({ version: "0.5.2" }));
+    writeFileSync(
+      join(localRoot, "package.json"),
+      JSON.stringify({ version: "0.5.2" })
+    );
 
     expect(detectCliInstallKind(localRoot)).toBe("local");
     expect(
@@ -77,6 +80,8 @@ describe("cli-invocation", () => {
     expect(audit.issues.some((line) => /git checkout root/i.test(line))).toBe(
       true
     );
-    expect(audit.fixes.some((line) => line.includes(GCP_NPX_PREFIX))).toBe(true);
+    expect(audit.fixes.some((line) => line.includes(GCP_NPX_PREFIX))).toBe(
+      true
+    );
   });
 });

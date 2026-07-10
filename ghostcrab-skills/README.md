@@ -111,18 +111,18 @@ Edit only `ghostcrab-skills/skills/<skill>/SKILL.md` for all ten GhostCrab skill
 
 ## Ten skills (cross-IDE)
 
-| # | Skill | Category | Install name |
-| --- | --- | --- | --- |
-| 1 | ghostcrab-memory | General | `ghostcrab-memory` |
-| 2 | ghostcrab-prompt-guide | General | `ghostcrab-prompt-guide` |
-| 3 | ghostcrab-data-architect | General | `ghostcrab-data-architect` |
-| 4 | ghostcrab-integration-sop-editor | General | `ghostcrab-integration-sop-editor` |
-| 5 | mindbrain-comparison-writer | General | `mindbrain-comparison-writer` |
-| 6 | ghostcrab-operator | Operational | `ghostcrab-operator` |
-| 7 | ghostcrab-evidence-discovery | Operational | `ghostcrab-evidence-discovery` |
-| 8 | ghostcrab-projection-reviewer | Operational | `ghostcrab-projection-reviewer` |
-| 9 | ghostcrab-gap-auditor | Operational | `ghostcrab-gap-auditor` |
-| 10 | ghostcrab-json-answer-builder | Operational | `ghostcrab-json-answer-builder` |
+| #   | Skill                            | Category    | Install name                       |
+| --- | -------------------------------- | ----------- | ---------------------------------- |
+| 1   | ghostcrab-memory                 | General     | `ghostcrab-memory`                 |
+| 2   | ghostcrab-prompt-guide           | General     | `ghostcrab-prompt-guide`           |
+| 3   | ghostcrab-data-architect         | General     | `ghostcrab-data-architect`         |
+| 4   | ghostcrab-integration-sop-editor | General     | `ghostcrab-integration-sop-editor` |
+| 5   | mindbrain-comparison-writer      | General     | `mindbrain-comparison-writer`      |
+| 6   | ghostcrab-operator               | Operational | `ghostcrab-operator`               |
+| 7   | ghostcrab-evidence-discovery     | Operational | `ghostcrab-evidence-discovery`     |
+| 8   | ghostcrab-projection-reviewer    | Operational | `ghostcrab-projection-reviewer`    |
+| 9   | ghostcrab-gap-auditor            | Operational | `ghostcrab-gap-auditor`            |
+| 10  | ghostcrab-json-answer-builder    | Operational | `ghostcrab-json-answer-builder`    |
 
 **Canonical install:** `gcp brain setup cursor|claude|codex|generic --yes` copies the same ten skills plus shared stubs into `ghostcrab-shared/` next to each skill.
 

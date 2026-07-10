@@ -118,8 +118,7 @@ function smokeDocumentHelp(documentPath) {
   }
 
   const combined = `${doc.stdout ?? ""}${doc.stderr ?? ""}`;
-  const looksLikeHelp =
-    doc.status === 0 || /usage:/i.test(combined);
+  const looksLikeHelp = doc.status === 0 || /usage:/i.test(combined);
   if (!looksLikeHelp) {
     console.error(
       `[ghostcrab] postinstall smoke: ghostcrab-document --help did not print expected usage.\n` +

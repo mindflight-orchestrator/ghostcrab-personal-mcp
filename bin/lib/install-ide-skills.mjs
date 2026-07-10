@@ -276,7 +276,11 @@ function writeInstallReference({
     generatedAt: new Date().toISOString()
   };
   writeFileSync(manifestPath, `${JSON.stringify(doc, null, 2)}\n`, "utf8");
-  writeFileSync(targetManifestPath, `${JSON.stringify(doc, null, 2)}\n`, "utf8");
+  writeFileSync(
+    targetManifestPath,
+    `${JSON.stringify(doc, null, 2)}\n`,
+    "utf8"
+  );
   writeFileSync(
     readmePath,
     `# GhostCrab installed skills
@@ -383,14 +387,21 @@ function installClaudeBundle(bundleRoot, cwd, force, scope, perm = {}) {
     ? join(selfMem, "CLAUDE.install.md")
     : join(selfMem, "CLAUDE.md");
   if (!existsSync(srcClaude)) {
-    return { ok: false, message: `Missing Claude self-memory starter under ${selfMem}` };
+    return {
+      ok: false,
+      message: `Missing Claude self-memory starter under ${selfMem}`
+    };
   }
 
   const destClaude = join(cwd, ".ghostcrab", "claude-self-memory.md");
   copyManagedTree(srcClaude, destClaude, force, paths, skipped);
 
   const srcSkills = join(bundleRoot, "claude-code", "skills");
-  const { skillRoot: destSkills } = resolveInstallRoots(cwd, "claude-code", scope);
+  const { skillRoot: destSkills } = resolveInstallRoots(
+    cwd,
+    "claude-code",
+    scope
+  );
   if (!existsSync(srcSkills)) {
     return { ok: false, message: `Missing Claude skills at ${srcSkills}` };
   }
@@ -522,7 +533,10 @@ function installGenericBundle(bundleRoot, cwd, force, scope) {
   const sharedRoot = installSharedDocs(bundleRoot, cwd);
 
   if (!existsSync(srcSkills)) {
-    return { ok: false, message: `Missing generic skills bundle at ${srcSkills}` };
+    return {
+      ok: false,
+      message: `Missing generic skills bundle at ${srcSkills}`
+    };
   }
 
   for (const name of skills) {
@@ -593,7 +607,9 @@ export function installIdeSkillsBundleForTarget(opts) {
   if (target === "cursor") {
     result = installCursorBundle(bundleRoot, cwd, force, scope);
   } else if (target === "claude-code") {
-    result = installClaudeBundle(bundleRoot, cwd, force, scope, { permissionsAllow });
+    result = installClaudeBundle(bundleRoot, cwd, force, scope, {
+      permissionsAllow
+    });
   } else if (target === "codex") {
     result = installCodexBundle(bundleRoot, cwd, force, scope);
   } else if (target === "generic") {
@@ -662,7 +678,11 @@ export function describeIdeSkillsBundleForTarget(opts) {
     opts.target === "codex" ||
     opts.target === "generic"
   ) {
-    installedSkillRoot = resolveInstallRoots(opts.cwd, opts.target, scope).skillRoot;
+    installedSkillRoot = resolveInstallRoots(
+      opts.cwd,
+      opts.target,
+      scope
+    ).skillRoot;
   } else {
     return { ok: false, message: `Unknown IDE skills target: ${opts.target}` };
   }

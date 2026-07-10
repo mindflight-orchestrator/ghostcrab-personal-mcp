@@ -192,7 +192,7 @@ describe("demo-load answer_artifact entries", () => {
   });
 
   it("loads demo profile imports into a target workspace", async () => {
-    const query = vi.fn<Queryable["query"]>(async (sql, params = []) => {
+    const query = vi.fn<Queryable["query"]>(async (sql, _params = []) => {
       if (sql.includes("mb_pragma.agent_facts")) {
         return [];
       }
@@ -235,7 +235,12 @@ describe("demo-load answer_artifact entries", () => {
     expect(summary.skipped).toBe(0);
     expect(query).toHaveBeenCalledWith(
       expect.stringContaining("mb_pragma.agent_facts"),
-      ["demo:schema", "sample content", JSON.stringify({ key: "value" }), "my-app"]
+      [
+        "demo:schema",
+        "sample content",
+        JSON.stringify({ key: "value" }),
+        "my-app"
+      ]
     );
   });
 });

@@ -32,7 +32,8 @@ export const collectionReindexTool: ToolHandler = {
         },
         collection_id: {
           type: "string",
-          description: "Collection id whose raw documents and facets are reindexed."
+          description:
+            "Collection id whose raw documents and facets are reindexed."
         },
         table_id: {
           type: "integer",

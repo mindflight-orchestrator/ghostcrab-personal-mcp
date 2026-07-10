@@ -393,7 +393,7 @@ async function callToolAny(client, name, args) {
 
   try {
     return JSON.parse(textItem.text);
-  } catch (error) {
+  } catch (_error) {
     if (result.isError) {
       return {
         ok: false,

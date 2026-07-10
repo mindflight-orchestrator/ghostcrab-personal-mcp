@@ -214,10 +214,7 @@ async function upsertGeneratedSchema(
 
   if (existing) {
     const existingFacets = safeParseFacetJson(existing.facets_json);
-    if (
-      !overwriteCustom &&
-      existingFacets.generated_from !== "ontology"
-    ) {
+    if (!overwriteCustom && existingFacets.generated_from !== "ontology") {
       return "skipped_custom";
     }
     await context.database.query(
@@ -299,7 +296,7 @@ export const ontologyReconciliationReportTool: ToolHandler = {
         ontology_id:
           typeof report.summary.ontology_id === "string"
             ? report.summary.ontology_id
-            : input.ontology_id ?? null,
+            : (input.ontology_id ?? null),
         backend: "mindbrain/ontology/reconciliation",
         summary: report.summary,
         issues: Array.isArray(report.issues) ? report.issues : []
@@ -406,7 +403,12 @@ export const ontologyReconciliationApplyTool: ToolHandler = {
       workspace_id: workspaceId,
       ontology_id: input.ontology_id,
       applied_scope: "mcp_schema_registry",
-      untouched_layers: ["raw_graph", "runtime_graph", "collection_facets", "gap_rules"],
+      untouched_layers: [
+        "raw_graph",
+        "runtime_graph",
+        "collection_facets",
+        "gap_rules"
+      ],
       results
     });
   }

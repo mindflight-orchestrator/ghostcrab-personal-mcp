@@ -21,13 +21,6 @@ function normalizeWhitespace(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
 
-function extractRouteLines(block: string): string[] {
-  return block
-    .split("\n")
-    .map((line) => canonicalizeRoute(normalizeWhitespace(line)))
-    .filter((line) => /^(GET|POST)\s+\//.test(line));
-}
-
 export function extractZigUsageRoutes(source: string): string[] {
   const routeMatches = [...source.matchAll(/\\\\\s+(GET|POST)\s+(\/[^\n"]+)/g)];
   return routeMatches.map(([, method, routePath]) =>
@@ -73,9 +66,10 @@ export function assertRoutesPresent(
   label: string
 ): void {
   for (const route of routes) {
-    expect(dispatchRoutes.has(formatRoute(route)), `${label}: ${formatRoute(route)}`).toBe(
-      true
-    );
+    expect(
+      dispatchRoutes.has(formatRoute(route)),
+      `${label}: ${formatRoute(route)}`
+    ).toBe(true);
   }
 }
 
@@ -91,9 +85,10 @@ export function assertRoutesAbsentFromSource(
 
 export function assertForbiddenEmbedderPatterns(source: string): void {
   for (const pattern of GHOSTCRAB_BACKEND_CONTRACT.forbiddenEmbedderPatterns) {
-    expect(source.includes(pattern), `forbidden embedder pattern: ${pattern}`).toBe(
-      false
-    );
+    expect(
+      source.includes(pattern),
+      `forbidden embedder pattern: ${pattern}`
+    ).toBe(false);
   }
   expect(
     source.includes(".enable_lab_routes = false"),

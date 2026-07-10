@@ -271,7 +271,7 @@ const ENTRYPOINT_CAPABILITIES = new Map([
       "ghostcrab_schema_register",
       "ghostcrab_modeling_guidance"
     ])
-  ],
+  ]
 ]);
 
 const VALID_ENV_TOKEN_PATTERN = /^\$\{[A-Z0-9_]+(?::-?[^}]*)?\}$/;
@@ -465,7 +465,9 @@ function assertEditorSkillSymlinks() {
 
   const cursorRules = path.join(repoRoot, "cursor", "rules");
   if (exists(cursorRules)) {
-    addError("cursor/rules must not exist; Cursor uses selectable skills only.");
+    addError(
+      "cursor/rules must not exist; Cursor uses selectable skills only."
+    );
   }
 }
 

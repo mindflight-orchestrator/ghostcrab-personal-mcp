@@ -341,7 +341,7 @@ The delivered SQLite has **8 tables + 2 views** covering the four BMAD phases [^
 | `relation`      | 50 edges               | Phase-to-phase graph                                                                                          |
 | `agent_role`    | 6 BMAD roles           | Analyst, PM, Architect, SM, Dev, QA with `produces[]` and `consumes[]`                                        |
 | `agent_entity`  | 30 ownership rows      | Who authored / consumes / reviewed each entity                                                                |
-| `decision`      | 3 ADRs                 | SQLite choice, API design, WAL mode — context / rationale / status                                        |
+| `decision`      | 3 ADRs                 | SQLite choice, API design, WAL mode — context / rationale / status                                            |
 | `facet`         | 37 indexes             | Facets `epic`, `sprint`, `component`, `agent_role`, `tech`, `layer` per entity                                |
 
 ### Ready-made views

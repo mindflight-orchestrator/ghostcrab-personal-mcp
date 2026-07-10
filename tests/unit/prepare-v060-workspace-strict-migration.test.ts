@@ -149,7 +149,9 @@ describe.skipIf(!hasSqlite3())(
 
       const dryRun = runScript(dbPath);
       expect(dryRun.status).toBe(1);
-      expect(dryRun.stdout).toContain("blocker analysis_plan analysis_plan__legacy");
+      expect(dryRun.stdout).toContain(
+        "blocker analysis_plan analysis_plan__legacy"
+      );
 
       const apply = runScript(dbPath, [
         "--analysis-plan-workspace",
@@ -157,7 +159,9 @@ describe.skipIf(!hasSqlite3())(
         "--apply"
       ]);
       expect(apply.status).toBe(0);
-      expect(apply.stdout).toContain("analysis_plan analysis_plan__legacy -> ws_b");
+      expect(apply.stdout).toContain(
+        "analysis_plan analysis_plan__legacy -> ws_b"
+      );
 
       const workspace = sqlite(
         dbPath,

@@ -1,5 +1,4 @@
-import { spawnSync } from "node:child_process";
-import { dirname, join } from "node:path";
+import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { loadToolManifestFromDist } from "./load-tool-manifest.mjs";
@@ -10,8 +9,6 @@ import {
 } from "./mcp-smoke-shared.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = join(__dirname, "..");
-
 function loadManifest() {
   return loadToolManifestFromDist();
 }
@@ -19,9 +16,7 @@ function loadManifest() {
 const { manifest, registered, missing, extra } = loadManifest();
 
 if (missing.length > 0 || extra.length > 0) {
-  console.error(
-    JSON.stringify({ ok: false, missing, extra }, null, 2)
-  );
+  console.error(JSON.stringify({ ok: false, missing, extra }, null, 2));
   process.exit(1);
 }
 
@@ -89,7 +84,12 @@ await withSmokeClient("verify-mcp-tools", async ({ client }) => {
   }
 
   for (const check of callSmoke) {
-    const payload = await callToolJson(client, check.name, check.args, check.name);
+    const payload = await callToolJson(
+      client,
+      check.name,
+      check.args,
+      check.name
+    );
 
     if (payload.ok !== true) {
       const code =

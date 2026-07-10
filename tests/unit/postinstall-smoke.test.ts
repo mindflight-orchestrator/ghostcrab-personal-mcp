@@ -35,12 +35,21 @@ describe("postinstall-smoke document engine", () => {
   it("skips document smoke when documentPath is absent", () => {
     root = mkdtempSync(join(tmpdir(), "gc-smoke-"));
     mkdirSync(join(root, "bin"), { recursive: true });
-    writeFileSync(join(root, "bin", "gcp.mjs"), "console.log('GhostCrab CLI');", "utf8");
-    const backendPath = makeFakeBinary("ghostcrab-backend", "ghostcrab-backend");
+    writeFileSync(
+      join(root, "bin", "gcp.mjs"),
+      "console.log('GhostCrab CLI');",
+      "utf8"
+    );
+    const backendPath = makeFakeBinary(
+      "ghostcrab-backend",
+      "ghostcrab-backend"
+    );
 
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation((() => {}) as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation((() => {}) as never);
 
     runPostinstallSmoke({
       pkgRoot: root,
@@ -60,12 +69,24 @@ describe("postinstall-smoke document engine", () => {
   it("runs document smoke when documentPath is provided", () => {
     root = mkdtempSync(join(tmpdir(), "gc-smoke-"));
     mkdirSync(join(root, "bin"), { recursive: true });
-    writeFileSync(join(root, "bin", "gcp.mjs"), "console.log('GhostCrab CLI');", "utf8");
-    const backendPath = makeFakeBinary("ghostcrab-backend", "ghostcrab-backend");
-    const documentPath = makeFakeBinary("ghostcrab-document", "ghostcrab-document");
+    writeFileSync(
+      join(root, "bin", "gcp.mjs"),
+      "console.log('GhostCrab CLI');",
+      "utf8"
+    );
+    const backendPath = makeFakeBinary(
+      "ghostcrab-backend",
+      "ghostcrab-backend"
+    );
+    const documentPath = makeFakeBinary(
+      "ghostcrab-document",
+      "ghostcrab-document"
+    );
 
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation((() => {}) as never);
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation((() => {}) as never);
 
     runPostinstallSmoke({
       pkgRoot: root,

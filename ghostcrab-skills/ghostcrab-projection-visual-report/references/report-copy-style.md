@@ -47,4 +47,3 @@ Use cautious wording when evidence is an example or sample:
 - "returned evidence rows"
 - "materialized projection value"
 - "projection considers the issue resolved"
-

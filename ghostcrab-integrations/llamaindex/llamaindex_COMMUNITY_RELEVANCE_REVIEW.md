@@ -167,7 +167,7 @@ Link a decision to a source document and a task using `ghostcrab_learn`, then re
 
 Suggested wording:
 
-> This guide focuses on GhostCrab Personal SQLite. 
+> This guide focuses on GhostCrab Personal SQLite.
 
 ## JTBD Agent Analysis (Re-audit v2)
 
@@ -227,7 +227,7 @@ Historical pre-rewrite score:
 | --------------------------- | ----: | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Community relevance         |   4/5 | LlamaIndex users understand memory and retrieval problems.                                                                             |
 | Framework alignment         |   4/5 | Strong fit if positioned as complementary state memory.                                                                                |
-| GhostCrab Personal accuracy |   5/5 | Aligned with SQLite Personal MCP |
+| GhostCrab Personal accuracy |   5/5 | Aligned with SQLite Personal MCP                                                                                                       |
 | Tool-name accuracy          |   2/5 | Custom tool names must be replaced.                                                                                                    |
 | Agent behavioral clarity    |   1/5 | Operational/retrieval boundary named but not enforced; Python MCP connection not shown; remember/upsert absent; failure modes missing. |
 | Community readiness         |   2/5 | Needs sharper complementary framing and connection path.                                                                               |

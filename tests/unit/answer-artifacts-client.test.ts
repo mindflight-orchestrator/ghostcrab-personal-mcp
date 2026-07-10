@@ -44,7 +44,19 @@ describe("answer-artifacts TS client", () => {
       ];
       for (const kind of ANSWER_ARTIFACT_KINDS) {
         const [row] = mapAnswerArtifactListRows(columns, [
-          ["id", "slug", "ws", null, null, kind, "label", "active", "open", 1, null]
+          [
+            "id",
+            "slug",
+            "ws",
+            null,
+            null,
+            kind,
+            "label",
+            "active",
+            "open",
+            1,
+            null
+          ]
         ]);
         expect(row.artifact_kind).toBe(kind);
       }
@@ -66,7 +78,21 @@ describe("answer-artifacts TS client", () => {
             "current_version",
             "legacy_ref"
           ],
-          [["id", "s", null, null, null, "answer_update_event", "x", "a", "b", 1, null]]
+          [
+            [
+              "id",
+              "s",
+              null,
+              null,
+              null,
+              "answer_update_event",
+              "x",
+              "a",
+              "b",
+              1,
+              null
+            ]
+          ]
         )
       ).toThrow(/Invalid artifact_kind/);
     });
@@ -184,24 +210,25 @@ describe("answer-artifacts TS client", () => {
     it("rejects invalid artifact_kind in HTTP response", async () => {
       vi.stubGlobal(
         "fetch",
-        vi.fn(async () =>
-          new Response(
-            JSON.stringify({
-              artifact_id: "bad",
-              slug: "bad",
-              workspace_id: "ws_demo",
-              agent_id: null,
-              scope: null,
-              artifact_kind: "graph_data_gap",
-              public_label: "nope",
-              lifecycle: "active",
-              state: "open",
-              current_version: 1,
-              payload_json: "{}",
-              legacy_ref: null
-            }),
-            { status: 200, headers: { "content-type": "application/json" } }
-          )
+        vi.fn(
+          async () =>
+            new Response(
+              JSON.stringify({
+                artifact_id: "bad",
+                slug: "bad",
+                workspace_id: "ws_demo",
+                agent_id: null,
+                scope: null,
+                artifact_kind: "graph_data_gap",
+                public_label: "nope",
+                lifecycle: "active",
+                state: "open",
+                current_version: 1,
+                payload_json: "{}",
+                legacy_ref: null
+              }),
+              { status: 200, headers: { "content-type": "application/json" } }
+            )
         )
       );
 

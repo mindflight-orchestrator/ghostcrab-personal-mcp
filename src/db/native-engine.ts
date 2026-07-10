@@ -8,7 +8,12 @@ const require = createRequire(import.meta.url);
 interface NativeEngineResolution {
   ok: boolean;
   path: string;
-  source: "env" | "optionalDependency" | "bundled-prebuild" | "vendor-dev" | "missing";
+  source:
+    | "env"
+    | "optionalDependency"
+    | "bundled-prebuild"
+    | "vendor-dev"
+    | "missing";
   packageName: string | null;
   platformKey: string;
 }
@@ -67,12 +72,20 @@ export function runNativeMindbrainEngine(
 function resolveNativeMindbrainEngine(pkgRoot: string): NativeEngineResolution {
   const platformKey = `${process.platform}-${process.arch}`;
   const binaryName =
-    process.platform === "win32" ? "ghostcrab-document.exe" : "ghostcrab-document";
+    process.platform === "win32"
+      ? "ghostcrab-document.exe"
+      : "ghostcrab-document";
   const packageName = PREBUILD_PACKAGES[platformKey] ?? null;
 
   const override = process.env.GHOSTCRAB_DOCUMENT_ENGINE?.trim();
   if (override && existsSync(override)) {
-    return { ok: true, path: override, source: "env", packageName, platformKey };
+    return {
+      ok: true,
+      path: override,
+      source: "env",
+      packageName,
+      platformKey
+    };
   }
 
   if (packageName) {

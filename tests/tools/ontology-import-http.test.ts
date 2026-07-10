@@ -8,7 +8,7 @@ vi.mock("../../src/db/native-engine.js", () => ({
   runNativeMindbrainEngine: vi.fn(() => ({
     ok: true,
     status: 0,
-    stdout: "{\"ontology_id\":\"demo::core\"}",
+    stdout: '{"ontology_id":"demo::core"}',
     stderr: "",
     engineSource: "vendor-dev"
   }))
@@ -80,7 +80,10 @@ describe("ghostcrab_ontology_import HTTP transport", () => {
         });
       }
       expect(path).toBe("/api/mindbrain/sql/write-status");
-      return jsonResponse({ mode: "serialized-writer", active_session_id: null });
+      return jsonResponse({
+        mode: "serialized-writer",
+        active_session_id: null
+      });
     });
     vi.stubGlobal("fetch", fetchMock);
     vi.stubEnv("GHOSTCRAB_MINDBRAIN_URL", "http://mindbrain.test");

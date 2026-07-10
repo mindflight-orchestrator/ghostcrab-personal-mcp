@@ -299,7 +299,11 @@ async function cmdBrainSetup(args) {
         "MCP registration failed. Installing IDE skills + permissions anyway (decoupled)."
       );
     }
-    await runPostInstallAndExit(postOpts, p, out.ok ? null : (out.code ?? EX_ERR));
+    await runPostInstallAndExit(
+      postOpts,
+      p,
+      out.ok ? null : (out.code ?? EX_ERR)
+    );
     return;
   }
 
@@ -321,7 +325,11 @@ async function cmdBrainSetup(args) {
         "MCP registration failed. Installing IDE skills + permissions anyway (decoupled)."
       );
     }
-    await runPostInstallAndExit(postOpts, p, out.ok ? null : (out.code ?? EX_ERR));
+    await runPostInstallAndExit(
+      postOpts,
+      p,
+      out.ok ? null : (out.code ?? EX_ERR)
+    );
     return;
   }
 
@@ -345,7 +353,11 @@ async function cmdBrainSetup(args) {
         "MCP registration failed. Installing IDE skills + permissions anyway (decoupled)."
       );
     }
-    await runPostInstallAndExit(postOpts, p, out.ok ? null : (out.code ?? EX_ERR));
+    await runPostInstallAndExit(
+      postOpts,
+      p,
+      out.ok ? null : (out.code ?? EX_ERR)
+    );
     return;
   }
 
@@ -894,7 +906,9 @@ async function cmdWorkspaceBootstrap(args) {
     if (arg === "--profile") {
       profileId = args[i + 1] ?? null;
       if (!profileId) {
-        console.error("gcp brain workspace bootstrap: --profile requires an id.");
+        console.error(
+          "gcp brain workspace bootstrap: --profile requires an id."
+        );
         process.exit(1);
       }
       i += 1;
@@ -929,9 +943,7 @@ async function cmdWorkspaceBootstrap(args) {
       continue;
     }
 
-    console.error(
-      `gcp brain workspace bootstrap: unknown argument "${arg}".`
-    );
+    console.error(`gcp brain workspace bootstrap: unknown argument "${arg}".`);
     process.exit(1);
   }
 

@@ -168,7 +168,7 @@ Ask Hermes-Agent to search prior decisions with `ghostcrab_search` before making
 
 Suggested wording:
 
-> This guide focuses on GhostCrab Personal SQLite. 
+> This guide focuses on GhostCrab Personal SQLite.
 
 Keep this note brief.
 

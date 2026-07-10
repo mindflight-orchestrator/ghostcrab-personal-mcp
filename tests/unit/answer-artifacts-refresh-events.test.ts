@@ -121,31 +121,34 @@ describe("answer-artifacts refresh and events client", () => {
       });
 
       expect(result.artifact.current_version).toBe(2);
-      expect(result.answer_update_event?.event_kind).toBe("answer_update_event");
+      expect(result.answer_update_event?.event_kind).toBe(
+        "answer_update_event"
+      );
       expect(result.answer_update_event?.to_version).toBe(2);
     });
 
     it("rejects refresh on non-live artifacts", async () => {
       vi.stubGlobal(
         "fetch",
-        vi.fn(async () =>
-          new Response(
-            JSON.stringify({
-              artifact_id: "answer_snapshot__demo",
-              artifact_kind: "answer_snapshot",
-              slug: "snap",
-              workspace_id: "ws_demo",
-              agent_id: null,
-              scope: null,
-              public_label: "Snapshot",
-              lifecycle: "closed",
-              state: "closed",
-              current_version: 1,
-              payload_json: "{}",
-              legacy_ref: null
-            }),
-            { status: 200, headers: { "content-type": "application/json" } }
-          )
+        vi.fn(
+          async () =>
+            new Response(
+              JSON.stringify({
+                artifact_id: "answer_snapshot__demo",
+                artifact_kind: "answer_snapshot",
+                slug: "snap",
+                workspace_id: "ws_demo",
+                agent_id: null,
+                scope: null,
+                public_label: "Snapshot",
+                lifecycle: "closed",
+                state: "closed",
+                current_version: 1,
+                payload_json: "{}",
+                legacy_ref: null
+              }),
+              { status: 200, headers: { "content-type": "application/json" } }
+            )
         )
       );
 

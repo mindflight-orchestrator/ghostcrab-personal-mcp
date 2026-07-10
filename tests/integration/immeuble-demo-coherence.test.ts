@@ -42,7 +42,10 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const WS_ID = "immeuble";
 const COLL_ID = "immeuble::docs";
 const FACET_TABLE_ID = 77001;
-const BUNDLE_PATH = join(__dirname, "../../examples/immeuble/bundle/immeuble.bundle.json");
+const BUNDLE_PATH = join(
+  __dirname,
+  "../../examples/immeuble/bundle/immeuble.bundle.json"
+);
 const LEARN_TEST_NODE_ID = "immeuble:audit-test-node";
 
 const harness = createIntegrationHarness();

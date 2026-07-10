@@ -16,7 +16,9 @@ export interface WorkspaceContextStatus {
   workspace_switched_at?: string;
 }
 
-function deriveSqlitePathSource(config: ReturnType<typeof resolveGhostcrabConfig>): string {
+function deriveSqlitePathSource(
+  config: ReturnType<typeof resolveGhostcrabConfig>
+): string {
   if (process.env.GHOSTCRAB_SQLITE_PATH?.trim()) {
     return "GHOSTCRAB_SQLITE_PATH";
   }

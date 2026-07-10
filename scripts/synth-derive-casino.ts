@@ -113,9 +113,10 @@ async function verifyLayer2(
   const facetsResult = await client
     .query<{
       count: string;
-    }>(`SELECT COUNT(*)::text AS count FROM agent_facts WHERE workspace_id = $1`, [
-      workspaceId
-    ])
+    }>(
+      `SELECT COUNT(*)::text AS count FROM agent_facts WHERE workspace_id = $1`,
+      [workspaceId]
+    )
     .catch(() => ({ rows: [{ count: "0" }] }));
 
   const entitiesResult = await client

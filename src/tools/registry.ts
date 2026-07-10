@@ -118,9 +118,7 @@ function parseMaybeJson(value: string): unknown {
 }
 
 function normalizeBackendStatus(status: unknown): number | null {
-  return typeof status === "number" && Number.isFinite(status)
-    ? status
-    : null;
+  return typeof status === "number" && Number.isFinite(status) ? status : null;
 }
 
 function normalizeErrorCode(
@@ -159,7 +157,9 @@ export function createToolErrorFromException(
 
   const cause = error instanceof Error ? error.cause : undefined;
   const causeObj =
-    cause && typeof cause === "object" ? (cause as Record<string, unknown>) : {};
+    cause && typeof cause === "object"
+      ? (cause as Record<string, unknown>)
+      : {};
   const status = normalizeBackendStatus(causeObj.status);
 
   const rawBody =
@@ -207,9 +207,7 @@ export function createToolErrorFromException(
   }
 
   const normalizedMessage =
-    message !== fallbackMessage
-      ? message
-      : fallbackMessage;
+    message !== fallbackMessage ? message : fallbackMessage;
   const detailsMessage =
     normalizedMessage.includes("MindBrain request failed") && errorSymbol
       ? `${normalizedMessage} (${errorSymbol})`

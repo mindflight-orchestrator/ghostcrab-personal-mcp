@@ -98,11 +98,11 @@ agent = Agent(
 
 ## Key talking point for Agno users
 
-| Agno scenario                                           | Problem                            | What MindBrain adds                                                          |
-| :------------------------------------------------------ | :--------------------------------- | :--------------------------------------------------------------------------- |
-| Team of five agents, each with its own `SqliteMemoryDb` | No agent sees other agents’ facts  | Shared namespace; all entities co-visible                                    |
-| Agent A learns `client_X = enterprise`                  | Only Agent A knows                 | | `agno_memories` stores unstructured strings             | No typing, no semantic query       | `ghostcrab_search` (faceted search) + `ghostcrab_traverse` / `ghostcrab_learn`: typed entities, named relations, queryable facets |
-| Recovery after crash → session lost                     | Memory tied to session, not domain | Ontology persistence decoupled from agent lifecycle                          |
+| Agno scenario                                           | Problem                            | What MindBrain adds                                 |
+| :------------------------------------------------------ | :--------------------------------- | :-------------------------------------------------- | ------------------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Team of five agents, each with its own `SqliteMemoryDb` | No agent sees other agents’ facts  | Shared namespace; all entities co-visible           |
+| Agent A learns `client_X = enterprise`                  | Only Agent A knows                 |                                                     | `agno_memories` stores unstructured strings | No typing, no semantic query | `ghostcrab_search` (faceted search) + `ghostcrab_traverse` / `ghostcrab_learn`: typed entities, named relations, queryable facets |
+| Recovery after crash → session lost                     | Memory tied to session, not domain | Ontology persistence decoupled from agent lifecycle |
 
 ## Recommended integration order
 

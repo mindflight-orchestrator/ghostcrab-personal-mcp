@@ -175,7 +175,7 @@ Use `ghostcrab_project` to keep the active goal visible across multiple smolagen
 
 Suggested wording:
 
-> This guide focuses on GhostCrab Personal SQLite. 
+> This guide focuses on GhostCrab Personal SQLite.
 
 Keep it as one short note.
 
@@ -239,7 +239,7 @@ Not addressed. Critical for step_callbacks:
 | --------------------------- | ----: | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | Community relevance         |   4/5 | Lightweight durable memory is a good fit.                                                                                                      |
 | Framework alignment         |   4/5 | Step memory and managed agents map well to GhostCrab.                                                                                          |
-| GhostCrab Personal accuracy |   5/5 | Aligned with SQLite Personal MCP |
+| GhostCrab Personal accuracy |   5/5 | Aligned with SQLite Personal MCP                                                                                                               |
 | Tool-name accuracy          |   2/5 | Custom tools need replacement.                                                                                                                 |
 | Agent behavioral clarity    |   2/5 | step_callbacks insight is valuable but wired to wrong tools; remember/upsert rule absent; transport tension unresolved; failure modes missing. |
 | Community readiness         |   3/5 | Good after simplifying the demo and fixing transport.                                                                                          |

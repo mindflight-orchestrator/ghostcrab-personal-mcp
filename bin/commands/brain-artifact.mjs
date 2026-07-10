@@ -80,7 +80,9 @@ async function runArtifactList(parsed) {
 
   const response = await postSql(baseUrl, sql, params);
   const artifacts = mapListArtifactRows(response.columns, response.rows);
-  console.log(JSON.stringify({ ok: true, count: artifacts.length, artifacts }, null, 2));
+  console.log(
+    JSON.stringify({ ok: true, count: artifacts.length, artifacts }, null, 2)
+  );
 }
 
 /**
@@ -268,7 +270,7 @@ Restart the backend/MCP, then retry with one exact live_answer_view id.
 
 Backup bundles include mindbrain_answer_artifacts and mindbrain_answer_events
 when exporting a full workspace (gcp brain backup).
-`.trim()
+`.trim();
 }
 
 function printArtifactHelp() {

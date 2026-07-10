@@ -1,5 +1,4 @@
 import {
-  chmodSync,
   existsSync,
   mkdtempSync,
   mkdirSync,
@@ -35,9 +34,7 @@ describe("path-shim", () => {
     expect(getPathSnippet("zsh", binDir)).toBe(
       `export PATH="${binDir}${delimiter}$PATH"`
     );
-    expect(getPathSnippet("fish", binDir)).toBe(
-      `fish_add_path -a "${binDir}"`
-    );
+    expect(getPathSnippet("fish", binDir)).toBe(`fish_add_path -a "${binDir}"`);
     expect(getPathSnippet("powershell", binDir)).toBe(
       `$env:Path = "${binDir};" + $env:Path`
     );

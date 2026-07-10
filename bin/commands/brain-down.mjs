@@ -36,9 +36,7 @@ export async function cmdBrainDown(args, io = {}) {
     process.exit(1);
   }
 
-  const report = opts.all
-    ? runDownAll(opts, io)
-    : runDownCurrentDb(opts, io);
+  const report = opts.all ? runDownAll(opts, io) : runDownCurrentDb(opts, io);
 
   if (opts.json) {
     console.log(JSON.stringify(report, null, 2));
@@ -154,7 +152,9 @@ function printDownReport(report, opts) {
       return;
     }
     const verb = report.dry_run ? "would stop" : "stopped";
-    console.log(`gcp brain down --all: ${verb} ${report.killed.length} process(es):`);
+    console.log(
+      `gcp brain down --all: ${verb} ${report.killed.length} process(es):`
+    );
     for (const k of report.killed) {
       console.log(`  pid ${k.pid}: ${k.status}`);
     }
@@ -167,7 +167,9 @@ function printDownReport(report, opts) {
   console.log(`  (${report.sqlite_path_source})`);
   const b = report.backend;
   if (b.status === "not-found" || b.status === "stale") {
-    console.log(`  Backend: no running backend for this database (${b.status}).`);
+    console.log(
+      `  Backend: no running backend for this database (${b.status}).`
+    );
     return;
   }
   if (b.status === "dry-run") {

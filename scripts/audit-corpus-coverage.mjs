@@ -28,7 +28,9 @@ function loadDatabaseSync() {
   try {
     return require("node:sqlite").DatabaseSync;
   } catch (error) {
-    throw new Error("node:sqlite is required to run corpus audit.", { cause: error });
+    throw new Error("node:sqlite is required to run corpus audit.", {
+      cause: error
+    });
   }
 }
 
@@ -38,8 +40,14 @@ function parseArgs(argv) {
     dbPath: null,
     collectionId: null,
     ontologyId: null,
-    manifestPath: join(repoRoot, "examples/immeuble/sources/documents/manifest.json"),
-    expectedPath: join(repoRoot, "examples/immeuble/sources/documents/expected-coverage.json"),
+    manifestPath: join(
+      repoRoot,
+      "examples/immeuble/sources/documents/manifest.json"
+    ),
+    expectedPath: join(
+      repoRoot,
+      "examples/immeuble/sources/documents/expected-coverage.json"
+    ),
     parsedJsonPath: null,
     outputPath: null
   };
@@ -60,7 +68,8 @@ function parseArgs(argv) {
     else if (arg === "--collection-id") options.collectionId = next();
     else if (arg === "--ontology-id") options.ontologyId = next();
     else if (arg === "--manifest") options.manifestPath = resolve(next());
-    else if (arg === "--expected-coverage") options.expectedPath = resolve(next());
+    else if (arg === "--expected-coverage")
+      options.expectedPath = resolve(next());
     else if (arg === "--parsed-json") options.parsedJsonPath = resolve(next());
     else if (arg === "--output") options.outputPath = resolve(next());
     else throw new Error(`Unknown argument: ${arg}`);
@@ -69,20 +78,21 @@ function parseArgs(argv) {
   if (options.help) return options;
   if (!options.workspaceId) throw new Error("--workspace-id is required");
   if (!options.dbPath) throw new Error("--db is required");
-  if (!options.collectionId) options.collectionId = `${options.workspaceId}::docs`;
+  if (!options.collectionId)
+    options.collectionId = `${options.workspaceId}::docs`;
   if (!options.ontologyId) options.ontologyId = `${options.workspaceId}::core`;
   if (!options.outputPath) {
-    options.outputPath = join(repoRoot, "reports", `corpus-audit-${options.workspaceId}.md`);
+    options.outputPath = join(
+      repoRoot,
+      "reports",
+      `corpus-audit-${options.workspaceId}.md`
+    );
   }
   return options;
 }
 
 function queryAll(db, sql, params = []) {
   return db.prepare(sql).all(...params);
-}
-
-function queryOne(db, sql, params = []) {
-  return db.prepare(sql).get(...params);
 }
 
 function loadParsedExtract(parsedJsonPath) {
@@ -98,7 +108,9 @@ function loadParsedExtract(parsedJsonPath) {
 }
 
 function docIdsFromEntityDocuments(rows) {
-  return new Set(rows.map((row) => Number(row.doc_id)).filter((id) => Number.isFinite(id)));
+  return new Set(
+    rows.map((row) => Number(row.doc_id)).filter((id) => Number.isFinite(id))
+  );
 }
 
 function expectedKeyToEntityType(key) {
@@ -126,8 +138,10 @@ function diagnoseRow(row) {
   if (row.qualified_type && row.qualified_type !== row.expected_type) {
     issues.push(`document_type mismatch (${row.qualified_type})`);
   }
-  if (!row.in_parsed_extract) issues.push("LLM extract omit (parsed entity_documents)");
-  if (!row.in_db_entity_docs && row.in_parsed_extract) issues.push("apply gap (parsed only)");
+  if (!row.in_parsed_extract)
+    issues.push("LLM extract omit (parsed entity_documents)");
+  if (!row.in_db_entity_docs && row.in_parsed_extract)
+    issues.push("apply gap (parsed only)");
   if (!row.in_db_entity_docs && !row.in_parsed_extract && row.ingested) {
     issues.push("extract coverage gap");
   }
@@ -174,7 +188,9 @@ export function runAudit(options) {
        GROUP BY doc_id`,
       [options.workspaceId, options.collectionId]
     );
-    const chunksByDoc = new Map(chunkCounts.map((row) => [Number(row.doc_id), Number(row.count)]));
+    const chunksByDoc = new Map(
+      chunkCounts.map((row) => [Number(row.doc_id), Number(row.count)])
+    );
 
     const facetCounts = queryAll(
       db,
@@ -184,7 +200,9 @@ export function runAudit(options) {
        GROUP BY doc_id`,
       [options.workspaceId, options.collectionId]
     );
-    const facetsByDoc = new Map(facetCounts.map((row) => [Number(row.doc_id), Number(row.count)]));
+    const facetsByDoc = new Map(
+      facetCounts.map((row) => [Number(row.doc_id), Number(row.count)])
+    );
 
     const qualifiedTypes = queryAll(
       db,
@@ -195,7 +213,9 @@ export function runAudit(options) {
          AND namespace = 'source' AND dimension = 'document_type'`,
       [options.workspaceId, options.collectionId]
     );
-    const typeByDoc = new Map(qualifiedTypes.map((row) => [Number(row.doc_id), String(row.value)]));
+    const typeByDoc = new Map(
+      qualifiedTypes.map((row) => [Number(row.doc_id), String(row.value)])
+    );
 
     const dbEntityDocIds = new Set(
       queryAll(
@@ -264,12 +284,20 @@ export function runAudit(options) {
     }
 
     const expectedCounts = expected.counts ?? {};
-    const countRows = Object.entries(expectedCounts).map(([entityType, expectedCount]) => {
-      const mappedType = expectedKeyToEntityType(entityType);
-      const actual = entityCountMap.get(mappedType) ?? 0;
-      const delta = actual - Number(expectedCount);
-      return { entityType, mappedType, expected: Number(expectedCount), actual, delta };
-    });
+    const countRows = Object.entries(expectedCounts).map(
+      ([entityType, expectedCount]) => {
+        const mappedType = expectedKeyToEntityType(entityType);
+        const actual = entityCountMap.get(mappedType) ?? 0;
+        const delta = actual - Number(expectedCount);
+        return {
+          entityType,
+          mappedType,
+          expected: Number(expectedCount),
+          actual,
+          delta
+        };
+      }
+    );
 
     const lines = [];
     lines.push(`# Corpus audit — ${options.workspaceId}`);
@@ -283,17 +311,35 @@ export function runAudit(options) {
     lines.push(`| Manifest docs | ${files.length} |`);
     lines.push(`| Ingested (\`documents_raw\`) | ${documents.length} |`);
     lines.push(`| Parsed extract doc citations | ${parsedDocIds.size} |`);
-    lines.push(`| DB \`entity_documents_raw\` doc ids | ${dbEntityDocIds.size} |`);
-    lines.push(`| Entities (\`entities_raw\`) | ${[...entityCountMap.values()].reduce((a, b) => a + b, 0)} |`);
-    lines.push(`| Relations (\`relations_raw\`) | ${relationCounts.reduce((a, row) => a + Number(row.count), 0)} |`);
+    lines.push(
+      `| DB \`entity_documents_raw\` doc ids | ${dbEntityDocIds.size} |`
+    );
+    lines.push(
+      `| Entities (\`entities_raw\`) | ${[...entityCountMap.values()].reduce((a, b) => a + b, 0)} |`
+    );
+    lines.push(
+      `| Relations (\`relations_raw\`) | ${relationCounts.reduce((a, row) => a + Number(row.count), 0)} |`
+    );
     lines.push("");
 
-    const parsedOnly = [...parsedDocIds].filter((id) => !dbEntityDocIds.has(id)).sort((a, b) => a - b);
-    const dbOnly = [...dbEntityDocIds].filter((id) => !parsedDocIds.has(id)).sort((a, b) => a - b);
+    const parsedOnly = [...parsedDocIds]
+      .filter((id) => !dbEntityDocIds.has(id))
+      .sort((a, b) => a - b);
+    const dbOnly = [...dbEntityDocIds]
+      .filter((id) => !parsedDocIds.has(id))
+      .sort((a, b) => a - b);
     if (parsedDocIds.size > 0) {
-      lines.push(`Parsed \`entity_documents_raw\` doc_ids: ${[...parsedDocIds].sort((a, b) => a - b).join(", ")}`);
-      if (parsedOnly.length) lines.push(`Parsed-only doc_ids (not in DB apply): ${parsedOnly.join(", ")}`);
-      if (dbOnly.length) lines.push(`DB-only doc_ids (not in parsed extract): ${dbOnly.join(", ")}`);
+      lines.push(
+        `Parsed \`entity_documents_raw\` doc_ids: ${[...parsedDocIds].sort((a, b) => a - b).join(", ")}`
+      );
+      if (parsedOnly.length)
+        lines.push(
+          `Parsed-only doc_ids (not in DB apply): ${parsedOnly.join(", ")}`
+        );
+      if (dbOnly.length)
+        lines.push(
+          `DB-only doc_ids (not in parsed extract): ${dbOnly.join(", ")}`
+        );
       lines.push("");
     }
 
@@ -316,12 +362,16 @@ export function runAudit(options) {
     lines.push("");
     lines.push("| entity_type | expected | actual | delta |");
     lines.push("|-------------|---------:|-------:|------:|");
-    for (const row of countRows.sort((a, b) => a.entityType.localeCompare(b.entityType))) {
+    for (const row of countRows.sort((a, b) =>
+      a.entityType.localeCompare(b.entityType)
+    )) {
       const label =
         row.mappedType === row.entityType
           ? row.entityType
           : `${row.entityType} (\`${row.mappedType}\`)`;
-      lines.push(`| ${label} | ${row.expected} | ${row.actual} | ${row.delta >= 0 ? "+" : ""}${row.delta} |`);
+      lines.push(
+        `| ${label} | ${row.expected} | ${row.actual} | ${row.delta >= 0 ? "+" : ""}${row.delta} |`
+      );
     }
     lines.push("");
 
@@ -348,7 +398,9 @@ export function runAudit(options) {
     const keyEdges = ["owns", "occupies", "assigned_cellar", "contains"];
     lines.push("## Key relation presence");
     lines.push("");
-    const relationMap = new Map(relationCounts.map((row) => [String(row.edge_type), Number(row.count)]));
+    const relationMap = new Map(
+      relationCounts.map((row) => [String(row.edge_type), Number(row.count)])
+    );
     for (const edge of keyEdges) {
       const count = relationMap.get(edge) ?? 0;
       lines.push(`- \`${edge}\`: ${count}`);
@@ -362,13 +414,21 @@ export function runAudit(options) {
     } else if (perDoc.some((row) => row.facet_rows === 0)) {
       lines.push("- **qualify**: at least one doc has zero facet assignments.");
     } else if (perDoc.some((row) => !row.in_parsed_extract && row.ingested)) {
-      lines.push("- **LLM extract**: ingested docs missing from parsed `entity_documents_raw` (monolithic extract bias).");
+      lines.push(
+        "- **LLM extract**: ingested docs missing from parsed `entity_documents_raw` (monolithic extract bias)."
+      );
     } else if (invalidTypes.length) {
-      lines.push("- **validation/normalisation**: entities with types outside ontology.");
+      lines.push(
+        "- **validation/normalisation**: entities with types outside ontology."
+      );
     } else if (countRows.some((row) => row.actual < row.expected)) {
-      lines.push("- **LLM omission**: entity counts below expected-coverage despite pipeline OK.");
+      lines.push(
+        "- **LLM omission**: entity counts below expected-coverage despite pipeline OK."
+      );
     } else {
-      lines.push("- Pipeline stages look consistent for manifest docs; review entity count deltas.");
+      lines.push(
+        "- Pipeline stages look consistent for manifest docs; review entity count deltas."
+      );
     }
     lines.push("");
 
@@ -381,7 +441,9 @@ export function runAudit(options) {
 export function main(argv = process.argv.slice(2)) {
   const options = parseArgs(argv);
   if (options.help) {
-    console.log(`Usage: node scripts/audit-corpus-coverage.mjs --workspace-id <id> --db <sqlite> [options]`);
+    console.log(
+      `Usage: node scripts/audit-corpus-coverage.mjs --workspace-id <id> --db <sqlite> [options]`
+    );
     return 0;
   }
   const report = runAudit(options);

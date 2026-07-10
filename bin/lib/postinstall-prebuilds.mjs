@@ -103,7 +103,8 @@ if (
     console.error(`       ${formatGcpCommand("brain setup codex")}`);
     console.error(`       ${formatGcpCommand("brain setup claude")}`);
     console.error(
-      "  3. Or install PATH only: " + formatGcpCommand("path install --write-profile")
+      "  3. Or install PATH only: " +
+        formatGcpCommand("path install --write-profile")
     );
     console.error(
       "[ghostcrab] See INSTALL.md and installations/gcp-brain-setup.md in the package."

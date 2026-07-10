@@ -16,13 +16,70 @@ const PHRASE_ALIASES: Array<{ pattern: RegExp; inject: string[] }> = [
 ];
 
 const FR_STOPWORDS = new Set([
-  "le", "la", "les", "des", "du", "de", "en", "est", "une", "un",
-  "qui", "que", "quoi", "sont", "pour", "par", "avec", "dans", "sur",
-  "et", "ou", "il", "elle", "ils", "elles", "ce", "se", "sa", "ses",
-  "si", "ne", "pas", "plus", "y", "a", "au", "aux", "je", "tu", "on",
-  "nous", "vous", "cette", "ces", "leur", "leurs", "dont", "mais",
-  "car", "or", "ni", "donc", "entre", "vers", "quel", "quelle", "quels",
-  "quelles", "etre", "avoir", "tout", "tous", "toute", "toutes"
+  "le",
+  "la",
+  "les",
+  "des",
+  "du",
+  "de",
+  "en",
+  "est",
+  "une",
+  "un",
+  "qui",
+  "que",
+  "quoi",
+  "sont",
+  "pour",
+  "par",
+  "avec",
+  "dans",
+  "sur",
+  "et",
+  "ou",
+  "il",
+  "elle",
+  "ils",
+  "elles",
+  "ce",
+  "se",
+  "sa",
+  "ses",
+  "si",
+  "ne",
+  "pas",
+  "plus",
+  "y",
+  "a",
+  "au",
+  "aux",
+  "je",
+  "tu",
+  "on",
+  "nous",
+  "vous",
+  "cette",
+  "ces",
+  "leur",
+  "leurs",
+  "dont",
+  "mais",
+  "car",
+  "or",
+  "ni",
+  "donc",
+  "entre",
+  "vers",
+  "quel",
+  "quelle",
+  "quels",
+  "quelles",
+  "etre",
+  "avoir",
+  "tout",
+  "tous",
+  "toute",
+  "toutes"
 ]);
 
 function tokenize(text: string): Set<string> {
@@ -57,7 +114,10 @@ function aliasScore(rawQuestion: string, capabilityText: string): number {
   return best;
 }
 
-function tokenOverlapScore(rawQuestion: string, capabilityText: string): number {
+function tokenOverlapScore(
+  rawQuestion: string,
+  capabilityText: string
+): number {
   const queryTokens = tokenize(rawQuestion);
   if (queryTokens.size === 0) return 0;
   const capTokens = tokenize(capabilityText);
@@ -86,8 +146,9 @@ function structuredFacetScore(
     if (Array.isArray(value) && value.length === 0) continue;
     considered++;
     if (!required.has(key)) continue;
-    const renderedValue =
-      Array.isArray(value) ? value.join(" ") : String(value).toLowerCase();
+    const renderedValue = Array.isArray(value)
+      ? value.join(" ")
+      : String(value).toLowerCase();
     const text = searchableText(capability).toLowerCase();
     if (text.includes(renderedValue)) {
       matched++;

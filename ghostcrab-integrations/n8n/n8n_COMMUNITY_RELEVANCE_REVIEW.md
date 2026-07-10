@@ -154,7 +154,7 @@ A workflow stores a durable note when it makes a routing decision, then later re
 
 Suggested wording:
 
-> This recipe focuses on GhostCrab Personal SQLite. 
+> This recipe focuses on GhostCrab Personal SQLite.
 
 Keep this note short.
 

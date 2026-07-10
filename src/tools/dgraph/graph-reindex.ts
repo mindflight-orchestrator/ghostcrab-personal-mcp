@@ -5,7 +5,6 @@ import { runSqlGraphReindex } from "../../db/graph-reindex-sql.js";
 import { runStandaloneReindexGraph } from "../../db/standalone-mindbrain.js";
 import {
   createToolErrorFromException,
-  createToolErrorResult,
   createToolSuccessResult,
   registerTool,
   type ToolHandler
@@ -126,9 +125,7 @@ registerTool(graphReindexTool);
 
 function shouldFallbackToSqlReindex(error: unknown): boolean {
   const cause =
-    error instanceof Error &&
-    error.cause &&
-    typeof error.cause === "object"
+    error instanceof Error && error.cause && typeof error.cause === "object"
       ? (error.cause as { status?: unknown })
       : null;
   const status = typeof cause?.status === "number" ? cause.status : null;

@@ -13,10 +13,7 @@ import { loadRuntimeCapabilities } from "./loader.js";
 import { rankCapabilities } from "./matcher.js";
 import { normalizeBusinessQuestion } from "./normalizer.js";
 import { buildPlan, chooseRouteFromScores } from "./planner.js";
-import type {
-  BusinessIntent,
-  BusinessQueryResult
-} from "./types.js";
+import type { BusinessIntent, BusinessQueryResult } from "./types.js";
 
 const LIVE_QUERY_FACET_WHITELIST = new Set([
   "demo_week",
@@ -143,14 +140,10 @@ export function buildLiveFilterQuery(intent: BusinessIntent): LiveFilterResult {
     typeof structured.limit === "number" && Number.isFinite(structured.limit)
       ? structured.limit
       : DEFAULT_MATCH_LIMIT;
-  const limit = Math.max(
-    1,
-    Math.min(MAX_MATCH_LIMIT, Math.trunc(rawLimit))
-  );
+  const limit = Math.max(1, Math.min(MAX_MATCH_LIMIT, Math.trunc(rawLimit)));
 
   const order =
-    typeof structured.order === "string" &&
-    /^asc$/i.test(structured.order)
+    typeof structured.order === "string" && /^asc$/i.test(structured.order)
       ? "asc"
       : "desc";
 
@@ -184,16 +177,28 @@ export async function readLiveRows(params: {
   const { context, intent, schemaId, dryRun } = params;
   if (dryRun) {
     const prepared = buildLiveFilterQuery(intent);
-    return { rows: [], applied_facets: prepared.applied, skipped_facets: prepared.skipped };
+    return {
+      rows: [],
+      applied_facets: prepared.applied,
+      skipped_facets: prepared.skipped
+    };
   }
 
   const built = buildLiveFilterQuery(intent);
   if (Object.keys(intent.structured_facets ?? intent.slots).length === 0) {
-    return { rows: [], applied_facets: built.applied, skipped_facets: built.skipped };
+    return {
+      rows: [],
+      applied_facets: built.applied,
+      skipped_facets: built.skipped
+    };
   }
 
   if (schemaId === "unknown") {
-    return { rows: [], applied_facets: built.applied, skipped_facets: built.skipped };
+    return {
+      rows: [],
+      applied_facets: built.applied,
+      skipped_facets: built.skipped
+    };
   }
 
   const query = `
@@ -259,12 +264,8 @@ export async function answerBusinessQuery(params: {
     limit: 120
   });
   const ranked = rankCapabilities(intent, capabilities, input.question);
-  const {
-    route,
-    gaps,
-    route_scores,
-    alternative_routes
-  } = chooseRouteFromScores({ intent, ranked });
+  const { route, gaps, route_scores, alternative_routes } =
+    chooseRouteFromScores({ intent, ranked });
 
   const liveQueryResult = await readLiveRows({
     context,
@@ -336,8 +337,7 @@ export const businessQueryAnswerTool: ToolHandler = {
       properties: {
         workspace_id: {
           type: "string",
-          description:
-            "Target workspace id. Overrides session context."
+          description: "Target workspace id. Overrides session context."
         },
         question: {
           type: "string",

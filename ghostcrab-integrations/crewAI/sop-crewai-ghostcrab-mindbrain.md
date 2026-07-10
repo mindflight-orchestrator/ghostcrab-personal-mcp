@@ -607,15 +607,15 @@ Each type declares **a set of facets** — typed, indexed attributes.
 
 ### Facet types reference
 
-| Facet type | Description                   | Example value           |
-| :--------- | :---------------------------- | :---------------------- |
-| `string`   | Free-text, searchable         | `"Go 1.22"`             |
-| `enum`     | Constrained set of values     | `"active"`              |
-| `float`    | Numeric, range-filterable     | `0.95`                  |
-| `int`      | Integer, range-filterable     | `42`                    |
-| `bool`     | Boolean flag                  | `true`                  |
+| Facet type | Description                   | Example value       |
+| :--------- | :---------------------------- | :------------------ |
+| `string`   | Free-text, searchable         | `"Go 1.22"`         |
+| `enum`     | Constrained set of values     | `"active"`          |
+| `float`    | Numeric, range-filterable     | `0.95`              |
+| `int`      | Integer, range-filterable     | `42`                |
+| `bool`     | Boolean flag                  | `true`              |
 | `list`     | Ordered list of items (typed) | `["sqlite", "mcp"]` |
-| `date`     | ISO 8601 date                 | `"2026-05-10"`          |
+| `date`     | ISO 8601 date                 | `"2026-05-10"`      |
 
 ### Rules
 

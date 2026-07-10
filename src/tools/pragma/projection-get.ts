@@ -35,17 +35,6 @@ type ProjectionEntity = {
   metadata: Record<string, unknown>;
 };
 
-type LinkedEvidence = {
-  relation: {
-    relation_id: string;
-    relation_type: string;
-    source_id: number;
-    target_id: number;
-    metadata: Record<string, unknown>;
-  };
-  evidence: ProjectionEntity;
-};
-
 function parseJsonObject(value: unknown): Record<string, unknown> {
   if (typeof value === "object" && value !== null && !Array.isArray(value)) {
     return value as Record<string, unknown>;

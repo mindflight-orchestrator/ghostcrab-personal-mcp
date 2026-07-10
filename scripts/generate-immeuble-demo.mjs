@@ -1836,10 +1836,7 @@ const bundle = {
   mindbrain_answer_events: []
 };
 
-writeFileSync(
-  join(BUNDLE_OUT),
-  `${JSON.stringify(bundle, null, 2)}\n`
-);
+writeFileSync(join(BUNDLE_OUT), `${JSON.stringify(bundle, null, 2)}\n`);
 
 writeFileSync(
   join(REFERENCE_DIR, "scenarios.yaml"),

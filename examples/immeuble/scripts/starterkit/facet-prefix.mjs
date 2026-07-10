@@ -85,7 +85,9 @@ export function facetIsObserved(requiredFacet, index) {
  * @returns {string[]}
  */
 export function missingRequiredFacets(requiredFacets, index) {
-  return [...new Set(requiredFacets)].filter((f) => !facetIsObserved(f, index)).sort();
+  return [...new Set(requiredFacets)]
+    .filter((f) => !facetIsObserved(f, index))
+    .sort();
 }
 
 /**
@@ -117,7 +119,9 @@ export function knownTermsFromContract(contract) {
  * @returns {string}
  */
 export function normalizeEdgeType(edge) {
-  return String(edge ?? "").trim().toUpperCase();
+  return String(edge ?? "")
+    .trim()
+    .toUpperCase();
 }
 
 /**
@@ -148,7 +152,9 @@ export function parseFacetsJson(value) {
   if (typeof value !== "string") return null;
   try {
     const parsed = JSON.parse(value);
-    return typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
+    return typeof parsed === "object" &&
+      parsed !== null &&
+      !Array.isArray(parsed)
       ? /** @type {Record<string, unknown>} */ (parsed)
       : null;
   } catch {

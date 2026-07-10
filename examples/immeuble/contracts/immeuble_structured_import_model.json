@@ -72,11 +72,7 @@
         {
           "name": "langue_gestion",
           "type": "enum",
-          "values": [
-            "fr",
-            "nl",
-            "de"
-          ]
+          "values": ["fr", "nl", "de"]
         },
         {
           "name": "email_copropriete",
@@ -111,10 +107,7 @@
         {
           "name": "exercice_comptable_standard",
           "type": "enum",
-          "values": [
-            "1er janvier",
-            "1er juillet"
-          ]
+          "values": ["1er janvier", "1er juillet"]
         },
         {
           "name": "reglement_copropriete_doc",
@@ -180,10 +173,7 @@
           "name": "type",
           "type": "enum",
           "required": true,
-          "values": [
-            "personne physique",
-            "personne morale"
-          ]
+          "values": ["personne physique", "personne morale"]
         },
         {
           "name": "civilite",
@@ -229,19 +219,12 @@
         {
           "name": "langue",
           "type": "enum",
-          "values": [
-            "fr",
-            "nl",
-            "de"
-          ]
+          "values": ["fr", "nl", "de"]
         },
         {
           "name": "statut",
           "type": "enum",
-          "values": [
-            "actif",
-            "ancien"
-          ]
+          "values": ["actif", "ancien"]
         }
       ]
     },
@@ -297,11 +280,7 @@
         {
           "name": "destination_actuelle",
           "type": "enum",
-          "values": [
-            "residentiel",
-            "commercial",
-            "mixte"
-          ]
+          "values": ["residentiel", "commercial", "mixte"]
         }
       ]
     }

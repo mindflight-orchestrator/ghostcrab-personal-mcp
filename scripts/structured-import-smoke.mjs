@@ -12,9 +12,21 @@ import { spawnSync } from "node:child_process";
 
 const pkgRoot = join(fileURLToPath(import.meta.url), "..", "..");
 const demoRoot = join(pkgRoot, "examples", "immeuble", "structured-import");
-const model = join(demoRoot, "contracts", "immeuble_structured_import_model.json");
-const mapping = join(demoRoot, "contracts", "mapping_external_to_canonical.json");
-const mappingWs = join(demoRoot, "contracts", "mapping_external_to_canonical_ws.json");
+const model = join(
+  demoRoot,
+  "contracts",
+  "immeuble_structured_import_model.json"
+);
+const mapping = join(
+  demoRoot,
+  "contracts",
+  "mapping_external_to_canonical.json"
+);
+const mappingWs = join(
+  demoRoot,
+  "contracts",
+  "mapping_external_to_canonical_ws.json"
+);
 const fixtures = join(demoRoot, "fixtures");
 const facets = join(fixtures, "import_ready", "mfo_facets_import.csv");
 const edges = join(fixtures, "import_ready", "graph_edges_import.csv");
@@ -39,15 +51,21 @@ const env = {
 };
 
 function run(args, { parseJson = false } = {}) {
-  const res = spawnSync(process.execPath, [gcp, "brain", "structured-import", ...args], {
-    cwd: pkgRoot,
-    env,
-    encoding: "utf8"
-  });
+  const res = spawnSync(
+    process.execPath,
+    [gcp, "brain", "structured-import", ...args],
+    {
+      cwd: pkgRoot,
+      env,
+      encoding: "utf8"
+    }
+  );
   if (res.status !== 0) {
     console.error(res.stdout);
     console.error(res.stderr);
-    throw new Error(`gcp brain structured-import ${args[0]} failed (${res.status})`);
+    throw new Error(
+      `gcp brain structured-import ${args[0]} failed (${res.status})`
+    );
   }
   const out = res.stdout.trim();
   if (parseJson) {
@@ -64,7 +82,17 @@ function assertPositive(name, value) {
 }
 
 try {
-  console.log(run(["validate", "--model", model, "--mapping", mapping, "--input", fixtures]));
+  console.log(
+    run([
+      "validate",
+      "--model",
+      model,
+      "--mapping",
+      mapping,
+      "--input",
+      fixtures
+    ])
+  );
 
   const inferPayload = run([
     "infer",
@@ -113,7 +141,10 @@ try {
     { parseJson: true }
   );
   console.log(applyOut);
-  assertPositive("apply.facets_inserted + apply.facets_updated", applyOut.facets_inserted + applyOut.facets_updated);
+  assertPositive(
+    "apply.facets_inserted + apply.facets_updated",
+    applyOut.facets_inserted + applyOut.facets_updated
+  );
   assertPositive("apply.entities_upserted", applyOut.entities_upserted);
   assertPositive("apply.edges_inserted", applyOut.edges_inserted);
 
@@ -134,7 +165,14 @@ try {
   }
 
   const orphanOut = run(
-    ["--force", "audit-orphans", "--workspace-id", workspaceId, "--max-ratio", "0.50"],
+    [
+      "--force",
+      "audit-orphans",
+      "--workspace-id",
+      workspaceId,
+      "--max-ratio",
+      "0.50"
+    ],
     { parseJson: true }
   );
   console.log(orphanOut);
@@ -197,7 +235,14 @@ try {
     }
 
     const wsReindexOut = run(
-      ["--force", "reindex", "--workspace-id", workspaceId, "--scope", "provenance"],
+      [
+        "--force",
+        "reindex",
+        "--workspace-id",
+        workspaceId,
+        "--scope",
+        "provenance"
+      ],
       { parseJson: true }
     );
     console.log(wsReindexOut);
@@ -208,7 +253,9 @@ try {
     );
     console.log(wsProvOut);
     if (!wsProvOut.ok) {
-      throw new Error(`ws provenance validation failed: ${JSON.stringify(wsProvOut)}`);
+      throw new Error(
+        `ws provenance validation failed: ${JSON.stringify(wsProvOut)}`
+      );
     }
 
     console.log("structured-import phase D smoke: ok");

@@ -222,7 +222,11 @@ export async function upsertGraphEntity(
         SET metadata_json = ?, workspace_id = ?
         WHERE entity_id = ?
       `,
-      [JSON.stringify(metadata), workspaceId, toSqlIntegerId(existing, "entity_id")]
+      [
+        JSON.stringify(metadata),
+        workspaceId,
+        toSqlIntegerId(existing, "entity_id")
+      ]
     );
 
     await database.query(

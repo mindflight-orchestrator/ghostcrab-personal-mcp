@@ -25,13 +25,13 @@ Ne crée rien dans GhostCrab tant que le Model Proposal n'est pas validé.
 
 ## Deliverable
 
-| Column | Content |
-|--------|---------|
-| Entity types | List with brief definition |
-| Edge types | List with source/target |
+| Column           | Content                              |
+| ---------------- | ------------------------------------ |
+| Entity types     | List with brief definition           |
+| Edge types       | List with source/target              |
 | Facet dimensions | Namespace.dimension + value examples |
-| Doc mapping | 8 rows from manifest |
-| Scenarios | Which scenario IDs each doc supports |
+| Doc mapping      | 8 rows from manifest                 |
+| Scenarios        | Which scenario IDs each doc supports |
 
 ## Gate
 

@@ -5,23 +5,29 @@ import type { Queryable } from "../../db/client.js";
 import { runStandaloneGhostcrabGraphSearch } from "../../db/standalone-mindbrain.js";
 import {
   createToolErrorFromException,
-  createToolErrorResult,
   createToolSuccessResult,
   registerTool,
   type ToolHandler
 } from "../registry.js";
 
 const optionalNullableStringInput = z
-  .preprocess((value) => {
-    if (value === null) return undefined;
-    if (typeof value === "string") {
-      const normalized = value.trim().toLowerCase();
-      if (normalized === "" || normalized === "null" || normalized === "nil") {
-        return undefined;
+  .preprocess(
+    (value) => {
+      if (value === null) return undefined;
+      if (typeof value === "string") {
+        const normalized = value.trim().toLowerCase();
+        if (
+          normalized === "" ||
+          normalized === "null" ||
+          normalized === "nil"
+        ) {
+          return undefined;
+        }
       }
-    }
-    return value;
-  }, z.union([z.string().trim().min(1), z.undefined()]))
+      return value;
+    },
+    z.union([z.string().trim().min(1), z.undefined()])
+  )
   .optional();
 
 export const GraphSearchInput = z.object({

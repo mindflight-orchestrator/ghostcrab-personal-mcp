@@ -17,18 +17,18 @@ gcp brain setup claude --yes
 
 This installs ten GhostCrab skills plus shared contracts in `ghostcrab-shared/` next to each skill.
 
-| Skill | Role |
-| --- | --- |
-| [skills/ghostcrab-memory/](skills/ghostcrab-memory/) | Durable memory, blockers, follow-up, long-running work |
-| [skills/ghostcrab-prompt-guide/](skills/ghostcrab-prompt-guide/) | Convert plain-language goals into strong GhostCrab prompts |
-| [skills/ghostcrab-data-architect/](skills/ghostcrab-data-architect/) | Design GhostCrab-backed domain models |
-| [skills/ghostcrab-integration-sop-editor/](skills/ghostcrab-integration-sop-editor/) | Clean Perplexity-style integration SOP exports |
-| [skills/mindbrain-comparison-writer/](skills/mindbrain-comparison-writer/) | Draft and rewrite MindBrain comparison articles |
-| [skills/ghostcrab-operator/](skills/ghostcrab-operator/) | Business questions → GhostCrab MCP workflows |
-| [skills/ghostcrab-evidence-discovery/](skills/ghostcrab-evidence-discovery/) | Map questions to facets, graph, projections |
-| [skills/ghostcrab-projection-reviewer/](skills/ghostcrab-projection-reviewer/) | Review Type A/B projections |
-| [skills/ghostcrab-gap-auditor/](skills/ghostcrab-gap-auditor/) | Audit gaps between questions and evidence |
-| [skills/ghostcrab-json-answer-builder/](skills/ghostcrab-json-answer-builder/) | Stable JSON answers from MCP outputs |
+| Skill                                                                                | Role                                                       |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| [skills/ghostcrab-memory/](skills/ghostcrab-memory/)                                 | Durable memory, blockers, follow-up, long-running work     |
+| [skills/ghostcrab-prompt-guide/](skills/ghostcrab-prompt-guide/)                     | Convert plain-language goals into strong GhostCrab prompts |
+| [skills/ghostcrab-data-architect/](skills/ghostcrab-data-architect/)                 | Design GhostCrab-backed domain models                      |
+| [skills/ghostcrab-integration-sop-editor/](skills/ghostcrab-integration-sop-editor/) | Clean Perplexity-style integration SOP exports             |
+| [skills/mindbrain-comparison-writer/](skills/mindbrain-comparison-writer/)           | Draft and rewrite MindBrain comparison articles            |
+| [skills/ghostcrab-operator/](skills/ghostcrab-operator/)                             | Business questions → GhostCrab MCP workflows               |
+| [skills/ghostcrab-evidence-discovery/](skills/ghostcrab-evidence-discovery/)         | Map questions to facets, graph, projections                |
+| [skills/ghostcrab-projection-reviewer/](skills/ghostcrab-projection-reviewer/)       | Review Type A/B projections                                |
+| [skills/ghostcrab-gap-auditor/](skills/ghostcrab-gap-auditor/)                       | Audit gaps between questions and evidence                  |
+| [skills/ghostcrab-json-answer-builder/](skills/ghostcrab-json-answer-builder/)       | Stable JSON answers from MCP outputs                       |
 
 Each skill is **autonomous** at runtime. Operational skills may optionally reference starter-kit delivery SOPs — resolve via [../shared/STARTERKIT_PATHS.md](../shared/STARTERKIT_PATHS.md) when you run a phased import project.
 

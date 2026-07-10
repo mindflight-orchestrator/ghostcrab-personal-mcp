@@ -90,7 +90,11 @@ function spawnPackageManager(tool, args, opts = {}) {
     if (result.error.code === "EPERM" || result.error.code === "ENOENT") {
       const cliPath = resolveNodeManagerCli(tool);
       if (cliPath) {
-        const cliResult = spawnSync(process.execPath, [cliPath, ...args], spawnOpts);
+        const cliResult = spawnSync(
+          process.execPath,
+          [cliPath, ...args],
+          spawnOpts
+        );
         if (hasRuntimeSuccess(cliResult)) {
           return cliResult;
         }
@@ -129,7 +133,10 @@ export function spawnNpm(args, opts = {}) {
  */
 export function spawnPnpm(args, opts = {}) {
   const result = spawnPackageManager("pnpm", args, opts);
-  if (result.error && (result.error.code === "EPERM" || result.error.code === "ENOENT")) {
+  if (
+    result.error &&
+    (result.error.code === "EPERM" || result.error.code === "ENOENT")
+  ) {
     return spawnPackageManager("npm", args, opts);
   }
   return result;

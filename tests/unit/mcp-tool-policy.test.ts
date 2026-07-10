@@ -20,18 +20,23 @@ describe("mcp-tool-policy", () => {
     expect(policy.allow).toHaveLength(basicToolCount);
     expect(policy.ask).toHaveLength(0);
     for (const name of getBasicToolNames()) {
-      expect(policy.allow).toContainEqual({ serverName: server, toolName: name });
+      expect(policy.allow).toContainEqual({
+        serverName: server,
+        toolName: name
+      });
     }
   });
 
   it("balanced preset asks on destructive tools", () => {
-    const policy = buildToolPermissionPreset("balanced", { serverName: server });
+    const policy = buildToolPermissionPreset("balanced", {
+      serverName: server
+    });
     for (const name of DESTRUCTIVE_TOOL_NAMES) {
       expect(policy.ask).toContainEqual({ serverName: server, toolName: name });
     }
-    expect(policy.allow.some((ref) => ref.toolName === "ghostcrab_workspace_delete")).toBe(
-      false
-    );
+    expect(
+      policy.allow.some((ref) => ref.toolName === "ghostcrab_workspace_delete")
+    ).toBe(false);
   });
 
   it("formats Claude and Cursor rules", () => {
@@ -79,15 +84,15 @@ describe("mcp-tool-policy", () => {
   it("read preset asks on write and model tools", () => {
     const policy = buildToolPermissionPreset("read", { serverName: server });
     expect(policy.allow.length).toBeGreaterThan(0);
-    expect(policy.ask.some((ref) => ref.toolName === "ghostcrab_remember")).toBe(
-      true
-    );
+    expect(
+      policy.ask.some((ref) => ref.toolName === "ghostcrab_remember")
+    ).toBe(true);
     expect(policy.ask.some((ref) => ref.toolName === "ghostcrab_project")).toBe(
       true
     );
-    expect(policy.allow.some((ref) => ref.toolName === "ghostcrab_status")).toBe(
-      true
-    );
+    expect(
+      policy.allow.some((ref) => ref.toolName === "ghostcrab_status")
+    ).toBe(true);
     for (const name of [
       "ghostcrab_graph_reindex",
       "ghostcrab_collection_reindex",

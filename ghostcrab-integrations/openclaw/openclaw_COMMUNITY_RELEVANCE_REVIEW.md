@@ -194,7 +194,7 @@ The agent updates task state with `ghostcrab_upsert` and links a dependency with
 
 Suggested wording:
 
-> This guide focuses on GhostCrab Personal SQLite. 
+> This guide focuses on GhostCrab Personal SQLite.
 
 ## JTBD Agent Analysis (Re-audit v2)
 

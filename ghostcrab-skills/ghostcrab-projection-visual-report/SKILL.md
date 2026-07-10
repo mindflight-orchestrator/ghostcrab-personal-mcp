@@ -91,4 +91,3 @@ node ghostcrab-projection-visual-report/scripts/render_projection_report.mjs \
 - `references/seo-projection-mapping.md`: projection-specific visual patterns.
 - `references/visual-patterns.md`: reusable report components.
 - `references/report-copy-style.md`: tone and wording rules.
-

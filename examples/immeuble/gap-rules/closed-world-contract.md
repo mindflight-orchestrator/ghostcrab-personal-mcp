@@ -7,27 +7,27 @@ Ontology: `immeuble-training::core` (same taxonomy as the narrative demo, distin
 
 ## Track A — Data repair (rules fixed, fix graph)
 
-| Module | Rules pack | Axiom (plain language) | Edge | Filter |
-|--------|------------|------------------------|------|--------|
-| A1 | `L0-patrimoine.json` | Every unit has exactly one cellar and sits in a building | `assigned_cellar`, `contains` | none |
-| A2 | `L2-syndic-filtered.json` | Occupied units declare occupants; rented units declare leases | `occupies`, `leases` | exclude `vacant` / `vacant_works`; lease rule only on `tenant_occupied`, `owner_abroad_tenant` |
-| A3 | same as A2 | After data fixes, syndic contract is green | — | — |
+| Module | Rules pack                | Axiom (plain language)                                        | Edge                          | Filter                                                                                         |
+| ------ | ------------------------- | ------------------------------------------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------- |
+| A1     | `L0-patrimoine.json`      | Every unit has exactly one cellar and sits in a building      | `assigned_cellar`, `contains` | none                                                                                           |
+| A2     | `L2-syndic-filtered.json` | Occupied units declare occupants; rented units declare leases | `occupies`, `leases`          | exclude `vacant` / `vacant_works`; lease rule only on `tenant_occupied`, `owner_abroad_tenant` |
+| A3     | same as A2                | After data fixes, syndic contract is green                    | —                             | —                                                                                              |
 
 Catalogued draft defects (see `training-manifest.yaml`):
 
-| ID | Violation | Rule |
-|----|-----------|------|
-| E01 | Tilleuls A1 missing `occupies` | `occupied-unit-has-occupant` |
-| E02 | Five tenant units missing `leases` | `tenant-occupied-has-lease` |
-| E03 | Marie Lambert isolated | native `isolated_entity` (fixed by `represents` edge in golden) |
+| ID  | Violation                          | Rule                                                            |
+| --- | ---------------------------------- | --------------------------------------------------------------- |
+| E01 | Tilleuls A1 missing `occupies`     | `occupied-unit-has-occupant`                                    |
+| E02 | Five tenant units missing `leases` | `tenant-occupied-has-lease`                                     |
+| E03 | Marie Lambert isolated             | native `isolated_entity` (fixed by `represents` edge in golden) |
 
 ## Track B — Rule design (graph fixed, evolve axioms)
 
-| Module | Rules pack | Lesson | Key change |
-|--------|------------|--------|------------|
-| B1 | `L1-syndic-naive.json` | Unfiltered `unit-has-owner` flags **Érables A4** (`vacant_works`) | no `entity_filter` |
-| B2 | `L2-syndic-filtered.json` | Add `usage_status` filters — false positive removed | `not_one_of: [vacant_works, vacant]` |
-| B3 | `L3-full.json` + `motifs.json` | Finance + structural motifs | `billing-group-bills-unit`; building→all units motif |
+| Module | Rules pack                     | Lesson                                                            | Key change                                           |
+| ------ | ------------------------------ | ----------------------------------------------------------------- | ---------------------------------------------------- |
+| B1     | `L1-syndic-naive.json`         | Unfiltered `unit-has-owner` flags **Érables A4** (`vacant_works`) | no `entity_filter`                                   |
+| B2     | `L2-syndic-filtered.json`      | Add `usage_status` filters — false positive removed               | `not_one_of: [vacant_works, vacant]`                 |
+| B3     | `L3-full.json` + `motifs.json` | Finance + structural motifs                                       | `billing-group-bills-unit`; building→all units motif |
 
 ## Rule reference
 
@@ -69,8 +69,8 @@ Catalogued draft defects (see `training-manifest.yaml`):
 
 ## Related fixtures
 
-| Fixture | Role |
-|---------|------|
-| `examples/immeuble/reference/` | Immutable narrative with intentional native issues |
-| `examples/immeuble/gap-rules/` | Explicit draft/golden pair for exercises |
-| `ws_immeuble_scenarios` | Fast synthetic CI (see `immeuble_scenarios_test.sql`) |
+| Fixture                        | Role                                                  |
+| ------------------------------ | ----------------------------------------------------- |
+| `examples/immeuble/reference/` | Immutable narrative with intentional native issues    |
+| `examples/immeuble/gap-rules/` | Explicit draft/golden pair for exercises              |
+| `ws_immeuble_scenarios`        | Fast synthetic CI (see `immeuble_scenarios_test.sql`) |

@@ -1,4 +1,7 @@
-import { SQLITE_FACT_STORE_TABLE, safeParseFacetJson } from "../../db/fact-store.js";
+import {
+  SQLITE_FACT_STORE_TABLE,
+  safeParseFacetJson
+} from "../../db/fact-store.js";
 import { type AnswerArtifactKind } from "../../db/answer-artifacts.js";
 import {
   ANALYSIS_PLAN_KIND,
@@ -51,7 +54,9 @@ function keysFromObject(value: unknown): string[] {
 }
 
 function str(value: unknown): string | undefined {
-  return typeof value === "string" && value.trim().length > 0 ? value : undefined;
+  return typeof value === "string" && value.trim().length > 0
+    ? value
+    : undefined;
 }
 
 function mapPayloadToCapability(
@@ -63,9 +68,7 @@ function mapPayloadToCapability(
 
   const common: BusinessCapability = {
     capability_id:
-      str(artifact.slug) ??
-      str(artifact.artifact_id) ??
-      "analysis_plan",
+      str(artifact.slug) ?? str(artifact.artifact_id) ?? "analysis_plan",
     workspace_id: str(artifact.workspace_id),
     label: str(payload.label) ?? str(payload.title) ?? artifact.public_label,
     business_question: str(payload.business_question) ?? artifact.public_label,
@@ -81,7 +84,10 @@ function mapPayloadToCapability(
     status: str(payload.status),
     projection_id: str(payload.projection_id) ?? str(payload.projectionId),
     payload,
-    version: typeof payload.version === "number" ? payload.version : str(payload.version),
+    version:
+      typeof payload.version === "number"
+        ? payload.version
+        : str(payload.version),
     artifact_id: artifact.artifact_id
   };
 

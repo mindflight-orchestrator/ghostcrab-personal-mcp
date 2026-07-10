@@ -10,7 +10,10 @@ import { readSqliteCount } from "./sqlite-file-count.mjs";
 export function readBundleWorkspaceId(bundlePath) {
   try {
     const doc = JSON.parse(readFileSync(bundlePath, "utf8"));
-    if (doc?.scope?.workspace_id && typeof doc.scope.workspace_id === "string") {
+    if (
+      doc?.scope?.workspace_id &&
+      typeof doc.scope.workspace_id === "string"
+    ) {
       return doc.scope.workspace_id;
     }
   } catch {
@@ -26,12 +29,15 @@ export function readBundleWorkspaceId(bundlePath) {
  * @returns {Promise<number>}
  */
 async function queryBackendCount(baseUrl, sql, params = []) {
-  const response = await fetch(`${baseUrl.replace(/\/$/, "")}/api/mindbrain/sql`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ sql, params: [...params] }),
-    signal: AbortSignal.timeout(3_000)
-  });
+  const response = await fetch(
+    `${baseUrl.replace(/\/$/, "")}/api/mindbrain/sql`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ sql, params: [...params] }),
+      signal: AbortSignal.timeout(3_000)
+    }
+  );
   if (!response.ok) {
     throw new Error(`MindBrain SQL probe failed (${response.status})`);
   }
@@ -47,7 +53,10 @@ export function readCountFromSqlPayload(payload) {
   if (!payload || typeof payload !== "object") {
     return 0;
   }
-  const record = /** @type {{ rows?: unknown, result?: unknown, data?: unknown, columns?: unknown }} */ (payload);
+  const record =
+    /** @type {{ rows?: unknown, result?: unknown, data?: unknown, columns?: unknown }} */ (
+      payload
+    );
   const rows = payload?.rows ?? payload?.result ?? payload?.data;
   if (!Array.isArray(rows) || rows.length === 0) {
     return 0;

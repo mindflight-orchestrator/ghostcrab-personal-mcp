@@ -14,12 +14,7 @@ export type Availability =
   | "live_query"
   | "gap_report";
 
-export type StructuredFacetValue =
-  | string
-  | number
-  | boolean
-  | string[]
-  | null;
+export type StructuredFacetValue = string | number | boolean | string[] | null;
 
 export interface StructuredFacets {
   [key: string]: StructuredFacetValue;

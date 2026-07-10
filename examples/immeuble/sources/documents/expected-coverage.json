@@ -48,13 +48,7 @@
     "allocated_to",
     "requires_review"
   ],
-  "search_terms": [
-    "appartement",
-    "Dupont",
-    "bail",
-    "CODA",
-    "jardin"
-  ],
+  "search_terms": ["appartement", "Dupont", "bail", "CODA", "jardin"],
   "document_facets": {
     "source.document_type": [
       "statuts_copropriete",

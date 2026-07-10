@@ -2,11 +2,11 @@ import type { BusinessIntent, StructuredFacets } from "./types.js";
 
 const STATUS_COMPLETED =
   /\b(realisee?s?|termin[eé]e?s?|verifi[eé]e?s?|completed|done|finished)\b/i;
-const STATUS_IN_PROGRESS = /\b(en\s+cours|en\s+attente|a\s+faire|todo|non\s+fini)\b/i;
+const STATUS_IN_PROGRESS =
+  /\b(en\s+cours|en\s+attente|a\s+faire|todo|non\s+fini)\b/i;
 const WORK_ITEM =
   /\b(postes?|t[aâ]ches?|interventions?|work[-_\s]?items?|items?)\b/i;
-const LIST =
-  /\b(liste|list|voir|show|affiche[rz]?|donne[rz]?)\b/i;
+const LIST = /\b(liste|list|voir|show|affiche[rz]?|donne[rz]?)\b/i;
 const ACTION_VERB =
   /\b(montre[rz]?|liste[rz]?|explique[rz]?|donne[rz]?|affiche[rz]?|resume[rz]?|prepare[rz]?|fais|fait|cree[rz]?|enregistre[rz]?|compare[rz]?|calcule[rz]?|analyse[rz]?|identifie[rz]?|resoud[st]?|veux|voudrais|quelles?|quels?|pourquoi|comment|quand|combien)\b/i;
 
@@ -19,7 +19,8 @@ const COMPOSITE_SIGNALS =
 
 const PROJECT = /\b(?:projet|project)\s+(?:de\s+)?([\p{L}\p{N}_-]+)\b/iu;
 const TEAM = /\b(?:equipe|équipe|team|groupe)\s+([\p{L}\p{N}_-]+)\b/iu;
-const OWNER = /\b(?:owner|responsable|m[ée]nage|chef|pilote)\s+([\p{L}\p{N}_-]+)\b/iu;
+const OWNER =
+  /\b(?:owner|responsable|m[ée]nage|chef|pilote)\s+([\p{L}\p{N}_-]+)\b/iu;
 const LIMIT =
   /\b(?:montre|affiche|list|liste|voir|donne|donner)\s+(?:les\s+)?(?:premi[èe]r|premi[èe]res?|meilleur|meilleures|top)?\s*(?:\s*de\s+)?(\d{1,3})\b/iu;
 const LIMIT_SHORT = /\b(\d{1,3})\b/;
@@ -27,11 +28,56 @@ const ORDER =
   /\b(trier|ordonner|tri(er|ée)?|ordre)\s+(par\s+)?(priorit[eé]|importance|critic|chronolog|alphabet|date|deadline|delai|due)\b/i;
 
 const FRAGMENT_STOPWORDS = new Set([
-  "le", "la", "les", "des", "du", "de", "en", "est", "une", "un",
-  "qui", "que", "sont", "pour", "par", "avec", "dans", "sur", "et",
-  "ou", "il", "elle", "ce", "se", "sa", "ses", "si", "ne", "pas",
-  "y", "a", "au", "aux", "on", "nous", "vous", "ca", "c", "j", "m", "t",
-  "je", "tu", "me", "ma", "mon", "ils", "elles", "cette", "cest"
+  "le",
+  "la",
+  "les",
+  "des",
+  "du",
+  "de",
+  "en",
+  "est",
+  "une",
+  "un",
+  "qui",
+  "que",
+  "sont",
+  "pour",
+  "par",
+  "avec",
+  "dans",
+  "sur",
+  "et",
+  "ou",
+  "il",
+  "elle",
+  "ce",
+  "se",
+  "sa",
+  "ses",
+  "si",
+  "ne",
+  "pas",
+  "y",
+  "a",
+  "au",
+  "aux",
+  "on",
+  "nous",
+  "vous",
+  "ca",
+  "c",
+  "j",
+  "m",
+  "t",
+  "je",
+  "tu",
+  "me",
+  "ma",
+  "mon",
+  "ils",
+  "elles",
+  "cette",
+  "cest"
 ]);
 
 function countMeaningfulTokens(normalized: string): number {
@@ -95,7 +141,9 @@ function extractLimit(question: string): number | undefined {
   const numberText = long?.[1] ?? fallback?.[1];
   if (!numberText) return undefined;
   const limit = Number(numberText);
-  return Number.isFinite(limit) && limit > 0 && limit <= 500 ? limit : undefined;
+  return Number.isFinite(limit) && limit > 0 && limit <= 500
+    ? limit
+    : undefined;
 }
 
 function extractOrder(question: string): string | undefined {
@@ -106,7 +154,10 @@ function extractOrder(question: string): string | undefined {
   return "desc";
 }
 
-function extractObjectOrIntentType(question: string, normalized: string): string {
+function extractObjectOrIntentType(
+  question: string,
+  normalized: string
+): string {
   if (/(?:snapshot|snapshotter|voir|liste)/i.test(question)) {
     return "list";
   }
@@ -134,7 +185,10 @@ function addFacet(
   facets[key] = value;
 }
 
-function buildStructuredFacets(question: string, normalized: string): {
+function buildStructuredFacets(
+  question: string,
+  normalized: string
+): {
   slots: Record<string, unknown>;
   structured: StructuredFacets;
 } {

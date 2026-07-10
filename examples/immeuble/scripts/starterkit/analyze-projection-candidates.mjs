@@ -13,7 +13,13 @@
  *     [--output-dir ../../reports] [--strict]
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  writeFileSync
+} from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse as parseYaml } from "yaml";
@@ -23,7 +29,12 @@ import {
   VALID_PROJ_TYPES
 } from "./analysis-lenses.mjs";
 import { fmtFacetValues, knownTermsFromContract } from "./facet-prefix.mjs";
-import { parseArgs, parseFlag, sqliteQuery, sqliteTableExists } from "./sqlite-utils.mjs";
+import {
+  parseArgs,
+  parseFlag,
+  sqliteQuery,
+  sqliteTableExists
+} from "./sqlite-utils.mjs";
 
 /**
  * @typedef {Object} AnalysisPattern
@@ -49,13 +60,33 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const immeubleRoot = resolve(scriptDir, "..", "..");
 
 const args = parseArgs(process.argv.slice(2));
-const dbPath = resolve(parseFlag(args, "db", join(immeubleRoot, "..", "..", "..", "data", "immeuble-lab.sqlite")));
+const dbPath = resolve(
+  parseFlag(
+    args,
+    "db",
+    join(immeubleRoot, "..", "..", "..", "data", "immeuble-lab.sqlite")
+  )
+);
 const workspaceId = parseFlag(args, "workspace", "immeuble");
 const sourceDir = resolve(parseFlag(args, "source-dir", immeubleRoot));
-const catalogPath = resolve(parseFlag(args, "projection-catalog", join(immeubleRoot, "contracts", "projection_catalog.yaml")));
+const catalogPath = resolve(
+  parseFlag(
+    args,
+    "projection-catalog",
+    join(immeubleRoot, "contracts", "projection_catalog.yaml")
+  )
+);
 const managerQuestionsPath = parseFlag(args, "manager-questions", "");
-const modelContractPath = resolve(parseFlag(args, "model-contract", join(immeubleRoot, "contracts", "model_contract.json")));
-const outputDir = resolve(parseFlag(args, "output-dir", join(immeubleRoot, "reports")));
+const modelContractPath = resolve(
+  parseFlag(
+    args,
+    "model-contract",
+    join(immeubleRoot, "contracts", "model_contract.json")
+  )
+);
+const outputDir = resolve(
+  parseFlag(args, "output-dir", join(immeubleRoot, "reports"))
+);
 const role = parseFlag(args, "role", "gestionnaire_syndic");
 const strict = args.strict === "true";
 const includeBlindSpots = args["include-blind-spots"] === "true";
@@ -86,7 +117,12 @@ function materializedLookupSqlite(dbPath, workspaceId) {
   const legacyRefs = new Set();
 
   if (!existsSync(dbPath)) {
-    return { analysis_plan_scopes: scopes, live_answer_view_ids: liveIds, live_answer_view_slugs: liveSlugs, live_answer_legacy_refs: legacyRefs };
+    return {
+      analysis_plan_scopes: scopes,
+      live_answer_view_ids: liveIds,
+      live_answer_view_slugs: liveSlugs,
+      live_answer_legacy_refs: legacyRefs
+    };
   }
 
   if (sqliteTableExists(dbPath, "projections")) {
@@ -127,17 +163,30 @@ function suggestedType(jobs) {
 }
 
 function normalizeProjType(value, jobs = []) {
-  const normalized = String(value ?? "").trim().toUpperCase();
-  if (VALID_PROJ_TYPES.has(normalized)) return { type: normalized, warning: "" };
+  const normalized = String(value ?? "")
+    .trim()
+    .toUpperCase();
+  if (VALID_PROJ_TYPES.has(normalized))
+    return { type: normalized, warning: "" };
   if (normalized === "NOTE") {
     const fallback = suggestedType(jobs);
-    return { type: fallback, warning: "NOTE is pack-ranking only; use STEP/FACT/CONSTRAINT/GOAL for ghostcrab_project" };
+    return {
+      type: fallback,
+      warning:
+        "NOTE is pack-ranking only; use STEP/FACT/CONSTRAINT/GOAL for ghostcrab_project"
+    };
   }
   if (jobs.length) {
     const fallback = suggestedType(jobs);
-    return { type: fallback, warning: `Unknown proj_type \`${value}\`; inferred ${fallback}` };
+    return {
+      type: fallback,
+      warning: `Unknown proj_type \`${value}\`; inferred ${fallback}`
+    };
   }
-  return { type: "STEP", warning: `Unknown proj_type \`${value}\`; defaulting to STEP` };
+  return {
+    type: "STEP",
+    warning: `Unknown proj_type \`${value}\`; defaulting to STEP`
+  };
 }
 
 function inferArtifactKind(jobs, label, description, explicit) {
@@ -145,7 +194,15 @@ function inferArtifactKind(jobs, label, description, explicit) {
   const text = `${label} ${description}`.toLowerCase();
   if (
     jobs.includes("monitor") &&
-    ["tableau", "dashboard", "direct", "temps reel", "live", "quotidien", "journalier"].some((w) => text.includes(w))
+    [
+      "tableau",
+      "dashboard",
+      "direct",
+      "temps reel",
+      "live",
+      "quotidien",
+      "journalier"
+    ].some((w) => text.includes(w))
   ) {
     return "live_answer_view";
   }
@@ -172,15 +229,27 @@ function materializationStatusForCandidate(candidate, lookup) {
     }
     return "candidate";
   }
-  if (lookup.analysis_plan_scopes.has(candidate.expected_scope)) return "materialized";
+  if (lookup.analysis_plan_scopes.has(candidate.expected_scope))
+    return "materialized";
   return "candidate";
 }
 
 function finalizeCandidateFields(input, lookup) {
   const jobs = input.retrieval_jobs || ["summary"];
-  const { type: suggestedProjType, warning } = normalizeProjType(input.proj_type, jobs);
-  const suggestedArtifactKind = inferArtifactKind(jobs, input.label, input.description, input.artifact_kind);
-  const materializationTarget = inferMaterializationTarget(suggestedArtifactKind, input.origin || "source_table");
+  const { type: suggestedProjType, warning } = normalizeProjType(
+    input.proj_type,
+    jobs
+  );
+  const suggestedArtifactKind = inferArtifactKind(
+    jobs,
+    input.label,
+    input.description,
+    input.artifact_kind
+  );
+  const materializationTarget = inferMaterializationTarget(
+    suggestedArtifactKind,
+    input.origin || "source_table"
+  );
 
   /** @type {Record<string, unknown>} */
   const candidate = {
@@ -214,11 +283,20 @@ function finalizeCandidateFields(input, lookup) {
     confidence: input.confidence ?? 1.0
   };
 
-  candidate.materialization_status = materializationStatusForCandidate(candidate, lookup);
+  candidate.materialization_status = materializationStatusForCandidate(
+    candidate,
+    lookup
+  );
   if (!input.recommendation) {
-    if (candidate.materialization_status === "materialized") candidate.recommendation = "keep";
-    else if (materializationTarget === "review_only") candidate.recommendation = "review";
-    else if (candidate.data_dependencies.length || candidate.required_schemas.length) candidate.recommendation = "add";
+    if (candidate.materialization_status === "materialized")
+      candidate.recommendation = "keep";
+    else if (materializationTarget === "review_only")
+      candidate.recommendation = "review";
+    else if (
+      candidate.data_dependencies.length ||
+      candidate.required_schemas.length
+    )
+      candidate.recommendation = "add";
     else candidate.recommendation = "review";
   }
   return candidate;
@@ -238,8 +316,15 @@ function parseMarkdownTable(section) {
   for (const line of section.split("\n")) {
     const trimmed = line.trim();
     if (!trimmed.startsWith("|") || trimmed.includes("---")) continue;
-    const cells = trimmed.slice(1, -1).split("|").map((c) => c.trim());
-    if (cells.length < 2 || ["projection", "rapport"].includes(cells[0].toLowerCase())) continue;
+    const cells = trimmed
+      .slice(1, -1)
+      .split("|")
+      .map((c) => c.trim());
+    if (
+      cells.length < 2 ||
+      ["projection", "rapport"].includes(cells[0].toLowerCase())
+    )
+      continue;
     rows.push([cells[0], cells[1]]);
   }
   return rows;
@@ -248,11 +333,24 @@ function parseMarkdownTable(section) {
 function inferRetrievalJobs(label, description) {
   const text = `${label} ${description}`.toLowerCase();
   const jobs = [];
-  if (["liste", "annuaire", "calendrier", "historique"].some((w) => text.includes(w))) jobs.push("list");
-  if (["suivi", "en cours", "retard", "alerte", "echeance"].some((w) => text.includes(w))) jobs.push("monitor");
-  if (["fiche", "vue complete", "situation"].some((w) => text.includes(w))) jobs.push("summary");
-  if (["repartition", "comparaison", "par "].some((w) => text.includes(w))) jobs.push("aggregate");
-  if (["chaine", "roles", "multi", "impact"].some((w) => text.includes(w))) jobs.push("graph_traversal");
+  if (
+    ["liste", "annuaire", "calendrier", "historique"].some((w) =>
+      text.includes(w)
+    )
+  )
+    jobs.push("list");
+  if (
+    ["suivi", "en cours", "retard", "alerte", "echeance"].some((w) =>
+      text.includes(w)
+    )
+  )
+    jobs.push("monitor");
+  if (["fiche", "vue complete", "situation"].some((w) => text.includes(w)))
+    jobs.push("summary");
+  if (["repartition", "comparaison", "par "].some((w) => text.includes(w)))
+    jobs.push("aggregate");
+  if (["chaine", "roles", "multi", "impact"].some((w) => text.includes(w)))
+    jobs.push("graph_traversal");
   return jobs.length ? jobs : ["summary"];
 }
 
@@ -284,7 +382,9 @@ function extractMarkdownCandidates(sourceDir, dbPath, workspaceId, recursive) {
     const markdown = readFileSync(path, "utf8");
     const section = extractProjectionSection(markdown);
     if (!section) continue;
-    const ontology = slugify(path.split("/").pop()?.replace(/\.md$/, "") ?? "catalog");
+    const ontology = slugify(
+      path.split("/").pop()?.replace(/\.md$/, "") ?? "catalog"
+    );
     for (const [label, description] of parseMarkdownTable(section)) {
       const name = slugify(label);
       candidates.push(
@@ -320,11 +420,16 @@ function extractProjectionCatalogCandidates(catalogPath, dbPath, workspaceId) {
 
   for (const item of payload.projections ?? []) {
     if (!item || typeof item !== "object") continue;
-    const name = slugify(item.name || item.label || item.business_question || "projection");
+    const name = slugify(
+      item.name || item.label || item.business_question || "projection"
+    );
     const scope = String(item.scope || `${workspaceId}:catalog:${name}`);
     const parts = scope.split(":");
-    const ontology = parts.length > 2 && parts[0] === workspaceId ? parts[1] : "catalog";
-    const jobs = asList(item.retrieval_jobs).length ? asList(item.retrieval_jobs) : ["summary"];
+    const ontology =
+      parts.length > 2 && parts[0] === workspaceId ? parts[1] : "catalog";
+    const jobs = asList(item.retrieval_jobs).length
+      ? asList(item.retrieval_jobs)
+      : ["summary"];
     const requiredSchemas = asList(item.required_schemas).map((s) =>
       s.includes(":") ? s : `immeuble:core:${s}`
     );
@@ -342,7 +447,9 @@ function extractProjectionCatalogCandidates(catalogPath, dbPath, workspaceId) {
           retrieval_jobs: jobs,
           kpi_hints: asList(item.kpi_hints),
           data_dependencies: requiredSchemas,
-          recommendation: lookup.analysis_plan_scopes.has(scope) ? "keep" : "add",
+          recommendation: lookup.analysis_plan_scopes.has(scope)
+            ? "keep"
+            : "add",
           business_question: String(item.business_question || ""),
           origin: "projection_catalog",
           required_schemas: requiredSchemas,
@@ -376,7 +483,9 @@ function extractManagerQuestionCandidates(path, dbPath, workspaceId) {
       if (!qText) continue;
       const name = slugify(projection || question.id || qText);
       let scope = `${workspaceId}:${slugify(String(family))}:${name}`;
-      const matching = [...scopes].find((s) => projection && s.endsWith(`:${projection}`));
+      const matching = [...scopes].find(
+        (s) => projection && s.endsWith(`:${projection}`)
+      );
       if (matching) scope = matching;
 
       candidates.push(
@@ -405,7 +514,11 @@ function extractManagerQuestionCandidates(path, dbPath, workspaceId) {
 }
 
 function candidateSignature(candidate) {
-  return new Set([candidate.name, slugify(candidate.label), slugify(candidate.business_question || candidate.description)]);
+  return new Set([
+    candidate.name,
+    slugify(candidate.label),
+    slugify(candidate.business_question || candidate.description)
+  ]);
 }
 
 function appendUniqueCandidates(base, additions) {
@@ -420,7 +533,13 @@ function appendUniqueCandidates(base, additions) {
   return merged;
 }
 
-function extractLensCandidates(workspaceId, dbPath, lenses, roleName, sourceCandidates) {
+function extractLensCandidates(
+  workspaceId,
+  dbPath,
+  lenses,
+  roleName,
+  sourceCandidates
+) {
   const lookup = materializedLookupSqlite(dbPath, workspaceId);
   const existing = new Set();
   for (const c of sourceCandidates) {
@@ -431,7 +550,11 @@ function extractLensCandidates(workspaceId, dbPath, lenses, roleName, sourceCand
   for (const lens of lenses) {
     for (const pattern of LENS_PATTERNS[lens] ?? []) {
       const name = slugify(pattern.name);
-      if (existing.has(name) || existing.has(slugify(pattern.business_question))) continue;
+      if (
+        existing.has(name) ||
+        existing.has(slugify(pattern.business_question))
+      )
+        continue;
       candidates.push(
         finalizeCandidateFields(
           {
@@ -476,39 +599,85 @@ function selectedLenses() {
 }
 
 function collectModelImpacts(candidates) {
-  const impactCandidates = candidates.filter((c) => ["analysis_lens", "llm_review"].includes(c.origin));
+  const impactCandidates = candidates.filter((c) =>
+    ["analysis_lens", "llm_review"].includes(c.origin)
+  );
   return {
     lens_candidate_count: impactCandidates.length,
     by_lens: Object.fromEntries(
-      [...new Set(impactCandidates.map((c) => c.lens))].map((l) => [l, impactCandidates.filter((c) => c.lens === l).length])
+      [...new Set(impactCandidates.map((c) => c.lens))].map((l) => [
+        l,
+        impactCandidates.filter((c) => c.lens === l).length
+      ])
     ),
-    required_schemas: [...new Set(impactCandidates.flatMap((c) => c.required_schemas || []))].sort(),
-    required_facets: [...new Set(impactCandidates.flatMap((c) => c.required_facets || []))].sort(),
-    required_edges: [...new Set(impactCandidates.flatMap((c) => c.required_edges || []))].sort()
+    required_schemas: [
+      ...new Set(impactCandidates.flatMap((c) => c.required_schemas || []))
+    ].sort(),
+    required_facets: [
+      ...new Set(impactCandidates.flatMap((c) => c.required_facets || []))
+    ].sort(),
+    required_edges: [
+      ...new Set(impactCandidates.flatMap((c) => c.required_edges || []))
+    ].sort()
   };
 }
 
 function collectValidationGaps(candidates, contract) {
-  const sourceOrigins = new Set(["source_table", "projection_catalog", "manager_questions"]);
+  const sourceOrigins = new Set([
+    "source_table",
+    "projection_catalog",
+    "manager_questions"
+  ]);
   const proposalOrigins = new Set(["analysis_lens", "llm_review"]);
-  const sourceCandidates = candidates.filter((c) => sourceOrigins.has(c.origin));
-  const proposalCandidates = candidates.filter((c) => proposalOrigins.has(c.origin));
+  const sourceCandidates = candidates.filter((c) =>
+    sourceOrigins.has(c.origin)
+  );
+  const proposalCandidates = candidates.filter((c) =>
+    proposalOrigins.has(c.origin)
+  );
 
-  const sourceSchemas = new Set(sourceCandidates.flatMap((c) => c.required_schemas || []));
-  const sourceFacets = new Set(sourceCandidates.flatMap((c) => c.required_facets || []));
-  const sourceEdges = new Set(sourceCandidates.flatMap((c) => c.required_edges || []));
-  const proposalSchemas = new Set(proposalCandidates.flatMap((c) => c.required_schemas || []));
-  const proposalFacets = new Set(proposalCandidates.flatMap((c) => c.required_facets || []));
-  const proposalEdges = new Set(proposalCandidates.flatMap((c) => c.required_edges || []));
+  const sourceSchemas = new Set(
+    sourceCandidates.flatMap((c) => c.required_schemas || [])
+  );
+  const sourceFacets = new Set(
+    sourceCandidates.flatMap((c) => c.required_facets || [])
+  );
+  const sourceEdges = new Set(
+    sourceCandidates.flatMap((c) => c.required_edges || [])
+  );
+  const proposalSchemas = new Set(
+    proposalCandidates.flatMap((c) => c.required_schemas || [])
+  );
+  const proposalFacets = new Set(
+    proposalCandidates.flatMap((c) => c.required_facets || [])
+  );
+  const proposalEdges = new Set(
+    proposalCandidates.flatMap((c) => c.required_edges || [])
+  );
 
   const terms = knownTermsFromContract(contract);
   return {
-    extension_schemas: [...proposalSchemas].filter((s) => !sourceSchemas.has(s)).sort(),
-    extension_facets: [...proposalFacets].filter((f) => !sourceFacets.has(f)).sort(),
-    extension_edges: [...proposalEdges].filter((e) => !sourceEdges.has(e)).sort(),
-    unknown_schemas: contract && Object.keys(contract).length ? [...proposalSchemas].filter((s) => !terms.schemas.has(s)).sort() : [],
-    unknown_facets: contract && Object.keys(contract).length ? [...proposalFacets].filter((f) => !terms.facets.has(f)).sort() : [],
-    unknown_edges: contract && Object.keys(contract).length ? [...proposalEdges].filter((e) => !terms.edges.has(e)).sort() : [],
+    extension_schemas: [...proposalSchemas]
+      .filter((s) => !sourceSchemas.has(s))
+      .sort(),
+    extension_facets: [...proposalFacets]
+      .filter((f) => !sourceFacets.has(f))
+      .sort(),
+    extension_edges: [...proposalEdges]
+      .filter((e) => !sourceEdges.has(e))
+      .sort(),
+    unknown_schemas:
+      contract && Object.keys(contract).length
+        ? [...proposalSchemas].filter((s) => !terms.schemas.has(s)).sort()
+        : [],
+    unknown_facets:
+      contract && Object.keys(contract).length
+        ? [...proposalFacets].filter((f) => !terms.facets.has(f)).sort()
+        : [],
+    unknown_edges:
+      contract && Object.keys(contract).length
+        ? [...proposalEdges].filter((e) => !terms.edges.has(e)).sort()
+        : [],
     contract_checked: Boolean(contract && Object.keys(contract).length)
   };
 }
@@ -549,7 +718,10 @@ function writeValidationMarkdown(payload, path) {
     );
   }
 
-  const proposed = [...(byOrigin.analysis_lens ?? []), ...(byOrigin.llm_review ?? [])];
+  const proposed = [
+    ...(byOrigin.analysis_lens ?? []),
+    ...(byOrigin.llm_review ?? [])
+  ];
   if (proposed.length) {
     lines.push("## Questions manquantes proposees", "");
     for (const item of proposed) {
@@ -636,11 +808,18 @@ function main() {
     [],
     extractMarkdownCandidates(sourceDir, dbPath, workspaceId, recursiveMarkdown)
   );
-  candidates = appendUniqueCandidates(candidates, extractProjectionCatalogCandidates(catalogPath, dbPath, workspaceId));
+  candidates = appendUniqueCandidates(
+    candidates,
+    extractProjectionCatalogCandidates(catalogPath, dbPath, workspaceId)
+  );
   if (managerQuestionsPath) {
     candidates = appendUniqueCandidates(
       candidates,
-      extractManagerQuestionCandidates(resolve(managerQuestionsPath), dbPath, workspaceId)
+      extractManagerQuestionCandidates(
+        resolve(managerQuestionsPath),
+        dbPath,
+        workspaceId
+      )
     );
   }
   candidates = appendUniqueCandidates(
@@ -648,7 +827,7 @@ function main() {
     extractLensCandidates(workspaceId, dbPath, lenses, role, candidates)
   );
 
-  let modelContract = {};
+  let modelContract;
   try {
     modelContract = JSON.parse(readFileSync(modelContractPath, "utf8"));
   } catch {
@@ -673,17 +852,32 @@ function main() {
     role,
     model_contract_path: modelContractPath,
     summary: {
-      candidate_count: candidates.filter((c) => c.materialization_status === "candidate").length,
-      materialized_count: candidates.filter((c) => c.materialization_status === "materialized").length,
+      candidate_count: candidates.filter(
+        (c) => c.materialization_status === "candidate"
+      ).length,
+      materialized_count: candidates.filter(
+        (c) => c.materialization_status === "materialized"
+      ).length,
       unique_materialized_scope_count: new Set(
-        candidates.filter((c) => c.materialization_status === "materialized").map((c) => c.expected_scope)
+        candidates
+          .filter((c) => c.materialization_status === "materialized")
+          .map((c) => c.expected_scope)
       ).size,
-      analysis_lens_count: candidates.filter((c) => c.origin === "analysis_lens").length,
-      projection_catalog_count: candidates.filter((c) => c.origin === "projection_catalog").length,
-      manager_questions_count: candidates.filter((c) => c.origin === "manager_questions").length,
-      source_table_count: candidates.filter((c) => c.origin === "source_table").length,
+      analysis_lens_count: candidates.filter(
+        (c) => c.origin === "analysis_lens"
+      ).length,
+      projection_catalog_count: candidates.filter(
+        (c) => c.origin === "projection_catalog"
+      ).length,
+      manager_questions_count: candidates.filter(
+        (c) => c.origin === "manager_questions"
+      ).length,
+      source_table_count: candidates.filter((c) => c.origin === "source_table")
+        .length,
       total_count: candidates.length,
-      by_artifact_kind: Object.fromEntries(Object.entries(byArtifactKind).sort())
+      by_artifact_kind: Object.fromEntries(
+        Object.entries(byArtifactKind).sort()
+      )
     },
     model_impacts: collectModelImpacts(candidates),
     validation_gaps: validationGaps,

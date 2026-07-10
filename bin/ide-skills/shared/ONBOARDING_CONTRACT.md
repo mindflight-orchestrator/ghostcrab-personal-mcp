@@ -13,12 +13,12 @@ This block is for **all agents** (with or without extended reasoning). It is the
 
 ### Phase table
 
-| Phase | Name               | Allowed write tools | Forbidden write tools                                                                                                                                       |
-| ----- | ------------------ | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phase | Name               | Allowed write tools | Forbidden write tools                                                    |
+| ----- | ------------------ | ------------------- | ------------------------------------------------------------------------ |
 | A     | **Intake**         | _(none)_            | ALL write/model/session mutation tools; see the forbidden surface below. |
-| B     | **Clarify**        | _(none)_            | Same as A                                                                                                                                                   |
-| C     | **Model Proposal** | _(none)_            | Same as A — output proposal text only, no tool calls                                                                                                        |
-| D     | **Execute**        | All, minimally      | `ghostcrab_schema_register` unless user wrote `APPROVE_SCHEMA_FREEZE`                                                                                       |
+| B     | **Clarify**        | _(none)_            | Same as A                                                                |
+| C     | **Model Proposal** | _(none)_            | Same as A — output proposal text only, no tool calls                     |
+| D     | **Execute**        | All, minimally      | `ghostcrab_schema_register` unless user wrote `APPROVE_SCHEMA_FREEZE`    |
 
 **Read tools are always allowed:** `ghostcrab_status` `ghostcrab_search` `ghostcrab_schema_inspect` `ghostcrab_schema_list` `ghostcrab_workspace_list` `ghostcrab_modeling_guidance` `ghostcrab_count` `ghostcrab_projections_list` `ghostcrab_pack` `ghostcrab_facet_catalog` `ghostcrab_facet_inspect` `ghostcrab_traverse` `ghostcrab_coverage` `ghostcrab_workspace_inspect` `ghostcrab_workspace_export_model`
 

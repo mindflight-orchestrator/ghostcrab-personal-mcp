@@ -89,7 +89,11 @@ describe.sequential("MCP server contract", () => {
 
   it("calls an extended workspace tool via tools/call", async () => {
     await withMcpStdioClient("contract-call-extended", async ({ client }) => {
-      const payload = await callToolJson(client, "ghostcrab_workspace_list", {});
+      const payload = await callToolJson(
+        client,
+        "ghostcrab_workspace_list",
+        {}
+      );
 
       expect(payload.ok).toBe(true);
       expect(payload.tool).toBe("ghostcrab_workspace_list");

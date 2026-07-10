@@ -170,22 +170,22 @@ team.run(
 
 ## GhostCrab tools exposed via MCP
 
-| MCP tool                    | Purpose                               | Key parameters                    |
-| --------------------------- | ------------------------------------- | --------------------------------- |
-| `ghostcrab_status`          | Runtime health and routing            | —                                 |
-| `ghostcrab_workspace_list`  | List workspaces                       | —                                 |
-| `ghostcrab_workspace_create`| Create workspace                      | `workspace_id`                    |
-| `ghostcrab_modeling_guidance` | Domain modeling guidance            | natural-language goal             |
-| `ghostcrab_schema_register` | Register a schema                     | `schema_id`, fields               |
-| `ghostcrab_schema_list`     | List registered schemas               | `workspace_id`                    |
-| `ghostcrab_schema_inspect`  | Inspect one schema                    | `schema_id`                       |
-| `ghostcrab_remember`        | Create durable fact                   | `schema_id`, facets               |
-| `ghostcrab_upsert`          | Update mutable current state          | `record_id`, facets               |
-| `ghostcrab_search`          | Faceted / BM25 search                 | `schema_id`, filters              |
-| `ghostcrab_learn`           | Create graph relation                 | source, target, label             |
-| `ghostcrab_traverse`        | Traverse graph from a node            | `from_id`, depth                  |
-| `ghostcrab_pack`            | Compact recovery context              | query, `workspace_id`             |
-| `ghostcrab_project`         | Active run projections                | goal, step, constraint            |
+| MCP tool                      | Purpose                      | Key parameters         |
+| ----------------------------- | ---------------------------- | ---------------------- |
+| `ghostcrab_status`            | Runtime health and routing   | —                      |
+| `ghostcrab_workspace_list`    | List workspaces              | —                      |
+| `ghostcrab_workspace_create`  | Create workspace             | `workspace_id`         |
+| `ghostcrab_modeling_guidance` | Domain modeling guidance     | natural-language goal  |
+| `ghostcrab_schema_register`   | Register a schema            | `schema_id`, fields    |
+| `ghostcrab_schema_list`       | List registered schemas      | `workspace_id`         |
+| `ghostcrab_schema_inspect`    | Inspect one schema           | `schema_id`            |
+| `ghostcrab_remember`          | Create durable fact          | `schema_id`, facets    |
+| `ghostcrab_upsert`            | Update mutable current state | `record_id`, facets    |
+| `ghostcrab_search`            | Faceted / BM25 search        | `schema_id`, filters   |
+| `ghostcrab_learn`             | Create graph relation        | source, target, label  |
+| `ghostcrab_traverse`          | Traverse graph from a node   | `from_id`, depth       |
+| `ghostcrab_pack`              | Compact recovery context     | query, `workspace_id`  |
+| `ghostcrab_project`           | Active run projections       | goal, step, constraint |
 
 ---
 

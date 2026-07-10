@@ -288,7 +288,9 @@ function printSchemaMigrationDetails(db, out) {
   } else if (db.migration === "up-to-date") {
     out("    migrations applied this run: none (schema already up to date)");
   } else if (db.migration === "failed") {
-    out("    migrations applied this run: none (backend migration step failed)");
+    out(
+      "    migrations applied this run: none (backend migration step failed)"
+    );
   }
 
   const total = after?.length ?? before?.length ?? 0;

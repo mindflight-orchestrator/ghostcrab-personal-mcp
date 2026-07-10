@@ -14,9 +14,13 @@ export function sqliteQuery(dbPath, sql) {
   if (!existsSync(dbPath)) {
     throw new Error(`SQLite database not found: ${dbPath}`);
   }
-  const res = spawnSync("sqlite3", [dbPath, "-json", sql], { encoding: "utf8" });
+  const res = spawnSync("sqlite3", [dbPath, "-json", sql], {
+    encoding: "utf8"
+  });
   if (res.status !== 0) {
-    throw new Error(res.stderr?.trim() || res.stdout?.trim() || "sqlite3 query failed");
+    throw new Error(
+      res.stderr?.trim() || res.stdout?.trim() || "sqlite3 query failed"
+    );
   }
   const text = (res.stdout || "").trim();
   if (!text) return [];
@@ -48,7 +52,10 @@ export function sqliteTableExists(dbPath, table) {
  */
 export function sqliteTableColumns(dbPath, table) {
   if (!sqliteTableExists(dbPath, table)) return new Set();
-  const rows = sqliteQuery(dbPath, `PRAGMA table_info('${table.replace(/'/g, "''")}')`);
+  const rows = sqliteQuery(
+    dbPath,
+    `PRAGMA table_info('${table.replace(/'/g, "''")}')`
+  );
   return new Set(rows.map((r) => String(r.name ?? "")).filter(Boolean));
 }
 

@@ -12,153 +12,115 @@
       "csv": "fake_data/bank_account.csv",
       "schema_id": "immeuble:core:bank_account",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "billing_group": {
       "csv": "fake_data/billing_group.csv",
       "schema_id": "immeuble:core:billing_group",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "block": {
       "csv": "fake_data/block.csv",
       "schema_id": "immeuble:core:block",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "building": {
       "csv": "fake_data/building.csv",
       "schema_id": "immeuble:core:building",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "cellar": {
       "csv": "fake_data/cellar.csv",
       "schema_id": "immeuble:core:cellar",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "charge_call": {
       "csv": "fake_data/charge_call.csv",
       "schema_id": "immeuble:core:charge_call",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "coda_entry": {
       "csv": "fake_data/coda_entry.csv",
       "schema_id": "immeuble:core:coda_entry",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "decision": {
       "csv": "fake_data/decision.csv",
       "schema_id": "immeuble:core:decision",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "household": {
       "csv": "fake_data/household.csv",
       "schema_id": "immeuble:core:household",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "lease_contract": {
       "csv": "fake_data/lease_contract.csv",
       "schema_id": "immeuble:core:lease_contract",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "organization": {
       "csv": "fake_data/organization.csv",
       "schema_id": "immeuble:core:organization",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "parking_space": {
       "csv": "fake_data/parking_space.csv",
       "schema_id": "immeuble:core:parking_space",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "person": {
       "csv": "fake_data/person.csv",
       "schema_id": "immeuble:core:person",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "private_garden": {
       "csv": "fake_data/private_garden.csv",
       "schema_id": "immeuble:core:private_garden",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "receipt": {
       "csv": "fake_data/receipt.csv",
       "schema_id": "immeuble:core:receipt",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "reminder": {
       "csv": "fake_data/reminder.csv",
       "schema_id": "immeuble:core:reminder",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "shared_equipment": {
       "csv": "fake_data/shared_equipment.csv",
       "schema_id": "immeuble:core:shared_equipment",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "shared_space": {
       "csv": "fake_data/shared_space.csv",
       "schema_id": "immeuble:core:shared_space",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "unit": {
       "csv": "fake_data/unit.csv",
       "schema_id": "immeuble:core:unit",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     }
   },
   "contract_relations": [],

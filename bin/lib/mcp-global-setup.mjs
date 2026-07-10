@@ -694,15 +694,11 @@ export function runSetupClaude(opts) {
   const bin = opts.claudeBin ?? "claude";
   const spawn = opts.spawn ?? spawnSync;
   if (opts.force) {
-    const remove = spawn(
-      bin,
-      ["mcp", "remove", "--scope", scope, serverName],
-      {
-        stdio: "pipe",
-        encoding: "utf8",
-        env: process.env
-      }
-    );
+    const remove = spawn(bin, ["mcp", "remove", "--scope", scope, serverName], {
+      stdio: "pipe",
+      encoding: "utf8",
+      env: process.env
+    });
     if (remove.error && remove.error.code !== "ENOENT") {
       return claudeNotFound(
         mcpLine,
@@ -793,6 +789,7 @@ function claudeNotFound(
     printClaude: true,
     mcpLine,
     shell: cleanShell,
-    message: msgBase + "Run the following, or see installations/gcp-brain-setup.md:\n"
+    message:
+      msgBase + "Run the following, or see installations/gcp-brain-setup.md:\n"
   };
 }

@@ -214,7 +214,9 @@ try {
 
   const platformPkgDir = pathUnderConsumer(consumerDir, platformPackageName);
   const documentBinaryName =
-    process.platform === "win32" ? "ghostcrab-document.exe" : "ghostcrab-document";
+    process.platform === "win32"
+      ? "ghostcrab-document.exe"
+      : "ghostcrab-document";
   const documentBin = join(platformPkgDir, "bin", documentBinaryName);
   assert.equal(
     existsSync(documentBin),
@@ -230,7 +232,11 @@ try {
 
   const toolsVerify = run(
     process.execPath,
-    [join(pathUnderConsumer(consumerDir, pkgName), "bin", "gcp.mjs"), "tools", "verify"],
+    [
+      join(pathUnderConsumer(consumerDir, pkgName), "bin", "gcp.mjs"),
+      "tools",
+      "verify"
+    ],
     { cwd: consumerDir }
   );
   assert.equal(
@@ -279,11 +285,7 @@ try {
     "[host-bootstrap] consumer data/ exists but is not a directory"
   );
 
-  const expectedDocLinks = [
-    "README.md",
-    "INSTALL.md",
-    "Licence.md"
-  ];
+  const expectedDocLinks = ["README.md", "INSTALL.md", "Licence.md"];
   const installedPkgRealPath = realpathSync(installedPkgDir);
   for (const docName of expectedDocLinks) {
     const docPath = join(consumerDir, docName);
@@ -519,7 +521,9 @@ try {
     "[mcp-setup] did not expect Cursor rules in consumer project"
   );
   assert.equal(
-    existsSync(join(fakeCursorDir, ".cursor", "skills", "ghostcrab-memory", "SKILL.md")),
+    existsSync(
+      join(fakeCursorDir, ".cursor", "skills", "ghostcrab-memory", "SKILL.md")
+    ),
     true,
     "[mcp-setup] expected ~/.cursor/skills/ghostcrab-memory/SKILL.md in fake HOME"
   );

@@ -58,7 +58,9 @@ describe("runSetupPostInstall", () => {
     expect(text).toContain(
       `Would write Cursor mcpAllowlist (basic, ${basicToolCount} tools)`
     );
-    expect(text).toMatch(/Would install cursor skill bundle from .*bin\/ide-skills/);
+    expect(text).toMatch(
+      /Would install cursor skill bundle from .*bin\/ide-skills/
+    );
     expect(text).toContain(join(fakeHome, ".cursor", "skills"));
     expect(text).toMatch(/ghostcrab-memory/);
     expect(text).toMatch(/mindbrain-comparison-writer/);
@@ -188,12 +190,22 @@ describe("runSetupPostInstall", () => {
       mcpAllowlist: string[];
     };
     expect(doc.mcpAllowlist).toHaveLength(basicToolCount);
-    expect(existsSync(join(cwd, ".ghostcrab", "skills", "shared", "ONBOARDING_CONTRACT.md"))).toBe(
-      true
-    );
-    expect(existsSync(join(cwd, ".cursor", "rules", "ghostcrab-memory.mdc"))).toBe(false);
-    expect(existsSync(join(fakeHome, ".cursor", "skills", "ghostcrab-memory", "SKILL.md"))).toBe(true);
-    expect(existsSync(join(cwd, ".ghostcrab", "skills", "installed.json"))).toBe(true);
+    expect(
+      existsSync(
+        join(cwd, ".ghostcrab", "skills", "shared", "ONBOARDING_CONTRACT.md")
+      )
+    ).toBe(true);
+    expect(
+      existsSync(join(cwd, ".cursor", "rules", "ghostcrab-memory.mdc"))
+    ).toBe(false);
+    expect(
+      existsSync(
+        join(fakeHome, ".cursor", "skills", "ghostcrab-memory", "SKILL.md")
+      )
+    ).toBe(true);
+    expect(
+      existsSync(join(cwd, ".ghostcrab", "skills", "installed.json"))
+    ).toBe(true);
     const text = (result.messages ?? []).join("\n");
     expect(text).toMatch(/PATH shim:/);
   });

@@ -37,11 +37,27 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const immeubleRoot = resolve(scriptDir, "..", "..");
 
 const args = parseArgs(process.argv.slice(2));
-const dbPath = resolve(parseFlag(args, "db", join(immeubleRoot, "..", "..", "..", "data", "immeuble-lab.sqlite")));
+const dbPath = resolve(
+  parseFlag(
+    args,
+    "db",
+    join(immeubleRoot, "..", "..", "..", "data", "immeuble-lab.sqlite")
+  )
+);
 const workspaceId = parseFlag(args, "workspace", "immeuble") || null;
-const modelPath = parseFlag(args, "model", join(immeubleRoot, "contracts", "model_contract.json"));
-const seedPath = parseFlag(args, "answer-artifacts-seed", join(immeubleRoot, "contracts", "answer_artifacts.seed.jsonl"));
-const outputDir = resolve(parseFlag(args, "output-dir", join(immeubleRoot, "reports")));
+const modelPath = parseFlag(
+  args,
+  "model",
+  join(immeubleRoot, "contracts", "model_contract.json")
+);
+const seedPath = parseFlag(
+  args,
+  "answer-artifacts-seed",
+  join(immeubleRoot, "contracts", "answer_artifacts.seed.jsonl")
+);
+const outputDir = resolve(
+  parseFlag(args, "output-dir", join(immeubleRoot, "reports"))
+);
 const strict = args.strict === "true";
 
 function loadModelContract(path) {
@@ -85,7 +101,9 @@ function loadPlannedProjections(model, ws) {
         const scope = value.scope || `${workspace}:projection:${name}`;
         planned.push({
           workspace_id: workspace,
-          ontology: scope.startsWith(`${workspace}:`) ? scope.split(":")[1] : "projection",
+          ontology: scope.startsWith(`${workspace}:`)
+            ? scope.split(":")[1]
+            : "projection",
           name,
           expected_scope: scope,
           label: value.label || name,
@@ -131,7 +149,10 @@ function loadPlannedLiveViews(path, ws) {
       const artifact = item.artifact ?? item;
       const kind = artifact.artifact_kind || "live_answer_view";
       if (kind !== "live_answer_view") continue;
-      const slug = artifact.slug || (artifact.artifact_id || "").split("__").pop() || `seed_${lineNo + 1}`;
+      const slug =
+        artifact.slug ||
+        (artifact.artifact_id || "").split("__").pop() ||
+        `seed_${lineNo + 1}`;
       const artifactId = artifact.artifact_id || `live_answer_view__${slug}`;
       planned.push({
         artifact_id: artifactId,
@@ -149,7 +170,11 @@ function loadPlannedLiveViews(path, ws) {
 
 function fetchSqlite(dbPath, workspaceId) {
   if (!existsSync(dbPath)) {
-    return { backend: "sqlite", available: false, error: `SQLite database not found: ${dbPath}` };
+    return {
+      backend: "sqlite",
+      available: false,
+      error: `SQLite database not found: ${dbPath}`
+    };
   }
 
   let projectionTypes = [];
@@ -183,8 +208,12 @@ function fetchSqlite(dbPath, workspaceId) {
   if (sqliteTableExists(dbPath, "facets")) {
     const columns = sqliteTableColumns(dbPath, "facets");
     const { where } = workspaceWhere(columns, workspaceId);
-    for (const row of sqliteQuery(dbPath, `SELECT schema_id, facets FROM facets ${where}`)) {
-      schemaCounts[String(row.schema_id)] = (schemaCounts[String(row.schema_id)] || 0) + 1;
+    for (const row of sqliteQuery(
+      dbPath,
+      `SELECT schema_id, facets FROM facets ${where}`
+    )) {
+      schemaCounts[String(row.schema_id)] =
+        (schemaCounts[String(row.schema_id)] || 0) + 1;
       facetRows.push({ schema_id: row.schema_id, facets: row.facets });
     }
   }
@@ -192,14 +221,19 @@ function fetchSqlite(dbPath, workspaceId) {
   if (sqliteTableExists(dbPath, "agent_facts")) {
     const columns = sqliteTableColumns(dbPath, "agent_facts");
     const schemaCol = columns.has("schema_id") ? "schema_id" : "NULL";
-    const facetsCol = columns.has("facets") ? "facets" : columns.has("facets_json") ? "facets_json" : "NULL";
+    const facetsCol = columns.has("facets")
+      ? "facets"
+      : columns.has("facets_json")
+        ? "facets_json"
+        : "NULL";
     const { where } = workspaceWhere(columns, workspaceId);
     for (const row of sqliteQuery(
       dbPath,
       `SELECT ${schemaCol} AS schema_id, ${facetsCol} AS facets FROM agent_facts ${where}`
     )) {
       if (row.schema_id) {
-        schemaCounts[String(row.schema_id)] = (schemaCounts[String(row.schema_id)] || 0) + 1;
+        schemaCounts[String(row.schema_id)] =
+          (schemaCounts[String(row.schema_id)] || 0) + 1;
       }
       facetRows.push({ schema_id: row.schema_id, facets: row.facets });
     }
@@ -216,13 +250,28 @@ function fetchSqlite(dbPath, workspaceId) {
   if (sqliteTableExists(dbPath, "graph_entity")) {
     const columns = sqliteTableColumns(dbPath, "graph_entity");
     const { where } = workspaceWhere(columns, workspaceId);
-    const countRow = sqliteQuery(dbPath, `SELECT COUNT(*) AS c FROM graph_entity ${where}`)[0];
+    const countRow = sqliteQuery(
+      dbPath,
+      `SELECT COUNT(*) AS c FROM graph_entity ${where}`
+    )[0];
     graphEntitiesCount = Number(countRow?.c ?? 0);
 
-    const idCol = columns.has("id") ? "id" : columns.has("entity_id") ? "entity_id" : null;
-    const typeCol = columns.has("type") ? "type" : columns.has("entity_type") ? "entity_type" : null;
+    const idCol = columns.has("id")
+      ? "id"
+      : columns.has("entity_id")
+        ? "entity_id"
+        : null;
+    const typeCol = columns.has("type")
+      ? "type"
+      : columns.has("entity_type")
+        ? "entity_type"
+        : null;
     const nameCol = columns.has("name") ? "name" : idCol;
-    const metadataCol = columns.has("metadata") ? "metadata" : columns.has("metadata_json") ? "metadata_json" : null;
+    const metadataCol = columns.has("metadata")
+      ? "metadata"
+      : columns.has("metadata_json")
+        ? "metadata_json"
+        : null;
     const confidenceCol = columns.has("confidence") ? "confidence" : null;
 
     if (idCol && typeCol && nameCol) {
@@ -237,7 +286,8 @@ function fetchSqlite(dbPath, workspaceId) {
          FROM graph_entity WHERE ${whereParts.join(" AND ")} ORDER BY name`
       )) {
         const [ok, metadata] = parseJsonMaybe(row.metadata);
-        const meta = ok && metadata && typeof metadata === "object" ? metadata : {};
+        const meta =
+          ok && metadata && typeof metadata === "object" ? metadata : {};
         typeBProjectionResults.push({
           id: String(row.id),
           type: row.type,
@@ -313,16 +363,30 @@ function audit(dbPath, workspaceId, modelPath, seedPath) {
   const backend = fetchSqlite(dbPath, workspaceId);
 
   const answerArtifacts = backend.answer_artifacts || [];
-  const liveViews = answerArtifacts.filter((r) => r.artifact_kind === "live_answer_view");
-  const evidencePacks = answerArtifacts.filter((r) => r.artifact_kind === "evidence_pack");
-  const registryAnalysisPlans = answerArtifacts.filter((r) => r.artifact_kind === "analysis_plan");
-  const staleLiveViews = liveViews.filter((r) => r.lifecycle === "stale");
-  const materializedLiveViewIds = new Set(liveViews.map((r) => r.artifact_id).filter(Boolean));
-  const materializedLiveViewSlugs = new Set(liveViews.map((r) => r.slug).filter(Boolean));
-  const plannedLiveMaterialized = plannedLiveViews.filter(
-    (item) => materializedLiveViewIds.has(item.artifact_id) || materializedLiveViewSlugs.has(item.slug)
+  const liveViews = answerArtifacts.filter(
+    (r) => r.artifact_kind === "live_answer_view"
   );
-  const plannedLiveMissing = plannedLiveViews.filter((item) => !plannedLiveMaterialized.includes(item));
+  const evidencePacks = answerArtifacts.filter(
+    (r) => r.artifact_kind === "evidence_pack"
+  );
+  const registryAnalysisPlans = answerArtifacts.filter(
+    (r) => r.artifact_kind === "analysis_plan"
+  );
+  const staleLiveViews = liveViews.filter((r) => r.lifecycle === "stale");
+  const materializedLiveViewIds = new Set(
+    liveViews.map((r) => r.artifact_id).filter(Boolean)
+  );
+  const materializedLiveViewSlugs = new Set(
+    liveViews.map((r) => r.slug).filter(Boolean)
+  );
+  const plannedLiveMaterialized = plannedLiveViews.filter(
+    (item) =>
+      materializedLiveViewIds.has(item.artifact_id) ||
+      materializedLiveViewSlugs.has(item.slug)
+  );
+  const plannedLiveMissing = plannedLiveViews.filter(
+    (item) => !plannedLiveMaterialized.includes(item)
+  );
 
   const now = Date.now();
   /** @type {Record<string, unknown>[]} */
@@ -347,13 +411,19 @@ function audit(dbPath, workspaceId, modelPath, seedPath) {
       const expiresAt = Number(row.expires_at_unix) * 1000;
       if (expiresAt < now) expired.push(row.id);
     }
-    if (allowedTypes.size && row.proj_type && !allowedTypes.has(row.proj_type)) {
+    if (
+      allowedTypes.size &&
+      row.proj_type &&
+      !allowedTypes.has(row.proj_type)
+    ) {
       customTypes.add(row.proj_type);
     }
     const scope = String(row.scope ?? "");
     scopes[scope] = (scopes[scope] || 0) + 1;
-    statuses[String(row.status ?? "")] = (statuses[String(row.status ?? "")] || 0) + 1;
-    types[String(row.proj_type ?? "")] = (types[String(row.proj_type ?? "")] || 0) + 1;
+    statuses[String(row.status ?? "")] =
+      (statuses[String(row.status ?? "")] || 0) + 1;
+    types[String(row.proj_type ?? "")] =
+      (types[String(row.proj_type ?? "")] || 0) + 1;
 
     const contentPreview =
       typeof parsed === "object" && parsed !== null
@@ -371,17 +441,24 @@ function audit(dbPath, workspaceId, modelPath, seedPath) {
       expires_at: dtFromUnix(row.expires_at_unix),
       content_is_json: okJson,
       content_preview: contentPreview,
-      json_keys: parsed && typeof parsed === "object" && !Array.isArray(parsed) ? Object.keys(parsed).sort() : []
+      json_keys:
+        parsed && typeof parsed === "object" && !Array.isArray(parsed)
+          ? Object.keys(parsed).sort()
+          : []
     });
   }
 
-  const materializedScopes = new Set((backend.projections || []).map((r) => r.scope).filter(Boolean));
+  const materializedScopes = new Set(
+    (backend.projections || []).map((r) => r.scope).filter(Boolean)
+  );
   for (const artifact of answerArtifacts) {
     if (artifact.scope) materializedScopes.add(String(artifact.scope));
     if (artifact.artifact_kind === "analysis_plan" && artifact.slug) {
       materializedScopes.add(`${workspaceId}:catalog:${artifact.slug}`);
       materializedScopes.add(`${workspaceId}:core:${artifact.slug}`);
-      materializedScopes.add(`${workspaceId}:competency:${artifact.slug.replace(/^immeuble_/, "")}`);
+      materializedScopes.add(
+        `${workspaceId}:competency:${artifact.slug.replace(/^immeuble_/, "")}`
+      );
     }
     if (artifact.artifact_kind === "live_answer_view" && artifact.slug) {
       materializedScopes.add(`${workspaceId}:core:${artifact.slug}`);
@@ -397,17 +474,25 @@ function audit(dbPath, workspaceId, modelPath, seedPath) {
     );
     if (slugMatch) materializedScopes.add(item.expected_scope);
   }
-  const plannedMissing = planned.filter((item) => !materializedScopes.has(item.expected_scope));
-  const plannedMaterialized = planned.filter((item) => materializedScopes.has(item.expected_scope));
+  const plannedMissing = planned.filter(
+    (item) => !materializedScopes.has(item.expected_scope)
+  );
+  const plannedMaterialized = planned.filter((item) =>
+    materializedScopes.has(item.expected_scope)
+  );
 
   const typeBResults = backend.graph?.projection_results || [];
-  const typeBProjectionIds = new Set(typeBResults.map((r) => r.projection_id).filter(Boolean));
+  const typeBProjectionIds = new Set(
+    typeBResults.map((r) => r.projection_id).filter(Boolean)
+  );
   const plannedTypeBMaterialized = planned.filter(
     (item) =>
       typeBProjectionIds.has(item.name) ||
       typeBProjectionIds.has(projectionNameFromScope(item.expected_scope))
   );
-  const plannedTypeBMissing = planned.filter((item) => !plannedTypeBMaterialized.includes(item));
+  const plannedTypeBMissing = planned.filter(
+    (item) => !plannedTypeBMaterialized.includes(item)
+  );
 
   /** @type {Record<string, number>} */
   const relationCounts = {};
@@ -419,16 +504,27 @@ function audit(dbPath, workspaceId, modelPath, seedPath) {
   const schemaCounts = backend.schema_counts || {};
   const facetIndex = backend.facet_index || buildObservedFacetIndex([]);
 
-  const requiredEdges = [...new Set(planned.flatMap((item) => item.required_edges || []))].sort();
-  const requiredSchemas = [...new Set(planned.flatMap((item) => item.required_schemas || []))].sort();
-  const requiredFacets = [...new Set(planned.flatMap((item) => item.required_facets || []))].sort();
+  const requiredEdges = [
+    ...new Set(planned.flatMap((item) => item.required_edges || []))
+  ].sort();
+  const requiredSchemas = [
+    ...new Set(planned.flatMap((item) => item.required_schemas || []))
+  ].sort();
+  const requiredFacets = [
+    ...new Set(planned.flatMap((item) => item.required_facets || []))
+  ].sort();
 
-  const missingRequiredEdgeTypes = requiredEdges.filter((edge) => !edgeIsObserved(edge, relationCounts));
+  const missingRequiredEdgeTypes = requiredEdges.filter(
+    (edge) => !edgeIsObserved(edge, relationCounts)
+  );
   const requiredSchemasWithoutRecords = requiredSchemas.filter((schema) => {
     const prefixed = schema.includes(":") ? schema : `immeuble:core:${schema}`;
     return !(schemaCounts[schema] > 0 || schemaCounts[prefixed] > 0);
   });
-  const requiredFacetsNotObserved = missingRequiredFacets(requiredFacets, facetIndex);
+  const requiredFacetsNotObserved = missingRequiredFacets(
+    requiredFacets,
+    facetIndex
+  );
 
   /** @type {Record<string, Record<string, unknown>[]>} */
   const missingByFamily = {};
@@ -443,7 +539,10 @@ function audit(dbPath, workspaceId, modelPath, seedPath) {
   qualityScore -= Math.min(20, missingRequiredEdgeTypes.length * 2);
   qualityScore -= Math.min(20, requiredSchemasWithoutRecords.length * 3);
   qualityScore -= Math.min(15, requiredFacetsNotObserved.length);
-  qualityScore -= Math.min(15, invalidJson.length * 2 + expired.length + (graph.orphan_relation_count || 0));
+  qualityScore -= Math.min(
+    15,
+    invalidJson.length * 2 + expired.length + (graph.orphan_relation_count || 0)
+  );
   qualityScore = Math.max(0, qualityScore);
 
   return {
@@ -473,7 +572,8 @@ function audit(dbPath, workspaceId, modelPath, seedPath) {
       planned_analysis_plan_missing_count: plannedMissing.length,
       planned_type_b_materialized_count: plannedTypeBMaterialized.length,
       planned_type_b_missing_count: plannedTypeBMissing.length,
-      planned_answer_snapshot_materialized_count: plannedTypeBMaterialized.length,
+      planned_answer_snapshot_materialized_count:
+        plannedTypeBMaterialized.length,
       planned_answer_snapshot_missing_count: plannedTypeBMissing.length,
       planned_live_view_count: plannedLiveViews.length,
       planned_live_view_materialized_count: plannedLiveMaterialized.length,
@@ -495,7 +595,9 @@ function audit(dbPath, workspaceId, modelPath, seedPath) {
       by_type: Object.fromEntries(Object.entries(types).sort()),
       by_status: Object.fromEntries(Object.entries(statuses).sort()),
       by_scope: Object.fromEntries(Object.entries(scopes).sort()),
-      graph_relations_by_type: Object.fromEntries(Object.entries(relationCounts).sort()),
+      graph_relations_by_type: Object.fromEntries(
+        Object.entries(relationCounts).sort()
+      ),
       facets_by_schema: Object.fromEntries(Object.entries(schemaCounts).sort())
     },
     allowed_projection_types: backend.projection_types || [],
@@ -506,7 +608,9 @@ function audit(dbPath, workspaceId, modelPath, seedPath) {
       invalid_json_projection_ids: invalidJson,
       expired_projection_ids: expired,
       custom_projection_types_not_registered: [...customTypes].sort(),
-      stale_live_answer_view_ids: staleLiveViews.map((r) => r.artifact_id).filter(Boolean),
+      stale_live_answer_view_ids: staleLiveViews
+        .map((r) => r.artifact_id)
+        .filter(Boolean),
       missing_required_edge_types: missingRequiredEdgeTypes,
       required_schemas_without_records: requiredSchemasWithoutRecords,
       required_facets_not_observed: requiredFacetsNotObserved,
@@ -518,14 +622,18 @@ function audit(dbPath, workspaceId, modelPath, seedPath) {
       planned_count: planned.length,
       materialized_count: plannedMaterialized.length,
       missing_count: plannedMissing.length,
-      missing_by_ontology: Object.fromEntries(Object.entries(missingByFamily).sort())
+      missing_by_ontology: Object.fromEntries(
+        Object.entries(missingByFamily).sort()
+      )
     },
     analysis_plan_gap: {
       mode: "analysis_plan",
       planned_count: planned.length,
       materialized_count: plannedMaterialized.length,
       missing_count: plannedMissing.length,
-      missing_by_ontology: Object.fromEntries(Object.entries(missingByFamily).sort())
+      missing_by_ontology: Object.fromEntries(
+        Object.entries(missingByFamily).sort()
+      )
     },
     type_b_projection_result_gap: {
       mode: "answer_snapshot",
@@ -595,12 +703,17 @@ function writeMarkdown(report, path) {
 
   lines.push("", "## Quality Flags", "");
   for (const [key, value] of Object.entries(report.quality_flags)) {
-    const rendered = Array.isArray(value) && value.length ? value.map((v) => `\`${v}\``).join(", ") : value;
+    const rendered =
+      Array.isArray(value) && value.length
+        ? value.map((v) => `\`${v}\``).join(", ")
+        : value;
     lines.push(`- \`${key}\`: ${rendered || "n/a"}`);
   }
 
   lines.push("", "## Graph Relation Coverage", "");
-  for (const [key, value] of Object.entries(report.counts.graph_relations_by_type || {})) {
+  for (const [key, value] of Object.entries(
+    report.counts.graph_relations_by_type || {}
+  )) {
     lines.push(`- \`${key}\`: ${value}`);
   }
 

@@ -35,7 +35,8 @@ describe("ghostcrab_workspace_use", () => {
       mockCtx(["default"])
     );
     expect(result.isError).toBe(true);
-    const text = result.content[0]?.type === "text" ? result.content[0].text : "";
+    const text =
+      result.content[0]?.type === "text" ? result.content[0].text : "";
     expect(text).toContain("ghostcrab_workspace_list");
     expect(text).not.toContain("ghostcrab_workspace_create");
     expect(text).toContain("Do not open the SQLite file directly");

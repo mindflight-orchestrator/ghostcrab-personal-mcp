@@ -2,12 +2,7 @@
  * MCP permission rendering and settings merge for Claude Code and Cursor.
  */
 
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  writeFileSync
-} from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -74,12 +69,10 @@ export async function toClaudePermissions(policy) {
     return mod.policyToClaudePermissions(policy);
   }
   const allow = policy.allow.map(
-    (ref) =>
-      `mcp__${ref.serverName}${ref.toolName ? `__${ref.toolName}` : ""}`
+    (ref) => `mcp__${ref.serverName}${ref.toolName ? `__${ref.toolName}` : ""}`
   );
   const ask = policy.ask.map(
-    (ref) =>
-      `mcp__${ref.serverName}${ref.toolName ? `__${ref.toolName}` : ""}`
+    (ref) => `mcp__${ref.serverName}${ref.toolName ? `__${ref.toolName}` : ""}`
   );
   return { allow, ask, deny: [] };
 }
@@ -99,10 +92,7 @@ export async function toCursorAllowlist(policy) {
 
 /** @param {string[]} rules @param {string[]} serverNames */
 export function pruneGhostcrabMcpRules(rules, serverNames) {
-  const prefixes = serverNames.flatMap((name) => [
-    `mcp__${name}`,
-    `${name}:`
-  ]);
+  const prefixes = serverNames.flatMap((name) => [`mcp__${name}`, `${name}:`]);
   return rules.filter((rule) => {
     const r = String(rule);
     return !prefixes.some(
@@ -311,7 +301,11 @@ export async function applyCursorPermissions(opts) {
   }
 
   mkdirSync(dirname(permissionsPath), { recursive: true });
-  writeFileSync(permissionsPath, `${JSON.stringify(merged, null, 2)}\n`, "utf8");
+  writeFileSync(
+    permissionsPath,
+    `${JSON.stringify(merged, null, 2)}\n`,
+    "utf8"
+  );
   return {
     ok: true,
     permissionsPath,

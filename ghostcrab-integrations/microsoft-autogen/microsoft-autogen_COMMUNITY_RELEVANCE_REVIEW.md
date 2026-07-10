@@ -79,7 +79,7 @@ The drafts now use SQLite and local Personal backend language throughout.
 
 Preferred wording:
 
-> This guide uses GhostCrab Personal SQLite. SQLite belongs to 
+> This guide uses GhostCrab Personal SQLite. SQLite belongs to
 
 ### 6.3 Update setup language
 
@@ -190,7 +190,7 @@ An agent stores a blocker, links it to a task with `ghostcrab_learn`, and anothe
 
 Keep it short:
 
-> This guide focuses on GhostCrab Personal SQLite. 
+> This guide focuses on GhostCrab Personal SQLite.
 
 ## JTBD Agent Analysis (Re-audit v2)
 
@@ -245,7 +245,7 @@ Historical pre-rewrite score:
 | --------------------------- | ----: | ------------------------------------------------------------------------------------------------------------------------ |
 | Community relevance         |   5/5 | AutoGen has a clear shared-memory need.                                                                                  |
 | Framework alignment         |   5/5 | MCP/workbench and multi-agent patterns fit well.                                                                         |
-| GhostCrab Personal accuracy |   5/5 | Aligned with SQLite Personal MCP |
+| GhostCrab Personal accuracy |   5/5 | Aligned with SQLite Personal MCP                                                                                         |
 | Tool-name accuracy          |   2/5 | Several tools are old or custom.                                                                                         |
 | Agent behavioral clarity    |   2/5 | Demos cover most lifecycle moments but remember/upsert absent, MCP connection path missing, failure modes not addressed. |
 | Community readiness         |   3/5 | Strong after tool and setup rewrite.                                                                                     |

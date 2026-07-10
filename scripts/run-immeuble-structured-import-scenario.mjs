@@ -18,8 +18,13 @@ import { spawnSync } from "node:child_process";
 const pkgRoot = resolve(fileURLToPath(import.meta.url), "..", "..");
 const gcp = join(pkgRoot, "bin", "gcp.mjs");
 const runner = join(pkgRoot, "scripts", "run-structured-import-system.mjs");
-const defaultManifest = resolve(pkgRoot, "examples/immeuble/import_manifest.yaml");
-const manifests = [parseFlag(process.argv.slice(2), "--manifest", defaultManifest)];
+const defaultManifest = resolve(
+  pkgRoot,
+  "examples/immeuble/import_manifest.yaml"
+);
+const manifests = [
+  parseFlag(process.argv.slice(2), "--manifest", defaultManifest)
+];
 
 const args = process.argv.slice(2);
 const workspaceId = parseFlag(args, "--workspace-id", "immeuble");
@@ -27,7 +32,10 @@ const engine = parseFlag(args, "--engine", "legacy");
 const dbPath = parseFlag(
   args,
   "--db",
-  join(mkdtempSync(join(tmpdir(), "gcp-immeuble-structured-import-")), "immeuble.sqlite")
+  join(
+    mkdtempSync(join(tmpdir(), "gcp-immeuble-structured-import-")),
+    "immeuble.sqlite"
+  )
 );
 const evidenceDir = parseFlag(
   args,
@@ -36,7 +44,9 @@ const evidenceDir = parseFlag(
 );
 const runWithSkipPreflight = args.includes("--skip-preflight");
 const runWithPreflight = args.includes("--preflight");
-const runWithSkipProvenance = args.includes("--skip-provenance-validation") || args.includes("--no-validate-provenance");
+const runWithSkipProvenance =
+  args.includes("--skip-provenance-validation") ||
+  args.includes("--no-validate-provenance");
 const runWithForce = args.includes("--force");
 
 mkdirSync(evidenceDir, { recursive: true });
@@ -44,7 +54,11 @@ mkdirSync(evidenceDir, { recursive: true });
 const evidence = {
   workspace_id: workspaceId,
   db_path: dbPath,
-  preflight: runWithSkipPreflight ? "skipped" : runWithPreflight ? "forced" : "manifest-default",
+  preflight: runWithSkipPreflight
+    ? "skipped"
+    : runWithPreflight
+      ? "forced"
+      : "manifest-default",
   provenance: runWithSkipProvenance ? "skipped" : "forced",
   phases: [],
   ok: true
@@ -74,39 +88,62 @@ try {
     });
   }
 
-  const reindexArgs = ["structured-import", "reindex", "--workspace-id", workspaceId, "--scope", "all"];
+  const reindexArgs = [
+    "structured-import",
+    "reindex",
+    "--workspace-id",
+    workspaceId,
+    "--scope",
+    "all"
+  ];
   if (runWithForce) {
     reindexArgs.splice(1, 0, "--force");
   }
   const reindex = runGcp(reindexArgs, true);
   const provenance = runWithSkipProvenance
     ? { json: { ok: true, skipped: true } }
-    : runGcp([
-    "structured-import",
-    "validate-provenance",
-    "--workspace-id",
-    workspaceId
-  ], true);
+    : runGcp(
+        [
+          "structured-import",
+          "validate-provenance",
+          "--workspace-id",
+          workspaceId
+        ],
+        true
+      );
 
   evidence.reindex = reindex.json;
   evidence.provenance = provenance.json;
 
-  if (typeof reindex.json?.graph_projected === "number" && reindex.json.graph_projected <= 0) {
-    throw new Error(`reindex.graph_projected expected > 0, got ${reindex.json.graph_projected}`);
+  if (
+    typeof reindex.json?.graph_projected === "number" &&
+    reindex.json.graph_projected <= 0
+  ) {
+    throw new Error(
+      `reindex.graph_projected expected > 0, got ${reindex.json.graph_projected}`
+    );
   }
 
   if (!runWithSkipProvenance && provenance.json?.ok !== true) {
-    throw new Error(`provenance validation failed unexpectedly: ${JSON.stringify(provenance.json)}`);
+    throw new Error(
+      `provenance validation failed unexpectedly: ${JSON.stringify(provenance.json)}`
+    );
   }
 
-  const reportPath = join(evidenceDir, "immeuble-structured-import-scenario.json");
+  const reportPath = join(
+    evidenceDir,
+    "immeuble-structured-import-scenario.json"
+  );
   evidence.report_path = reportPath;
   writeFileSync(reportPath, JSON.stringify(evidence, null, 2) + "\n", "utf8");
   console.log(JSON.stringify({ ...evidence, ok: true }, null, 2));
 } catch (err) {
   evidence.ok = false;
   evidence.error = err instanceof Error ? err.message : String(err);
-  const reportPath = join(evidenceDir, "immeuble-structured-import-scenario.json");
+  const reportPath = join(
+    evidenceDir,
+    "immeuble-structured-import-scenario.json"
+  );
   evidence.report_path = reportPath;
   writeFileSync(reportPath, JSON.stringify(evidence, null, 2) + "\n", "utf8");
   console.error(JSON.stringify({ ...evidence, ok: false }, null, 2));
@@ -137,7 +174,11 @@ function runRunner(manifestArgs, includeApply) {
   if (includeApply) {
     runnerArgs.push("--apply");
   }
-  const res = runCommand(process.execPath, [runner, ...runnerArgs], `run-structured-import-system`);
+  const res = runCommand(
+    process.execPath,
+    [runner, ...runnerArgs],
+    `run-structured-import-system`
+  );
   if (res.status !== 0) {
     throw new Error(`${res.label} failed (${res.status}): ${res.output}`);
   }
@@ -145,7 +186,11 @@ function runRunner(manifestArgs, includeApply) {
 }
 
 function runGcp(args, parseJson = false) {
-  const res = runCommand(process.execPath, [gcp, "brain", ...args], "gcp structured-import");
+  const res = runCommand(
+    process.execPath,
+    [gcp, "brain", ...args],
+    "gcp structured-import"
+  );
   const output = res.output;
   if (res.status !== 0) {
     throw new Error(`${res.label} failed (${res.status}): ${output}`);
@@ -253,7 +298,9 @@ function parseSummary(text) {
 }
 
 function shellJoin(parts) {
-  return parts.map((part) => `'${String(part).replaceAll("'", "'\"'\"'")}'`).join(" ");
+  return parts
+    .map((part) => `'${String(part).replaceAll("'", "'\"'\"'")}'`)
+    .join(" ");
 }
 
 function extractKitSummary(payload) {

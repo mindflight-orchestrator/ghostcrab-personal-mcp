@@ -148,7 +148,15 @@ function renderSlice(slice) {
     ""
   ].join("\n");
 
-  return { md, hash, outPath: join(root, "docs/explanation/ontology/diagrams", `${slice.slug}.md`) };
+  return {
+    md,
+    hash,
+    outPath: join(
+      root,
+      "docs/explanation/ontology/diagrams",
+      `${slice.slug}.md`
+    )
+  };
 }
 
 let failed = false;

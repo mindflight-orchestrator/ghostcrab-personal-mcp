@@ -168,9 +168,7 @@ describe("facet vocabulary tools", () => {
     const insertCall = query.mock.calls.find((call) =>
       String(call[0]).includes("INSERT INTO")
     );
-    expect(insertCall?.[1]).toEqual(
-      expect.arrayContaining(["immeuble-demo"])
-    );
+    expect(insertCall?.[1]).toEqual(expect.arrayContaining(["immeuble-demo"]));
   });
 
   it("uses session workspace_id when inspecting facet definitions", async () => {

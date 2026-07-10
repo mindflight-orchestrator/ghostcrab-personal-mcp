@@ -106,7 +106,13 @@ function sha256Prefix(targetPath) {
   }
 }
 
-function pickNewerBackendPath(installedPath, bundledPath, platformKey, binaryName, packageName) {
+function pickNewerBackendPath(
+  installedPath,
+  bundledPath,
+  platformKey,
+  binaryName,
+  packageName
+) {
   const installedMtime = statSync(installedPath).mtimeMs;
   const bundledMtime = statSync(bundledPath).mtimeMs;
   if (bundledMtime > installedMtime) {
@@ -214,11 +220,7 @@ export function resolveNativeBackendPath(pkgRoot) {
           paths: [pkgRoot]
         }
       );
-      installedPath = join(
-        dirname(packageJsonPath),
-        "bin",
-        bundled.binaryName
-      );
+      installedPath = join(dirname(packageJsonPath), "bin", bundled.binaryName);
     } catch {
       installedPath = null;
     }
@@ -493,8 +495,7 @@ export function warnDocumentEngineMissing(docResolved) {
  * @param {{ verbose?: boolean, silent?: boolean, tryQuarantine?: boolean, softFail?: boolean, platformKey: string, actions: string[] }} opts
  */
 function prepareDocumentEngineForInstall(pkgRoot, opts) {
-  const { verbose, silent, tryQuarantine, softFail, platformKey, actions } =
-    opts;
+  const { verbose, tryQuarantine, softFail, platformKey, actions } = opts;
   const docResolved = resolveDocumentEnginePath(pkgRoot, {
     ignoreOptionalDependency: opts.ignoreOptionalDependency
   });

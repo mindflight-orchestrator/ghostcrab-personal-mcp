@@ -12,7 +12,9 @@ export const OntologyListInput = z.object({
   summary_only: z.boolean().default(false)
 });
 
-function parseMetadata(value: string | null | undefined): Record<string, unknown> {
+function parseMetadata(
+  value: string | null | undefined
+): Record<string, unknown> {
   if (!value) {
     return {};
   }
@@ -56,7 +58,8 @@ export const ontologyListTool: ToolHandler = {
   },
   async handler(args, context) {
     const input = OntologyListInput.parse(args);
-    const effectiveWorkspaceId = input.workspace_id ?? context.session.workspace_id;
+    const effectiveWorkspaceId =
+      input.workspace_id ?? context.session.workspace_id;
 
     const params: unknown[] = [effectiveWorkspaceId];
     const whereClauses = ["workspace_id = ?"];

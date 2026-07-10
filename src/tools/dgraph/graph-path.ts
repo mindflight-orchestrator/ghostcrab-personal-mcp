@@ -4,7 +4,6 @@ import { resolveGhostcrabConfig } from "../../config/env.js";
 import { runStandaloneGraphPath } from "../../db/standalone-mindbrain.js";
 import {
   createToolErrorFromException,
-  createToolErrorResult,
   createToolSuccessResult,
   registerTool,
   type ToolHandler

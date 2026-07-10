@@ -62,12 +62,19 @@ export function detectShellKind() {
 }
 
 /**
- * @param {string} [binDir]
  * @returns {string | null}
  */
-export function resolveProfilePath(binDir = getGhostcrabBinDir()) {
+export function resolveProfilePath() {
   if (process.platform === "win32") {
-    return process.env.PROFILE ?? join(homedir(), "Documents", "PowerShell", "Microsoft.PowerShell_profile.ps1");
+    return (
+      process.env.PROFILE ??
+      join(
+        homedir(),
+        "Documents",
+        "PowerShell",
+        "Microsoft.PowerShell_profile.ps1"
+      )
+    );
   }
   const shell = process.env.SHELL ?? "";
   if (shell.includes("zsh")) {
@@ -113,17 +120,14 @@ export function writeGcpShim(opts) {
 
   if (process.platform === "win32") {
     const shimPath = join(binDir, "gcp.cmd");
-    const content =
-      `@echo off\r\n` +
-      `"${nodePath}" "${gcpMjsPath}" %*\r\n`;
+    const content = `@echo off\r\n` + `"${nodePath}" "${gcpMjsPath}" %*\r\n`;
     writeFileSync(shimPath, content, "utf8");
     return { shimPath, binDir };
   }
 
   const shimPath = join(binDir, "gcp");
   const content =
-    `#!/usr/bin/env sh\n` +
-    `exec "${nodePath}" "${gcpMjsPath}" "$@"\n`;
+    `#!/usr/bin/env sh\n` + `exec "${nodePath}" "${gcpMjsPath}" "$@"\n`;
   writeFileSync(shimPath, content, "utf8");
   try {
     chmodSync(shimPath, 0o755);
@@ -171,7 +175,10 @@ export function installPathShim(opts) {
   if (opts.dryRun) {
     return {
       binDir,
-      shimPath: process.platform === "win32" ? join(binDir, "gcp.cmd") : join(binDir, "gcp"),
+      shimPath:
+        process.platform === "win32"
+          ? join(binDir, "gcp.cmd")
+          : join(binDir, "gcp"),
       gcpMjsPath,
       nodePath,
       shell,
@@ -215,10 +222,13 @@ export function installPathShim(opts) {
  * }}
  */
 export async function runPathDoctor(pkgRoot) {
-  const { resolveDocumentEnginePath } = await import("./prebuild-permissions.mjs");
+  const { resolveDocumentEnginePath } =
+    await import("./prebuild-permissions.mjs");
   const binDir = getGhostcrabBinDir();
   const shimPath =
-    process.platform === "win32" ? join(binDir, "gcp.cmd") : join(binDir, "gcp");
+    process.platform === "win32"
+      ? join(binDir, "gcp.cmd")
+      : join(binDir, "gcp");
   const docResolved = resolveDocumentEnginePath(pkgRoot);
 
   return {
@@ -228,6 +238,6 @@ export async function runPathDoctor(pkgRoot) {
     binDirOnPath: isGhostcrabBinOnPath(binDir),
     binDir,
     documentOk: docResolved.ok,
-    documentPath: docResolved.ok ? docResolved.path : docResolved.path ?? null
+    documentPath: docResolved.ok ? docResolved.path : (docResolved.path ?? null)
   };
 }

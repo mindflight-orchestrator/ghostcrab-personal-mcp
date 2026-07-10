@@ -12,7 +12,8 @@ MindBrain is a structured agentic database that makes any domain navigable in re
 
 The Agents SDK has clear primitives for local context, model-visible context, sessions, and MCP tools, but durable shared memory across multiple agents and runs still has to be designed by the application. mindBrain fills that gap as a structured ontology registry that every SDK agent can reach through GhostCrab MCP tools.
 
-With mindBrain attached through the SDK's MCP server support, agents can load compact workspace context at run start, query typed relationships on demand, and update current state without embedding persistence logic in each tool. The SDK keeps orchestrating agents and tool calls; 
+With mindBrain attached through the SDK's MCP server support, agents can load compact workspace context at run start, query typed relationships on demand, and update current state without embedding persistence logic in each tool. The SDK keeps orchestrating agents and tool calls;
+
 ## SKILLS available in this repo
 
 - [`SKILL_ghostcrab-openai-agents-sdk.md`](SKILL_ghostcrab-openai-agents-sdk.md) helps Claude Code or Codex connect the OpenAI Agents SDK to GhostCrab Personal as a local MCP memory layer.
@@ -138,7 +139,7 @@ writer_server = MCPServerStreamableHttp(
 
 | Native SDK gaps                            | GhostCrab fix                               |
 | :----------------------------------------- | :------------------------------------------ |
-| Local `RunContext`, lost post-run [^1_3]   | SQLite state survives runs              |
+| Local `RunContext`, lost post-run [^1_3]   | SQLite state survives runs                  |
 | In-memory sessions siloed per agent [^1_2] | Shared registry across heterogeneous agents |
 | No structured querying on memory           | Faceted search + traversal via MindBrain    |
 | Untyped context blobs                      | Explicit ontology schemas                   |

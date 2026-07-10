@@ -34,20 +34,25 @@ Rapport markdown :
 # Immeuble MCP lab — comparison report
 
 ## Summary
+
 - Status: pass | fail
 - Workspace: immeuble
 - Golden ref: immeuble
 
 ## Entity counts
+
 | type | expected | actual | ok |
 
 ## Relation counts
+
 | edge | expected | actual | ok |
 
 ## Diagnostics (L2)
+
 - missing_required_relations: …
 
 ## Gaps (max 3)
+
 1. …
 ```
 

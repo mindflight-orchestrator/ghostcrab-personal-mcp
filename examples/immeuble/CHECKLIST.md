@@ -16,19 +16,19 @@ Vérification auto : `npm run immeuble:verify`
 
 ## Phase 0 — Préconditions
 
-| # | Action | Post-condition OK | KO si |
-|---|--------|-------------------|-------|
-| 0.1 | `ghostcrab_status` | `ok: true`, tools visibles | backend down |
+| #   | Action              | Post-condition OK            | KO si            |
+| --- | ------------------- | ---------------------------- | ---------------- |
+| 0.1 | `ghostcrab_status`  | `ok: true`, tools visibles   | backend down     |
 | 0.2 | Branche + submodule | `vendor/mindbrain` ≥ 549c39f | mismatch binaire |
 
 ---
 
 ## Phase 1 — Build (filesystem only)
 
-| # | Commande | Artefacts | Post-condition |
-|---|----------|-----------|----------------|
-| 1.1 | `npm run immeuble:build` | `fake_data/*.csv` (≥19), `import_ready/*`, `reports/01-model.validation.json` | `pipeline_audit.ok=true`, facet_rows=131, edge_rows=265 |
-| 1.2 | `npm run immeuble:verify` | `reports/acceptance.validation.json` | all checks ok (sans DB) |
+| #   | Commande                  | Artefacts                                                                     | Post-condition                                          |
+| --- | ------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------- |
+| 1.1 | `npm run immeuble:build`  | `fake_data/*.csv` (≥19), `import_ready/*`, `reports/01-model.validation.json` | `pipeline_audit.ok=true`, facet_rows=131, edge_rows=265 |
+| 1.2 | `npm run immeuble:verify` | `reports/acceptance.validation.json`                                          | all checks ok (sans DB)                                 |
 
 **Tables DB touchées :** aucune
 
@@ -36,8 +36,8 @@ Vérification auto : `npm run immeuble:verify`
 
 ## Phase 2 — Dry-run import
 
-| # | Commande | Post-condition |
-|---|----------|----------------|
+| #   | Commande                                                                                               | Post-condition                         |
+| --- | ------------------------------------------------------------------------------------------------------ | -------------------------------------- |
 | 2.1 | `node examples/immeuble/scripts/run-immeuble-import.mjs --skip-preflight --skip-provenance-validation` | plan summary facet_rows>0, edge_rows>0 |
 
 **Tables DB :** aucune écriture
@@ -46,10 +46,10 @@ Vérification auto : `npm run immeuble:verify`
 
 ## Phase 3 — Reset + apply (workspace propre)
 
-| # | Commande | Post-condition |
-|---|----------|----------------|
-| 3.1 | `npm run immeuble:reset -- --db /tmp/immeuble-test/immeuble.sqlite` | DB fraîche isolée (recommandé si backend actif) |
-| 3.1b | `npm run immeuble:reset` | DB `data/immeuble.sqlite` (requiert `--force` si backend sur même fichier) |
+| #    | Commande                                                            | Post-condition                                                             |
+| ---- | ------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| 3.1  | `npm run immeuble:reset -- --db /tmp/immeuble-test/immeuble.sqlite` | DB fraîche isolée (recommandé si backend actif)                            |
+| 3.1b | `npm run immeuble:reset`                                            | DB `data/immeuble.sqlite` (requiert `--force` si backend sur même fichier) |
 
 **Post-conditions DB (`ACCEPTANCE.yaml`) :**
 
@@ -77,20 +77,20 @@ npm run immeuble:verify -- --require-hybrid
 
 Surface documentée dans `ACCEPTANCE.yaml` → section `projections` :
 
-| artifact_id | kind |
-|-------------|------|
-| `analysis_plan__immeuble_competency_questions` | analysis_plan |
-| `live_answer_view__annuaire_coproprietes` | live_answer_view |
-| `live_answer_view__baux_actifs` | live_answer_view |
-| `live_answer_view__quotites_par_immeuble` | live_answer_view |
+| artifact_id                                    | kind             |
+| ---------------------------------------------- | ---------------- |
+| `analysis_plan__immeuble_competency_questions` | analysis_plan    |
+| `live_answer_view__annuaire_coproprietes`      | live_answer_view |
+| `live_answer_view__baux_actifs`                | live_answer_view |
+| `live_answer_view__quotites_par_immeuble`      | live_answer_view |
 
-| # | Commande | Post-condition |
-|---|----------|----------------|
-| 5.1 | `npm run immeuble:reset -- --with-artifact-seed` | seeds chargés |
-| 5.2 | `gcp brain artifact list --workspace-id immeuble --kind live_answer_view` | ≥3 ids listés |
-| 5.3 | `gcp brain artifact refresh live_answer_view__annuaire_coproprietes` | POST 200, lifecycle mis à jour |
-| 5.4 | `node examples/immeuble/scripts/starterkit/analyze-projection-candidates.mjs --db data/immeuble.sqlite --workspace immeuble --projection-catalog contracts/projection_catalog.yaml --model-contract contracts/model_contract.json --output-dir reports --include-blind-spots --include-jtbd` | report `projection_candidates.json` généré |
-| 5.5 | `node examples/immeuble/scripts/starterkit/audit-ghostcrab-projections.mjs --db data/immeuble.sqlite --workspace immeuble --model contracts/model_contract.json --answer-artifacts-seed contracts/answer_artifacts.seed.jsonl --output-dir reports` | `projection_audit_immeuble.json` généré, coverage conforme `ACCEPTANCE.yaml` |
+| #   | Commande                                                                                                                                                                                                                                                                                     | Post-condition                                                               |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 5.1 | `npm run immeuble:reset -- --with-artifact-seed`                                                                                                                                                                                                                                             | seeds chargés                                                                |
+| 5.2 | `gcp brain artifact list --workspace-id immeuble --kind live_answer_view`                                                                                                                                                                                                                    | ≥3 ids listés                                                                |
+| 5.3 | `gcp brain artifact refresh live_answer_view__annuaire_coproprietes`                                                                                                                                                                                                                         | POST 200, lifecycle mis à jour                                               |
+| 5.4 | `node examples/immeuble/scripts/starterkit/analyze-projection-candidates.mjs --db data/immeuble.sqlite --workspace immeuble --projection-catalog contracts/projection_catalog.yaml --model-contract contracts/model_contract.json --output-dir reports --include-blind-spots --include-jtbd` | report `projection_candidates.json` généré                                   |
+| 5.5 | `node examples/immeuble/scripts/starterkit/audit-ghostcrab-projections.mjs --db data/immeuble.sqlite --workspace immeuble --model contracts/model_contract.json --answer-artifacts-seed contracts/answer_artifacts.seed.jsonl --output-dir reports`                                          | `projection_audit_immeuble.json` généré, coverage conforme `ACCEPTANCE.yaml` |
 
 ---
 

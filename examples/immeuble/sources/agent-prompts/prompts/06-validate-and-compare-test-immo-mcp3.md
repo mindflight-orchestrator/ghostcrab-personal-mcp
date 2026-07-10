@@ -6,10 +6,10 @@ Baseline report: `../reports/06-compare-test-immo-mcp2.md`.
 
 ## Workspaces
 
-| Workspace | Role |
-|-----------|------|
+| Workspace            | Role                                             |
+| -------------------- | ------------------------------------------------ |
 | **`test-immo-mcp3`** | Process — 9 corpus docs, live extract, no bundle |
-| **`immeuble`** | Reference — golden bundle |
+| **`immeuble`**       | Reference — golden bundle                        |
 
 ## Agent prompt (copy-paste)
 

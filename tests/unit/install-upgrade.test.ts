@@ -22,9 +22,7 @@ import {
   validateSchemaStatus,
   REQUIRED_SCHEMA_MIGRATIONS
 } from "../../bin/lib/install-upgrade.mjs";
-import {
-  readSchemaMigrations
-} from "../../bin/lib/sqlite-file-count.mjs";
+import { readSchemaMigrations } from "../../bin/lib/sqlite-file-count.mjs";
 
 describe("install upgrade", () => {
   let root = "";
@@ -69,7 +67,9 @@ describe("install upgrade", () => {
   function addFakeBackend(pkgRoot: string) {
     const platformKey = `${process.platform}-${process.arch}`;
     const binaryName =
-      process.platform === "win32" ? "ghostcrab-backend.exe" : "ghostcrab-backend";
+      process.platform === "win32"
+        ? "ghostcrab-backend.exe"
+        : "ghostcrab-backend";
     const backendPath = join(pkgRoot, "prebuilds", platformKey, binaryName);
     mkdirSync(join(pkgRoot, "prebuilds", platformKey), { recursive: true });
     writeFileSync(backendPath, "fake backend", "utf8");
@@ -416,13 +416,13 @@ describe("install upgrade", () => {
       },
       (line) => lines.push(line)
     );
-    expect(lines.some((line) => line.includes("migrations applied this run"))).toBe(
-      true
-    );
+    expect(
+      lines.some((line) => line.includes("migrations applied this run"))
+    ).toBe(true);
     expect(lines.some((line) => line.includes("+ new"))).toBe(true);
-    expect(lines.some((line) => line.includes("schema migrations on disk: 2"))).toBe(
-      true
-    );
+    expect(
+      lines.some((line) => line.includes("schema migrations on disk: 2"))
+    ).toBe(true);
   });
 
   it("printUpgradeReport lists schema status and mindbrain stderr", () => {
@@ -460,9 +460,9 @@ describe("install upgrade", () => {
       },
       (line) => lines.push(line)
     );
-    expect(lines.some((line) => line.includes("mindbrain version: 1.7.1"))).toBe(
-      true
-    );
+    expect(
+      lines.some((line) => line.includes("mindbrain version: 1.7.1"))
+    ).toBe(true);
     expect(lines.some((line) => line.includes("missing columns: none"))).toBe(
       true
     );

@@ -873,30 +873,21 @@
         "lease_contract.validFrom",
         "coda_entry.amount"
       ],
-      "required_edges": [
-        "CONTAINS",
-        "LEASES",
-        "MATCHED_TO"
-      ]
+      "required_edges": ["CONTAINS", "LEASES", "MATCHED_TO"]
     },
     "annuaire_coproprietes": {
       "scope": "immeuble:core:annuaire_coproprietes",
       "label": "Annuaire immeubles gérés",
       "business_question": "Quels immeubles sont gérés et où sont-ils situés ?",
       "artifact_kind": "live_answer_view",
-      "required_schemas": [
-        "immeuble:core:building",
-        "immeuble:core:block"
-      ],
+      "required_schemas": ["immeuble:core:building", "immeuble:core:block"],
       "required_facets": [
         "building.address",
         "building.name",
         "building.quota_basis",
         "block.name"
       ],
-      "required_edges": [
-        "CONTAINS"
-      ]
+      "required_edges": ["CONTAINS"]
     },
     "baux_actifs": {
       "scope": "immeuble:core:baux_actifs",
@@ -915,29 +906,20 @@
         "lease_contract.monthly_rent",
         "person.name"
       ],
-      "required_edges": [
-        "LEASES",
-        "RENTED_TO",
-        "OCCUPIES"
-      ]
+      "required_edges": ["LEASES", "RENTED_TO", "OCCUPIES"]
     },
     "quotites_par_immeuble": {
       "scope": "immeuble:core:quotites_par_immeuble",
       "label": "Quotités par immeuble",
       "business_question": "Les quotités de chaque immeuble totalisent-elles 1000 ?",
       "artifact_kind": "live_answer_view",
-      "required_schemas": [
-        "immeuble:core:building",
-        "immeuble:core:unit"
-      ],
+      "required_schemas": ["immeuble:core:building", "immeuble:core:unit"],
       "required_facets": [
         "building.quota_basis",
         "unit.tantiemes",
         "unit.quota_basis"
       ],
-      "required_edges": [
-        "CONTAINS"
-      ]
+      "required_edges": ["CONTAINS"]
     }
   }
 }

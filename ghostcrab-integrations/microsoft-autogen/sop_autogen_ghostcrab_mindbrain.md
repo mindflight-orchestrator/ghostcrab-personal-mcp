@@ -130,7 +130,7 @@ async with McpWorkbench(ghostcrab_params) as workbench:
 | Semantic querying              | Vector similarity only           | Faceted + graph + vector          |
 | Ontology model                 | None                             | Types, relationships, constraints |
 | Structured queryability        | No                               | SQL-like graph queries            |
-| Cross-session without re-index | ❌                               | ✅ SQLite persistence         |
+| Cross-session without re-index | ❌                               | ✅ SQLite persistence             |
 
 [^1_5][^1_1]
 
@@ -204,14 +204,14 @@ Integration rests on three pillars:
 
 ## Stack and prerequisites
 
-| Component            | Minimum version | Notes                                    |
-| :------------------- | :-------------- | :--------------------------------------- |
-| `autogen-agentchat`  | 0.4.6+          | Stable `Memory` protocol                 |
-| `autogen-ext`        | 0.4.6+          | `McpWorkbench`, `SseServerParams`        |
-| `autogen-core`       | 0.4.6+          | `MemoryContent`, `MemoryQueryResult`     |
-| GhostCrab MCP Server | —               | SSE at `http://localhost:8080/mcp`       |
+| Component            | Minimum version | Notes                                                                                                     |
+| :------------------- | :-------------- | :-------------------------------------------------------------------------------------------------------- |
+| `autogen-agentchat`  | 0.4.6+          | Stable `Memory` protocol                                                                                  |
+| `autogen-ext`        | 0.4.6+          | `McpWorkbench`, `SseServerParams`                                                                         |
+| `autogen-core`       | 0.4.6+          | `MemoryContent`, `MemoryQueryResult`                                                                      |
+| GhostCrab MCP Server | —               | SSE at `http://localhost:8080/mcp`                                                                        |
 | MindBrain            | —               | SQLite backend, faceted search via `ghostcrab_search`, graph via `ghostcrab_learn` / `ghostcrab_traverse` |
-| Python               | 3.11+           |                                          |
+| Python               | 3.11+           |                                                                                                           |
 
 Python dependencies:
 
@@ -662,9 +662,9 @@ Here's what it covers:
 
 This skill covers **two complementary responsibilities**:
 
-| Layer                  | Who uses it                      | What it does                                                                                              |
-| ---------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| **Worker layer**       | Any AutoGen agent                | Records task status, progression, and knowledge into MindBrain via GhostCrab tools                        |
+| Layer                  | Who uses it                      | What it does                                                                                                                           |
+| ---------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **Worker layer**       | Any AutoGen agent                | Records task status, progression, and knowledge into MindBrain via GhostCrab tools                                                     |
 | **Orchestrator layer** | `SelectorGroupChat` orchestrator | Reads `ghostcrab_project` / `ghostcrab_pack` projections to decide which agent to activate, when to change project phase, when to stop |
 
 The key insight: **MindBrain is the single source of truth for runtime state**. Agents write their progress into it. The orchestrator reads aggregated projections from it to make control decisions — without relying on conversation history alone.
@@ -763,13 +763,13 @@ Built-in projections used in this skill:
 
 ### Orchestrator Tools (Orchestrator agent only)
 
-| Tool                         | Required params                        | Optional params | Description                             |
-| ---------------------------- | -------------------------------------- | --------------- | --------------------------------------- |
-| `ghostcrab_project`     | `namespace`, `projection`              | `filters?`      | Reads a `ghostcrab_project` / `ghostcrab_pack` projection            |
-| `ghostcrab_phase_transition` | `namespace`, `project_id`, `to_phase`  | `reason?`       | Transitions project phase               |
-| `ghostcrab_agent_signal`     | `namespace`, `agent_name`, `signal`    | `context?`      | Sends RESUME / PAUSE / STOP to an agent |
-| `ghostcrab_task_reassign`    | `namespace`, `task_id`, `new_assignee` | —               | Reassigns a task                        |
-| `ghostcrab_query`            | `namespace`, `query`                   | `mode`, `k`     | Full ontology query                     |
+| Tool                         | Required params                        | Optional params | Description                                               |
+| ---------------------------- | -------------------------------------- | --------------- | --------------------------------------------------------- |
+| `ghostcrab_project`          | `namespace`, `projection`              | `filters?`      | Reads a `ghostcrab_project` / `ghostcrab_pack` projection |
+| `ghostcrab_phase_transition` | `namespace`, `project_id`, `to_phase`  | `reason?`       | Transitions project phase                                 |
+| `ghostcrab_agent_signal`     | `namespace`, `agent_name`, `signal`    | `context?`      | Sends RESUME / PAUSE / STOP to an agent                   |
+| `ghostcrab_task_reassign`    | `namespace`, `task_id`, `new_assignee` | —               | Reassigns a task                                          |
+| `ghostcrab_query`            | `namespace`, `query`                   | `mode`, `k`     | Full ontology query                                       |
 
 Signal values for `ghostcrab_agent_signal`:
 
@@ -1354,4 +1354,3 @@ async def test_agent_signal_on_blocked_tasks():
 [^4_13]: https://deepfa.ir/en/blog/autogen-microsoft-multi-agent-ai-framework
 
 [^4_14]: https://microsoft.github.io/autogen/0.4.2/user-guide/agentchat-user-guide/tutorial/teams.html
-

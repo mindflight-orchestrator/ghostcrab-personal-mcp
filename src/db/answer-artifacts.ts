@@ -158,7 +158,9 @@ export function parseAnswerArtifactPayload(
   }
   try {
     const parsed = JSON.parse(payloadJson) as unknown;
-    return typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
+    return typeof parsed === "object" &&
+      parsed !== null &&
+      !Array.isArray(parsed)
       ? (parsed as Record<string, unknown>)
       : {};
   } catch {

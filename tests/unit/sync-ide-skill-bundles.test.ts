@@ -1,5 +1,11 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -80,9 +86,17 @@ describe("sync-ide-skill-bundles", () => {
     const run = runSync();
     expect(run.status).toBe(0);
     expect(existsSync(join(bundleRoot, "manifest.json"))).toBe(true);
-    expect(existsSync(join(bundleRoot, "cursor", "rules", "ghostcrab-memory.mdc"))).toBe(false);
-    expect(existsSync(join(bundleRoot, "claude-code", "self-memory", "CLAUDE.install.md"))).toBe(true);
-    expect(existsSync(join(bundleRoot, "claude-code", "self-memory", "CLAUDE.md"))).toBe(false);
+    expect(
+      existsSync(join(bundleRoot, "cursor", "rules", "ghostcrab-memory.mdc"))
+    ).toBe(false);
+    expect(
+      existsSync(
+        join(bundleRoot, "claude-code", "self-memory", "CLAUDE.install.md")
+      )
+    ).toBe(true);
+    expect(
+      existsSync(join(bundleRoot, "claude-code", "self-memory", "CLAUDE.md"))
+    ).toBe(false);
   });
 
   it("manifest lists all bundle artifacts including shared subset", () => {
@@ -102,20 +116,66 @@ describe("sync-ide-skill-bundles", () => {
       5; // README + claude self-memory install artifacts
     expect(manifest.files.length).toBeGreaterThanOrEqual(minFiles);
     for (const name of EXPECTED_SHARED_FILES) {
-      expect(manifest.files.some((f) => f.path === `shared/${name}`)).toBe(true);
+      expect(manifest.files.some((f) => f.path === `shared/${name}`)).toBe(
+        true
+      );
     }
-    expect(manifest.files.some((f) => f.path.startsWith("cursor/rules/"))).toBe(false);
-    expect(manifest.files.some((f) => f.path === "cursor/skills/ghostcrab-memory/SKILL.md")).toBe(true);
-    expect(manifest.files.some((f) => f.path === "claude-code/self-memory/CLAUDE.install.md")).toBe(true);
-    expect(manifest.files.some((f) => f.path === "claude-code/self-memory/CLAUDE.md")).toBe(false);
-    expect(manifest.files.some((f) => f.path === "claude-code/skills/ghostcrab-memory/SKILL.md")).toBe(true);
-    expect(manifest.files.some((f) => f.path === "codex/skills/ghostcrab-memory/SKILL.md")).toBe(true);
-    expect(manifest.files.some((f) => f.path === "codex/skills/ghostcrab-memory/agents/openai.yaml")).toBe(true);
-    expect(manifest.files.some((f) => f.path === "codex/skills/ghostcrab-operator/SKILL.md")).toBe(true);
-    expect(manifest.files.some((f) => f.path === "cursor/skills/ghostcrab-operator/SKILL.md")).toBe(true);
-    expect(manifest.files.some((f) => f.path === "claude-code/skills/ghostcrab-gap-auditor/SKILL.md")).toBe(true);
-    expect(manifest.files.some((f) => f.path === "codex/skills/mindbrain-comparison-writer/references/article-blueprint.md")).toBe(true);
-    expect(manifest.files.some((f) => f.path.includes("SKILL-2.md"))).toBe(false);
+    expect(manifest.files.some((f) => f.path.startsWith("cursor/rules/"))).toBe(
+      false
+    );
+    expect(
+      manifest.files.some(
+        (f) => f.path === "cursor/skills/ghostcrab-memory/SKILL.md"
+      )
+    ).toBe(true);
+    expect(
+      manifest.files.some(
+        (f) => f.path === "claude-code/self-memory/CLAUDE.install.md"
+      )
+    ).toBe(true);
+    expect(
+      manifest.files.some((f) => f.path === "claude-code/self-memory/CLAUDE.md")
+    ).toBe(false);
+    expect(
+      manifest.files.some(
+        (f) => f.path === "claude-code/skills/ghostcrab-memory/SKILL.md"
+      )
+    ).toBe(true);
+    expect(
+      manifest.files.some(
+        (f) => f.path === "codex/skills/ghostcrab-memory/SKILL.md"
+      )
+    ).toBe(true);
+    expect(
+      manifest.files.some(
+        (f) => f.path === "codex/skills/ghostcrab-memory/agents/openai.yaml"
+      )
+    ).toBe(true);
+    expect(
+      manifest.files.some(
+        (f) => f.path === "codex/skills/ghostcrab-operator/SKILL.md"
+      )
+    ).toBe(true);
+    expect(
+      manifest.files.some(
+        (f) => f.path === "cursor/skills/ghostcrab-operator/SKILL.md"
+      )
+    ).toBe(true);
+    expect(
+      manifest.files.some(
+        (f) => f.path === "claude-code/skills/ghostcrab-gap-auditor/SKILL.md"
+      )
+    ).toBe(true);
+    expect(
+      manifest.files.some(
+        (f) =>
+          f.path ===
+          "codex/skills/mindbrain-comparison-writer/references/article-blueprint.md"
+      )
+    ).toBe(true);
+    expect(manifest.files.some((f) => f.path.includes("SKILL-2.md"))).toBe(
+      false
+    );
     for (const entry of manifest.files) {
       expect(entry.sha256).toMatch(/^[a-f0-9]{64}$/);
       expect(existsSync(join(bundleRoot, entry.path))).toBe(true);
@@ -152,7 +212,10 @@ describe("sync-ide-skill-bundles", () => {
     expect(cursorSkill).toContain("disable-model-invocation: true");
     expect(
       existsSync(
-        join(bundleRoot, "cursor/skills/mindbrain-comparison-writer/agents/openai.yaml")
+        join(
+          bundleRoot,
+          "cursor/skills/mindbrain-comparison-writer/agents/openai.yaml"
+        )
       )
     ).toBe(false);
 

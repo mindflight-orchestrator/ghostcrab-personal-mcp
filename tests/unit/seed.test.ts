@@ -26,7 +26,10 @@ function createMockDatabase(): {
       return [{ next_id: maxRelationId + 1 }];
     }
 
-    if (sql.includes("SELECT id") && sql.includes("FROM mb_pragma.agent_facts")) {
+    if (
+      sql.includes("SELECT id") &&
+      sql.includes("FROM mb_pragma.agent_facts")
+    ) {
       const schemaId = String(params[0]);
       const lookup =
         schemaId === "mindbrain:system"

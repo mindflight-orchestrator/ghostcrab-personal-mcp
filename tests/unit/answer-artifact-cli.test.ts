@@ -34,7 +34,9 @@ describe("answer-artifact-cli helpers", () => {
         "diagnostics_report"
       ]) {
         expect(isAnswerArtifactKind(kind)).toBe(false);
-        expect(() => assertAnswerArtifactKind(kind)).toThrow(/Invalid artifact_kind/);
+        expect(() => assertAnswerArtifactKind(kind)).toThrow(
+          /Invalid artifact_kind/
+        );
       }
     });
 
@@ -81,9 +83,9 @@ describe("answer-artifact-cli helpers", () => {
     });
 
     it("rejects invalid kind filters", () => {
-      expect(() =>
-        buildListArtifactsQuery({ kind: "graph_gap_rule" })
-      ).toThrow(/Invalid artifact_kind/);
+      expect(() => buildListArtifactsQuery({ kind: "graph_gap_rule" })).toThrow(
+        /Invalid artifact_kind/
+      );
     });
   });
 
@@ -213,7 +215,12 @@ describe("answer-artifact-cli helpers", () => {
 
     it("parses get with artifact id", () => {
       expect(
-        parseArtifactArgs(["get", "live_answer_view__weekly", "--url", "http://127.0.0.1:8091"])
+        parseArtifactArgs([
+          "get",
+          "live_answer_view__weekly",
+          "--url",
+          "http://127.0.0.1:8091"
+        ])
       ).toMatchObject({
         subcommand: "get",
         artifactId: "live_answer_view__weekly",
@@ -250,7 +257,13 @@ describe("answer-artifact-cli helpers", () => {
 
     it("parses migrate dry-run and repair modes", () => {
       expect(
-        parseArtifactArgs(["migrate", "--dry-run", "--db", "/tmp/x.sqlite", "--force"])
+        parseArtifactArgs([
+          "migrate",
+          "--dry-run",
+          "--db",
+          "/tmp/x.sqlite",
+          "--force"
+        ])
       ).toMatchObject({
         subcommand: "migrate",
         dryRun: true,
@@ -273,7 +286,13 @@ describe("answer-artifact-cli helpers", () => {
           "gcp brain artifact migrate: specify exactly one of --dry-run or --repair."
       });
       expect(
-        parseArtifactArgs(["migrate", "--dry-run", "--repair", "--db", "/tmp/x.sqlite"])
+        parseArtifactArgs([
+          "migrate",
+          "--dry-run",
+          "--repair",
+          "--db",
+          "/tmp/x.sqlite"
+        ])
       ).toEqual({
         error:
           "gcp brain artifact migrate: specify exactly one of --dry-run or --repair."

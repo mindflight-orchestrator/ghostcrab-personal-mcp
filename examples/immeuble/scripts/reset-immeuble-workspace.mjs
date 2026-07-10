@@ -27,7 +27,9 @@ const node = process.execPath;
 const reportsDir = join(immeubleRoot, "reports");
 
 const args = process.argv.slice(2);
-const dbPath = resolve(parseFlag(args, "--db", join(pkgRoot, "data/immeuble.sqlite")));
+const dbPath = resolve(
+  parseFlag(args, "--db", join(pkgRoot, "data/immeuble.sqlite"))
+);
 const engine = parseFlag(args, "--engine", "legacy");
 const keepDb = args.includes("--keep-db");
 const withBundle = args.includes("--with-bundle-load");
@@ -55,70 +57,122 @@ try {
   const importArgs = [
     join(immeubleRoot, "scripts/run-immeuble-import.mjs"),
     "--apply",
-    "--db", dbPath,
-    "--engine", engine,
+    "--db",
+    dbPath,
+    "--engine",
+    engine,
     "--skip-preflight",
     "--force"
   ];
   if (skipProvenance) importArgs.push("--skip-provenance-validation");
   if (engine === "both") {
-    importArgs.push("--compare-output", join(reportsDir, "hybrid-compare.json"));
+    importArgs.push(
+      "--compare-output",
+      join(reportsDir, "hybrid-compare.json")
+    );
   }
   runStep("import", importArgs);
 
   if (withArtifacts) {
-    runStep("artifact_seed", [
-      join(pkgRoot, "bin/gcp.mjs"),
-      "load", join(immeubleRoot, "contracts/answer_artifacts.seed.jsonl"),
-      "--workspace", "immeuble"
-    ], { env: { GHOSTCRAB_SQLITE_PATH: dbPath } });
+    runStep(
+      "artifact_seed",
+      [
+        join(pkgRoot, "bin/gcp.mjs"),
+        "load",
+        join(immeubleRoot, "contracts/answer_artifacts.seed.jsonl"),
+        "--workspace",
+        "immeuble"
+      ],
+      { env: { GHOSTCRAB_SQLITE_PATH: dbPath } }
+    );
   }
 
   if (withBusinessCapabilities) {
-    runStep("business_capability_seed", [
-      join(pkgRoot, "bin/gcp.mjs"),
-      "load", join(immeubleRoot, "contracts/business_capabilities.seed.jsonl"),
-      "--workspace", "immeuble"
-    ], { env: { GHOSTCRAB_SQLITE_PATH: dbPath } });
+    runStep(
+      "business_capability_seed",
+      [
+        join(pkgRoot, "bin/gcp.mjs"),
+        "load",
+        join(immeubleRoot, "contracts/business_capabilities.seed.jsonl"),
+        "--workspace",
+        "immeuble"
+      ],
+      { env: { GHOSTCRAB_SQLITE_PATH: dbPath } }
+    );
   }
 
   if (withBundle) {
-    runStep("bundle_load", [
-      join(pkgRoot, "bin/gcp.mjs"),
-      "load", join(immeubleRoot, "bundle/immeuble.bundle.json"),
-      "--workspace", "immeuble",
-      "--reindex", "all"
-    ], { env: { GHOSTCRAB_SQLITE_PATH: dbPath } });
+    runStep(
+      "bundle_load",
+      [
+        join(pkgRoot, "bin/gcp.mjs"),
+        "load",
+        join(immeubleRoot, "bundle/immeuble.bundle.json"),
+        "--workspace",
+        "immeuble",
+        "--reindex",
+        "all"
+      ],
+      { env: { GHOSTCRAB_SQLITE_PATH: dbPath } }
+    );
   }
 
   const verifyArgs = [
     join(immeubleRoot, "scripts/verify-immeuble-acceptance.mjs"),
-    "--db", dbPath
+    "--db",
+    dbPath
   ];
   if (requireHybrid) verifyArgs.push("--require-hybrid");
   if (withBundle) verifyArgs.push("--require-bundle");
-  if (withBusinessCapabilities) verifyArgs.push("--require-business-capabilities");
+  if (withBusinessCapabilities)
+    verifyArgs.push("--require-business-capabilities");
   runStep("verify_acceptance", verifyArgs);
 
-  runStep("audit_projections", [join(immeubleRoot, "scripts/audit-immeuble-projections.mjs")], { optional: true });
+  runStep(
+    "audit_projections",
+    [join(immeubleRoot, "scripts/audit-immeuble-projections.mjs")],
+    { optional: true }
+  );
 
   report.finished_at = new Date().toISOString();
-  writeFileSync(join(reportsDir, "reset-immeuble-workspace.json"), JSON.stringify(report, null, 2) + "\n", "utf8");
-  console.log(JSON.stringify({ ok: true, db_path: dbPath, steps: report.steps.length }, null, 2));
+  writeFileSync(
+    join(reportsDir, "reset-immeuble-workspace.json"),
+    JSON.stringify(report, null, 2) + "\n",
+    "utf8"
+  );
+  console.log(
+    JSON.stringify(
+      { ok: true, db_path: dbPath, steps: report.steps.length },
+      null,
+      2
+    )
+  );
 } catch (err) {
   report.ok = false;
   report.error = err instanceof Error ? err.message : String(err);
   report.finished_at = new Date().toISOString();
-  writeFileSync(join(reportsDir, "reset-immeuble-workspace.json"), JSON.stringify(report, null, 2) + "\n", "utf8");
+  writeFileSync(
+    join(reportsDir, "reset-immeuble-workspace.json"),
+    JSON.stringify(report, null, 2) + "\n",
+    "utf8"
+  );
   console.error(JSON.stringify(report, null, 2));
   process.exit(1);
 }
 
 function runStep(name, cmdArgs, opts = {}) {
-  const env = { ...process.env, ...(opts.env ?? {}), GHOSTCRAB_SQLITE_PATH: opts.env?.GHOSTCRAB_SQLITE_PATH ?? dbPath };
+  const env = {
+    ...process.env,
+    ...(opts.env ?? {}),
+    GHOSTCRAB_SQLITE_PATH: opts.env?.GHOSTCRAB_SQLITE_PATH ?? dbPath
+  };
   let res = spawnSync(node, cmdArgs, { cwd: pkgRoot, env, encoding: "utf8" });
   if (res.status !== 0 && opts.fallback) {
-    res = spawnSync(opts.fallback[0], opts.fallback.slice(1), { cwd: pkgRoot, env, encoding: "utf8" });
+    res = spawnSync(opts.fallback[0], opts.fallback.slice(1), {
+      cwd: pkgRoot,
+      env,
+      encoding: "utf8"
+    });
   }
   const ok = res.status === 0;
   report.steps.push({

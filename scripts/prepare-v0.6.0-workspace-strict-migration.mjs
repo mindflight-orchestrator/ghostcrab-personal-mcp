@@ -294,8 +294,11 @@ function applyMappings(dbPath, options, report) {
 
   for (const [artifactId, workspaceId] of options.analysisPlanMappings) {
     assertWorkspaceExists(workspaces, workspaceId);
-    const row = report.analysis_plans.find((item) => item.artifact_id === artifactId);
-    if (!row) throw new Error(`Unknown analysis_plan artifact_id: ${artifactId}`);
+    const row = report.analysis_plans.find(
+      (item) => item.artifact_id === artifactId
+    );
+    if (!row)
+      throw new Error(`Unknown analysis_plan artifact_id: ${artifactId}`);
     if (row.workspace_id !== null && row.workspace_id !== undefined) {
       throw new Error(`analysis_plan already has workspace_id: ${artifactId}`);
     }
@@ -321,7 +324,10 @@ function applyMappings(dbPath, options, report) {
     const row = report.graph_gap_rules_null_workspace.find(
       (item) => item.rule_id === ruleId
     );
-    if (!row) throw new Error(`Unknown null-workspace graph_gap_rules rule_id: ${ruleId}`);
+    if (!row)
+      throw new Error(
+        `Unknown null-workspace graph_gap_rules rule_id: ${ruleId}`
+      );
     statements.push(
       `
       UPDATE graph_gap_rules
@@ -356,10 +362,18 @@ function printHuman(report, updates, blockers, options) {
   console.log(`[prepare-v0.6.0] mode: ${options.apply ? "apply" : "dry-run"}`);
   console.log(`[prepare-v0.6.0] workspaces: ${report.workspaces.length}`);
 
-  const auto = report.analysis_plans.filter((row) => row.status === "auto_mappable");
-  const unmappable = report.analysis_plans.filter((row) => row.status === "unmappable");
-  const ambiguous = report.analysis_plans.filter((row) => row.status === "ambiguous");
-  const owned = report.analysis_plans.filter((row) => row.status === "workspace_owned");
+  const auto = report.analysis_plans.filter(
+    (row) => row.status === "auto_mappable"
+  );
+  const unmappable = report.analysis_plans.filter(
+    (row) => row.status === "unmappable"
+  );
+  const ambiguous = report.analysis_plans.filter(
+    (row) => row.status === "ambiguous"
+  );
+  const owned = report.analysis_plans.filter(
+    (row) => row.status === "workspace_owned"
+  );
   console.log(
     `[prepare-v0.6.0] analysis_plan: owned=${owned.length}, auto_mappable=${auto.length}, unmappable=${unmappable.length}, ambiguous=${ambiguous.length}`
   );
@@ -388,8 +402,13 @@ function printHuman(report, updates, blockers, options) {
     }
   }
 
-  if (blockers.analysis_plans.length === 0 && blockers.graph_gap_rules.length === 0) {
-    console.log("[prepare-v0.6.0] ready: workspace-strict migration guards should pass.");
+  if (
+    blockers.analysis_plans.length === 0 &&
+    blockers.graph_gap_rules.length === 0
+  ) {
+    console.log(
+      "[prepare-v0.6.0] ready: workspace-strict migration guards should pass."
+    );
   } else {
     console.log(
       "[prepare-v0.6.0] blocked: provide explicit mappings, then rerun with --apply."
@@ -425,7 +444,9 @@ function main() {
     throw new Error("Explicit mappings require --apply.");
   }
 
-  const after = parsed.apply ? collectReport(parsed.dbPath, workspaces) : before;
+  const after = parsed.apply
+    ? collectReport(parsed.dbPath, workspaces)
+    : before;
   const blockers = unresolvedBlockers(after);
   const payload = { ...after, updates, blockers };
   if (parsed.json) {
@@ -433,7 +454,8 @@ function main() {
   } else {
     printHuman(after, updates, blockers, parsed);
   }
-  return blockers.analysis_plans.length === 0 && blockers.graph_gap_rules.length === 0
+  return blockers.analysis_plans.length === 0 &&
+    blockers.graph_gap_rules.length === 0
     ? 0
     : 1;
 }

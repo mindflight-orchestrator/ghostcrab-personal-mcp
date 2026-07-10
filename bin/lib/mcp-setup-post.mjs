@@ -47,7 +47,10 @@ export async function runSetupPostInstall(opts) {
         allowTools: opts.allowTools
       });
       if (!perm.ok) {
-        return { ok: false, message: perm.message ?? "Cursor permissions failed" };
+        return {
+          ok: false,
+          message: perm.message ?? "Cursor permissions failed"
+        };
       }
       if (perm.message) messages.push(perm.message);
       if (opts.dryRun && perm.allowCount != null) {
@@ -68,7 +71,10 @@ export async function runSetupPostInstall(opts) {
         askTools: opts.askTools
       });
       if (!perm.ok) {
-        return { ok: false, message: perm.message ?? "Claude permissions failed" };
+        return {
+          ok: false,
+          message: perm.message ?? "Claude permissions failed"
+        };
       }
       if (perm.message) messages.push(perm.message);
       if (opts.dryRun && perm.allowCount != null) {
@@ -202,7 +208,8 @@ export async function runPermissionsPrint(opts) {
     out.policy.claude = await toClaudePermissions(policy);
   }
   if (opts.client === "cursor" || opts.client === "all") {
-    const { toCursorAllowlist } = await import("./mcp-permissions-adapters.mjs");
+    const { toCursorAllowlist } =
+      await import("./mcp-permissions-adapters.mjs");
     out.policy.cursor = {
       mcpAllowlist: await toCursorAllowlist(policy)
     };

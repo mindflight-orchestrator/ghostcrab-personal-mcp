@@ -218,66 +218,6 @@ function parseEnvFile(text) {
  * @param {string} sqlitePathResolved
  * @returns {Promise<{ alive: boolean, url: string | null, pidFile: string, writeStatus: unknown | null }>}
  */
-async function probeBackend(sqlitePathResolved) {
-  const bases = [];
-  const envUrl = process.env.GHOSTCRAB_MINDBRAIN_URL?.trim();
-  if (envUrl) {
-    bases.push(envUrl.replace(/\/$/, ""));
-  }
-  const pidFile = join(dirname(sqlitePathResolved), "ghostcrab-backend.pid");
-  if (existsSync(pidFile)) {
-    try {
-      const [, rawPort] = readFileSync(pidFile, "utf8").trim().split(":");
-      const p = parseInt(rawPort, 10);
-      if (!Number.isNaN(p)) {
-        bases.push(`http://127.0.0.1:${p}`);
-      }
-    } catch {
-      /* ignore */
-    }
-  }
-  bases.push("http://127.0.0.1:8091");
-  const tried = new Set();
-  for (const b of bases) {
-    if (tried.has(b)) {
-      continue;
-    }
-    tried.add(b);
-    try {
-      const res = await fetch(`${b}/health`, {
-        signal: AbortSignal.timeout(800)
-      });
-      if (res.ok) {
-        return {
-          alive: true,
-          url: b,
-          pidFile,
-          writeStatus: await fetchWriteStatus(b)
-        };
-      }
-    } catch {
-      /* next */
-    }
-  }
-  return { alive: false, url: null, pidFile, writeStatus: null };
-}
-
-/**
- * @param {string} baseUrl
- * @returns {Promise<unknown | null>}
- */
-async function fetchWriteStatus(baseUrl) {
-  try {
-    const res = await fetch(`${baseUrl}/api/mindbrain/sql/write-status`, {
-      signal: AbortSignal.timeout(800)
-    });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
-}
-
 /**
  * @param {string} sqlitePathResolved
  * @param {{ url: string | null, pidFile: string, writeStatus: unknown | null }} backend

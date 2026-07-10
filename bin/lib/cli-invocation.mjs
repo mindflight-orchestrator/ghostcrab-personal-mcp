@@ -2,12 +2,7 @@
  * Canonical CLI invocation strings and install-health checks for README flows.
  */
 import { spawnSync } from "node:child_process";
-import {
-  existsSync,
-  lstatSync,
-  readFileSync,
-  realpathSync
-} from "node:fs";
+import { existsSync, lstatSync, readFileSync, realpathSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
 export const GCP_PACKAGE_NAME = "@mindflight/ghostcrab-personal-mcp";
@@ -68,7 +63,11 @@ export function detectCliInstallKind(pkgRoot) {
 export function readGlobalPackageLink() {
   const root = spawnSync("npm", ["root", "-g"], { encoding: "utf8" });
   if (root.status !== 0) return null;
-  const pkgDir = join(root.stdout.trim(), "@mindflight", "ghostcrab-personal-mcp");
+  const pkgDir = join(
+    root.stdout.trim(),
+    "@mindflight",
+    "ghostcrab-personal-mcp"
+  );
   if (!existsSync(pkgDir)) return null;
   try {
     if (lstatSync(pkgDir).isSymbolicLink()) {
@@ -86,9 +85,7 @@ export function readGlobalPackageLink() {
  */
 function readPackageVersion(pkgRoot) {
   try {
-    const pkg = JSON.parse(
-      readFileSync(join(pkgRoot, "package.json"), "utf8")
-    );
+    const pkg = JSON.parse(readFileSync(join(pkgRoot, "package.json"), "utf8"));
     return typeof pkg.version === "string" ? pkg.version : null;
   } catch {
     return null;

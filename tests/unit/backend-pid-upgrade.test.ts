@@ -89,9 +89,9 @@ describe("upgrade detection logic", () => {
   });
 
   it("upgrade triggered when semver matches but binary fingerprint differs", () => {
-    expect(needsUpgrade("0.4.1", "0.4.1", "oldfingerprint", "newfingerprint")).toBe(
-      true
-    );
+    expect(
+      needsUpgrade("0.4.1", "0.4.1", "oldfingerprint", "newfingerprint")
+    ).toBe(true);
   });
 
   it("no upgrade when semver matches and fingerprint is missing on stored file", () => {
@@ -106,8 +106,8 @@ describe("probeMindbrainCapabilities", () => {
   });
 
   it("backendHasGraphDiagnostics returns false when probe fails", async () => {
-    await expect(backendHasGraphDiagnostics("http://127.0.0.1:1", 200)).resolves.toBe(
-      false
-    );
+    await expect(
+      backendHasGraphDiagnostics("http://127.0.0.1:1", 200)
+    ).resolves.toBe(false);
   });
 });

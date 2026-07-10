@@ -47,7 +47,10 @@ export async function withSmokeClient(clientName, runScenario, options = {}) {
     } catch (error) {
       const details = stderrOutput.trim();
       if (details) {
-        throw new Error(`${error instanceof Error ? error.message : String(error)}\n${details}`);
+        throw new Error(
+          `${error instanceof Error ? error.message : String(error)}\n${details}`,
+          { cause: error }
+        );
       }
       throw error;
     }
@@ -60,7 +63,10 @@ export async function withSmokeClient(clientName, runScenario, options = {}) {
     } catch (error) {
       const details = stderrOutput.trim();
       if (details) {
-        throw new Error(`${error instanceof Error ? error.message : String(error)}\n${details}`);
+        throw new Error(
+          `${error instanceof Error ? error.message : String(error)}\n${details}`,
+          { cause: error }
+        );
       }
       throw error;
     }

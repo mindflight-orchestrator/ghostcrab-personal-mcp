@@ -16,7 +16,13 @@ import {
   statSync,
   writeFileSync
 } from "node:fs";
-import { dirname, isAbsolute, join, normalize, resolve as resolvePath } from "node:path";
+import {
+  dirname,
+  isAbsolute,
+  join,
+  normalize,
+  resolve as resolvePath
+} from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
@@ -66,7 +72,10 @@ for (let i = 0; i < args.length; i++) {
     skipPreflight = true;
     continue;
   }
-  if (a === "--skip-provenance-validation" || a === "--no-validate-provenance") {
+  if (
+    a === "--skip-provenance-validation" ||
+    a === "--no-validate-provenance"
+  ) {
     skipProvenanceValidation = true;
     continue;
   }
@@ -94,7 +103,9 @@ if (!manifestPath) {
 
 if (!"legacy|hybrid|both".split("|").includes(engine)) {
   console.error(`run-structured-import-system: unknown --engine "${engine}".`);
-  console.error("run-structured-import-system: allowed engines are legacy, hybrid, both.");
+  console.error(
+    "run-structured-import-system: allowed engines are legacy, hybrid, both."
+  );
   process.exit(1);
 }
 
@@ -112,7 +123,9 @@ if (skipPreflight !== null) {
   manifest.import.preflight_validate = !skipPreflight;
 }
 if (apply && !manifest.ontology_model) {
-  console.error("run-structured-import-system: --apply requires ontology.model in manifest.");
+  console.error(
+    "run-structured-import-system: --apply requires ontology.model in manifest."
+  );
   process.exit(1);
 }
 runPipeline();
@@ -130,44 +143,60 @@ function loadManifest(path) {
     try {
       parsed = JSON.parse(raw);
     } catch (error) {
-      console.error(`run-structured-import-system: invalid JSON (${error.message})`);
+      console.error(
+        `run-structured-import-system: invalid JSON (${error.message})`
+      );
       return null;
     }
   } else {
     try {
       parsed = parseYaml(raw);
     } catch (error) {
-      console.error(`run-structured-import-system: invalid YAML (${error.message})`);
+      console.error(
+        `run-structured-import-system: invalid YAML (${error.message})`
+      );
       return null;
     }
   }
 
   const workspaceId = extraWorkspace || parsed.workspace_id || parsed.workspace;
   if (!workspaceId) {
-    console.error("run-structured-import-system: manifest requires workspace_id.");
+    console.error(
+      "run-structured-import-system: manifest requires workspace_id."
+    );
     return null;
   }
 
   const mappingPath = resolveOptionalPath(parsed, "mapping.file", baseDir);
   if (!mappingPath) {
-    console.error("run-structured-import-system: manifest requires mapping.file");
+    console.error(
+      "run-structured-import-system: manifest requires mapping.file"
+    );
     return null;
   }
 
   const sourceInput = resolveOptionalPath(parsed, "source.input", baseDir);
   if (!sourceInput) {
-    console.error("run-structured-import-system: manifest requires source.input");
+    console.error(
+      "run-structured-import-system: manifest requires source.input"
+    );
     return null;
   }
 
   const sourceRoot = resolveSourceRoot(sourceInput);
-  const modelPath = resolveOptionalPath(parsed, "ontology.model", baseDir, { mustExist: false });
+  const modelPath = resolveOptionalPath(parsed, "ontology.model", baseDir, {
+    mustExist: false
+  });
   const mappingWorkspace = getDeclaredWorkspaceId(mappingPath);
   const mappingMeta = readMappingMeta(mappingPath);
-  let preflightValidate = manifestImportBoolean(parsed.import?.preflight_validate, true);
-  const starterkitRoot = resolveOptionalPath(parsed, "starterkit_root", baseDir)
-    || process.env.GCP_STARTERKIT_ROOT
-    || resolveDefaultStarterkitRoot(baseDir);
+  let preflightValidate = manifestImportBoolean(
+    parsed.import?.preflight_validate,
+    true
+  );
+  const starterkitRoot =
+    resolveOptionalPath(parsed, "starterkit_root", baseDir) ||
+    process.env.GCP_STARTERKIT_ROOT ||
+    resolveDefaultStarterkitRoot(baseDir);
 
   if (mappingWorkspace && mappingWorkspace !== workspaceId) {
     console.error(
@@ -176,7 +205,9 @@ function loadManifest(path) {
     console.error(
       "run-structured-import-system: legacy mappings often require matching ids; skipping preflight validation unless import.allow_workspace_mismatch is enabled."
     );
-    if (!manifestImportBoolean(parsed.import?.allow_workspace_mismatch, false)) {
+    if (
+      !manifestImportBoolean(parsed.import?.allow_workspace_mismatch, false)
+    ) {
       preflightValidate = false;
     }
   }
@@ -192,7 +223,9 @@ function loadManifest(path) {
   }
 
   const outDir =
-    resolveOptionalPath(parsed, "import.output_dir", baseDir, { mustExist: false }) ||
+    resolveOptionalPath(parsed, "import.output_dir", baseDir, {
+      mustExist: false
+    }) ||
     parsed.output_dir ||
     null;
 
@@ -225,7 +258,13 @@ function loadManifest(path) {
 function resolveDefaultStarterkitRoot(baseDir) {
   const candidates = [
     resolvePath(pkgRoot, "..", "starter-kit-ghostcrab-perso", "starterkit"),
-    resolvePath(baseDir, "..", "..", "starter-kit-ghostcrab-perso", "starterkit")
+    resolvePath(
+      baseDir,
+      "..",
+      "..",
+      "starter-kit-ghostcrab-perso",
+      "starterkit"
+    )
   ];
   for (const candidate of candidates) {
     if (existsSync(candidate)) {
@@ -235,7 +274,12 @@ function resolveDefaultStarterkitRoot(baseDir) {
   return null;
 }
 
-function resolveOptionalPath(obj, path, baseDir, options = { mustExist: true }) {
+function resolveOptionalPath(
+  obj,
+  path,
+  baseDir,
+  options = { mustExist: true }
+) {
   const parts = path.split(".");
   let cursor = obj;
   for (const p of parts) {
@@ -269,7 +313,12 @@ function resolveSourceRoot(rawSourceInput) {
   }
 }
 
-function resolveMappingArtifactPath(sourceRoot, mappingRoot, manifestSourcePath, relPath) {
+function resolveMappingArtifactPath(
+  sourceRoot,
+  mappingRoot,
+  manifestSourcePath,
+  relPath
+) {
   if (!relPath) return null;
   if (isAbsolute(relPath)) {
     return normalize(relPath);
@@ -292,7 +341,8 @@ function getDeclaredWorkspaceId(mappingPath) {
   try {
     const raw = readFileSync(mappingPath, "utf8");
     const payload = parseStructuredFile(raw, mappingPath);
-    return typeof payload?.workspace_id === "string" && payload.workspace_id.trim()
+    return typeof payload?.workspace_id === "string" &&
+      payload.workspace_id.trim()
       ? payload.workspace_id.trim()
       : null;
   } catch {
@@ -305,16 +355,29 @@ function readMappingMeta(mappingPath) {
     return { import_ready: null, data_plane: null, supports_project: false };
   }
   try {
-    const payload = parseStructuredFile(readFileSync(mappingPath, "utf8"), mappingPath);
+    const payload = parseStructuredFile(
+      readFileSync(mappingPath, "utf8"),
+      mappingPath
+    );
     if (!payload || typeof payload !== "object") {
       return { import_ready: null, data_plane: null, supports_project: false };
     }
     const importReady = payload?.import_ready;
-    const facetsCsv = importReady && typeof importReady.facets_csv === "string" ? importReady.facets_csv : null;
-    const edgesCsv = importReady && typeof importReady.edges_csv === "string" ? importReady.edges_csv : null;
-    const dataPlane = typeof payload?.data_plane === "string" ? payload.data_plane : null;
+    const facetsCsv =
+      importReady && typeof importReady.facets_csv === "string"
+        ? importReady.facets_csv
+        : null;
+    const edgesCsv =
+      importReady && typeof importReady.edges_csv === "string"
+        ? importReady.edges_csv
+        : null;
+    const dataPlane =
+      typeof payload?.data_plane === "string" ? payload.data_plane : null;
     return {
-      import_ready: facetsCsv || edgesCsv ? { facets_csv: facetsCsv, edges_csv: edgesCsv } : null,
+      import_ready:
+        facetsCsv || edgesCsv
+          ? { facets_csv: facetsCsv, edges_csv: edgesCsv }
+          : null,
       data_plane: dataPlane,
       supports_project: Boolean(facetsCsv || edgesCsv || dataPlane === "ws")
     };
@@ -341,7 +404,9 @@ function manifestImportBoolean(value, fallback) {
 
 function runPipeline() {
   if (engine === "both") {
-    const runDir = mkdtempSync(join(tmpdir(), "gcp-structured-import-benchmark-"));
+    const runDir = mkdtempSync(
+      join(tmpdir(), "gcp-structured-import-benchmark-")
+    );
     const legacy = runPipelineForEngine({
       mode: "legacy",
       dbPath: resolvePath(runDir, "legacy.sqlite"),
@@ -368,7 +433,9 @@ function runPipeline() {
     };
 
     if (apply && dbPath) {
-      const targetMode = manifest.mapping_meta?.supports_project ? "hybrid" : "legacy";
+      const targetMode = manifest.mapping_meta?.supports_project
+        ? "hybrid"
+        : "legacy";
       const targetApply = runPipelineForEngine({
         mode: targetMode,
         dbPath,
@@ -380,7 +447,11 @@ function runPipeline() {
     }
 
     if (compareOutputPath) {
-      writeFileSync(compareOutputPath, JSON.stringify(report, null, 2) + "\n", "utf8");
+      writeFileSync(
+        compareOutputPath,
+        JSON.stringify(report, null, 2) + "\n",
+        "utf8"
+      );
     }
 
     console.log(JSON.stringify(report, null, 2));
@@ -399,14 +470,26 @@ function runPipeline() {
   if (!result.ok) process.exit(1);
 }
 
-function runPipelineForEngine({ mode, dbPath: runDbPath, outputSuffix, suffixOutput = false }) {
-  const outputDir = resolveEngineOutputDir(manifest.output_dir, outputSuffix, suffixOutput);
+function runPipelineForEngine({
+  mode,
+  dbPath: runDbPath,
+  outputSuffix,
+  suffixOutput = false
+}) {
+  const outputDir = resolveEngineOutputDir(
+    manifest.output_dir,
+    outputSuffix,
+    suffixOutput
+  );
   const manifestRun = {
     ...manifest,
     output_dir: outputDir
   };
 
-  if (manifestRun.import?.preflight_validate !== false && manifestRun.ontology_model) {
+  if (
+    manifestRun.import?.preflight_validate !== false &&
+    manifestRun.ontology_model
+  ) {
     runGcp({
       dbPath: runDbPath,
       commandArgs: [
@@ -458,7 +541,12 @@ function runPipelineForEngine({ mode, dbPath: runDbPath, outputSuffix, suffixOut
       if (!manifestRun.import?.skip_provenance_validation) {
         runGcp({
           dbPath: runDbPath,
-          commandArgs: ["structured-import", "validate-provenance", "--workspace-id", manifestRun.workspace_id],
+          commandArgs: [
+            "structured-import",
+            "validate-provenance",
+            "--workspace-id",
+            manifestRun.workspace_id
+          ],
           label: "validate-provenance"
         });
       }
@@ -467,7 +555,8 @@ function runPipelineForEngine({ mode, dbPath: runDbPath, outputSuffix, suffixOut
           engine: "hybrid",
           project: summaryParsed,
           reindex: parseSummary(reindexSummary),
-          provenance_validation_skipped: manifestRun.import?.skip_provenance_validation === true
+          provenance_validation_skipped:
+            manifestRun.import?.skip_provenance_validation === true
         },
         null,
         2
@@ -525,10 +614,11 @@ function resolveEngineOutputDir(baseOutputDir, suffix, suffixOutput) {
 }
 
 function runLegacy(manifestConfig, runDbPath) {
-  const { path: mappingPath, patched: mappingPatched, reason: mappingReason } = buildLegacyCompatibleMapping(
-    manifestConfig.mapping_file,
-    manifestConfig
-  );
+  const {
+    path: mappingPath,
+    patched: mappingPatched,
+    reason: mappingReason
+  } = buildLegacyCompatibleMapping(manifestConfig.mapping_file, manifestConfig);
   if (mappingPatched) {
     console.log(
       `run-structured-import-system: legacy mapping normalized (reason=${mappingReason}) -> ${mappingPath}`
@@ -640,8 +730,14 @@ function runLegacy(manifestConfig, runDbPath) {
   if (manifestConfig.ontology_model && apply) {
     kitArgs.push("--model", manifestConfig.ontology_model);
   }
-  if (manifestConfig.expected_taxonomies && manifestConfig.expected_taxonomies.length) {
-    kitArgs.push("--expect-taxonomy", manifestConfig.expected_taxonomies.join(","));
+  if (
+    manifestConfig.expected_taxonomies &&
+    manifestConfig.expected_taxonomies.length
+  ) {
+    kitArgs.push(
+      "--expect-taxonomy",
+      manifestConfig.expected_taxonomies.join(",")
+    );
   }
   if (apply) {
     kitArgs.push("--apply");
@@ -660,21 +756,35 @@ function readLegacyMappingMeta(mappingPath) {
     const parsed = parseStructuredFile(raw, mappingPath);
     const importReady = parsed?.import_ready;
     const facetsCsv =
-      importReady && typeof importReady.facets_csv === "string" ? importReady.facets_csv : null;
+      importReady && typeof importReady.facets_csv === "string"
+        ? importReady.facets_csv
+        : null;
     const edgesCsv =
-      importReady && typeof importReady.edges_csv === "string" ? importReady.edges_csv : null;
+      importReady && typeof importReady.edges_csv === "string"
+        ? importReady.edges_csv
+        : null;
 
     return {
-      import_ready: facetsCsv || edgesCsv ? { facets_csv: facetsCsv, edges_csv: edgesCsv } : null,
-      mapping_workspace_id: typeof parsed?.workspace_id === "string" ? parsed.workspace_id : null
+      import_ready:
+        facetsCsv || edgesCsv
+          ? { facets_csv: facetsCsv, edges_csv: edgesCsv }
+          : null,
+      mapping_workspace_id:
+        typeof parsed?.workspace_id === "string" ? parsed.workspace_id : null
     };
   } catch {
     return { import_ready: null, mapping_workspace_id: null };
   }
 }
 
-function resolveLegacyImportReadyArtifact(manifestConfig, mappingPath, relPath, kind) {
-  const sourceWorkspace = manifestConfig.declared_mapping_workspace_id || manifestConfig.workspace_id;
+function resolveLegacyImportReadyArtifact(
+  manifestConfig,
+  mappingPath,
+  relPath,
+  kind
+) {
+  const sourceWorkspace =
+    manifestConfig.declared_mapping_workspace_id || manifestConfig.workspace_id;
   const targetWorkspace = manifestConfig.workspace_id;
   const resolved = resolveMappingArtifactPath(
     manifestConfig.source_root,
@@ -685,10 +795,20 @@ function resolveLegacyImportReadyArtifact(manifestConfig, mappingPath, relPath, 
   if (!sourceWorkspace || sourceWorkspace === targetWorkspace) {
     return resolved;
   }
-  return normalizeLegacyImportReadyCsv(resolved, kind, sourceWorkspace, targetWorkspace);
+  return normalizeLegacyImportReadyCsv(
+    resolved,
+    kind,
+    sourceWorkspace,
+    targetWorkspace
+  );
 }
 
-function normalizeLegacyImportReadyCsv(filePath, kind, sourceWorkspace, targetWorkspace) {
+function normalizeLegacyImportReadyCsv(
+  filePath,
+  kind,
+  sourceWorkspace,
+  targetWorkspace
+) {
   if (!existsSync(filePath)) {
     return filePath;
   }
@@ -707,37 +827,63 @@ function normalizeLegacyImportReadyCsv(filePath, kind, sourceWorkspace, targetWo
   const targetIndex = headers.indexOf("target");
   const sourceRefIndex = headers.indexOf("source_ref");
   const facetsIndex = headers.indexOf("facets");
-  const outputPath = mkdtempSync(join(tmpdir(), "gcp-structured-import-legacy-import-ready-"));
+  const outputPath = mkdtempSync(
+    join(tmpdir(), "gcp-structured-import-legacy-import-ready-")
+  );
 
-  const normalizedRows = rows.map((row) => {
-    if (workspaceIndex !== -1 && row[workspaceIndex] === sourceWorkspace) {
-      row[workspaceIndex] = targetWorkspace;
-    }
-    if (schemaIdIndex !== -1 && row[schemaIdIndex]) {
-      row[schemaIdIndex] = normalizeLegacySchemaId(row[schemaIdIndex], sourceWorkspace, targetWorkspace);
-    }
-    if (sourceRefIndex !== -1 && row[sourceRefIndex]) {
-      row[sourceRefIndex] = normalizeLegacyEntityRef(row[sourceRefIndex], sourceWorkspace, targetWorkspace);
-    }
-    if (sourceIndex !== -1 && row[sourceIndex]) {
-      row[sourceIndex] = normalizeLegacyEntityRef(row[sourceIndex], sourceWorkspace, targetWorkspace);
-    }
-    if (targetIndex !== -1 && row[targetIndex]) {
-      row[targetIndex] = normalizeLegacyEntityRef(row[targetIndex], sourceWorkspace, targetWorkspace);
-    }
-    if (facetsIndex !== -1 && row[facetsIndex]) {
-      row[facetsIndex] = normalizeLegacyFacetsCell(row[facetsIndex], sourceWorkspace, targetWorkspace);
-    }
-    if (kind === "edges" && sourceIndex !== -1 && targetIndex !== -1) {
-      if (!row[sourceIndex] && !row[targetIndex]) {
-        return null;
+  const normalizedRows = rows
+    .map((row) => {
+      if (workspaceIndex !== -1 && row[workspaceIndex] === sourceWorkspace) {
+        row[workspaceIndex] = targetWorkspace;
       }
-    }
-    return row;
-  }).filter(Boolean);
+      if (schemaIdIndex !== -1 && row[schemaIdIndex]) {
+        row[schemaIdIndex] = normalizeLegacySchemaId(
+          row[schemaIdIndex],
+          sourceWorkspace,
+          targetWorkspace
+        );
+      }
+      if (sourceRefIndex !== -1 && row[sourceRefIndex]) {
+        row[sourceRefIndex] = normalizeLegacyEntityRef(
+          row[sourceRefIndex],
+          sourceWorkspace,
+          targetWorkspace
+        );
+      }
+      if (sourceIndex !== -1 && row[sourceIndex]) {
+        row[sourceIndex] = normalizeLegacyEntityRef(
+          row[sourceIndex],
+          sourceWorkspace,
+          targetWorkspace
+        );
+      }
+      if (targetIndex !== -1 && row[targetIndex]) {
+        row[targetIndex] = normalizeLegacyEntityRef(
+          row[targetIndex],
+          sourceWorkspace,
+          targetWorkspace
+        );
+      }
+      if (facetsIndex !== -1 && row[facetsIndex]) {
+        row[facetsIndex] = normalizeLegacyFacetsCell(
+          row[facetsIndex],
+          sourceWorkspace,
+          targetWorkspace
+        );
+      }
+      if (kind === "edges" && sourceIndex !== -1 && targetIndex !== -1) {
+        if (!row[sourceIndex] && !row[targetIndex]) {
+          return null;
+        }
+      }
+      return row;
+    })
+    .filter(Boolean);
 
   const output = `${headers.join(",")}\n${normalizedRows
-    .map((row) => row.map((value) => csvEscape(value).replace(/\\r/g, "")).join(","))
+    .map((row) =>
+      row.map((value) => csvEscape(value).replace(/\\r/g, "")).join(",")
+    )
     .join("\n")}\n`;
   const outFileName = kind === "edges" ? "edges.csv" : "facets.csv";
   const outPath = resolvePath(outputPath, outFileName);
@@ -748,7 +894,7 @@ function normalizeLegacyImportReadyCsv(filePath, kind, sourceWorkspace, targetWo
 function csvEscape(value) {
   const text = String(value ?? "");
   if (/[",\n\r]/.test(text)) {
-    return `"${text.replaceAll("\"", "\"\"")}"`;
+    return `"${text.replaceAll('"', '""')}"`;
   }
   return text;
 }
@@ -764,12 +910,12 @@ function parseCsvStrict(raw) {
     const char = raw[i];
     const next = raw[i + 1];
 
-    if (char === "\"" && inQuotes && next === "\"") {
-      field += "\"";
+    if (char === '"' && inQuotes && next === '"') {
+      field += '"';
       i += 1;
       continue;
     }
-    if (char === "\"") {
+    if (char === '"') {
       inQuotes = !inQuotes;
       continue;
     }
@@ -844,13 +990,25 @@ function normalizeLegacyFacetsCell(rawValue, sourceWorkspace, targetWorkspace) {
       return rawValue;
     }
     if (typeof parsed.record_id === "string") {
-      parsed.record_id = normalizeLegacyEntityRef(parsed.record_id, sourceWorkspace, targetWorkspace);
+      parsed.record_id = normalizeLegacyEntityRef(
+        parsed.record_id,
+        sourceWorkspace,
+        targetWorkspace
+      );
     }
     if (typeof parsed.source_ref === "string") {
-      parsed.source_ref = normalizeLegacyEntityRef(parsed.source_ref, sourceWorkspace, targetWorkspace);
+      parsed.source_ref = normalizeLegacyEntityRef(
+        parsed.source_ref,
+        sourceWorkspace,
+        targetWorkspace
+      );
     }
     if (typeof parsed.source === "string") {
-      parsed.source = normalizeLegacyEntityRef(parsed.source, sourceWorkspace, targetWorkspace);
+      parsed.source = normalizeLegacyEntityRef(
+        parsed.source,
+        sourceWorkspace,
+        targetWorkspace
+      );
     }
     return JSON.stringify(parsed);
   } catch {
@@ -865,7 +1023,10 @@ function buildLegacyCompatibleMapping(mappingPath, manifestConfig) {
 
   let mapping;
   try {
-    mapping = parseStructuredFile(readFileSync(mappingPath, "utf8"), mappingPath);
+    mapping = parseStructuredFile(
+      readFileSync(mappingPath, "utf8"),
+      mappingPath
+    );
   } catch {
     return { path: mappingPath, patched: false };
   }
@@ -891,8 +1052,13 @@ function buildLegacyCompatibleMapping(mappingPath, manifestConfig) {
     const entityName = value.node_type || nodeType;
     const recordIdColumn = value.record_id_column || "record_id";
     const sourceCsv = typeof value.csv === "string" ? value.csv : null;
-    const contentColumns = Array.isArray(value.content_columns) ? value.content_columns : [];
-    const primaryContentField = typeof value.content_field === "string" ? value.content_field : contentColumns[0] || null;
+    const contentColumns = Array.isArray(value.content_columns)
+      ? value.content_columns
+      : [];
+    const primaryContentField =
+      typeof value.content_field === "string"
+        ? value.content_field
+        : contentColumns[0] || null;
     const schemaId = value.target_schema_id || value.schema_id || null;
     const recordIdFormula =
       typeof value.record_id_formula === "string"
@@ -931,7 +1097,9 @@ function buildLegacyCompatibleMapping(mappingPath, manifestConfig) {
 
   const convertedEdges = [];
   const explicitEdges = Array.isArray(mapping.edges) ? mapping.edges : [];
-  const contractRelations = Array.isArray(mapping.contract_relations) ? mapping.contract_relations : [];
+  const contractRelations = Array.isArray(mapping.contract_relations)
+    ? mapping.contract_relations
+    : [];
 
   if (explicitEdges.length) {
     for (const edge of explicitEdges) {
@@ -948,8 +1116,10 @@ function buildLegacyCompatibleMapping(mappingPath, manifestConfig) {
       const sourceInfo = convertedEntitiesByType[sourceType];
       const targetInfo = convertedEntitiesByType[targetType];
 
-      const sourceRefColumn = relation.source_ref_column || sourceInfo?.recordIdColumn || "record_id";
-      const targetRecordColumn = relation.target_ref_column || targetInfo?.recordIdColumn || "record_id";
+      const sourceRefColumn =
+        relation.source_ref_column || sourceInfo?.recordIdColumn || "record_id";
+      const targetRecordColumn =
+        relation.target_ref_column || targetInfo?.recordIdColumn || "record_id";
       const edgeLabel = relation.edge_label || relation.label || "RELATED_TO";
 
       convertedEdges.push({
@@ -982,14 +1152,20 @@ function buildLegacyCompatibleMapping(mappingPath, manifestConfig) {
     import_ready: mapping.import_ready || null
   };
 
-  const next = normalizeLegacyMappingFilePaths(normalized, mappingPath, manifestConfig);
+  const next = normalizeLegacyMappingFilePaths(
+    normalized,
+    mappingPath,
+    manifestConfig
+  );
 
   const normalizedSchemaId = schemaIdWorkspace
     ? normalizeSchemaIds(next.entities, schemaIdWorkspace)
     : next.entities;
   next.entities = normalizedSchemaId;
 
-  const runTempDir = mkdtempSync(join(tmpdir(), "gcp-structured-import-legacy-mapping-"));
+  const runTempDir = mkdtempSync(
+    join(tmpdir(), "gcp-structured-import-legacy-mapping-")
+  );
   const outPath = resolvePath(runTempDir, "mapping.legacy-compatible.json");
   writeFileSync(outPath, JSON.stringify(next, null, 2), "utf8");
 
@@ -1000,18 +1176,32 @@ function buildLegacyCompatibleMapping(mappingPath, manifestConfig) {
   };
 }
 
-function normalizeLegacyMappingFilePaths(mappingPayload, originalMappingPath, manifestConfig) {
+function normalizeLegacyMappingFilePaths(
+  mappingPayload,
+  originalMappingPath,
+  manifestConfig
+) {
   const mappingRoot = resolvePath(originalMappingPath, "..");
   const sourceInputPath = manifestConfig.source_input;
-  const sourceRoot = manifestConfig.source_root || resolveSourceRoot(sourceInputPath);
+  const sourceRoot =
+    manifestConfig.source_root || resolveSourceRoot(sourceInputPath);
   const output = { ...mappingPayload };
   output.entities = output.entities.map((entity) => {
-    if (!entity || typeof entity !== "object" || typeof entity.csv !== "string") {
+    if (
+      !entity ||
+      typeof entity !== "object" ||
+      typeof entity.csv !== "string"
+    ) {
       return entity;
     }
     return {
       ...entity,
-      csv: resolveMappingArtifactPath(sourceRoot, mappingRoot, sourceInputPath, entity.csv)
+      csv: resolveMappingArtifactPath(
+        sourceRoot,
+        mappingRoot,
+        sourceInputPath,
+        entity.csv
+      )
     };
   });
   return output;
@@ -1020,12 +1210,19 @@ function normalizeLegacyMappingFilePaths(mappingPayload, originalMappingPath, ma
 function normalizeSchemaIds(entities, workspaceId) {
   return entities.map((entity) => {
     if (!entity || typeof entity !== "object") return entity;
-    if (typeof entity.target_schema_id !== "string" || !entity.target_schema_id.includes(":")) return entity;
+    if (
+      typeof entity.target_schema_id !== "string" ||
+      !entity.target_schema_id.includes(":")
+    )
+      return entity;
     const prefix = entity.target_schema_id.split(":")[0];
     if (!prefix || prefix === workspaceId) return entity;
     return {
       ...entity,
-      target_schema_id: entity.target_schema_id.replace(`${prefix}:`, `${workspaceId}:`)
+      target_schema_id: entity.target_schema_id.replace(
+        `${prefix}:`,
+        `${workspaceId}:`
+      )
     };
   });
 }
@@ -1058,13 +1255,12 @@ function runHybrid(manifestConfig, runDbPath) {
       )
     ];
 
-    const edgesPath =
-      resolveMappingArtifactPath(
-        manifestConfig.source_root,
-        manifestConfig.__baseDir,
-        manifestConfig.source_input,
-        importReady.edges_csv
-      );
+    const edgesPath = resolveMappingArtifactPath(
+      manifestConfig.source_root,
+      manifestConfig.__baseDir,
+      manifestConfig.source_input,
+      importReady.edges_csv
+    );
     if (edgesPath) {
       dryRunArgs.push("--edges", edgesPath);
     }
@@ -1130,7 +1326,9 @@ function runGcp({ commandArgs, label, dbPath }) {
     if (stderrText) {
       console.error(stderrText);
     }
-    throw new Error(`run-structured-import-system: gcp ${commandArgs[0]} ${commandArgs[1]} ${label} failed (${r.status})`);
+    throw new Error(
+      `run-structured-import-system: gcp ${commandArgs[0]} ${commandArgs[1]} ${label} failed (${r.status})`
+    );
   }
   return stdoutText.trim();
 }
@@ -1162,7 +1360,11 @@ function compareSummaries(legacy, hybrid) {
     const a = typeof left[key] === "number" ? left[key] : null;
     const b = typeof right[key] === "number" ? right[key] : null;
     if (typeof a === "number" || typeof b === "number") {
-      deltas[key] = { legacy: a, hybrid: b, delta: b === null || a === null ? null : b - a };
+      deltas[key] = {
+        legacy: a,
+        hybrid: b,
+        delta: b === null || a === null ? null : b - a
+      };
     }
   }
 
@@ -1180,8 +1382,14 @@ function normalizeComparableSummary(summary) {
   if (summary.engine !== "hybrid") {
     return summary;
   }
-  const project = typeof summary.project === "object" && summary.project ? summary.project : {};
-  const reindex = typeof summary.reindex === "object" && summary.reindex ? summary.reindex : {};
+  const project =
+    typeof summary.project === "object" && summary.project
+      ? summary.project
+      : {};
+  const reindex =
+    typeof summary.reindex === "object" && summary.reindex
+      ? summary.reindex
+      : {};
   return {
     ...reindex,
     ...project,
@@ -1226,4 +1434,4 @@ Manifest keys (minimal):
 `);
 }
 
-export { };
+export {};

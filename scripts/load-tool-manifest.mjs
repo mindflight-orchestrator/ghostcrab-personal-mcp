@@ -5,9 +5,7 @@ import {
   diffToolNames,
   getExpectedToolManifest
 } from "../dist/tools/tool-manifest.js";
-import {
-  listRegisteredTools
-} from "../dist/tools/registry.js";
+import { listRegisteredTools } from "../dist/tools/registry.js";
 
 export function loadToolManifestFromDist() {
   registerAllTools();

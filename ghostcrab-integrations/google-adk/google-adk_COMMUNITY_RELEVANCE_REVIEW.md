@@ -200,7 +200,7 @@ Briefly show how a future ADK MemoryService could wrap GhostCrab calls, but keep
 
 Recommended wording:
 
-> This guide focuses on GhostCrab Personal SQLite. SQLite deployment belongs to 
+> This guide focuses on GhostCrab Personal SQLite. SQLite deployment belongs to
 
 ## JTBD Agent Analysis (Re-audit v2)
 
@@ -267,7 +267,7 @@ Not addressed. Critical case: first ADK session for a new project — `ghostcrab
 | --------------------------- | ----: | ------------------------------------------------------------------------------------------------------------ |
 | Community relevance         |   4/5 | ADK memory and tool concepts are a good fit.                                                                 |
 | Framework alignment         |   4/5 | MCP and MemoryService paths are both plausible.                                                              |
-| GhostCrab Personal accuracy |   5/5 | Aligned with SQLite Personal MCP |
+| GhostCrab Personal accuracy |   5/5 | Aligned with SQLite Personal MCP                                                                             |
 | Tool-name accuracy          |   2/5 | Many tools are scenario-specific rather than actual MCP tools.                                               |
 | Agent behavioral clarity    |   1/5 | session_id → workspace_id mapping entirely absent; remember/upsert not distinguished; failure modes missing. |
 | Community readiness         |   2/5 | Needs English rewrite, session mapping, and API correction.                                                  |

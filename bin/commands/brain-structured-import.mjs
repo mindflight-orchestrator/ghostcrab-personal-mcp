@@ -3,13 +3,7 @@
  * Stop MCP / ghostcrab-backend before database-backed commands unless --force.
  */
 
-import {
-  basename,
-  dirname,
-  extname,
-  join,
-  resolve as resolvePath
-} from "node:path";
+import { basename, dirname, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   existsSync,
@@ -140,37 +134,32 @@ async function runStructuredImportKit(parsed, sqlitePathResolved) {
 
       if (!parsed.skipProfileValidation) {
         const validateOut = join(runDir, `${stem}.mapping.validation.json`);
-        runKitScript(
-          "validate_mapping_contract",
-          parsed.starterkitRoot,
-          {
-            mapping: parsed.mapping,
-            "source-profile": profileOut,
-            model: parsed.model ?? undefined,
-            output: validateOut
-          }
-        );
+        runKitScript("validate_mapping_contract", parsed.starterkitRoot, {
+          mapping: parsed.mapping,
+          "source-profile": profileOut,
+          model: parsed.model ?? undefined,
+          output: validateOut
+        });
         mappingValidationPaths.push(validateOut);
         parsed.mappingReport = parsed.mappingReport || validateOut;
       }
 
-      const transformedRecords = join(runDir, `${stem}.normalized_records.jsonl`);
+      const transformedRecords = join(
+        runDir,
+        `${stem}.normalized_records.jsonl`
+      );
       const transformedEdges = join(runDir, `${stem}.normalized_edges.jsonl`);
       const transformOut = join(runDir, `${stem}.transform.report.json`);
-      runKitScript(
-        "transform_source_to_jsonb",
-        parsed.starterkitRoot,
-        {
-          input: sourceFile,
-          workspace: parsed.workspaceId,
-          "mapping-json": parsed.mapping,
-          kind: parsed.sourceKind,
-          delimiter: parsed.delimiter,
-          "output-records": transformedRecords,
-          "output-edges": transformedEdges,
-          report: transformOut
-        }
-      );
+      runKitScript("transform_source_to_jsonb", parsed.starterkitRoot, {
+        input: sourceFile,
+        workspace: parsed.workspaceId,
+        "mapping-json": parsed.mapping,
+        kind: parsed.sourceKind,
+        delimiter: parsed.delimiter,
+        "output-records": transformedRecords,
+        "output-edges": transformedEdges,
+        report: transformOut
+      });
       transformReportPaths.push(transformOut);
       recordsParts.push(transformedRecords);
       edgesParts.push(transformedEdges);
@@ -188,14 +177,19 @@ async function runStructuredImportKit(parsed, sqlitePathResolved) {
       report: join(runDir, "import_facets.report.json")
     });
 
-    runKitScript("materialize_graph_from_edges", parsed.starterkitRoot, {
-      records: recordsAll,
-      edges: edgesAll,
-      workspace: parsed.workspaceId,
-      "output-nodes": join(runDir, "graph_nodes.jsonl"),
-      "output-edges": join(runDir, "graph_edges.jsonl"),
-      report: join(runDir, "materialize_graph.report.json")
-    }, { allowUnresolvedGraph: true });
+    runKitScript(
+      "materialize_graph_from_edges",
+      parsed.starterkitRoot,
+      {
+        records: recordsAll,
+        edges: edgesAll,
+        workspace: parsed.workspaceId,
+        "output-nodes": join(runDir, "graph_nodes.jsonl"),
+        "output-edges": join(runDir, "graph_edges.jsonl"),
+        report: join(runDir, "materialize_graph.report.json")
+      },
+      { allowUnresolvedGraph: true }
+    );
 
     runKitScript("write_pending_files", parsed.starterkitRoot, {
       "transform-report": transformReportPaths[0],
@@ -204,22 +198,36 @@ async function runStructuredImportKit(parsed, sqlitePathResolved) {
       "pending-ddl": join(runDir, "pending_ddl.json")
     });
 
-    runKitScript("audit_import_pipeline", parsed.starterkitRoot, {
-      "profile-report": profilePaths[0],
-      "mapping-report":
-        parsed.mappingReport ??
-        mappingValidationPaths[0] ??
-        join(runDir, `${sanitizeStem(parsed.mapping)}.mapping.validation.json`),
-      "transform-report": transformReportPaths[0],
-      "pending-report": join(runDir, "pending_review.json"),
-      "facet-report": join(runDir, "import_facets.report.json"),
-      "graph-report": join(runDir, "materialize_graph.report.json"),
-      output: join(runDir, "pipeline_audit.json")
-    }, { allowUnresolvedGraphAuditOnly: true });
+    runKitScript(
+      "audit_import_pipeline",
+      parsed.starterkitRoot,
+      {
+        "profile-report": profilePaths[0],
+        "mapping-report":
+          parsed.mappingReport ??
+          mappingValidationPaths[0] ??
+          join(
+            runDir,
+            `${sanitizeStem(parsed.mapping)}.mapping.validation.json`
+          ),
+        "transform-report": transformReportPaths[0],
+        "pending-report": join(runDir, "pending_review.json"),
+        "facet-report": join(runDir, "import_facets.report.json"),
+        "graph-report": join(runDir, "materialize_graph.report.json"),
+        output: join(runDir, "pipeline_audit.json")
+      },
+      { allowUnresolvedGraphAuditOnly: true }
+    );
 
     const facetsCsv = join(runDir, "mfo_facets_import.csv");
     const edgesCsv = join(runDir, "graph_edges_import.csv");
-    convertNormalizedRecordsToImportCsv(recordsAll, edgesAll, parsed.workspaceId, facetsCsv, edgesCsv);
+    convertNormalizedRecordsToImportCsv(
+      recordsAll,
+      edgesAll,
+      parsed.workspaceId,
+      facetsCsv,
+      edgesCsv
+    );
 
     parsed.generatedFacets = facetsCsv;
     if (existsSync(facetsCsv)) {
@@ -231,29 +239,50 @@ async function runStructuredImportKit(parsed, sqlitePathResolved) {
   }
 
   if (!parsed.facets) {
-    console.error("gcp brain structured-import kit: no facets CSV produced and none provided.");
-    console.error("  Provide --facets or use --input with source files and a mapping contract.");
+    console.error(
+      "gcp brain structured-import kit: no facets CSV produced and none provided."
+    );
+    console.error(
+      "  Provide --facets or use --input with source files and a mapping contract."
+    );
     process.exit(1);
   }
 
   if (!parsed.apply) {
-    console.log(JSON.stringify({ ok: true, runDir, facets: parsed.facets, edges: parsed.edges || null }, null, 2));
+    console.log(
+      JSON.stringify(
+        {
+          ok: true,
+          runDir,
+          facets: parsed.facets,
+          edges: parsed.edges || null
+        },
+        null,
+        2
+      )
+    );
     return;
   }
 
   if (!parsed.model) {
-    console.error("gcp brain structured-import kit --apply: --model is required for register-semantics.");
+    console.error(
+      "gcp brain structured-import kit --apply: --model is required for register-semantics."
+    );
     process.exit(1);
   }
 
-  runNativeStructuredImport("register-semantics", [
-    "--workspace-id",
-    parsed.workspaceId,
-    "--model",
-    parsed.model,
-    "--mapping",
-    parsed.mapping
-  ], sqlitePathResolved);
+  runNativeStructuredImport(
+    "register-semantics",
+    [
+      "--workspace-id",
+      parsed.workspaceId,
+      "--model",
+      parsed.model,
+      "--mapping",
+      parsed.mapping
+    ],
+    sqlitePathResolved
+  );
 
   const baseApplyArgs = [
     "--workspace-id",
@@ -294,12 +323,11 @@ async function runStructuredImportKit(parsed, sqlitePathResolved) {
   }
 
   if (parsed.reindex) {
-    runNativeStructuredImport("reindex", [
-      "--workspace-id",
-      parsed.workspaceId,
-      "--scope",
-      parsed.reindexScope
-    ], sqlitePathResolved);
+    runNativeStructuredImport(
+      "reindex",
+      ["--workspace-id", parsed.workspaceId, "--scope", parsed.reindexScope],
+      sqlitePathResolved
+    );
     runNativeStructuredImport(
       "validate-provenance",
       ["--workspace-id", parsed.workspaceId],
@@ -307,7 +335,19 @@ async function runStructuredImportKit(parsed, sqlitePathResolved) {
     );
   }
 
-  console.log(JSON.stringify({ ok: true, runDir, facets: parsed.facets, edges: parsed.edges || null, applied: true }, null, 2));
+  console.log(
+    JSON.stringify(
+      {
+        ok: true,
+        runDir,
+        facets: parsed.facets,
+        edges: parsed.edges || null,
+        applied: true
+      },
+      null,
+      2
+    )
+  );
 }
 
 function runNativeStructuredImport(sub, args, sqlitePathResolved) {
@@ -343,11 +383,19 @@ function runKitScript(scriptName, starterkitRoot, options, policy = {}) {
     stdio: ["pipe", "pipe", "pipe"]
   });
   if (r.status !== 0) {
-    if (policy.allowUnresolvedGraph && isMaterializeGraphTolerableFailure(scriptName, options.report)) {
-      console.error(`gcp brain structured-import kit: ${scriptName} returned warnings only. Continuing.`);
+    if (
+      policy.allowUnresolvedGraph &&
+      isMaterializeGraphTolerableFailure(scriptName, options.report)
+    ) {
+      console.error(
+        `gcp brain structured-import kit: ${scriptName} returned warnings only. Continuing.`
+      );
       return;
     }
-    if (policy.allowUnresolvedGraphAuditOnly && isAuditGraphTolerableFailure(scriptName, options.output)) {
+    if (
+      policy.allowUnresolvedGraphAuditOnly &&
+      isAuditGraphTolerableFailure(scriptName, options.output)
+    ) {
       console.error(
         `gcp brain structured-import kit: ${scriptName} has unresolved-graph findings only. Continuing.`
       );
@@ -360,7 +408,11 @@ function runKitScript(scriptName, starterkitRoot, options, policy = {}) {
 }
 
 function isMaterializeGraphTolerableFailure(scriptName, reportPath) {
-  if (scriptName !== "materialize_graph_from_edges" || !reportPath || !existsSync(reportPath)) {
+  if (
+    scriptName !== "materialize_graph_from_edges" ||
+    !reportPath ||
+    !existsSync(reportPath)
+  ) {
     return false;
   }
 
@@ -368,7 +420,8 @@ function isMaterializeGraphTolerableFailure(scriptName, reportPath) {
     const raw = readFileSync(reportPath, "utf8");
     const report = JSON.parse(raw);
     const unresolved =
-      Array.isArray(report.unresolved_edges) && report.unresolved_edges.length > 0;
+      Array.isArray(report.unresolved_edges) &&
+      report.unresolved_edges.length > 0;
     const hasErrors =
       (Array.isArray(report.errors) && report.errors.length > 0) ||
       (Array.isArray(report.failed) && report.failed.length > 0);
@@ -376,21 +429,30 @@ function isMaterializeGraphTolerableFailure(scriptName, reportPath) {
       return false;
     }
     const unresolvedCount = report.counts?.unresolved_edges;
-    return unresolvedCount === undefined || unresolvedCount === report.unresolved_edges.length;
+    return (
+      unresolvedCount === undefined ||
+      unresolvedCount === report.unresolved_edges.length
+    );
   } catch {
     return false;
   }
 }
 
 function isAuditGraphTolerableFailure(scriptName, reportPath) {
-  if (scriptName !== "audit_import_pipeline" || !reportPath || !existsSync(reportPath)) {
+  if (
+    scriptName !== "audit_import_pipeline" ||
+    !reportPath ||
+    !existsSync(reportPath)
+  ) {
     return false;
   }
 
   try {
     const raw = readFileSync(reportPath, "utf8");
     const report = JSON.parse(raw);
-    const failed = Array.isArray(report.failed_reports) ? report.failed_reports : [];
+    const failed = Array.isArray(report.failed_reports)
+      ? report.failed_reports
+      : [];
     if (!report || report.ok !== false || failed.length !== 1) {
       return false;
     }
@@ -400,7 +462,9 @@ function isAuditGraphTolerableFailure(scriptName, reportPath) {
     const unresolved = Array.isArray(report.reports?.graph?.unresolved_edges)
       ? report.reports.graph.unresolved_edges
       : null;
-    const failedEdges = Array.isArray(failed[0]?.errors) ? failed[0].errors : null;
+    const failedEdges = Array.isArray(failed[0]?.errors)
+      ? failed[0].errors
+      : null;
     return (
       Array.isArray(unresolved) &&
       Array.isArray(failedEdges) &&
@@ -467,9 +531,21 @@ function csvHasDataRows(path) {
   return lines.length > 1;
 }
 
-function convertNormalizedRecordsToImportCsv(recordsPath, edgesPath, workspaceId, facetsOut, edgesOut) {
+function convertNormalizedRecordsToImportCsv(
+  recordsPath,
+  edgesPath,
+  workspaceId,
+  facetsOut,
+  edgesOut
+) {
   const records = readJsonl(recordsPath);
-  const facetHeader = ["content", "facets", "schema_id", "source_ref", "workspace_id"];
+  const facetHeader = [
+    "content",
+    "facets",
+    "schema_id",
+    "source_ref",
+    "workspace_id"
+  ];
   const facetRows = records
     .map((row) => {
       if (!row || !row.schema_id) return null;
@@ -486,7 +562,11 @@ function convertNormalizedRecordsToImportCsv(recordsPath, edgesPath, workspaceId
       ].join(",");
     })
     .filter(Boolean);
-  writeFileSync(facetsOut, `${facetHeader.join(",")}\n${facetRows.join("\n")}\n`, "utf8");
+  writeFileSync(
+    facetsOut,
+    `${facetHeader.join(",")}\n${facetRows.join("\n")}\n`,
+    "utf8"
+  );
 
   const edges = readJsonl(edgesPath);
   const edgeHeader = [
@@ -511,15 +591,23 @@ function convertNormalizedRecordsToImportCsv(recordsPath, edgesPath, workspaceId
       ].join(",");
     })
     .filter(Boolean);
-  writeFileSync(edgesOut, `${edgeHeader.join(",")}\n${edgeRows.join("\n")}\n`, "utf8");
+  writeFileSync(
+    edgesOut,
+    `${edgeHeader.join(",")}\n${edgeRows.join("\n")}\n`,
+    "utf8"
+  );
 }
 
 function validateExpectedTaxonomies(mappingPath, expectTaxonomies) {
   if (!expectTaxonomies.length) return;
   const mappingText = readFileSync(mappingPath, "utf8");
-  const missing = expectTaxonomies.filter((name) => !mappingText.includes(name));
+  const missing = expectTaxonomies.filter(
+    (name) => !mappingText.includes(name)
+  );
   if (missing.length) {
-    console.error(`gcp brain structured-import kit: expected taxonomies missing from mapping: ${missing.join(", ")}`);
+    console.error(
+      `gcp brain structured-import kit: expected taxonomies missing from mapping: ${missing.join(", ")}`
+    );
     process.exit(1);
   }
 }
@@ -562,7 +650,12 @@ function csvEscape(value) {
 /**
  * @param {string} subcommand
  */
-function buildStructuredImportEngineArgs(subcommand, engineSub, rest, sqlitePathResolved) {
+function buildStructuredImportEngineArgs(
+  subcommand,
+  engineSub,
+  rest,
+  sqlitePathResolved
+) {
   if (!subcommandUsesDatabase(subcommand)) {
     return [engineSub, ...rest];
   }
@@ -589,7 +682,9 @@ function parseStructuredImportArgs(args) {
     const a = args[i];
     if (a === "--workspace" || a === "-w") {
       if (!args[i + 1]) {
-        return { error: "gcp brain structured-import: --workspace requires a name." };
+        return {
+          error: "gcp brain structured-import: --workspace requires a name."
+        };
       }
       workspaceName = slugifyWorkspace(args[++i]);
       continue;
@@ -600,7 +695,9 @@ function parseStructuredImportArgs(args) {
     }
     if (a === "--db") {
       if (!args[i + 1]) {
-        return { error: "gcp brain structured-import: --db requires a path argument." };
+        return {
+          error: "gcp brain structured-import: --db requires a path argument."
+        };
       }
       sqlitePathFromCli = args[++i];
       continue;
@@ -634,91 +731,123 @@ function parseStructuredImportKitArgs(args) {
     const a = args[i];
     if (a === "--workspace-id") {
       if (!args[i + 1]) {
-        return { error: "gcp brain structured-import kit: --workspace-id requires a value." };
+        return {
+          error:
+            "gcp brain structured-import kit: --workspace-id requires a value."
+        };
       }
       workspaceId = args[++i];
       continue;
     }
     if (a === "--input") {
       if (!args[i + 1]) {
-        return { error: "gcp brain structured-import kit: --input requires a path." };
+        return {
+          error: "gcp brain structured-import kit: --input requires a path."
+        };
       }
       input = args[++i];
       continue;
     }
     if (a === "--mapping") {
       if (!args[i + 1]) {
-        return { error: "gcp brain structured-import kit: --mapping requires a path." };
+        return {
+          error: "gcp brain structured-import kit: --mapping requires a path."
+        };
       }
       mapping = args[++i];
       continue;
     }
     if (a === "--model") {
       if (!args[i + 1]) {
-        return { error: "gcp brain structured-import kit: --model requires a path." };
+        return {
+          error: "gcp brain structured-import kit: --model requires a path."
+        };
       }
       model = args[++i];
       continue;
     }
     if (a === "--output-dir") {
       if (!args[i + 1]) {
-        return { error: "gcp brain structured-import kit: --output-dir requires a path." };
+        return {
+          error:
+            "gcp brain structured-import kit: --output-dir requires a path."
+        };
       }
       outputDir = args[++i];
       continue;
     }
     if (a === "--starterkit-root") {
       if (!args[i + 1]) {
-        return { error: "gcp brain structured-import kit: --starterkit-root requires a path." };
+        return {
+          error:
+            "gcp brain structured-import kit: --starterkit-root requires a path."
+        };
       }
       starterkitRoot = args[++i];
       continue;
     }
     if (a === "--facets") {
       if (!args[i + 1]) {
-        return { error: "gcp brain structured-import kit: --facets requires a path." };
+        return {
+          error: "gcp brain structured-import kit: --facets requires a path."
+        };
       }
       facets = args[++i];
       continue;
     }
     if (a === "--edges") {
       if (!args[i + 1]) {
-        return { error: "gcp brain structured-import kit: --edges requires a path." };
+        return {
+          error: "gcp brain structured-import kit: --edges requires a path."
+        };
       }
       edges = args[++i];
       continue;
     }
     if (a === "--source-kind") {
       if (!args[i + 1]) {
-        return { error: "gcp brain structured-import kit: --source-kind requires value." };
+        return {
+          error:
+            "gcp brain structured-import kit: --source-kind requires value."
+        };
       }
       sourceKind = args[++i];
       continue;
     }
     if (a === "--delimiter") {
       if (!args[i + 1]) {
-        return { error: "gcp brain structured-import kit: --delimiter requires value." };
+        return {
+          error: "gcp brain structured-import kit: --delimiter requires value."
+        };
       }
       delimiter = args[++i];
       continue;
     }
     if (a === "--mode") {
       if (!args[i + 1]) {
-        return { error: "gcp brain structured-import kit: --mode requires a value." };
+        return {
+          error: "gcp brain structured-import kit: --mode requires a value."
+        };
       }
       mode = args[++i];
       continue;
     }
     if (a === "--reindex-scope") {
       if (!args[i + 1]) {
-        return { error: "gcp brain structured-import kit: --reindex-scope requires a value." };
+        return {
+          error:
+            "gcp brain structured-import kit: --reindex-scope requires a value."
+        };
       }
       reindexScope = args[++i];
       continue;
     }
     if (a === "--mapping-report") {
       if (!args[i + 1]) {
-        return { error: "gcp brain structured-import kit: --mapping-report requires a path." };
+        return {
+          error:
+            "gcp brain structured-import kit: --mapping-report requires a path."
+        };
       }
       mappingReport = args[++i];
       continue;
@@ -733,7 +862,10 @@ function parseStructuredImportKitArgs(args) {
     }
     if (a === "--expect-taxonomy") {
       if (!args[i + 1]) {
-        return { error: "gcp brain structured-import kit: --expect-taxonomy requires a comma-separated list." };
+        return {
+          error:
+            "gcp brain structured-import kit: --expect-taxonomy requires a comma-separated list."
+        };
       }
       expectTaxonomies = args[++i]
         .split(",")
@@ -753,11 +885,15 @@ function parseStructuredImportKitArgs(args) {
       printStructuredImportHelp();
       process.exit(0);
     }
-    return { error: `gcp brain structured-import kit: unknown argument "${a}".` };
+    return {
+      error: `gcp brain structured-import kit: unknown argument "${a}".`
+    };
   }
 
   if (!workspaceId) {
-    return { error: "gcp brain structured-import kit: --workspace-id is required." };
+    return {
+      error: "gcp brain structured-import kit: --workspace-id is required."
+    };
   }
   if (!mapping) {
     return { error: "gcp brain structured-import kit: --mapping is required." };

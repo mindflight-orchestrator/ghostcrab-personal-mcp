@@ -106,7 +106,9 @@ describe("ensureSearchFtsCaughtUp", () => {
       )[0];
       const ftsHit = (
         db
-          .prepare(`SELECT COUNT(*) AS c FROM search_fts WHERE search_fts MATCH ?`)
+          .prepare(
+            `SELECT COUNT(*) AS c FROM search_fts WHERE search_fts MATCH ?`
+          )
           .all("roaring") as Array<{ c: number }>
       )[0];
 

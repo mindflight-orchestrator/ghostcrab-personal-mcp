@@ -40,7 +40,9 @@ const BusinessCapabilitySchema = z
     fallback_mode: z.string().default("gap_report"),
     source: z.string().default("registered_proposal"),
     status: z.string().default("active"),
-    activation_status: z.enum(["active", "pending_review"]).default("pending_review"),
+    activation_status: z
+      .enum(["active", "pending_review"])
+      .default("pending_review"),
     proposal_fingerprint: z.string().optional(),
     version: z.union([z.string(), z.number()]).default(1)
   })
@@ -115,7 +117,8 @@ export const businessQueryRegisterProposalTool: ToolHandler = {
         },
         proposal: {
           type: "object",
-          description: "Learning proposal returned by ghostcrab_business_query_answer."
+          description:
+            "Learning proposal returned by ghostcrab_business_query_answer."
         },
         accepted_by: { type: "string" },
         persist_to: {
@@ -150,8 +153,7 @@ export const businessQueryRegisterProposalTool: ToolHandler = {
       ...input.proposal.capability,
       workspace_id: input.workspace_id,
       status: "active",
-      activation_status:
-        input.proposal.activation_status ?? "pending_review"
+      activation_status: input.proposal.activation_status ?? "pending_review"
     };
     const proposalFingerprint =
       rawCapability.proposal_fingerprint ??
@@ -167,24 +169,22 @@ export const businessQueryRegisterProposalTool: ToolHandler = {
       proposalFingerprint: proposalFingerprint
     });
 
-    const proposalStorageId = input.proposal.proposal_id ?? input.proposal_id ?? null;
+    const proposalStorageId =
+      input.proposal.proposal_id ?? input.proposal_id ?? null;
     if (existing && existing.activation_status === "pending_review") {
-      return createToolSuccessResult(
-        "ghostcrab_business_query_register",
-        {
-          schema_id: "ghostcrab:business-capability",
-          id: existing.id,
-          version: 1,
-          capability_id: capability.capability_id,
-          workspace_id: input.workspace_id,
-          persisted_to: ["mindbrain"],
-          persisted_status: "already_exists",
-          proposal_fingerprint: proposalFingerprint,
-          proposal_id: proposalStorageId,
-          activation_status: existing.activation_status ?? "active",
-          notes: ["Proposal already exists; no changes applied."]
-        }
-      );
+      return createToolSuccessResult("ghostcrab_business_query_register", {
+        schema_id: "ghostcrab:business-capability",
+        id: existing.id,
+        version: 1,
+        capability_id: capability.capability_id,
+        workspace_id: input.workspace_id,
+        persisted_to: ["mindbrain"],
+        persisted_status: "already_exists",
+        proposal_fingerprint: proposalFingerprint,
+        proposal_id: proposalStorageId,
+        activation_status: existing.activation_status ?? "active",
+        notes: ["Proposal already exists; no changes applied."]
+      });
     }
 
     const now = new Date().toISOString();
@@ -249,26 +249,23 @@ export const businessQueryRegisterProposalTool: ToolHandler = {
       [capability.capability_id, input.workspace_id]
     );
 
-    return createToolSuccessResult(
-      "ghostcrab_business_query_register",
-      {
-        schema_id: "ghostcrab:business-capability",
-        id: stored?.id ?? existing?.id ?? null,
-        version: 1,
-        capability_id: capability.capability_id,
-        workspace_id: input.workspace_id,
-        persisted_to: ["mindbrain"],
-        embedding_stored: embeddingStored,
-        proposal_fingerprint: proposalFingerprint,
-        proposal_id: proposalStorageId,
-        activation_status: input.proposal.activation_status ?? "pending_review",
-        notes: [
-          existing
-            ? "Proposal overwritten with accepted payload."
-            : "Proposal persisted."
-        ]
-      }
-    );
+    return createToolSuccessResult("ghostcrab_business_query_register", {
+      schema_id: "ghostcrab:business-capability",
+      id: stored?.id ?? existing?.id ?? null,
+      version: 1,
+      capability_id: capability.capability_id,
+      workspace_id: input.workspace_id,
+      persisted_to: ["mindbrain"],
+      embedding_stored: embeddingStored,
+      proposal_fingerprint: proposalFingerprint,
+      proposal_id: proposalStorageId,
+      activation_status: input.proposal.activation_status ?? "pending_review",
+      notes: [
+        existing
+          ? "Proposal overwritten with accepted payload."
+          : "Proposal persisted."
+      ]
+    });
   }
 };
 
@@ -279,14 +276,11 @@ async function findExistingProposal(
     capabilityId: string;
     proposalFingerprint: string;
   }
-): Promise<
-  | {
-      id: string;
-      activation_status: string;
-      proposal_id: string | null;
-    }
-  | null
-> {
+): Promise<{
+  id: string;
+  activation_status: string;
+  proposal_id: string | null;
+} | null> {
   const rows = await context.database.query<{
     id: string;
     facets_json: string;

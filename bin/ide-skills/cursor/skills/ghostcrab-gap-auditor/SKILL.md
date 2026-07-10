@@ -21,13 +21,13 @@ Resolve `{starterkit}` via [STARTERKIT_PATHS.md](../ghostcrab-shared/STARTERKIT_
 
 Gap categories below are **`answerability_gap`** findings. They are **not** `artifact_kind` values.
 
-| This skill | Not this |
-| --- | --- |
-| `answerability_gap` (audit result) | `graph_gap_rule` (persisted validation rule) |
-| `missing_snapshot` subtype | `answer_snapshot` (frozen answer artifact) |
-| `no_projection` subtype | `analysis_plan` (working-memory artifact) |
-| `missing_edges` subtype | `graph_data_gap` from `ghostcrab_graph_diagnostics` |
-| Contradictory graph facts | `graph_conflict` (not `answerability_gap`) |
+| This skill                         | Not this                                            |
+| ---------------------------------- | --------------------------------------------------- |
+| `answerability_gap` (audit result) | `graph_gap_rule` (persisted validation rule)        |
+| `missing_snapshot` subtype         | `answer_snapshot` (frozen answer artifact)          |
+| `no_projection` subtype            | `analysis_plan` (working-memory artifact)           |
+| `missing_edges` subtype            | `graph_data_gap` from `ghostcrab_graph_diagnostics` |
+| Contradictory graph facts          | `graph_conflict` (not `answerability_gap`)          |
 
 For graph invariant violations, use `ghostcrab_graph_diagnostics` and `graph_gap_rules`. For ontology coverage, use `ghostcrab_coverage`.
 

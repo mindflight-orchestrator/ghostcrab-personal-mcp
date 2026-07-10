@@ -297,7 +297,9 @@ export function preflightWorkspaceStrictBundle(bundlePath, workspaceName) {
   return {
     ok: true,
     bundlePath: patchedPath,
-    backfilled: offenders.map((row) => row.artifact_id ?? "<missing artifact_id>")
+    backfilled: offenders.map(
+      (row) => row.artifact_id ?? "<missing artifact_id>"
+    )
   };
 }
 

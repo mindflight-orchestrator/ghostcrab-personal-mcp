@@ -71,10 +71,12 @@ export function readSqliteCount(
 }
 
 export async function backendSeesSqliteCounts(options: {
-  database: { query: <T = Record<string, unknown>>(
-    sql: string,
-    params?: readonly unknown[]
-  ) => Promise<T[]> };
+  database: {
+    query: <T = Record<string, unknown>>(
+      sql: string,
+      params?: readonly unknown[]
+    ) => Promise<T[]>;
+  };
   sqlitePath: string;
   workspaceId: string;
 }): Promise<boolean> {

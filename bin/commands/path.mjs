@@ -4,12 +4,11 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { findOnPath } from "../lib/mcp-global-setup.mjs";
+import { installPathShim, runPathDoctor } from "../lib/path-shim.mjs";
 import {
-  getPathSnippet,
-  installPathShim,
-  runPathDoctor
-} from "../lib/path-shim.mjs";
-import { auditCliInvocation, formatGcpCommand } from "../lib/cli-invocation.mjs";
+  auditCliInvocation,
+  formatGcpCommand
+} from "../lib/cli-invocation.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(__dirname, "..", "..");
@@ -34,7 +33,9 @@ export async function cmdPath(args) {
     return;
   }
 
-  console.error(`gcp path: unknown subcommand "${sub}". Run "gcp path --help".`);
+  console.error(
+    `gcp path: unknown subcommand "${sub}". Run "gcp path --help".`
+  );
   process.exit(1);
 }
 
@@ -76,7 +77,9 @@ async function runPathInstall(rest) {
 
   console.log(`[ghostcrab] path shim installed: ${result.shimPath}`);
   if (writeProfile) {
-    console.log(`[ghostcrab] profile ${result.profilePath}: ${result.profileStatus}`);
+    console.log(
+      `[ghostcrab] profile ${result.profilePath}: ${result.profileStatus}`
+    );
   } else {
     console.log(
       `[ghostcrab] Add to your shell profile (${result.shell}) or run once per session:\n` +
@@ -121,7 +124,9 @@ async function runPathDoctorCmd() {
     for (const issue of audit.issues) {
       console.error(`  - ${issue}`);
     }
-    console.error(`  Recommended: ${formatGcpCommand("brain setup cursor --force")}`);
+    console.error(
+      `  Recommended: ${formatGcpCommand("brain setup cursor --force")}`
+    );
     for (const fix of audit.fixes) {
       console.error(`  Fix: ${fix}`);
     }

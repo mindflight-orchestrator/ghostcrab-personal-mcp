@@ -111,7 +111,7 @@ Differentiator vs `VertexAiMemoryBankService`: store typed ontology entities ins
 
 | Capability                      | InMemoryMemoryService | VertexAiMemoryBankService | **MindBrain via GhostCrab** |
 | :------------------------------ | :-------------------- | :------------------------ | :-------------------------- |
-| Cross-session persistence       | ✗                     | ✓ (cloud)                 | ✓ (SQLite)              |
+| Cross-session persistence       | ✗                     | ✓ (cloud)                 | ✓ (SQLite)                  |
 | Structured / faceted search     | ✗                     | ✗                         | ✓                           |
 | Ontology-typed entities         | ✗                     | ✗                         | ✓                           |
 | Shared multi-agent context      | ✗ (silo)              | partial                   | ✓ (single registry)         |

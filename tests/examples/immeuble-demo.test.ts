@@ -55,12 +55,22 @@ describe("immeuble example layout", () => {
       expect(existsSync(join(immeubleRoot, dir))).toBe(true);
     }
 
-    expect(existsSync(join(immeubleRoot, "model/immeuble_model.json"))).toBe(true);
-    expect(existsSync(join(immeubleRoot, "contracts/projection_catalog.yaml"))).toBe(true);
-    expect(existsSync(join(immeubleRoot, "contracts/consumer_contract.yaml"))).toBe(true);
+    expect(existsSync(join(immeubleRoot, "model/immeuble_model.json"))).toBe(
+      true
+    );
+    expect(
+      existsSync(join(immeubleRoot, "contracts/projection_catalog.yaml"))
+    ).toBe(true);
+    expect(
+      existsSync(join(immeubleRoot, "contracts/consumer_contract.yaml"))
+    ).toBe(true);
     expect(existsSync(join(immeubleRoot, "import_manifest.yaml"))).toBe(true);
-    expect(existsSync(join(immeubleRoot, "scripts/build-immeuble-model.mjs"))).toBe(true);
-    expect(existsSync(join(immeubleRoot, "scripts/run-immeuble-import.mjs"))).toBe(true);
+    expect(
+      existsSync(join(immeubleRoot, "scripts/build-immeuble-model.mjs"))
+    ).toBe(true);
+    expect(
+      existsSync(join(immeubleRoot, "scripts/run-immeuble-import.mjs"))
+    ).toBe(true);
 
     const csvCount = readdirSync(join(immeubleRoot, "fake_data")).filter((f) =>
       f.endsWith(".csv")
@@ -96,7 +106,10 @@ describe("immeuble example layout", () => {
 
   it("schema_id prefix validation report is green after build", () => {
     const report = JSON.parse(
-      readFileSync(join(immeubleRoot, "reports/01-model.validation.json"), "utf8")
+      readFileSync(
+        join(immeubleRoot, "reports/01-model.validation.json"),
+        "utf8"
+      )
     ) as { ok: boolean; schema_id_prefix: string };
     expect(report.ok).toBe(true);
     expect(report.schema_id_prefix).toBe("immeuble:");

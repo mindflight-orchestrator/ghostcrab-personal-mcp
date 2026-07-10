@@ -156,9 +156,9 @@ describe.sequential("answer artifact MCP tools (integration, no mocks)", () => {
       expect(result.isError).toBe(true);
       const body = readStructured(result);
       const code = (body.error as Record<string, unknown>).code;
-      expect(code === "invalid_artifact_kind" || code === "backend_unavailable").toBe(
-        true
-      );
+      expect(
+        code === "invalid_artifact_kind" || code === "backend_unavailable"
+      ).toBe(true);
     });
 
     it("documents include_latest_event default true", () => {

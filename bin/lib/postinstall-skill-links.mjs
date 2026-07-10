@@ -75,10 +75,7 @@ export function ensureGhostcrabSkillLinks(opts) {
   const generatedTargets = [
     ["codex", join(pkgRoot, "bin", "ide-skills", "codex", "skills")],
     ["cursor", join(pkgRoot, "bin", "ide-skills", "cursor", "skills")],
-    [
-      "claude-code",
-      join(pkgRoot, "bin", "ide-skills", "claude-code", "skills")
-    ]
+    ["claude-code", join(pkgRoot, "bin", "ide-skills", "claude-code", "skills")]
   ];
   for (const [name, target] of generatedTargets) {
     linkDir({
@@ -100,7 +97,7 @@ export function ensureGhostcrabSkillLinks(opts) {
   return { ok: missing.length === 0, created, skipped, missing };
 }
 
-function linkDir({ root, dest, target, created, skipped, missing }) {
+function linkDir({ dest, target, created, skipped, missing }) {
   if (!existsSync(target)) {
     missing.push(target);
     return;

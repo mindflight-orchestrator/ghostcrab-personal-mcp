@@ -12,14 +12,14 @@ Before any run the workspace must include these schema families—they form the 
 
 ### Entity types
 
-| Schema          | Required facets                                      | Optional facets                          |
-| --------------- | ---------------------------------------------------- | ---------------------------------------- |
-| `Project`       | `name`, `status`, `phase`, `created_at`              | `description`, `deadline`, `owner_agent` |
-| `ghostcrab:task`| `title`, `status`, `priority`, `phase`, `project_id` | `assignee`, `depends_on[]`, `result_ref` |
-| `Agent`         | `name`, `role`, `status`, `framework`                | `capabilities[]`, `current_task_id`      |
-| `KnowledgeNode` | `label`, `domain`, `content`                         | `source_ref`, `confidence`, `verified`   |
-| `Checkpoint`    | `phase`, `project_id`, `status`, `evaluated_at`      | `blocking_tasks[]`, `next_phase`         |
-| `Event`         | `type`, `source_agent`, `timestamp`, `payload`       | `target_agent`, `project_id`             |
+| Schema           | Required facets                                      | Optional facets                          |
+| ---------------- | ---------------------------------------------------- | ---------------------------------------- |
+| `Project`        | `name`, `status`, `phase`, `created_at`              | `description`, `deadline`, `owner_agent` |
+| `ghostcrab:task` | `title`, `status`, `priority`, `phase`, `project_id` | `assignee`, `depends_on[]`, `result_ref` |
+| `Agent`          | `name`, `role`, `status`, `framework`                | `capabilities[]`, `current_task_id`      |
+| `KnowledgeNode`  | `label`, `domain`, `content`                         | `source_ref`, `confidence`, `verified`   |
+| `Checkpoint`     | `phase`, `project_id`, `status`, `evaluated_at`      | `blocking_tasks[]`, `next_phase`         |
+| `Event`          | `type`, `source_agent`, `timestamp`, `payload`       | `target_agent`, `project_id`             |
 
 ### Canonical statuses
 
@@ -163,14 +163,14 @@ Use `ghostcrab_pack`, `ghostcrab_count`, and `ghostcrab_project` instead of cust
 
 ### 3.1 Available projection patterns
 
-| Pattern                  | GhostCrab tool(s)                                    | Returned signal                          |
-| ------------------------ | ---------------------------------------------------- | ---------------------------------------- |
-| Project progress         | `ghostcrab_count` by task status                     | pending / in_progress / done counts      |
-| Agent availability       | `ghostcrab_search` on Agent records                  | idle, running, error roster              |
-| Dependency readiness     | `ghostcrab_traverse` from blocked tasks              | runnable backlog                         |
-| Checkpoint evaluation    | `ghostcrab_pack` with phase question                 | whether phase can advance                |
-| Recovery context         | `ghostcrab_pack`                                     | active goals, blockers, next steps       |
-| Active orchestration     | `ghostcrab_project`                                  | GOAL / STEP / CONSTRAINT projections     |
+| Pattern               | GhostCrab tool(s)                       | Returned signal                      |
+| --------------------- | --------------------------------------- | ------------------------------------ |
+| Project progress      | `ghostcrab_count` by task status        | pending / in_progress / done counts  |
+| Agent availability    | `ghostcrab_search` on Agent records     | idle, running, error roster          |
+| Dependency readiness  | `ghostcrab_traverse` from blocked tasks | runnable backlog                     |
+| Checkpoint evaluation | `ghostcrab_pack` with phase question    | whether phase can advance            |
+| Recovery context      | `ghostcrab_pack`                        | active goals, blockers, next steps   |
+| Active orchestration  | `ghostcrab_project`                     | GOAL / STEP / CONSTRAINT projections |
 
 ### 3.2 Control loop skeleton
 

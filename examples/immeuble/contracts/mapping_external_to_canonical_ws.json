@@ -12,42 +12,31 @@
       "csv": "fake_data/building.csv",
       "schema_id": "immeuble:core:building",
       "record_id_column": "record_id",
-      "content_columns": [
-        "name"
-      ]
+      "content_columns": ["name"]
     },
     "unit": {
       "csv": "fake_data/unit.csv",
       "schema_id": "immeuble:core:unit",
       "record_id_column": "record_id",
-      "content_columns": [
-        "numero_lot"
-      ]
+      "content_columns": ["numero_lot"]
     },
     "person": {
       "csv": "fake_data/person.csv",
       "schema_id": "immeuble:core:person",
       "record_id_column": "record_id",
-      "content_columns": [
-        "nom",
-        "prenom"
-      ]
+      "content_columns": ["nom", "prenom"]
     },
     "lease_contract": {
       "csv": "fake_data/lease_contract.csv",
       "schema_id": "immeuble:core:lease_contract",
       "record_id_column": "record_id",
-      "content_columns": [
-        "reference"
-      ]
+      "content_columns": ["reference"]
     },
     "household": {
       "csv": "fake_data/household.csv",
       "schema_id": "immeuble:core:household",
       "record_id_column": "record_id",
-      "content_columns": [
-        "household_name"
-      ],
+      "content_columns": ["household_name"],
       "notes": "Optional compatibility view for actor prompts."
     }
   },

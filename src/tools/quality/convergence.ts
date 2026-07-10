@@ -363,7 +363,9 @@ export const qualityRemediationApplyTool: ToolHandler = {
         ? (action.tool_args as Record<string, unknown>)
         : {};
     const workspaceId =
-      typeof toolArgs.workspace_id === "string" ? toolArgs.workspace_id : undefined;
+      typeof toolArgs.workspace_id === "string"
+        ? toolArgs.workspace_id
+        : undefined;
     if (!workspaceId) {
       return createToolErrorResult(
         "ghostcrab_quality_remediation_apply",

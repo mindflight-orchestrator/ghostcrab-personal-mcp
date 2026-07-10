@@ -20,7 +20,9 @@ function parseEventSignal(signalJson: string): Record<string, unknown> {
   if (!signalJson) return {};
   try {
     const parsed = JSON.parse(signalJson) as unknown;
-    return typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
+    return typeof parsed === "object" &&
+      parsed !== null &&
+      !Array.isArray(parsed)
       ? (parsed as Record<string, unknown>)
       : {};
   } catch {

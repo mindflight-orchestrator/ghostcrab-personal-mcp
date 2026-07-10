@@ -10,7 +10,7 @@ The goal is not to run BMAD or GhostCrab live. The goal is to check whether the 
 - SQLite-backed MindBrain Personal runtime
 - `stdio` as the default MCP integration path
 - public `ghostcrab_*` tools exposed to agent clients
-- SQLite mentioned only as a short pointer to **
+- SQLite mentioned only as a short pointer to \*\*
 
 ## 2. Documents Reviewed
 
@@ -115,7 +115,7 @@ The BMAD drafts still present SQLite as a production or canonical backend. For t
 
 Acceptable wording:
 
-> GhostCrab Personal runs locally with SQLite. A SQLite-based PRO edition, 
+> GhostCrab Personal runs locally with SQLite. A SQLite-based PRO edition,
 
 That should remain anecdotal and short.
 
@@ -264,7 +264,7 @@ Show a BMAD project before a phase transition. Use GhostCrab to list unresolved 
 
 Keep this short:
 
-> This review focuses on GhostCrab Personal SQLite. Teams that later need centralized SQLite deployment can look at 
+> This review focuses on GhostCrab Personal SQLite. Teams that later need centralized SQLite deployment can look at
 
 No SQLite-first examples should appear in the community-facing BMAD skills.
 

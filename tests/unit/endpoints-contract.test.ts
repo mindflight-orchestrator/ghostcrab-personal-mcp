@@ -33,7 +33,9 @@ describe("ghostcrab backend contract", () => {
       path.resolve(repoRoot, "vendor/mindbrain/src/standalone/http_app.zig"),
       "utf8"
     );
-    const dispatchRoutes = new Set(extractMindbrainDispatchRoutes(mindbrainSource));
+    const dispatchRoutes = new Set(
+      extractMindbrainDispatchRoutes(mindbrainSource)
+    );
 
     assertRoutesPresent(
       dispatchRoutes,
@@ -65,12 +67,15 @@ describe("ghostcrab backend contract", () => {
       path.resolve(repoRoot, "vendor/mindbrain/src/standalone/http_app.zig"),
       "utf8"
     );
-    const dispatchRoutes = new Set(extractMindbrainDispatchRoutes(mindbrainSource));
+    const dispatchRoutes = new Set(
+      extractMindbrainDispatchRoutes(mindbrainSource)
+    );
 
     for (const route of usageRoutes) {
-      expect(dispatchRoutes.has(route), `usage route missing in dispatch: ${route}`).toBe(
-        true
-      );
+      expect(
+        dispatchRoutes.has(route),
+        `usage route missing in dispatch: ${route}`
+      ).toBe(true);
     }
   });
 });

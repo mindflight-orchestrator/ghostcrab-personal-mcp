@@ -16,18 +16,18 @@ gcp brain setup cursor --yes
 
 This installs ten GhostCrab skills under `~/.cursor/skills/` plus shared contracts under `~/.cursor/skills/ghostcrab-shared/`.
 
-| Skill | Role |
-| --- | --- |
-| ghostcrab-memory | Durable working memory, onboarding, long-running work |
-| ghostcrab-prompt-guide | Prompt and workflow guidance |
-| ghostcrab-data-architect | Structured domain modeling |
-| ghostcrab-integration-sop-editor | Integration SOP cleanup |
-| mindbrain-comparison-writer | MindBrain comparison articles |
-| ghostcrab-operator | Business questions → MCP workflows |
-| ghostcrab-evidence-discovery | Map questions to facets, graph, projections |
-| ghostcrab-projection-reviewer | Review Type A/B projections |
-| ghostcrab-gap-auditor | Audit evidence gaps |
-| ghostcrab-json-answer-builder | Stable JSON answers from MCP outputs |
+| Skill                            | Role                                                  |
+| -------------------------------- | ----------------------------------------------------- |
+| ghostcrab-memory                 | Durable working memory, onboarding, long-running work |
+| ghostcrab-prompt-guide           | Prompt and workflow guidance                          |
+| ghostcrab-data-architect         | Structured domain modeling                            |
+| ghostcrab-integration-sop-editor | Integration SOP cleanup                               |
+| mindbrain-comparison-writer      | MindBrain comparison articles                         |
+| ghostcrab-operator               | Business questions → MCP workflows                    |
+| ghostcrab-evidence-discovery     | Map questions to facets, graph, projections           |
+| ghostcrab-projection-reviewer    | Review Type A/B projections                           |
+| ghostcrab-gap-auditor            | Audit evidence gaps                                   |
+| ghostcrab-json-answer-builder    | Stable JSON answers from MCP outputs                  |
 
 Each skill is **autonomous** at runtime (workflows inline in `SKILL.md`, shared stubs in `ghostcrab-shared/`). Operational skills may optionally reference starter-kit delivery SOPs — resolve via [../shared/STARTERKIT_PATHS.md](../shared/STARTERKIT_PATHS.md) when you run a phased import project.
 

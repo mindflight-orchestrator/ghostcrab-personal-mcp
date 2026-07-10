@@ -14,9 +14,13 @@ describe("prebuild-permissions document engine", () => {
   let root = "";
   const platformKey = `${process.platform}-${process.arch}`;
   const backendName =
-    process.platform === "win32" ? "ghostcrab-backend.exe" : "ghostcrab-backend";
+    process.platform === "win32"
+      ? "ghostcrab-backend.exe"
+      : "ghostcrab-backend";
   const documentName =
-    process.platform === "win32" ? "ghostcrab-document.exe" : "ghostcrab-document";
+    process.platform === "win32"
+      ? "ghostcrab-document.exe"
+      : "ghostcrab-document";
 
   afterEach(() => {
     vi.restoreAllMocks();
@@ -31,7 +35,11 @@ describe("prebuild-permissions document engine", () => {
     const prebuildDir = join(root, "prebuilds", platformKey);
     mkdirSync(prebuildDir, { recursive: true });
     const backendPath = join(prebuildDir, backendName);
-    writeFileSync(backendPath, "#!/bin/sh\necho ghostcrab-backend usage:\n", "utf8");
+    writeFileSync(
+      backendPath,
+      "#!/bin/sh\necho ghostcrab-backend usage:\n",
+      "utf8"
+    );
     if (process.platform !== "win32") {
       chmodSync(backendPath, 0o755);
     }

@@ -24,7 +24,9 @@ function confidenceTier(confidence: number): "low" | "medium" | "high" {
 function buildSignature(intent: BusinessIntent): string {
   const signatureParts = [
     intent.id,
-    Object.keys(intent.structured_facets ?? {}).sort().join("|"),
+    Object.keys(intent.structured_facets ?? {})
+      .sort()
+      .join("|"),
     (intent.slots.object as string | undefined) ?? "",
     (intent.slots.status as string | undefined) ?? "",
     (intent.slots.demo_week as string | undefined) ?? ""
@@ -40,12 +42,14 @@ function normalizeLabel(value: string): string {
     .replace(/\p{Diacritic}/gu, "")
     .replace(/\s+/g, " ")
     .trim();
-  }
+}
 
 function isMeaningfulProposal(capability: BusinessCapability): boolean {
   return (
     ((capability.required_schemas?.length ?? 0) > 0 &&
-      (capability.required_schemas ?? []).some((schema) => schema.length > 0)) ||
+      (capability.required_schemas ?? []).some(
+        (schema) => schema.length > 0
+      )) ||
     (capability.required_facets?.length ?? 0) > 0 ||
     normalizeLabel(capability.label ?? "").length > 0 ||
     normalizeLabel(capability.business_question ?? "").length > 12
@@ -103,10 +107,9 @@ export function createLearningProposal(params: {
     ? "composite_projection_candidate"
     : "single_capability";
 
-  const confidence =
-    isCreationOrComposite
-      ? intent.confidence
-      : Math.min(1, Math.max(intent.confidence, duplicateScore));
+  const confidence = isCreationOrComposite
+    ? intent.confidence
+    : Math.min(1, Math.max(intent.confidence, duplicateScore));
 
   const normalizedLabel = normalizeLabel(intent.label);
   const signature = intentSignature;

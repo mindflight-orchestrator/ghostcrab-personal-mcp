@@ -143,7 +143,10 @@ export const workspaceReindexAllTool: ToolHandler = {
           "ghostcrab_reindex_all",
           "No collections with facet_tables registration found for workspace; cannot run collections scope.",
           "no_reindex_targets",
-          { workspace_id: workspaceId, skipped_collections: discovery.skipped_collections }
+          {
+            workspace_id: workspaceId,
+            skipped_collections: discovery.skipped_collections
+          }
         );
       }
 
@@ -187,7 +190,10 @@ export const workspaceReindexAllTool: ToolHandler = {
             collection_id: target.collection_id,
             table_id: target.table_id,
             ok: false,
-            error: error instanceof Error ? error.message : "collection reindex failed"
+            error:
+              error instanceof Error
+                ? error.message
+                : "collection reindex failed"
           });
         }
       }

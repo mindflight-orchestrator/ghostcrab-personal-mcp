@@ -3,9 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { Queryable } from "../../src/db/client.js";
 import { discoverWorkspaceReindexTargets } from "../../src/db/reindex-workspace.js";
 
-function createQueryable(
-  queryImpl: Queryable["query"]
-): Queryable {
+function createQueryable(queryImpl: Queryable["query"]): Queryable {
   return { query: queryImpl };
 }
 
@@ -67,7 +65,9 @@ describe("discoverWorkspaceReindexTargets", () => {
     );
 
     expect(discovery.source).toBe("documents_raw");
-    expect(discovery.targets).toEqual([{ collection_id: "ws::docs", table_id: 99 }]);
+    expect(discovery.targets).toEqual([
+      { collection_id: "ws::docs", table_id: 99 }
+    ]);
     expect(discovery.skipped_collections).toEqual(["ws::missing-facet"]);
   });
 

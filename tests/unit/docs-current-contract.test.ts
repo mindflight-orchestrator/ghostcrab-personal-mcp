@@ -50,9 +50,13 @@ describe("current documentation contract", () => {
     expect(gcpCommands).toContain(
       "refreshes **one** live answer view by\nexact registry id"
     );
-    expect(gcpCommands).toContain("Wildcards and shell globs are not supported");
+    expect(gcpCommands).toContain(
+      "Wildcards and shell globs are not supported"
+    );
     expect(gcpCommands).toContain("MCP callers use the same rule");
-    expect(gcpCommands).toContain("The refresh endpoint is an HTTP `POST` route");
+    expect(gcpCommands).toContain(
+      "The refresh endpoint is an HTTP `POST` route"
+    );
     expect(gcpCommands).toContain("405 MethodNotAllowed");
   });
 });

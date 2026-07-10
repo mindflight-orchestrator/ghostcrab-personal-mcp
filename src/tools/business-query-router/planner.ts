@@ -110,7 +110,9 @@ function compareCandidates(left: RankedRoute, right: RankedRoute): number {
   const leftLabel = left.capability.label ?? "";
   if (rightLabel !== leftLabel) return rightLabel.localeCompare(leftLabel);
 
-  return right.capability.capability_id.localeCompare(left.capability.capability_id);
+  return right.capability.capability_id.localeCompare(
+    left.capability.capability_id
+  );
 }
 
 function bestForMode(
@@ -205,7 +207,10 @@ export function chooseRouteFromScores(params: {
       route,
       gaps: [],
       route_scores: routeScores,
-      alternative_routes: buildAlternativeRoutes(rankedCandidates, route.capability_id)
+      alternative_routes: buildAlternativeRoutes(
+        rankedCandidates,
+        route.capability_id
+      )
     };
   }
 
@@ -228,7 +233,10 @@ export function chooseRouteFromScores(params: {
       route,
       gaps: [],
       route_scores: routeScores,
-      alternative_routes: buildAlternativeRoutes(rankedCandidates, route.capability_id)
+      alternative_routes: buildAlternativeRoutes(
+        rankedCandidates,
+        route.capability_id
+      )
     };
   }
 
@@ -245,19 +253,24 @@ export function chooseRouteFromScores(params: {
       gaps: [
         {
           code: "creation_or_composite_request",
-          message:
-            "Use the learning proposal to register a new capability."
+          message: "Use the learning proposal to register a new capability."
         }
       ],
       route_scores: routeScores,
-      alternative_routes: buildAlternativeRoutes(rankedCandidates, route.capability_id)
+      alternative_routes: buildAlternativeRoutes(
+        rankedCandidates,
+        route.capability_id
+      )
     };
   }
 
   const liveQueryMatch = rankedCandidates.find(({ score, capability }) => {
     if (score < ROUTE_THRESHOLDS.execution_live_query_min_score) return false;
     if ((capability.required_schemas ?? []).length === 0) return false;
-    if (matchFacetsForExecution(intent, capability) < ROUTE_THRESHOLDS.live_query_min_coverage)
+    if (
+      matchFacetsForExecution(intent, capability) <
+      ROUTE_THRESHOLDS.live_query_min_coverage
+    )
       return false;
     if (capability.activation_status === "pending_review") return false;
     return true;
@@ -270,7 +283,10 @@ export function chooseRouteFromScores(params: {
         schema_id: selectExecutableSchema(intent, liveQueryMatch.capability),
         confidence: 0.78,
         reason: "Facts expose matching filters for a live execution path.",
-        coverage_retained: matchFacetsForExecution(intent, liveQueryMatch.capability)
+        coverage_retained: matchFacetsForExecution(
+          intent,
+          liveQueryMatch.capability
+        )
       },
       gaps: [],
       route_scores: routeScores,
@@ -297,7 +313,10 @@ export function chooseRouteFromScores(params: {
       route,
       gaps: [],
       route_scores: routeScores,
-      alternative_routes: buildAlternativeRoutes(rankedCandidates, route.capability_id)
+      alternative_routes: buildAlternativeRoutes(
+        rankedCandidates,
+        route.capability_id
+      )
     };
   }
 
@@ -317,12 +336,16 @@ export function chooseRouteFromScores(params: {
       gaps: [
         {
           code: "missing_materialized_answer",
-          message: "No answer_snapshot, live_answer_view, or observable fact rows cover the requested slots.",
+          message:
+            "No answer_snapshot, live_answer_view, or observable fact rows cover the requested slots.",
           missing: ["answer_snapshot", "live_answer_view", "live_query_rows"]
         }
       ],
       route_scores: routeScores,
-      alternative_routes: buildAlternativeRoutes(rankedCandidates, route.capability_id)
+      alternative_routes: buildAlternativeRoutes(
+        rankedCandidates,
+        route.capability_id
+      )
     };
   }
 
@@ -355,8 +378,7 @@ export function chooseRouteFromScores(params: {
     gaps: [
       {
         code: "missing_capability",
-        message:
-          "No registered capability covers this business question."
+        message: "No registered capability covers this business question."
       }
     ],
     route_scores: routeScores,

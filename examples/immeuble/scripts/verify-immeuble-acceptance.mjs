@@ -13,7 +13,6 @@ import { spawnSync } from "node:child_process";
 import { parse as parseYaml } from "yaml";
 
 const immeubleRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const pkgRoot = resolve(immeubleRoot, "..", "..");
 const reportsDir = join(immeubleRoot, "reports");
 
 const args = process.argv.slice(2);
@@ -21,9 +20,13 @@ const dbPath = parseFlag(args, "--db", process.env.GHOSTCRAB_SQLITE_PATH ?? "");
 const requireHybrid = args.includes("--require-hybrid");
 const requireBundle = args.includes("--require-bundle");
 const projectionStrict = args.includes("--projection-strict");
-const requireBusinessCapabilities = args.includes("--require-business-capabilities");
+const requireBusinessCapabilities = args.includes(
+  "--require-business-capabilities"
+);
 
-const acceptance = parseYaml(readFileSync(join(immeubleRoot, "ACCEPTANCE.yaml"), "utf8"));
+const acceptance = parseYaml(
+  readFileSync(join(immeubleRoot, "ACCEPTANCE.yaml"), "utf8")
+);
 const results = { ok: true, checks: [], workspace_id: acceptance.workspace_id };
 
 function check(name, ok, detail) {
@@ -38,7 +41,11 @@ function readJson(rel) {
 }
 
 const pipeline = readJson("reports/pipeline_audit.json");
-check("pipeline_audit exists", pipeline != null, pipeline ? "ok" : "missing reports/pipeline_audit.json");
+check(
+  "pipeline_audit exists",
+  pipeline != null,
+  pipeline ? "ok" : "missing reports/pipeline_audit.json"
+);
 if (pipeline) {
   check("pipeline_audit.ok", pipeline.ok === true, String(pipeline.ok));
   check(
@@ -51,22 +58,34 @@ if (pipeline) {
     pipeline.edge_rows === acceptance.import_ready.edge_rows,
     `${pipeline.edge_rows} vs ${acceptance.import_ready.edge_rows}`
   );
-  for (const [type, expected] of Object.entries(acceptance.import_ready.entity_type_counts)) {
+  for (const [type, expected] of Object.entries(
+    acceptance.import_ready.entity_type_counts
+  )) {
     const actual = pipeline.counts?.[type];
-    check(`entity_count.${type}`, actual === expected, `${actual} vs ${expected}`);
+    check(
+      `entity_count.${type}`,
+      actual === expected,
+      `${actual} vs ${expected}`
+    );
   }
 }
 
 const prefixReport = readJson("reports/01-model.validation.json");
 if (prefixReport) {
-  check("schema_id_prefix", prefixReport.ok === true && prefixReport.prefix_violations === 0, JSON.stringify(prefixReport));
+  check(
+    "schema_id_prefix",
+    prefixReport.ok === true && prefixReport.prefix_violations === 0,
+    JSON.stringify(prefixReport)
+  );
 }
 
 const hybridPath = join(reportsDir, "hybrid-compare.json");
 if (existsSync(hybridPath)) {
   const hybrid = JSON.parse(readFileSync(hybridPath, "utf8"));
   const deltas = hybrid.compare?.deltas ?? {};
-  for (const [key, max] of Object.entries(acceptance.hybrid_compare.max_deltas)) {
+  for (const [key, max] of Object.entries(
+    acceptance.hybrid_compare.max_deltas
+  )) {
     const delta = deltas[key]?.delta;
     if (typeof delta === "number") {
       check(`hybrid_delta.${key}`, Math.abs(delta) <= max, `delta=${delta}`);
@@ -79,12 +98,20 @@ if (existsSync(hybridPath)) {
 if (dbPath && existsSync(dbPath)) {
   const ws = acceptance.workspace_id;
   const q = (sql) => {
-    const res = spawnSync("sqlite3", [dbPath, "-json", sql], { encoding: "utf8" });
+    const res = spawnSync("sqlite3", [dbPath, "-json", sql], {
+      encoding: "utf8"
+    });
     if (res.status !== 0) return null;
-    try { return JSON.parse(res.stdout || "[]"); } catch { return []; }
+    try {
+      return JSON.parse(res.stdout || "[]");
+    } catch {
+      return [];
+    }
   };
 
-  const facts = q(`SELECT COUNT(*) AS count FROM agent_facts WHERE workspace_id='${ws}'`);
+  const facts = q(
+    `SELECT COUNT(*) AS count FROM agent_facts WHERE workspace_id='${ws}'`
+  );
   const factsCount = Number(facts?.[0]?.count ?? 0);
   check(
     "db.agent_facts",
@@ -97,21 +124,28 @@ if (dbPath && existsSync(dbPath)) {
   );
   check(
     "db.schema_id_violations",
-    (violations?.length ?? 0) === acceptance.db_after_import.schema_id_violations,
+    (violations?.length ?? 0) ===
+      acceptance.db_after_import.schema_id_violations,
     JSON.stringify(violations?.map((r) => r.schema_id) ?? [])
   );
 
-  const rels = q(`SELECT COUNT(*) AS count FROM relations_raw WHERE workspace_id='${ws}'`);
+  const rels = q(
+    `SELECT COUNT(*) AS count FROM relations_raw WHERE workspace_id='${ws}'`
+  );
   check(
     "db.relations_raw",
-    Number(rels?.[0]?.count ?? 0) >= acceptance.db_after_import.relations_raw_min,
+    Number(rels?.[0]?.count ?? 0) >=
+      acceptance.db_after_import.relations_raw_min,
     String(rels?.[0]?.count)
   );
 
-  const graph = q(`SELECT COUNT(*) AS count FROM graph_entity WHERE workspace_id='${ws}'`);
+  const graph = q(
+    `SELECT COUNT(*) AS count FROM graph_entity WHERE workspace_id='${ws}'`
+  );
   check(
     "db.graph_entity",
-    Number(graph?.[0]?.count ?? 0) >= acceptance.db_after_import.graph_entity_min,
+    Number(graph?.[0]?.count ?? 0) >=
+      acceptance.db_after_import.graph_entity_min,
     String(graph?.[0]?.count)
   );
 
@@ -128,14 +162,20 @@ if (dbPath && existsSync(dbPath)) {
       `${activeCount} >= ${activeMin}`
     );
 
-    const requiredArtifacts = Array.isArray(businessCapabilities.required_artifact_ids)
-      ? businessCapabilities.required_artifact_ids.map((value) => String(value)).filter(Boolean)
+    const requiredArtifacts = Array.isArray(
+      businessCapabilities.required_artifact_ids
+    )
+      ? businessCapabilities.required_artifact_ids
+          .map((value) => String(value))
+          .filter(Boolean)
       : [];
     if (requiredArtifacts.length > 0) {
       const rows = q(
         `SELECT json_extract(facets_json, '$.artifact_id') AS artifact_id FROM agent_facts WHERE workspace_id='${ws}' AND schema_id='ghostcrab:business-capability' AND json_extract(facets_json, '$.activation_status') = 'active' AND json_extract(facets_json, '$.artifact_id') IS NOT NULL`
       );
-      const present = new Set((rows ?? []).map((row) => String(row.artifact_id)));
+      const present = new Set(
+        (rows ?? []).map((row) => String(row.artifact_id))
+      );
       for (const artifactId of requiredArtifacts) {
         check(
           `db.business_capability_artifact_id.${artifactId}`,
@@ -146,11 +186,18 @@ if (dbPath && existsSync(dbPath)) {
     }
   }
 } else {
-  results.checks.push({ name: "db checks", ok: true, detail: "skipped (no --db)" });
+  results.checks.push({
+    name: "db checks",
+    ok: true,
+    detail: "skipped (no --db)"
+  });
 }
 
 const starterkitAudit = acceptance.starterkit_projection_audit;
-const auditReportPath = join(reportsDir, `projection_audit_${acceptance.workspace_id}.json`);
+const auditReportPath = join(
+  reportsDir,
+  `projection_audit_${acceptance.workspace_id}.json`
+);
 if (starterkitAudit && existsSync(auditReportPath)) {
   const auditReport = JSON.parse(readFileSync(auditReportPath, "utf8"));
   const summary = auditReport.summary ?? {};
@@ -159,27 +206,32 @@ if (starterkitAudit && existsSync(auditReportPath)) {
   if (enforce) {
     check(
       "starterkit.quality_score",
-      Number(summary.quality_score ?? 0) >= Number(starterkitAudit.quality_score_min ?? 0),
+      Number(summary.quality_score ?? 0) >=
+        Number(starterkitAudit.quality_score_min ?? 0),
       `${summary.quality_score} >= ${starterkitAudit.quality_score_min}`
     );
     check(
       "starterkit.facet_gaps",
-      Number(summary.required_facet_observation_gap_count ?? 0) <= Number(starterkitAudit.required_facet_observation_gap_max ?? 0),
+      Number(summary.required_facet_observation_gap_count ?? 0) <=
+        Number(starterkitAudit.required_facet_observation_gap_max ?? 0),
       String(summary.required_facet_observation_gap_count)
     );
     check(
       "starterkit.schema_gaps",
-      Number(summary.required_schema_record_gap_count ?? 0) <= Number(starterkitAudit.required_schema_record_gap_max ?? 0),
+      Number(summary.required_schema_record_gap_count ?? 0) <=
+        Number(starterkitAudit.required_schema_record_gap_max ?? 0),
       String(summary.required_schema_record_gap_count)
     );
     check(
       "starterkit.edge_gaps",
-      Number(summary.required_edge_type_gap_count ?? 0) <= Number(starterkitAudit.required_edge_type_gap_max ?? 0),
+      Number(summary.required_edge_type_gap_count ?? 0) <=
+        Number(starterkitAudit.required_edge_type_gap_max ?? 0),
       String(summary.required_edge_type_gap_count)
     );
     check(
       "starterkit.planned_missing",
-      Number(summary.planned_missing_count ?? 0) <= Number(starterkitAudit.planned_missing_count_max ?? 0),
+      Number(summary.planned_missing_count ?? 0) <=
+        Number(starterkitAudit.planned_missing_count_max ?? 0),
       String(summary.planned_missing_count)
     );
   } else {
@@ -190,14 +242,22 @@ if (starterkitAudit && existsSync(auditReportPath)) {
     });
   }
 } else if (starterkitAudit && projectionStrict) {
-  check("starterkit_projection_audit report", false, `missing ${auditReportPath}`);
+  check(
+    "starterkit_projection_audit report",
+    false,
+    `missing ${auditReportPath}`
+  );
 }
 
 if (requireBundle) {
   const bundlePath = join(immeubleRoot, acceptance.bundle.path);
   if (existsSync(bundlePath)) {
     const bundle = JSON.parse(readFileSync(bundlePath, "utf8"));
-    check("bundle.scope", bundle.scope?.workspace_id === acceptance.workspace_id, bundle.scope?.workspace_id);
+    check(
+      "bundle.scope",
+      bundle.scope?.workspace_id === acceptance.workspace_id,
+      bundle.scope?.workspace_id
+    );
     check(
       "bundle.documents_raw",
       (bundle.documents_raw?.length ?? 0) === acceptance.bundle.documents_raw,
@@ -214,7 +274,11 @@ if (requireBundle) {
 }
 
 mkdirSync(reportsDir, { recursive: true });
-writeFileSync(join(reportsDir, "acceptance.validation.json"), JSON.stringify(results, null, 2) + "\n", "utf8");
+writeFileSync(
+  join(reportsDir, "acceptance.validation.json"),
+  JSON.stringify(results, null, 2) + "\n",
+  "utf8"
+);
 console.log(JSON.stringify(results, null, 2));
 process.exit(results.ok ? 0 : 1);
 

@@ -27,25 +27,26 @@ export const DESTRUCTIVE_TOOL_NAMES = [
   "ghostcrab_graph_gap_rules_delete"
 ] as const;
 
-const READ_ACCESS = new Set([
-  "bootstrap",
-  "read",
-  "guide",
-  "session"
-]);
+const READ_ACCESS = new Set(["bootstrap", "read", "guide", "session"]);
 
 export function getToolAccessForName(name: string): string {
   return classifyToolAccess(name);
 }
 
-export function formatClaudeMcpRule(serverName: string, toolName?: string): string {
+export function formatClaudeMcpRule(
+  serverName: string,
+  toolName?: string
+): string {
   if (!toolName) {
     return `mcp__${serverName}`;
   }
   return `mcp__${serverName}__${toolName}`;
 }
 
-export function formatCursorMcpRule(serverName: string, toolName?: string): string {
+export function formatCursorMcpRule(
+  serverName: string,
+  toolName?: string
+): string {
   if (!toolName) {
     return `${serverName}:*`;
   }
@@ -144,7 +145,9 @@ export function policyToClaudePermissions(policy: ToolPermissionPolicy): {
   };
 }
 
-export function policyToCursorMcpAllowlist(policy: ToolPermissionPolicy): string[] {
+export function policyToCursorMcpAllowlist(
+  policy: ToolPermissionPolicy
+): string[] {
   return policy.allow.map((ref) =>
     formatCursorMcpRule(ref.serverName, ref.toolName)
   );

@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -7,7 +7,10 @@ import { runNativeEngineSync } from "../../bin/lib/brain-engine-runner.mjs";
 
 const repoRoot = resolve(import.meta.dirname, "../..");
 const pkgRoot = repoRoot;
-const demoBundlePath = resolve(repoRoot, "examples/immeuble/bundle/immeuble.bundle.json");
+const demoBundlePath = resolve(
+  repoRoot,
+  "examples/immeuble/bundle/immeuble.bundle.json"
+);
 const demoLinkmlPath = resolve(repoRoot, "ontologies/immeuble/core.yaml");
 
 function sortedEntityTypes(rows: Array<{ entity_type: string }>) {

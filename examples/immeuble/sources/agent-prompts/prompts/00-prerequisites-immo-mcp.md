@@ -36,9 +36,9 @@ MCP and CLI must target the **same** `--db` / `GHOSTCRAB_SQLITE_PATH` for the wh
 
 ## Two workspaces, one SQLite — comparison model
 
-| Workspace | Role |
-|-----------|------|
-| **`immo-mcp`** | What GhostCrab MCP **built** from corpus (phases 2–5) |
+| Workspace      | Role                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------- |
+| **`immo-mcp`** | What GhostCrab MCP **built** from corpus (phases 2–5)                                 |
 | **`immeuble`** | What we **expect** — golden from `bundle/immeuble.bundle.json` (load in phase 6 only) |
 
 Both live in **`ghostcrab.sqlite`**. Phase 6 compares `immo-mcp` (process) vs `immeuble` (reference) vs [`success-criteria.yaml`](../success-criteria.yaml). See [`06-validate-and-compare-immo-mcp.md`](06-validate-and-compare-immo-mcp.md).
@@ -47,15 +47,15 @@ Never load the bundle into `immo-mcp`.
 
 ## Run identifiers
 
-| Field | Value |
-|-------|-------|
-| `workspace_id` | `immo-mcp` |
-| `collection_id` | `immo-mcp::docs` |
-| `ontology_id` | `immeuble::core` |
-| `golden_workspace_id` | `immeuble` |
-| `golden_bundle` | `examples/immeuble/bundle/immeuble.bundle.json` |
-| `corpus` | `examples/immeuble/sources/documents/` (8 md files) |
-| `criteria` | `examples/immeuble/success-criteria.yaml` |
+| Field                 | Value                                               |
+| --------------------- | --------------------------------------------------- |
+| `workspace_id`        | `immo-mcp`                                          |
+| `collection_id`       | `immo-mcp::docs`                                    |
+| `ontology_id`         | `immeuble::core`                                    |
+| `golden_workspace_id` | `immeuble`                                          |
+| `golden_bundle`       | `examples/immeuble/bundle/immeuble.bundle.json`     |
+| `corpus`              | `examples/immeuble/sources/documents/` (8 md files) |
+| `criteria`            | `examples/immeuble/success-criteria.yaml`           |
 
 ## Tools
 

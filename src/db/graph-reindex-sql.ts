@@ -18,15 +18,18 @@ export async function runSqlGraphReindex(
     includeChunkLinks: boolean;
   }
 ): Promise<GraphReindexReport> {
-  const { workspaceId, documentTableId, includeDocumentLinks, includeChunkLinks } =
-    params;
+  const {
+    workspaceId,
+    documentTableId,
+    includeDocumentLinks,
+    includeChunkLinks
+  } = params;
 
   const [{ count: entityCount } = { count: 0 }] = await database.query<{
     count: number;
-  }>(
-    `SELECT COUNT(*) AS count FROM entities_raw WHERE workspace_id = ?`,
-    [workspaceId]
-  );
+  }>(`SELECT COUNT(*) AS count FROM entities_raw WHERE workspace_id = ?`, [
+    workspaceId
+  ]);
 
   const [{ count: aliasCount } = { count: 0 }] = await database.query<{
     count: number;
@@ -37,10 +40,9 @@ export async function runSqlGraphReindex(
 
   const [{ count: relationCount } = { count: 0 }] = await database.query<{
     count: number;
-  }>(
-    `SELECT COUNT(*) AS count FROM relations_raw WHERE workspace_id = ?`,
-    [workspaceId]
-  );
+  }>(`SELECT COUNT(*) AS count FROM relations_raw WHERE workspace_id = ?`, [
+    workspaceId
+  ]);
 
   const [{ count: relationPropertyCount } = { count: 0 }] =
     await database.query<{ count: number }>(
@@ -123,7 +125,9 @@ export async function runSqlGraphReindex(
       [documentTableId, workspaceId]
     );
 
-    const [{ count = 0 } = { count: 0 }] = await database.query<{ count: number }>(
+    const [{ count = 0 } = { count: 0 }] = await database.query<{
+      count: number;
+    }>(
       `
         SELECT COUNT(*) AS count
         FROM (
@@ -158,7 +162,9 @@ export async function runSqlGraphReindex(
       [workspaceId]
     );
 
-    const [{ count = 0 } = { count: 0 }] = await database.query<{ count: number }>(
+    const [{ count = 0 } = { count: 0 }] = await database.query<{
+      count: number;
+    }>(
       `
         SELECT COUNT(*) AS count
         FROM (

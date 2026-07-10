@@ -102,7 +102,7 @@ The writing should be concise and implementation-oriented:
 
 ### 6.4 SQLite runtime (applied)
 
-Remove `ghostcrab_project`, SQLite runtime, and production backend framing from the Personal guide. Keep only one short mention of **
+Remove `ghostcrab_project`, SQLite runtime, and production backend framing from the Personal guide. Keep only one short mention of \*\*
 
 ## 7. Skill-by-Skill Review
 
@@ -204,7 +204,7 @@ Have the agent update a task or workflow record with `ghostcrab_upsert` and retr
 
 Recommended wording:
 
-> This guide focuses on GhostCrab Personal SQLite. 
+> This guide focuses on GhostCrab Personal SQLite.
 
 Keep this as a footnote, not a setup path.
 

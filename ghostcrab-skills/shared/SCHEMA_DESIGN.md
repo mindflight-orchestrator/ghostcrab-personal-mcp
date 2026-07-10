@@ -41,9 +41,9 @@ If the domain is new, also answer:
 
 Two facet families — use the right doc for each:
 
-| Family | Naming | Doc |
-| --- | --- | --- |
-| Path/content ingest | Keys like `path_top_level`, `content_class`, `facets.domain` | [PATH_CONTENT_FACETS.md](./PATH_CONTENT_FACETS.md) |
+| Family                 | Naming                                                                          | Doc                                                  |
+| ---------------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Path/content ingest    | Keys like `path_top_level`, `content_class`, `facets.domain`                    | [PATH_CONTENT_FACETS.md](./PATH_CONTENT_FACETS.md)   |
 | Business enum (LinkML) | **Always** `<module>.<slot_snake_case>` (e.g. `administrative.formule_service`) | [ENUM_BUSINESS_FACETS.md](./ENUM_BUSINESS_FACETS.md) |
 
 General rules:

@@ -8,7 +8,8 @@ function parseArgs(argv) {
     if (token === "--input") out.input = argv[++index];
     else if (token === "--output") out.output = argv[++index];
   }
-  if (!out.input) throw new Error("Missing --input projection-query-response.json");
+  if (!out.input)
+    throw new Error("Missing --input projection-query-response.json");
   return out;
 }
 
@@ -31,7 +32,8 @@ function groupedRows(rows) {
     }
     if (row.facet_name) {
       const entry = entities.get(entity);
-      if (!entry.facets.has(row.facet_name)) entry.facets.set(row.facet_name, []);
+      if (!entry.facets.has(row.facet_name))
+        entry.facets.set(row.facet_name, []);
       entry.facets.get(row.facet_name).push({
         value: row.facet_value,
         count: row.facet_count
@@ -42,15 +44,19 @@ function groupedRows(rows) {
 }
 
 function layerLabel(value) {
-  return String(value)
-    .replace(/^\d+_/, "")
-    .replaceAll("_", " ");
+  return String(value).replace(/^\d+_/, "").replaceAll("_", " ");
 }
 
 function render(rows) {
   const layers = groupedRows(rows);
   const totalEntities = [...layers.values()].reduce((sum, entities) => {
-    return sum + [...entities.values()].reduce((entitySum, item) => entitySum + Number(item.count ?? 0), 0);
+    return (
+      sum +
+      [...entities.values()].reduce(
+        (entitySum, item) => entitySum + Number(item.count ?? 0),
+        0
+      )
+    );
   }, 0);
 
   const lines = [

@@ -40,9 +40,7 @@ const PROJECTION_ARTIFACT_KINDS = [
 
 export const ProjectionsListInput = z.object({
   workspace_id: z.string().trim().min(1).optional(),
-  kind: z
-    .enum([...PROJECTION_ARTIFACT_KINDS, "graph"])
-    .optional(),
+  kind: z.enum([...PROJECTION_ARTIFACT_KINDS, "graph"]).optional(),
   agent_id: z.string().trim().min(1).optional(),
   scope: z.string().trim().min(1).optional(),
   include_graph: z.boolean().default(true),
@@ -63,9 +61,7 @@ type ProjectionListEntry = {
   suggested_tools: string[];
 };
 
-function suggestedToolsForKind(
-  kind: AnswerArtifactKind | "graph"
-): string[] {
+function suggestedToolsForKind(kind: AnswerArtifactKind | "graph"): string[] {
   switch (kind) {
     case ANALYSIS_PLAN_KIND:
       return ["ghostcrab_artifact_get", "ghostcrab_pack"];
@@ -80,9 +76,7 @@ function suggestedToolsForKind(
   }
 }
 
-function legacyKindForArtifactKind(
-  kind: AnswerArtifactKind
-): string | null {
+function legacyKindForArtifactKind(kind: AnswerArtifactKind): string | null {
   if (kind === ANALYSIS_PLAN_KIND) {
     return LEGACY_PROJECTION_TYPE_A;
   }
@@ -258,7 +252,11 @@ export const projectionsListTool: ToolHandler = {
       }
     }
 
-    if (input.include_graph && input.kind !== ANALYSIS_PLAN_KIND && input.kind !== "live_answer_view") {
+    if (
+      input.include_graph &&
+      input.kind !== ANALYSIS_PLAN_KIND &&
+      input.kind !== "live_answer_view"
+    ) {
       const graphRows = await listGraphProjectionIds(
         context.database,
         workspaceId,

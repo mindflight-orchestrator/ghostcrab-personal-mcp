@@ -9,16 +9,18 @@ function parseArgs(argv) {
   };
 
   if (argv.includes("--help") || argv.includes("-h")) {
-    process.stdout.write([
-      "Usage:",
-      "  node ghostcrab-projection-visual-report/scripts/render_projection_report.mjs --input projection-response.json [--format markdown|html|json] [--output report.html]",
-      "",
-      "Options:",
-      "  --input    JSON response from ghostcrab_projection_get",
-      "  --format   markdown, html, or json. Default: markdown",
-      "  --output   Optional output file. Omit to print to stdout",
-      ""
-    ].join("\n"));
+    process.stdout.write(
+      [
+        "Usage:",
+        "  node ghostcrab-projection-visual-report/scripts/render_projection_report.mjs --input projection-response.json [--format markdown|html|json] [--output report.html]",
+        "",
+        "Options:",
+        "  --input    JSON response from ghostcrab_projection_get",
+        "  --format   markdown, html, or json. Default: markdown",
+        "  --output   Optional output file. Omit to print to stdout",
+        ""
+      ].join("\n")
+    );
     process.exit(0);
   }
 
@@ -52,7 +54,9 @@ function statusBadge(value) {
 function normalizePayload(payload) {
   const report = payload.report ?? {};
   const projectionResults = payload.projection_results ?? [];
-  const deltas = report.deltas ?? (payload.deltas ?? []).map((item) => item.metadata ?? item);
+  const deltas =
+    report.deltas ??
+    (payload.deltas ?? []).map((item) => item.metadata ?? item);
   const linkedEvidence = payload.linked_evidence ?? [];
   const gscEvidence = payload.gsc_evidence ?? [];
 
@@ -97,7 +101,8 @@ function normalizePayload(payload) {
 
 function projectionKind(model) {
   const id = model.projection_id ?? "";
-  if (id === "proj_performance_keyword_opportunities") return "performance_keyword";
+  if (id === "proj_performance_keyword_opportunities")
+    return "performance_keyword";
   if (id.includes("hreflang")) return "hreflang";
   if (id.includes("content_authority")) return "content";
   if (id.includes("gsc")) return "gsc";
@@ -175,7 +180,9 @@ function markdownTable(headers, rows) {
   if (rows.length === 0) return "";
   const head = `| ${headers.join(" | ")} |`;
   const sep = `| ${headers.map(() => "---").join(" | ")} |`;
-  const body = rows.map((row) => `| ${row.map((cell) => cell ?? "").join(" | ")} |`);
+  const body = rows.map(
+    (row) => `| ${row.map((cell) => cell ?? "").join(" | ")} |`
+  );
   return [head, sep, ...body].join("\n");
 }
 
@@ -185,7 +192,9 @@ function renderMermaid(model) {
     const label = `${item.audit_run_id ?? `Run ${index + 1}`}<br/>${item.value ?? "?"} ${item.unit ?? ""}<br/>${item.severity ?? ""}`;
     return `  ${id}["${label}"]`;
   });
-  const links = model.timeline.slice(1).map((_, index) => `  A${index} --> A${index + 1}`);
+  const links = model.timeline
+    .slice(1)
+    .map((_, index) => `  A${index} --> A${index + 1}`);
   return ["```mermaid", "flowchart LR", ...nodes, ...links, "```"].join("\n");
 }
 
@@ -193,16 +202,20 @@ function renderEvidence(model) {
   const kind = projectionKind(model);
 
   if (kind === "gsc") {
-    const rows = model.gscEvidence.slice(0, 12).map((item) => [
-      item.audit_run_id,
-      item.query_text,
-      item.url,
-      item.device,
-      item.impressions,
-      item.clicks,
-      item.ctr === undefined ? "" : `${Math.round(Number(item.ctr) * 1000) / 10}%`,
-      item.avg_position
-    ]);
+    const rows = model.gscEvidence
+      .slice(0, 12)
+      .map((item) => [
+        item.audit_run_id,
+        item.query_text,
+        item.url,
+        item.device,
+        item.impressions,
+        item.clicks,
+        item.ctr === undefined
+          ? ""
+          : `${Math.round(Number(item.ctr) * 1000) / 10}%`,
+        item.avg_position
+      ]);
     return markdownTable(
       ["Run", "Query", "URL", "Device", "Impr.", "Clicks", "CTR", "Pos."],
       rows
@@ -210,49 +223,73 @@ function renderEvidence(model) {
   }
 
   if (kind === "hreflang") {
-    const rows = model.pageSnapshots.slice(0, 14).map((item) => [
-      item.audit_run_id,
-      item.url_path,
-      item.page_health_score,
-      item.hreflang_status,
-      item.http_status,
-      item.crawl_status,
-      item.schema_coverage,
-      item.content_density
-    ]);
+    const rows = model.pageSnapshots
+      .slice(0, 14)
+      .map((item) => [
+        item.audit_run_id,
+        item.url_path,
+        item.page_health_score,
+        item.hreflang_status,
+        item.http_status,
+        item.crawl_status,
+        item.schema_coverage,
+        item.content_density
+      ]);
     return markdownTable(
-      ["Run", "Page", "Health", "Hreflang", "HTTP", "Crawl", "Schema", "Content"],
+      [
+        "Run",
+        "Page",
+        "Health",
+        "Hreflang",
+        "HTTP",
+        "Crawl",
+        "Schema",
+        "Content"
+      ],
       rows
     );
   }
 
   if (kind === "performance_keyword") {
-    const rows = model.pageSnapshots.slice(0, 14).map((item) => [
-      item.audit_run_id,
-      item.url_path,
-      item.page_health_score,
-      item.performance_status,
-      item.word_count,
-      item.content_density,
-      item.schema_coverage,
-      item.h1_status
-    ]);
+    const rows = model.pageSnapshots
+      .slice(0, 14)
+      .map((item) => [
+        item.audit_run_id,
+        item.url_path,
+        item.page_health_score,
+        item.performance_status,
+        item.word_count,
+        item.content_density,
+        item.schema_coverage,
+        item.h1_status
+      ]);
     return markdownTable(
-      ["Run", "Page", "Health", "Performance", "Words", "Content", "Schema", "H1"],
+      [
+        "Run",
+        "Page",
+        "Health",
+        "Performance",
+        "Words",
+        "Content",
+        "Schema",
+        "H1"
+      ],
       rows
     );
   }
 
-  const rows = model.pageSnapshots.slice(0, 14).map((item) => [
-    item.audit_run_id,
-    item.url_path,
-    item.page_health_score,
-    item.word_count,
-    item.content_density,
-    item.schema_coverage,
-    item.title_status,
-    item.h1_status
-  ]);
+  const rows = model.pageSnapshots
+    .slice(0, 14)
+    .map((item) => [
+      item.audit_run_id,
+      item.url_path,
+      item.page_health_score,
+      item.word_count,
+      item.content_density,
+      item.schema_coverage,
+      item.title_status,
+      item.h1_status
+    ]);
   return markdownTable(
     ["Run", "Page", "Health", "Words", "Content", "Schema", "Title", "H1"],
     rows
@@ -277,7 +314,10 @@ function renderMarkdown(model) {
     item.residual,
     item.severity
   ]);
-  const actionRows = recommendedActions(model).map((item, index) => [`${index + 1}`, item]);
+  const actionRows = recommendedActions(model).map((item, index) => [
+    `${index + 1}`,
+    item
+  ]);
 
   return [
     `# ${displayTitle(model)}`,
@@ -290,13 +330,19 @@ function renderMarkdown(model) {
     "",
     "## Timeline",
     "",
-    markdownTable(["Run", "Value", "Unit", "Status", "Severity", "Summary"], timelineRows),
+    markdownTable(
+      ["Run", "Value", "Unit", "Status", "Severity", "Summary"],
+      timelineRows
+    ),
     "",
     renderMermaid(model),
     "",
     "## Deltas",
     "",
-    markdownTable(["Comparison", "Before", "After", "Delta", "Residual", "Severity"], deltaRows),
+    markdownTable(
+      ["Comparison", "Before", "After", "Delta", "Residual", "Severity"],
+      deltaRows
+    ),
     "",
     "## Evidence",
     "",
@@ -331,7 +377,10 @@ function escapeHtml(value) {
 
 function renderHtml(model) {
   const skillDir = path.resolve(new URL("..", import.meta.url).pathname);
-  const template = fs.readFileSync(path.join(skillDir, "assets", "report-template.html"), "utf8");
+  const template = fs.readFileSync(
+    path.join(skillDir, "assets", "report-template.html"),
+    "utf8"
+  );
   const latest = model.timeline.at(-1) ?? {};
   const title = displayTitle(model);
   const kpis = [
@@ -354,7 +403,12 @@ function renderHtml(model) {
     <pre>${escapeHtml(renderEvidence(model))}</pre>
     <h2>Recommended Actions</h2>
     <section class="actions">
-      ${recommendedActions(model).map((item, index) => `<div class="card"><div class="label">Action ${index + 1}</div>${escapeHtml(item)}</div>`).join("")}
+      ${recommendedActions(model)
+        .map(
+          (item, index) =>
+            `<div class="card"><div class="label">Action ${index + 1}</div>${escapeHtml(item)}</div>`
+        )
+        .join("")}
     </section>
   `;
 

@@ -216,10 +216,12 @@ export const ontologyImportTool: ToolHandler = {
   }
 };
 
-function buildOntologyImportArgs(input: z.infer<typeof OntologyImportInput> & {
-  workspace_id: string;
-  sqlite_path: string;
-}): string[] {
+function buildOntologyImportArgs(
+  input: z.infer<typeof OntologyImportInput> & {
+    workspace_id: string;
+    sqlite_path: string;
+  }
+): string[] {
   if (input.source_format === "linkml") {
     const args = [
       "ontology-compile-linkml",

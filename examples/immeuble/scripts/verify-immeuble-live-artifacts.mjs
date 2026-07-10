@@ -21,25 +21,48 @@ const acceptancePath = join(immeubleRoot, "ACCEPTANCE.yaml");
 
 const args = process.argv.slice(2);
 const workspaceId = parseFlag(args, "--workspace-id", "immeuble");
-const backendUrl = parseFlag(args, "--url", process.env.GHOSTCRAB_MINDBRAIN_URL ?? "http://127.0.0.1:8091");
+const backendUrl = parseFlag(
+  args,
+  "--url",
+  process.env.GHOSTCRAB_MINDBRAIN_URL ?? "http://127.0.0.1:8091"
+);
 
 const acceptance = parseYaml(readFileSync(acceptancePath, "utf8"));
 const requiredArtifacts = acceptance?.projections?.live_answer_view ?? [];
 const result = { ok: true, workspace_id: workspaceId, checks: [] };
 
 try {
-  const list = runArtifactCmd(["artifact", "list", "--url", backendUrl, "--workspace-id", workspaceId, "--kind", "live_answer_view"]);
-  result.checks.push({ name: "artifact.list", ok: true, detail: `status=${list.status}` });
+  const list = runArtifactCmd([
+    "artifact",
+    "list",
+    "--url",
+    backendUrl,
+    "--workspace-id",
+    workspaceId,
+    "--kind",
+    "live_answer_view"
+  ]);
+  result.checks.push({
+    name: "artifact.list",
+    ok: true,
+    detail: `status=${list.status}`
+  });
 
   const listPayload = parseJson(list.stdout);
-  const artifacts = Array.isArray(listPayload?.artifacts) ? listPayload.artifacts : [];
+  const artifacts = Array.isArray(listPayload?.artifacts)
+    ? listPayload.artifacts
+    : [];
   const present = new Set(artifacts.map((a) => a?.artifact_id).filter(Boolean));
 
-  const missing = requiredArtifacts.filter((artifactId) => !present.has(artifactId));
+  const missing = requiredArtifacts.filter(
+    (artifactId) => !present.has(artifactId)
+  );
   result.checks.push({
     name: "required_artifacts_present",
     ok: missing.length === 0,
-    detail: missing.length ? `missing: ${missing.join(", ")}` : "all required ids listed"
+    detail: missing.length
+      ? `missing: ${missing.join(", ")}`
+      : "all required ids listed"
   });
   if (missing.length > 0) {
     throw new Error("missing required live_answer_view artifacts");
@@ -47,28 +70,54 @@ try {
 
   const refreshChecks = [];
   for (const artifactId of requiredArtifacts) {
-    const refresh = runArtifactCmd(["artifact", "refresh", "--url", backendUrl, artifactId]);
+    const refresh = runArtifactCmd([
+      "artifact",
+      "refresh",
+      "--url",
+      backendUrl,
+      artifactId
+    ]);
     const refreshPayload = parseJson(refresh.stdout);
-    const refreshArtifactId = refreshPayload?.artifact_id || refreshPayload?.artifact?.artifact_id;
+    const refreshArtifactId =
+      refreshPayload?.artifact_id || refreshPayload?.artifact?.artifact_id;
     if (typeof refreshArtifactId === "string" && refreshArtifactId.length > 0) {
-      result.checks.push({ name: `artifact.refresh.${artifactId}`, ok: true, detail: `artifact_id=${refreshArtifactId}` });
+      result.checks.push({
+        name: `artifact.refresh.${artifactId}`,
+        ok: true,
+        detail: `artifact_id=${refreshArtifactId}`
+      });
     } else {
-      result.checks.push({ name: `artifact.refresh.${artifactId}`, ok: true, detail: "refresh returned JSON payload" });
+      result.checks.push({
+        name: `artifact.refresh.${artifactId}`,
+        ok: true,
+        detail: "refresh returned JSON payload"
+      });
     }
     refreshChecks.push(refreshPayload);
 
-    const get = runArtifactCmd(["artifact", "get", "--url", backendUrl, artifactId]);
+    const get = runArtifactCmd([
+      "artifact",
+      "get",
+      "--url",
+      backendUrl,
+      artifactId
+    ]);
     const getPayload = parseJson(get.stdout);
-    const payload = extractPayload(getPayload) ?? extractPayload(refreshPayload);
-    const artifactSummary = typeof payload?.summary === "string" && payload.summary.trim().length > 0;
-    const artifactRefreshChecks = Array.isArray(payload?.refresh_checks) && payload.refresh_checks.length > 0;
+    const payload =
+      extractPayload(getPayload) ?? extractPayload(refreshPayload);
+    const artifactSummary =
+      typeof payload?.summary === "string" && payload.summary.trim().length > 0;
+    const artifactRefreshChecks =
+      Array.isArray(payload?.refresh_checks) &&
+      payload.refresh_checks.length > 0;
     const refreshedOperational =
       refreshPayload?.ok === true &&
       payload &&
       (typeof payload.graph_entities === "number" ||
         typeof payload.facts === "number" ||
         typeof payload.graph_relations === "number");
-    const payloadOk = (artifactSummary && artifactRefreshChecks) || refreshedOperational;
+    const payloadOk =
+      (artifactSummary && artifactRefreshChecks) || refreshedOperational;
     result.checks.push({
       name: `artifact.payload.${artifactId}`,
       ok: payloadOk,
@@ -83,7 +132,11 @@ try {
     }
   }
 
-  result.checks.push({ name: "refresh_count", ok: refreshChecks.length === requiredArtifacts.length, detail: `${refreshChecks.length}` });
+  result.checks.push({
+    name: "refresh_count",
+    ok: refreshChecks.length === requiredArtifacts.length,
+    detail: `${refreshChecks.length}`
+  });
   result.ok = result.checks.every((item) => item.ok);
 } catch (err) {
   result.ok = false;
@@ -109,9 +162,15 @@ function runArtifactCmd(argsList) {
     encoding: "utf8"
   });
   if (res.status !== 0) {
-    throw new Error(`gcp brain ${argsList.join(" ")} failed (${res.status}): ${(res.stderr || res.stdout || "").trim()}`);
+    throw new Error(
+      `gcp brain ${argsList.join(" ")} failed (${res.status}): ${(res.stderr || res.stdout || "").trim()}`
+    );
   }
-  return { status: res.status, stdout: res.stdout || "", stderr: res.stderr || "" };
+  return {
+    status: res.status,
+    stdout: res.stdout || "",
+    stderr: res.stderr || ""
+  };
 }
 
 function parseJson(text) {

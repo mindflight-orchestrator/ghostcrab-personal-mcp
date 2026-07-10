@@ -45,13 +45,19 @@ function loadImmeubleCapabilities(): BusinessCapability[] {
       label: String(facets.label),
       business_question: String(facets.business_question),
       example_queries: Array.isArray(facets.example_queries)
-        ? facets.example_queries.filter((item): item is string => typeof item === "string")
+        ? facets.example_queries.filter(
+            (item): item is string => typeof item === "string"
+          )
         : [],
       required_schemas: Array.isArray(facets.required_schemas)
-        ? facets.required_schemas.filter((item): item is string => typeof item === "string")
+        ? facets.required_schemas.filter(
+            (item): item is string => typeof item === "string"
+          )
         : [],
       required_facets: Array.isArray(facets.required_facets)
-        ? facets.required_facets.filter((item): item is string => typeof item === "string")
+        ? facets.required_facets.filter(
+            (item): item is string => typeof item === "string"
+          )
         : [],
       artifact_id: String(facets.artifact_id),
       availability: facets.availability as Availability,
@@ -61,10 +67,7 @@ function loadImmeubleCapabilities(): BusinessCapability[] {
   });
 }
 
-function routeQuestion(
-  question: string,
-  capabilities: BusinessCapability[]
-) {
+function routeQuestion(question: string, capabilities: BusinessCapability[]) {
   const intent = normalizeBusinessQuestion(question);
   const ranked = rankCapabilities(intent, capabilities, question);
   return chooseRouteFromScores({ intent, ranked });
@@ -78,9 +81,9 @@ describe("immeuble business capability seed routing (unit)", () => {
     expect(
       capabilities.every((cap) => cap.availability === "live_answer_view")
     ).toBe(true);
-    expect(
-      capabilities.every((cap) => cap.workspace_id === "immeuble")
-    ).toBe(true);
+    expect(capabilities.every((cap) => cap.workspace_id === "immeuble")).toBe(
+      true
+    );
   });
 
   it.each([

@@ -109,12 +109,12 @@ while final_answer is None and step_number <= 20:
 
 ## Practical MindBrain value for smolagents
 
-| Native smolagents limits                 | MindBrain / GhostCrab adds                      |
-| :--------------------------------------- | :---------------------------------------------- |
-| Ephemeral memory, session-bound [^1_4]   | Durable registry across sessions                |
-| No pipeline-wide context sharing [^1_4]  | Shared ontology reachable by every agent        |
-| Flat step list lacking semantics [^1_1]  | Typed entities, relations, facets via GhostCrab |
-| No dedupe / compaction primitives [^1_4] | Targeted retrieval via faceted search via `ghostcrab_search` + graph via `ghostcrab_learn` / `ghostcrab_traverse`    |
+| Native smolagents limits                 | MindBrain / GhostCrab adds                                                                                        |
+| :--------------------------------------- | :---------------------------------------------------------------------------------------------------------------- |
+| Ephemeral memory, session-bound [^1_4]   | Durable registry across sessions                                                                                  |
+| No pipeline-wide context sharing [^1_4]  | Shared ontology reachable by every agent                                                                          |
+| Flat step list lacking semantics [^1_1]  | Typed entities, relations, facets via GhostCrab                                                                   |
+| No dedupe / compaction primitives [^1_4] | Targeted retrieval via faceted search via `ghostcrab_search` + graph via `ghostcrab_learn` / `ghostcrab_traverse` |
 
 ---
 
@@ -275,14 +275,14 @@ Those projections are the **sole decision channel** for supervisors — they avo
 
 ### Worker tools (state writes)
 
-| MCP tool             | Input                                        | Output           | Usage                      |
-| :------------------- | :------------------------------------------- | :--------------- | :------------------------- |
-| `task_status_update` | `task_id`, `status`, `progress_pct`, `notes` | `ok`             | Worker reports progress    |
-| `task_claim`         | `task_id`, `agent_name`                      | `ok \| conflict` | Worker reserves a task     |
-| `entity_upsert`      | `type`, `payload{}`, `tags[]`, `session_id`  | `entity_id`      | Ontology upsert            |
-| `entity_link`        | `source_id`, `target_id`, `rel`, `weight`    | `edge_id`        | Create graph via `ghostcrab_learn` / `ghostcrab_traverse` relation  |
-| `heartbeat`          | `agent_name`, `task_id`                      | `ok`             | Keepalive / liveness proof |
-| `agent_run_log`      | `agent_name`, `task_id`, `status`, `error?`  | `run_id`         | Start/end/error journal    |
+| MCP tool             | Input                                        | Output           | Usage                                                              |
+| :------------------- | :------------------------------------------- | :--------------- | :----------------------------------------------------------------- |
+| `task_status_update` | `task_id`, `status`, `progress_pct`, `notes` | `ok`             | Worker reports progress                                            |
+| `task_claim`         | `task_id`, `agent_name`                      | `ok \| conflict` | Worker reserves a task                                             |
+| `entity_upsert`      | `type`, `payload{}`, `tags[]`, `session_id`  | `entity_id`      | Ontology upsert                                                    |
+| `entity_link`        | `source_id`, `target_id`, `rel`, `weight`    | `edge_id`        | Create graph via `ghostcrab_learn` / `ghostcrab_traverse` relation |
+| `heartbeat`          | `agent_name`, `task_id`                      | `ok`             | Keepalive / liveness proof                                         |
+| `agent_run_log`      | `agent_name`, `task_id`, `status`, `error?`  | `run_id`         | Start/end/error journal                                            |
 
 ### Supervisor tools (projection reads)
 
@@ -444,4 +444,3 @@ def orchestrator_loop(project_id: str):
 [^3_12]: https://deepwiki.com/huggingface/smolagents/9-examples-and-use-cases
 
 [^3_14]: https://github.com/ashwath007/smolagents-approach
-

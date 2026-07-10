@@ -11,9 +11,9 @@
 
 The **root** package is a small installer: it does **not** ship `prebuilds/` inside the same tarball.
 
-| Package                                                                         | Role                                                                                                       |
-| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `@mindflight/ghostcrab-personal-mcp`                                                                                      | JS/CLI, docs, skills, `postinstall`; declares **optionalDependencies** on the six platform packages below |
+| Package                                                                                          | Role                                                                                                                                           |
+| ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@mindflight/ghostcrab-personal-mcp`                                                             | JS/CLI, docs, skills, `postinstall`; declares **optionalDependencies** on the six platform packages below                                      |
 | `…-linux-x64`, `…-linux-arm64`, `…-darwin-x64`, `…-darwin-arm64`, `…-win32-x64`, `…-win32-arm64` | One native build each: **`ghostcrab-backend`** (MCP server) + **`ghostcrab-document`** (MindBrain CLI for ontology/document/structured-import) |
 
 At **`npm install`**, the client tries to install the **optional** package matching the current OS/CPU. The root **`postinstall`** ([`bin/lib/postinstall-prebuilds.mjs`](bin/lib/postinstall-prebuilds.mjs)) locates that binary, fixes permissions / quarantine when needed, runs a small smoke (`gcp --help`, backend `--help`, `ghostcrab-document --help` when present). On success it may print **next steps** for IDE wiring (unless `GHOSTCRAB_POSTINSTALL_QUIET=1`):
@@ -31,9 +31,9 @@ Aligned with `package.json` **`files`**: `bin/`, `dist/`, `ghostcrab-skills/`, `
 
 ### Beta zip vs npm registry (two parallel channels)
 
-| Channel                               | What users get                                                                                                                                                                                                       |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **npmjs**                             | Install root → optional platform package from registry → `postinstall`                                                                                                                                               |
+| Channel                               | What users get                                                                                                                                                                                                                                                          |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **npmjs**                             | Install root → optional platform package from registry → `postinstall`                                                                                                                                                                                                  |
 | **Beta zip** (`pnpm run beta:bundle`) | Same seven `.tgz` files as local [`pack:local`](scripts/pack-local.mjs), plus **`install-beta.mjs`**, **`install-beta.ps1`**, **`lib/spawn-npm.mjs`**, tester **README** (from `docs/dev/beta_testers_readme.md`), **`INSTALL.md`**, Makefile helpers, `SHA256SUMS.txt` |
 
 The zip path stays **separate** from npm: offline testers, pre-registry validation, or teams that avoid the public registry. See [`docs/dev/npm_split_release_process.md`](docs/dev/npm_split_release_process.md).
@@ -358,30 +358,32 @@ Override with `GHOSTCRAB_CONFIG_DIR` env var.
 
 Override with `GHOSTCRAB_DATA_DIR` env var.
 
+# Séquence locale recommandée
 
+# Depuis /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp
 
-#  Séquence locale recommandée
+# 1. Refaire les prebuilds + build + dist-pack
 
-  # Depuis /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp
+pnpm run pack:local
 
-  # 1. Refaire les prebuilds + build + dist-pack
-  pnpm run pack:local
+# 2. Refaire le beta zip depuis dist-pack
 
-  # 2. Refaire le beta zip depuis dist-pack
-  pnpm run beta:bundle
+pnpm run beta:bundle
 
-  # 3. Réinstaller le beta dans l'installation locale en préservant data/ + .env
-  .cursor/skills/ghostcrab-mindbrain-dev/scripts/refresh-install.sh
+# 3. Réinstaller le beta dans l'installation locale en préservant data/ + .env
 
-  # 4. Réinstaller les skills Codex globaux depuis le package beta fraîchement installé
-  node /home/dlamotte/Documents/ghostcrab-personal-mcp/node_modules/@mindflight/ghostcrab-personal-mcp/bin/gcp.mjs brain setup codex --force-skills
+.cursor/skills/ghostcrab-mindbrain-dev/scripts/refresh-install.sh
 
-  Pour publier npmjs ensuite :
+# 4. Réinstaller les skills Codex globaux depuis le package beta fraîchement installé
 
-  pnpm run publish:npm-split
+node /home/dlamotte/Documents/ghostcrab-personal-mcp/node_modules/@mindflight/ghostcrab-personal-mcp/bin/gcp.mjs brain setup codex --force-skills
 
-  Pas besoin d’exporter NODE_AUTH_TOKEN si .env contient déjà NODE_AUTH_TOKEN=... ou NPM_TOKEN=.... Le script le lit automatiquement.
+Pour publier npmjs ensuite :
 
-  Si tu ne veux pas recompiler les prebuilds, remplace seulement la première commande par :
+pnpm run publish:npm-split
 
-  pnpm run pack:local:reuse-prebuilds
+Pas besoin d’exporter NODE_AUTH_TOKEN si .env contient déjà NODE_AUTH_TOKEN=... ou NPM_TOKEN=.... Le script le lit automatiquement.
+
+Si tu ne veux pas recompiler les prebuilds, remplace seulement la première commande par :
+
+pnpm run pack:local:reuse-prebuilds

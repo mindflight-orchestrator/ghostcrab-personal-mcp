@@ -12,7 +12,10 @@ import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { resolveGhostcrabConfig } from "../../src/config/env.js";
-import { createDatabaseClient, type DatabaseClient } from "../../src/db/client.js";
+import {
+  createDatabaseClient,
+  type DatabaseClient
+} from "../../src/db/client.js";
 import { loadRuntimeCapabilities } from "../../src/tools/business-query-router/loader.js";
 import { rankCapabilities } from "../../src/tools/business-query-router/matcher.js";
 import { normalizeBusinessQuestion } from "../../src/tools/business-query-router/normalizer.js";
@@ -30,7 +33,10 @@ const CAPABILITY_SEED_PATH = join(
 );
 
 const LIVE_ROUTE_MODES = new Set<RouteMode>(["live_answer_view", "live_query"]);
-const FALLBACK_ROUTE_MODES = new Set<RouteMode>(["gap_report", "clarification"]);
+const FALLBACK_ROUTE_MODES = new Set<RouteMode>([
+  "gap_report",
+  "clarification"
+]);
 
 let backendAvailable = false;
 let database: DatabaseClient;

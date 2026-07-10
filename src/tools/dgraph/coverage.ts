@@ -3,7 +3,6 @@ import { z } from "zod";
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import {
   createToolErrorFromException,
-  createToolErrorResult,
   createToolSuccessResult,
   registerTool,
   type ToolHandler

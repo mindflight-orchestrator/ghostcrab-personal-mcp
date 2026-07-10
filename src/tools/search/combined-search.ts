@@ -13,16 +13,23 @@ import {
 } from "../registry.js";
 
 const optionalNullableStringInput = z
-  .preprocess((value) => {
-    if (value === null) return undefined;
-    if (typeof value === "string") {
-      const normalized = value.trim().toLowerCase();
-      if (normalized === "" || normalized === "null" || normalized === "nil") {
-        return undefined;
+  .preprocess(
+    (value) => {
+      if (value === null) return undefined;
+      if (typeof value === "string") {
+        const normalized = value.trim().toLowerCase();
+        if (
+          normalized === "" ||
+          normalized === "null" ||
+          normalized === "nil"
+        ) {
+          return undefined;
+        }
       }
-    }
-    return value;
-  }, z.union([z.string().trim().min(1), z.undefined()]))
+      return value;
+    },
+    z.union([z.string().trim().min(1), z.undefined()])
+  )
   .optional();
 
 export const CombinedSearchInput = z.object({
@@ -73,7 +80,10 @@ type CombinedFact = {
   facets: Record<string, unknown>;
   id: string;
   linked_entity_ids: number[];
-  match_origin: "linked_graph_fact" | "facet_fallback" | "collection_facet_fallback";
+  match_origin:
+    | "linked_graph_fact"
+    | "facet_fallback"
+    | "collection_facet_fallback";
   schema_id: string;
   score: number;
   version: number;
@@ -560,7 +570,12 @@ async function resolveCollectionFacetTarget(args: {
   try {
     const tableId = await resolveFacetTableId(args.context, args.collectionId);
     if (tableId === undefined) {
-      return { resolution: "none", tableId: undefined, namespace: undefined, dimension: undefined };
+      return {
+        resolution: "none",
+        tableId: undefined,
+        namespace: undefined,
+        dimension: undefined
+      };
     }
 
     const rows = await args.context.database.query<{ facet_name: string }>(
@@ -576,13 +591,23 @@ async function resolveCollectionFacetTarget(args: {
 
     if (rows.length !== 1) {
       // Ambiguous (multiple posting-backed dimensions) or none: do not guess.
-      return { resolution: "none", tableId, namespace: undefined, dimension: undefined };
+      return {
+        resolution: "none",
+        tableId,
+        namespace: undefined,
+        dimension: undefined
+      };
     }
 
     const facetName = String(rows[0]?.facet_name ?? "");
     const dot = facetName.indexOf(".");
     if (dot <= 0 || dot >= facetName.length - 1) {
-      return { resolution: "none", tableId, namespace: undefined, dimension: undefined };
+      return {
+        resolution: "none",
+        tableId,
+        namespace: undefined,
+        dimension: undefined
+      };
     }
 
     return {
@@ -592,7 +617,12 @@ async function resolveCollectionFacetTarget(args: {
       dimension: facetName.slice(dot + 1)
     };
   } catch {
-    return { resolution: "none", tableId: undefined, namespace: undefined, dimension: undefined };
+    return {
+      resolution: "none",
+      tableId: undefined,
+      namespace: undefined,
+      dimension: undefined
+    };
   }
 }
 

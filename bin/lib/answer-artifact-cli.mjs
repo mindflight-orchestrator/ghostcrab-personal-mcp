@@ -157,46 +157,60 @@ export function parseArtifactArgs(args) {
   for (let i = 0; i < rest.length; i++) {
     const a = rest[i];
     if (a === "--workspace-id") {
-      if (!rest[i + 1]) return { error: "gcp brain artifact: --workspace-id requires a value." };
+      if (!rest[i + 1])
+        return {
+          error: "gcp brain artifact: --workspace-id requires a value."
+        };
       parsed.workspaceId = rest[++i];
       continue;
     }
     if (a === "--workspace" || a === "-w") {
-      if (!rest[i + 1]) return { error: "gcp brain artifact: --workspace requires a name." };
+      if (!rest[i + 1])
+        return { error: "gcp brain artifact: --workspace requires a name." };
       parsed.workspaceName = rest[++i];
       continue;
     }
     if (a === "--db") {
-      if (!rest[i + 1]) return { error: "gcp brain artifact: --db requires a path." };
+      if (!rest[i + 1])
+        return { error: "gcp brain artifact: --db requires a path." };
       parsed.sqlitePathFromCli = rest[++i];
       continue;
     }
     if (a === "--kind") {
-      if (!rest[i + 1]) return { error: "gcp brain artifact: --kind requires a value." };
+      if (!rest[i + 1])
+        return { error: "gcp brain artifact: --kind requires a value." };
       parsed.kind = rest[++i];
       continue;
     }
     if (a === "--agent-id") {
-      if (!rest[i + 1]) return { error: "gcp brain artifact: --agent-id requires a value." };
+      if (!rest[i + 1])
+        return { error: "gcp brain artifact: --agent-id requires a value." };
       parsed.agentId = rest[++i];
       continue;
     }
     if (a === "--scope") {
-      if (!rest[i + 1]) return { error: "gcp brain artifact: --scope requires a value." };
+      if (!rest[i + 1])
+        return { error: "gcp brain artifact: --scope requires a value." };
       parsed.scope = rest[++i];
       continue;
     }
     if (a === "--limit") {
-      if (!rest[i + 1]) return { error: "gcp brain artifact: --limit requires a number." };
+      if (!rest[i + 1])
+        return { error: "gcp brain artifact: --limit requires a number." };
       const n = Number(rest[++i]);
       if (!Number.isFinite(n) || n < 1) {
-        return { error: "gcp brain artifact: --limit must be a positive number." };
+        return {
+          error: "gcp brain artifact: --limit must be a positive number."
+        };
       }
       parsed.limit = n;
       continue;
     }
     if (a === "--url") {
-      if (!rest[i + 1]) return { error: "gcp brain artifact: --url requires a MindBrain base URL." };
+      if (!rest[i + 1])
+        return {
+          error: "gcp brain artifact: --url requires a MindBrain base URL."
+        };
       parsed.mindbrainUrl = rest[++i].replace(/\/$/, "");
       continue;
     }
@@ -222,7 +236,11 @@ export function parseArtifactArgs(args) {
     positional.push(a);
   }
 
-  if (subcommand === "get" || subcommand === "refresh" || subcommand === "events") {
+  if (
+    subcommand === "get" ||
+    subcommand === "refresh" ||
+    subcommand === "events"
+  ) {
     if (positional.length !== 1) {
       return {
         error: `gcp brain artifact ${subcommand}: requires exactly one <artifact_id>.`
@@ -231,16 +249,21 @@ export function parseArtifactArgs(args) {
     parsed.artifactId = positional[0];
   } else if (subcommand === "migrate") {
     if (positional.length > 0) {
-      return { error: "gcp brain artifact migrate: does not take positional arguments." };
+      return {
+        error: "gcp brain artifact migrate: does not take positional arguments."
+      };
     }
     if (parsed.dryRun === parsed.repair) {
       return {
-        error: "gcp brain artifact migrate: specify exactly one of --dry-run or --repair."
+        error:
+          "gcp brain artifact migrate: specify exactly one of --dry-run or --repair."
       };
     }
   } else if (subcommand === "list") {
     if (positional.length > 0) {
-      return { error: "gcp brain artifact list: does not take positional arguments." };
+      return {
+        error: "gcp brain artifact list: does not take positional arguments."
+      };
     }
   } else {
     return { error: `gcp brain artifact: unknown subcommand "${subcommand}".` };
@@ -332,7 +355,10 @@ export function normalizeArtifactEventsBody(body) {
  */
 export function buildArtifactSqlRequest(baseUrl, query) {
   return {
-    url: new URL("/api/mindbrain/sql", baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`),
+    url: new URL(
+      "/api/mindbrain/sql",
+      baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`
+    ),
     body: { sql: query.sql, params: query.params }
   };
 }

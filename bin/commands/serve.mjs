@@ -122,7 +122,9 @@ export async function runServe(args) {
   }
 
   if (dbPathFromCli && defaultDbFromCli) {
-    process.stderr.write("[ghostcrab] use either --db <path> or --default, not both\n");
+    process.stderr.write(
+      "[ghostcrab] use either --db <path> or --default, not both\n"
+    );
     process.exit(1);
   }
 
@@ -176,7 +178,10 @@ export async function runServe(args) {
   const envActiveWorkspaceId =
     process.env.GHOSTCRAB_ACTIVE_WORKSPACE_ID?.trim() || null;
   const effectiveWorkspaceName =
-    envActiveWorkspaceId ?? workspaceName ?? config.defaultWorkspace ?? "default";
+    envActiveWorkspaceId ??
+    workspaceName ??
+    config.defaultWorkspace ??
+    "default";
   const pinSource = envActiveWorkspaceId
     ? "env(GHOSTCRAB_ACTIVE_WORKSPACE_ID)"
     : workspaceName
@@ -227,7 +232,12 @@ export async function runServe(args) {
     try {
       const parsed = parsePidFile(readFileSync(pidFile, "utf8"));
       if (parsed) {
-        const { pid: existingPid, port: existingPort, version: storedVersion, fingerprint: storedFingerprint } = parsed;
+        const {
+          pid: existingPid,
+          port: existingPort,
+          version: storedVersion,
+          fingerprint: storedFingerprint
+        } = parsed;
         try {
           process.kill(existingPid, 0); // signal 0 = liveness probe
           const url = `http://127.0.0.1:${existingPort}`;

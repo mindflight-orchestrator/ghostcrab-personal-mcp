@@ -74,7 +74,7 @@ The drafts repeatedly describe GhostCrab as a SQLite ontology graph or SQLite-ba
 
 Preferred framing:
 
-> GhostCrab Personal runs locally with SQLite and exposes memory tools over MCP. SQLite belongs only in a short note about 
+> GhostCrab Personal runs locally with SQLite and exposes memory tools over MCP. SQLite belongs only in a short note about
 
 ### 6.3 Replace old commands and transports
 
@@ -208,7 +208,7 @@ An analyst agent writes a project summary. A writer agent starts a later run and
 
 Suggested wording:
 
-> This CrewAI guide focuses on GhostCrab Personal SQLite. Teams that need centralized SQLite deployment can later explore 
+> This CrewAI guide focuses on GhostCrab Personal SQLite. Teams that need centralized SQLite deployment can later explore
 
 Keep this as a single short note.
 

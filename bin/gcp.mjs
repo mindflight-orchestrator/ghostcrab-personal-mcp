@@ -190,9 +190,8 @@ async function printInfo() {
   const { dirname } = await import("node:path");
   const { fileURLToPath } = await import("node:url");
   const { getConfigPath, readConfig } = await import("./lib/cli-config.mjs");
-  const { resolveGhostcrabSqlite } = await import(
-    "./lib/resolve-ghostcrab-sqlite.mjs"
-  );
+  const { resolveGhostcrabSqlite } =
+    await import("./lib/resolve-ghostcrab-sqlite.mjs");
 
   const cliPath = fileURLToPath(import.meta.url);
   const { packageJsonPath, packageRoot, version, name } =

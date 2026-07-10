@@ -8,13 +8,13 @@ Separate **answerability** from **graph quality** from **answer artifacts**.
 
 ## Gap senses (not `artifact_kind`)
 
-| Code | Meaning | Tool / surface |
-| --- | --- | --- |
-| `answerability_gap` | Question not fully answerable yet | `ghostcrab-gap-auditor` skill |
-| `graph_data_gap` | Missing rule, evidence, topology, typing | `ghostcrab_graph_diagnostics` |
-| `graph_conflict` | Incompatible active facts (planned diagnostics) | diagnostics + `graph_knowledge_patch` |
-| `graph_gap_rule` | Declared closed-world validation rule | `graph_gap_rules` table |
-| `coverage_gap` | Ontology node not instantiated | `ghostcrab_coverage` |
+| Code                | Meaning                                         | Tool / surface                        |
+| ------------------- | ----------------------------------------------- | ------------------------------------- |
+| `answerability_gap` | Question not fully answerable yet               | `ghostcrab-gap-auditor` skill         |
+| `graph_data_gap`    | Missing rule, evidence, topology, typing        | `ghostcrab_graph_diagnostics`         |
+| `graph_conflict`    | Incompatible active facts (planned diagnostics) | diagnostics + `graph_knowledge_patch` |
+| `graph_gap_rule`    | Declared closed-world validation rule           | `graph_gap_rules` table               |
+| `coverage_gap`      | Ontology node not instantiated                  | `ghostcrab_coverage`                  |
 
 ## `answerability_gap` subtypes (gap-auditor)
 

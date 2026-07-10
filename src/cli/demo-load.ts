@@ -232,12 +232,7 @@ async function ensureRememberEntry(
         )
       LIMIT 1
     `,
-    [
-      entry.schema_id,
-      entry.content,
-      JSON.stringify(entry.facets),
-      workspaceId
-    ]
+    [entry.schema_id, entry.content, JSON.stringify(entry.facets), workspaceId]
   );
 
   if (existing) {
@@ -656,7 +651,8 @@ export async function loadDemoProfile(
 
 /** Load a portable demo profile into the configured MindBrain backend. */
 export async function runDemoLoad(argv: string[]): Promise<void> {
-  const { profileId, skillsRepoRoot, profileFile, workspaceId } = parseArgs(argv);
+  const { profileId, skillsRepoRoot, profileFile, workspaceId } =
+    parseArgs(argv);
   const config = resolveGhostcrabConfig();
   const database = createDatabaseClient(config);
 
@@ -674,7 +670,13 @@ export async function runDemoLoad(argv: string[]): Promise<void> {
       `[ghostcrab] Loading demo profile ${resolvedProfileId} into workspace ${resolvedWorkspaceId} from ${profileFile ?? path.join(skillsRepoRoot, "shared", "demo-profiles", `${profileId}.jsonl`)} against ${config.mindbrainUrl}`
     );
     const summary = await database.transaction((queryable) =>
-      loadDemoProfile(config, queryable, entries, resolvedProfileId, resolvedWorkspaceId)
+      loadDemoProfile(
+        config,
+        queryable,
+        entries,
+        resolvedProfileId,
+        resolvedWorkspaceId
+      )
     );
 
     console.error(

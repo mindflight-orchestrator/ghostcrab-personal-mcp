@@ -62,7 +62,9 @@ export async function cmdInit(args) {
     console.log(`  Config : ${getConfigPath()}`);
     console.log(`  SQLite : ${sqlitePath}`);
     if (ws?.sqlitePath) {
-      console.log(`  Legacy SQLite path ignored for brain up: ${ws.sqlitePath}`);
+      console.log(
+        `  Legacy SQLite path ignored for brain up: ${ws.sqlitePath}`
+      );
     }
     console.log(``);
     printMcpSnippet(workspaceName, sqlitePath);

@@ -20,9 +20,11 @@ import { fileURLToPath } from "node:url";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const skillsRoot =
-  process.env.GHOSTCRAB_SKILLS_SOURCE_ROOT ?? join(repoRoot, "ghostcrab-skills");
+  process.env.GHOSTCRAB_SKILLS_SOURCE_ROOT ??
+  join(repoRoot, "ghostcrab-skills");
 const outRoot =
-  process.env.GHOSTCRAB_IDE_SKILLS_OUT_ROOT ?? join(repoRoot, "bin", "ide-skills");
+  process.env.GHOSTCRAB_IDE_SKILLS_OUT_ROOT ??
+  join(repoRoot, "bin", "ide-skills");
 const generatedAt =
   process.env.GHOSTCRAB_IDE_SKILLS_GENERATED_AT ?? new Date().toISOString();
 
@@ -206,11 +208,7 @@ function syncCursor() {
   rmSync(join(outRoot, "cursor"), { recursive: true, force: true });
   for (const name of SKILL_NAMES) {
     const dest = join(outRoot, "cursor", "skills", name);
-    copyTree(
-      join(skillsRoot, "skills", name),
-      dest,
-      "skill"
-    );
+    copyTree(join(skillsRoot, "skills", name), dest, "skill");
     rmSync(join(dest, "agents"), { recursive: true, force: true });
   }
 }
@@ -239,16 +237,16 @@ function syncClaudeCode() {
 
   const readmeSrc = join(skillsRoot, "claude-code", "self-memory", "README.md");
   if (existsSync(readmeSrc)) {
-    copyTextFile(readmeSrc, join(selfMem, "README.install.md"), "claude-starter");
+    copyTextFile(
+      readmeSrc,
+      join(selfMem, "README.install.md"),
+      "claude-starter"
+    );
   }
 
   for (const name of SKILL_NAMES) {
     const dest = join(outRoot, "claude-code", "skills", name);
-    copyTree(
-      join(skillsRoot, "skills", name),
-      dest,
-      "skill"
-    );
+    copyTree(join(skillsRoot, "skills", name), dest, "skill");
     rmSync(join(dest, "agents"), { recursive: true, force: true });
   }
 }
@@ -257,11 +255,7 @@ function syncCodex() {
   rmSync(join(outRoot, "codex"), { recursive: true, force: true });
   for (const name of SKILL_NAMES) {
     const dest = join(outRoot, "codex", "skills", name);
-    copyTree(
-      join(skillsRoot, "skills", name),
-      dest,
-      "skill"
-    );
+    copyTree(join(skillsRoot, "skills", name), dest, "skill");
     ensureCodexManualInvocation(dest);
   }
 }

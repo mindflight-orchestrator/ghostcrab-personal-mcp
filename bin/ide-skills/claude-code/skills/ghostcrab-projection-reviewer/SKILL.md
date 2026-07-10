@@ -15,11 +15,11 @@ Resolve `{starterkit}` via [STARTERKIT_PATHS.md](../ghostcrab-shared/STARTERKIT_
 
 ## Types (Personal SQLite)
 
-| Label | `artifact_kind` | Storage | Tools |
-| --- | --- | --- | --- |
-| Working memory | `analysis_plan` | table `projections` | `ghostcrab_projections_list`, `ghostcrab_project`, `ghostcrab_pack` |
-| Frozen report | `answer_snapshot` | `graph_entity` (`ProjectionResult`) | `ghostcrab_projections_list`, `ghostcrab_projection_get` |
-| Live view | `live_answer_view` | `mindbrain_answer_artifacts` | `ghostcrab_projections_list`, `ghostcrab_artifact_get`, `ghostcrab_live_refresh` |
+| Label          | `artifact_kind`    | Storage                             | Tools                                                                            |
+| -------------- | ------------------ | ----------------------------------- | -------------------------------------------------------------------------------- |
+| Working memory | `analysis_plan`    | table `projections`                 | `ghostcrab_projections_list`, `ghostcrab_project`, `ghostcrab_pack`              |
+| Frozen report  | `answer_snapshot`  | `graph_entity` (`ProjectionResult`) | `ghostcrab_projections_list`, `ghostcrab_projection_get`                         |
+| Live view      | `live_answer_view` | `mindbrain_answer_artifacts`        | `ghostcrab_projections_list`, `ghostcrab_artifact_get`, `ghostcrab_live_refresh` |
 
 Graph live queries are **not** projections — use `ghostcrab_graph_search`, `ghostcrab_traverse`.
 

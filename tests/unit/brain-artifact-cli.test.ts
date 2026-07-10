@@ -4,7 +4,9 @@ import { __private__ } from "../../bin/commands/brain-artifact.mjs";
 
 describe("gcp brain artifact command helpers", () => {
   it("re-exports parseArtifactArgs from shared lib", () => {
-    expect(__private__.parseArtifactArgs(["list", "--kind", "analysis_plan"])).toMatchObject({
+    expect(
+      __private__.parseArtifactArgs(["list", "--kind", "analysis_plan"])
+    ).toMatchObject({
       subcommand: "list",
       kind: "analysis_plan"
     });
@@ -16,12 +18,7 @@ describe("gcp brain artifact command helpers", () => {
         dryRun: false,
         repair: true
       })
-    ).toEqual([
-      "artifact-migrate",
-      "--db",
-      "/tmp/brain.sqlite",
-      "--repair"
-    ]);
+    ).toEqual(["artifact-migrate", "--db", "/tmp/brain.sqlite", "--repair"]);
   });
 
   it("prints refresh help with exact-id, no-wildcard, and 405 guidance", () => {
