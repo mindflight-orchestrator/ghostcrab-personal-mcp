@@ -62,7 +62,8 @@ function maybeReexecWithNvmNode22() {
     .join(" ");
   const command = [
     `source ${shellQuote(nvmScript)}`,
-    "nvm use 22 >/dev/null",
+    "unset npm_config_prefix NPM_CONFIG_PREFIX",
+    "nvm use --delete-prefix 22 --silent >/dev/null",
     `exec node ${nodeArgs}`
   ].join(" && ");
 
