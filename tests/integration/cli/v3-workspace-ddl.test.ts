@@ -77,7 +77,9 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
 
   beforeEach(async ({ skip }) => {
     if (!backendReachable) {
-      skip("Integration backend unavailable; skipping V3 Plan B integration tests.");
+      skip(
+        "Integration backend unavailable; skipping V3 Plan B integration tests."
+      );
       return;
     }
   });
@@ -126,7 +128,7 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
   it("unique index on (source_ref, workspace_id) exists", async () => {
     const rows = await harness.database.query<{ name: string }>(
       `SELECT name FROM sqlite_master
-       WHERE type = 'index' AND name = 'idx_agent_facts_source_ref_workspace'`
+       WHERE type = 'index' AND name = 'agent_facts_source_ref_workspace_uniq'`
     );
     expect(rows).toHaveLength(1);
   });
@@ -149,9 +151,10 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
       [sourceRefSchemaId]
     );
     expect(rows.length).toBeGreaterThanOrEqual(2);
-    await harness.database.query(`DELETE FROM agent_facts WHERE schema_id = $1`, [
-      sourceRefSchemaId
-    ]);
+    await harness.database.query(
+      `DELETE FROM agent_facts WHERE schema_id = $1`,
+      [sourceRefSchemaId]
+    );
   });
 
   it("source_ref contract: two synced rows with same (source_ref, workspace_id) are rejected", async () => {
@@ -168,9 +171,10 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
         [sourceRefSchemaId, refDup]
       )
     ).rejects.toThrow();
-    await harness.database.query(`DELETE FROM agent_facts WHERE schema_id = $1`, [
-      sourceRefSchemaId
-    ]);
+    await harness.database.query(
+      `DELETE FROM agent_facts WHERE schema_id = $1`,
+      [sourceRefSchemaId]
+    );
   });
 
   it("source_ref contract: same source_ref on different workspaces is allowed", async () => {
@@ -193,9 +197,10 @@ describe.sequential("V3 Plan B integration — workspace + DDL lifecycle", () =>
       [sourceRefSchemaId, refCross]
     );
     expect(rows).toHaveLength(2);
-    await harness.database.query(`DELETE FROM agent_facts WHERE schema_id = $1`, [
-      sourceRefSchemaId
-    ]);
+    await harness.database.query(
+      `DELETE FROM agent_facts WHERE schema_id = $1`,
+      [sourceRefSchemaId]
+    );
     await harness.database.query(
       `DELETE FROM workspaces WHERE id IN ($1, $2)`,
       [ws1, ws2]

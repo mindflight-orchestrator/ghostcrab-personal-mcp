@@ -1,5 +1,10 @@
 # Immeuble — exemple canonique GhostCrab
 
+> Ownership note: the npm-published canonical demo now lives in
+> `../mindbrain-personal-studio/examples/immeuble`. This local GhostCrab tree is
+> kept as a development compatibility fixture for existing import, ontology, and
+> regression tests. Do not treat it as the package-distribution source of truth.
+
 Unique domain example for the GhostCrab Personal methodology. Structure mirrors [MVP_Serenity_2](https://github.com/mindflight-orchestrator/ghostcrab-personal-mcp) (model → CSV → import_ready → reports → bundle).
 
 **Workspace:** `immeuble`  
@@ -28,17 +33,21 @@ npm run immeuble:reset -- --db /tmp/immeuble-test/immeuble.sqlite  # workspace p
 ```
 
 Pour le mode live (backend+snapshots), il existe un wrapper dédié :
+
 ```bash
 npm run immeuble:backend:run -- \
   --db /tmp/immeuble-lab/immeuble.sqlite \
   --ready-timeout 40
 ```
+
 Ou directement :
+
 ```bash
 bash examples/immeuble/scripts/run-immeuble-backend.sh \
   --db /tmp/immeuble-lab/immeuble.sqlite \
   --ready-timeout 40
 ```
+
 Il lance le binaire `ghostcrab-backend` en standalone HTTP (via `env GHOSTCRAB_*=...`),
 retourne `BACKEND_PID`, `BACKEND_URL` et `BACKEND_LOG`, puis laisse le processus tourner.
 
@@ -64,6 +73,7 @@ bash examples/immeuble/scripts/run-immeuble-live-lab.sh \
 ```
 
 Le script :
+
 - démarre le backend local `ghostcrab-backend` en mode standalone HTTP (`:8091` par défaut),
 - exécute les étapes `build → projection_plan → import → artifact_seed → audit (StarterKit) → verify → live_verify` (et `bundle` si demandé),
 - fait un snapshot SQLite après chaque étape (`.sqlite`, `-.wal`, `-.shm` quand présents),
@@ -93,18 +103,18 @@ npm run immeuble:compare:snapshots -- \
 
 ## Layout
 
-| Path | Role |
-|------|------|
-| [`sources/documents/`](sources/documents/) | Raw markdown corpus (Tilleuls / Érables narrative) |
-| [`sources/agent-prompts/`](sources/agent-prompts/) | Optional agent reconstruction prompts |
-| [`model/immeuble_model.json`](model/immeuble_model.json) | Global entity/edge contract |
-| [`contracts/`](contracts/) | Mapping, consumer contract, projection catalog, answer seeds |
-| [`fake_data/`](fake_data/) | One CSV per entity type (generated) |
-| [`import_ready/`](import_ready/) | `mfo_facets_import.csv` + `graph_edges_import.csv` |
-| [`reports/`](reports/) | Step checkpoints (JSON/JSONL) |
-| [`bundle/immeuble.bundle.json`](bundle/immeuble.bundle.json) | Importable workspace snapshot |
-| [`gap-rules/`](gap-rules/) | Gap diagnostics curriculum (optional) |
-| [`scripts/`](scripts/) | Build, import, audit runners |
+| Path                                                         | Role                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`sources/documents/`](sources/documents/)                   | Raw markdown corpus (Tilleuls / Érables narrative)           |
+| [`sources/agent-prompts/`](sources/agent-prompts/)           | Optional agent reconstruction prompts                        |
+| [`model/immeuble_model.json`](model/immeuble_model.json)     | Global entity/edge contract                                  |
+| [`contracts/`](contracts/)                                   | Mapping, consumer contract, projection catalog, answer seeds |
+| [`fake_data/`](fake_data/)                                   | One CSV per entity type (generated)                          |
+| [`import_ready/`](import_ready/)                             | `mfo_facets_import.csv` + `graph_edges_import.csv`           |
+| [`reports/`](reports/)                                       | Step checkpoints (JSON/JSONL)                                |
+| [`bundle/immeuble.bundle.json`](bundle/immeuble.bundle.json) | Importable workspace snapshot                                |
+| [`gap-rules/`](gap-rules/)                                   | Gap diagnostics curriculum (optional)                        |
+| [`scripts/`](scripts/)                                       | Build, import, audit runners                                 |
 
 ## Methodology
 

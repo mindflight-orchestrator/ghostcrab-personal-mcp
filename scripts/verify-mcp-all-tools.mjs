@@ -3,10 +3,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 
 import { loadToolManifestFromDist } from "./load-tool-manifest.mjs";
-import {
-  listTools,
-  withSmokeClient
-} from "./mcp-smoke-shared.mjs";
+import { listTools, withSmokeClient } from "./mcp-smoke-shared.mjs";
 
 const { manifest } = loadToolManifestFromDist();
 const runId = randomUUID().slice(0, 8);
@@ -36,7 +33,10 @@ function gapRule(ruleId) {
 }
 
 const smokeCalls = [
-  ["ghostcrab_workspace_create", { id: workspaceId, label: "MCP all-tools smoke" }],
+  [
+    "ghostcrab_workspace_create",
+    { id: workspaceId, label: "MCP all-tools smoke" }
+  ],
   ["ghostcrab_workspace_use", { workspace_id: workspaceId }],
   ["ghostcrab_status", { agent_id: "verify:mcp-all-tools" }],
   ["ghostcrab_workspace_list", {}],
@@ -52,7 +52,11 @@ const smokeCalls = [
   ],
   [
     "ghostcrab_loadout_seed",
-    { workspace_id: workspaceId, loadout_id: loadoutId, persist_semantics: false }
+    {
+      workspace_id: workspaceId,
+      loadout_id: loadoutId,
+      persist_semantics: false
+    }
   ],
   [
     "ghostcrab_ontology_import",
@@ -66,10 +70,17 @@ const smokeCalls = [
     }
   ],
   ["ghostcrab_ontology_list", { workspace_id: workspaceId }],
-  ["ghostcrab_ontology_reconcile_report", { workspace_id: workspaceId, limit: 5 }],
+  [
+    "ghostcrab_ontology_reconcile_report",
+    { workspace_id: workspaceId, limit: 5 }
+  ],
   [
     "ghostcrab_ontology_reconcile_apply",
-    { workspace_id: workspaceId, ontology_id: ontologyId, overwrite_custom: false }
+    {
+      workspace_id: workspaceId,
+      ontology_id: ontologyId,
+      overwrite_custom: false
+    }
   ],
   [
     "ghostcrab_schema_register",
@@ -84,8 +95,14 @@ const smokeCalls = [
   ],
   ["ghostcrab_schema_list", { target: "all", summary_only: true }],
   ["ghostcrab_schema_get", { workspace_id: workspaceId, schema_id: schemaId }],
-  ["ghostcrab_schema_inspect", { workspace_id: workspaceId, schema_id: schemaId }],
-  ["ghostcrab_schema_sync_preview", { workspace_id: workspaceId, schema_id: schemaId }],
+  [
+    "ghostcrab_schema_inspect",
+    { workspace_id: workspaceId, schema_id: schemaId }
+  ],
+  [
+    "ghostcrab_schema_sync_preview",
+    { workspace_id: workspaceId, schema_id: schemaId }
+  ],
   [
     "ghostcrab_schema_sync_apply",
     {
@@ -108,7 +125,10 @@ const smokeCalls = [
     }
   ],
   ["ghostcrab_facet_catalog", {}],
-  ["ghostcrab_facet_inspect", { workspace_id: workspaceId, facet_name: facetName }],
+  [
+    "ghostcrab_facet_inspect",
+    { workspace_id: workspaceId, facet_name: facetName }
+  ],
   [
     "ghostcrab_facet_validate",
     {
@@ -141,11 +161,36 @@ const smokeCalls = [
     }
   ],
   ["ghostcrab_search", { workspace_id: workspaceId, query: "smoke", limit: 1 }],
-  ["ghostcrab_csearch", { workspace_id: workspaceId, query: "smoke", limit: 1 }],
-  ["ghostcrab_combined_search", { workspace_id: workspaceId, query: "smoke", limit: 1 }],
-  ["ghostcrab_collection_facet_search", { workspace_id: workspaceId, collection_id: "default", facets: {}, limit: 1 }],
-  ["ghostcrab_count", { workspace_id: workspaceId, schema_id: schemaId, group_by: ["status"] }],
-  ["ghostcrab_pack", { workspace_id: workspaceId, agent_id: "verify:mcp-all-tools", query: "smoke", limit: 1 }],
+  [
+    "ghostcrab_csearch",
+    { workspace_id: workspaceId, query: "smoke", limit: 1 }
+  ],
+  [
+    "ghostcrab_combined_search",
+    { workspace_id: workspaceId, query: "smoke", limit: 1 }
+  ],
+  [
+    "ghostcrab_collection_facet_search",
+    {
+      workspace_id: workspaceId,
+      collection_id: "default",
+      facets: {},
+      limit: 1
+    }
+  ],
+  [
+    "ghostcrab_count",
+    { workspace_id: workspaceId, schema_id: schemaId, group_by: ["status"] }
+  ],
+  [
+    "ghostcrab_pack",
+    {
+      workspace_id: workspaceId,
+      agent_id: "verify:mcp-all-tools",
+      query: "smoke",
+      limit: 1
+    }
+  ],
   [
     "ghostcrab_project",
     {
@@ -156,13 +201,29 @@ const smokeCalls = [
       agent_id: "verify:mcp-all-tools"
     }
   ],
-  ["ghostcrab_projections_list", { workspace_id: workspaceId, agent_id: "verify:mcp-all-tools", limit: 1 }],
-  ["ghostcrab_projection_get", { workspace_id: workspaceId, collection_id: "registry", projection_id: "missing" }],
+  [
+    "ghostcrab_projections_list",
+    { workspace_id: workspaceId, agent_id: "verify:mcp-all-tools", limit: 1 }
+  ],
+  [
+    "ghostcrab_projection_get",
+    {
+      workspace_id: workspaceId,
+      collection_id: "registry",
+      projection_id: "missing"
+    }
+  ],
   ["ghostcrab_artifact_get", { artifact_id: "missing" }],
   ["ghostcrab_live_refresh", { artifact_id: "missing" }],
-  ["ghostcrab_modeling_guidance", { goal: "model a smoke workspace", detail: "brief" }],
+  [
+    "ghostcrab_modeling_guidance",
+    { goal: "model a smoke workspace", detail: "brief" }
+  ],
   ["ghostcrab_tool_search", { query: "workspace", limit: 5 }],
-  ["ghostcrab_business_query_answer", { workspace_id: workspaceId, question: "What changed?", dry_run: true }],
+  [
+    "ghostcrab_business_query_answer",
+    { workspace_id: workspaceId, question: "What changed?", dry_run: true }
+  ],
   [
     "ghostcrab_business_query_register",
     {
@@ -171,15 +232,53 @@ const smokeCalls = [
       accepted_by: "verify:mcp-all-tools"
     }
   ],
-  ["ghostcrab_learn", { workspace_id: workspaceId, node: { id: `smoke-node-${runId}`, node_type: "unit", label: "Smoke Unit" } }],
-  ["ghostcrab_graph_search", { workspace_id: workspaceId, query: "Smoke", include_relations: true, limit: 5 }],
-  ["ghostcrab_graph_path", { workspace_id: workspaceId, source: `smoke-node-${runId}`, target: `smoke-node-${runId}`, max_depth: 2 }],
-  ["ghostcrab_graph_subgraph", { workspace_id: workspaceId, seed_ids: [1], hops: 1 }],
-  ["ghostcrab_traverse", { workspace_id: workspaceId, start: `smoke-node-${runId}`, depth: 1 }],
-  ["ghostcrab_entity_chunks", { workspace_id: workspaceId, entity_id: 1, limit: 1 }],
+  [
+    "ghostcrab_learn",
+    {
+      workspace_id: workspaceId,
+      node: {
+        id: `smoke-node-${runId}`,
+        node_type: "unit",
+        label: "Smoke Unit"
+      }
+    }
+  ],
+  [
+    "ghostcrab_graph_search",
+    {
+      workspace_id: workspaceId,
+      query: "Smoke",
+      include_relations: true,
+      limit: 5
+    }
+  ],
+  [
+    "ghostcrab_graph_path",
+    {
+      workspace_id: workspaceId,
+      source: `smoke-node-${runId}`,
+      target: `smoke-node-${runId}`,
+      max_depth: 2
+    }
+  ],
+  [
+    "ghostcrab_graph_subgraph",
+    { workspace_id: workspaceId, seed_ids: [1], hops: 1 }
+  ],
+  [
+    "ghostcrab_traverse",
+    { workspace_id: workspaceId, start: `smoke-node-${runId}`, depth: 1 }
+  ],
+  [
+    "ghostcrab_entity_chunks",
+    { workspace_id: workspaceId, entity_id: 1, limit: 1 }
+  ],
   ["ghostcrab_coverage", { workspace_id: workspaceId, domain: workspaceId }],
   ["ghostcrab_graph_reindex", { workspace_id: workspaceId }],
-  ["ghostcrab_collection_reindex", { workspace_id: workspaceId, collection_id: "default", table_id: 1 }],
+  [
+    "ghostcrab_collection_reindex",
+    { workspace_id: workspaceId, collection_id: "default", table_id: 1 }
+  ],
   ["ghostcrab_reindex_all", { workspace_id: workspaceId }],
   ["ghostcrab_graph_gap_rules", { workspace_id: workspaceId }],
   [
@@ -192,20 +291,40 @@ const smokeCalls = [
     }
   ],
   ["ghostcrab_graph_diagnostics", { workspace_id: workspaceId, limit: 10 }],
-  ["ghostcrab_graph_rule_evaluations_run", { workspace_id: workspaceId, limit: 10, create_remediation_actions: false }],
-  ["ghostcrab_graph_rule_evaluations", { workspace_id: workspaceId, limit: 10 }],
+  [
+    "ghostcrab_graph_rule_evaluations_run",
+    { workspace_id: workspaceId, limit: 10, create_remediation_actions: false }
+  ],
+  [
+    "ghostcrab_graph_rule_evaluations",
+    { workspace_id: workspaceId, limit: 10 }
+  ],
   ["ghostcrab_graph_rule_events", { workspace_id: workspaceId, limit: 10 }],
   [
     "ghostcrab_graph_gap_rules_delete",
-    { workspace_id: workspaceId, ontology_id: ontologyId, rule_ids: [`smoke-owner-${runId}`] }
+    {
+      workspace_id: workspaceId,
+      ontology_id: ontologyId,
+      rule_ids: [`smoke-owner-${runId}`]
+    }
   ],
-  ["ghostcrab_quality_convergence_run", { workspace_id: workspaceId, persist: false, limit: 10 }],
-  ["ghostcrab_quality_convergence_list", { workspace_id: workspaceId, limit: 5 }],
+  [
+    "ghostcrab_quality_convergence_run",
+    { workspace_id: workspaceId, persist: false, limit: 10 }
+  ],
+  [
+    "ghostcrab_quality_convergence_list",
+    { workspace_id: workspaceId, limit: 5 }
+  ],
   ["ghostcrab_quality_convergence_get", { run_id: "missing" }],
   ["ghostcrab_quality_remediation_actions", { run_id: "missing" }],
   [
     "ghostcrab_quality_remediation_decide",
-    { action_id: "missing", decision: "rejected", actor: "verify:mcp-all-tools" }
+    {
+      action_id: "missing",
+      decision: "rejected",
+      actor: "verify:mcp-all-tools"
+    }
   ],
   [
     "ghostcrab_quality_remediation_apply",
@@ -220,9 +339,15 @@ const smokeCalls = [
     }
   ],
   ["ghostcrab_ddl_list_pending", { workspace_id: workspaceId }],
-  ["ghostcrab_ddl_execute", { migration_id: "00000000-0000-0000-0000-000000000000" }],
+  [
+    "ghostcrab_ddl_execute",
+    { migration_id: "00000000-0000-0000-0000-000000000000" }
+  ],
   ["ghostcrab_workspace_reset", { workspace_id: workspaceId, confirm: true }],
-  ["ghostcrab_workspace_delete", { workspace_id: workspaceId, confirm: true, mode: "hard" }]
+  [
+    "ghostcrab_workspace_delete",
+    { workspace_id: workspaceId, confirm: true, mode: "hard" }
+  ]
 ];
 
 const terminalBackendCodes = new Set([
@@ -235,7 +360,14 @@ const terminalBackendCodes = new Set([
   "tool_execution_error"
 ]);
 
-const timeoutMs = Number.parseInt(process.env.MCP_SMOKE_TIMEOUT_MS ?? "10000", 10);
+const acceptedToolErrorCodes = new Map([
+  ["ghostcrab_quality_remediation_decide", new Set(["backend_not_found"])]
+]);
+
+const timeoutMs = Number.parseInt(
+  process.env.MCP_SMOKE_TIMEOUT_MS ?? "10000",
+  10
+);
 
 async function callToolAny(client, name, args) {
   const result = await withTimeout(
@@ -248,7 +380,14 @@ async function callToolAny(client, name, args) {
   const textItem = result.content?.find((item) => item.type === "text");
   if (!textItem) {
     return result.isError
-      ? { ok: false, tool: name, error: { code: "empty_error", message: "Tool returned an empty error result." } }
+      ? {
+          ok: false,
+          tool: name,
+          error: {
+            code: "empty_error",
+            message: "Tool returned an empty error result."
+          }
+        }
       : { ok: true, tool: name, output_format: "empty" };
   }
 
@@ -278,7 +417,10 @@ async function withTimeout(promise, timeout, label) {
   let timeoutId;
   const timeoutPromise = new Promise((_, reject) => {
     timeoutId = setTimeout(
-      () => reject(new Error(`Timed out while waiting for ${label} after ${timeout}ms`)),
+      () =>
+        reject(
+          new Error(`Timed out while waiting for ${label} after ${timeout}ms`)
+        ),
       timeout
     );
   });
@@ -305,6 +447,10 @@ function compareNames(actual, expected, label) {
       `${label} mismatch: missing=${JSON.stringify(e.filter((name) => !actualSet.has(name)))} extra=${JSON.stringify(a.filter((name) => !expectedSet.has(name)))}`
     );
   }
+}
+
+function acceptsDomainError(toolName, code) {
+  return acceptedToolErrorCodes.get(toolName)?.has(code) === true;
 }
 
 const smokeNames = smokeCalls.map(([name]) => name);
@@ -335,7 +481,7 @@ await withSmokeClient("verify-mcp-all-tools", async ({ client }) => {
       code,
       message: String(payload?.error?.message ?? "")
     };
-    if (terminalBackendCodes.has(code)) {
+    if (terminalBackendCodes.has(code) && !acceptsDomainError(name, code)) {
       report.ok = false;
       report.failures.push(entry);
     } else {

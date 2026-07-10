@@ -9,10 +9,18 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
-const demoRoot = join(pkgRoot, "examples", "immeuble", "structured-import");
+const demoRoot = join(pkgRoot, "examples", "immeuble");
 const goldenPath = join(demoRoot, "contracts", "semantic_proposal.golden.json");
-const model = join(demoRoot, "contracts", "immeuble_structured_import_model.json");
-const mapping = join(demoRoot, "contracts", "mapping_external_to_canonical.json");
+const model = join(
+  demoRoot,
+  "contracts",
+  "immeuble_structured_import_model.json"
+);
+const mapping = join(
+  demoRoot,
+  "contracts",
+  "mapping_external_to_canonical.json"
+);
 const engine = join(
   pkgRoot,
   "vendor",
@@ -33,7 +41,11 @@ if (res.status !== 0) {
 }
 
 const golden = JSON.parse(readFileSync(goldenPath, "utf8"));
-const actualLine = res.stdout.trim().split("\n").find((l) => l.startsWith("{")) ?? res.stdout.trim();
+const actualLine =
+  res.stdout
+    .trim()
+    .split("\n")
+    .find((l) => l.startsWith("{")) ?? res.stdout.trim();
 const actual = JSON.parse(actualLine);
 
 function assertArray(name, g, a) {
@@ -46,11 +58,21 @@ function assertArray(name, g, a) {
 }
 
 assertArray("table_semantics", golden.table_semantics, actual.table_semantics);
-assertArray("column_semantics", golden.column_semantics, actual.column_semantics);
-assertArray("relation_semantics", golden.relation_semantics, actual.relation_semantics);
+assertArray(
+  "column_semantics",
+  golden.column_semantics,
+  actual.column_semantics
+);
+assertArray(
+  "relation_semantics",
+  golden.relation_semantics,
+  actual.relation_semantics
+);
 assertArray("source_mappings", golden.source_mappings, actual.source_mappings);
 
-const sample = actual.table_semantics.find((t) => t.table_name === "copropriete");
+const sample = actual.table_semantics.find(
+  (t) => t.table_name === "copropriete"
+);
 if (!sample?.notes?.includes("schema_id")) {
   throw new Error("copropriete table notes missing schema_id");
 }

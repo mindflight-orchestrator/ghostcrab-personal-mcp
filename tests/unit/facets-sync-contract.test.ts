@@ -22,12 +22,6 @@ describe("sqlite_mindbrain--1.0.0.sql — facets sync contract", () => {
     expect(sql).toContain("source_ref TEXT");
   });
 
-  it("creates a plain index on source_ref WHERE NOT NULL", async () => {
-    const sql = await loadCanonicalSql();
-    expect(sql).toContain("agent_facts_source_ref_idx");
-    expect(sql).toContain("WHERE source_ref IS NOT NULL");
-  });
-
   it("creates a UNIQUE partial index on (source_ref, workspace_id)", async () => {
     const sql = await loadCanonicalSql();
     expect(sql).toContain("agent_facts_source_ref_workspace_uniq");
@@ -41,6 +35,11 @@ describe("sqlite_mindbrain--1.0.0.sql — facets sync contract", () => {
       sql.indexOf("agent_facts_source_ref_workspace_uniq")
     );
     expect(uniqueIndexBlock).toContain("WHERE source_ref IS NOT NULL");
+  });
+
+  it("does not require the legacy duplicate source_ref workspace index", async () => {
+    const sql = await loadCanonicalSql();
+    expect(sql).not.toContain("idx_agent_facts_source_ref_workspace");
   });
 
   it("does NOT use NOT NULL on source_ref column (historical rows compat)", async () => {

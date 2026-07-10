@@ -204,6 +204,10 @@ export async function deleteWorkspaceProjectionsData(
   artifactIdPrefix?: string
 ): Promise<void> {
   await database.query(
+    `DELETE FROM mindbrain_answer_events WHERE artifact_id LIKE $1`,
+    [artifactIdPrefix ? `${artifactIdPrefix}%` : `%${workspaceId}%`]
+  );
+  await database.query(
     `
       DELETE FROM graph_relation
       WHERE workspace_id = $1
@@ -233,8 +237,4 @@ export async function deleteWorkspaceProjectionsData(
       [workspaceId]
     );
   }
-  await database.query(
-    `DELETE FROM mindbrain_answer_events WHERE artifact_id LIKE $1`,
-    [artifactIdPrefix ? `${artifactIdPrefix}%` : `%${workspaceId}%`]
-  );
 }
