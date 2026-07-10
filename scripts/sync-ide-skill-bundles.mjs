@@ -25,8 +25,11 @@ const skillsRoot =
 const outRoot =
   process.env.GHOSTCRAB_IDE_SKILLS_OUT_ROOT ??
   join(repoRoot, "bin", "ide-skills");
+const manifestPath = join(outRoot, "manifest.json");
 const generatedAt =
-  process.env.GHOSTCRAB_IDE_SKILLS_GENERATED_AT ?? new Date().toISOString();
+  process.env.GHOSTCRAB_IDE_SKILLS_GENERATED_AT ??
+  readExistingGeneratedAt(manifestPath) ??
+  new Date().toISOString();
 
 const SKILL_NAMES = [
   "ghostcrab-memory",
@@ -185,6 +188,17 @@ function collectFiles(dir, prefix = "") {
     }
   }
   return files.sort();
+}
+
+/** @param {string} path */
+function readExistingGeneratedAt(path) {
+  if (!existsSync(path)) return null;
+  try {
+    const value = JSON.parse(readFileSync(path, "utf8"))?.generated_at;
+    return typeof value === "string" && value.length > 0 ? value : null;
+  } catch {
+    return null;
+  }
 }
 
 function syncShared() {
