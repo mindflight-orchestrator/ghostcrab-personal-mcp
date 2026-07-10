@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-10T15:00:53.582Z",
+  "generated_at": "2026-07-10T15:29:45.109Z",
   "source": "ghostcrab-skills",
   "skill_names": [
     "ghostcrab-memory",
@@ -16,7 +16,7 @@
   "files": [
     {
       "path": "README.md",
-      "sha256": "dcffb9965c749c9bf7c2ccf6542ef15c0e999cc943bd4f088a6f715c3e05d85c"
+      "sha256": "2beb3ce0b4467d71a467e1950a9c124afed94833623a6200d5d05be7ff015433"
     },
     {
       "path": "claude-code/self-memory/CLAUDE.install.md",
@@ -40,7 +40,7 @@
     },
     {
       "path": "claude-code/skills/ghostcrab-gap-auditor/SKILL.md",
-      "sha256": "5db7cb4eb8891855179792015687aee241577617ee3db33025d55473aba6db82"
+      "sha256": "903e92f262bde0e94b545193ab1b8790d59c5c80b8cced1ba48a4c6e1f984624"
     },
     {
       "path": "claude-code/skills/ghostcrab-integration-sop-editor/SKILL.md",
@@ -60,7 +60,7 @@
     },
     {
       "path": "claude-code/skills/ghostcrab-projection-reviewer/SKILL.md",
-      "sha256": "6996afde913cba04986c2275f0ed6bb7568b40576357bb9b1cd722a07a75f39c"
+      "sha256": "823cd9b641e7d4edb7bafa80f86382f8f5fa3bac99ee6bf1733bf492fe0053e8"
     },
     {
       "path": "claude-code/skills/ghostcrab-prompt-guide/SKILL.md",
@@ -92,7 +92,7 @@
     },
     {
       "path": "codex/skills/ghostcrab-gap-auditor/SKILL.md",
-      "sha256": "5db7cb4eb8891855179792015687aee241577617ee3db33025d55473aba6db82"
+      "sha256": "903e92f262bde0e94b545193ab1b8790d59c5c80b8cced1ba48a4c6e1f984624"
     },
     {
       "path": "codex/skills/ghostcrab-gap-auditor/agents/openai.yaml",
@@ -132,7 +132,7 @@
     },
     {
       "path": "codex/skills/ghostcrab-projection-reviewer/SKILL.md",
-      "sha256": "6996afde913cba04986c2275f0ed6bb7568b40576357bb9b1cd722a07a75f39c"
+      "sha256": "823cd9b641e7d4edb7bafa80f86382f8f5fa3bac99ee6bf1733bf492fe0053e8"
     },
     {
       "path": "codex/skills/ghostcrab-projection-reviewer/agents/openai.yaml",
@@ -168,7 +168,7 @@
     },
     {
       "path": "cursor/skills/ghostcrab-gap-auditor/SKILL.md",
-      "sha256": "5db7cb4eb8891855179792015687aee241577617ee3db33025d55473aba6db82"
+      "sha256": "903e92f262bde0e94b545193ab1b8790d59c5c80b8cced1ba48a4c6e1f984624"
     },
     {
       "path": "cursor/skills/ghostcrab-integration-sop-editor/SKILL.md",
@@ -188,7 +188,7 @@
     },
     {
       "path": "cursor/skills/ghostcrab-projection-reviewer/SKILL.md",
-      "sha256": "6996afde913cba04986c2275f0ed6bb7568b40576357bb9b1cd722a07a75f39c"
+      "sha256": "823cd9b641e7d4edb7bafa80f86382f8f5fa3bac99ee6bf1733bf492fe0053e8"
     },
     {
       "path": "cursor/skills/ghostcrab-prompt-guide/SKILL.md",
@@ -208,7 +208,7 @@
     },
     {
       "path": "shared/ARTIFACT_KINDS.md",
-      "sha256": "024481555514e55355a5a863f5845fd59513e0fa7726cf4f9f85ffc7bad8a50e"
+      "sha256": "4a03cb43953005d99c9dd919054157809ef5b0c8204d992e1ad7aface786105d"
     },
     {
       "path": "shared/CAPABILITIES.md",
@@ -220,15 +220,15 @@
     },
     {
       "path": "shared/ENUM_BUSINESS_FACETS.md",
-      "sha256": "c4f2637f857b53273f0c6a75828fa19b4897503957208e32f78cad65e818db7a"
+      "sha256": "6ad53e1cc41a355e01ba54b80bc13f1b26efce657ba79217a5e572781471b040"
     },
     {
       "path": "shared/GAP_TAXONOMY.md",
-      "sha256": "d024c039461b9df05b0f53246d68c2cc8b756c9cf220ce590a5d245feb6e9df4"
+      "sha256": "856eebf32135a4a1e3fb3ce803b87547b637a5edb45e8681ed74f534436ff805"
     },
     {
       "path": "shared/IMPORT_CLOSURE_GATES.md",
-      "sha256": "a1d0320f790104833a510e283dd05026aa522cd840bd3854b68d003870317bc5"
+      "sha256": "835a37f71cff57b281e6c0ff2cac3a96eab75a691d71d4c9783dc1c619249796"
     },
     {
       "path": "shared/MCP_VS_GCP_ROUTING.md",
@@ -236,7 +236,7 @@
     },
     {
       "path": "shared/ONBOARDING_CONTRACT.md",
-      "sha256": "0d958d47ddde3a48bc6800a029fb8c653fa9a796fa45d0ab95efd2066d85aeb9"
+      "sha256": "0670ac12a55a649fb606f9783de1a37201ea99838f7ccb4bfc5f435792cada46"
     },
     {
       "path": "shared/PATH_CONTENT_FACETS.md",
@@ -244,7 +244,7 @@
     },
     {
       "path": "shared/PROJECTIONS_DISCOVERY.md",
-      "sha256": "54f33c8c30cb0c84ac7f89aed0d1c3500729742ce03c628da0b74ebe0102fc27"
+      "sha256": "32739f1ee52798e239fff61620cb0bfde5287da9ca0f16155af7c79a0892f6d0"
     },
     {
       "path": "shared/QUERY_PATTERNS.md",
@@ -256,7 +256,7 @@
     },
     {
       "path": "shared/SCHEMA_DESIGN.md",
-      "sha256": "73ec245035ba249570fc478d4dd45a163381cc1cf94124621f57d1e395807b93"
+      "sha256": "0ab7a44efed1f3afee363bb4f3ea15e21396557e982ddc679487156a3d4d886e"
     },
     {
       "path": "shared/SERVER_INSTRUCTIONS.md",
@@ -264,11 +264,11 @@
     },
     {
       "path": "shared/SKILL_ROUTE_MAP_ESSENTIALS.md",
-      "sha256": "0728c24bf93c0ea57fcba5b266db217eff590394d1e26e011677e5890414d34e"
+      "sha256": "b8f578f10a5ddfc281d327e40aec67b2a0f7f1013173387fd938a7e048ea308a"
     },
     {
       "path": "shared/STARTERKIT_PATHS.md",
-      "sha256": "0ac21a14da4fe99b7ad64983ec68ad996e2a22550bb7376387064e0134f8d044"
+      "sha256": "156aa203d0900b0949370797a74da240682ea6296ed591a5fe6a7fcae99789c6"
     },
     {
       "path": "shared/TRANSITION_LOGGING.md",
@@ -276,7 +276,7 @@
     },
     {
       "path": "shared/WORKSPACE_CONTEXT.md",
-      "sha256": "366268e4447771a0772f15cf6b928e5e3864fbc76e4b461450304abd547ad4a4"
+      "sha256": "9521f38382b549afad4042e79868f8017230340beeb6f1b060c0097228b63a73"
     }
   ]
 }
