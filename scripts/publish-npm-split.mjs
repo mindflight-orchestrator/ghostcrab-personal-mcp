@@ -26,12 +26,59 @@ import {
   rmSync,
   writeFileSync
 } from "node:fs";
-import { tmpdir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
+const thisScript = fileURLToPath(import.meta.url);
+
+function versionAtLeast(actual, wanted) {
+  const a = actual.split(".").map((n) => Number.parseInt(n, 10) || 0);
+  const w = wanted.split(".").map((n) => Number.parseInt(n, 10) || 0);
+  for (let i = 0; i < 3; i++) {
+    if (a[i] !== w[i]) return a[i] > w[i];
+  }
+  return true;
+}
+
+function shellQuote(value) {
+  return `'${String(value).replaceAll("'", "'\\''")}'`;
+}
+
+function maybeReexecWithNvmNode22() {
+  if (versionAtLeast(process.versions.node, "22.14.0")) return;
+  if (process.env.GHOSTCRAB_NPM_PUBLISH_NVM_REEXEC === "1") return;
+
+  const nvmScript = join(
+    process.env.NVM_DIR || join(homedir(), ".nvm"),
+    "nvm.sh"
+  );
+  if (!existsSync(nvmScript)) return;
+
+  const nodeArgs = [thisScript, ...process.argv.slice(2)]
+    .map(shellQuote)
+    .join(" ");
+  const command = [
+    `source ${shellQuote(nvmScript)}`,
+    "nvm use 22 >/dev/null",
+    `exec node ${nodeArgs}`
+  ].join(" && ");
+
+  console.error(
+    `[publish-npm-split] Node ${process.versions.node} detected; retrying with nvm Node 22.`
+  );
+  const result = spawnSync("zsh", ["-lc", command], {
+    cwd: repoRoot,
+    env: {
+      ...process.env,
+      GHOSTCRAB_NPM_PUBLISH_NVM_REEXEC: "1"
+    },
+    stdio: "inherit"
+  });
+  process.exit(result.status ?? 1);
+}
 
 /** Load NODE_AUTH_TOKEN / NPM_TOKEN from repo .env when not already in the environment. */
 function loadDotEnvAuth() {
@@ -75,15 +122,6 @@ function ensureNpmAuthToken() {
 
 /** Staged publishing needs npm >= 11.15.0 running on Node >= 22.14.0. */
 function ensureStagedPublishSupport() {
-  const versionAtLeast = (actual, wanted) => {
-    const a = actual.split(".").map((n) => Number.parseInt(n, 10) || 0);
-    const w = wanted.split(".").map((n) => Number.parseInt(n, 10) || 0);
-    for (let i = 0; i < 3; i++) {
-      if (a[i] !== w[i]) return a[i] > w[i];
-    }
-    return true;
-  };
-
   const problems = [];
   const nodeVersion = process.versions.node;
   if (!versionAtLeast(nodeVersion, "22.14.0")) {
@@ -106,6 +144,7 @@ function ensureStagedPublishSupport() {
   }
 }
 
+maybeReexecWithNvmNode22();
 loadDotEnvAuth();
 ensureNpmAuthToken();
 ensureStagedPublishSupport();
