@@ -2,7 +2,7 @@
 
 # GhostCrab Personal MCP
 
-**Current release:** `@mindflight/ghostcrab-personal-mcp@0.5.4` · MindBrain backend **1.7.1** · MCP tool surface **`2026-06-12`**
+**Current release:** `@mindflight/ghostcrab-personal-mcp@0.6.5` · MindBrain backend **1.7.6** · MCP tool surface **`2026-06-12`**
 
 ### The MCP interface to mindBrain — SQLite edition
 
@@ -254,6 +254,8 @@ gcp brain load ./my_ws.backup.json --db /path/to/ghostcrab.sqlite --overwrite --
 
 Use `--skip-config-cleanup` on step 2 when the SQLite file belongs to a project-specific database rather than your default IDE install.
 
+Since 0.6.5, `gcp load` preflights bundles against the workspace-strict schema: legacy exports whose `mindbrain_answer_artifacts` rows carry `workspace_id: null` are backfilled when `--workspace <id>` is passed, otherwise the load fails fast and names the offending artifacts instead of a bare engine error.
+
 ### Load the immeuble demo bundle
 
 The canonical immeuble demo dataset ships with `@mindflight/mindbrain-personal-studio` (`examples/immeuble/bundle/immeuble.bundle.json` there; run `pnpm load:demo` from the Studio). To load any demo/backup bundle directly with this package, always pass `--workspace immeuble`:
@@ -426,7 +428,7 @@ Enabled by default. Sends anonymous pings to `https://telemetry.ghostcrab.be/v1/
 
 ### Submodule note (contributors only)
 
-MindBrain ships as a Git submodule at `vendor/mindbrain` (tag **1.7.1** in v0.5.2). Clone with:
+MindBrain ships as a Git submodule at `vendor/mindbrain` (**1.7.6** series, pinned to a hotfix commit in v0.6.5 — check `git submodule status` for the exact pin). Clone with:
 
 ```bash
 git clone --recurse-submodules https://github.com/mindflight-orchestrator/ghostcrab-personal-mcp.git

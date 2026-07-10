@@ -60,13 +60,17 @@ pnpm run beta:bundle
 pnpm run beta:smoke
 ```
 
-### Publishing to npmjs (manual)
+### Publishing to npmjs (staged — direct publish is not allowed)
+
+Security rule: `npm publish` is no longer used. [`scripts/publish-npm-split.mjs`](scripts/publish-npm-split.mjs) submits every package with **`npm stage publish`**; nothing goes live until a maintainer **reviews and approves each staged package with 2FA** (`npm stage approve <stage-id>` in the CLI, or the **Staged Packages** tab on npmjs.com).
+
+**Prerequisites** (enforced by the script): npm CLI **>= 11.15.0** (`npm install -g npm@^11.15.0`), Node **>= 22.14.0** (`nvm use 22`), 2FA enabled on the npm account, and the package must already exist on the registry (staging cannot create a brand-new package).
 
 1. **Align versions (lockstep)** — Root `package.json` **version**, all six **`packages/prebuild-*/package.json`** versions, and root **`optionalDependencies`** must be **identical** for that release. [`scripts/publish-npm-split.mjs`](scripts/publish-npm-split.mjs) aborts if they differ.
 
 2. **Build** — `prebuilds/` populated, then `npm ci` + `npm run build` (same idea as CI).
 
-3. **Authenticate for non-interactive publish** — Set an npm **access token** (not your account password). Use a **publish** token with rights on the **`@mindflight`** scope (granular: Packages and scopes → Read and write).
+3. **Authenticate for non-interactive staging** — Set an npm **access token** (not your account password). Use a **publish** token with rights on the **`@mindflight`** scope (granular: Packages and scopes → Read and write). Staging itself does **not** ask for 2FA — 2FA happens at the approval step.
 
    ```bash
    export NODE_AUTH_TOKEN=npm_xxxxxxxx   # granular or classic publish token from npmjs.com
@@ -81,7 +85,7 @@ pnpm run beta:smoke
    npm run publish:npm-split
    ```
 
-   The script runs **`npm publish --provenance --access public`** in order:
+   The script runs **`npm stage publish --provenance --access public`** in order:
    1. `packages/prebuild-linux-x64`
    2. `packages/prebuild-linux-arm64`
    3. `packages/prebuild-darwin-x64`
@@ -90,30 +94,31 @@ pnpm run beta:smoke
    6. `packages/prebuild-win32-arm64`
    7. repository **root** (`@mindflight/ghostcrab-personal-mcp`)
 
-   Publishing the **root before** the platform packages breaks installs that rely on `optionalDependencies`.
-
-   **2FA on publish** — If npm returns **403** (or sometimes **404**) mentioning two-factor authentication, either:
-   - create a granular **Publish** token with **“Bypass two-factor authentication for automation”** enabled, or
-   - pass a one-time code from your authenticator app:
+4. **Review and approve (maintainer, 2FA required)** — nothing is live after step 3. Approve the **six platform packages first**, the **root last**; approving the root before the platform packages breaks installs that rely on `optionalDependencies`.
 
    ```bash
-   export NPM_OTP=123456   # 6 digits from 2FA app; valid ~30s
-   npm run publish:npm-split
+   npm stage list                    # find the 7 stage ids
+   npm stage view <stage-id>         # inspect each (or npm stage download <stage-id>)
+   npm stage approve <stage-id>      # 6 platform packages first…
+   npm stage approve <root-stage-id> # …root last (prompts for your 2FA code)
    ```
 
-4. **Interactive alternative** — If you prefer not to use `NODE_AUTH_TOKEN`, run **`npm login`** once; npm stores a token in `~/.npmrc`. Then run `npm run publish:npm-split` in the same environment where `npm whoami` succeeds.
+   The review can also be done on npmjs.com in the **Staged Packages** tab (Approve button, 2FA prompted).
 
-5. **`.env` variables such as `NPMJS_USERNAME`, `NPMJS_EMAIL`, `NPMJS_PASSWORD`** — npm **does not** read these for automation. **Do not** put your password in `NODE_AUTH_TOKEN`. For scripted/CI publishes, create an **npm access token** and use `NODE_AUTH_TOKEN` (or GitHub **`secrets.NPM_TOKEN`**). You can still use username/password **only** through interactive **`npm login`** (and OTP if 2FA is enabled).
+5. **Interactive alternative** — If you prefer not to use `NODE_AUTH_TOKEN`, run **`npm login`** once; npm stores a token in `~/.npmrc`. Then run `npm run publish:npm-split` in the same environment where `npm whoami` succeeds.
 
-### Publishing via GitHub Actions
+6. **`.env` variables such as `NPMJS_USERNAME`, `NPMJS_EMAIL`, `NPMJS_PASSWORD`** — npm **does not** read these for automation. **Do not** put your password in `NODE_AUTH_TOKEN`. For scripted/CI publishes, create an **npm access token** and use `NODE_AUTH_TOKEN` (or GitHub **`secrets.NPM_TOKEN`**). You can still use username/password **only** through interactive **`npm login`** (and OTP if 2FA is enabled).
+
+### Staging via GitHub Actions
 
 On push of tag **`vMAJOR.MINOR.PATCH`** (semver), [`.github/workflows/publish.yml`](.github/workflows/publish.yml):
 
 1. **`build-backends`** — vendor mindbrain, download sqlite amalgamation, **`scripts/cross-build-all.sh`**, upload `prebuilds/` artifact.
-2. **`publish`** — checkout, `npm ci`, `npm run build`, download `prebuilds/`, **`node scripts/publish-npm-split.mjs`** with **`NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}`**.
+2. **`publish`** — checkout, `npm ci`, `npm run build`, download `prebuilds/`, **`node scripts/publish-npm-split.mjs`** with **`NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}`** — this only **stages** the 7 packages.
+3. **Manual approval outside CI** — a maintainer approves the staged packages with 2FA (platform packages first, root last; CLI or npmjs.com Staged Packages tab).
 
-Workflow env (see file for current pins): **Zig `0.16.0`**, **Node `20`**, SQLite **`3490100`**.  
-OIDC **trusted publishing** can be configured on npm for GitHub Actions; the workflow still includes a token via the **`npm-publish`** environment for compatibility.
+Workflow env (see file for current pins): **Zig `0.16.0`**, **Node `22`** + npm `^11.15.0` in the publish job (staged publishing requirement; other jobs stay on Node `20`), SQLite **`3490100`**.  
+OIDC **trusted publishing** can be configured on npm for GitHub Actions and combines with staged publishing; the workflow still includes a token via the **`npm-publish`** environment for compatibility.
 
 If the canonical remote is still GitLab, mirror the same steps in GitLab CI (`NODE_AUTH_TOKEN` / masked `NPM_TOKEN`); npm OIDC/provenance is GitHub-oriented.
 
