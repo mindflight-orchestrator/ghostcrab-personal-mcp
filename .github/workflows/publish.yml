@@ -1,13 +1,20 @@
 name: Publish
 
-# GitHub Actions — publish on tags when this repository is hosted on GitHub.
+# GitHub Actions — stage releases on tags when this repository is hosted on GitHub.
 # npm OIDC / provenance assume GitHub; for other hosts (e.g. GitLab-only), replicate
 # the same steps with a masked NPM_TOKEN.
+#
+# Security rule: no direct `npm publish`. This workflow only SUBMITS the packages to
+# npm's staging area (`npm stage publish`, requires npm >= 11.15.0 / Node >= 22.14.0).
+# Nothing goes live until a maintainer approves each staged package with 2FA
+# (`npm stage approve <stage-id>` or the Staged Packages tab on npmjs.com) —
+# approve the six platform packages BEFORE the root package.
 #
 # Intended pipeline (to align with docs/dev/npm_split_release_process.md):
 #   1. Cross-compile Zig backends → prebuilds/{platform}/ (Zig 0.16.x per scripts/cross-build-all.sh).
 #   2. npm ci && npm run build
-#   3. Publish the six @mindflight/ghostcrab-personal-mcp-* platform packages, then the root package (scripts/publish-npm-split.mjs).
+#   3. Stage the six @mindflight/ghostcrab-personal-mcp-* platform packages, then the root package (scripts/publish-npm-split.mjs).
+#   4. Maintainer reviews + approves the 7 staged packages with 2FA (platform packages first, root last).
 
 on:
   push:
@@ -76,9 +83,9 @@ jobs:
           path: prebuilds/
           retention-days: 1
 
-  # ── Job 2: publish to npm with provenance ───────────────────────────────────
+  # ── Job 2: stage to npm with provenance (maintainer approves with 2FA) ──────
   publish:
-    name: Publish to npm
+    name: Stage to npm
     runs-on: ubuntu-latest
     needs: build-backends
     environment: npm-publish # configure trusted publishing in this environment
@@ -86,11 +93,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Staged publishing requires Node >= 22.14.0 and npm >= 11.15.0.
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: "22"
           registry-url: https://registry.npmjs.org
           cache: npm
+
+      - name: Upgrade npm for staged publishing
+        run: |
+          npm install -g npm@^11.15.0
+          npm --version
 
       - name: Install dependencies
         run: npm ci
@@ -115,7 +128,7 @@ jobs:
           chmod +x prebuilds/linux-x64/ghostcrab-backend
           file prebuilds/linux-x64/ghostcrab-backend
 
-      - name: Publish to npm (platform packages + root)
+      - name: Stage to npm (platform packages + root — approval required to go live)
         run: node scripts/publish-npm-split.mjs
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

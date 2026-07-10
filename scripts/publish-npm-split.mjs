@@ -1,12 +1,20 @@
 #!/usr/bin/env node
 /**
- * Publish the split npm packages in registry order: six platform packages, then root.
+ * Stage the split npm packages for review in registry order: six platform packages, then root.
  * Expects prebuilds/ at repo root (CI: after cross-build). Runs full platform staging first.
+ *
+ * Security rule: direct `npm publish` is no longer allowed. This script submits every
+ * package with `npm stage publish`; nothing goes live until a maintainer reviews and
+ * approves each staged package with 2FA (`npm stage approve <stage-id>` or the
+ * Staged Packages tab on npmjs.com). Approve the six platform packages BEFORE the root
+ * package so the root's optionalDependencies resolve.
+ *
+ * Requires npm >= 11.15.0 and Node >= 22.14.0 (checked at startup).
  *
  * Usage (from repo root, with NODE_AUTH_TOKEN set):
  *   node scripts/publish-npm-split.mjs
  *
- * Some npm versions do not honour NODE_AUTH_TOKEN for `npm publish` (ENEEDAUTH) even when
+ * Some npm versions do not honour NODE_AUTH_TOKEN (ENEEDAUTH) even when
  * the token works via the registry HTTP API — we pass `--userconfig` with _authToken.
  */
 import { spawnSync } from "node:child_process";
@@ -65,8 +73,42 @@ function ensureNpmAuthToken() {
   }
 }
 
+/** Staged publishing needs npm >= 11.15.0 running on Node >= 22.14.0. */
+function ensureStagedPublishSupport() {
+  const versionAtLeast = (actual, wanted) => {
+    const a = actual.split(".").map((n) => Number.parseInt(n, 10) || 0);
+    const w = wanted.split(".").map((n) => Number.parseInt(n, 10) || 0);
+    for (let i = 0; i < 3; i++) {
+      if (a[i] !== w[i]) return a[i] > w[i];
+    }
+    return true;
+  };
+
+  const problems = [];
+  const nodeVersion = process.versions.node;
+  if (!versionAtLeast(nodeVersion, "22.14.0")) {
+    problems.push(`Node ${nodeVersion} < 22.14.0 (e.g. \`nvm use 22\`)`);
+  }
+  const npmProbe = spawnSync("npm", ["--version"], { encoding: "utf8" });
+  const npmVersion = npmProbe.status === 0 ? npmProbe.stdout.trim() : null;
+  if (!npmVersion || !versionAtLeast(npmVersion, "11.15.0")) {
+    problems.push(
+      `npm ${npmVersion ?? "not found"} < 11.15.0 (\`npm install -g npm@^11.15.0\`)`
+    );
+  }
+  if (problems.length > 0) {
+    console.error(
+      "[publish-npm-split] staged publishing requirements not met:\n" +
+        problems.map((p) => `  - ${p}`).join("\n") +
+        "\n  Direct `npm publish` is not allowed anymore; fix the toolchain and re-run."
+    );
+    process.exit(1);
+  }
+}
+
 loadDotEnvAuth();
 ensureNpmAuthToken();
+ensureStagedPublishSupport();
 
 const PLATFORM_DIRS = [
   "packages/prebuild-linux-x64",
@@ -153,26 +195,24 @@ function createPublishUserconfig() {
   };
 }
 
-/** Provenance needs a supported CI (e.g. GitHub Actions + OIDC/trusted publishing). Local/token-only runs fail with "provider: null". */
-function npmPublishArgs() {
-  const args = ["publish", "--access", "public"];
-  const otp = process.env.NPM_OTP?.trim();
-  if (otp) {
-    args.push("--otp", otp);
-    console.error("[publish-npm-split] using NPM_OTP for 2FA.");
-  }
+/**
+ * Provenance needs a supported CI (e.g. GitHub Actions + OIDC/trusted publishing). Local/token-only runs fail with "provider: null".
+ * No --otp here: `npm stage publish` does not take 2FA — 2FA happens at `npm stage approve`.
+ */
+function npmStagePublishArgs() {
+  const args = ["stage", "publish", "--access", "public"];
   const ci = process.env.GITHUB_ACTIONS === "true";
   const noProv = process.env.NPM_PUBLISH_NO_PROVENANCE === "1";
   if (ci && !noProv) {
-    args.splice(1, 0, "--provenance");
+    args.splice(2, 0, "--provenance");
     console.error("[publish-npm-split] using --provenance (GitHub Actions).");
   } else if (ci && noProv) {
     console.error(
-      "[publish-npm-split] NPM_PUBLISH_NO_PROVENANCE=1 — publishing without provenance."
+      "[publish-npm-split] NPM_PUBLISH_NO_PROVENANCE=1 — staging without provenance."
     );
   } else {
     console.error(
-      "[publish-npm-split] publishing without --provenance (local or non-GitHub Actions; token login is OK)."
+      "[publish-npm-split] staging without --provenance (local or non-GitHub Actions; token login is OK)."
     );
   }
   return args;
@@ -188,9 +228,9 @@ run(
   repoRoot
 );
 
-const publishCmd = npmPublishArgs();
+const stageCmd = npmStagePublishArgs();
 const { npmrcPath, cleanup } = createPublishUserconfig();
-const npmWithAuth = ["--userconfig", npmrcPath, ...publishCmd];
+const npmWithAuth = ["--userconfig", npmrcPath, ...stageCmd];
 try {
   for (const rel of PLATFORM_DIRS) {
     run("npm", npmWithAuth, join(repoRoot, rel));
@@ -200,4 +240,12 @@ try {
   cleanup();
 }
 
-console.error("[publish-npm-split] Done (6 platform packages + root).");
+console.error(
+  `[publish-npm-split] Staged ${PLATFORM_DIRS.length} platform packages + root (v${rootVersion}). Nothing is live yet.\n` +
+    "Next steps (maintainer, with 2FA):\n" +
+    "  1. npm stage list                      # find the stage ids\n" +
+    "  2. npm stage view <stage-id>           # review each package (or the Staged Packages tab on npmjs.com)\n" +
+    "  3. npm stage approve <stage-id>        # approve the SIX platform packages first\n" +
+    "  4. npm stage approve <root-stage-id>   # approve @mindflight/ghostcrab-personal-mcp LAST\n" +
+    "Approving root before the platform packages breaks installs (optionalDependencies would not resolve)."
+);
