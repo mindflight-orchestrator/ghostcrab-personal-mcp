@@ -125,7 +125,11 @@
     "verify:e2e": "node scripts/verify-e2e.mjs",
     "ontology:compile": "node bin/gcp.mjs brain ontology compile",
     "ontology:export-linkml": "node bin/gcp.mjs brain ontology export-linkml",
-    "publish:npm-split": "node scripts/publish-npm-split.mjs"
+    "publish:npm-split": "node scripts/publish-npm-split.mjs",
+    "stage:npm": "node scripts/npm-stage.mjs",
+    "stage:npm:list": "node scripts/npm-stage.mjs list",
+    "stage:npm:view": "node scripts/npm-stage.mjs view",
+    "stage:npm:approve": "node scripts/npm-stage.mjs approve"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

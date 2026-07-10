@@ -243,9 +243,9 @@ try {
 console.error(
   `[publish-npm-split] Staged ${PLATFORM_DIRS.length} platform packages + root (v${rootVersion}). Nothing is live yet.\n` +
     "Next steps (maintainer, with 2FA):\n" +
-    "  1. npm stage list                      # find the stage ids\n" +
-    "  2. npm stage view <stage-id>           # review each package (or the Staged Packages tab on npmjs.com)\n" +
-    "  3. npm stage approve <stage-id>        # approve the SIX platform packages first\n" +
-    "  4. npm stage approve <root-stage-id>   # approve @mindflight/ghostcrab-personal-mcp LAST\n" +
+    "  1. pnpm stage:npm:list                      # find the stage ids\n" +
+    "  2. pnpm stage:npm:view -- <stage-id>        # review each package (or the Staged Packages tab on npmjs.com)\n" +
+    "  3. pnpm stage:npm:approve -- <stage-id>     # approve the SIX platform packages first\n" +
+    "  4. pnpm stage:npm:approve -- <root-stage-id> # approve @mindflight/ghostcrab-personal-mcp LAST\n" +
     "Approving root before the platform packages breaks installs (optionalDependencies would not resolve)."
 );
