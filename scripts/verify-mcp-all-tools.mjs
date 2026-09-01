@@ -214,6 +214,15 @@ const smokeCalls = [
     }
   ],
   ["ghostcrab_artifact_get", { artifact_id: "missing" }],
+  [
+    "ghostcrab_live_create",
+    {
+      workspace_id: workspaceId,
+      slug: "verify_mcp_all_tools",
+      public_label: "Verify MCP all tools",
+      definition: { purpose: "safe verification fixture" }
+    }
+  ],
   ["ghostcrab_live_refresh", { artifact_id: "missing" }],
   [
     "ghostcrab_modeling_guidance",

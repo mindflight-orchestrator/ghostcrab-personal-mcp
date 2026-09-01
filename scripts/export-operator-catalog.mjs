@@ -42,6 +42,9 @@ function tablesFor(name, subsystem) {
     if (name === "ghostcrab_artifact_get") {
       return "mindbrain_answer_artifacts";
     }
+    if (name === "ghostcrab_live_create") {
+      return "mindbrain_answer_artifacts";
+    }
     if (name === "ghostcrab_live_refresh") {
       return "mindbrain_answer_artifacts, mindbrain_answer_events";
     }
@@ -296,6 +299,15 @@ const GCP_GROUPS = [
   {
     group: "Answer artifacts",
     rows: [
+      [
+        "gcp",
+        "brain artifact create",
+        "pragma",
+        "mindbrain_answer_artifacts",
+        "write",
+        "backend running; effective workspace and live_answer_view_create capability required",
+        "gcp-commands.md"
+      ],
       [
         "gcp",
         "brain artifact list | get",

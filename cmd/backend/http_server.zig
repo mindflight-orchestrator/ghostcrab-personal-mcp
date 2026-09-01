@@ -141,6 +141,10 @@ fn printUsage() !void {
         \\  GET  /api/mindbrain/traverse?start=...&direction=...&depth=...
         \\  GET  /api/mindbrain/pack?user_id=...&query=...&scope=...&limit=...
         \\  GET  /api/mindbrain/ghostcrab/pack-projections?agent_id=...&query=...&scope=...&limit=...
+        \\  POST /api/mindbrain/ghostcrab/artifact
+        \\  GET  /api/mindbrain/ghostcrab/artifact/{artifact_id}
+        \\  POST /api/mindbrain/ghostcrab/artifact/{artifact_id}/refresh
+        \\  GET  /api/mindbrain/ghostcrab/artifact/{artifact_id}/events
         \\
     );
     try stderr.interface.flush();

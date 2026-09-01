@@ -42,6 +42,12 @@ still mislead an operator or agent if read too literally.
    on refresh usually means a stale backend after upgrade or a manual `GET`
    request; the CLI/MCP refresh path uses HTTP `POST`.
 
+   Creation is a separate governed path: `ghostcrab_live_create` or
+   `gcp brain artifact create`. Both require the advertised
+   `live_answer_view_create` backend capability and otherwise stop with
+   `BLOCKER_GHOSTCRAB_ARTIFACT_CREATE_UNAVAILABLE`; neither may fall back to
+   direct SQLite writes, simulated artifacts, or renaming.
+
 5. The generated MCP reference documents input argument names, required flags,
    and coarse JSON-schema types. It does not yet formalize per-tool success
    payload schemas, error code enums, pagination guarantees, or row-level table

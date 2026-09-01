@@ -2,6 +2,7 @@ import {
   runStandaloneAnswerArtifactEvents,
   runStandaloneAnswerArtifactGet,
   runStandaloneAnswerArtifactRefresh,
+  runStandaloneLiveAnswerViewCreate,
   runStandaloneMindbrainSql,
   type StandaloneAnswerArtifactEventRow,
   type StandaloneAnswerArtifactEventsResponse,
@@ -148,6 +149,36 @@ export async function runGetAnswerArtifact(params: {
   });
   assertAnswerArtifactKind(row.artifact_kind);
   return row;
+}
+
+export async function runCreateLiveAnswerView(params: {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  workspaceId: string;
+  slug: string;
+  publicLabel: string;
+  definition: Record<string, unknown>;
+}): Promise<{
+  created: boolean;
+  idempotent: boolean;
+  artifact: StandaloneAnswerArtifactRow;
+}> {
+  const response = await runStandaloneLiveAnswerViewCreate({
+    mindbrainUrl: params.mindbrainUrl,
+    timeoutMs: params.timeoutMs,
+    workspaceId: params.workspaceId,
+    slug: params.slug,
+    publicLabel: params.publicLabel,
+    definition: params.definition
+  });
+  if (response.artifact_kind !== "live_answer_view") {
+    throw new Error(
+      `Expected live_answer_view, got "${response.artifact_kind}".`
+    );
+  }
+  const { created, idempotent, ok: _ok, ...artifact } = response;
+  void _ok;
+  return { created, idempotent, artifact };
 }
 
 export function parseAnswerArtifactPayload(

@@ -26,7 +26,7 @@ operations.
 | **PATH shim** | `gcp path install\|print\|doctor` | Installs, prints, or diagnoses the cross-platform `~/.ghostcrab/bin/gcp` shim. |
 | **MCP permissions** | `gcp brain permissions print\|apply` | Prints or writes Cursor/Claude MCP permission presets (`basic`, `balanced`, `full`, `none`, `custom`). |
 | **Backup / restore** | `gcp brain backup …`, `gcp brain load …` | Export workspace, collection, or taxonomy backup bundles (includes `mindbrain_answer_artifacts` on full workspace export); restore `ghostcrab_backup_bundle` JSON. Restore refuses to replace an existing workspace unless both `--overwrite --confirm` are passed. Since 0.6.5 the load preflights workspace-strict rows: legacy bundles whose answer artifacts carry `workspace_id: null` are backfilled when `--workspace <id>` is passed, otherwise the load fails fast listing the offending artifact ids (the engine also derives the workspace from `scope` as a fallback). `gcp brain export` is an alias for backup. |
-| **Answer artifact registry** | MCP `ghostcrab_projections_list`, `ghostcrab_artifact_get`, `ghostcrab_live_refresh`; CLI `gcp brain artifact list \| get \| refresh \| events \| migrate …` | MCP list includes registry + graph projection ids with routing hints ([projections-discovery.md](projections-discovery.md)); CLI list is registry-only via HTTP. |
+| **Answer artifact registry** | MCP `ghostcrab_live_create`, `ghostcrab_projections_list`, `ghostcrab_artifact_get`, `ghostcrab_live_refresh`; CLI `gcp brain artifact create \| list \| get \| refresh \| events \| migrate …` | Governed creation and refresh use documented MindBrain HTTP routes; MCP list includes registry + graph projection ids with routing hints ([projections-discovery.md](projections-discovery.md)). |
 | **Load demo profile** | `gcp brain load …` | JSONL profile into the DB. Legacy: `gcp load …`. |
 | **Corpus import / profiling** | `gcp brain document …` | Normalize, profile, enqueue/worker, ingest, list qualification vocabulary (stop MCP first). See `gcp brain document --help` and [document-import.md](../setup/document-import.md). |
 | **Tabular structured import** | `gcp brain structured-import …` | CSV/JSON/JSONL/JSON/YAML/XLSX/TOON via native engine and optional StarterKit bridge. `gcp brain structured-import kit` runs profiling + mapping validation + JSONL/CVS normalization and optional direct apply/reindex. See `gcp brain structured-import --help` and [structured-import.md](../setup/structured-import.md). |
@@ -40,6 +40,30 @@ commands are intentionally narrow: `serve`, `smoke`, `status`, `tools list`,
 `tools verify`, `maintenance ddl-approve|ddl-execute`, and destructive
 `workspace reset|delete` maintenance. Commands like `search`, `remember`,
 `upsert`, `schema`, `learn`, `project`, `pack`, and agent-driven ontology import are MCP-only.
+
+## Live answer creation
+
+Create one governed live view from a JSON definition:
+
+```bash
+gcp brain artifact create \
+  --workspace-id default \
+  --slug weekly_status \
+  --public-label "Weekly status" \
+  --definition-file weekly-status.json
+```
+
+The effective workspace is always concrete: `--workspace-id` wins,
+`--workspace` resolves its slug, otherwise the configured default workspace is
+used. The definition must be a non-empty JSON object and cannot contain the
+backend-owned top-level `materialized` member. Before the POST, the CLI requires
+the `live_answer_view_create` capability; an old or incompatible backend stops
+with `BLOCKER_GHOSTCRAB_ARTIFACT_CREATE_UNAVAILABLE`. Creation never writes
+SQLite directly and never invents or renames an artifact.
+
+The matching MCP tool is `ghostcrab_live_create`. Its `workspace_id` argument
+is only an explicit override: when omitted, the active MCP workspace is sent,
+so the effective workspace remains mandatory.
 
 ## Answer artifact refresh
 

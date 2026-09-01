@@ -115,6 +115,28 @@ async function cleanupImmeubleWorkspace(
   );
   await safeDelete(
     database,
+    `DELETE FROM graph_rule_events WHERE workspace_id = ?`,
+    [WS_ID]
+  );
+  await safeDelete(
+    database,
+    `DELETE FROM graph_rule_evaluations WHERE workspace_id = ?`,
+    [WS_ID]
+  );
+  await safeDelete(
+    database,
+    `DELETE FROM graph_lj_out
+     WHERE entity_id IN (SELECT entity_id FROM graph_entity WHERE workspace_id = ?)`,
+    [WS_ID]
+  );
+  await safeDelete(
+    database,
+    `DELETE FROM graph_lj_in
+     WHERE entity_id IN (SELECT entity_id FROM graph_entity WHERE workspace_id = ?)`,
+    [WS_ID]
+  );
+  await safeDelete(
+    database,
     `DELETE FROM graph_entity WHERE workspace_id = ?`,
     [WS_ID]
   );
@@ -255,16 +277,9 @@ async function cleanupImmeubleWorkspace(
     `DELETE FROM workspace_settings WHERE workspace_id = ?`,
     [WS_ID]
   );
-  await safeDelete(
-    database,
-    `DELETE FROM ontologies WHERE workspace_id = ? AND ontology_id LIKE ?`,
-    [WS_ID, `${WS_ID}::%`]
-  );
-  await safeDelete(
-    database,
-    `DELETE FROM workspaces WHERE id = ? OR workspace_id = ?`,
-    [WS_ID, WS_ID]
-  );
+  // The integration runner owns a disposable SQLite file. Keep the workspace
+  // and ontology registry rows here: deleting them requires cascading through
+  // every ontology child table and is unrelated to graph/data cleanup.
 }
 
 function toolContext(database: DatabaseClient, workspaceId = WS_ID) {
@@ -420,7 +435,7 @@ describeIfSqliteFile("immeuble import → reindex → MCP coherence", () => {
       toolContext(harness.database)
     );
     const structured = readStructured(result);
-    const entities = structured.entities as Array<{ name: string }>;
+    const entities = structured.results as Array<{ name: string }>;
 
     expect(structured.ok).toBe(true);
     expect(entities.length).toBeGreaterThanOrEqual(13);
@@ -524,7 +539,7 @@ describeIfSqliteFile("immeuble import → reindex → MCP coherence", () => {
       toolContext(harness.database)
     );
     const structured = readStructured(result);
-    const paths = structured.paths as Array<{ rows?: unknown[] }>;
+    const paths = structured.path as Array<{ rows?: unknown[] }>;
 
     expect(structured.ok).toBe(true);
     expect(Array.isArray(paths)).toBe(true);

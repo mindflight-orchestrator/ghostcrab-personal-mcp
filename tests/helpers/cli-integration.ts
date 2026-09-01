@@ -116,8 +116,15 @@ export function createIntegrationHarness() {
 export async function cleanupTestDatabase(
   database: DatabaseClient
 ): Promise<void> {
+  await database.query("DELETE FROM graph_rule_events");
+  await database.query("DELETE FROM graph_rule_evaluations");
+  await database.query("DELETE FROM graph_relation_property");
   await database.query("DELETE FROM graph_relation");
   await database.query("DELETE FROM graph_entity_alias");
+  await database.query("DELETE FROM graph_entity_document");
+  await database.query("DELETE FROM graph_entity_chunk");
+  await database.query("DELETE FROM graph_lj_out");
+  await database.query("DELETE FROM graph_lj_in");
   await database.query("DELETE FROM graph_entity");
   await database.query("DELETE FROM relation_semantics");
   await database.query("DELETE FROM column_semantics");
@@ -126,7 +133,6 @@ export async function cleanupTestDatabase(
   await database.query("DELETE FROM projections");
   await database.query("DELETE FROM agent_state");
   await database.query("DELETE FROM agent_facts");
-  await database.query("DELETE FROM workspaces WHERE id <> 'default'");
 }
 
 export async function closeIntegrationDatabase(

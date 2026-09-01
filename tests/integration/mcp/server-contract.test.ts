@@ -45,6 +45,7 @@ describe.sequential("MCP server contract", () => {
         expect(tools).toContain("ghostcrab_workspace_create");
         expect(tools).toContain("ghostcrab_workspace_list");
         expect(tools).toContain("ghostcrab_csearch");
+        expect(tools).toContain("ghostcrab_live_create");
 
         const stderr = getStderrOutput();
         expect(stderr).toContain("Starting MCP server");
@@ -158,7 +159,9 @@ describe.sequential("MCP server contract", () => {
       expect(payload.runtime).toMatchObject({
         database_kind: "sqlite",
         sqlite_backing_store: true,
-        capabilities: expect.any(Object)
+        capabilities: expect.objectContaining({
+          live_answer_view_create: true
+        })
       });
       expect(payload.runtime).not.toHaveProperty("native_extensions_mode");
       expect(payload.runtime).not.toHaveProperty("extensions_detected");

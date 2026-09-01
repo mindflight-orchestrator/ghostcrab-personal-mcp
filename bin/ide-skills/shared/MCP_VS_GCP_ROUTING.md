@@ -5,7 +5,7 @@
 - `ghostcrab_status`, `ghostcrab_workspace_use`
 - `ghostcrab_search`, `ghostcrab_count`, `ghostcrab_combined_search`
 - `ghostcrab_remember`, `ghostcrab_upsert`, `ghostcrab_learn`, `ghostcrab_project`, `ghostcrab_pack`
-- `ghostcrab_projection_get`, `ghostcrab_graph_search`, `ghostcrab_traverse`
+- `ghostcrab_live_create`, `ghostcrab_projection_get`, `ghostcrab_graph_search`, `ghostcrab_traverse`
 - `ghostcrab_graph_diagnostics`, `ghostcrab_coverage`
 - `ghostcrab_schema_register`, `ghostcrab_ontology_import` (agent-owned ontology source import)
 
@@ -14,7 +14,7 @@
 - **`gcp brain structured-import`** — CSV/API/tabular bulk apply + reindex
 - **`gcp brain document`** — document corpus import pipeline
 - **`gcp brain ontology compile|import|export`** — LinkML/OWL maintenance
-- **`gcp brain artifact list|get|refresh`** — answer artifact registry ops
+- **`gcp brain artifact create|list|get|refresh`** — governed answer artifact registry ops
 - **`gcp smoke`**, **`gcp brain up`** — environment bootstrap
 
 **Stop MCP** before database-backed `gcp` commands (or use `--force`).

@@ -5,13 +5,16 @@ import {
   assertAnswerArtifactKind,
   buildListArtifactsQuery,
   buildArtifactGetUrl,
+  buildArtifactCapabilitiesUrl,
+  buildArtifactCreateUrl,
   buildArtifactRefreshUrl,
   buildArtifactEventsUrl,
   buildArtifactMigrateEngineArgs,
   isAnswerArtifactKind,
   mapListArtifactRows,
   normalizeArtifactEventsBody,
-  parseArtifactArgs
+  parseArtifactArgs,
+  parseLiveAnswerDefinition
 } from "../../bin/lib/answer-artifact-cli.mjs";
 
 describe("answer-artifact-cli helpers", () => {
@@ -194,6 +197,48 @@ describe("answer-artifact-cli helpers", () => {
   });
 
   describe("parseArtifactArgs", () => {
+    it("parses governed create without positional identity", () => {
+      expect(
+        parseArtifactArgs([
+          "create",
+          "--workspace-id",
+          "default",
+          "--slug",
+          "weekly_status",
+          "--public-label",
+          " Weekly status ",
+          "--definition-file",
+          "weekly.json",
+          "--url",
+          "http://127.0.0.1:8091"
+        ])
+      ).toMatchObject({
+        subcommand: "create",
+        workspaceId: "default",
+        slug: "weekly_status",
+        publicLabel: "Weekly status",
+        definitionFile: "weekly.json"
+      });
+    });
+
+    it("rejects incomplete or positional create arguments", () => {
+      expect(parseArtifactArgs(["create", "weekly"])).toEqual({
+        error: "gcp brain artifact create: does not take positional arguments."
+      });
+      expect(
+        parseArtifactArgs([
+          "create",
+          "--slug",
+          "weekly",
+          "--public-label",
+          "Weekly"
+        ])
+      ).toEqual({
+        error:
+          "gcp brain artifact create: --slug, --public-label and --definition-file are required."
+      });
+    });
+
     it("parses list with filters", () => {
       expect(
         parseArtifactArgs([
@@ -362,6 +407,38 @@ describe("answer-artifact-cli helpers", () => {
       );
       expect(url.href).toBe(
         "http://127.0.0.1:8091/api/mindbrain/ghostcrab/artifact/live_answer_view__pilotage%2Fhebdo"
+      );
+    });
+  });
+
+  describe("create capability and route helpers", () => {
+    it("builds only documented HTTP routes", () => {
+      expect(
+        buildArtifactCapabilitiesUrl("http://127.0.0.1:8091").pathname
+      ).toBe("/api/mindbrain/capabilities");
+      expect(buildArtifactCreateUrl("http://127.0.0.1:8091").pathname).toBe(
+        "/api/mindbrain/ghostcrab/artifact"
+      );
+    });
+  });
+
+  describe("parseLiveAnswerDefinition", () => {
+    it("accepts a non-empty definition object", () => {
+      expect(parseLiveAnswerDefinition('{"question":"What changed?"}')).toEqual(
+        { question: "What changed?" }
+      );
+    });
+
+    it.each(["[]", "{}", "null", '{"materialized":{}}'])(
+      "rejects invalid or server-owned definition %s",
+      (value) => {
+        expect(() => parseLiveAnswerDefinition(value)).toThrow();
+      }
+    );
+
+    it("reports malformed JSON", () => {
+      expect(() => parseLiveAnswerDefinition("{")).toThrow(
+        /Invalid live answer definition JSON/
       );
     });
   });

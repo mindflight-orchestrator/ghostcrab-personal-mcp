@@ -5,6 +5,7 @@ import {
   assertAnswerArtifactKind,
   buildListAnswerArtifactsQuery,
   mapAnswerArtifactListRows,
+  runCreateLiveAnswerView,
   runGetAnswerArtifact,
   runListAnswerArtifacts
 } from "../../src/db/answer-artifacts.js";
@@ -238,6 +239,59 @@ describe("answer-artifacts TS client", () => {
           artifactId: "bad"
         })
       ).rejects.toThrow(/Invalid artifact_kind/);
+    });
+  });
+
+  describe("runCreateLiveAnswerView", () => {
+    it("posts the governed body and returns creation metadata", async () => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async (url: URL, init?: RequestInit) => {
+          expect(url.pathname).toBe("/api/mindbrain/ghostcrab/artifact");
+          expect(init?.method).toBe("POST");
+          const body = JSON.parse(String(init?.body));
+          expect(body).toEqual({
+            workspace_id: "ws_demo",
+            slug: "weekly_status",
+            public_label: "Weekly status",
+            definition: { question: "What changed?" }
+          });
+          return new Response(
+            JSON.stringify({
+              ok: true,
+              created: true,
+              idempotent: false,
+              artifact_id: "live_answer_view__weekly_status",
+              slug: "weekly_status",
+              workspace_id: "ws_demo",
+              agent_id: null,
+              scope: "ws_demo",
+              artifact_kind: "live_answer_view",
+              public_label: "Weekly status",
+              lifecycle: "stale",
+              state: "dirty",
+              current_version: 1,
+              payload_json: '{"question":"What changed?"}',
+              legacy_ref: null
+            }),
+            { status: 201, headers: { "content-type": "application/json" } }
+          );
+        })
+      );
+
+      const result = await runCreateLiveAnswerView({
+        mindbrainUrl: "http://127.0.0.1:8091",
+        workspaceId: "ws_demo",
+        slug: "weekly_status",
+        publicLabel: "Weekly status",
+        definition: { question: "What changed?" }
+      });
+
+      expect(result.created).toBe(true);
+      expect(result.idempotent).toBe(false);
+      expect(result.artifact.artifact_id).toBe(
+        "live_answer_view__weekly_status"
+      );
     });
   });
 });

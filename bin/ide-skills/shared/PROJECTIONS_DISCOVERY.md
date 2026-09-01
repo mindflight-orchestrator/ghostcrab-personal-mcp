@@ -19,6 +19,7 @@ Typical flow:
 
 ```text
 ghostcrab_status
+  → ghostcrab_live_create (when a new governed live view is requested)
   → ghostcrab_projections_list
   → pick one row (public_label + suggested_tools)
   → ghostcrab_artifact_get | ghostcrab_pack | ghostcrab_projection_get | ghostcrab_live_refresh
@@ -90,4 +91,5 @@ Filter rules:
 | `ghostcrab_artifact_get`   | Read one registry row including `payload`       |
 | `ghostcrab_pack`           | Compact pack for `analysis_plan` scopes         |
 | `ghostcrab_live_refresh`   | Recompute a `live_answer_view`                  |
+| `ghostcrab_live_create`    | Create a governed `live_answer_view`            |
 | `ghostcrab_project`        | **Write** — create/update Type A working memory |

@@ -74,6 +74,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 
 | Surface | Command | Layer | Impact | Access | Prerequisites | Runbook |
 |---------|---------|-------|--------|--------|---------------|-----------|
+| gcp | brain artifact create | pragma | mindbrain_answer_artifacts | write | backend running; effective workspace and live_answer_view_create capability required | gcp-commands.md |
 | gcp | brain artifact list \| get | pragma | mindbrain_answer_artifacts | read | backend running | gcp-commands.md |
 | gcp | brain artifact refresh \| events | pragma | mindbrain_answer_artifacts, mindbrain_answer_events | write/read | backend running; refresh requires one exact live_answer_view id; no wildcards | gcp-commands.md |
 | gcp | brain artifact migrate --dry-run \| --repair | pragma | mindbrain_answer_artifacts (offline backfill) | write | stop MCP | gcp-commands.md |
@@ -93,7 +94,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 
 ---
 
-## B — MCP tools (72 registered)
+## B — MCP tools (73 registered)
 
 | Tool | Basic | Subsystem | Access | Tables / impact |
 |------|-------|-----------|--------|-----------------|
@@ -126,6 +127,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | `ghostcrab_graph_search` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_graph_subgraph` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_learn` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
+| `ghostcrab_live_create` | no | pragma | write | mindbrain_answer_artifacts |
 | `ghostcrab_live_refresh` | no | pragma | write | mindbrain_answer_artifacts, mindbrain_answer_events |
 | `ghostcrab_loadout_apply` | no | loadout | write | bootstrap recipes / schemas seed |
 | `ghostcrab_loadout_inspect` | no | loadout | read | bootstrap recipes / schemas seed |

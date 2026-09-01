@@ -26,10 +26,43 @@ available. Relevant graph rule flags:
     "graph_gap_rules_delete": true,
     "graph_rule_evaluations": true,
     "graph_rule_evaluations_run": true,
-    "graph_rule_events": true
+    "graph_rule_events": true,
+    "live_answer_view_create": true
   }
 }
 ```
+
+`ghostcrab_live_create` and `gcp brain artifact create` require
+`live_answer_view_create: true` before issuing the write. If it is absent,
+GhostCrab stops with `BLOCKER_GHOSTCRAB_ARTIFACT_CREATE_UNAVAILABLE`; there is
+no SQL or simulated-artifact fallback.
+
+## Answer Artifact Workflow
+
+### `POST /api/mindbrain/ghostcrab/artifact`
+
+Creates a governed `live_answer_view` in one concrete workspace:
+
+```json
+{
+  "workspace_id": "default",
+  "slug": "weekly_status",
+  "public_label": "Weekly status",
+  "definition": { "question": "What changed this week?" }
+}
+```
+
+The stable id is `live_answer_view__weekly_status`. A new row returns `201`
+with `created: true`; an identical retry returns `200` with
+`idempotent: true`. A different definition/label bound to the same identity
+returns `409 artifact_conflict` and is never renamed. The workspace must exist.
+The top-level `materialized` member is backend-owned and forbidden in input.
+
+Related routes:
+
+- `GET /api/mindbrain/ghostcrab/artifact/{artifact_id}`
+- `POST /api/mindbrain/ghostcrab/artifact/{artifact_id}/refresh`
+- `GET /api/mindbrain/ghostcrab/artifact/{artifact_id}/events`
 
 ## Graph Rule Workflow
 

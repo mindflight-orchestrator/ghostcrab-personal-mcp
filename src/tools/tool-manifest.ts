@@ -33,6 +33,7 @@ export const EXPECTED_TOOL_NAMES = [
   "ghostcrab_graph_search",
   "ghostcrab_graph_subgraph",
   "ghostcrab_learn",
+  "ghostcrab_live_create",
   "ghostcrab_live_refresh",
   "ghostcrab_loadout_apply",
   "ghostcrab_loadout_inspect",

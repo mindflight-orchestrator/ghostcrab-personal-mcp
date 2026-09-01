@@ -39,6 +39,24 @@ export function extractMindbrainDispatchRoutes(source: string): string[] {
       getOnly = true;
     }
 
+    const dynamicMatch = line.match(
+      /artifactRouteId\(path,\s*"([^"]+)",\s*"([^"]*)"\)/
+    );
+    if (dynamicMatch) {
+      const path = `${dynamicMatch[1]}{artifact_id}${dynamicMatch[2]}`;
+      if (getOnly) {
+        routes.add(`GET ${path}`);
+      } else {
+        const routeBlock = lines.slice(index, index + 6).join("\n");
+        if (routeBlock.includes("request.head.method != .POST")) {
+          routes.add(`POST ${path}`);
+        } else if (routeBlock.includes("request.head.method != .GET")) {
+          routes.add(`GET ${path}`);
+        }
+      }
+      continue;
+    }
+
     const match = line.match(/std\.mem\.eql\(u8,\s*path,\s*"([^"]+)"\)/);
     if (!match) {
       continue;

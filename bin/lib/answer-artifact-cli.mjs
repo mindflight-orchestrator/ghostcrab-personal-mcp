@@ -122,6 +122,9 @@ export function mapListArtifactRows(columns, rows) {
  *   mindbrainUrl?: string | null;
  *   artifactId?: string | null;
  *   includeLatestEvent?: boolean;
+ *   slug?: string | null;
+ *   publicLabel?: string | null;
+ *   definitionFile?: string | null;
  *   error?: string;
  * }}
  */
@@ -149,7 +152,10 @@ export function parseArtifactArgs(args) {
     force: false,
     mindbrainUrl: null,
     artifactId: null,
-    includeLatestEvent: true
+    includeLatestEvent: true,
+    slug: null,
+    publicLabel: null,
+    definitionFile: null
   };
 
   const positional = [];
@@ -214,6 +220,28 @@ export function parseArtifactArgs(args) {
       parsed.mindbrainUrl = rest[++i].replace(/\/$/, "");
       continue;
     }
+    if (a === "--slug") {
+      if (!rest[i + 1])
+        return { error: "gcp brain artifact: --slug requires a value." };
+      parsed.slug = rest[++i];
+      continue;
+    }
+    if (a === "--public-label") {
+      if (!rest[i + 1])
+        return {
+          error: "gcp brain artifact: --public-label requires a value."
+        };
+      parsed.publicLabel = rest[++i];
+      continue;
+    }
+    if (a === "--definition-file") {
+      if (!rest[i + 1])
+        return {
+          error: "gcp brain artifact: --definition-file requires a path."
+        };
+      parsed.definitionFile = rest[++i];
+      continue;
+    }
     if (a === "--dry-run") {
       parsed.dryRun = true;
       continue;
@@ -247,6 +275,34 @@ export function parseArtifactArgs(args) {
       };
     }
     parsed.artifactId = positional[0];
+  } else if (subcommand === "create") {
+    if (positional.length > 0) {
+      return {
+        error: "gcp brain artifact create: does not take positional arguments."
+      };
+    }
+    if (!parsed.slug || !parsed.publicLabel || !parsed.definitionFile) {
+      return {
+        error:
+          "gcp brain artifact create: --slug, --public-label and --definition-file are required."
+      };
+    }
+    if (
+      !/^[a-z0-9]+(?:_+[a-z0-9]+)*$/.test(parsed.slug) ||
+      parsed.slug.length > 80
+    ) {
+      return {
+        error:
+          "gcp brain artifact create: --slug must be 1-80 lowercase letters, digits, or internal underscores."
+      };
+    }
+    if (!parsed.publicLabel.trim() || parsed.publicLabel.trim().length > 200) {
+      return {
+        error:
+          "gcp brain artifact create: --public-label must contain 1-200 characters."
+      };
+    }
+    parsed.publicLabel = parsed.publicLabel.trim();
   } else if (subcommand === "migrate") {
     if (positional.length > 0) {
       return {
@@ -302,6 +358,52 @@ export function buildArtifactGetUrl(baseUrl, artifactId) {
     `/api/mindbrain/ghostcrab/artifact/${encodeURIComponent(artifactId)}`,
     baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`
   );
+}
+
+/** @param {string} baseUrl */
+export function buildArtifactCapabilitiesUrl(baseUrl) {
+  return new URL(
+    "/api/mindbrain/capabilities",
+    baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`
+  );
+}
+
+/** @param {string} baseUrl */
+export function buildArtifactCreateUrl(baseUrl) {
+  return new URL(
+    "/api/mindbrain/ghostcrab/artifact",
+    baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`
+  );
+}
+
+/**
+ * @param {string} text
+ * @returns {Record<string, unknown>}
+ */
+export function parseLiveAnswerDefinition(text) {
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch (error) {
+    throw new Error(
+      `Invalid live answer definition JSON: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error }
+    );
+  }
+  if (
+    !parsed ||
+    typeof parsed !== "object" ||
+    Array.isArray(parsed) ||
+    Object.keys(parsed).length === 0
+  ) {
+    throw new Error("Live answer definition must be a non-empty JSON object.");
+  }
+  if (Object.prototype.hasOwnProperty.call(parsed, "materialized")) {
+    throw new Error(
+      "Live answer definition cannot contain reserved top-level materialized."
+    );
+  }
+  return parsed;
 }
 
 /**

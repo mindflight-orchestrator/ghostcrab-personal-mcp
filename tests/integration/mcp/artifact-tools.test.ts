@@ -14,6 +14,10 @@ import {
   LiveRefreshInput
 } from "../../../src/tools/pragma/live-refresh.js";
 import {
+  liveCreateTool,
+  LiveCreateInput
+} from "../../../src/tools/pragma/live-create.js";
+import {
   createIntegrationHarness,
   readStructured
 } from "../../helpers/cli-integration.js";
@@ -27,6 +31,8 @@ const harness = createIntegrationHarness();
 const RUN_ID = randomUUID().slice(0, 8).replace(/-/g, "");
 const WS_ID = `artif${RUN_ID}`;
 const ARTIFACT_PREFIX = `artif_${RUN_ID}`;
+const CREATE_SLUG = `integration_${RUN_ID}`;
+const CREATE_ARTIFACT_ID = `live_answer_view__${CREATE_SLUG}`;
 let backendReachable = false;
 let seeded = false;
 
@@ -46,6 +52,14 @@ describe.sequential("answer artifact MCP tools (integration, no mocks)", () => {
       harness.database,
       WS_ID,
       ARTIFACT_PREFIX
+    );
+    await harness.database.query(
+      "DELETE FROM mindbrain_answer_events WHERE artifact_id = $1",
+      [CREATE_ARTIFACT_ID]
+    );
+    await harness.database.query(
+      "DELETE FROM mindbrain_answer_artifacts WHERE artifact_id = $1",
+      [CREATE_ARTIFACT_ID]
     );
     await seedAnswerArtifact(harness.database, {
       artifactId: `${ARTIFACT_PREFIX}__plan`,
@@ -79,6 +93,73 @@ describe.sequential("answer artifact MCP tools (integration, no mocks)", () => {
     seeded = true;
   });
 
+  describe("ghostcrab_live_create", () => {
+    it("creates, replays idempotently, reads, and rejects a conflicting definition", async () => {
+      const context = createToolContext(harness.database);
+      context.session.workspace_id = "default";
+      const request = {
+        slug: CREATE_SLUG,
+        public_label: "Integration live answer",
+        definition: { question: "What changed?", source: "integration" }
+      };
+
+      const created = await liveCreateTool.handler(request, context);
+      expect(created.isError).not.toBe(true);
+      expect(readStructured(created)).toMatchObject({
+        workspace_id: "default",
+        created: true,
+        idempotent: false,
+        artifact: {
+          artifact_id: CREATE_ARTIFACT_ID,
+          artifact_kind: "live_answer_view",
+          lifecycle: "stale",
+          state: "dirty",
+          current_version: 1
+        }
+      });
+
+      const replay = await liveCreateTool.handler(request, context);
+      expect(readStructured(replay)).toMatchObject({
+        created: false,
+        idempotent: true,
+        artifact: { artifact_id: CREATE_ARTIFACT_ID }
+      });
+
+      const fetched = await artifactGetTool.handler(
+        { artifact_id: CREATE_ARTIFACT_ID },
+        context
+      );
+      expect(readStructured(fetched)).toMatchObject({
+        artifact_id: CREATE_ARTIFACT_ID,
+        workspace_id: "default",
+        payload: { question: "What changed?", source: "integration" }
+      });
+
+      const conflict = await liveCreateTool.handler(
+        { ...request, definition: { question: "Different" } },
+        context
+      );
+      expect(conflict.isError).toBe(true);
+      expect(readStructured(conflict)).toMatchObject({
+        error: { code: "artifact_conflict" }
+      });
+    });
+
+    it("documents session-default workspace semantics", () => {
+      const schema = liveCreateTool.definition.inputSchema as {
+        required?: string[];
+      };
+      expect(schema.required).not.toContain("workspace_id");
+      expect(
+        LiveCreateInput.safeParse({
+          slug: "weekly",
+          public_label: "Weekly",
+          definition: { question: "What changed?" }
+        }).success
+      ).toBe(true);
+    });
+  });
+
   afterAll(async () => {
     if (!backendReachable) {
       return;
@@ -88,6 +169,14 @@ describe.sequential("answer artifact MCP tools (integration, no mocks)", () => {
       harness.database,
       WS_ID,
       ARTIFACT_PREFIX
+    );
+    await harness.database.query(
+      "DELETE FROM mindbrain_answer_events WHERE artifact_id = $1",
+      [CREATE_ARTIFACT_ID]
+    );
+    await harness.database.query(
+      "DELETE FROM mindbrain_answer_artifacts WHERE artifact_id = $1",
+      [CREATE_ARTIFACT_ID]
     );
   });
 

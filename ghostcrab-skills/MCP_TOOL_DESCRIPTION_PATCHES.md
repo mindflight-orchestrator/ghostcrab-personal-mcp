@@ -4,6 +4,17 @@
 
 These patches are drafts for the public GhostCrab MCP tool descriptions.
 
+## `ghostcrab_live_create`
+
+- Governed `live_answer_view` creation only; no SQL, simulation, or rename fallback.
+- `workspace_id` is an explicit override. Otherwise use the active session
+  workspace; a concrete effective workspace is always mandatory.
+- Require `ghostcrab_status.runtime.capabilities.live_answer_view_create` before
+  downstream model/OpenRouter work. If absent, return
+  `BLOCKER_GHOSTCRAB_ARTIFACT_CREATE_UNAVAILABLE`.
+- Identical retries are idempotent; a different definition bound to the same
+  stable slug is an explicit conflict.
+
 ## `ghostcrab_projections_list`
 
 - Read-only catalogue: answer-artifact registry rows (`analysis_plan`, `live_answer_view`, `answer_snapshot`) plus optional graph `projection_id` values from `ProjectionResult`.

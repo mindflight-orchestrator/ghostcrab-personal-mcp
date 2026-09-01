@@ -24,6 +24,7 @@ import "./ontology/list.js";
 import "./ontology/reconciliation.js";
 import "./pragma/artifact-get.js";
 import "./pragma/guidance.js";
+import "./pragma/live-create.js";
 import "./pragma/live-refresh.js";
 import "./pragma/pack.js";
 import "./pragma/projection-get.js";

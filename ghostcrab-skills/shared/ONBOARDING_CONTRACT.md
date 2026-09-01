@@ -22,7 +22,7 @@ This block is for **all agents** (with or without extended reasoning). It is the
 
 **Read tools are always allowed:** `ghostcrab_status` `ghostcrab_search` `ghostcrab_schema_inspect` `ghostcrab_schema_list` `ghostcrab_workspace_list` `ghostcrab_modeling_guidance` `ghostcrab_count` `ghostcrab_projections_list` `ghostcrab_pack` `ghostcrab_facet_catalog` `ghostcrab_facet_inspect` `ghostcrab_traverse` `ghostcrab_coverage` `ghostcrab_workspace_inspect` `ghostcrab_workspace_export_model`
 
-**Forbidden before Phase D:** `ghostcrab_workspace_create` `ghostcrab_workspace_use` `ghostcrab_workspace_delete` `ghostcrab_workspace_reset` `ghostcrab_remember` `ghostcrab_upsert` `ghostcrab_learn` `ghostcrab_project` `ghostcrab_schema_register` `ghostcrab_facet_register` `ghostcrab_graph_reindex` `ghostcrab_collection_reindex` `ghostcrab_reindex_all` `ghostcrab_graph_gap_rules_import` `ghostcrab_graph_gap_rules_delete` `ghostcrab_live_refresh` `ghostcrab_loadout_apply` `ghostcrab_loadout_seed` `ghostcrab_ddl_propose` `ghostcrab_ddl_execute`.
+**Forbidden before Phase D:** `ghostcrab_workspace_create` `ghostcrab_workspace_use` `ghostcrab_workspace_delete` `ghostcrab_workspace_reset` `ghostcrab_remember` `ghostcrab_upsert` `ghostcrab_learn` `ghostcrab_project` `ghostcrab_schema_register` `ghostcrab_facet_register` `ghostcrab_graph_reindex` `ghostcrab_collection_reindex` `ghostcrab_reindex_all` `ghostcrab_graph_gap_rules_import` `ghostcrab_graph_gap_rules_delete` `ghostcrab_live_create` `ghostcrab_live_refresh` `ghostcrab_loadout_apply` `ghostcrab_loadout_seed` `ghostcrab_ddl_propose` `ghostcrab_ddl_execute`.
 
 ### Phase gate conditions (check in order)
 

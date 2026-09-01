@@ -50,7 +50,11 @@ const DOCUMENTED_ROUTES = [
   route("GET", "/api/mindbrain/graph-path"),
   route("GET", "/api/mindbrain/traverse"),
   route("GET", "/api/mindbrain/pack"),
-  route("GET", "/api/mindbrain/ghostcrab/pack-projections")
+  route("GET", "/api/mindbrain/ghostcrab/pack-projections"),
+  route("POST", "/api/mindbrain/ghostcrab/artifact"),
+  route("GET", "/api/mindbrain/ghostcrab/artifact/{artifact_id}"),
+  route("POST", "/api/mindbrain/ghostcrab/artifact/{artifact_id}/refresh"),
+  route("GET", "/api/mindbrain/ghostcrab/artifact/{artifact_id}/events")
 ] as const satisfies readonly BackendRouteSpec[];
 
 /** Runtime routes used by GhostCrab TS beyond the CLI usage block. */
@@ -98,6 +102,7 @@ export const GHOSTCRAB_BACKEND_CONTRACT = {
       graph_rule_evaluations_run: true,
       graph_rule_events: true,
       graph_pattern_query: true,
+      live_answer_view_create: true,
       ontology_inspect: true
     }
   }

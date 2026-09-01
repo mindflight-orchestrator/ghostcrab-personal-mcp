@@ -151,7 +151,10 @@ export const statusTool: ToolHandler = {
           true,
       graph_rule_events:
         capabilityProbe.ok === true &&
-        capabilityProbe.capabilities.features.graph_rule_events === true
+        capabilityProbe.capabilities.features.graph_rule_events === true,
+      live_answer_view_create:
+        capabilityProbe.ok === true &&
+        capabilityProbe.capabilities.features.live_answer_view_create === true
     };
 
     const directives: string[] = [...buildWorkspaceContextDirectives()];
@@ -159,6 +162,9 @@ export const statusTool: ToolHandler = {
       directives.push(
         "Backend missing graph diagnostics routes — rebuild ghostcrab-backend (pnpm run prebuild:local) and restart."
       );
+    }
+    if (!runtimeCapabilities.live_answer_view_create) {
+      directives.push("BLOCKER_GHOSTCRAB_ARTIFACT_CREATE_UNAVAILABLE");
     }
 
     const [stateRow] = await context.database.query<{

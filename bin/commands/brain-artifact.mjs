@@ -5,6 +5,7 @@
  * migrate runs offline against the SQLite file (stop MCP first).
  */
 
+import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readConfig } from "../lib/cli-config.mjs";
@@ -17,14 +18,19 @@ import {
 } from "../lib/brain-engine-runner.mjs";
 import {
   buildArtifactEventsUrl,
+  buildArtifactCapabilitiesUrl,
+  buildArtifactCreateUrl,
   buildArtifactGetUrl,
   buildArtifactMigrateEngineArgs,
   buildArtifactRefreshUrl,
   buildListArtifactsQuery,
   mapListArtifactRows,
   normalizeArtifactEventsBody,
-  parseArtifactArgs
+  parseArtifactArgs,
+  parseLiveAnswerDefinition
 } from "../lib/answer-artifact-cli.mjs";
+
+const ARTIFACT_CREATE_BLOCKER = "BLOCKER_GHOSTCRAB_ARTIFACT_CREATE_UNAVAILABLE";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(__dirname, "..", "..");
@@ -42,6 +48,9 @@ export async function cmdBrainArtifact(args) {
   }
 
   switch (parsed.subcommand) {
+    case "create":
+      await runArtifactCreate(parsed);
+      break;
     case "list":
       await runArtifactList(parsed);
       break;
@@ -62,6 +71,70 @@ export async function cmdBrainArtifact(args) {
       printArtifactHelp();
       process.exit(1);
   }
+}
+
+/**
+ * @param {NonNullable<ReturnType<typeof parseArtifactArgs>>} parsed
+ */
+async function runArtifactCreate(parsed) {
+  const workspaceId = resolveArtifactWorkspaceId(parsed);
+  if (!workspaceId) {
+    console.error(
+      "[ghostcrab] gcp brain artifact create requires an effective workspace: pass --workspace-id/--workspace or configure defaultWorkspace."
+    );
+    process.exit(1);
+  }
+
+  let definition;
+  try {
+    definition = parseLiveAnswerDefinition(
+      await readFile(parsed.definitionFile, "utf8")
+    );
+  } catch (error) {
+    console.error(
+      `[ghostcrab] ${error instanceof Error ? error.message : String(error)}`
+    );
+    process.exit(1);
+  }
+
+  const baseUrl = await resolveMindbrainBaseUrl(parsed);
+  let capabilities;
+  try {
+    const response = await fetch(buildArtifactCapabilitiesUrl(baseUrl), {
+      signal: AbortSignal.timeout(30_000)
+    });
+    capabilities = response.ok ? await response.json() : null;
+  } catch {
+    capabilities = null;
+  }
+  if (capabilities?.features?.live_answer_view_create !== true) {
+    console.error(ARTIFACT_CREATE_BLOCKER);
+    process.exit(1);
+  }
+
+  const response = await fetch(buildArtifactCreateUrl(baseUrl), {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      workspace_id: workspaceId,
+      slug: parsed.slug,
+      public_label: parsed.publicLabel,
+      definition
+    }),
+    signal: AbortSignal.timeout(30_000)
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    if (response.status === 404 && !text.includes("workspace_not_found")) {
+      console.error(ARTIFACT_CREATE_BLOCKER);
+    } else {
+      console.error(
+        `[ghostcrab] artifact create failed (${response.status}): ${text || response.statusText}`
+      );
+    }
+    process.exit(1);
+  }
+  console.log(JSON.stringify(await response.json(), null, 2));
 }
 
 /**
@@ -185,7 +258,7 @@ async function resolveMindbrainBaseUrl(parsed) {
   const backend = await probeBackend(sqlitePathResolved);
   if (!backend.alive || !backend.url) {
     console.error(
-      "[ghostcrab] gcp brain artifact list/get/refresh/events requires a running MindBrain backend.\n" +
+      "[ghostcrab] gcp brain artifact create/list/get/refresh/events requires a running MindBrain backend.\n" +
         "  Start: gcp brain up\n" +
         "  Or set GHOSTCRAB_MINDBRAIN_URL / pass --url http://127.0.0.1:8091"
     );
@@ -224,13 +297,17 @@ async function postSql(baseUrl, sql, params) {
 
 function artifactHelpText() {
   return `
-Usage: gcp brain artifact <list|get|refresh|events|migrate> [options]
+Usage: gcp brain artifact <create|list|get|refresh|events|migrate> [options]
 
 Answer artifact registry (analysis_plan, live_answer_view, answer_snapshot, evidence_pack).
 Gap rules, diagnostics, and coverage reports are NOT answer artifacts.
 Update history uses event_kind answer_update_event (not artifact_kind).
 
 Subcommands:
+  create --slug <slug> --public-label <label> --definition-file <file>
+         [--workspace-id <id> | --workspace <name>] [--url <base>]
+       Create a governed live_answer_view. A concrete workspace is always
+       resolved from the explicit option or configured default.
   list [--workspace-id <id>] [--kind <kind>] [--agent-id <id>] [--scope <scope>] [--limit <n>]
        List registry rows (requires running backend; uses MindBrain SQL API).
   get <artifact_id> [--url <base>]
@@ -244,13 +321,15 @@ Subcommands:
        Backfill registry from legacy projections / ProjectionResult (offline; stop MCP first).
 
 Options:
-  --workspace, -w <name>   Workspace slug (list/migrate path resolution)
-  --workspace-id <id>      Filter list or scope migrate context
+  --workspace, -w <name>   Workspace slug (create/list/migrate context)
+  --workspace-id <id>      Create workspace, list filter, or migrate context
   --db <path>              SQLite file (migrate; same as gcp brain up)
-  --url <base>             MindBrain base URL for list/get/refresh/events
+  --url <base>             MindBrain base URL for create/list/get/refresh/events
   --force                  Allow migrate while backend appears running (risky)
 
 Examples:
+  gcp brain artifact create --workspace-id default --slug weekly_status \
+    --public-label "Weekly status" --definition-file weekly-status.json
   gcp brain artifact list --workspace-id default --kind analysis_plan
   gcp brain artifact get analysis_plan__pilotage_hebdo
   gcp brain artifact refresh live_answer_view__pilotage_hebdo
@@ -283,9 +362,12 @@ export const __private__ = {
   mapListArtifactRows,
   buildArtifactMigrateEngineArgs,
   buildArtifactGetUrl,
+  buildArtifactCapabilitiesUrl,
+  buildArtifactCreateUrl,
   buildArtifactRefreshUrl,
   buildArtifactEventsUrl,
   normalizeArtifactEventsBody,
+  parseLiveAnswerDefinition,
   artifactHelpText,
   resolveArtifactWorkspaceId: resolveArtifactWorkspaceId
 };

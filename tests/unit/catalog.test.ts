@@ -85,6 +85,7 @@ describe("tool catalog", () => {
       "ghostcrab_graph_rule_evaluations_run",
       "ghostcrab_workspace_delete",
       "ghostcrab_workspace_reset",
+      "ghostcrab_live_create",
       "ghostcrab_live_refresh"
     ]) {
       expect(classifyToolAccess(name)).toBe("write");

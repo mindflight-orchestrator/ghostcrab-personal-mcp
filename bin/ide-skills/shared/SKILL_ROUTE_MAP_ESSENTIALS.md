@@ -16,7 +16,7 @@ Which GhostCrab skill to invoke by delivery phase. Install all skills: `gcp brai
 | B1 Freeze         | `ghostcrab-projection-reviewer`                             | —                                             | any write                             |
 | B2 Fake data      | `ghostcrab-data-architect`                                  | StarterKit gates 2–4                          | operator                              |
 | C2 Import         | —                                                           | `gcp brain structured-import`                 | —                                     |
-| B1 Materialize    | `ghostcrab-projection-reviewer`                             | `ghostcrab_project`, artifact refresh         | —                                     |
+| B1 Materialize    | `ghostcrab-projection-reviewer`                             | `ghostcrab_project`, live create/refresh      | —                                     |
 | Audit             | `ghostcrab-gap-auditor`                                     | projection audit script                       | —                                     |
 | Runtime Q&A       | operator → evidence-discovery → json-answer-builder         | `ghostcrab_pack`, `ghostcrab_search`          | data-architect                        |
 | Unanswerable      | `ghostcrab-gap-auditor`                                     | routes to B-fix / B2 / B1                     | —                                     |

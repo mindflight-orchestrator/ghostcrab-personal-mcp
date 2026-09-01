@@ -60,7 +60,7 @@
     },
     {
       "path": "claude-code/skills/ghostcrab-projection-reviewer/SKILL.md",
-      "sha256": "823cd9b641e7d4edb7bafa80f86382f8f5fa3bac99ee6bf1733bf492fe0053e8"
+      "sha256": "6d7fbecb09ad0167d92e363a5bd23ec1788a3e4e51493df945ddafde2947d435"
     },
     {
       "path": "claude-code/skills/ghostcrab-prompt-guide/SKILL.md",
@@ -132,7 +132,7 @@
     },
     {
       "path": "codex/skills/ghostcrab-projection-reviewer/SKILL.md",
-      "sha256": "823cd9b641e7d4edb7bafa80f86382f8f5fa3bac99ee6bf1733bf492fe0053e8"
+      "sha256": "6d7fbecb09ad0167d92e363a5bd23ec1788a3e4e51493df945ddafde2947d435"
     },
     {
       "path": "codex/skills/ghostcrab-projection-reviewer/agents/openai.yaml",
@@ -188,7 +188,7 @@
     },
     {
       "path": "cursor/skills/ghostcrab-projection-reviewer/SKILL.md",
-      "sha256": "823cd9b641e7d4edb7bafa80f86382f8f5fa3bac99ee6bf1733bf492fe0053e8"
+      "sha256": "6d7fbecb09ad0167d92e363a5bd23ec1788a3e4e51493df945ddafde2947d435"
     },
     {
       "path": "cursor/skills/ghostcrab-prompt-guide/SKILL.md",
@@ -208,7 +208,7 @@
     },
     {
       "path": "shared/ARTIFACT_KINDS.md",
-      "sha256": "4a03cb43953005d99c9dd919054157809ef5b0c8204d992e1ad7aface786105d"
+      "sha256": "6f13051921d1b172b643d115f48e01dcebb24d69d275f732ad01c8f78c405831"
     },
     {
       "path": "shared/CAPABILITIES.md",
@@ -232,11 +232,11 @@
     },
     {
       "path": "shared/MCP_VS_GCP_ROUTING.md",
-      "sha256": "902bb2dfde9fcdf662f89be4eb0e7b4a2ab5ea44e0e9289fcdfba995320e172a"
+      "sha256": "2d78a69c78acb126969261b0ef39705c1be275696142fdf44866203a82e93297"
     },
     {
       "path": "shared/ONBOARDING_CONTRACT.md",
-      "sha256": "0670ac12a55a649fb606f9783de1a37201ea99838f7ccb4bfc5f435792cada46"
+      "sha256": "9efebae0a3ceec8459e4c94da85f95a305f1a49abb2f9f4578c2066052a5c6bb"
     },
     {
       "path": "shared/PATH_CONTENT_FACETS.md",
@@ -244,7 +244,7 @@
     },
     {
       "path": "shared/PROJECTIONS_DISCOVERY.md",
-      "sha256": "32739f1ee52798e239fff61620cb0bfde5287da9ca0f16155af7c79a0892f6d0"
+      "sha256": "db38d7e39af2a2e8a52d1bd0fe01bf40bdfe5f051a2692e466e6de89115d0c67"
     },
     {
       "path": "shared/QUERY_PATTERNS.md",
@@ -264,7 +264,7 @@
     },
     {
       "path": "shared/SKILL_ROUTE_MAP_ESSENTIALS.md",
-      "sha256": "b8f578f10a5ddfc281d327e40aec67b2a0f7f1013173387fd938a7e048ea308a"
+      "sha256": "b08d5065a75f708b2d46f13b90bae5146c247d925dddba9b68b7d3038bd667ec"
     },
     {
       "path": "shared/STARTERKIT_PATHS.md",

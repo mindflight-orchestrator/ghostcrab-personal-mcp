@@ -170,6 +170,21 @@ export interface StandaloneAnswerArtifactRefreshResponse {
   state: string;
 }
 
+export interface StandaloneLiveAnswerViewCreateResponse extends StandaloneAnswerArtifactRow {
+  ok: true;
+  created: boolean;
+  idempotent: boolean;
+}
+
+export interface StandaloneLiveAnswerViewCreateParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  workspaceId: string;
+  slug: string;
+  publicLabel: string;
+  definition: Record<string, unknown>;
+}
+
 export interface StandaloneAnswerArtifactEventRow {
   event_id: string;
   artifact_id: string;
@@ -775,6 +790,29 @@ export async function runStandaloneAnswerArtifactGet(
   return await fetchJson<StandaloneAnswerArtifactRow>(
     url,
     { method: "GET" },
+    params.timeoutMs
+  );
+}
+
+export async function runStandaloneLiveAnswerViewCreate(
+  params: StandaloneLiveAnswerViewCreateParams
+): Promise<StandaloneLiveAnswerViewCreateResponse> {
+  const url = new URL(
+    "/api/mindbrain/ghostcrab/artifact",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  return await fetchJson<StandaloneLiveAnswerViewCreateResponse>(
+    url,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        workspace_id: params.workspaceId,
+        slug: params.slug,
+        public_label: params.publicLabel,
+        definition: params.definition
+      })
+    },
     params.timeoutMs
   );
 }
