@@ -92,6 +92,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       # Staged publishing requires Node >= 22.14.0 and npm >= 11.15.0.
       - uses: actions/setup-node@v4
@@ -106,7 +108,7 @@ jobs:
           npm --version
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts --omit=optional
 
       - name: Build TypeScript
         run: npm run build
@@ -141,6 +143,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - uses: actions/setup-node@v4
         with:
@@ -148,7 +152,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts --omit=optional
 
       - name: Build TypeScript
         run: npm run build
