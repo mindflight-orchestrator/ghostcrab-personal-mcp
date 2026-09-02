@@ -1,4 +1,5 @@
 import {
+  chmodSync,
   copyFileSync,
   existsSync,
   mkdirSync,
@@ -137,6 +138,11 @@ function stagePackage(entry) {
     const targetPath = join(targetDir, name);
     rmSync(targetPath, { force: true });
     copyFileSync(sourcePath, targetPath);
+    // GitHub artifact archives do not preserve executable bits. Restore them
+    // before validating and packing Unix platform packages.
+    if (!name.endsWith(".exe")) {
+      chmodSync(targetPath, 0o755);
+    }
     console.error(
       `[stage-platform-packages] ${entry.packageName} <= prebuilds/${entry.platformKey}/${name}`
     );
