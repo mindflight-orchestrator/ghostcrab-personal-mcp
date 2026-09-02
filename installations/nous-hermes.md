@@ -1,5 +1,7 @@
 # GhostCrab MCP in Nous-Hermes-style agents
 
+> **Prefer Hermes Agent?** Use the generator: [`gcp brain setup hermes`](hermes.md).
+
 Use this guide for Nous-Hermes local agent wrappers or runtimes that can launch MCP servers. There is no single verified Nous-Hermes MCP config path in this repo, so treat this as an adapter pattern.
 
 ## MCP server definition

@@ -28,7 +28,8 @@ npx -y --package=@mindflight/ghostcrab-personal-mcp@latest gcp brain up
 | [universal-mcp-client.md](universal-mcp-client.md)                                           | Any MCP client that accepts a command plus args                      |
 | [openclaw.md](openclaw.md)                                                                   | OpenClaw outbound MCP registry and OpenClaw skill layout             |
 | [gemini-cli.md](gemini-cli.md)                                                               | Gemini CLI `settings.json` / `gemini mcp add` setup                  |
-| [nous-hermes.md](nous-hermes.md)                                                             | Nous-Hermes-style local agent runtimes with MCP support              |
+| [nous-hermes.md](nous-hermes.md)                                                             | Legacy Nous-Hermes adapter (prefer [hermes.md](hermes.md))           |
+| [hermes.md](hermes.md)                                                                       | Hermes Agent CLI — `gcp brain setup hermes`                          |
 | [openfang.md](openfang.md)                                                                   | OpenFang-style local agent runtimes with MCP support                 |
 | [custom-installation.md](custom-installation.md)                                             | How to add a new client-specific installation guide                  |
 | [templates/universal-ghostcrab-skill/SKILL.md](templates/universal-ghostcrab-skill/SKILL.md) | A portable skill template to adapt for new agents                    |

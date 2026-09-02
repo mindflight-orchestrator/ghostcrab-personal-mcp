@@ -58,9 +58,12 @@ Where supported by the CLI, prefer the generator:
 npx gcp brain setup cursor
 npx gcp brain setup claude
 npx gcp brain setup codex
+npx gcp brain setup hermes
 ```
 
 Those commands write the client config with the most reliable local command form available from the current directory. They also apply MCP permission preset **`basic`** by default (13 recommended tools) and install the matching **GhostCrab IDE skill bundle** (10 skills) from `bin/ide-skills/`, **replacing any previously installed GhostCrab skill directories** (no `--force` required for skills). Opt out: `--no-permissions`, `--no-skills`. Manage presets: `gcp brain permissions print|apply`. Skill bundles: [bin/ide-skills/README.md](../bin/ide-skills/README.md). If a specific client is not supported yet, use [universal-mcp-client.md](universal-mcp-client.md) and add a new adapter guide.
+
+**Hermes Agent** uses YAML (`~/.hermes/config.yaml` → `mcp_servers:`) and native skills under `~/.hermes/skills/`. See [installations/hermes.md](hermes.md) for `gcp brain setup hermes`, default db path, and experimental `--preconfig` hooks.
 
 Codex is not a JSON `mcpServers` client. `gcp brain setup codex` calls `codex mcp add` and the manual fallback is TOML `[mcp_servers.<name>]`, not Cursor-style JSON. If you need a dedicated Codex entry and database file, use:
 

@@ -25,7 +25,7 @@ import {
 
 const LOG_PREFIX = "[ghostcrab]";
 
-/** @typedef {"cursor" | "claude-code" | "codex" | "generic"} IdeSkillsTarget */
+/** @typedef {"cursor" | "claude-code" | "codex" | "generic" | "hermes"} IdeSkillsTarget */
 /** @typedef {"user" | "project"} IdeSkillsScope */
 
 /**
@@ -115,6 +115,13 @@ function resolveInstallRoots(cwd, target, scope) {
     if (target === "codex") {
       return { skillRoot: join(home, ".codex", "skills") };
     }
+    if (target === "hermes") {
+      const hermesHome =
+        process.env.HERMES_HOME && process.env.HERMES_HOME.length > 0
+          ? process.env.HERMES_HOME.replace(/^~(?=$|[/\\])/, home)
+          : join(home, ".hermes");
+      return { skillRoot: join(hermesHome, "skills") };
+    }
     return { skillRoot: join(home, ".agents", "skills") };
   }
   if (target === "cursor") {
@@ -125,6 +132,13 @@ function resolveInstallRoots(cwd, target, scope) {
   }
   if (target === "codex") {
     return { skillRoot: join(cwd, ".codex", "skills") };
+  }
+  if (target === "hermes") {
+    const hermesHome =
+      process.env.HERMES_HOME && process.env.HERMES_HOME.length > 0
+        ? process.env.HERMES_HOME.replace(/^~(?=$|[/\\])/, home)
+        : join(home, ".hermes");
+    return { skillRoot: join(hermesHome, "skills") };
   }
   return { skillRoot: join(cwd, ".agents", "skills") };
 }
@@ -522,6 +536,53 @@ function installCodexBundle(bundleRoot, cwd, force, scope) {
  * @param {boolean} force
  * @param {IdeSkillsScope} scope
  */
+function installHermesBundle(bundleRoot, cwd, force, scope) {
+  // Same skill tree as generic/codex; destination is ~/.hermes/skills (native Hermes loader).
+  const paths = [];
+  const skipped = [];
+  const skills = readBundleSkillNames(bundleRoot);
+  const srcSkills = codexBundleSkillsRoot(bundleRoot);
+  const srcShared = join(bundleRoot, "shared");
+  const { skillRoot: destSkills } = resolveInstallRoots(cwd, "hermes", scope);
+  const destShared = join(destSkills, "ghostcrab-shared");
+  const sharedRoot = installSharedDocs(bundleRoot, cwd);
+
+  if (!existsSync(srcSkills)) {
+    return {
+      ok: false,
+      message: `Missing Hermes skills bundle at ${srcSkills}`
+    };
+  }
+
+  for (const name of skills) {
+    const beforeCopy = paths.length;
+    copyManagedTree(
+      join(srcSkills, name),
+      join(destSkills, name),
+      force,
+      paths,
+      skipped
+    );
+    if (paths.length > beforeCopy) {
+      const destSkill = join(destSkills, name);
+      patchSkillLinks(destSkill);
+      ensureCodexManualInvocation(destSkill);
+    }
+  }
+  copySkillRootShared(srcShared, destShared, paths);
+  writeInstallReference({
+    cwd,
+    target: "hermes",
+    scope,
+    installedSkillRoot: destSkills,
+    sharedRoot,
+    skills,
+    bundleRoot,
+    paths
+  });
+  return { ok: true, paths, skippedPaths: skipped };
+}
+
 function installGenericBundle(bundleRoot, cwd, force, scope) {
   const paths = [];
   const skipped = [];
@@ -614,6 +675,8 @@ export function installIdeSkillsBundleForTarget(opts) {
     result = installCodexBundle(bundleRoot, cwd, force, scope);
   } else if (target === "generic") {
     result = installGenericBundle(bundleRoot, cwd, force, scope);
+  } else if (target === "hermes") {
+    result = installHermesBundle(bundleRoot, cwd, force, scope);
   } else {
     return { ok: false, message: `Unknown IDE skills target: ${target}` };
   }
@@ -676,7 +739,8 @@ export function describeIdeSkillsBundleForTarget(opts) {
     opts.target === "cursor" ||
     opts.target === "claude-code" ||
     opts.target === "codex" ||
-    opts.target === "generic"
+    opts.target === "generic" ||
+    opts.target === "hermes"
   ) {
     installedSkillRoot = resolveInstallRoots(
       opts.cwd,
@@ -746,7 +810,7 @@ function log(context, message) {
   }
 }
 
-/** @param {"cursor" | "claude" | "codex" | "generic"} setupTarget */
+/** @param {"cursor" | "claude" | "codex" | "generic" | "hermes"} setupTarget */
 export function setupTargetToIdeSkillsTarget(setupTarget) {
   if (setupTarget === "claude") return "claude-code";
   return setupTarget;

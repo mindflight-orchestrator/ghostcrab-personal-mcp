@@ -89,13 +89,15 @@ export async function cmdBrain(args) {
     case "setup_codex":
     case "setup_claude":
     case "setup_claudecode":
-    case "setup_generic": {
+    case "setup_generic":
+    case "setup_hermes": {
       const aliasFirst = {
         setup_cursor: "cursor",
         setup_codex: "codex",
         setup_claude: "claude",
         setup_claudecode: "claude",
-        setup_generic: "generic"
+        setup_generic: "generic",
+        setup_hermes: "hermes"
       };
       const r = sub === "setup" ? rest : [aliasFirst[sub], ...rest];
       await cmdBrainSetup(r);
@@ -220,6 +222,9 @@ async function cmdBrainSetup(args) {
     PKG_ROOT
   } = await import("../lib/mcp-global-setup.mjs");
 
+  const { runSetupHermes, defaultHermesDbPath, resolveHermesHome } =
+    await import("../lib/mcp-hermes-setup.mjs");
+
   const { formatCliInvocationWarnings } =
     await import("../lib/cli-invocation.mjs");
   for (const line of formatCliInvocationWarnings({
@@ -248,6 +253,11 @@ async function cmdBrainSetup(args) {
   // its working directory. The user's explicit --db wins; otherwise we resolve
   // the user-global default (~/.ghostcrab/databases/ghostcrab.sqlite).
   let effectiveDbPath = p.dbPath ? resolve(p.dbPath) : null;
+  if (!effectiveDbPath && p.target === "hermes" && !p.defaultDb) {
+    effectiveDbPath = defaultHermesDbPath(
+      resolveHermesHome({ home: p.hermesHome })
+    );
+  }
   if (!effectiveDbPath) {
     const { resolveGhostcrabSqlite } =
       await import("../lib/resolve-ghostcrab-sqlite.mjs");
@@ -271,6 +281,9 @@ async function cmdBrainSetup(args) {
   };
 
   const postOpts = buildPostOpts(p, PKG_ROOT);
+  if (p.target === "hermes" && p.preconfig === "external-dirs") {
+    postOpts.target = "generic";
+  }
 
   if (p.target === "cursor") {
     const out = runSetupCursor({
@@ -376,6 +389,49 @@ async function cmdBrainSetup(args) {
     return;
   }
 
+  if (p.target === "hermes") {
+    const out = await runSetupHermes({
+      ...base,
+      home: p.hermesHome,
+      force: p.force,
+      permissionsPreset: p.noPermissions ? "none" : p.permissionsPreset,
+      allowTools: p.allowTools,
+      preconfig: p.preconfig
+    });
+    if (out.message) {
+      (out.ok ? console.log : console.error)(out.message);
+    }
+    if (
+      out.ok &&
+      Array.isArray(out.prunedLegacy) &&
+      out.prunedLegacy.length > 0
+    ) {
+      console.log(
+        `  Removed legacy Hermes MCP entries:\n` +
+          out.prunedLegacy.map((k) => `    - mcp_servers.${k}`).join("\n")
+      );
+    }
+    if (p.dryRun && out.doc) {
+      console.log("--- Hermes config.yaml (merged):");
+      console.log(JSON.stringify(out.doc, null, 2));
+      if (out.manifest) {
+        console.log("--- setup-manifest.json:");
+        console.log(JSON.stringify(out.manifest, null, 2));
+      }
+    }
+    if (!out.ok) {
+      console.error(
+        "Hermes MCP registration failed. Installing IDE skills anyway (decoupled)."
+      );
+    }
+    await runPostInstallAndExit(
+      { ...postOpts, skipPermissions: true },
+      p,
+      out.ok ? null : (out.code ?? EX_ERR)
+    );
+    return;
+  }
+
   printSetupHelp();
   process.exit(1);
 }
@@ -415,7 +471,7 @@ async function cmdBrainSetupSkills(args) {
 function printSetupSkillsHelp() {
   console.log(
     `
-Usage: gcp brain setup_skills <cursor|codex|claude|generic> [options]
+Usage: gcp brain setup_skills <cursor|codex|claude|generic|hermes> [options]
 
   Install the GhostCrab IDE skill bundle, MCP tool permissions, and the
   ~/.ghostcrab/bin PATH shim — WITHOUT registering the MCP server. Use this
@@ -456,12 +512,13 @@ export function parseSetupArgs(args) {
     targetRaw === "cursor" ||
     targetRaw === "codex" ||
     targetRaw === "claude" ||
-    targetRaw === "generic"
+    targetRaw === "generic" ||
+    targetRaw === "hermes"
       ? targetRaw
       : null;
   if (!target) {
     return {
-      error: `gcp brain setup: invalid target "${targetRaw}". Use: cursor, codex, claude, or generic.`
+      error: `gcp brain setup: invalid target "${targetRaw}". Use: cursor, codex, claude, generic, or hermes.`
     };
   }
 
@@ -485,7 +542,9 @@ export function parseSetupArgs(args) {
     noPermissions: false,
     noSkills: false,
     allowTools: /** @type {string[]} */ ([]),
-    askTools: /** @type {string[]} */ ([])
+    askTools: /** @type {string[]} */ ([]),
+    hermesHome: null,
+    preconfig: "none"
   };
 
   for (let i = 0; i < rest.length; i++) {
@@ -592,6 +651,27 @@ export function parseSetupArgs(args) {
       out.mindbrainWorkspaceId = rest[++i];
       continue;
     }
+    if (a === "--hermes-home" && rest[i + 1]) {
+      out.hermesHome = rest[++i];
+      continue;
+    }
+    if (a === "--preconfig" && rest[i + 1]) {
+      out.preconfig = rest[++i];
+      continue;
+    }
+  }
+
+  const validPreconfigs = ["none", "minimal", "external-dirs"];
+  if (!validPreconfigs.includes(out.preconfig)) {
+    return {
+      error: `gcp brain setup: --preconfig must be one of ${validPreconfigs.join(", ")} (got ${out.preconfig})`
+    };
+  }
+
+  if (out.preconfig !== "none" && out.target !== "hermes") {
+    return {
+      error: "gcp brain setup: --preconfig is only supported for the hermes target."
+    };
   }
 
   const validPresets = ["none", "all", "basic", "read", "balanced", "custom"];
@@ -642,17 +722,23 @@ export function parseSetupArgs(args) {
     return { error: "gcp brain setup: --scope is only for claude" };
   }
 
+  if (out.hermesHome && out.target !== "hermes") {
+    return { error: "gcp brain setup: --hermes-home is only for hermes" };
+  }
+
   return out;
 }
 
 function printSetupHelp() {
   console.log(
     `
-Usage: gcp brain setup <cursor|codex|claude|generic> [options]
+Usage: gcp brain setup <cursor|codex|claude|generic|hermes> [options]
 
   Register the GhostCrab MCP server, install the matching GhostCrab skills,
   and install the ~/.ghostcrab/bin PATH shim (updates your shell profile).
   The generic target prints MCP snippets and installs portable .agents/skills.
+  The hermes target writes ~/.hermes/config.yaml and installs skills under
+  ~/.hermes/skills/ (override with HERMES_HOME or --hermes-home).
 
   --runner <auto|gcp|pnpm|npx|node>
                                 default: auto. auto picks (in order):
@@ -679,12 +765,15 @@ Usage: gcp brain setup <cursor|codex|claude|generic> [options]
   --force-skills               overwrite MCP permissions / settings (skills always replace; alias: --force)
   --permissions-tool <name>    repeat for custom preset allow list
   --permissions-ask-tool <name> repeat for custom preset ask list (Claude)
+  --hermes-home <path>           Hermes profile root (default: ~/.hermes or HERMES_HOME)
+  --preconfig none|minimal|external-dirs
+                                 Hermes-only: optional skills section / external_dirs hook
 
   Note: IDE skills + permissions are installed even if MCP registration fails
   (the command warns and exits non-zero). To (re)install skills only, without
   touching MCP, use:  gcp brain setup_skills <target>
 
-Aliases:  gcp brain setup_cursor | setup_codex | setup_claude | setup_claudecode | setup_generic
+Aliases:  gcp brain setup_cursor | setup_codex | setup_claude | setup_claudecode | setup_generic | setup_hermes
 
 Per-IDE details:  gcp brain setup --help   ·   installations/gcp-brain-setup.md
 `.trim()
@@ -1037,10 +1126,10 @@ Subcommands:
   backup [opts]                           Export workspace, collection, or taxonomy backup bundle
   export [opts]                           Alias for backup
   load <file.jsonl|backup.json>           Load JSONL profile or restore backup bundle
-  setup <cursor|codex|claude|generic> [opts]
-                                           User-global MCP: ~/.cursor/mcp.json, codex mcp add, claude mcp add, or generic snippets
+  setup <cursor|codex|claude|generic|hermes> [opts]
+                                           User-global MCP: ~/.cursor/mcp.json, codex mcp add, claude mcp add, ~/.hermes/config.yaml, or generic snippets
                                            (installs skills + permissions even if MCP registration fails)
-  setup_skills <cursor|codex|claude|generic> [opts]
+  setup_skills <cursor|codex|claude|generic|hermes> [opts]
                                            Install IDE skills + permissions + PATH shim only (no MCP registration)
   permissions <print|apply> [opts]       MCP tool permission presets (Claude / Cursor)
 
@@ -1067,7 +1156,8 @@ Examples:
   gcp brain setup cursor --dry-run
   gcp brain setup claude --runner pnpm
   gcp brain setup_skills claude
-  gcp brain setup_skills cursor --force
+  gcp brain setup hermes --package=@mindflight/ghostcrab-personal-mcp@0.6.6 --dry-run
+  gcp brain setup_skills hermes
 
 Shorthand:  gcp up   and   gcp start   mean the same as   gcp brain up
 Legacy:     gcp serve  (same as gcp brain up)

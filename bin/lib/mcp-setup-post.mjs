@@ -17,7 +17,7 @@ import { installPathShim } from "./path-shim.mjs";
 
 /**
  * @param {object} opts
- * @param {"cursor" | "claude" | "codex" | "generic"} opts.target
+ * @param {"cursor" | "claude" | "codex" | "generic" | "hermes"} opts.target
  * @param {string} opts.cwd
  * @param {string} opts.pkgRoot
  * @param {string} opts.serverName

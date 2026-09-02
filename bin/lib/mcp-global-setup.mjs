@@ -18,6 +18,10 @@ import { dirname, join, delimiter } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { resolveRuntimeNodePath } from "./runtime-node.mjs";
+import {
+  formatDlxPackageSpec,
+  formatNpxPackageArg
+} from "./npm-package-spec.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const PKG_ROOT = join(__dirname, "..", "..");
@@ -207,7 +211,7 @@ export function buildMcpLaunch({
       command: "pnpm",
       args: [
         "dlx",
-        `${packageName}@latest`,
+        formatDlxPackageSpec(packageName),
         "gcp",
         "brain",
         "up",
@@ -238,7 +242,7 @@ export function buildMcpLaunch({
       command: npxPath,
       args: [
         "-y",
-        `--package=${packageName}@latest`,
+        formatNpxPackageArg(packageName),
         "gcp",
         "brain",
         "up",
