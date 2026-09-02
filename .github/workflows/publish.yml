@@ -96,7 +96,7 @@ jobs:
           submodules: true
 
       # Staged publishing requires Node >= 22.14.0 and npm >= 11.15.0.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
           registry-url: https://registry.npmjs.org
@@ -144,7 +144,7 @@ jobs:
         with:
           submodules: true
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm

@@ -16,7 +16,13 @@ const repoRoot = join(__dirname, "..");
 const distPackDir = join(repoRoot, "dist-pack");
 const manifestPath = join(distPackDir, "pack-manifest.json");
 const bundleDir = join(distPackDir, "beta-bundle");
-const betaReadme = join(repoRoot, "docs", "dev", "beta_testers_readme.md");
+const betaReadme = join(
+  repoRoot,
+  "docs",
+  "installers",
+  "beta-bundle",
+  "BETA_TESTERS.md"
+);
 const installScriptSrc = join(repoRoot, "scripts", "beta-bundle-install.mjs");
 const installPs1Src = join(repoRoot, "scripts", "beta-bundle-install.ps1");
 const spawnNpmLibSrc = join(repoRoot, "scripts", "lib", "spawn-npm.mjs");
