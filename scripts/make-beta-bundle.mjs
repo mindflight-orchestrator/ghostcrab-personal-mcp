@@ -155,14 +155,42 @@ const zipName = `ghostcrab-beta-${version}.zip`;
 const zipPath = join(distPackDir, zipName);
 rmSync(zipPath, { force: true });
 
-const zip = spawnSync("zip", ["-r", zipPath, "."], {
-  cwd: bundleDir,
-  encoding: "utf8"
-});
+function createZipArchive() {
+  if (process.platform !== "win32") {
+    return spawnSync("zip", ["-r", zipPath, "."], {
+      cwd: bundleDir,
+      encoding: "utf8"
+    });
+  }
+
+  const args = [
+    "-NoProfile",
+    "-NonInteractive",
+    "-Command",
+    "Compress-Archive -Path (Join-Path $env:GHOSTCRAB_BETA_BUNDLE_DIR '*') -DestinationPath $env:GHOSTCRAB_BETA_ZIP_PATH -Force"
+  ];
+  const options = {
+    cwd: bundleDir,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      GHOSTCRAB_BETA_BUNDLE_DIR: bundleDir,
+      GHOSTCRAB_BETA_ZIP_PATH: zipPath
+    }
+  };
+  const pwsh = spawnSync("pwsh", args, options);
+  if (pwsh.error?.code !== "ENOENT") {
+    return pwsh;
+  }
+  return spawnSync("powershell.exe", args, options);
+}
+
+const zip = createZipArchive();
 
 if (zip.status !== 0) {
   throw new Error(
-    `zip failed with exit=${zip.status ?? "null"}.\nSTDERR:\n${zip.stderr}\nSTDOUT:\n${zip.stdout}`
+    `zip failed with exit=${zip.status ?? "null"}${zip.error ? ` (${zip.error.code}: ${zip.error.message})` : ""}.\n` +
+      `STDERR:\n${zip.stderr}\nSTDOUT:\n${zip.stdout}`
   );
 }
 
