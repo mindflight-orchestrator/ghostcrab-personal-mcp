@@ -60,23 +60,23 @@ importers:
         version: 4.1.10(@types/node@25.6.0)(@vitest/coverage-v8@4.1.10)(vite@8.1.4(@types/node@25.6.0)(esbuild@0.28.1)(tsx@4.23.1)(yaml@2.8.3))
     optionalDependencies:
       '@mindflight/ghostcrab-personal-mcp-darwin-arm64':
-        specifier: 0.6.5
-        version: 0.6.5
+        specifier: 0.6.6
+        version: link:packages/prebuild-darwin-arm64
       '@mindflight/ghostcrab-personal-mcp-darwin-x64':
-        specifier: 0.6.5
-        version: 0.6.5
+        specifier: 0.6.6
+        version: link:packages/prebuild-darwin-x64
       '@mindflight/ghostcrab-personal-mcp-linux-arm64':
-        specifier: 0.6.5
-        version: 0.6.5
+        specifier: 0.6.6
+        version: link:packages/prebuild-linux-arm64
       '@mindflight/ghostcrab-personal-mcp-linux-x64':
-        specifier: 0.6.5
-        version: 0.6.5
+        specifier: 0.6.6
+        version: link:packages/prebuild-linux-x64
       '@mindflight/ghostcrab-personal-mcp-win32-arm64':
-        specifier: 0.6.5
-        version: 0.6.5
+        specifier: 0.6.6
+        version: link:packages/prebuild-win32-arm64
       '@mindflight/ghostcrab-personal-mcp-win32-x64':
-        specifier: 0.6.5
-        version: 0.6.5
+        specifier: 0.6.6
+        version: link:packages/prebuild-win32-x64
 
   packages/prebuild-darwin-arm64: {}
 
@@ -352,36 +352,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
-
-  '@mindflight/ghostcrab-personal-mcp-darwin-arm64@0.6.5':
-    resolution: {integrity: sha512-4dXgWEMqVxvH0M8b+qKwhGfcc3vYvQ+okVzNj1hmlQVuLE2GHbP3lbKd2L/W6aiWlEhKW4jACs4KKOWafuJp8g==}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@mindflight/ghostcrab-personal-mcp-darwin-x64@0.6.5':
-    resolution: {integrity: sha512-GQTsCgYFLyGidTXu2WG69miAjNaJMNeDmZHimASFdhZxIDrrS6Bj5+4mYGx39s53Gxego5ZJI9Pe1oYnM5A7Vw==}
-    cpu: [x64]
-    os: [darwin]
-
-  '@mindflight/ghostcrab-personal-mcp-linux-arm64@0.6.5':
-    resolution: {integrity: sha512-X5q9Y61vGZu80ngcSsTiyq55EW+mPxZPL2oA/v1fg+sdZhNDXfXYTc9QSSrk9y2ZHtV13nbdEdXc51SkmIqiVw==}
-    cpu: [arm64]
-    os: [linux]
-
-  '@mindflight/ghostcrab-personal-mcp-linux-x64@0.6.5':
-    resolution: {integrity: sha512-WBeZOSCHjaqn7jLBrzRGzpw5fe8UVjtu2k5wcipBj2ExKNVqyiSOwfcdqg483ii6uKyf8COe27hVfUFpPqdTWw==}
-    cpu: [x64]
-    os: [linux]
-
-  '@mindflight/ghostcrab-personal-mcp-win32-arm64@0.6.5':
-    resolution: {integrity: sha512-GT0khRqd9rgCKlVPkLg3dg6P/Yc64mBazFIq3TKARNBWRO2kyfsDtMvyD05EP5xMTEeAndOrbI0uSb6AhpS79A==}
-    cpu: [arm64]
-    os: [win32]
-
-  '@mindflight/ghostcrab-personal-mcp-win32-x64@0.6.5':
-    resolution: {integrity: sha512-AmH35r8GDNzQ9DizmlNsMxNOKBKfoDbLUBTLFQS9EllISr+Jfz4HgA7Ul7LCt9OZ7u2swHCOSGUIUqk5hgA5iw==}
-    cpu: [x64]
-    os: [win32]
 
   '@modelcontextprotocol/sdk@1.29.0':
     resolution: {integrity: sha512-zo37mZA9hJWpULgkRpowewez1y6ML5GsXJPY8FI0tBBCd77HEvza4jDqRKOXgHNn867PVGCyTdzqpz0izu5ZjQ==}
@@ -1672,24 +1642,6 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
-
-  '@mindflight/ghostcrab-personal-mcp-darwin-arm64@0.6.5':
-    optional: true
-
-  '@mindflight/ghostcrab-personal-mcp-darwin-x64@0.6.5':
-    optional: true
-
-  '@mindflight/ghostcrab-personal-mcp-linux-arm64@0.6.5':
-    optional: true
-
-  '@mindflight/ghostcrab-personal-mcp-linux-x64@0.6.5':
-    optional: true
-
-  '@mindflight/ghostcrab-personal-mcp-win32-arm64@0.6.5':
-    optional: true
-
-  '@mindflight/ghostcrab-personal-mcp-win32-x64@0.6.5':
-    optional: true
 
   '@modelcontextprotocol/sdk@1.29.0(zod@4.4.1)':
     dependencies:
