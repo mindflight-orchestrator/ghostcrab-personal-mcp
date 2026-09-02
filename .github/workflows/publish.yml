@@ -132,8 +132,6 @@ jobs:
 
       - name: Stage to npm (platform packages + root — approval required to go live)
         run: node scripts/publish-npm-split.mjs
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   # ── Job 3: Windows beta install smoke (catches npm.cmd EINVAL regressions) ───
   beta-install-windows:

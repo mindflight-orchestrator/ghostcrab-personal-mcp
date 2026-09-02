@@ -11,11 +11,11 @@
  *
  * Requires npm >= 11.15.0 and Node >= 22.14.0 (checked at startup).
  *
- * Usage (from repo root, with NODE_AUTH_TOKEN set):
+ * Usage (from repo root, with NODE_AUTH_TOKEN set or GitHub Actions OIDC enabled):
  *   node scripts/publish-npm-split.mjs
  *
- * Some npm versions do not honour NODE_AUTH_TOKEN (ENEEDAUTH) even when
- * the token works via the registry HTTP API — we pass `--userconfig` with _authToken.
+ * Token-based runs use an explicit `--userconfig`. Trusted Publishing runs let
+ * npm exchange the GitHub Actions OIDC identity for a short-lived publish token.
  */
 import { spawnSync } from "node:child_process";
 import {
@@ -105,20 +105,33 @@ function loadDotEnvAuth() {
   }
 }
 
-function ensureNpmAuthToken() {
+function resolveNpmAuthMode() {
   const fromNode = process.env.NODE_AUTH_TOKEN?.trim();
   const fromNpm = process.env.NPM_TOKEN?.trim();
   if (!fromNode && fromNpm) {
     process.env.NODE_AUTH_TOKEN = fromNpm;
   }
-  if (!process.env.NODE_AUTH_TOKEN?.trim()) {
-    console.error(
-      "[publish-npm-split] Missing NODE_AUTH_TOKEN (or NPM_TOKEN).\n" +
-        "  Add NODE_AUTH_TOKEN=npm_... to .env at repo root (read automatically), or export it in the shell.\n" +
-        "  npm publishes use NODE_AUTH_TOKEN for https://registry.npmjs.org/"
-    );
-    process.exit(1);
+  if (process.env.NODE_AUTH_TOKEN?.trim()) {
+    return "token";
   }
+
+  const hasGithubOidc =
+    process.env.GITHUB_ACTIONS === "true" &&
+    Boolean(process.env.ACTIONS_ID_TOKEN_REQUEST_URL?.trim()) &&
+    Boolean(process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN?.trim());
+  if (hasGithubOidc) {
+    console.error(
+      "[publish-npm-split] using GitHub Actions OIDC trusted publishing."
+    );
+    return "oidc";
+  }
+
+  console.error(
+    "[publish-npm-split] Missing npm authentication.\n" +
+      "  Local runs: add NODE_AUTH_TOKEN=npm_... to .env or export NODE_AUTH_TOKEN/NPM_TOKEN.\n" +
+      "  GitHub Actions: grant id-token: write and configure npm Trusted Publishing for publish.yml."
+  );
+  process.exit(1);
 }
 
 /** Staged publishing needs npm >= 11.15.0 running on Node >= 22.14.0. */
@@ -147,7 +160,7 @@ function ensureStagedPublishSupport() {
 
 maybeReexecWithNvmNode22();
 loadDotEnvAuth();
-ensureNpmAuthToken();
+const npmAuthMode = resolveNpmAuthMode();
 ensureStagedPublishSupport();
 
 const PLATFORM_DIRS = [
@@ -211,7 +224,7 @@ function run(cmd, args, cwd) {
 function createPublishUserconfig() {
   const token = process.env.NODE_AUTH_TOKEN?.trim();
   if (!token) {
-    throw new Error("NODE_AUTH_TOKEN missing after ensureNpmAuthToken()");
+    throw new Error("NODE_AUTH_TOKEN missing in token authentication mode");
   }
   const dir = mkdtempSync(join(tmpdir(), "ghostcrab-npm-publish-"));
   const npmrcPath = join(dir, "npmrc");
@@ -269,15 +282,20 @@ run(
 );
 
 const stageCmd = npmStagePublishArgs();
-const { npmrcPath, cleanup } = createPublishUserconfig();
-const npmWithAuth = ["--userconfig", npmrcPath, ...stageCmd];
+const auth =
+  npmAuthMode === "token"
+    ? createPublishUserconfig()
+    : { npmrcPath: null, cleanup: () => {} };
+const npmWithAuth = auth.npmrcPath
+  ? ["--userconfig", auth.npmrcPath, ...stageCmd]
+  : stageCmd;
 try {
   for (const rel of PLATFORM_DIRS) {
     run("npm", npmWithAuth, join(repoRoot, rel));
   }
   run("npm", npmWithAuth, repoRoot);
 } finally {
-  cleanup();
+  auth.cleanup();
 }
 
 console.error(
