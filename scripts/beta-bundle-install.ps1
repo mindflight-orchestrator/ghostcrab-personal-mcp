@@ -30,8 +30,7 @@ function Write-ManualFallback {
     )
     Write-Host ""
     Write-Host "Manual fallback (cmd.exe):" -ForegroundColor Yellow
-    Write-Host "  cmd /c npm install .\mindflight-ghostcrab-personal-mcp-$Version.tgz"
-    Write-Host "  cmd /c npm install .\mindflight-ghostcrab-personal-mcp-$PlatformKey-$Version.tgz --no-package-lock"
+    Write-Host "  cmd /c npm install .\mindflight-ghostcrab-personal-mcp-$Version.tgz .\mindflight-ghostcrab-personal-mcp-$PlatformKey-$Version.tgz --no-package-lock --no-save"
 }
 
 if (-not (Test-Path -LiteralPath $InstallScript)) {

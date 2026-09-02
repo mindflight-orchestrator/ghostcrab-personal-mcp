@@ -26,17 +26,25 @@ function detectPlatformKey() {
   return null;
 }
 
-function runNpmInstall(tgzBasename, { noPackageLock = false } = {}) {
-  const tgz = join(bundleRoot, tgzBasename);
-  if (!existsSync(tgz)) {
-    console.error(`Missing file: ${tgz}`);
-    process.exit(1);
+function runNpmInstall(tgzBasenames) {
+  const relativeTarballs = [];
+  for (const tgzBasename of tgzBasenames) {
+    const tgz = join(bundleRoot, tgzBasename);
+    if (!existsSync(tgz)) {
+      console.error(`Missing file: ${tgz}`);
+      process.exit(1);
+    }
+    relativeTarballs.push(`./${tgzBasename}`);
   }
-  const rel = `./${tgzBasename}`;
-  // --no-package-lock: prevents a stale lock file (from a previous partial install
-  // where optional registry deps were unresolvable) from rejecting a valid local tarball.
-  const extraFlags = noPackageLock ? ["--no-package-lock"] : [];
-  const args = ["install", rel, ...extraFlags];
+  // Resolve root + platform in one npm transaction. A two-step install leaves
+  // the root's unpublished optional dependency unresolved and can trigger npm
+  // Arborist's "Cannot read properties of null (reading 'edgesOut')" failure.
+  const args = [
+    "install",
+    ...relativeTarballs,
+    "--no-package-lock",
+    "--no-save"
+  ];
   console.error(`[install-beta] npm ${args.join(" ")}`);
   const r = spawnNpm(args, {
     cwd: bundleRoot,
@@ -91,12 +99,7 @@ console.error(
   `[install-beta] Host → ${platformKey} (${basename(plat.filename)})`
 );
 
-runNpmInstall(root.filename);
-// Platform prebuild: always bypass the lock file.
-// npm may have recorded an invalid/empty version for this optional dep
-// (failed registry fetch during the root install), which would cause
-// "Invalid Version:" when installing the local tarball.
-runNpmInstall(plat.filename, { noPackageLock: true });
+runNpmInstall([root.filename, plat.filename]);
 
 const installedGcp = join(
   bundleRoot,

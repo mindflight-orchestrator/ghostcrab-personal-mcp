@@ -74,10 +74,8 @@ $(INSTALL_DONE): $(ROOT_TGZ) $(PLATFORM_TGZ)
 	@echo "→ Platform detected: $(PLATFORM)"
 	@test -f "$(PLATFORM_TGZ)" || \
 		(echo "ERROR: $(PLATFORM_TGZ) not found — check .tgz in $(BUNDLE_DIR)/ (set VERSION=, BUNDLE_DIR=, or PLATFORM=)" && exit 1)
-	@echo "→ Installing root package…"
-	npm install "$(ROOT_TGZ)"
-	@echo "→ Installing platform binary ($(PLATFORM))…"
-	npm install "$(PLATFORM_TGZ)" --no-package-lock
+	@echo "→ Installing root package + platform binary ($(PLATFORM))…"
+	npm install "$(ROOT_TGZ)" "$(PLATFORM_TGZ)" --no-package-lock --no-save
 	@echo "✓ npm install done ($(PLATFORM))"
 
 .PHONY: authorize

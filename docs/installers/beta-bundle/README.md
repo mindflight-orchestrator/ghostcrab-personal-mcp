@@ -16,7 +16,7 @@ For the full guide (three install paths, npm, `.env`, IDE), see **[INSTALL.md](.
 
 ## Bundle layout
 
-After unzip, a **flat** folder should contain the `.tgz` files, `install-beta.mjs`, `install-beta.ps1`, `lib/spawn-npm.mjs`, `Makefile`, `INSTALL.md`, etc. Default **`BUNDLE_DIR=.`** (current directory).
+After unzip, a **flat** folder should contain the `.tgz` files, a private `package.json`, `install-beta.mjs`, `install-beta.ps1`, `lib/spawn-npm.mjs`, `Makefile`, `INSTALL.md`, etc. Default **`BUNDLE_DIR=.`** (current directory).
 
 ## Quick install
 
@@ -47,7 +47,7 @@ Then: `make mcp` for the Cursor JSON snippet.
 | Target | Purpose |
 |--------|---------|
 | `make` | `install` → `authorize` → `env` → `check` |
-| `make install` | npm: main `.tgz` + platform `.tgz` (`--no-package-lock` on platform) |
+| `make install` | npm: main `.tgz` + platform `.tgz` in one transaction (`--no-package-lock`) |
 | `make authorize` | `gcp authorize` |
 | `make env` | Create `.env` from package `.env.example` if missing |
 | `make check` | `gcp --help` smoke test |
@@ -73,6 +73,6 @@ See [installations/gcp-brain-setup.md](../../../installations/gcp-brain-setup.md
 | Windows: `uname` / `make` not found | Use `.\install-beta.ps1`, `node install-beta.mjs`, or WSL. |
 | Windows Git Bash: wrong platform tarball | `make PLATFORM=win32-x64` or `make PLATFORM=win32-arm64` |
 | PowerShell: `npm.ps1` / script execution disabled | Use `install-beta.ps1` or `node install-beta.mjs` — do not rely on bare `npm` in PowerShell. |
-| `spawnSync npm.cmd EINVAL` / `npm failed (exit null)` | Re-run with a current zip (`install-beta.mjs` uses `node` + `npm-cli.js`). Manual fallback: `cmd /c npm install .\mindflight-ghostcrab-personal-mcp-<ver>.tgz` then platform `.tgz` with `--no-package-lock`. |
-| `Invalid Version` on second npm install | Stale lockfile — `make clean && make` or rely on `install-beta.mjs`. |
+| `spawnSync npm.cmd EINVAL` / `npm failed (exit null)` | Re-run with a current zip (`install-beta.mjs` uses `node` + `npm-cli.js`). Manual fallback: install the root and platform `.tgz` files together with `--no-package-lock`. |
+| `Invalid Version` / npm `edgesOut` error | Stale partial install — `make clean && make` or remove `node_modules` and run `node install-beta.mjs` again. |
 | After install, `npx gcp` fails in PowerShell | Use `node .\node_modules\@mindflight\ghostcrab-personal-mcp\bin\gcp.mjs` or `npx.cmd gcp`. |

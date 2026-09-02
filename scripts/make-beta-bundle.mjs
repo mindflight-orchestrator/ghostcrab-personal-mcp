@@ -74,6 +74,18 @@ for (const relativeName of filesToCopy) {
 }
 
 copyFileSync(manifestPath, join(bundleDir, "pack-manifest.json"));
+writeFileSync(
+  join(bundleDir, "package.json"),
+  JSON.stringify(
+    {
+      name: "ghostcrab-beta-bundle",
+      version,
+      private: true
+    },
+    null,
+    2
+  ) + "\n"
+);
 const readmeTemplate = readFileSync(betaReadme, "utf8");
 writeFileSync(
   join(bundleDir, "README.md"),
@@ -131,6 +143,7 @@ const checksumNames = [
   "Licence.md",
   "Makefile",
   "README_MAKE.md",
+  "package.json",
   "pack-manifest.json",
   "install-beta.mjs",
   "install-beta.ps1",
