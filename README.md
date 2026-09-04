@@ -439,6 +439,16 @@ node bin/gcp.mjs brain up
 
 Upstream: [github.com/mindflight-orchestrator/mindbrain](https://github.com/mindflight-orchestrator/mindbrain). Consumer install: [INSTALL.md](INSTALL.md).
 
+**`vendor/mindbrain` is read-only.** Never edit or commit inside it. Engine changes go to the master repo (`mindbrain-perso`) and are **pushed first**; only then is the submodule synced onto the pushed commit:
+
+```bash
+git -C vendor/mindbrain fetch origin
+git -C vendor/mindbrain checkout --detach <pushed-sha>
+git add vendor/mindbrain
+```
+
+The npm release ships binaries cross-compiled from this tree, so a commit that exists only locally makes the published binaries irreproducible — the pinned SHA would not contain the shipped code. If work already happened inside `vendor/`, move it with `git format-patch` + `git am --3way` into the master repo, push, then realign the pin.
+
 ---
 
 ## Going further
