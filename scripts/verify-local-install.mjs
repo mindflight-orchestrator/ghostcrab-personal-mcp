@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
+import { createServer } from "node:net";
 import {
   copyFileSync,
   existsSync,
@@ -97,6 +98,85 @@ if (!process.env.GHOSTCRAB_VERIFY_SKIP_BUILD) {
 const expectedToolManifest = loadToolManifestFromDist().manifest;
 
 const packDest = mkdtempSync(join(tmpdir(), "ghostcrab-pack-"));
+/** Ask the OS for a free TCP port by binding port 0 and releasing it. */
+function reserveFreePort() {
+  return new Promise((resolve, reject) => {
+    const probe = createServer();
+    probe.unref();
+    probe.on("error", reject);
+    probe.listen(0, "127.0.0.1", () => {
+      const { port } = /** @type {{ port: number }} */ (probe.address());
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
+async function waitForBackend(url, child, timeoutMs = 30_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (child.exitCode !== null || child.signalCode !== null) {
+      throw new Error(
+        `backend exited before listening (code ${child.exitCode}, signal ${child.signalCode})`
+      );
+    }
+    try {
+      // Any HTTP answer proves the listener is up; the path itself is
+      // irrelevant and a 404 is a perfectly good readiness signal.
+      await fetch(url, { signal: AbortSignal.timeout(1_000) });
+      return;
+    } catch {
+      await new Promise((r) => setTimeout(r, 250));
+    }
+  }
+  throw new Error(`backend did not start listening within ${timeoutMs}ms`);
+}
+
+/**
+ * Start the backend shipped in the freshly installed platform package.
+ *
+ * The installer's postinstall deliberately terminates running GhostCrab
+ * processes to release SQLite locks, so any backend that existed before this
+ * script ran is gone by now. Relying on the host to have one is what made this
+ * gate unpassable; starting the installed binary ourselves is also a stronger
+ * check, because it proves the packaged backend actually boots and serves.
+ */
+async function startInstalledBackend(backendBin, consumer) {
+  const port = await reserveFreePort();
+  const dbPath = join(consumer, "verify-local-install.sqlite");
+  const child = spawn(backendBin, [], {
+    cwd: consumer,
+    stdio: ["ignore", "pipe", "pipe"],
+    env: {
+      ...process.env,
+      GHOSTCRAB_BACKEND_ADDR: `127.0.0.1:${port}`,
+      GHOSTCRAB_SQLITE_PATH: dbPath
+    }
+  });
+  let log = "";
+  child.stdout?.on("data", (chunk) => (log += chunk));
+  child.stderr?.on("data", (chunk) => (log += chunk));
+
+  const url = `http://127.0.0.1:${port}`;
+  try {
+    await waitForBackend(`${url}/api/mindbrain/health`, child);
+  } catch (error) {
+    child.kill("SIGKILL");
+    throw new Error(
+      `installed backend failed to start (${backendBin}).\n${String(error)}\n${log}`,
+      { cause: error }
+    );
+  }
+  return {
+    url,
+    stop() {
+      if (child.exitCode === null && child.signalCode === null) {
+        child.kill("SIGTERM");
+      }
+    }
+  };
+}
+
+let backendHandle;
 let consumerDir;
 
 try {
@@ -230,6 +310,18 @@ try {
     `ghostcrab-document --help failed (exit ${docHelp.status ?? "null"}).\n${docCombined}`
   );
 
+  const backendBinaryName =
+    process.platform === "win32"
+      ? "ghostcrab-backend.exe"
+      : "ghostcrab-backend";
+  const backendBin = join(platformPkgDir, "bin", backendBinaryName);
+  assert.equal(
+    existsSync(backendBin),
+    true,
+    `platform package missing ghostcrab-backend at ${backendBin}`
+  );
+  backendHandle = await startInstalledBackend(backendBin, consumerDir);
+
   const toolsVerify = run(
     process.execPath,
     [
@@ -237,7 +329,14 @@ try {
       "tools",
       "verify"
     ],
-    { cwd: consumerDir }
+    {
+      cwd: consumerDir,
+      env: {
+        ...process.env,
+        GHOSTCRAB_MINDBRAIN_URL: backendHandle.url,
+        GHOSTCRAB_SQLITE_PATH: join(consumerDir, "verify-local-install.sqlite")
+      }
+    }
   );
   assert.equal(
     toolsVerify.status,
@@ -613,6 +712,7 @@ try {
     `[verify-local-install] OK — installer + ${platformPackageName}, gcp --help, gcp authorize, gcp tools verify, host bootstrap (.env / data/ / doc + skill symlinks), gcp brain setup cursor (mcp.json + permissions basic + skill bundle + legacy pruning) all succeeded.`
   );
 } finally {
+  backendHandle?.stop();
   rmSync(packDest, { recursive: true, force: true });
   if (consumerDir) {
     rmSync(consumerDir, { recursive: true, force: true });
