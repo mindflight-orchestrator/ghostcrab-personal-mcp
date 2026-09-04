@@ -928,6 +928,74 @@ describe("dgraph tools", () => {
     ).toBe(true);
   });
 
+  it("ghostcrab_graph_reindex reports relations the native backend skipped as dangling", async () => {
+    // Regression: one relation whose endpoint is outside the workspace used to
+    // abort the whole projection. It is now skipped and counted, and the count
+    // has to reach the caller with an actionable warning.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        return new Response(
+          JSON.stringify({
+            workspace_id: "mindbrain-seo-audit",
+            projected_count: 4310,
+            document_table_id: null,
+            adjacency_rebuilt: true,
+            skipped_cross_workspace_relations: 3
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        );
+      })
+    );
+
+    const result = await graphReindexTool.handler(
+      { workspace_id: "mindbrain-seo-audit" },
+      createToolContext(createMockDatabase(async () => []))
+    );
+
+    const structured = readStructured(result);
+    expect(structured).toMatchObject({
+      ok: true,
+      tool: "ghostcrab_graph_reindex",
+      backend: "mindbrain/reindex/graph",
+      projected_count: 4310,
+      skipped_cross_workspace_relations: 3
+    });
+    expect(structured.warnings).toEqual([
+      expect.stringContaining("3 relation(s) were skipped")
+    ]);
+  });
+
+  it("ghostcrab_graph_reindex stays warning-free when no relation was skipped", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        return new Response(
+          JSON.stringify({
+            workspace_id: "mindbrain-seo-audit",
+            projected_count: 12,
+            document_table_id: null,
+            adjacency_rebuilt: true,
+            skipped_cross_workspace_relations: 0
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        );
+      })
+    );
+
+    const result = await graphReindexTool.handler(
+      { workspace_id: "mindbrain-seo-audit" },
+      createToolContext(createMockDatabase(async () => []))
+    );
+
+    const structured = readStructured(result);
+    expect(structured).toMatchObject({
+      ok: true,
+      skipped_cross_workspace_relations: 0
+    });
+    expect(structured.warnings).toBeUndefined();
+  });
+
   it("ghostcrab_graph_reindex returns native backend errors instead of hiding them with SQL fallback", async () => {
     vi.stubGlobal(
       "fetch",

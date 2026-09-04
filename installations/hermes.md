@@ -5,8 +5,8 @@ Use this guide for [Hermes Agent](https://github.com/NousResearch/hermes-agent) 
 ## Recommended install (generator)
 
 ```bash
-npx -y --package=@mindflight/ghostcrab-personal-mcp@0.6.6 gcp brain setup hermes \
-  --package=@mindflight/ghostcrab-personal-mcp@0.6.6
+npx -y --package=@mindflight/ghostcrab-personal-mcp@0.6.7 gcp brain setup hermes \
+  --package=@mindflight/ghostcrab-personal-mcp@0.6.7
 ```
 
 This command:
@@ -17,27 +17,27 @@ This command:
 4. Applies the **`basic`** MCP tool preset via `mcp_servers.<name>.tools.include` (Hermes analog to Cursor/Claude permissions).
 5. Drops `~/.hermes/ghostcrab/setup-manifest.json` for profile/preconfig tooling.
 
-Pin the package explicitly with `--package=…@0.6.6` so `npx` does not float to `@latest`.
+Pin the package explicitly with `--package=…@0.6.7` so `npx` does not float to `@latest`.
 
 ### Options
 
 ```bash
 # Preview without writing ~/.hermes
 gcp brain setup hermes --dry-run \
-  --package=@mindflight/ghostcrab-personal-mcp@0.6.6
+  --package=@mindflight/ghostcrab-personal-mcp@0.6.7
 
 # Replace an existing server entry
 gcp brain setup hermes --force \
-  --package=@mindflight/ghostcrab-personal-mcp@0.6.6
+  --package=@mindflight/ghostcrab-personal-mcp@0.6.7
 
 # Pin MindBrain workspace_id inside the SQLite file
 gcp brain setup hermes \
-  --package=@mindflight/ghostcrab-personal-mcp@0.6.6 \
+  --package=@mindflight/ghostcrab-personal-mcp@0.6.7 \
   --mindbrain-workspace-id my-project
 
 # Custom Hermes profile root (or set HERMES_HOME)
 gcp brain setup hermes --hermes-home ~/.hermes-dev \
-  --package=@mindflight/ghostcrab-personal-mcp@0.6.6
+  --package=@mindflight/ghostcrab-personal-mcp@0.6.7
 
 # Skills-only repair (no config.yaml write)
 gcp brain setup_skills hermes
@@ -47,11 +47,11 @@ gcp brain setup_skills hermes
 
 Hermes profiles and distributions can ship richer defaults than MCP alone. The installer exposes optional preconfig modes:
 
-| `--preconfig` | Effect |
-|---------------|--------|
-| `none` (default) | MCP server only |
-| `minimal` | Ensures `skills.external_dirs: []` exists in config.yaml |
-| `external-dirs` | Adds `~/.agents/skills` to `skills.external_dirs` and installs the skill bundle there instead of `~/.hermes/skills/` |
+| `--preconfig`    | Effect                                                                                                               |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `none` (default) | MCP server only                                                                                                      |
+| `minimal`        | Ensures `skills.external_dirs: []` exists in config.yaml                                                             |
+| `external-dirs`  | Adds `~/.agents/skills` to `skills.external_dirs` and installs the skill bundle there instead of `~/.hermes/skills/` |
 
 Future Hermes profile import can read `~/.hermes/ghostcrab/setup-manifest.json` to reconcile package pin, db path, and skills root without re-running setup.
 
@@ -65,7 +65,7 @@ mcp_servers:
     command: "/usr/bin/npx"
     args:
       - "-y"
-      - "--package=@mindflight/ghostcrab-personal-mcp@0.6.6"
+      - "--package=@mindflight/ghostcrab-personal-mcp@0.6.7"
       - "gcp"
       - "brain"
       - "up"
@@ -94,7 +94,7 @@ Ask Hermes to call `ghostcrab_status` or list MCP tools. The server should stay 
 Manual smoke test:
 
 ```bash
-npx -y --package=@mindflight/ghostcrab-personal-mcp@0.6.6 gcp brain up \
+npx -y --package=@mindflight/ghostcrab-personal-mcp@0.6.7 gcp brain up \
   --db ~/.hermes/ghostcrab/ghostcrab.sqlite
 ```
 

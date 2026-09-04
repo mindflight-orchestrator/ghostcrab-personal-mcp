@@ -64,6 +64,8 @@ export const graphReindexTool: ToolHandler = {
         documentTableId: input.document_table_id
       });
 
+      const skippedRelations = native.skipped_cross_workspace_relations ?? 0;
+
       return createToolSuccessResult("ghostcrab_graph_reindex", {
         workspace_id: workspaceId,
         document_table_id: input.document_table_id ?? null,
@@ -72,6 +74,14 @@ export const graphReindexTool: ToolHandler = {
         backend: "mindbrain/reindex/graph",
         projected_count: native.projected_count,
         adjacency_rebuilt: native.adjacency_rebuilt ?? true,
+        skipped_cross_workspace_relations: skippedRelations,
+        ...(skippedRelations > 0
+          ? {
+              warnings: [
+                `${skippedRelations} relation(s) were skipped because an endpoint is not in workspace "${workspaceId}". The rest of the graph was projected; fix or remove those rows in relations_raw to include them.`
+              ]
+            }
+          : {}),
         entity_count: null,
         alias_count: null,
         relation_count: null,

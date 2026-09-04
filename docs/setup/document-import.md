@@ -253,6 +253,37 @@ gcp brain document --force document-profile-worker \
   --limit 4
 ```
 
+### Completion budget and reasoning models
+
+`document-profile` and `document-profile-worker` default to `--max-tokens 8192`.
+The profile JSON itself needs roughly 400 tokens; the rest is headroom for
+models that bill hidden reasoning against the same completion cap.
+
+A reasoning model with a fixed thinking budget can spend the entire cap before
+emitting a single character. When that happens the command now stops with an
+explicit diagnostic instead of an opaque JSON parse error:
+
+```
+LLM_BUDGET_FAILURE_JSON={"reason":"completion budget exhausted before any content was emitted",
+"finish_reason":"length","max_tokens":2048,"reasoning_tokens":1024,...}
+[ghostcrab] LLM returned no usable JSON: completion budget exhausted before any
+content was emitted. Raise --max-tokens ..., or disable/lower the server-side
+reasoning budget.
+```
+
+Two ways out, either is fine:
+
+```bash
+# A. give the model room for both reasoning and the answer
+gcp brain document document-profile --content-file ./out/source.md --max-tokens 16384 ...
+
+# B. turn the server-side reasoning budget down to zero
+```
+
+Keep `--max-tokens` under the server's remaining context: with a 12k-character
+sample (`--sample-chars`, ~4k tokens) a 16k-context local server cannot honour a
+cap much above 8192.
+
 Optional contextual retrieval needs both an LLM and embeddings:
 
 ```bash
@@ -366,6 +397,8 @@ first to inspect the prompt envelope, then a mock JSON fixture, then live mode.
 | Wrong database | Set `GHOSTCRAB_SQLITE_PATH` or pass wrapper-level `--db <path>` before the subcommand. |
 | Need to inspect what happened | Run `collection-export`, `document-by-nanoid`, or `qualification-vocab-list`. |
 | Need IDs for `--taxonomies` / `--facets` | Run `qualification-vocab-list --workspace-id <id> [--collection-id <id>]`. |
+| Profiling fails with an empty or unparseable LLM response | Read the `LLM_BUDGET_FAILURE_JSON` line on stderr: if `finish_reason` is `length`, raise `--max-tokens` or lower the server-side reasoning budget. |
+| Graph reindex reports skipped relations | `skipped_cross_workspace_relations > 0` means `relations_raw` holds edges whose source or target is not in the workspace. The rest of the graph is projected; fix or delete those rows to include them. |
 | `document-qualify` returns `InvalidArguments` | The installed native engine may not expose full controlled qualification yet; use `qualification-vocab-list` to inspect vocabulary and verify `gcp brain document --help`. |
 
 If a DB-backed command refuses to run, inspect holders:

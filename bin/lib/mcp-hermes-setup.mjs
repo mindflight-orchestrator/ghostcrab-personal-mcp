@@ -32,7 +32,8 @@ const LEGACY_SERVER_KEYS = ["ghostcrab"];
  * @returns {string}
  */
 export function resolveHermesHome(opts = {}) {
-  const raw = opts.home ?? process.env.HERMES_HOME ?? join(homedir(), ".hermes");
+  const raw =
+    opts.home ?? process.env.HERMES_HOME ?? join(homedir(), ".hermes");
   if (raw.startsWith("~/")) {
     return join(homedir(), raw.slice(2));
   }
@@ -92,7 +93,12 @@ export function hermesStdioEntryFromLaunch(launch, env, toolsInclude) {
  * @param {{ force?: boolean, preconfig?: string }} [opts]
  * @returns {{ doc: object, prunedLegacy: string[] } | { error: "exists" }}
  */
-export function mergeHermesConfigDocument(existing, serverName, entry, opts = {}) {
+export function mergeHermesConfigDocument(
+  existing,
+  serverName,
+  entry,
+  opts = {}
+) {
   const { force = false, preconfig = "none" } = opts;
   const root =
     existing && typeof existing === "object" && !Array.isArray(existing)
@@ -164,7 +170,11 @@ export function looksLikeGhostcrabHermesEntry(entry) {
  * @param {string[]} [allowTools]
  * @returns {Promise<string[] | null>}
  */
-export async function resolveHermesToolsInclude(preset, serverName, allowTools = []) {
+export async function resolveHermesToolsInclude(
+  preset,
+  serverName,
+  allowTools = []
+) {
   if (preset === "none") return null;
   const policy = await buildPolicy(preset, { serverName, allowTools });
   const names = policy.allow

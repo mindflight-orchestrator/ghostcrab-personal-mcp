@@ -30,6 +30,11 @@ export interface CollectionReindexOutcome {
   bm25_documents?: number;
   facet_assignments?: number;
   graph_projected?: number;
+  /**
+   * Relations skipped because an endpoint is not in the workspace. Non-zero
+   * means relations_raw holds dangling edges: everything else was projected.
+   */
+  skipped_cross_workspace_relations?: number;
   error?: string;
 }
 
@@ -183,7 +188,9 @@ export const workspaceReindexAllTool: ToolHandler = {
             backend: "mindbrain/reindex/all",
             bm25_documents: result.bm25_documents,
             facet_assignments: result.facet_assignments,
-            graph_projected: result.graph_projected
+            graph_projected: result.graph_projected,
+            skipped_cross_workspace_relations:
+              result.skipped_cross_workspace_relations ?? 0
           });
         } catch (error) {
           collectionsReindexed.push({

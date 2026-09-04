@@ -3,7 +3,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { buildMcpLaunch, getDefaultMcpEnv } from "../../bin/lib/mcp-global-setup.mjs";
+import {
+  buildMcpLaunch,
+  getDefaultMcpEnv
+} from "../../bin/lib/mcp-global-setup.mjs";
 import {
   defaultHermesDbPath,
   hermesStdioEntryFromLaunch,
@@ -145,9 +148,9 @@ describe("mcp-hermes-setup", () => {
     expect(raw).toContain("GhostCrab Personal MCP");
     const parsed = parseYaml(raw.replace(/^#.*\n/gm, ""));
     expect(parsed.mcp_servers["ghostcrab-personal-mcp"].command).toBeTruthy();
-    expect(parsed.mcp_servers["ghostcrab-personal-mcp"].tools.include).toContain(
-      "ghostcrab_status"
-    );
+    expect(
+      parsed.mcp_servers["ghostcrab-personal-mcp"].tools.include
+    ).toContain("ghostcrab_status");
     expect(parsed.skills.external_dirs).toEqual([]);
 
     const manifest = JSON.parse(

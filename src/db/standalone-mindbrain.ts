@@ -1496,6 +1496,12 @@ export interface StandaloneReindexGraphResult {
   projected_count: number;
   document_table_id: number | null;
   adjacency_rebuilt?: boolean;
+  /**
+   * Relations the native reindex skipped because an endpoint was missing from
+   * the workspace. Older backends omit the field; treat undefined as unknown,
+   * not as zero.
+   */
+  skipped_cross_workspace_relations?: number;
 }
 
 export async function runStandaloneReindexGraph(
@@ -1587,6 +1593,12 @@ export interface StandaloneReindexAllResult {
   graph_projected: number;
   facet_assignments: number;
   bm25_documents: number;
+  /**
+   * Relations the native reindex skipped because an endpoint was missing from
+   * the workspace. Older backends omit the field; treat undefined as unknown,
+   * not as zero.
+   */
+  skipped_cross_workspace_relations?: number;
 }
 
 export async function runStandaloneReindexAll(

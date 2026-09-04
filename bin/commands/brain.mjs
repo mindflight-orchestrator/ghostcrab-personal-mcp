@@ -670,7 +670,8 @@ export function parseSetupArgs(args) {
 
   if (out.preconfig !== "none" && out.target !== "hermes") {
     return {
-      error: "gcp brain setup: --preconfig is only supported for the hermes target."
+      error:
+        "gcp brain setup: --preconfig is only supported for the hermes target."
     };
   }
 
@@ -1156,7 +1157,7 @@ Examples:
   gcp brain setup cursor --dry-run
   gcp brain setup claude --runner pnpm
   gcp brain setup_skills claude
-  gcp brain setup hermes --package=@mindflight/ghostcrab-personal-mcp@0.6.6 --dry-run
+  gcp brain setup hermes --package=@mindflight/ghostcrab-personal-mcp@0.6.7 --dry-run
   gcp brain setup_skills hermes
 
 Shorthand:  gcp up   and   gcp start   mean the same as   gcp brain up
