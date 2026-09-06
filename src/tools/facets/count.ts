@@ -5,6 +5,7 @@ import {
   registerTool,
   type ToolHandler
 } from "../registry.js";
+import { ACTIVE_FACT_WINDOW_SQL } from "../../db/temporal.js";
 
 export const CountInput = z.object({
   schema_id: z.string().min(1).optional(),
@@ -65,7 +66,7 @@ export const countTool: ToolHandler = {
       }
 
       whereClauses.push(
-        "(valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))"
+        ACTIVE_FACT_WINDOW_SQL
       );
       whereClauses.push(`json_type(facets_json, '$.${dimension}') IS NOT NULL`);
 

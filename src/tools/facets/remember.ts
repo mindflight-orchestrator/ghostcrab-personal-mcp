@@ -21,6 +21,13 @@ export const RememberInput = z.object({
       /^\d{4}-\d{2}-\d{2}$/,
       "valid_until must be an ISO date in YYYY-MM-DD format."
     )
+    .optional(),
+  valid_from: z
+    .string()
+    .regex(
+      /^\d{4}-\d{2}-\d{2}$/,
+      "valid_from must be an ISO date in YYYY-MM-DD format."
+    )
     .optional()
 });
 
@@ -57,6 +64,11 @@ export const rememberTool: ToolHandler = {
         valid_until: {
           type: "string",
           description: "Optional expiry date in YYYY-MM-DD format."
+        },
+        valid_from: {
+          type: "string",
+          description:
+            "Optional start of validity in YYYY-MM-DD format. Defaults to today. Backdate it when importing a fact that was already true earlier; facts dated in the future stay out of reads until that date."
         }
       }
     }
@@ -90,6 +102,11 @@ export const rememberTool: ToolHandler = {
     const validUntilUnix = input.valid_until
       ? Math.floor(Date.parse(`${input.valid_until}T00:00:00Z`) / 1000)
       : undefined;
+    // Default to now so a fact is current from the moment it is written; the
+    // backend COALESCEs on rewrite, so re-remembering never moves the start.
+    const validFromUnix = input.valid_from
+      ? Math.floor(Date.parse(`${input.valid_from}T00:00:00Z`) / 1000)
+      : Math.floor(Date.now() / 1000);
 
     const config = resolveGhostcrabConfig();
     const result = await runStandaloneFactWrite({
@@ -102,7 +119,8 @@ export const rememberTool: ToolHandler = {
       embeddingBlob,
       embedding: rawEmbedding,
       createdBy: input.created_by,
-      validUntilUnix
+      validUntilUnix,
+      validFromUnix
     });
 
     return createToolSuccessResult("ghostcrab_remember", {

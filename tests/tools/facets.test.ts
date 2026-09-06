@@ -93,6 +93,85 @@ describe("facet tools", () => {
     });
   });
 
+  it("sends valid_from_unix when remembering a fact", async () => {
+    const fetchMock = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            ok: true,
+            id: "a1b2c3d4-e5f6-4789-abcd-ef1234567890",
+            doc_id: 1,
+            created: true,
+            updated: false
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        )
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await rememberTool.handler(
+      {
+        content: "Chantier livré.",
+        facets: { project: "demo" },
+        valid_from: "2026-01-15"
+      },
+      createToolContext(createMockDatabase(async () => []))
+    );
+
+    const body = JSON.parse(
+      String((fetchMock.mock.calls[0]?.[1] as RequestInit).body)
+    );
+    expect(body.valid_from_unix).toBe(
+      Math.floor(Date.parse("2026-01-15T00:00:00Z") / 1000)
+    );
+  });
+
+  it("does not archive when only valid_until changes", async () => {
+    const query = vi
+      .fn<DatabaseClient["query"]>()
+      .mockResolvedValueOnce([
+        {
+          id: "facet-1",
+          content: "Task is still pending",
+          facets_json: JSON.stringify({ record_id: "task:1" }),
+          created_by: "seed",
+          valid_from_unix: null,
+          valid_until_unix: null,
+          source_ref: null,
+          supersedes: null,
+          created_at_unix: FIXED_CREATED_AT_UNIX,
+          version: 1
+        }
+      ])
+      .mockResolvedValueOnce([]) // UPDATE
+      .mockResolvedValueOnce([
+        {
+          id: "facet-1",
+          updated_at_unix: Date.parse("2026-03-24T12:00:00.000Z") / 1000,
+          version: 2
+        }
+      ]);
+
+    const result = await upsertTool.handler(
+      {
+        schema_id: "ghostcrab:task",
+        match: { facets: { record_id: "task:1" } },
+        valid_until: "2026-12-31"
+      },
+      createToolContext(createMockDatabase(query))
+    );
+
+    // Re-dating a fact does not change what it says: pas d'archive, donc
+    // trois appels au lieu de cinq.
+    expect(query).toHaveBeenCalledTimes(3);
+    expect(readStructured(result)).toMatchObject({
+      ok: true,
+      updated: true,
+      supersedes: null,
+      archived_previous_state: false
+    });
+  });
+
   it("updates an existing current-state fact in place", async () => {
     const query = vi
       .fn<DatabaseClient["query"]>()
@@ -106,12 +185,17 @@ describe("facet tools", () => {
             scope: "project:demo"
           }),
           created_by: "seed",
+          valid_from_unix: null,
           valid_until_unix: null,
+          source_ref: "ghostcrab://upsert/abc",
+          supersedes: null,
           created_at_unix: FIXED_CREATED_AT_UNIX,
           version: 1
         }
       ])
-      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]) // INSERT de l'archive
+      .mockResolvedValueOnce([{ id: "archive-1" }]) // relecture de l'archive
+      .mockResolvedValueOnce([]) // UPDATE de la ligne courante
       .mockResolvedValueOnce([
         {
           id: "facet-1",
@@ -138,7 +222,26 @@ describe("facet tools", () => {
       createToolContext(database)
     );
 
-    expect(query).toHaveBeenCalledTimes(3);
+    expect(query).toHaveBeenCalledTimes(5);
+
+    // L'archive doit copier l'état d'avant, rester hors de l'index BM25
+    // (doc_id NULL) et se fermer sans jamais produire valid_until < valid_from.
+    const archiveSql = query.mock.calls[1]?.[0] as string;
+    expect(archiveSql).toContain("INSERT INTO");
+    expect(archiveSql).toContain("source_ref || '#v' || version");
+    // Le CAST est essentiel : MAX() n'applique aucune affinité, donc MAX(int,
+    // text) renverrait toujours le texte et fermerait l'archive à « maintenant »
+    // même pour un fait dont la validité commence plus tard.
+    expect(archiveSql).toContain(
+      "MAX(COALESCE(valid_from_unix, CAST(strftime('%s','now') AS INTEGER))," +
+        " CAST(strftime('%s','now') AS INTEGER))"
+    );
+
+    // La ligne courante garde son id et pointe sur l'archive.
+    const updateSql = query.mock.calls[3]?.[0] as string;
+    expect(updateSql).toContain("supersedes = COALESCE(?, supersedes)");
+    expect(query.mock.calls[3]?.[1]).toContain("archive-1");
+
     expect(readStructured(result)).toMatchObject({
       ok: true,
       tool: "ghostcrab_upsert",
@@ -147,7 +250,9 @@ describe("facet tools", () => {
       matched_existing: true,
       id: "facet-1",
       schema_id: "ghostcrab:task",
-      version: 2
+      version: 2,
+      supersedes: "archive-1",
+      archived_previous_state: true
     });
   });
 

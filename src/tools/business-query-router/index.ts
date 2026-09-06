@@ -14,6 +14,7 @@ import { rankCapabilities } from "./matcher.js";
 import { normalizeBusinessQuestion } from "./normalizer.js";
 import { buildPlan, chooseRouteFromScores } from "./planner.js";
 import type { BusinessIntent, BusinessQueryResult } from "./types.js";
+import { ACTIVE_FACT_WINDOW_SQL } from "../../db/temporal.js";
 
 const LIVE_QUERY_FACET_WHITELIST = new Set([
   "demo_week",
@@ -126,7 +127,7 @@ export function composeIntentFacets(intent: BusinessIntent): {
 export function buildLiveFilterQuery(intent: BusinessIntent): LiveFilterResult {
   const { filters, applied, skipped } = composeIntentFacets(intent);
   const whereClauses: string[] = [
-    "(valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))"
+    ACTIVE_FACT_WINDOW_SQL
   ];
   const whereParams: unknown[] = [];
 

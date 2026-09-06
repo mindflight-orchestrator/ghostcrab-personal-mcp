@@ -7,6 +7,7 @@ import {
   SQLITE_FACT_STORE_TABLE,
   SQLITE_NEXT_FACT_DOC_ID_EXPR
 } from "../../db/fact-store.js";
+import { ARCHIVE_CLOSE_UNIX_EXPR } from "../../db/temporal.js";
 import { encodeEmbedding } from "../../embeddings/blob.js";
 import { runStandaloneSearchEmbeddingUpsert } from "../../db/standalone-mindbrain.js";
 import {
@@ -16,12 +17,24 @@ import {
   type ToolHandler
 } from "../registry.js";
 
-const isoDateSchema = z
-  .string()
-  .regex(
-    /^\d{4}-\d{2}-\d{2}$/,
-    "valid_until must be an ISO date in YYYY-MM-DD format."
+const isoDate = (field: string) =>
+  z
+    .string()
+    .regex(
+      /^\d{4}-\d{2}-\d{2}$/,
+      `${field} must be an ISO date in YYYY-MM-DD format.`
+    );
+
+const isoDateSchema = isoDate("valid_until");
+
+/** Stable stringify so a facet reorder is not mistaken for a state change. */
+function facetsFingerprint(facets: Record<string, unknown>): string {
+  return JSON.stringify(
+    Object.keys(facets)
+      .sort()
+      .map((key) => [key, facets[key]])
   );
+}
 
 export const UpsertInput = z
   .object({
@@ -42,6 +55,7 @@ export const UpsertInput = z
     set_facets: z.record(z.string(), z.unknown()).default({}),
     created_by: z.string().min(1).optional(),
     valid_until: z.union([isoDateSchema, z.null()]).optional(),
+    valid_from: isoDate("valid_from").optional(),
     create_if_missing: z.boolean().default(false)
   })
   .strict()
@@ -57,7 +71,7 @@ export const upsertTool: ToolHandler = {
   definition: {
     name: "ghostcrab_upsert",
     description:
-      'Write. Update current-state facts in place by exact match, or create if missing. Read before writing. Before replacing meaningful tracker state, preserve transition rationale when losing it would hurt recovery. Do not use on a first-turn fuzzy onboarding request. match uses match.id (row UUID) and/or match.facets; facet selectors must live under match.facets, not at the root of match (wrong: {"match":{"label":"X"}}; right: {"match":{"facets":{"label":"X"}}}). Prefer a stable record_id in match.facets over labels that may change. When create_if_missing is true and no row matches, set_content is required for the new row.',
+      'Write. Update current-state facts in place by exact match, or create if missing. Read before writing. The row keeps its id across updates, and the state it replaces is archived automatically as a closed row that the current row supersedes, so transition history is preserved without any extra call. Do not use on a first-turn fuzzy onboarding request. match uses match.id (row UUID) and/or match.facets; facet selectors must live under match.facets, not at the root of match (wrong: {"match":{"label":"X"}}; right: {"match":{"facets":{"label":"X"}}}). Prefer a stable record_id in match.facets over labels that may change. When create_if_missing is true and no row matches, set_content is required for the new row.',
     inputSchema: {
       type: "object",
       required: ["schema_id", "match"],
@@ -111,6 +125,11 @@ export const upsertTool: ToolHandler = {
           description:
             "Optional expiry date in YYYY-MM-DD format, or null to clear it."
         },
+        valid_from: {
+          type: "string",
+          description:
+            "Optional start of validity in YYYY-MM-DD format, applied only when creating a new record. Ignored on an update: rewriting the start date of an existing record would falsify its history."
+        },
         create_if_missing: {
           type: "boolean",
           default: false,
@@ -136,7 +155,10 @@ export const upsertTool: ToolHandler = {
         created_by: string | null;
         facets_json: string;
         id: string;
+        valid_from_unix: number | null;
         valid_until_unix: number | null;
+        source_ref: string | null;
+        supersedes: string | null;
         version: number;
       }>(
         `
@@ -145,7 +167,10 @@ export const upsertTool: ToolHandler = {
             content,
             facets_json,
             created_by,
+            valid_from_unix,
             valid_until_unix,
+            source_ref,
+            supersedes,
             created_at_unix,
             version
           FROM ${SQLITE_FACT_STORE_TABLE}
@@ -220,6 +245,13 @@ export const upsertTool: ToolHandler = {
       const contentChanged =
         input.set_content !== undefined &&
         input.set_content !== (existing?.content ?? null);
+      const facetsChanged =
+        existing !== undefined &&
+        facetsFingerprint(existingFacets) !== facetsFingerprint(nextFacets);
+      // A state transition is a change of content or facets. Touching only
+      // valid_until re-dates a fact without changing what it says, so it is
+      // not worth an archive row.
+      const stateChanged = contentChanged || facetsChanged;
 
       if (contentChanged && embeddingRuntime.writeEmbeddingsEnabled) {
         try {
@@ -243,25 +275,93 @@ export const upsertTool: ToolHandler = {
 
       if (existing) {
         const nowUnix = Math.floor(Date.now() / 1000);
+
+        // Copy-on-write history: the current row keeps its id (callers hold
+        // onto it), and the state it is about to lose is preserved as a closed
+        // archive row that the current row then supersedes. Selecting from the
+        // row itself snapshots the pre-update state without re-sending it.
+        //
+        // doc_id stays NULL on purpose: the BM25 sync indexes rows WHERE
+        // doc_id IS NOT NULL, so archives never enter the search index. They
+        // are history, not searchable content.
+        //
+        // facets and facets_json are both written: the Zig write path keeps
+        // the pair in sync, and an archive that only filled one of them would
+        // be a snapshot of a state that never existed.
+        let archivedId: string | null = null;
+        if (stateChanged) {
+          const archiveId = randomUUID();
+          await queryable.query(
+            `
+              INSERT INTO ${SQLITE_FACT_STORE_TABLE} (
+                id, workspace_id, schema_id, source_ref, content,
+                facets, facets_json, created_by, created_at_unix,
+                updated_at_unix, valid_from_unix, valid_until_unix,
+                version, supersedes, doc_id
+              )
+              SELECT
+                ?,
+                workspace_id,
+                schema_id,
+                CASE
+                  WHEN source_ref IS NULL THEN NULL
+                  ELSE source_ref || '#v' || version
+                END,
+                content,
+                facets_json,
+                facets_json,
+                created_by,
+                created_at_unix,
+                ?,
+                valid_from_unix,
+                ${ARCHIVE_CLOSE_UNIX_EXPR},
+                version,
+                supersedes,
+                NULL
+              FROM ${SQLITE_FACT_STORE_TABLE}
+              WHERE id = ?
+            `,
+            [archiveId, nowUnix, existing.id]
+          );
+
+          // Read the archive back rather than trusting the generated id: an
+          // INSERT ... SELECT that matched nothing would leave no row, and
+          // overwriting the current state after a silent no-op is data loss.
+          const [archived] = await queryable.query<{ id: string }>(
+            `SELECT id FROM ${SQLITE_FACT_STORE_TABLE} WHERE id = ?`,
+            [archiveId]
+          );
+          if (!archived?.id) {
+            throw new Error(
+              "Archiving the superseded state returned no row - refusing to overwrite it"
+            );
+          }
+          archivedId = archived.id;
+        }
+
         await queryable.query(
           `
             UPDATE ${SQLITE_FACT_STORE_TABLE}
             SET content = ?,
+                facets = ?,
                 facets_json = ?,
                 embedding_blob = ?,
                 created_by = ?,
                 valid_until_unix = ?,
                 updated_at_unix = ?,
+                supersedes = COALESCE(?, supersedes),
                 version = version + 1
             WHERE id = ?
           `,
           [
             nextContent,
             JSON.stringify(nextFacets),
+            JSON.stringify(nextFacets),
             contentChanged ? embeddingValue : null,
             nextCreatedBy,
             nextValidUntilUnix,
             nowUnix,
+            archivedId,
             existing.id
           ]
         );
@@ -302,6 +402,8 @@ export const upsertTool: ToolHandler = {
               Number(updated.updated_at_unix) * 1000
             ).toISOString(),
             version: updated.version,
+            supersedes: archivedId,
+            archived_previous_state: archivedId !== null,
             notes
           })
         };
@@ -316,27 +418,33 @@ export const upsertTool: ToolHandler = {
             id,
             schema_id,
             content,
+            facets,
             facets_json,
             embedding_blob,
             created_by,
             created_at_unix,
             updated_at_unix,
+            valid_from_unix,
             valid_until_unix,
             version,
             doc_id,
             workspace_id
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ${SQLITE_NEXT_FACT_DOC_ID_EXPR}, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ${SQLITE_NEXT_FACT_DOC_ID_EXPR}, ?)
         `,
         [
           id,
           input.schema_id,
           nextContent,
           JSON.stringify(nextFacets),
+          JSON.stringify(nextFacets),
           embeddingValue,
           nextCreatedBy,
           nowUnix,
           nowUnix,
+          input.valid_from
+            ? Math.floor(Date.parse(`${input.valid_from}T00:00:00Z`) / 1000)
+            : nowUnix,
           nextValidUntilUnix,
           effectiveWorkspaceId
         ]
@@ -368,6 +476,8 @@ export const upsertTool: ToolHandler = {
           embedding_stored: embeddingStored,
           created_at: new Date(nowUnix * 1000).toISOString(),
           version: 1,
+          supersedes: null,
+          archived_previous_state: false,
           notes
         })
       };

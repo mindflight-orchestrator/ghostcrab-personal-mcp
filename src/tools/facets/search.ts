@@ -17,6 +17,7 @@ import {
   registerTool,
   type ToolHandler
 } from "../registry.js";
+import { ACTIVE_FACT_WINDOW_SQL, activeFactWindowSql } from "../../db/temporal.js";
 
 export const SearchInput = z.object({
   query: z.string().max(4_096).default(""),
@@ -523,7 +524,7 @@ async function runSemanticCandidatePool(
   args: RunSemanticCandidatePoolArgs
 ): Promise<FacetsCandidateRow[]> {
   const whereClauses: string[] = [
-    "(valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))",
+    ACTIVE_FACT_WINDOW_SQL,
     "workspace_id = ?",
     "embedding_blob IS NOT NULL",
     ...args.facetWhereClauses
@@ -556,7 +557,7 @@ async function runSemanticCandidatePool(
 function buildFAliasedWhere(facetWhereClauses: string[]): string[] {
   return [
     "f.workspace_id = ?",
-    "(f.valid_until_unix IS NULL OR f.valid_until_unix > strftime('%s','now'))",
+    activeFactWindowSql("f"),
     ...facetWhereClauses.map((clause) =>
       clause.replace(
         /json_extract\(facets_json,/g,
@@ -616,7 +617,7 @@ async function fetchFacetsByDocIds(
 
   const placeholders = matches.map(() => "?").join(", ");
   const whereClauses = [
-    "(valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))",
+    ACTIVE_FACT_WINDOW_SQL,
     "workspace_id = ?",
     `doc_id IN (${placeholders})`,
     ...facetWhereClauses
@@ -774,7 +775,7 @@ async function runKeywordSqlSearch(
   args: RunKeywordSqlSearchArgs
 ): Promise<KeywordSqlSearchResult> {
   const whereClauses: string[] = [
-    "(valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))",
+    ACTIVE_FACT_WINDOW_SQL,
     "workspace_id = ?",
     ...args.facetWhereClauses
   ];

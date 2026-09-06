@@ -5,6 +5,7 @@ import {
   registerTool,
   type ToolHandler
 } from "../registry.js";
+import { ACTIVE_FACT_WINDOW_SQL } from "../../db/temporal.js";
 
 export const GuidanceInput = z.object({
   goal: z
@@ -1158,7 +1159,7 @@ export const guidanceTool: ToolHandler = {
           facets_json->'keywords' AS keywords
         FROM mb_pragma.agent_facts
         WHERE schema_id = 'ghostcrab:activity-family'
-          AND (valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))
+          AND ${ACTIVE_FACT_WINDOW_SQL}
       `
     );
 
@@ -1189,7 +1190,7 @@ export const guidanceTool: ToolHandler = {
           facets_json->'candidate_activity_families' AS candidate_activity_families
         FROM mb_pragma.agent_facts
         WHERE schema_id = 'ghostcrab:signal-pattern'
-          AND (valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))
+          AND ${ACTIVE_FACT_WINDOW_SQL}
       `
     );
 
@@ -1277,7 +1278,7 @@ export const guidanceTool: ToolHandler = {
           FROM mb_pragma.agent_facts
           WHERE schema_id = 'ghostcrab:modeling-recipe'
             AND facets_json->>'activity_family' = $1
-            AND (valid_until_unix IS NULL OR valid_until_unix > strftime('%s','now'))
+            AND ${ACTIVE_FACT_WINDOW_SQL}
           LIMIT 1
         `,
         [topFamily]

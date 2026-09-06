@@ -11,6 +11,7 @@ import {
   type ToolExecutionContext,
   type ToolHandler
 } from "../registry.js";
+import { activeFactWindowSql } from "../../db/temporal.js";
 
 const optionalNullableStringInput = z
   .preprocess(
@@ -480,7 +481,7 @@ async function loadLinkedFacetFacts(args: {
       WHERE ged.table_id = ?
         AND ged.entity_id IN (${args.entityIds.map(() => "?").join(", ")})
         AND f.workspace_id = ?
-        AND (f.valid_until_unix IS NULL OR f.valid_until_unix > strftime('%s','now'))
+        AND ${activeFactWindowSql("f")}
         ${facetWhereClauses.length > 0 ? `AND ${facetWhereClauses.join(" AND ")}` : ""}
       ORDER BY ged.confidence DESC, f.created_at_unix DESC
       LIMIT ?

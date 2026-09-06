@@ -9,6 +9,7 @@ import {
 } from "../pragma/answer-artifact-overlay.js";
 import type { ToolExecutionContext } from "../registry.js";
 import type { BusinessCapability, EvidenceRef } from "./types.js";
+import { ACTIVE_FACT_WINDOW_SQL } from "../../db/temporal.js";
 
 interface AnswerArtifactRow {
   artifact_id: string;
@@ -216,7 +217,7 @@ export async function loadRuntimeCapabilities(params: {
       FROM ${SQLITE_FACT_STORE_TABLE}
       WHERE schema_id = ?
         AND json_extract(facets_json, '$.workspace_id') = ?
-        AND (valid_until_unix IS NULL OR valid_until_unix > strftime('%s', 'now'))
+        AND ${ACTIVE_FACT_WINDOW_SQL}
       ORDER BY COALESCE(version, 1) DESC, created_at_unix DESC
       LIMIT ?
     `,
