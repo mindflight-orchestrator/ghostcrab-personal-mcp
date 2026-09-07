@@ -26,7 +26,7 @@ If the user is still figuring out their project, do not lead with schemas, graph
 8. When the user gives execution constraints, obey them exactly. Do not create more writes, sections, or domains than requested.
 9. For long-running work, keep phase, environment, and external-system context queryable on durable records rather than leaving them in prose only.
 10. End each meaningful session or phase boundary with a checkpoint.
-11. Before overwriting a meaningful current-state record, preserve transition rationale when recovery would otherwise lose why the state changed.
+11. Before overwriting a meaningful current-state record, preserve the transition rationale (the previous values are archived automatically) when recovery would otherwise lose why the state changed.
 
 ## Low-Reasoning Discipline
 

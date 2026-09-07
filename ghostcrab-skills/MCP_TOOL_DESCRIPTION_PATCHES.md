@@ -40,11 +40,15 @@ These patches are drafts for the public GhostCrab MCP tool descriptions.
 - Use for durable facts, stable notes, and supporting evidence.
 - Do not use on a first-turn fuzzy onboarding request.
 - Summarize before storing; do not use raw payloads as the durable artifact when a stable summary will do.
+- Idempotent on an identical payload: the same content, facets and `schema_id` refresh the same row instead of adding a duplicate, so replaying a session is safe.
+- `valid_from` defaults to today; backdate it for an imported fact that was already true earlier. A future date keeps the fact out of reads until then.
 
 ## `ghostcrab_upsert`
 
 - Use for current-state changes that should stay unique in place.
-- Before replacing a meaningful tracker state, preserve the transition rationale when losing it would hurt recovery.
+- The record keeps its id, and the state it replaces is archived as a closed row it supersedes: transition history needs no extra call.
+- Match on a stable `record_id`, not on the state being left behind — a closed row is never selected, so a selector describing the previous state matches nothing.
+- Before replacing a meaningful tracker state, preserve the transition rationale when losing it would hurt recovery; the previous values themselves are already kept.
 - Do not use on a first-turn fuzzy onboarding request.
 - **`match` shape (required):** use `match.id` (row UUID) and/or `match.facets` (object). Facet selectors must live **under** `match.facets`, not at the root of `match`. Wrong: `{"match":{"label":"Deal A"}}`. Right: `{"match":{"facets":{"label":"Deal A"}}}`. Prefer a stable `record_id` (or similar) inside `match.facets` over labels that may change.
 - When `create_if_missing` is true and no row matches, **`set_content` is required** (body text for the new row).

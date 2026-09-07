@@ -20,7 +20,7 @@
     },
     {
       "path": "claude-code/self-memory/CLAUDE.install.md",
-      "sha256": "587ff7a0cfe6fa58c0193cff69d7021b229dab4aab5bf8e13027a798fa48febe"
+      "sha256": "e4e9cddd9fe31ac215284c956acf65f436aad7ee40e21141e1477b32d0475284"
     },
     {
       "path": "claude-code/self-memory/README.install.md",
@@ -52,7 +52,7 @@
     },
     {
       "path": "claude-code/skills/ghostcrab-memory/SKILL.md",
-      "sha256": "fa3e8b1823545bd52c186b06e3ac875f46279bf10d6f942651f6bfab1a100a37"
+      "sha256": "9624810c28d60d407c881913a2c9ec0feeb7ec1f55a82f9ece70729480fa2edf"
     },
     {
       "path": "claude-code/skills/ghostcrab-operator/SKILL.md",
@@ -116,7 +116,7 @@
     },
     {
       "path": "codex/skills/ghostcrab-memory/SKILL.md",
-      "sha256": "fa3e8b1823545bd52c186b06e3ac875f46279bf10d6f942651f6bfab1a100a37"
+      "sha256": "9624810c28d60d407c881913a2c9ec0feeb7ec1f55a82f9ece70729480fa2edf"
     },
     {
       "path": "codex/skills/ghostcrab-memory/agents/openai.yaml",
@@ -180,7 +180,7 @@
     },
     {
       "path": "cursor/skills/ghostcrab-memory/SKILL.md",
-      "sha256": "fa3e8b1823545bd52c186b06e3ac875f46279bf10d6f942651f6bfab1a100a37"
+      "sha256": "9624810c28d60d407c881913a2c9ec0feeb7ec1f55a82f9ece70729480fa2edf"
     },
     {
       "path": "cursor/skills/ghostcrab-operator/SKILL.md",
@@ -272,7 +272,7 @@
     },
     {
       "path": "shared/TRANSITION_LOGGING.md",
-      "sha256": "d96be3bc0d8262a9f82b196363bda99d30af15295948c23b472f9a7aa8dd4171"
+      "sha256": "4aa225cff8b022067ba33c37d2c95776f2ed79b483a4ea4e0663eb20fe6c1923"
     },
     {
       "path": "shared/WORKSPACE_CONTEXT.md",

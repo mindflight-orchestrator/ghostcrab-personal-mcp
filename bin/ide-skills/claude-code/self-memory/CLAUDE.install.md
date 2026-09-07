@@ -28,8 +28,8 @@ Canonical contract: @.ghostcrab/skills/shared/ONBOARDING_CONTRACT.md
 - Read before write.
 - Use `ghostcrab_status` only when runtime health, workspace context, or blockers materially matter.
 - Prefer explicit `schema_id` and filters for reads.
-- Use `ghostcrab_remember` for durable notes.
-- Use `ghostcrab_upsert` for current state.
+- Use `ghostcrab_remember` for durable notes. Re-writing an identical note refreshes the same row instead of duplicating it.
+- Use `ghostcrab_upsert` for current state. It archives the state it replaces and keeps the record's id; match on a stable `record_id`, never on the state you are leaving.
 - Use `ghostcrab_learn` for stable relations.
 - Never open GhostCrab SQLite directly.
 

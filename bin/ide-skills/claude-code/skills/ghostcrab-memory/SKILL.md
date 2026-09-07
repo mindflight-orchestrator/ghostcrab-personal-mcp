@@ -49,12 +49,21 @@ For first-turn fuzzy onboarding, ask the questions before broad GhostCrab discov
 - use `ghostcrab_learn` for stable structural relations
 - use `ghostcrab_project` for compact provisional views only after the route is clear
 
+Two behaviours worth relying on instead of working around:
+
+- `ghostcrab_upsert` archives the state it replaces and keeps the record's id, so
+  transition history exists without a second write. Match on a stable `record_id`:
+  a selector describing the state you just left matches nothing.
+- `ghostcrab_remember` is idempotent on an identical payload — same content, facets
+  and `schema_id` refresh the same row rather than adding a near-duplicate — so
+  replaying a session is safe. Any change to the payload appends a new fact.
+
 ## Checkpoint Rule
 
 For long-running work:
 
 - end each meaningful session with a checkpoint
 - end each phase boundary with a checkpoint
-- before overwriting a meaningful current-state record, preserve transition rationale when losing it would harm recovery
+- before overwriting a meaningful current-state record, preserve the transition *rationale* when losing it would harm recovery; the previous values themselves are archived automatically
 
 Use [shared/TRANSITION_LOGGING.md](../ghostcrab-shared/TRANSITION_LOGGING.md) as the pattern.
