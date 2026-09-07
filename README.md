@@ -2,7 +2,7 @@
 
 # GhostCrab Personal MCP
 
-**Current release:** `@mindflight/ghostcrab-personal-mcp@0.6.7` · MindBrain backend **1.8.2** · MCP tool surface **`2026-09-02`**
+**Current release:** `@mindflight/ghostcrab-personal-mcp@0.6.8` · MindBrain backend **1.8.3** · MCP tool surface **`2026-09-07`**
 
 ### The MCP interface to mindBrain — SQLite edition
 
@@ -428,7 +428,7 @@ Enabled by default. Sends anonymous pings to `https://telemetry.ghostcrab.be/v1/
 
 ### Submodule note (contributors only)
 
-MindBrain ships as a Git submodule at `vendor/mindbrain` (**1.8.2**, including governed live-answer-view creation — check `git submodule status` for the exact pin). Clone with:
+MindBrain ships as a Git submodule at `vendor/mindbrain` (**1.8.3**, including the full agent-fact validity window on the native read paths — check `git submodule status` for the exact pin). Clone with:
 
 ```bash
 git clone --recurse-submodules https://github.com/mindflight-orchestrator/ghostcrab-personal-mcp.git
