@@ -44,7 +44,7 @@ function asQueryable(db: RealDb): Queryable {
 
 function createSearchSchema(db: RealDb): boolean {
   db.exec(
-    `CREATE TABLE agent_facts (id TEXT PRIMARY KEY, content TEXT NOT NULL, doc_id INTEGER);`
+    `CREATE TABLE agent_facts (id TEXT PRIMARY KEY, content TEXT NOT NULL, doc_id INTEGER, valid_from_unix INTEGER, valid_until_unix INTEGER);`
   );
   db.exec(
     `CREATE TABLE search_documents (table_id INTEGER NOT NULL, doc_id INTEGER NOT NULL, content TEXT NOT NULL, language TEXT NOT NULL DEFAULT 'english', PRIMARY KEY(table_id, doc_id));`
@@ -114,6 +114,59 @@ describe("ensureSearchFtsCaughtUp", () => {
 
       expect(Number(docCount?.c ?? 0)).toBe(1);
       expect(Number(ftsDocCount?.c ?? 0)).toBe(1);
+      expect(Number(ftsHit?.c ?? 0)).toBe(1);
+    } finally {
+      db.close();
+    }
+  });
+
+  it("leaves a closed archive row out of the search corpus", async () => {
+    const DatabaseSync = loadDatabaseSync();
+    if (!DatabaseSync) {
+      // node:sqlite unavailable in this runtime.
+      return;
+    }
+    const db = new DatabaseSync(":memory:");
+    try {
+      const ftsReady = createSearchSchema(db);
+      if (!ftsReady) {
+        return;
+      }
+
+      // What ghostcrab_upsert leaves behind on a state transition: the current
+      // row, plus a closed copy of the state it replaced. The archive carries a
+      // doc_id because the schema trigger backfills one, so only the validity
+      // filter can keep it out of the BM25 corpus.
+      db.prepare(
+        `INSERT INTO agent_facts (id, content, doc_id, valid_from_unix, valid_until_unix)
+         VALUES (?, ?, ?, ?, ?)`
+      ).run("fact-current", "roaring bitmaps power the graph", 42, null, null);
+      db.prepare(
+        `INSERT INTO agent_facts (id, content, doc_id, valid_from_unix, valid_until_unix)
+         VALUES (?, ?, ?, ?, ?)`
+      ).run("fact-archive", "roaring bitmaps power the graph", 43, null, 1000);
+
+      const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      await ensureSearchFtsCaughtUp(asQueryable(db), FACETS_SEARCH_TABLE_ID);
+      expect(errorSpy).not.toHaveBeenCalled();
+
+      const indexedDocIds = (
+        db
+          .prepare(
+            `SELECT doc_id FROM search_documents WHERE table_id = ? ORDER BY doc_id`
+          )
+          .all(FACETS_SEARCH_TABLE_ID) as Array<{ doc_id: number }>
+      ).map((row) => Number(row.doc_id));
+      expect(indexedDocIds).toEqual([42]);
+
+      // One BM25 hit, not two: history must not compete with the live fact.
+      const ftsHit = (
+        db
+          .prepare(
+            `SELECT COUNT(*) AS c FROM search_fts WHERE search_fts MATCH ?`
+          )
+          .all("roaring") as Array<{ c: number }>
+      )[0];
       expect(Number(ftsHit?.c ?? 0)).toBe(1);
     } finally {
       db.close();

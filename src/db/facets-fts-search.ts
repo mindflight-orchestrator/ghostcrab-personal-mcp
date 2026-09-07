@@ -1,5 +1,6 @@
 import type { Queryable } from "./client.js";
 import { FACETS_SEARCH_TABLE_ID } from "./fact-store.js";
+import { openFactRowSql } from "./temporal.js";
 
 /**
  * Helpers for the per-request usage of MindBrain's FTS5 surface against the
@@ -9,8 +10,10 @@ import { FACETS_SEARCH_TABLE_ID } from "./fact-store.js";
  *
  *  - normalising free-text into an FTS5 MATCH expression that survives FTS5's
  *    grammar (no caller can crash the search by typing punctuation),
- *  - catching up `search_fts` for any `agent_facts.doc_id` that landed since
- *    the bootstrap (cheap: one INSERT … SELECT … NOT EXISTS).
+ *  - catching up `search_fts` for any open `agent_facts.doc_id` that landed
+ *    since the bootstrap (cheap: one INSERT … SELECT … NOT EXISTS). Closed rows
+ *    are skipped for the same reason as in the bootstrap: an upsert archive is
+ *    dead history that would otherwise pollute the BM25 corpus.
  *
  * The catch-up is the Phase 2 interim. Once an upstream MindBrain release
  * exposes a typed `POST /api/mindbrain/search-sync` (see "Upstream follow-up
@@ -79,6 +82,7 @@ export async function ensureSearchFtsCaughtUp(
         SELECT ?, f.doc_id, f.content, 'english'
         FROM agent_facts AS f
         WHERE f.doc_id IS NOT NULL
+          AND ${openFactRowSql("f")}
           AND NOT EXISTS (
             SELECT 1 FROM search_documents sd
             WHERE sd.table_id = ? AND sd.doc_id = f.doc_id
@@ -92,6 +96,7 @@ export async function ensureSearchFtsCaughtUp(
         SELECT ?, f.doc_id
         FROM agent_facts AS f
         WHERE f.doc_id IS NOT NULL
+          AND ${openFactRowSql("f")}
           AND NOT EXISTS (
             SELECT 1 FROM search_fts_docs sfd
             WHERE sfd.table_id = ? AND sfd.doc_id = f.doc_id

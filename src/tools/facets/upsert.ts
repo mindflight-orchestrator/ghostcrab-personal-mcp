@@ -2,12 +2,16 @@ import { z } from "zod";
 import { randomUUID } from "node:crypto";
 
 import { resolveGhostcrabConfig } from "../../config/env.js";
+import { canonicalJsonHash } from "../../db/canonical-json.js";
 import {
   FACETS_SEARCH_TABLE_ID,
   SQLITE_FACT_STORE_TABLE,
   SQLITE_NEXT_FACT_DOC_ID_EXPR
 } from "../../db/fact-store.js";
-import { ARCHIVE_CLOSE_UNIX_EXPR } from "../../db/temporal.js";
+import {
+  ARCHIVE_CLOSE_UNIX_EXPR,
+  OPEN_FACT_ROW_SQL
+} from "../../db/temporal.js";
 import { encodeEmbedding } from "../../embeddings/blob.js";
 import { runStandaloneSearchEmbeddingUpsert } from "../../db/standalone-mindbrain.js";
 import {
@@ -148,6 +152,33 @@ export const upsertTool: ToolHandler = {
     let pendingEmbeddingSync: { docId: number; embedding: number[] } | null =
       null;
 
+    // Selector split. Scalar values on plain keys become SQL so the scan is
+    // bounded by the store rather than by JavaScript memory; everything else
+    // is compared in the caller, canonically — which is also what fixes the
+    // old `===` test that could never match an object or an array.
+    //
+    // A key only reaches the SQL side when it is a bare identifier. The JSON
+    // path is spliced into the statement, so restricting the charset is what
+    // makes that safe; and a dotted key such as `administrative.formule_service`
+    // would otherwise read as a nested path instead of the top-level key it is.
+    const PLAIN_FACET_KEY = /^[A-Za-z0-9_]+$/;
+    const sqlFacetClauses: string[] = [];
+    const sqlFacetParams: unknown[] = [];
+    const residualFacets: Array<[string, unknown]> = [];
+    for (const [key, value] of Object.entries(input.match.facets)) {
+      const scalar =
+        typeof value === "string" ||
+        typeof value === "number" ||
+        typeof value === "boolean";
+      if (!scalar || !PLAIN_FACET_KEY.test(key)) {
+        residualFacets.push([key, value]);
+        continue;
+      }
+      sqlFacetClauses.push(`json_extract(facets_json, '$.${key}') = ?`);
+      // json_extract renders JSON booleans as 0/1.
+      sqlFacetParams.push(typeof value === "boolean" ? (value ? 1 : 0) : value);
+    }
+
     const result = await context.database.transaction(async (queryable) => {
       const candidates = await queryable.query<{
         content: string;
@@ -176,20 +207,31 @@ export const upsertTool: ToolHandler = {
           FROM ${SQLITE_FACT_STORE_TABLE}
           WHERE schema_id = ?
             AND workspace_id = ?
+            AND ${OPEN_FACT_ROW_SQL}
+            ${input.match.id ? "AND id = ?" : ""}
+            ${sqlFacetClauses.map((clause) => `AND ${clause}`).join("\n            ")}
           ORDER BY updated_at_unix DESC, created_at_unix DESC
+          ${residualFacets.length === 0 ? "LIMIT 1" : ""}
         `,
-        [input.schema_id, effectiveWorkspaceId]
+        [
+          input.schema_id,
+          effectiveWorkspaceId,
+          ...(input.match.id ? [input.match.id] : []),
+          ...sqlFacetParams
+        ]
       );
 
       const existing = candidates.find((row) => {
-        if (input.match.id && row.id !== input.match.id) {
-          return false;
-        }
-
         const parsedFacets = safeParseJsonObject(row.facets_json);
-        return Object.entries(input.match.facets).every(
-          ([key, value]) => parsedFacets[key] === value
-        );
+        return residualFacets.every(([key, value]) => {
+          // A missing key is not a match, not even against a null selector.
+          if (!(key in parsedFacets)) {
+            return false;
+          }
+          return (
+            canonicalJsonHash(parsedFacets[key]) === canonicalJsonHash(value)
+          );
+        });
       });
 
       if (!existing && !input.create_if_missing) {
@@ -232,6 +274,20 @@ export const upsertTool: ToolHandler = {
         ...input.set_facets
       };
       const nextCreatedBy = input.created_by ?? existing?.created_by ?? null;
+      // Deterministic provenance: the same logical selector yields the same
+      // source_ref across sessions and across the Postgres build, which is what
+      // makes "where does this row come from" answerable. Kept null when the
+      // selector carries no facets (match.id only): the hash would then be the
+      // same for every record of the schema, and the partial unique index would
+      // make two unrelated rows fight over one provenance.
+      const sourceRef =
+        existing?.source_ref ??
+        (Object.keys(input.match.facets).length > 0
+          ? `ghostcrab://upsert/${canonicalJsonHash({
+              match: input.match.facets,
+              schema_id: input.schema_id
+            })}`
+          : null);
       const nextValidUntilUnix =
         input.valid_until !== undefined
           ? input.valid_until === null
@@ -276,14 +332,31 @@ export const upsertTool: ToolHandler = {
       if (existing) {
         const nowUnix = Math.floor(Date.now() / 1000);
 
+        // Rows written before provenance was wired have none. Adopt it now, so
+        // the archive taken just below inherits a traceable "#v<n>" ref instead
+        // of a NULL. Guarded on IS NULL: an existing ref is never rewritten.
+        if (existing.source_ref === null && sourceRef !== null) {
+          await queryable.query(
+            `
+              UPDATE ${SQLITE_FACT_STORE_TABLE}
+              SET source_ref = ?
+              WHERE id = ? AND source_ref IS NULL
+            `,
+            [sourceRef, existing.id]
+          );
+        }
+
         // Copy-on-write history: the current row keeps its id (callers hold
         // onto it), and the state it is about to lose is preserved as a closed
         // archive row that the current row then supersedes. Selecting from the
         // row itself snapshots the pre-update state without re-sending it.
         //
-        // doc_id stays NULL on purpose: the BM25 sync indexes rows WHERE
-        // doc_id IS NOT NULL, so archives never enter the search index. They
-        // are history, not searchable content.
+        // doc_id is written as NULL but does not stay NULL: the schema's
+        // trg_sync_agent_facts_compat_after_insert trigger backfills any NULL
+        // doc_id, and forcing it back to NULL afterwards is not an option — a
+        // past migration required doc_id IS NOT NULL and NULL rows blocked it.
+        // Archives are kept out of the BM25 corpus on the index side instead:
+        // the search sync only mirrors open rows (see facets-fts-sync.ts).
         //
         // facets and facets_json are both written: the Zig write path keeps
         // the pair in sync, and an archive that only filled one of them would
@@ -345,7 +418,12 @@ export const upsertTool: ToolHandler = {
             SET content = ?,
                 facets = ?,
                 facets_json = ?,
-                embedding_blob = ?,
+                -- Only a content change may touch the vector. A facets-only
+                -- update leaves the text alone, so blanking the embedding here
+                -- would drop the row out of the semantic pool
+                -- (embedding_blob IS NOT NULL) for content that never changed,
+                -- while search_embeddings still holds the old vector.
+                embedding_blob = CASE WHEN ? = 1 THEN ? ELSE embedding_blob END,
                 created_by = ?,
                 valid_until_unix = ?,
                 updated_at_unix = ?,
@@ -357,7 +435,8 @@ export const upsertTool: ToolHandler = {
             nextContent,
             JSON.stringify(nextFacets),
             JSON.stringify(nextFacets),
-            contentChanged ? embeddingValue : null,
+            contentChanged ? 1 : 0,
+            embeddingValue,
             nextCreatedBy,
             nextValidUntilUnix,
             nowUnix,
@@ -412,11 +491,17 @@ export const upsertTool: ToolHandler = {
       const nowUnix = Math.floor(Date.now() / 1000);
       const id = randomUUID();
 
+      // A closed row keeps its source_ref, so a fact that expired and is now
+      // being recreated under the same selector would collide with the partial
+      // unique index. Postgres resolves that with ON CONFLICT DO UPDATE; the
+      // SQLite upsert clause takes the same conflict target, partial-index
+      // predicate included.
       await queryable.query(
         `
           INSERT INTO ${SQLITE_FACT_STORE_TABLE} (
             id,
             schema_id,
+            source_ref,
             content,
             facets,
             facets_json,
@@ -430,11 +515,29 @@ export const upsertTool: ToolHandler = {
             doc_id,
             workspace_id
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ${SQLITE_NEXT_FACT_DOC_ID_EXPR}, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ${SQLITE_NEXT_FACT_DOC_ID_EXPR}, ?)
+          ON CONFLICT(source_ref, workspace_id) WHERE source_ref IS NOT NULL
+          DO UPDATE SET
+            schema_id = excluded.schema_id,
+            content = excluded.content,
+            facets = excluded.facets,
+            facets_json = excluded.facets_json,
+            embedding_blob = COALESCE(
+              excluded.embedding_blob,
+              ${SQLITE_FACT_STORE_TABLE}.embedding_blob
+            ),
+            created_by = COALESCE(
+              excluded.created_by,
+              ${SQLITE_FACT_STORE_TABLE}.created_by
+            ),
+            updated_at_unix = excluded.updated_at_unix,
+            valid_until_unix = excluded.valid_until_unix,
+            version = ${SQLITE_FACT_STORE_TABLE}.version + 1
         `,
         [
           id,
           input.schema_id,
+          sourceRef,
           nextContent,
           JSON.stringify(nextFacets),
           JSON.stringify(nextFacets),
@@ -450,32 +553,73 @@ export const upsertTool: ToolHandler = {
         ]
       );
 
-      if (rawEmbedding !== null) {
-        const [inserted] = await queryable.query<{ doc_id: number }>(
-          `SELECT doc_id FROM ${SQLITE_FACT_STORE_TABLE} WHERE id = ?`,
-          [id]
+      // Our generated id is only the winner when the INSERT actually inserted.
+      // On the conflict branch the surviving row is the one that already held
+      // the source_ref, so report its id and version rather than inventing a
+      // creation that did not happen.
+      const [written] = await queryable.query<{
+        created_at_unix: number;
+        doc_id: number | null;
+        id: string;
+        version: number;
+      }>(
+        `
+          SELECT id, doc_id, created_at_unix, version
+          FROM ${SQLITE_FACT_STORE_TABLE}
+          WHERE id = ?
+        `,
+        [id]
+      );
+
+      const revived =
+        written === undefined && sourceRef !== null
+          ? (
+              await queryable.query<{
+                created_at_unix: number;
+                doc_id: number | null;
+                id: string;
+                version: number;
+              }>(
+                `
+                  SELECT id, doc_id, created_at_unix, version
+                  FROM ${SQLITE_FACT_STORE_TABLE}
+                  WHERE workspace_id = ? AND source_ref = ?
+                `,
+                [effectiveWorkspaceId, sourceRef]
+              )
+            )[0]
+          : undefined;
+
+      const row = written ?? revived;
+      if (!row?.id) {
+        throw new Error(
+          "Creating the fact returned no row - refusing to report a write that did not land"
         );
-        if (inserted?.doc_id) {
-          pendingEmbeddingSync = {
-            docId: Number(inserted.doc_id),
-            embedding: rawEmbedding
-          };
-        }
       }
 
+      if (rawEmbedding !== null && row.doc_id) {
+        pendingEmbeddingSync = {
+          docId: Number(row.doc_id),
+          embedding: rawEmbedding
+        };
+      }
+
+      const created = written !== undefined;
       return {
         kind: "success" as const,
         result: createToolSuccessResult("ghostcrab_upsert", {
-          updated: false,
-          created: true,
+          updated: !created,
+          created,
           matched_existing: false,
-          id,
+          id: row.id,
           schema_id: input.schema_id,
           match: input.match,
           embedding_runtime: embeddingRuntime,
           embedding_stored: embeddingStored,
-          created_at: new Date(nowUnix * 1000).toISOString(),
-          version: 1,
+          created_at: new Date(
+            Number(row.created_at_unix) * 1000
+          ).toISOString(),
+          version: row.version,
           supersedes: null,
           archived_previous_state: false,
           notes

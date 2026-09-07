@@ -1,5 +1,6 @@
 import type { DatabaseClient, Queryable } from "./client.js";
 import { FACETS_SEARCH_TABLE_ID } from "./fact-store.js";
+import { OPEN_FACT_ROW_SQL } from "./temporal.js";
 
 export interface FactsFtsSyncSummary {
   /** True when the bootstrap successfully verified the registration and ran the backfill. */
@@ -31,8 +32,19 @@ export interface FactsFtsSyncSummary {
  *    table, search_fts_docs, bm25_sync_triggers).
  * 2. Inserts `agent_facts` into `bm25_sync_triggers` (idempotent).
  * 3. Backfills `search_documents`, `search_fts_docs`, and `search_fts` for
- *    every `agent_facts` row with a non-null `doc_id` that is missing from the
- *    search artifacts. Re-runs are safe and cheap thanks to `INSERT OR IGNORE`.
+ *    every *open* `agent_facts` row with a non-null `doc_id` that is missing
+ *    from the search artifacts. Re-runs are safe and cheap thanks to
+ *    `INSERT OR IGNORE`.
+ *
+ * Closed rows are excluded on purpose. `ghostcrab_upsert` archives the state it
+ * replaces as a closed copy, and the schema trigger hands that copy a `doc_id`
+ * of its own, so without this filter every state transition would add a row of
+ * dead history to the BM25 corpus: read paths hide it, but FTS5 term statistics
+ * and the engine's pre-filter top-K do not.
+ *
+ * The filter is applied when a row *enters* the index. A fact that expires
+ * later stays indexed until its mapping is rebuilt; that is harmless for
+ * correctness, since every read applies the full validity window anyway.
  *
  * Failures are non-fatal: the function returns `ready: false` with an error
  * string, and the caller is expected to fall back to keyword_sql scoring and
@@ -135,6 +147,7 @@ async function backfillSearchDocuments(
       SELECT ?, doc_id, content, 'english'
       FROM agent_facts
       WHERE doc_id IS NOT NULL
+        AND ${OPEN_FACT_ROW_SQL}
     `,
     [tableId]
   );
@@ -161,6 +174,7 @@ async function backfillSearchFtsDocs(
       SELECT ?, doc_id
       FROM agent_facts
       WHERE doc_id IS NOT NULL
+        AND ${OPEN_FACT_ROW_SQL}
     `,
     [tableId]
   );

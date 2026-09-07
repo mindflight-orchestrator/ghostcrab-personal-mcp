@@ -9,6 +9,7 @@ import {
   SQLITE_FACT_STORE_TABLE
 } from "../db/fact-store.js";
 import { runStandaloneSearchEmbeddingUpsert } from "../db/standalone-mindbrain.js";
+import { ACTIVE_FACT_WINDOW_SQL } from "../db/temporal.js";
 
 interface BackfillOptions {
   batchSize: number;
@@ -170,7 +171,9 @@ function buildWhereClause(
   whereClause: string;
 } {
   const params: unknown[] = [];
-  const conditions = ["embedding_blob IS NULL"];
+  // Archived rows are history: embedding them costs API calls for content no
+  // read path will ever score.
+  const conditions = ["embedding_blob IS NULL", ACTIVE_FACT_WINDOW_SQL];
 
   if (schemaId) {
     params.push(schemaId);

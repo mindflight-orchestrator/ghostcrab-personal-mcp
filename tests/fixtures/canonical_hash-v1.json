@@ -1,0 +1,20 @@
+{
+  "format": "mindbrain-canonical-json-v1",
+  "vectors": [
+    {
+      "value": {},
+      "canonical": "o0{}",
+      "sha256": "fc7dbfb18a28b6816bc41180a1afdf45b6479756d81d68d3c4119e6fe170566f"
+    },
+    {
+      "value": { "b": 2, "a": 1 },
+      "canonical": "o2{k1:ad1:1k1:bd1:2}",
+      "sha256": "1ef443c455ec7b62a8042ade340cf31e74f73e16c64a130138ced80c1c292f28"
+    },
+    {
+      "value": [true, null, "é", 1.23],
+      "canonical": "a4[b1;n;s2:éd4:1.23]",
+      "sha256": "27b9f59f9f013354bdd082a61d027e71165a8b2987ea6da4b93d97e9c8f5cfb5"
+    }
+  ]
+}

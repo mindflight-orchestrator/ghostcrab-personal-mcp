@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { resolveGhostcrabConfig } from "../../config/env.js";
+import { canonicalJsonHash } from "../../db/canonical-json.js";
 import { encodeEmbedding } from "../../embeddings/blob.js";
 import { runStandaloneFactWrite } from "../../db/standalone-mindbrain.js";
 import {
@@ -30,6 +31,34 @@ export const RememberInput = z.object({
     )
     .optional()
 });
+
+const GOAL_INTENT_PATTERNS =
+  /\b(i want|i need|i'd like|je veux|je voudrais|je vais|create|créer|build|construire|make|develop|set up|design|implement)\b/i;
+
+/**
+ * An intention is not an observation. Writing "je veux suivre les chantiers"
+ * as a durable fact fills the store with things that were never true, and the
+ * distinction is worth materialising in code rather than only in the docs.
+ *
+ * Deliberately narrow: long texts, JSON payloads and multi-line notes are left
+ * alone, because a phrasing match inside a real report is a false positive.
+ * Ported from the Postgres build so both engines warn on the same inputs.
+ */
+function looksLikeGoalOrIntent(content: string): boolean {
+  const trimmed = content.trim();
+  if (trimmed.length > 2_000) {
+    return false;
+  }
+  if (GOAL_INTENT_PATTERNS.test(trimmed)) {
+    try {
+      JSON.parse(trimmed);
+      return false;
+    } catch {
+      return !trimmed.includes("\n") || trimmed.split("\n").length < 5;
+    }
+  }
+  return false;
+}
 
 export const rememberTool: ToolHandler = {
   definition: {
@@ -83,6 +112,14 @@ export const rememberTool: ToolHandler = {
     let rawEmbedding: number[] | undefined;
     let embeddingBlob: string | undefined;
 
+    if (looksLikeGoalOrIntent(input.content)) {
+      notes.push(
+        "This content looks like a domain-modeling goal or intent rather than a factual observation. " +
+          "Storing it as a raw fact may pollute your workspace. " +
+          "Consider calling ghostcrab_status first to get routing, workspace guidance, and suggested modeling steps."
+      );
+    }
+
     if (embeddingRuntime.writeEmbeddingsEnabled) {
       try {
         const [embedding] = await context.embeddings.embedMany([input.content]);
@@ -108,6 +145,18 @@ export const rememberTool: ToolHandler = {
       ? Math.floor(Date.parse(`${input.valid_from}T00:00:00Z`) / 1000)
       : Math.floor(Date.now() / 1000);
 
+    // Deterministic provenance over the whole payload: two identical
+    // observations are one observation. The backend resolves the same
+    // source_ref to the same row, so re-running a session does not fan the
+    // store out into near-duplicates, and "where does this come from" has an
+    // answer that survives the session. Any change to content, facets or
+    // schema_id yields a different ref, hence a new appended row.
+    const sourceRef = `ghostcrab://remember/${canonicalJsonHash({
+      content: input.content,
+      facets: input.facets,
+      schema_id: input.schema_id
+    })}`;
+
     const config = resolveGhostcrabConfig();
     const result = await runStandaloneFactWrite({
       mindbrainUrl: config.mindbrainUrl,
@@ -120,12 +169,22 @@ export const rememberTool: ToolHandler = {
       embedding: rawEmbedding,
       createdBy: input.created_by,
       validUntilUnix,
-      validFromUnix
+      validFromUnix,
+      sourceRef
     });
+
+    if (result.updated) {
+      notes.push(
+        "An identical fact was already stored under the same provenance; the existing row was refreshed instead of duplicated."
+      );
+    }
 
     return createToolSuccessResult("ghostcrab_remember", {
       stored: true,
       id: result.id,
+      created: result.created,
+      deduplicated: result.updated,
+      source_ref: sourceRef,
       created_at: new Date().toISOString(),
       schema_id: input.schema_id,
       workspace_id: effectiveWorkspaceId,

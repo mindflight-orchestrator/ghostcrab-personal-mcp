@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { canonicalJsonHash } from "../../src/db/canonical-json.js";
 import type { DatabaseClient, Queryable } from "../../src/db/client.js";
 import { createToolContext } from "../helpers/tool-context.js";
 import { countTool } from "../../src/tools/facets/count.js";
@@ -126,6 +127,51 @@ describe("facet tools", () => {
     );
   });
 
+  it("sends a deterministic source_ref when remembering a fact", async () => {
+    const fetchMock = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            ok: true,
+            id: "a1b2c3d4-e5f6-4789-abcd-ef1234567890",
+            doc_id: 1,
+            created: true,
+            updated: false
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        )
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const args = {
+      content: "Chantier livré.",
+      facets: { project: "demo" },
+      schema_id: "ghostcrab:note"
+    };
+    await rememberTool.handler(
+      args,
+      createToolContext(createMockDatabase(async () => []))
+    );
+    // Same payload, keys in another order: the canonical encoding must not care.
+    await rememberTool.handler(
+      { facets: { project: "demo" }, schema_id: "ghostcrab:note", ...args },
+      createToolContext(createMockDatabase(async () => []))
+    );
+
+    const refs = fetchMock.mock.calls.map(
+      (call) =>
+        JSON.parse(String((call[1] as RequestInit).body)).source_ref as string
+    );
+    expect(refs[0]).toBe(
+      `ghostcrab://remember/${canonicalJsonHash({
+        content: "Chantier livré.",
+        facets: { project: "demo" },
+        schema_id: "ghostcrab:note"
+      })}`
+    );
+    expect(refs[1]).toBe(refs[0]);
+  });
+
   it("does not archive when only valid_until changes", async () => {
     const query = vi
       .fn<DatabaseClient["query"]>()
@@ -143,6 +189,7 @@ describe("facet tools", () => {
           version: 1
         }
       ])
+      .mockResolvedValueOnce([]) // backfill du source_ref manquant
       .mockResolvedValueOnce([]) // UPDATE
       .mockResolvedValueOnce([
         {
@@ -162,8 +209,8 @@ describe("facet tools", () => {
     );
 
     // Re-dating a fact does not change what it says: pas d'archive, donc
-    // trois appels au lieu de cinq.
-    expect(query).toHaveBeenCalledTimes(3);
+    // quatre appels au lieu de six.
+    expect(query).toHaveBeenCalledTimes(4);
     expect(readStructured(result)).toMatchObject({
       ok: true,
       updated: true,
@@ -257,10 +304,29 @@ describe("facet tools", () => {
   });
 
   it("creates a record when no match exists and create_if_missing is enabled", async () => {
+    // The insert generates its own uuid, and the handler reports the row it
+    // reads back rather than the id it hoped to write, so the mock has to echo
+    // whatever the INSERT actually carried.
+    let insertedId: string | null = null;
     const query = vi
       .fn<DatabaseClient["query"]>()
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([]);
+      .mockImplementation(async (sql, params = []) => {
+        if (/^\s*INSERT INTO/i.test(sql)) {
+          insertedId = String((params as unknown[])[0]);
+          return [];
+        }
+        if (/^\s*SELECT id, doc_id, created_at_unix/i.test(sql)) {
+          return [
+            {
+              id: insertedId,
+              doc_id: 7,
+              created_at_unix: FIXED_CREATED_AT_UNIX,
+              version: 1
+            }
+          ];
+        }
+        return [];
+      });
     const database = createMockDatabase(query);
 
     const result = await upsertTool.handler(

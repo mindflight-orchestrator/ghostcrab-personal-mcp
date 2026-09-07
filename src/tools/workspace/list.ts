@@ -5,6 +5,7 @@ import {
   registerTool,
   type ToolHandler
 } from "../registry.js";
+import { activeFactWindowSql } from "../../db/temporal.js";
 import { WorkspaceStatusSchema } from "../../types/workspace.js";
 
 const ListWorkspacesInput = z.object({
@@ -63,7 +64,9 @@ export const workspaceListTool: ToolHandler = {
           w.status,
           w.created_at,
           COALESCE(
-            (SELECT COUNT(*) FROM agent_facts f WHERE f.workspace_id = w.id),
+            (SELECT COUNT(*) FROM agent_facts f
+              WHERE f.workspace_id = w.id
+                AND ${activeFactWindowSql("f")}),
             0
           ) AS facets_count,
           COALESCE(
