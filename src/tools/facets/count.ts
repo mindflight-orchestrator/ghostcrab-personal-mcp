@@ -65,9 +65,7 @@ export const countTool: ToolHandler = {
         params.push(effectiveSchemaId);
       }
 
-      whereClauses.push(
-        ACTIVE_FACT_WINDOW_SQL
-      );
+      whereClauses.push(ACTIVE_FACT_WINDOW_SQL);
       whereClauses.push(`json_type(facets_json, '$.${dimension}') IS NOT NULL`);
 
       for (const [key, rawValue] of Object.entries(input.filters)) {

@@ -35,6 +35,8 @@ describe("archive close instant", () => {
     expect(ARCHIVE_CLOSE_UNIX_EXPR).not.toMatch(
       /MAX\([^)]*[^)]strftime\('%s','now'\)(?! AS INTEGER)/
     );
-    expect(ARCHIVE_CLOSE_UNIX_EXPR).toContain("CAST(strftime('%s','now') AS INTEGER)");
+    expect(ARCHIVE_CLOSE_UNIX_EXPR).toContain(
+      "CAST(strftime('%s','now') AS INTEGER)"
+    );
   });
 });

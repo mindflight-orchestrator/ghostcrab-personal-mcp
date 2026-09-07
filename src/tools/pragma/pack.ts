@@ -23,7 +23,10 @@ import {
   withAnalysisPlanOverlay,
   type AnalysisPlanOverlay
 } from "./answer-artifact-overlay.js";
-import { ACTIVE_FACT_WINDOW_SQL, activeFactWindowSql } from "../../db/temporal.js";
+import {
+  ACTIVE_FACT_WINDOW_SQL,
+  activeFactWindowSql
+} from "../../db/temporal.js";
 
 interface FactRow {
   content: string;
@@ -366,10 +369,7 @@ async function fetchFacetsByLocalFts(
 
   await ensureSearchFtsCaughtUp(database, FACETS_SEARCH_TABLE_ID);
 
-  const whereClauses = [
-    "f.workspace_id = ?",
-    activeFactWindowSql("f")
-  ];
+  const whereClauses = ["f.workspace_id = ?", activeFactWindowSql("f")];
   const sqlParams: unknown[] = [
     FACETS_SEARCH_TABLE_ID,
     ftsExpression,

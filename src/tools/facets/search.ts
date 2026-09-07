@@ -17,7 +17,10 @@ import {
   registerTool,
   type ToolHandler
 } from "../registry.js";
-import { ACTIVE_FACT_WINDOW_SQL, activeFactWindowSql } from "../../db/temporal.js";
+import {
+  ACTIVE_FACT_WINDOW_SQL,
+  activeFactWindowSql
+} from "../../db/temporal.js";
 
 export const SearchInput = z.object({
   query: z.string().max(4_096).default(""),

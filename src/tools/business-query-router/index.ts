@@ -126,9 +126,7 @@ export function composeIntentFacets(intent: BusinessIntent): {
 
 export function buildLiveFilterQuery(intent: BusinessIntent): LiveFilterResult {
   const { filters, applied, skipped } = composeIntentFacets(intent);
-  const whereClauses: string[] = [
-    ACTIVE_FACT_WINDOW_SQL
-  ];
+  const whereClauses: string[] = [ACTIVE_FACT_WINDOW_SQL];
   const whereParams: unknown[] = [];
 
   for (const [key, value] of Object.entries(filters)) {
