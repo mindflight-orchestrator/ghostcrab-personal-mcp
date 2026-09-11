@@ -45,6 +45,7 @@ export const CombinedSearchInput = z.object({
   facet_schema_id: z.string().trim().min(1).optional(),
   facet_filters: z.record(z.string(), z.unknown()).default({}),
   facet_mode: z.enum(["hybrid", "bm25", "semantic"]).default("hybrid"),
+  collection_facet_value: z.string().trim().min(1).max(4096).optional(),
   collection_facet_table_id: z.coerce.number().int().positive().optional(),
   collection_facet_namespace: z.string().trim().min(1).optional(),
   collection_facet_dimension: z.string().trim().min(1).optional(),
@@ -169,6 +170,11 @@ const combinedSearchInputSchema = {
       enum: ["hybrid", "bm25", "semantic"],
       default: "hybrid",
       description: "Ranking mode used by the facet fallback search."
+    },
+    collection_facet_value: {
+      type: "string",
+      description:
+        "Explicit resolved collection facet value (substring). Independent of the natural-language query; discover the vocabulary first. Required to run the collection-facet fallback."
     },
     collection_facet_table_id: {
       type: "integer",
@@ -316,7 +322,7 @@ async function runCombinedSearch(
     if (
       fallbackFacts.length === 0 &&
       input.collection_id &&
-      input.query.trim().length > 0
+      input.collection_facet_value !== undefined
     ) {
       try {
         // Hybrid resolution of the Roaring (facet_postings) target:
@@ -341,7 +347,7 @@ async function runCombinedSearch(
           tableId: facetTarget.tableId,
           namespace: facetTarget.namespace,
           dimension: facetTarget.dimension,
-          value: input.query,
+          value: input.collection_facet_value,
           limit: facetLimit
         });
         collectionFacetFallback = {
@@ -437,6 +443,14 @@ async function runCombinedSearch(
       results: chunkEvidence
     },
     returned: combinedResults.length,
+    notes:
+      input.collection_id &&
+      !input.collection_facet_value &&
+      fallbackFacts.length === 0
+        ? [
+            "Collection facet value search was skipped: provide collection_facet_value from the resolved vocabulary; query is not a structured value."
+          ]
+        : [],
     partial_errors: partialErrors,
     results: combinedResults
   });

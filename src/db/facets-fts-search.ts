@@ -21,14 +21,14 @@ import { openFactRowSql } from "./temporal.js";
  * can be deleted.
  */
 
-const FTS5_SAFE_CHAR = /[A-Za-z0-9_]/;
+const FTS5_TOKEN = /[\p{L}\p{N}\p{M}_]+/gu;
 
 /**
  * Build a safe FTS5 MATCH expression from arbitrary user input.
  *
  * Strategy:
- *   - Tokenise on whitespace.
- *   - Drop the FTS5-special characters that would otherwise be parsed as
+ *   - Preserve Unicode letters and tokenize on punctuation/whitespace.
+ *   - Treat FTS5-special characters as separators instead of parsing them as
  *     operators (`"`, `*`, `(`, `)`, `:`, `^`, `+`, `-`, `~`).
  *   - Wrap each surviving token in double quotes so any remaining punctuation
  *     becomes a literal phrase fragment.
@@ -45,15 +45,7 @@ export function buildFtsMatchExpression(query: string): string | null {
     return null;
   }
 
-  const tokens: string[] = [];
-  for (const raw of cleaned.split(/\s+/)) {
-    const filtered = Array.from(raw)
-      .filter((char) => FTS5_SAFE_CHAR.test(char))
-      .join("");
-    if (filtered.length > 0) {
-      tokens.push(filtered);
-    }
-  }
+  const tokens = cleaned.normalize("NFC").match(FTS5_TOKEN) ?? [];
 
   if (tokens.length === 0) {
     return null;

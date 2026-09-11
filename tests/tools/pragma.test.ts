@@ -396,7 +396,7 @@ describe("pragma tools", () => {
                 "agent:self",
                 "serenity-v4:production:copropriete_360",
                 "analysis_plan",
-                "Copropriete 360",
+                "Aurora Copropriete 360",
                 "active",
                 "open",
                 1,
@@ -437,6 +437,7 @@ describe("pragma tools", () => {
           "serenity-v4",
           "serenity-v4:%",
           "serenity-v4:production:copropriete_360",
+          "Aurora",
           14
         ]);
         return [
@@ -469,7 +470,7 @@ describe("pragma tools", () => {
     const pack = body.pack as Array<Record<string, unknown>>;
     expect(pack[0]).toMatchObject({
       id: "analysis_plan__copropriete_360",
-      public_label: "Copropriete 360",
+      public_label: "Aurora Copropriete 360",
       artifact_kind: "analysis_plan"
     });
     expect(body.notes).toEqual(

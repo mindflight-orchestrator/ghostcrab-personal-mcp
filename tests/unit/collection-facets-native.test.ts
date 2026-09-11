@@ -168,7 +168,8 @@ describe.skipIf(!binary)("native collection facet lifecycle", () => {
       {
         workspace_id: "ws",
         collection_id: "facet-native-docs",
-        query: "shared",
+        query: "Which documents use the shared category?",
+        collection_facet_value: "shared",
         collection_facet_table_id: 7007,
         collection_facet_namespace: "topic",
         collection_facet_dimension: "category"

@@ -73,12 +73,15 @@ export interface StandaloneGhostcrabPackParams {
   workspaceId?: string;
   agentId: string;
   query: string;
+  selectionMode?: "search" | "exact";
+  planId?: string;
   scope?: string;
   limit: number;
 }
 
 export interface StandaloneGhostcrabPackRow {
   id: string;
+  scope?: string | null;
   proj_type: string;
   content: string;
   weight: number;
@@ -742,6 +745,9 @@ export async function runStandaloneGhostcrabPack(
   );
   url.searchParams.set("agent_id", params.agentId);
   url.searchParams.set("query", params.query);
+  if (params.selectionMode)
+    url.searchParams.set("selection_mode", params.selectionMode);
+  if (params.planId) url.searchParams.set("plan_id", params.planId);
   url.searchParams.set("limit", String(params.limit));
   if (params.workspaceId) {
     url.searchParams.set("workspace_id", params.workspaceId);
@@ -752,7 +758,25 @@ export async function runStandaloneGhostcrabPack(
 
   const response = await fetchJson<{
     rows?: StandaloneGhostcrabPackRow[];
+    selection_mode?: string;
   }>(url, { method: "GET" }, params.timeoutMs);
+  if (
+    params.selectionMode === "exact" &&
+    (response.selection_mode !== "exact" ||
+      !Array.isArray(response.rows) ||
+      response.rows.some(
+        (row) =>
+          typeof row.id !== "string" ||
+          row.scope !== params.scope ||
+          typeof row.content !== "string" ||
+          !["active", "blocking"].includes(row.status) ||
+          (params.planId !== undefined && row.id !== params.planId)
+      ))
+  ) {
+    throw new Error(
+      "Native exact plan selection unavailable or invalid; update the mindBrain backend."
+    );
+  }
   return Array.isArray(response.rows) ? response.rows : [];
 }
 

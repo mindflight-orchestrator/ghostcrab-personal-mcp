@@ -15,6 +15,7 @@ import {
   ensureSearchFtsCaughtUp
 } from "../../db/facets-fts-search.js";
 import {
+  createToolErrorResult,
   createToolSuccessResult,
   registerTool,
   type ToolHandler
@@ -57,14 +58,24 @@ function packRowFromAnalysisPlanArtifact(row: AnswerArtifactListRow): PackRow {
   };
 }
 
-export const PackInput = z.object({
-  query: z.string().trim().min(1).max(4_096),
-  agent_id: z.string().min(1).default("agent:self"),
-  scope: z.string().min(1).optional(),
-  limit: z.coerce.number().int().min(1).max(50).default(15),
-  workspace_id: z.string().min(1).optional(),
-  schema_id: z.string().min(1).optional()
-});
+export const PackInput = z
+  .object({
+    query: z.string().trim().min(1).max(4_096),
+    selection_mode: z.enum(["search", "exact"]).default("search"),
+    plan_id: z.string().trim().min(1).optional(),
+    agent_id: z.string().min(1).default("agent:self"),
+    scope: z.string().min(1).optional(),
+    limit: z.coerce.number().int().min(1).max(50).default(15),
+    workspace_id: z.string().min(1).optional(),
+    schema_id: z.string().min(1).optional()
+  })
+  .refine(
+    (value) => value.selection_mode !== "exact" || Boolean(value.scope?.trim()),
+    { message: "Exact selection requires scope" }
+  )
+  .refine((value) => value.selection_mode === "exact" || !value.plan_id, {
+    message: "plan_id requires selection_mode=exact"
+  });
 
 export const packTool: ToolHandler = {
   definition: {
@@ -75,6 +86,18 @@ export const packTool: ToolHandler = {
       type: "object",
       required: ["query"],
       properties: {
+        selection_mode: {
+          type: "string",
+          enum: ["search", "exact"],
+          default: "search",
+          description:
+            "Search plan content, or select one known plan by exact scope without filtering its definition by query."
+        },
+        plan_id: {
+          type: "string",
+          description:
+            "Optional exact projection row id in exact mode; scope and agent must also match."
+        },
         query: {
           type: "string"
         },
@@ -113,6 +136,7 @@ export const packTool: ToolHandler = {
     const embeddingRuntime = context.embeddings.getStatus();
     const notes: string[] = [];
 
+    const exact = input.selection_mode === "exact";
     const config = resolveGhostcrabConfig();
     let packBackend: "native" | "sql" = "native";
     let packRows: PackRow[];
@@ -122,14 +146,24 @@ export const packTool: ToolHandler = {
         mindbrainUrl: config.mindbrainUrl,
         workspaceId: effectiveWorkspaceId,
         agentId: input.agent_id,
-        query: input.query,
+        query: exact ? "" : input.query,
+        selectionMode: input.selection_mode,
+        planId: input.plan_id,
         scope: input.scope,
-        limit: input.limit
+        limit: exact ? 2 : input.limit
       });
       packRows = nativeRows.map((row) =>
         row.artifact_kind ? (row as PackRow) : withAnalysisPlanOverlay(row)
       );
     } catch (error) {
+      if (exact)
+        return createToolErrorResult(
+          "ghostcrab_pack",
+          error instanceof Error
+            ? error.message
+            : "Native exact selection failed",
+          "exact_selection_unavailable"
+        );
       packBackend = "sql";
       notes.push(
         `MindBrain native pack endpoint unavailable: ${error instanceof Error ? error.message : "Unknown backend error"} Falling back to SQL pack queries.`
@@ -142,9 +176,11 @@ export const packTool: ToolHandler = {
         scope: input.scope,
         limit: input.limit
       });
-      const registryPackRows = registryRows.map(
-        packRowFromAnalysisPlanArtifact
-      );
+      const registryPackRows = registryRows
+        .filter((row) =>
+          row.public_label.toLowerCase().includes(input.query.toLowerCase())
+        )
+        .map(packRowFromAnalysisPlanArtifact);
 
       const remainingLimit = Math.max(input.limit - registryPackRows.length, 0);
       const projectionParams: unknown[] = [
@@ -164,6 +200,8 @@ export const packTool: ToolHandler = {
         projectionParams.push(input.scope);
       }
 
+      projectionWhereClauses.push("instr(lower(content), lower(?)) > 0");
+      projectionParams.push(input.query);
       projectionParams.push(remainingLimit);
       const sqlRows =
         remainingLimit > 0
@@ -195,6 +233,15 @@ export const packTool: ToolHandler = {
       }
       packRows = [...registryPackRows, ...legacyPackRows];
     }
+
+    if (exact && packRows.length !== 1)
+      return createToolErrorResult(
+        "ghostcrab_pack",
+        packRows.length
+          ? "Several plans share this scope; provide plan_id."
+          : "No active plan matches the requested identity and scope.",
+        packRows.length ? "ambiguous_plan" : "plan_not_found"
+      );
 
     // Phase 2: hybrid BM25+vector fact retrieval via MindBrain ghostcrab/search.
     // Attempt to compute a query embedding for richer vector scoring; fall back
@@ -293,6 +340,8 @@ export const packTool: ToolHandler = {
       backend: packBackend,
       scope: input.scope ?? null,
       scope_profile_id_detected: null,
+      selection_mode: input.selection_mode,
+      plan_id: input.plan_id ?? null,
       pack: packRows,
       facts: factRows,
       pack_text: packText,

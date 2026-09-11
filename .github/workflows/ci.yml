@@ -79,6 +79,20 @@ jobs:
       - name: Build ghostcrab-backend
         run: BACKEND_VENDOR_UPDATE=0 npm run backend:build
 
+      - name: Verify native plan selection, Unicode search and collection facets
+        run: |
+          cmd/backend/zig-out/bin/ghostcrab-backend \
+            --addr 127.0.0.1:18095 --db "$RUNNER_TEMP/search-regression.sqlite" > "$RUNNER_TEMP/search-backend.log" 2>&1 &
+          search_backend_pid=$!
+          trap 'kill "$search_backend_pid"; wait "$search_backend_pid" || true' EXIT
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:18095/health; then break; fi
+            sleep 1
+          done
+          GHOSTCRAB_SEARCH_TEST_MINDBRAIN_URL=http://127.0.0.1:18095 \
+            MINDBRAIN_TEST_BINARY="$PWD/cmd/backend/zig-out/bin/ghostcrab-backend" \
+            npm test -- tests/tools/search-handoff-native.test.ts tests/unit/collection-facets-native.test.ts
+
       - name: Run Immeuble live-lab (backend + live verify)
         run: |
           bash examples/immeuble/scripts/run-immeuble-live-lab.sh \
