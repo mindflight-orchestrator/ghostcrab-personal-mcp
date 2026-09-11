@@ -84,4 +84,73 @@ describe("ghostcrab_collection_facet_search", () => {
       ]
     });
   });
+  it("uses native exact filters only when advertised by the engine", async () => {
+    const database = createMockDatabase();
+    database.query = vi.fn(async () => []);
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = new URL(String(input));
+      if (url.pathname.endsWith("/capabilities")) {
+        return Response.json({ features: { collection_facet_targets: true } });
+      }
+      expect(url.searchParams.get("target_kind")).toBe("chunk");
+      expect(url.searchParams.get("doc_id")).toBe("9007199254740993");
+      expect(url.searchParams.get("chunk_index")).toBe("0");
+      expect(url.searchParams.get("ontology_id")).toBe("a");
+      return Response.json({
+        returned: 1,
+        source: "facet_postings",
+        matches: [
+          { doc_id: "9007199254740993", chunk_index: 0, ontology_id: "a" }
+        ]
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const result = await collectionFacetSearchTool.handler(
+      {
+        collection_id: "ws::main",
+        target_kind: "chunk",
+        doc_id: "9007199254740993",
+        chunk_index: 0,
+        ontology_id: "a"
+      },
+      createToolContext(database)
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(database.query).not.toHaveBeenCalled();
+    expect(result.structuredContent).toMatchObject({
+      source: "facet_postings",
+      returned: 1
+    });
+  });
+
+  it("keeps exact raw reads for older engines without this capability", async () => {
+    const database = createMockDatabase();
+    database.query = vi
+      .fn()
+      .mockResolvedValue([{ doc_id: "-1", chunk_index: 0 }]);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => Response.json({ features: {} }))
+    );
+    const result = await collectionFacetSearchTool.handler(
+      {
+        collection_id: "ws::main",
+        target_kind: "chunk",
+        doc_id: "18446744073709551615",
+        chunk_index: 0,
+        ontology_id: "a"
+      },
+      createToolContext(database)
+    );
+    expect(database.query).toHaveBeenCalledOnce();
+    expect(database.query).toHaveBeenCalledWith(
+      expect.stringContaining("target_kind = 'chunk'"),
+      expect.arrayContaining(["ws::main", "chunk", "-1", 0, "a"])
+    );
+    expect(result.structuredContent).toMatchObject({
+      source: "facet_assignments_raw",
+      returned: 1,
+      matches: [{ doc_id: "18446744073709551615", chunk_index: 0 }]
+    });
+  });
 });

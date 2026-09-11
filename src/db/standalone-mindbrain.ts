@@ -1535,10 +1535,17 @@ export interface StandaloneCollectionFacetSearchParams {
   dimension?: string;
   value?: string;
   limit?: number;
+  targetKind?: "doc" | "chunk";
+  docId?: number | string;
+  chunkIndex?: number;
+  ontologyId?: string;
 }
 
 export interface StandaloneCollectionFacetMatch {
-  doc_id: number;
+  doc_id: number | string;
+  target_kind?: "doc" | "chunk";
+  ontology_id?: string;
+  assignment_source?: string | null;
   chunk_index: number | null;
   namespace: string;
   dimension: string;
@@ -1571,6 +1578,14 @@ export async function runStandaloneCollectionFacetSearch(
   if (params.value) url.searchParams.set("value", params.value);
   url.searchParams.set("limit", String(params.limit ?? 25));
 
+  if (params.targetKind !== undefined)
+    url.searchParams.set("target_kind", params.targetKind);
+  if (params.docId !== undefined)
+    url.searchParams.set("doc_id", String(params.docId));
+  if (params.chunkIndex !== undefined)
+    url.searchParams.set("chunk_index", String(params.chunkIndex));
+  if (params.ontologyId !== undefined)
+    url.searchParams.set("ontology_id", params.ontologyId);
   return await fetchJson<StandaloneCollectionFacetSearchResult>(
     url,
     { method: "GET" },

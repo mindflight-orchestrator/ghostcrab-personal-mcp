@@ -77,7 +77,7 @@ type LinkedFactRow = {
 type CombinedFact = {
   content: string;
   created_at: string;
-  doc_id: number;
+  doc_id: number | string;
   facets: Record<string, unknown>;
   id: string;
   linked_entity_ids: number[];
@@ -353,13 +353,16 @@ async function runCombinedSearch(
         };
         if (collectionFacets.matches.length > 0) {
           fallbackFacts = collectionFacets.matches.map((match) => ({
-            id: `collection:${match.doc_id}:${match.namespace}.${match.dimension}`,
+            id: `collection:${JSON.stringify([input.collection_id, String(match.doc_id), match.chunk_index, match.ontology_id ?? null, match.namespace, match.dimension, match.value])}`,
             content: `${match.namespace}.${match.dimension}=${match.value}`,
             score: match.weight,
             schema_id: "collection:facet_assignment",
             facets: {
               doc_id: match.doc_id,
               chunk_index: match.chunk_index,
+              target_kind: match.target_kind,
+              ontology_id: match.ontology_id,
+              assignment_source: match.assignment_source,
               namespace: match.namespace,
               dimension: match.dimension,
               value: match.value
