@@ -43,6 +43,44 @@ describe("sqlite database client SQL rewrite", () => {
     mocks.closeStandaloneMindbrainSqlSession.mockClear();
   });
 
+  it("strict memory transactions never fall back when sessions are unavailable", async () => {
+    const { createDatabaseClient } = await import("../../src/db/client.js");
+    mocks.openStandaloneMindbrainSqlSession.mockRejectedValueOnce(
+      new Error("404 NotFound")
+    );
+    const database = createDatabaseClient(testConfig, {
+      requireTransactions: true
+    });
+    const callback = vi.fn(async (tx) => {
+      await tx.query("INSERT INTO agent_facts DEFAULT VALUES");
+    });
+    await expect(database.transaction(callback)).rejects.toThrow(
+      "404 NotFound"
+    );
+    expect(callback).not.toHaveBeenCalled();
+    expect(mocks.runStandaloneMindbrainSql).not.toHaveBeenCalled();
+  });
+
+  it("strict transactions roll back rather than rerun after an in-session error", async () => {
+    const { createDatabaseClient } = await import("../../src/db/client.js");
+    const database = createDatabaseClient(testConfig, {
+      requireTransactions: true
+    });
+    const callback = vi.fn(async () => {
+      throw new Error("404 NotFound");
+    });
+    await expect(database.transaction(callback)).rejects.toThrow(
+      "404 NotFound"
+    );
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(mocks.closeStandaloneMindbrainSqlSession).toHaveBeenCalledWith(
+      testConfig.mindbrainUrl,
+      1,
+      false,
+      testConfig.mindbrainHttpTimeoutMs
+    );
+  });
+
   it("keeps the facets table name when stripping the mb_pragma prefix", async () => {
     const { createDatabaseClient } = await import("../../src/db/client.js");
     const database = createDatabaseClient(testConfig);

@@ -65,6 +65,10 @@ function classifyToolExecutionError(error: unknown): string {
 }
 
 export async function startMcpServer(): Promise<void> {
+  if (process.env.GHOSTCRAB_MEMORY_ONLY === "true") {
+    const { startMemoryServer } = await import("./memory/server.js");
+    return startMemoryServer();
+  }
   registerAllTools();
 
   const config = resolveGhostcrabConfig();

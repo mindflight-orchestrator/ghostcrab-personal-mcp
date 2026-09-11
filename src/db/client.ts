@@ -18,12 +18,19 @@ export interface DatabaseClient extends Queryable {
   transaction<T>(operation: (queryable: Queryable) => Promise<T>): Promise<T>;
 }
 
-export function createDatabaseClient(config: GhostcrabConfig): DatabaseClient {
-  return createMindbrainDatabaseClient(config);
+export function createDatabaseClient(
+  config: GhostcrabConfig,
+  options: { requireTransactions?: boolean } = {}
+): DatabaseClient {
+  return createMindbrainDatabaseClient(
+    config,
+    options.requireTransactions ?? false
+  );
 }
 
 function createMindbrainDatabaseClient(
-  config: GhostcrabConfig
+  config: GhostcrabConfig,
+  requireTransactions: boolean
 ): DatabaseClient {
   const baseUrl = config.mindbrainUrl;
   const timeoutMs = config.mindbrainHttpTimeoutMs;
@@ -60,7 +67,7 @@ function createMindbrainDatabaseClient(
           timeoutMs
         );
       } catch (error) {
-        if (isSqlSessionUnsupported(error)) {
+        if (!requireTransactions && isSqlSessionUnsupported(error)) {
           return await operation(baseQueryable);
         }
         throw error;
@@ -77,7 +84,7 @@ function createMindbrainDatabaseClient(
         );
         return result;
       } catch (error) {
-        if (isSqlSessionUnsupported(error)) {
+        if (!requireTransactions && isSqlSessionUnsupported(error)) {
           await closeStandaloneMindbrainSqlSession(
             baseUrl,
             sessionId,
