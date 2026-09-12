@@ -22,7 +22,7 @@ function setup(response: unknown, feature = true, status = 200) {
   const context = createToolContext({
     query: sql
   } as unknown as DatabaseClient);
-  const fetch = vi.fn(async (url: string, options?: RequestInit) => {
+  const fetch = vi.fn(async (url: string, _options?: RequestInit) => {
     const payload = String(url).endsWith("/capabilities")
       ? {
           features: {

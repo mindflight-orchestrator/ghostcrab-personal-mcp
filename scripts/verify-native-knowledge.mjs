@@ -347,7 +347,9 @@ try {
     try {
       receipt.health = await (await fetch(url + "/health")).json();
       break;
-    } catch {}
+    } catch {
+      // The owned backend is still starting.
+    }
     assert.equal(backend.exitCode, null, backendLog);
     await new Promise((r) => setTimeout(r, 100));
   }

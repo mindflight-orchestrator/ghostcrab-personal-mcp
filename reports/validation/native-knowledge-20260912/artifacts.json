@@ -1,0 +1,48 @@
+{
+  "ghostcrab_source_commit": "2f4329077c645786aa5ef68acb3919c5dda3f3ee",
+  "native_source_commit": "bf9e9b5e049bf8a677093cd4f32b63fb2ae18af3",
+  "platform": "linux-x64",
+  "archives": [
+    {
+      "filename": "mindflight-ghostcrab-personal-mcp-0.6.9.tgz",
+      "local_path": "/tmp/b1-local-archives/mindflight-ghostcrab-personal-mcp-0.6.9.tgz",
+      "sha256": "192b6304669dc4b7bd23773e3abe97b6ce91c02beb020ae281bad0a79447aeb2"
+    },
+    {
+      "filename": "mindflight-ghostcrab-personal-mcp-linux-x64-0.6.9.tgz",
+      "local_path": "/tmp/b1-local-archives/mindflight-ghostcrab-personal-mcp-linux-x64-0.6.9.tgz",
+      "sha256": "b66bf987a20ac29af865e25087c4ebfa97646e930d7bf69e46278add4c2649f4"
+    }
+  ],
+  "native_binary_sha256": "7ecb4b2f6916f4606bd262804731d857a072435cea4ef0e6937deee1eefcbff5",
+  "importer_sha256": "41f335b857278903b8bd6b7cb1ddc1fa0d53adb09e8851f329eb2dad3bc42242",
+  "installed_dist_sha256": {
+    "index.js": "3cb17bc620af99621693a6f55d237df8f066cf57f12cec7b06e3bf8df6eeb835",
+    "tools/facets/search.js": "6a1bb63ffa2253aaa38e61574b94a70cb8d854d4ebcde308e287966faa214ef0",
+    "tools/facets/upsert.js": "4d16be78985751ba069ca5e29d4d9baf3804dc02846f584c22fb5afcf19825ca",
+    "tools/dgraph/traverse.js": "352a58ed38609c96e3241eab84aaf420d22154bee1e61da518e05b508d1a1e73",
+    "tools/dgraph/evidence-get.js": "95c13fba12e105f31650e469287adad790ed92c33b4d5f7fb70152c42ff55273",
+    "db/native-facts-maintenance.js": "bec7f74e849cd7a172e653d584152fead282dec5c135c9044e80bf9230f9c5ae"
+  },
+  "installed_receipt_sha256": "32ca9fdc72b9b863867b8a54a725b82e4a0229f484ba3db519de4ce5041a5802",
+  "pack_receipt_sha256": "1c4e927859b21c90ba7ae79f513aed07b7f0d4aec02586d7dd4f963e3566f9e5",
+  "validation": {
+    "native_tests": 454,
+    "unit_tests_passed": 803,
+    "unit_tests_skipped": 15,
+    "integration_tests": 104,
+    "mcp_business_read_calls": 17,
+    "sqlite_read_changes": 0
+  },
+  "publication": {
+    "pushed": false,
+    "tagged": false,
+    "npm_published": false
+  },
+  "limitations": [
+    "Synthetic fixture; exact client B1 SQLite/source/manifest unavailable",
+    "Client proxy source not identified in mindbrain-perso",
+    "Only Linux x64 archives rebuilt and runtime-qualified",
+    "npm allow-scripts deferred automatic postinstall; isolated binary/CLI smoke run explicitly, global upgrade hook not run"
+  ]
+}
