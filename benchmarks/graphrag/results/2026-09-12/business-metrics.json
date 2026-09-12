@@ -1,0 +1,1466 @@
+[
+  {
+    "question_id": "A-Q01",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.045454545454545456,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q02",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.09090909090909091,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q03",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.045454545454545456,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q04",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.2727272727272727,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q05",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.2727272727272727,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q06",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.6666666666666666,
+        "annotated_passage_precision": 0.5,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.8333333333333334,
+        "annotated_passage_precision": 0.625,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.8333333333333334,
+        "annotated_passage_precision": 0.625,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.2727272727272727,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.8333333333333334,
+        "annotated_passage_precision": 0.625,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.8333333333333334,
+        "annotated_passage_precision": 0.625,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q07",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.6666666666666666,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.6666666666666666,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.375,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.13636363636363635,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.6666666666666666,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.375,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.375,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.375,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q08",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.75,
+        "annotated_passage_precision": 0.375,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.75,
+        "annotated_passage_precision": 0.375,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.75,
+        "annotated_passage_precision": 0.375,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.18181818181818182,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.75,
+        "annotated_passage_precision": 0.375,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.5,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.75,
+        "annotated_passage_precision": 0.375,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.5,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q09",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.5714285714285714,
+        "annotated_passage_precision": 0.5,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.8571428571428571,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.7142857142857143,
+        "annotated_passage_precision": 0.625,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.3181818181818182,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.8571428571428571,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.8571428571428571,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.8571428571428571,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.7142857142857143,
+        "annotated_passage_precision": 0.625,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q14",
+    "variants": {
+      "lexical": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q15",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.045454545454545456,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q16",
+    "variants": {
+      "lexical": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q19",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 0.6666666666666666,
+        "mean_claim_evidence_recall": 0.6666666666666666,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.5,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.5,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.18181818181818182,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.5,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.5,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.5,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.5,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q20",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 0.5,
+        "mean_claim_evidence_recall": 0.75,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 0.5,
+        "mean_claim_evidence_recall": 0.75,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 0.5,
+        "mean_claim_evidence_recall": 0.75,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.13636363636363635,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 0.5,
+        "mean_claim_evidence_recall": 0.75,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 0.5,
+        "mean_claim_evidence_recall": 0.75,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 0.5,
+        "mean_claim_evidence_recall": 0.75,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 0.5,
+        "mean_claim_evidence_recall": 0.75,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q21",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.25,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.5,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 0.5,
+        "mean_claim_evidence_recall": 0.75,
+        "annotated_passage_precision": 0.375,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.18181818181818182,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.5,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.5,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 0.5,
+        "mean_claim_evidence_recall": 0.5,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 0.5,
+        "mean_claim_evidence_recall": 0.75,
+        "annotated_passage_precision": 0.375,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q22",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.42857142857142855,
+        "annotated_passage_precision": 0.375,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.8571428571428571,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 0.0,
+        "mean_claim_evidence_recall": 0.8571428571428571,
+        "annotated_passage_precision": 0.75,
+        "all_claims_covered": false,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.3181818181818182,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.875,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.875,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.875,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.875,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q23",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.045454545454545456,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q24",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.045454545454545456,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q10",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 1.0,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 1.0,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 1.0,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 1.0,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 1.0,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 1.0,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 1.0,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 1.0,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q11",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.045454545454545456,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.125,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q12",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 1.0,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 1.0,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 1.0,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 1.0,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 1.0,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 1.0,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 1.0,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 1.0,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q13",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.09090909090909091,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q17",
+    "variants": {
+      "lexical": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.08333333333333333,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": 1.0,
+        "mean_claim_evidence_recall": 1.0,
+        "annotated_passage_precision": 0.25,
+        "all_claims_covered": true,
+        "generation_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "A-Q18",
+    "variants": {
+      "lexical": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "vector": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "hybrid": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "full_context": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "document_graph": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "entity_graph_outbound": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "entity_graph_both": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      },
+      "mixed_rrf": {
+        "claim_coverage": null,
+        "mean_claim_evidence_recall": null,
+        "annotated_passage_precision": null,
+        "all_claims_covered": null,
+        "generation_evaluated": false
+      }
+    }
+  }
+]

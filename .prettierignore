@@ -10,3 +10,8 @@ cmd/backend/registry_openapi.yml
 node_modules
 package-lock.json
 pnpm-lock.yaml
+# Byte-pinned research artifacts; formatting would invalidate their hashes.
+benchmarks/graphrag/fixtures
+benchmarks/graphrag/inputs
+benchmarks/graphrag/runs
+benchmarks/graphrag/results

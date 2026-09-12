@@ -1,0 +1,30 @@
+{
+  "source_repository": "pg_mindbrain",
+  "source_branch": "research/graphrag-mindbrain-comparison",
+  "source_commit": "11ca28e2130e7d8ed1172806bde0969a2991b9b2",
+  "files": {
+    "scripts/graphrag_retrieval_benchmark.py": "ea0d7bf938ccc5698ec2676783145971ba0d5e0e32173fc175fa697fc98ee6bd",
+    "scripts/graphrag_graph_expansion.py": "4b3999c2f5ed715fc0c1b3435f70468aa11f0080d63ba9b67506aebc3a769250",
+    "scripts/graphrag_mixed_native.py": "0e4834fa4ad9d66ffe26a5f018f3ade5b878c94a24cfa00947d8df15d8b18b64",
+    "scripts/graphrag_legal_benchmark.py": "018a733e68e05d559690264732ea0fbca41ad13272836fa1414a4697684ce4cb",
+    "test/fixtures/graphrag-business-v1/manifest.json": "4e85a7caa438515fb7f66d5d93edb7b976c0e916667f5d833dfb1bf86931c435",
+    "test/fixtures/graphrag-business-v1/corpus.jsonl": "197b065e3d6f6f02e3719e880ee87ba8b44f48c52127ad38c234a8b4bf02e255",
+    "test/fixtures/graphrag-business-v1/README.md": "bf4b134ae1284c648b3579706f29a60dd0318be05a19b2ac71de34675baa823e",
+    "test/fixtures/graphrag-business-v1/judgments.jsonl": "59c2a661378dc43b907feb266d4500e193bd04623b5043cafbbc5d5372d446d7",
+    "test/fixtures/graphrag-business-v1/questions.dev.jsonl": "5356626021e0b792f0ef7fb2c0328bc815180979dc9a0e03a4a06e458b3f4480",
+    "test/fixtures/graphrag-business-v1/questions.test.jsonl": "ef2530d6432fda31f634dd1e72871ac7a9b596c6630c9c4308c4e521b928d403",
+    "test/fixtures/graphrag-legal-v1/corpus.json": "aa8fbabfe551e11b6cc4b8b1ac3bf48df8481e9d14b8f90ac7f1005cd756b3aa",
+    "test/fixtures/graphrag-legal-v1/README.md": "975fa75c7a78151bb553ef90f54672b4c301c5401d6fdcc2087ac04d4013014a",
+    "test/fixtures/graphrag-legal-v2/corpus.json": "1ae81fbb106e2af14a39f5637d6419bc6c2ab6f8e43e4d90d47f4f20903f6c88",
+    "test/fixtures/graphrag-legal-v2/README.md": "e7f5859e0d9542480262b45e002ac58357d78caed93bbe0c8cada2db887c2010",
+    "test/fixtures/eli-temporal-v1/ontology-lock.json": "5530d6f9b00e084bb0784f473d8a182dbe6dbbdf3e126efc3718ee5422360afe",
+    "test/fixtures/eli-temporal-v1/corpus.json": "382aead92e0102f73c94740fe6edcf299c1ccfe95f24dcf091c4cff3fdb763c2",
+    "test/fixtures/eli-temporal-v1/gold.json": "3ca089ac8f04346ce905eb9bacbcde4b9b16b55eff23e98fe31304fd8db0f987",
+    "test/fixtures/eli-temporal-v1/requirements.txt": "7fb632cbccdbfef76627f500712d8aa5095a7bfff45f54f2303a5853b4d61de6",
+    "test/fixtures/eli-temporal-v1/README.md": "3ccf04ef82090ad9b0513becf371ac645cc9dfd1db570882b2548b7d0348ba4b",
+    "test/fixtures/eli-temporal-v1/profile.shacl.ttl": "76aa71c3bbeb7128146cd3354bdbc349eb9559ad9c95deffc622666a1e01f037",
+    "scripts/eli_temporal.py": "40138deb47725df4becbd136b7df2a2440a6f92e2f85e70457fdb7aeb2445886",
+    "scripts/validate_graphrag_business_fixture.py": "08cbaba50ebd7f522dcb7dbd9c788f33a0f154601fdc7c931cb6b60c767bfbd9",
+    "scripts/tests/test_eli_temporal.py": "0e2322859dcde1efa902a3e96131e150c57d7f632def8fa02b88c6d477796721"
+  }
+}

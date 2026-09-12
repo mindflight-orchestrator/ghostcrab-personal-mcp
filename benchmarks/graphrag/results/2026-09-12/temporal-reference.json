@@ -1,0 +1,880 @@
+{
+  "total": 31,
+  "passed": 31,
+  "results": [
+    {
+      "id": "replacement-before",
+      "case": "replacement",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 30 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:replacement:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:replacement:base",
+            "unit": "entry-into-force"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "replacement-boundary",
+      "case": "replacement",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 45 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:replacement:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:replacement:base",
+            "unit": "entry-into-force"
+          },
+          {
+            "document": "urn:mindflight:test:legal:replacement:m1",
+            "unit": "art1"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "replacement-historical",
+      "case": "replacement",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 30 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:replacement:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:replacement:base",
+            "unit": "entry-into-force"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "replacement-not-in-force",
+      "case": "replacement",
+      "actual": {
+        "status": "not_yet_applicable",
+        "text": null,
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:replacement:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:replacement:base",
+            "unit": "entry-into-force"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "delayed-publication",
+      "case": "delayed",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 30 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:delayed:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:delayed:base",
+            "unit": "entry-into-force"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "delayed-eve",
+      "case": "delayed",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 30 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:delayed:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:delayed:base",
+            "unit": "entry-into-force"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "delayed-boundary",
+      "case": "delayed",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 45 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:delayed:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:delayed:base",
+            "unit": "entry-into-force"
+          },
+          {
+            "document": "urn:mindflight:test:legal:delayed:m1",
+            "unit": "art1"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "partial-modified",
+      "case": "partial",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 45 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:partial:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:partial:base",
+            "unit": "entry-into-force"
+          },
+          {
+            "document": "urn:mindflight:test:legal:partial:m1",
+            "unit": "art1"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "partial-preserved",
+      "case": "partial",
+      "actual": {
+        "status": "applicable",
+        "text": "La demande est écrite.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:partial:base",
+            "unit": "art1.p2"
+          },
+          {
+            "document": "urn:mindflight:test:legal:partial:base",
+            "unit": "entry-into-force"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "text-operations-words",
+      "case": "text-operations",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 45 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:text-operations:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:text-operations:base",
+            "unit": "entry-into-force"
+          },
+          {
+            "document": "urn:mindflight:test:legal:text-operations:m1",
+            "unit": "art1"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "text-operations-insert",
+      "case": "text-operations",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 45 jours ouvrables.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:text-operations:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:text-operations:base",
+            "unit": "entry-into-force"
+          },
+          {
+            "document": "urn:mindflight:test:legal:text-operations:m1",
+            "unit": "art1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:text-operations:m2",
+            "unit": "art1"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "successive-first",
+      "case": "successive",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 45 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:successive:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:successive:base",
+            "unit": "entry-into-force"
+          },
+          {
+            "document": "urn:mindflight:test:legal:successive:m1",
+            "unit": "art1"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "successive-second",
+      "case": "successive",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 60 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:successive:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:successive:base",
+            "unit": "entry-into-force"
+          },
+          {
+            "document": "urn:mindflight:test:legal:successive:m1",
+            "unit": "art1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:successive:m2",
+            "unit": "art1"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "repeal-before",
+      "case": "repeal",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 30 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:repeal:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:repeal:base",
+            "unit": "entry-into-force"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "repeal-after",
+      "case": "repeal",
+      "actual": {
+        "status": "repealed",
+        "text": null,
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:repeal:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:repeal:base",
+            "unit": "entry-into-force"
+          },
+          {
+            "document": "urn:mindflight:test:legal:repeal:m1",
+            "unit": "art1"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "transition-old-file",
+      "case": "transition",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 30 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:transition:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:transition:base",
+            "unit": "entry-into-force"
+          },
+          {
+            "document": "urn:mindflight:test:legal:transition:m1",
+            "unit": "art1"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "transition-new-file",
+      "case": "transition",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 45 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:transition:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:transition:base",
+            "unit": "entry-into-force"
+          },
+          {
+            "document": "urn:mindflight:test:legal:transition:m1",
+            "unit": "art1"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "transition-missing-facts",
+      "case": "transition",
+      "actual": {
+        "status": "indeterminate",
+        "text": null,
+        "reason": "facts_date_missing",
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:transition:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:transition:base",
+            "unit": "entry-into-force"
+          },
+          {
+            "document": "urn:mindflight:test:legal:transition:m1",
+            "unit": "art1"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "retroactive-then-known",
+      "case": "retroactive",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 30 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:retroactive:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:retroactive:base",
+            "unit": "entry-into-force"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "retroactive-now-known",
+      "case": "retroactive",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 45 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:retroactive:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:retroactive:base",
+            "unit": "entry-into-force"
+          },
+          {
+            "document": "urn:mindflight:test:legal:retroactive:m1",
+            "unit": "art1"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "citation-recent-is-not-amendment",
+      "case": "citation",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 30 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:citation:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:citation:base",
+            "unit": "entry-into-force"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "identity-act-a",
+      "case": "identity",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 45 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:identity:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:identity:base",
+            "unit": "entry-into-force"
+          },
+          {
+            "document": "urn:mindflight:test:legal:identity:m1",
+            "unit": "art1"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "identity-act-b",
+      "case": "identity",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 90 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:identity:other",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:identity:other",
+            "unit": "entry-into-force"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "languages-fr",
+      "case": "languages",
+      "actual": {
+        "status": "applicable",
+        "text": "Le délai est de 45 jours.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:languages:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:languages:base",
+            "unit": "entry-into-force"
+          },
+          {
+            "document": "urn:mindflight:test:legal:languages:m1",
+            "unit": "art1"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "languages-nl",
+      "case": "languages",
+      "actual": {
+        "status": "applicable",
+        "text": "De termijn bedraagt 45 dagen.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:languages:base-nl",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:languages:base-nl",
+            "unit": "entry-into-force"
+          },
+          {
+            "document": "urn:mindflight:test:legal:languages:m1-nl",
+            "unit": "art1"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "languages-historical-nl",
+      "case": "languages",
+      "actual": {
+        "status": "applicable",
+        "text": "De termijn bedraagt 30 dagen.",
+        "reason": null,
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:languages:base-nl",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:languages:base-nl",
+            "unit": "entry-into-force"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "unknown-date-unknown",
+      "case": "unknown-date",
+      "actual": {
+        "status": "indeterminate",
+        "text": null,
+        "reason": "effective_date_unknown",
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:unknown-date:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:unknown-date:base",
+            "unit": "entry-into-force"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "ambiguous-target-unknown",
+      "case": "ambiguous-target",
+      "actual": {
+        "status": "indeterminate",
+        "text": null,
+        "reason": "impact_unreviewed",
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:ambiguous-target:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:ambiguous-target:base",
+            "unit": "entry-into-force"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "missing-source-unknown",
+      "case": "missing-source",
+      "actual": {
+        "status": "indeterminate",
+        "text": null,
+        "reason": "source_missing",
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:missing-source:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:missing-source:base",
+            "unit": "entry-into-force"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "missing-link-unknown",
+      "case": "missing-link",
+      "actual": {
+        "status": "indeterminate",
+        "text": null,
+        "reason": "inventory_mismatch",
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:missing-link:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:missing-link:base",
+            "unit": "entry-into-force"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    },
+    {
+      "id": "expired-coverage-unknown",
+      "case": "expired-coverage",
+      "actual": {
+        "status": "indeterminate",
+        "text": null,
+        "reason": "coverage_expired",
+        "evidence": [
+          {
+            "document": "urn:mindflight:test:legal:expired-coverage:base",
+            "unit": "art1.p1"
+          },
+          {
+            "document": "urn:mindflight:test:legal:expired-coverage:base",
+            "unit": "entry-into-force"
+          }
+        ]
+      },
+      "checks": {
+        "status": true,
+        "text": true,
+        "reason": true,
+        "evidence": true
+      },
+      "passed": true
+    }
+  ]
+}

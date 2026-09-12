@@ -1,0 +1,8 @@
+{
+  "manifest_sha256": "5cab6b7530c12355d20bfacb13e83b25ce9772ae4f657d8089a1b296e6f99cfb",
+  "files_uncompressed_sha256": {
+    "business.json.gz": "27bca4eedbf36a1ab1ac0b2a42530357b0260f93da60bc2547a1c85ce7aaeeb8",
+    "legal.json.gz": "1baea23aa75ab4685008452ee550bd6d5ed734261dca1c4378a4b2adfb51109c",
+    "models.json.gz": "ee9ec268701f5ec99d1beaa551217a5c0aa7b5cb1d004937061a17a920d4ba20"
+  }
+}

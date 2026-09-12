@@ -1,0 +1,30 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix eli: <http://data.europa.eu/eli/ontology#> .
+@prefix eli-i: <http://data.europa.eu/eli/eli-impact-ontology#> .
+@prefix local: <urn:mindflight:benchmark:eli-temporal:v1:> .
+
+# Local, bounded benchmark shapes. Not the official ELI Validator shape set.
+local:DocumentShape a sh:NodeShape ; sh:targetClass local:Document ;
+  sh:property [ sh:path eli:realizes ; sh:minCount 1 ; sh:maxCount 1 ; sh:class eli:Work ] ;
+  sh:property [ sh:path eli:language ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ] ;
+  sh:property [ sh:path local:knownFrom ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:date ] .
+
+local:SourceUnitShape a sh:NodeShape ; sh:targetClass local:SourceUnit ;
+  sh:property [ sh:path eli:realizes ; sh:minCount 1 ; sh:maxCount 1 ; sh:class eli:Work ] ;
+  sh:property [ sh:path eli:is_part_of ; sh:minCount 1 ; sh:maxCount 1 ; sh:class eli:Expression ] ;
+  sh:property [ sh:path local:sourceText ; sh:minCount 1 ; sh:maxCount 1 ; sh:minLength 1 ] ;
+  sh:property [ sh:path local:sourceSha256 ; sh:minCount 1 ; sh:maxCount 1 ; sh:pattern "^[0-9a-f]{64}$" ] .
+
+local:ImpactShape a sh:NodeShape ; sh:targetClass eli-i:Impact ;
+  sh:property [ sh:path eli-i:impact_from ; sh:minCount 1 ; sh:maxCount 1 ; sh:class eli:Expression ] ;
+  sh:property [ sh:path eli-i:impact_to ; sh:minCount 1 ; sh:maxCount 1 ; sh:class eli:Expression ] ;
+  sh:property [ sh:path eli-i:impact_has_date_applicability ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:date ] ;
+  sh:property [ sh:path eli-i:triggers_modification_of_type ; sh:minCount 1 ; sh:maxCount 1 ; sh:class eli-i:ModificationType ] ;
+  sh:property [ sh:path eli-i:impact_from_text ; sh:minCount 1 ; sh:maxCount 1 ; sh:minLength 1 ] ;
+  sh:property [ sh:path local:knownFrom ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:date ] ;
+  sh:property [ sh:path local:replacementText ; sh:minCount 1 ; sh:maxCount 1 ] .
+
+local:CandidateShape a sh:NodeShape ; sh:targetClass local:CandidateImpact ;
+  sh:not [ sh:class eli-i:Impact ] ;
+  sh:property [ sh:path local:targetWork ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ] .

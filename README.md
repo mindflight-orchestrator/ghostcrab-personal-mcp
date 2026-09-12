@@ -457,6 +457,7 @@ The npm release ships binaries cross-compiled from this tree, so a commit that e
 - `docs/setup/gcp-client-setup.md` — Full CLI reference
 - `installations/` — Agent setup templates
 - `docs/dev/INTERNALS.md` — Repository layout, packaging, Docker dev stack
+- [Personal GraphRAG benchmark](benchmarks/graphrag/README.md) — Local research checkout: frozen corpora, native SQLite retrieval and evidence coverage
 
 ---
 

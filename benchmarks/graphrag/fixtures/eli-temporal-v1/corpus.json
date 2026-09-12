@@ -1,0 +1,1273 @@
+{
+  "version": 1,
+  "synthetic": true,
+  "cases": [
+    {
+      "id": "replacement",
+      "synthetic": true,
+      "documents": [
+        {
+          "id": "urn:mindflight:test:legal:replacement:base",
+          "work": "urn:mindflight:test:legal:replacement:act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 30 jours.",
+            "art1.p2": "La demande est écrite.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        },
+        {
+          "id": "urn:mindflight:test:legal:replacement:m1",
+          "work": "urn:mindflight:test:legal:replacement:m1:work",
+          "kind": "amending",
+          "language": "fra",
+          "published": "2020-02-01",
+          "known_from": "2020-02-01",
+          "units": {
+            "art1": "TEXTE FICTIF. Dans l’acte replacement, art1.p1, remplacer « Le délai est de 30 jours. » par « Le délai est de 45 jours. ». Publication : 2020-02-01. Prise d’effet : 2020-03-01."
+          }
+        }
+      ],
+      "impacts": [
+        {
+          "id": "urn:mindflight:test:legal:replacement:m1:impact",
+          "kind": "amendment",
+          "source": "urn:mindflight:test:legal:replacement:m1",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:replacement:act",
+          "targets": [
+            "art1.p1"
+          ],
+          "language": "fra",
+          "operation": "replace",
+          "old": "Le délai est de 30 jours.",
+          "new": "Le délai est de 45 jours.",
+          "effective": "2020-03-01",
+          "known_from": "2020-02-01",
+          "reviewed": true,
+          "requires": [],
+          "facts_from": null
+        }
+      ],
+      "coverage": [
+        {
+          "work": "urn:mindflight:test:legal:replacement:act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:replacement:act",
+          "language": "fra",
+          "known_from": "2020-02-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:replacement:m1:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        }
+      ]
+    },
+    {
+      "id": "delayed",
+      "synthetic": true,
+      "documents": [
+        {
+          "id": "urn:mindflight:test:legal:delayed:base",
+          "work": "urn:mindflight:test:legal:delayed:act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 30 jours.",
+            "art1.p2": "La demande est écrite.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        },
+        {
+          "id": "urn:mindflight:test:legal:delayed:m1",
+          "work": "urn:mindflight:test:legal:delayed:m1:work",
+          "kind": "amending",
+          "language": "fra",
+          "published": "2020-02-01",
+          "known_from": "2020-02-01",
+          "units": {
+            "art1": "TEXTE FICTIF. Dans l’acte delayed, art1.p1, remplacer « Le délai est de 30 jours. » par « Le délai est de 45 jours. ». Publication : 2020-02-01. Prise d’effet : 2020-06-01."
+          }
+        }
+      ],
+      "impacts": [
+        {
+          "id": "urn:mindflight:test:legal:delayed:m1:impact",
+          "kind": "amendment",
+          "source": "urn:mindflight:test:legal:delayed:m1",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:delayed:act",
+          "targets": [
+            "art1.p1"
+          ],
+          "language": "fra",
+          "operation": "replace",
+          "old": "Le délai est de 30 jours.",
+          "new": "Le délai est de 45 jours.",
+          "effective": "2020-06-01",
+          "known_from": "2020-02-01",
+          "reviewed": true,
+          "requires": [],
+          "facts_from": null
+        }
+      ],
+      "coverage": [
+        {
+          "work": "urn:mindflight:test:legal:delayed:act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:delayed:act",
+          "language": "fra",
+          "known_from": "2020-02-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:delayed:m1:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        }
+      ]
+    },
+    {
+      "id": "partial",
+      "synthetic": true,
+      "documents": [
+        {
+          "id": "urn:mindflight:test:legal:partial:base",
+          "work": "urn:mindflight:test:legal:partial:act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 30 jours.",
+            "art1.p2": "La demande est écrite.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        },
+        {
+          "id": "urn:mindflight:test:legal:partial:m1",
+          "work": "urn:mindflight:test:legal:partial:m1:work",
+          "kind": "amending",
+          "language": "fra",
+          "published": "2020-02-01",
+          "known_from": "2020-02-01",
+          "units": {
+            "art1": "TEXTE FICTIF. Dans l’acte partial, art1.p1, remplacer « Le délai est de 30 jours. » par « Le délai est de 45 jours. ». Publication : 2020-02-01. Prise d’effet : 2020-03-01."
+          }
+        }
+      ],
+      "impacts": [
+        {
+          "id": "urn:mindflight:test:legal:partial:m1:impact",
+          "kind": "amendment",
+          "source": "urn:mindflight:test:legal:partial:m1",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:partial:act",
+          "targets": [
+            "art1.p1"
+          ],
+          "language": "fra",
+          "operation": "replace",
+          "old": "Le délai est de 30 jours.",
+          "new": "Le délai est de 45 jours.",
+          "effective": "2020-03-01",
+          "known_from": "2020-02-01",
+          "reviewed": true,
+          "requires": [],
+          "facts_from": null
+        }
+      ],
+      "coverage": [
+        {
+          "work": "urn:mindflight:test:legal:partial:act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:partial:act",
+          "language": "fra",
+          "known_from": "2020-02-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:partial:m1:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        }
+      ]
+    },
+    {
+      "id": "text-operations",
+      "synthetic": true,
+      "documents": [
+        {
+          "id": "urn:mindflight:test:legal:text-operations:base",
+          "work": "urn:mindflight:test:legal:text-operations:act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 30 jours.",
+            "art1.p2": "La demande est écrite.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        },
+        {
+          "id": "urn:mindflight:test:legal:text-operations:m1",
+          "work": "urn:mindflight:test:legal:text-operations:m1:work",
+          "kind": "amending",
+          "language": "fra",
+          "published": "2020-02-01",
+          "known_from": "2020-02-01",
+          "units": {
+            "art1": "TEXTE FICTIF. Acte text-operations, art1.p1. Opération replace_text : « 30 » → « 45 ». Publication : 2020-02-01. Prise d’effet : 2020-03-01."
+          }
+        },
+        {
+          "id": "urn:mindflight:test:legal:text-operations:m2",
+          "work": "urn:mindflight:test:legal:text-operations:m2:work",
+          "kind": "amending",
+          "language": "fra",
+          "published": "2020-03-15",
+          "known_from": "2020-03-15",
+          "units": {
+            "art1": "TEXTE FICTIF. Acte text-operations, art1.p1. Opération insert_after : « 45 jours » → «  ouvrables ». Publication : 2020-03-15. Prise d’effet : 2020-04-01."
+          }
+        }
+      ],
+      "impacts": [
+        {
+          "id": "urn:mindflight:test:legal:text-operations:m1:impact",
+          "kind": "amendment",
+          "source": "urn:mindflight:test:legal:text-operations:m1",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:text-operations:act",
+          "targets": [
+            "art1.p1"
+          ],
+          "language": "fra",
+          "operation": "replace_text",
+          "old": "30",
+          "new": "45",
+          "effective": "2020-03-01",
+          "known_from": "2020-02-01",
+          "reviewed": true,
+          "requires": [],
+          "facts_from": null
+        },
+        {
+          "id": "urn:mindflight:test:legal:text-operations:m2:impact",
+          "kind": "amendment",
+          "source": "urn:mindflight:test:legal:text-operations:m2",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:text-operations:act",
+          "targets": [
+            "art1.p1"
+          ],
+          "language": "fra",
+          "operation": "insert_after",
+          "old": "45 jours",
+          "new": " ouvrables",
+          "effective": "2020-04-01",
+          "known_from": "2020-03-15",
+          "reviewed": true,
+          "requires": [
+            "urn:mindflight:test:legal:text-operations:m1:impact"
+          ],
+          "facts_from": null
+        }
+      ],
+      "coverage": [
+        {
+          "work": "urn:mindflight:test:legal:text-operations:act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:text-operations:act",
+          "language": "fra",
+          "known_from": "2020-02-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:text-operations:m1:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:text-operations:act",
+          "language": "fra",
+          "known_from": "2020-03-15",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:text-operations:m1:impact",
+            "urn:mindflight:test:legal:text-operations:m2:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        }
+      ]
+    },
+    {
+      "id": "successive",
+      "synthetic": true,
+      "documents": [
+        {
+          "id": "urn:mindflight:test:legal:successive:base",
+          "work": "urn:mindflight:test:legal:successive:act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 30 jours.",
+            "art1.p2": "La demande est écrite.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        },
+        {
+          "id": "urn:mindflight:test:legal:successive:m1",
+          "work": "urn:mindflight:test:legal:successive:m1:work",
+          "kind": "amending",
+          "language": "fra",
+          "published": "2020-02-01",
+          "known_from": "2020-02-01",
+          "units": {
+            "art1": "TEXTE FICTIF. Dans l’acte successive, art1.p1, remplacer « Le délai est de 30 jours. » par « Le délai est de 45 jours. ». Publication : 2020-02-01. Prise d’effet : 2020-03-01."
+          }
+        },
+        {
+          "id": "urn:mindflight:test:legal:successive:m2",
+          "work": "urn:mindflight:test:legal:successive:m2:work",
+          "kind": "amending",
+          "language": "fra",
+          "published": "2020-04-01",
+          "known_from": "2020-04-01",
+          "units": {
+            "art1": "TEXTE FICTIF. Dans l’acte successive, art1.p1, remplacer « Le délai est de 45 jours. » par « Le délai est de 60 jours. ». Publication : 2020-04-01. Prise d’effet : 2020-05-01."
+          }
+        }
+      ],
+      "impacts": [
+        {
+          "id": "urn:mindflight:test:legal:successive:m1:impact",
+          "kind": "amendment",
+          "source": "urn:mindflight:test:legal:successive:m1",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:successive:act",
+          "targets": [
+            "art1.p1"
+          ],
+          "language": "fra",
+          "operation": "replace",
+          "old": "Le délai est de 30 jours.",
+          "new": "Le délai est de 45 jours.",
+          "effective": "2020-03-01",
+          "known_from": "2020-02-01",
+          "reviewed": true,
+          "requires": [],
+          "facts_from": null
+        },
+        {
+          "id": "urn:mindflight:test:legal:successive:m2:impact",
+          "kind": "amendment",
+          "source": "urn:mindflight:test:legal:successive:m2",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:successive:act",
+          "targets": [
+            "art1.p1"
+          ],
+          "language": "fra",
+          "operation": "replace",
+          "old": "Le délai est de 45 jours.",
+          "new": "Le délai est de 60 jours.",
+          "effective": "2020-05-01",
+          "known_from": "2020-04-01",
+          "reviewed": true,
+          "requires": [
+            "urn:mindflight:test:legal:successive:m1:impact"
+          ],
+          "facts_from": null
+        }
+      ],
+      "coverage": [
+        {
+          "work": "urn:mindflight:test:legal:successive:act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:successive:act",
+          "language": "fra",
+          "known_from": "2020-02-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:successive:m1:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:successive:act",
+          "language": "fra",
+          "known_from": "2020-04-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:successive:m1:impact",
+            "urn:mindflight:test:legal:successive:m2:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        }
+      ]
+    },
+    {
+      "id": "repeal",
+      "synthetic": true,
+      "documents": [
+        {
+          "id": "urn:mindflight:test:legal:repeal:base",
+          "work": "urn:mindflight:test:legal:repeal:act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 30 jours.",
+            "art1.p2": "La demande est écrite.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        },
+        {
+          "id": "urn:mindflight:test:legal:repeal:m1",
+          "work": "urn:mindflight:test:legal:repeal:m1:work",
+          "kind": "amending",
+          "language": "fra",
+          "published": "2020-02-01",
+          "known_from": "2020-02-01",
+          "units": {
+            "art1": "TEXTE FICTIF. Acte repeal, art1.p1. Opération repeal : « Le délai est de 30 jours. » → «  ». Publication : 2020-02-01. Prise d’effet : 2020-03-01."
+          }
+        }
+      ],
+      "impacts": [
+        {
+          "id": "urn:mindflight:test:legal:repeal:m1:impact",
+          "kind": "amendment",
+          "source": "urn:mindflight:test:legal:repeal:m1",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:repeal:act",
+          "targets": [
+            "art1.p1"
+          ],
+          "language": "fra",
+          "operation": "repeal",
+          "old": "Le délai est de 30 jours.",
+          "new": "",
+          "effective": "2020-03-01",
+          "known_from": "2020-02-01",
+          "reviewed": true,
+          "requires": [],
+          "facts_from": null
+        }
+      ],
+      "coverage": [
+        {
+          "work": "urn:mindflight:test:legal:repeal:act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:repeal:act",
+          "language": "fra",
+          "known_from": "2020-02-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:repeal:m1:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        }
+      ]
+    },
+    {
+      "id": "transition",
+      "synthetic": true,
+      "documents": [
+        {
+          "id": "urn:mindflight:test:legal:transition:base",
+          "work": "urn:mindflight:test:legal:transition:act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 30 jours.",
+            "art1.p2": "La demande est écrite.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        },
+        {
+          "id": "urn:mindflight:test:legal:transition:m1",
+          "work": "urn:mindflight:test:legal:transition:m1:work",
+          "kind": "amending",
+          "language": "fra",
+          "published": "2020-02-01",
+          "known_from": "2020-02-01",
+          "units": {
+            "art1": "TEXTE FICTIF. Dans l’acte transition, art1.p1, remplacer « Le délai est de 30 jours. » par « Le délai est de 45 jours. ». Publication : 2020-02-01. Prise d’effet : 2020-03-01. Cette modification concerne seulement les demandes introduites à partir du 2020-04-01."
+          }
+        }
+      ],
+      "impacts": [
+        {
+          "id": "urn:mindflight:test:legal:transition:m1:impact",
+          "kind": "amendment",
+          "source": "urn:mindflight:test:legal:transition:m1",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:transition:act",
+          "targets": [
+            "art1.p1"
+          ],
+          "language": "fra",
+          "operation": "replace",
+          "old": "Le délai est de 30 jours.",
+          "new": "Le délai est de 45 jours.",
+          "effective": "2020-03-01",
+          "known_from": "2020-02-01",
+          "reviewed": true,
+          "requires": [],
+          "facts_from": "2020-04-01"
+        }
+      ],
+      "coverage": [
+        {
+          "work": "urn:mindflight:test:legal:transition:act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:transition:act",
+          "language": "fra",
+          "known_from": "2020-02-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:transition:m1:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        }
+      ]
+    },
+    {
+      "id": "retroactive",
+      "synthetic": true,
+      "documents": [
+        {
+          "id": "urn:mindflight:test:legal:retroactive:base",
+          "work": "urn:mindflight:test:legal:retroactive:act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 30 jours.",
+            "art1.p2": "La demande est écrite.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        },
+        {
+          "id": "urn:mindflight:test:legal:retroactive:m1",
+          "work": "urn:mindflight:test:legal:retroactive:m1:work",
+          "kind": "amending",
+          "language": "fra",
+          "published": "2020-04-01",
+          "known_from": "2020-04-01",
+          "units": {
+            "art1": "TEXTE FICTIF. Dans l’acte retroactive, art1.p1, remplacer « Le délai est de 30 jours. » par « Le délai est de 45 jours. ». Publication : 2020-04-01. Prise d’effet : 2020-02-01."
+          }
+        }
+      ],
+      "impacts": [
+        {
+          "id": "urn:mindflight:test:legal:retroactive:m1:impact",
+          "kind": "amendment",
+          "source": "urn:mindflight:test:legal:retroactive:m1",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:retroactive:act",
+          "targets": [
+            "art1.p1"
+          ],
+          "language": "fra",
+          "operation": "replace",
+          "old": "Le délai est de 30 jours.",
+          "new": "Le délai est de 45 jours.",
+          "effective": "2020-02-01",
+          "known_from": "2020-04-01",
+          "reviewed": true,
+          "requires": [],
+          "facts_from": null
+        }
+      ],
+      "coverage": [
+        {
+          "work": "urn:mindflight:test:legal:retroactive:act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:retroactive:act",
+          "language": "fra",
+          "known_from": "2020-04-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:retroactive:m1:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        }
+      ]
+    },
+    {
+      "id": "citation",
+      "synthetic": true,
+      "documents": [
+        {
+          "id": "urn:mindflight:test:legal:citation:base",
+          "work": "urn:mindflight:test:legal:citation:act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 30 jours.",
+            "art1.p2": "La demande est écrite.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        },
+        {
+          "id": "urn:mindflight:test:legal:citation:m1",
+          "work": "urn:mindflight:test:legal:citation:m1:work",
+          "kind": "citation",
+          "language": "fra",
+          "published": "2020-02-01",
+          "known_from": "2020-02-01",
+          "units": {
+            "art1": "TEXTE FICTIF. La présente notice cite l’article 1 de l’acte citation, sans le modifier.Publication : 2020-02-01. Prise d’effet : 2020-03-01."
+          }
+        }
+      ],
+      "impacts": [
+        {
+          "id": "urn:mindflight:test:legal:citation:m1:impact",
+          "kind": "cites",
+          "source": "urn:mindflight:test:legal:citation:m1",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:citation:act",
+          "targets": [
+            "art1.p1"
+          ],
+          "language": "fra",
+          "operation": "replace",
+          "old": "Le délai est de 30 jours.",
+          "new": "Le délai est de 45 jours.",
+          "effective": "2020-03-01",
+          "known_from": "2020-02-01",
+          "reviewed": true,
+          "requires": [],
+          "facts_from": null
+        }
+      ],
+      "coverage": [
+        {
+          "work": "urn:mindflight:test:legal:citation:act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:citation:act",
+          "language": "fra",
+          "known_from": "2020-02-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:citation:m1:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        }
+      ]
+    },
+    {
+      "id": "identity",
+      "synthetic": true,
+      "documents": [
+        {
+          "id": "urn:mindflight:test:legal:identity:base",
+          "work": "urn:mindflight:test:legal:identity:act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 30 jours.",
+            "art1.p2": "La demande est écrite.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        },
+        {
+          "id": "urn:mindflight:test:legal:identity:m1",
+          "work": "urn:mindflight:test:legal:identity:m1:work",
+          "kind": "amending",
+          "language": "fra",
+          "published": "2020-02-01",
+          "known_from": "2020-02-01",
+          "units": {
+            "art1": "TEXTE FICTIF. Dans l’acte identity, art1.p1, remplacer « Le délai est de 30 jours. » par « Le délai est de 45 jours. ». Publication : 2020-02-01. Prise d’effet : 2020-03-01."
+          }
+        },
+        {
+          "id": "urn:mindflight:test:legal:identity:other",
+          "work": "urn:mindflight:test:legal:identity:other-act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 90 jours.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        }
+      ],
+      "impacts": [
+        {
+          "id": "urn:mindflight:test:legal:identity:m1:impact",
+          "kind": "amendment",
+          "source": "urn:mindflight:test:legal:identity:m1",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:identity:act",
+          "targets": [
+            "art1.p1"
+          ],
+          "language": "fra",
+          "operation": "replace",
+          "old": "Le délai est de 30 jours.",
+          "new": "Le délai est de 45 jours.",
+          "effective": "2020-03-01",
+          "known_from": "2020-02-01",
+          "reviewed": true,
+          "requires": [],
+          "facts_from": null
+        }
+      ],
+      "coverage": [
+        {
+          "work": "urn:mindflight:test:legal:identity:act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:identity:act",
+          "language": "fra",
+          "known_from": "2020-02-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:identity:m1:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:identity:other-act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        }
+      ]
+    },
+    {
+      "id": "languages",
+      "synthetic": true,
+      "documents": [
+        {
+          "id": "urn:mindflight:test:legal:languages:base",
+          "work": "urn:mindflight:test:legal:languages:act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 30 jours.",
+            "art1.p2": "La demande est écrite.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        },
+        {
+          "id": "urn:mindflight:test:legal:languages:m1",
+          "work": "urn:mindflight:test:legal:languages:m1:work",
+          "kind": "amending",
+          "language": "fra",
+          "published": "2020-02-01",
+          "known_from": "2020-02-01",
+          "units": {
+            "art1": "TEXTE FICTIF. Dans l’acte languages, art1.p1, remplacer « Le délai est de 30 jours. » par « Le délai est de 45 jours. ». Publication : 2020-02-01. Prise d’effet : 2020-03-01."
+          }
+        },
+        {
+          "id": "urn:mindflight:test:legal:languages:base-nl",
+          "work": "urn:mindflight:test:legal:languages:act",
+          "kind": "base",
+          "language": "nld",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "De termijn bedraagt 30 dagen.",
+            "entry-into-force": "FICTIEVE WET. Bekendgemaakt op 2020-01-01. Deze wet treedt in werking op 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        },
+        {
+          "id": "urn:mindflight:test:legal:languages:m1-nl",
+          "work": "urn:mindflight:test:legal:languages:m1-nl:work",
+          "kind": "amending",
+          "language": "nld",
+          "published": "2020-02-01",
+          "known_from": "2020-02-01",
+          "units": {
+            "art1": "FICTIEVE WIJZIGINGSWET. In artikel 1, eerste lid, van de wet languages worden de woorden « De termijn bedraagt 30 dagen. » vervangen door « De termijn bedraagt 45 dagen. ». Bekendgemaakt op 2020-02-01. Deze wijziging treedt in werking op 2020-03-01."
+          }
+        }
+      ],
+      "impacts": [
+        {
+          "id": "urn:mindflight:test:legal:languages:m1:impact",
+          "kind": "amendment",
+          "source": "urn:mindflight:test:legal:languages:m1",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:languages:act",
+          "targets": [
+            "art1.p1"
+          ],
+          "language": "fra",
+          "operation": "replace",
+          "old": "Le délai est de 30 jours.",
+          "new": "Le délai est de 45 jours.",
+          "effective": "2020-03-01",
+          "known_from": "2020-02-01",
+          "reviewed": true,
+          "requires": [],
+          "facts_from": null
+        },
+        {
+          "id": "urn:mindflight:test:legal:languages:m1-nl:impact",
+          "kind": "amendment",
+          "source": "urn:mindflight:test:legal:languages:m1-nl",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:languages:act",
+          "targets": [
+            "art1.p1"
+          ],
+          "language": "nld",
+          "operation": "replace",
+          "old": "De termijn bedraagt 30 dagen.",
+          "new": "De termijn bedraagt 45 dagen.",
+          "effective": "2020-03-01",
+          "known_from": "2020-02-01",
+          "reviewed": true,
+          "requires": [],
+          "facts_from": null
+        }
+      ],
+      "coverage": [
+        {
+          "work": "urn:mindflight:test:legal:languages:act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:languages:act",
+          "language": "fra",
+          "known_from": "2020-02-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:languages:m1:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:languages:act",
+          "language": "nld",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:languages:act",
+          "language": "nld",
+          "known_from": "2020-02-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:languages:m1-nl:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        }
+      ]
+    },
+    {
+      "id": "unknown-date",
+      "synthetic": true,
+      "documents": [
+        {
+          "id": "urn:mindflight:test:legal:unknown-date:base",
+          "work": "urn:mindflight:test:legal:unknown-date:act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 30 jours.",
+            "art1.p2": "La demande est écrite.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        },
+        {
+          "id": "urn:mindflight:test:legal:unknown-date:m1",
+          "work": "urn:mindflight:test:legal:unknown-date:m1:work",
+          "kind": "amending",
+          "language": "fra",
+          "published": "2020-02-01",
+          "known_from": "2020-02-01",
+          "units": {
+            "art1": "TEXTE FICTIF. Dans l’acte unknown-date, art1.p1, remplacer « Le délai est de 30 jours. » par « Le délai est de 45 jours. ». Publication : 2020-02-01. La date de prise d’effet reste à déterminer."
+          }
+        }
+      ],
+      "impacts": [
+        {
+          "id": "urn:mindflight:test:legal:unknown-date:m1:impact",
+          "kind": "amendment",
+          "source": "urn:mindflight:test:legal:unknown-date:m1",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:unknown-date:act",
+          "targets": [
+            "art1.p1"
+          ],
+          "language": "fra",
+          "operation": "replace",
+          "old": "Le délai est de 30 jours.",
+          "new": "Le délai est de 45 jours.",
+          "effective": null,
+          "known_from": "2020-02-01",
+          "reviewed": true,
+          "requires": [],
+          "facts_from": null
+        }
+      ],
+      "coverage": [
+        {
+          "work": "urn:mindflight:test:legal:unknown-date:act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:unknown-date:act",
+          "language": "fra",
+          "known_from": "2020-02-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:unknown-date:m1:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        }
+      ]
+    },
+    {
+      "id": "ambiguous-target",
+      "synthetic": true,
+      "documents": [
+        {
+          "id": "urn:mindflight:test:legal:ambiguous-target:base",
+          "work": "urn:mindflight:test:legal:ambiguous-target:act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 30 jours.",
+            "art1.p2": "La demande est écrite.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        },
+        {
+          "id": "urn:mindflight:test:legal:ambiguous-target:m1",
+          "work": "urn:mindflight:test:legal:ambiguous-target:m1:work",
+          "kind": "amending",
+          "language": "fra",
+          "published": "2020-02-01",
+          "known_from": "2020-02-01",
+          "units": {
+            "art1": "TEXTE FICTIF. Dans l’acte ambiguous-target, art1.p1, remplacer « Le délai est de 30 jours. » par « Le délai est de 45 jours. ». Publication : 2020-02-01. Prise d’effet : 2020-03-01."
+          }
+        }
+      ],
+      "impacts": [
+        {
+          "id": "urn:mindflight:test:legal:ambiguous-target:m1:impact",
+          "kind": "amendment",
+          "source": "urn:mindflight:test:legal:ambiguous-target:m1",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:ambiguous-target:act",
+          "targets": [
+            "art1.p1",
+            "art1.p2"
+          ],
+          "language": "fra",
+          "operation": "replace",
+          "old": "Le délai est de 30 jours.",
+          "new": "Le délai est de 45 jours.",
+          "effective": "2020-03-01",
+          "known_from": "2020-02-01",
+          "reviewed": false,
+          "requires": [],
+          "facts_from": null
+        }
+      ],
+      "coverage": [
+        {
+          "work": "urn:mindflight:test:legal:ambiguous-target:act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:ambiguous-target:act",
+          "language": "fra",
+          "known_from": "2020-02-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:ambiguous-target:m1:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        }
+      ]
+    },
+    {
+      "id": "missing-source",
+      "synthetic": true,
+      "documents": [
+        {
+          "id": "urn:mindflight:test:legal:missing-source:base",
+          "work": "urn:mindflight:test:legal:missing-source:act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 30 jours.",
+            "art1.p2": "La demande est écrite.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        }
+      ],
+      "impacts": [
+        {
+          "id": "urn:mindflight:test:legal:missing-source:m1:impact",
+          "kind": "amendment",
+          "source": "urn:mindflight:test:legal:missing-source:m1",
+          "source_unit": "art1",
+          "target_work": "urn:mindflight:test:legal:missing-source:act",
+          "targets": [
+            "art1.p1"
+          ],
+          "language": "fra",
+          "operation": "replace",
+          "old": "Le délai est de 30 jours.",
+          "new": "Le délai est de 45 jours.",
+          "effective": "2020-03-01",
+          "known_from": "2020-02-01",
+          "reviewed": true,
+          "requires": [],
+          "facts_from": null
+        }
+      ],
+      "coverage": [
+        {
+          "work": "urn:mindflight:test:legal:missing-source:act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:missing-source:act",
+          "language": "fra",
+          "known_from": "2020-02-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:missing-source:m1:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        }
+      ]
+    },
+    {
+      "id": "missing-link",
+      "synthetic": true,
+      "documents": [
+        {
+          "id": "urn:mindflight:test:legal:missing-link:base",
+          "work": "urn:mindflight:test:legal:missing-link:act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 30 jours.",
+            "art1.p2": "La demande est écrite.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        },
+        {
+          "id": "urn:mindflight:test:legal:missing-link:m1",
+          "work": "urn:mindflight:test:legal:missing-link:m1:work",
+          "kind": "amending",
+          "language": "fra",
+          "published": "2020-02-01",
+          "known_from": "2020-02-01",
+          "units": {
+            "art1": "TEXTE FICTIF. Dans l’acte missing-link, art1.p1, remplacer « Le délai est de 30 jours. » par « Le délai est de 45 jours. ». Publication : 2020-02-01. Prise d’effet : 2020-03-01."
+          }
+        }
+      ],
+      "impacts": [],
+      "coverage": [
+        {
+          "work": "urn:mindflight:test:legal:missing-link:act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        },
+        {
+          "work": "urn:mindflight:test:legal:missing-link:act",
+          "language": "fra",
+          "known_from": "2020-02-01",
+          "through": "2020-12-31",
+          "impacts": [
+            "urn:mindflight:test:legal:missing-link:m1:impact"
+          ],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        }
+      ]
+    },
+    {
+      "id": "expired-coverage",
+      "synthetic": true,
+      "documents": [
+        {
+          "id": "urn:mindflight:test:legal:expired-coverage:base",
+          "work": "urn:mindflight:test:legal:expired-coverage:act",
+          "kind": "base",
+          "language": "fra",
+          "published": "2020-01-01",
+          "known_from": "2020-01-01",
+          "effective": "2020-01-10",
+          "units": {
+            "art1.p1": "Le délai est de 30 jours.",
+            "art1.p2": "La demande est écrite.",
+            "entry-into-force": "LOI FICTIVE. Publiée le 2020-01-01. La présente loi entre en vigueur le 2020-01-10."
+          },
+          "timing_unit": "entry-into-force"
+        }
+      ],
+      "impacts": [],
+      "coverage": [
+        {
+          "work": "urn:mindflight:test:legal:expired-coverage:act",
+          "language": "fra",
+          "known_from": "2020-01-01",
+          "through": "2020-12-31",
+          "impacts": [],
+          "basis": "Author-declared complete synthetic inventory as known on this date; not inferred for real law."
+        }
+      ]
+    }
+  ]
+}

@@ -66,6 +66,8 @@
     "clean": "rm -rf coverage dist",
     "dev": "tsx src/index.ts",
     "demo:load": "tsx src/cli/demo-load.ts",
+    "benchmark:graphrag": "python3 benchmarks/graphrag/run.py",
+    "test:graphrag": "python3 -m unittest discover -s benchmarks/graphrag/tests -v",
     "demo:load:immeuble": "tsx src/cli/demo-load.ts --profile-file examples/immeuble/contracts/answer_artifacts.seed.jsonl",
     "backend:ensure-vendor": "scripts/ensure-vendor.sh",
     "backend:sqlite3": "scripts/download-sqlite3.sh",

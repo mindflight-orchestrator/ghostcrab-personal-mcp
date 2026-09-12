@@ -1,0 +1,48 @@
+{
+  "schema_version": "graphrag-business-v1",
+  "created_at": "2026-09-12",
+  "language": "fr",
+  "origin": "Synthetic fixture authored for this study; no real business data.",
+  "review_status": "author_checked_not_independently_reviewed",
+  "benchmark_status": "not_run",
+  "split_workspaces": {
+    "dev": [
+      "aster"
+    ],
+    "test": [
+      "boreal"
+    ]
+  },
+  "principals": {
+    "operator": [
+      "operations"
+    ],
+    "finance": [
+      "operations",
+      "finance"
+    ]
+  },
+  "categories": [
+    "factual",
+    "constraints",
+    "multi_hop",
+    "temporal",
+    "uncertainty",
+    "access",
+    "synthesis",
+    "robustness"
+  ],
+  "counts": {
+    "documents": 24,
+    "passages": 48,
+    "dev": 24,
+    "test": 24,
+    "judgments": 48
+  },
+  "sha256": {
+    "corpus.jsonl": "197b065e3d6f6f02e3719e880ee87ba8b44f48c52127ad38c234a8b4bf02e255",
+    "questions.dev.jsonl": "5356626021e0b792f0ef7fb2c0328bc815180979dc9a0e03a4a06e458b3f4480",
+    "questions.test.jsonl": "ef2530d6432fda31f634dd1e72871ac7a9b596c6630c9c4308c4e521b928d403",
+    "judgments.jsonl": "59c2a661378dc43b907feb266d4500e193bd04623b5043cafbbc5d5372d446d7"
+  }
+}

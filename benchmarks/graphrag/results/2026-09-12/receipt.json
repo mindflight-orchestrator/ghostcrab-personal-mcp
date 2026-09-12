@@ -1,0 +1,1804 @@
+{
+  "schema": "personal-graphrag-v1",
+  "status": "passed",
+  "suite": "all",
+  "started_at": "2026-09-12T14:57:59.587078+00:00",
+  "source": {
+    "source_repository": "pg_mindbrain",
+    "source_branch": "research/graphrag-mindbrain-comparison",
+    "source_commit": "11ca28e2130e7d8ed1172806bde0969a2991b9b2",
+    "files": {
+      "scripts/graphrag_retrieval_benchmark.py": "ea0d7bf938ccc5698ec2676783145971ba0d5e0e32173fc175fa697fc98ee6bd",
+      "scripts/graphrag_graph_expansion.py": "4b3999c2f5ed715fc0c1b3435f70468aa11f0080d63ba9b67506aebc3a769250",
+      "scripts/graphrag_mixed_native.py": "0e4834fa4ad9d66ffe26a5f018f3ade5b878c94a24cfa00947d8df15d8b18b64",
+      "scripts/graphrag_legal_benchmark.py": "018a733e68e05d559690264732ea0fbca41ad13272836fa1414a4697684ce4cb",
+      "test/fixtures/graphrag-business-v1/manifest.json": "4e85a7caa438515fb7f66d5d93edb7b976c0e916667f5d833dfb1bf86931c435",
+      "test/fixtures/graphrag-business-v1/corpus.jsonl": "197b065e3d6f6f02e3719e880ee87ba8b44f48c52127ad38c234a8b4bf02e255",
+      "test/fixtures/graphrag-business-v1/README.md": "bf4b134ae1284c648b3579706f29a60dd0318be05a19b2ac71de34675baa823e",
+      "test/fixtures/graphrag-business-v1/judgments.jsonl": "59c2a661378dc43b907feb266d4500e193bd04623b5043cafbbc5d5372d446d7",
+      "test/fixtures/graphrag-business-v1/questions.dev.jsonl": "5356626021e0b792f0ef7fb2c0328bc815180979dc9a0e03a4a06e458b3f4480",
+      "test/fixtures/graphrag-business-v1/questions.test.jsonl": "ef2530d6432fda31f634dd1e72871ac7a9b596c6630c9c4308c4e521b928d403",
+      "test/fixtures/graphrag-legal-v1/corpus.json": "aa8fbabfe551e11b6cc4b8b1ac3bf48df8481e9d14b8f90ac7f1005cd756b3aa",
+      "test/fixtures/graphrag-legal-v1/README.md": "975fa75c7a78151bb553ef90f54672b4c301c5401d6fdcc2087ac04d4013014a",
+      "test/fixtures/graphrag-legal-v2/corpus.json": "1ae81fbb106e2af14a39f5637d6419bc6c2ab6f8e43e4d90d47f4f20903f6c88",
+      "test/fixtures/graphrag-legal-v2/README.md": "e7f5859e0d9542480262b45e002ac58357d78caed93bbe0c8cada2db887c2010",
+      "test/fixtures/eli-temporal-v1/ontology-lock.json": "5530d6f9b00e084bb0784f473d8a182dbe6dbbdf3e126efc3718ee5422360afe",
+      "test/fixtures/eli-temporal-v1/corpus.json": "382aead92e0102f73c94740fe6edcf299c1ccfe95f24dcf091c4cff3fdb763c2",
+      "test/fixtures/eli-temporal-v1/gold.json": "3ca089ac8f04346ce905eb9bacbcde4b9b16b55eff23e98fe31304fd8db0f987",
+      "test/fixtures/eli-temporal-v1/requirements.txt": "7fb632cbccdbfef76627f500712d8aa5095a7bfff45f54f2303a5853b4d61de6",
+      "test/fixtures/eli-temporal-v1/README.md": "3ccf04ef82090ad9b0513becf371ac645cc9dfd1db570882b2548b7d0348ba4b",
+      "test/fixtures/eli-temporal-v1/profile.shacl.ttl": "76aa71c3bbeb7128146cd3354bdbc349eb9559ad9c95deffc622666a1e01f037",
+      "scripts/eli_temporal.py": "40138deb47725df4becbd136b7df2a2440a6f92e2f85e70457fdb7aeb2445886",
+      "scripts/validate_graphrag_business_fixture.py": "08cbaba50ebd7f522dcb7dbd9c788f33a0f154601fdc7c931cb6b60c767bfbd9",
+      "scripts/tests/test_eli_temporal.py": "0e2322859dcde1efa902a3e96131e150c57d7f632def8fa02b88c6d477796721"
+    }
+  },
+  "checkout_commit": "75559a4689305f8218f62cda22576440198e4adb",
+  "vendor_commit": "49b89969e74943e0e6cfb3d4b357b73169396283",
+  "package_version": "0.6.9",
+  "input_manifest": {
+    "source_commit": "11ca28e2130e7d8ed1172806bde0969a2991b9b2",
+    "source_files_sha256": {
+      "docs/benchmarks/graphrag-business-v1/dev-2026-09-12/embeddings.json": "27bca4eedbf36a1ab1ac0b2a42530357b0260f93da60bc2547a1c85ce7aaeeb8",
+      "docs/benchmarks/graphrag-business-v1/dev-2026-09-12/config.json": "82d11373edb06d39789e25a826899ba7106e1d0e7815c8ac995d8c8b17291f81",
+      "docs/benchmarks/graphrag-legal-v2/prepared-2026-09-12-v2/manifest.json": "21fa8506e280f63f2e5d74d7f27925632be23af7d1d0412b4d19405276a73fc3",
+      "docs/benchmarks/graphrag-legal-v2/prepared-2026-09-12-v2/prepared.json": "1baea23aa75ab4685008452ee550bd6d5ed734261dca1c4378a4b2adfb51109c",
+      "docs/benchmarks/graphrag-legal-v2/prepared-2026-09-12-v2/config.json": "6f41aa99f159fd39d32e5641cb5d4bc3f45f4a792ade962c63541f079bdaeb43",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/manifest.json": "f61b2eccc8c2de76898f3f28401e9538975a0fe06da11633db30ba3401daad68",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/config.json": "61b16e3e9914d9942562c70f92d1979300effcc2fea66de988ec93801b97c25d",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/identities.json": "7e6c128dea36a95a3686ffeb9857a98b3305fa221d273560bd48559e0a9c46b0",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-000.json.gz": "79087017bd824d57e531e28abfc427ba268f13093f0bb48bc83f991270beef6a",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-001.json.gz": "ba58812bc66bfd514bd7a23f112b03d05aa5b95c111568771fa8b8b21cff0fdc",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-002.json.gz": "c4d01acce260a5e62fb0dfcc6e2412c707610a0f0a39cdfb7a80c253175b9c85",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-003.json.gz": "509bb85dbcf375c409357922ec1d4282be720a9c74ccb7678dd0a5da48e63c70",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-004.json.gz": "87f5a030d168d39aebc9ee54d2f538b4b4ddf5b14dd4d8dd19e29edb080fd96f",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-005.json.gz": "73bfebc491c1c4b30a98a612f175857d61663515eb0dbd476f1f6dd37ac5da81",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-006.json.gz": "f8b0a842287c57feb6859a82e773f5ac99794804ce5de0d6fbec764c78846773",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-007.json.gz": "162b391917345b16514bf68acc98cbaef8ec4c02416392425b876afb5ed0d331",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-008.json.gz": "58841f88a6cab440e48d8f3094626210110ce8359de3049a1c5c9b47b27c6036",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-009.json.gz": "2a968c593c224cbc2d8fb34a09846d42e77be19efcd193ad468955fd6e51fb0a",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-010.json.gz": "429a85431ee8e13316aa9421189b1049f5411190d17635cdce9d6133fdb04d47",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-011.json.gz": "3222221ddf2cf1f2385c8e905fb1537d20d6564ffa3b8db477f5695ae8d73754",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-012.json.gz": "95b0c8ebaffa1fbd14c346617daab235167d10ed646ec9d9128b8b2f6de504ba",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-013.json.gz": "41b63d4f47b8e8f4090996988808959856682fa3d618905231ef4ce199667889",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-014.json.gz": "4c297ac368c644049a4adb312497bc44157f236ef86efac4683ddfd6aa970896",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-015.json.gz": "9225976b58994e2eec42e997134c750c5eb3d0d75a3f2a74bafeb81855ae20f8",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-016.json.gz": "4b8d171998fcbdb89d5818f2366c186742a6209600cf50b8d0cc8a8d990e4927",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-017.json.gz": "a60311e6a93941b69a358cef98896a16d2ce0e86e152e7cc3299d4b52f49b4e7",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-018.json.gz": "7cc95746137f1f3bd8a78f7d1d5d68641fa7bb211dfd5d0996f040f5bce156b9",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-019.json.gz": "de6b5b4cb52836b1b36467a7c48517e3c1678e9da46ebba27512ecc8931aee25",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-020.json.gz": "0b2ab51e7bbb1ab7c61a8bf397d3b7312cf95c87c49279319b42b69266a0aada",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-021.json.gz": "91c78fdab44202ee41b4c12fe51670f21ede82734dcb200d6b1094472fa5f7fe",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-022.json.gz": "749933783f6d051d786fc300a796b3dd22d84db44776c2cebd13ce7123cb4d25",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-023.json.gz": "6816844d242658486ffdc9f3967281b6c0d2006faf07bc3f8695af9d47eb7a50",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-024.json.gz": "5998c9fcbf2ce9cfdf27f63bea5cb54595d18f29e77e1780ab3cc0fddc650a02",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-025.json.gz": "1de7fb66f279c82344ab80ee6f8ae4eeb0af1ab62b8083ae29a65f044ec71cba",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-026.json.gz": "ad822dc0dfded5685ec4c945b53f6b651bcb6dbf6efbb836acd17549c28d97a5",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-027.json.gz": "7b41fc4acc518ab163ac00f697356d1abb5b1191e3a0a1a8d6e5cfbdcc938512",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-028.json.gz": "75c2d929893dfed866e619c7f37a2de704775fe88403b43dc175fb4271873b1c",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-029.json.gz": "5536544bd46a64d7570782bd75e0f7f3d265dd98eaffbdd28dae85dbc2e03fcc",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-030.json.gz": "fa9407a71ea5181acad2792946cdfaa39ce4c0c17e1bcd6e805681a4c73449c9",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/bge-m3-latest-031.json.gz": "964c189a2f7c435c741b8edf9b21f11304825804bd746119a5b31b1df4772179",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-000.json.gz": "1ee8a46011b769e1afb6e429ee6a95befd88410940d6ddabd92ea2cd24d4c829",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-001.json.gz": "2b98fcaf134f906bf3cd43e0a0c1846d576054171e5660f0063ac214a8f6b8df",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-002.json.gz": "d969e57c2a4c4c49d8ca010269ed9b955f37491c9c1cc89960d3cde0c8adf524",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-003.json.gz": "42500ccd21ed0136d3121d54cdae6d34ae4293b061249e369cf4cbbdf572f271",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-004.json.gz": "ca67a7cfa289719c9fde924455ca6c1f47bf338c53fadd71dfc290c5511d204b",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-005.json.gz": "37caacc701226afe39a766770c0d84b65967b350e66cf9188a676869a18efe04",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-006.json.gz": "c72a9cefd54edbccb47bc4845fa13805e954a70849a8a6fc03afa7adee7dba3b",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-007.json.gz": "2cc3121c46d788f006b5041fcc9536d6a4bb523a3982d6e99b3f7e6714d7138d",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-008.json.gz": "d663ce335edc522673c242c40b179548f856e446f5c66771f4bd76cdeed0a6d4",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-009.json.gz": "c8d5402aa2ecfe5eb94afde894a63e7bf91a249cdd91bbd00bd9bc15ebb9323b",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-010.json.gz": "da55384f6b0bddb9a431ba586a63804109b749e8266f30fd8adc13389cc71b40",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-011.json.gz": "9daf42513d47326db4ea93e1896fc013bd488e13cd75f4f5295f6f0014659398",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-012.json.gz": "99caf890ce90069fd6b0a34dcb3db7ef9e7e8fafc6198d1b340a84c325577055",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-013.json.gz": "dff7cae1f0f508f93b3e2a19a4fee48702a2b56463c6b34f972e3f4cb37e292b",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-014.json.gz": "6a6dc03106251800a894473edbb378a88fb578006dc3634bfe9b61977a244d08",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-015.json.gz": "9e3702f68e56a507e473147c51fe7cd808005e0900d8b95bb4246f448c7246eb",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-016.json.gz": "e3932511ef2d757a3a826282e54298ba83e54f5bcfc05cf1de316531dd922cd1",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-017.json.gz": "f1ec47ef30fc0bd499e801aa72ce7dd1a1eca2a08984d41807e11d83ba6086dc",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-018.json.gz": "928c660fc72b0a0673026c2e943bdeae2dee16b3d12b412b068aba62883dd858",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-019.json.gz": "eec94e79965f9a5d24f339f5fa63e8899530c3f15d2f151a99e0af5dd9756bf6",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-020.json.gz": "239874e990c8737387e93acfecb2123c4fc99c79b917800266f5e53a6a765864",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-021.json.gz": "eb982d3dd7504ae826ee4b4db69e90e1b748b192975c04a17448b065a671db9a",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-022.json.gz": "906981063b41b27ba363e51f343bd622b532b7e8d9db3452f045d0f3f823a9d6",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-023.json.gz": "5f006b9a55ebe7c2ec77eb86474a561e9b1d9b44326672d40111f0814e0f3b7e",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-024.json.gz": "0bda3f9c36b4630686a6132cb37bb7bdf5c3e0fb96144328054803893793c27e",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-025.json.gz": "8abeec42a6ebb75fe7b8efa4f414248150fc4052c6ee00c8887063a51442aadf",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-026.json.gz": "9fd5b9a96f0a45723ae5a2e95b4709025cd274ac99f026d2fb061c23f9a0380b",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-027.json.gz": "b5b2172030b111cc4cb3e9f4a33946e34a7fe2654d0fbf9c86e3abc6f53eaadb",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-028.json.gz": "2fc29fe9e09981e9025f152d3d09e1fe19ec58467bc4ec2fa4f844899aad11d6",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-029.json.gz": "cac89b652df69a1271c950a8172d4a0796febca48a0e59c3064d348bd6f4d751",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-030.json.gz": "a43f5a30a789f07a2ff58a1c20cbb49929a310b599889c40fb8ffabb0e29c9b2",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/embeddinggemma-latest-031.json.gz": "d6d6bed101dd60398f564f8259feb79f40b91b585b7454a85610ab4cf9409bf3",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-000.json.gz": "cb7037d4b60ab23b0beb5d346ecf4c52df5ebc337c217344ed0b734797f7321a",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-001.json.gz": "cd4705298272b506cb4f60c02736fdc00eb991759bd3c7085df2eb74fba38ff2",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-002.json.gz": "9a88464e6a4c4ee989f319e920b39db3324555f65d6a3ee9c5605614d11e67ba",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-003.json.gz": "b0a37af904f53d9767b18beb4dc86a7fe1b0cccacaf75bb904548c6dde0b41c3",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-004.json.gz": "4a4c9263d7ba4d227dc9e542b979fcc41635c3cac4c315a3a6897a2da58a4e3a",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-005.json.gz": "718aae290137602a530b31b09c449c02ae4fc3a935efab21ec2a0bf612e5c49c",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-006.json.gz": "4d72d4bfb8ca289a6774ccd843301d32805169469e1b3c325d19e4b5bd3f9af7",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-007.json.gz": "2e4c19a06a6fbe0f264e71372e054cc3c2ad9b7298c8bc94f98fcb86acad2dbb",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-008.json.gz": "e1a1843226941900f8e9ea24d469fd4b2fa744ce1aa8c9db7a8958347e10e98b",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-009.json.gz": "711b86be4907b049da721dba1a7a40968364dd087a67ef5ae5f899faa90c89bd",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-010.json.gz": "a4863ee69d47cfd3d49eb8a5a70a7c078856c6e7ab091093ff272c33d4652954",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-011.json.gz": "72a615f0f918070649cfad7cdb8beb6327209ee57d91ca33acd8c1221731028c",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-012.json.gz": "dcbc9038e422a41bd4e495dff91743e39e97d847e9f6ae46c729c5c122269109",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-013.json.gz": "a98ebaa717a0ef44470464031683b6621a54cfc60e31330d8d6b6de45b5f801a",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-014.json.gz": "5308a3ee8a69203a96b339227273abfebaf8538f5b9e71cbb1c8e77495c1dbd5",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-015.json.gz": "2cbbd6c09351a9895583c44660b8e1700f9b23d34f63d579d356809a3d7d03fe",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-016.json.gz": "502fc6d9817940995c96ad997846df96515d659488694ce09adfa2bd4d79974a",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-017.json.gz": "f3a095122a6c44e4ba0f95883427c8021538b6ca7c8b95e9924b5007511edde0",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-018.json.gz": "968b1eb5cffaa4d700e089552866e51cdbd3f96d6ab0cfac17e11fa6de1ac7ac",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-019.json.gz": "f4f3272993a729e1e641c29cbfd968f9f2564a7905b2ad4b340b747beee9ffce",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-020.json.gz": "79aadde27d277385778bd44b4763d41e1535051e830996c4541fc3c738f7ed82",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-021.json.gz": "a4604f9c5a24fa921dfe0e09ec861030971776333694bdcc319a68673d9e27b3",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-022.json.gz": "dc99e969c0f1366ef0a5b6895003d8b52374204180ee117949ff95a813116a36",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-023.json.gz": "675986792d34588953e60f518b63ac596823d01fca496c0aa1dbb9b91e09f6e0",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-024.json.gz": "d44eb2e59556fe0b64e3c91dc6f1e81f8cf877be0cf8450142c4254866fddb63",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-025.json.gz": "19a2de4aada753d368cc1012880bd71b9e069cfd63d81eb83ccd6dc5f2c819d7",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-026.json.gz": "b9e0ece20572e4d1b49999fc153d705fdc847139357da916d39f2001d4f5494e",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-027.json.gz": "dedfb618c2ba5422bdc6fc866f512d07a6e1f4c4a70a04fa628ef50060ded228",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-028.json.gz": "0dd78281a80da254da6d02eda53b03de0417a50191c964d24dc9ac3339ba3ff0",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-029.json.gz": "f267b8ca1e61ed2bdee4a44fd7625652868747c1dc85dccf58dca0bbad937092",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-030.json.gz": "b53a299b90523162c8aec7bd436617992b1aa9e388e3a76467b97f8786359457",
+      "docs/benchmarks/graphrag-legal-v2/local-models-2026-09-12/prepared/qwen3-embedding-0.6b-031.json.gz": "9f1ddf4e5b9cd4406e395fc2212fa85732db15fb4b10bf144cee9c844a34ee67",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/manifest.json": "9af44a9b696eee6059d8305de731de9a50cbffc5b01456dd2725c2dc1831d342",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/config.json": "30cf7993f7ffc7ddcf90541607a2d26dc6b2a1249546aa205c5df40de243727b",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-1536-batch-000.json.gz": "a19fab2dca68365c5983645c4cdf6092e6b736a93980dc6e2ef3cdfc847b999e",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-1536-batch-001.json.gz": "38eee9fd4c06293feb7c4078b33ca7328db6b881e517528b57897c49156cf062",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-1536-batch-002.json.gz": "2b562aeb31cfd6a3db09bee200e6809a1ab331be81bf1842ee5d91090275762f",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-1536-batch-003.json.gz": "e5c2bc0e4ffa6e050eb6033c5f4802c5939f535d7e761c731f36c1147ca6b69a",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-1536-batch-004.json.gz": "5f53e12618b1e059f5f1864495f68dab48d22e29643fdad6b9724ec4a3e1940c",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-1536-batch-005.json.gz": "b1d6526ce069d41191f0da92d6f13af71b8156fe4a77ab79b9244a1f687ea124",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-1536-batch-006.json.gz": "e6289e3274c760fe1c7c52bff7a54dd82e400b182073475464522be824c9dae4",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-1536-batch-007.json.gz": "77881d039740806ce96fb882fca8213f5f3e67fc29356ed3a1df9f20766ede17",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-1536-batch-008.json.gz": "fad3e40347ad3dc9fc3856d967f92e01d96fb192a0c9a0d5307996532295fe1e",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-1536-batch-009.json.gz": "ffee2697b3671372becc7d9c611984ac130ba09d5da2232511c2830be5e652e7",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-1536-batch-010.json.gz": "14d98358cf0bed39317877cb23bf96614359f6600028689067ba0129842746f9",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-1536-batch-011.json.gz": "ce7b807a44488e24cd6ce053ba65df3bfe2b3844796aecd7306f7202063020c2",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-1536-batch-012.json.gz": "9b06d3f3557ee025243a5c074772413abd1d7e590f86d5c4681df729e857c2db",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-1536-batch-013.json.gz": "f7e4a3ab38316022c20459b0598e0409a11efdddab4f651fb5d432b5d1948b7a",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-1536-batch-014.json.gz": "7193282c9eea8c3e3232b7de324121ac6dba073ebb02fc9394e3d1a00dfcfc45",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-1536-batch-015.json.gz": "aca6555473ccd03e239fcc410f41f8f36c65a17e7ef0ab35c0b41707a9b0edb1",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-3072-batch-000.json.gz": "64d4fc3eb8c357e38e03b737b0fb07afc80de57bcfef63f584491af4766d0f12",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-3072-batch-001.json.gz": "125ddca35474dc9385302c7f8070d144a906ccb2cde5fbab123eec472861eba1",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-3072-batch-002.json.gz": "1c9ee078f083dca07cee197b311bb958972a64e18974cb4a46bc389353107b46",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-3072-batch-003.json.gz": "32ff9a66323f0173550a11c69c5b83e359bdc7bfa58962ae5c8438888c539a65",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-3072-batch-004.json.gz": "f283a219bc844de630c8c6beaee25f5cd663980a5becf8cf7b5908674c1ee793",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-3072-batch-005.json.gz": "4468f4437f7f19dc652cc151b910f8e37291d1123c8edb0bb0a7301d0cf92f1e",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-3072-batch-006.json.gz": "5648130a6a20140a55a0e48f94ed414ddc87b17858c46a1a21aee9ce6ef69852",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-3072-batch-007.json.gz": "c8d62665769ac33b6ee75c552ed88dedc0ca6eff85e34466bd38e7dc4965867f",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-3072-batch-008.json.gz": "f13054048b81c8800c19e250fbab4da11a436ee30dff8060dfbb23b68cd8b647",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-3072-batch-009.json.gz": "a208c5f6018632f5c810adaca5c8dc8746174d7418f463dbdc98d18293383d00",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-3072-batch-010.json.gz": "ad0837ccc58850ad6d5fd45d22f626ddf624ae146851314ae1b24def09b18be2",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-3072-batch-011.json.gz": "10b72f47d62e431eb1137ce3668707c41f66f3dc166ccb7cfcfa312a3a41d6f2",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-3072-batch-012.json.gz": "d8c97a1bc09907d7034ab656e204757fb0f0b42b22e5050eecad3c0ea4cdb5f9",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-3072-batch-013.json.gz": "14cae335aed5665a472ec16bf9be7c934f17aa0757c430a854d5b9b68621d4cd",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-3072-batch-014.json.gz": "439018fd6b409802628c304c8f836297c391d6bb7694890913d8bd8814aae4dc",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-3072-batch-015.json.gz": "49de20a83e1a67cb14994f6fc1ecff44006c00d4bda30e93d74d9c51b6faf83c",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-768-batch-000.json.gz": "5a47568394045a33f44c03b18f7f5f822b72c4092218c77893d9dbe689a5999c",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-768-batch-001.json.gz": "8ae78dd158a551a9e3a4d6513cb8d5e8b90062be9213fb3f7af2cced2efe4fcc",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-768-batch-002.json.gz": "7cd0ab836f8dffac03ec0d62becf0f8480408a5b5d2d1a4c72c67a3454571de2",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-768-batch-003.json.gz": "a7f80f4c523802e7165b15d3e5685f8d4b94d61131d82f1284061310c36f45d6",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-768-batch-004.json.gz": "e7d31daffcd4dca1d5c3221bd78e285510aaa05e83739cd586aaa4fd02c44361",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-768-batch-005.json.gz": "9ad993730ecb327d23b7a290692c89a9bb838f874cab43343205aa6017838180",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-768-batch-006.json.gz": "c87a4d6d2773d05f4809f66b01d16c7c68fbe37e33f664deaedd01709e423556",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-768-batch-007.json.gz": "7cf4711b25021f0208e2b309af82b4819f4e209b7aae6ac5012bd95cde45ebfd",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-768-batch-008.json.gz": "cc44649ebe5093899e327bdfe9af01bf91f7e60838cb4f890703cf36b0d883ca",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-768-batch-009.json.gz": "8a9bad01f9cdc1a1f8ec98a16e6efc75c56ea4121bdf12b81423d2cebcc48c8c",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-768-batch-010.json.gz": "f34aeda792e672b62145cfdeaee6e80712ff97be4b8d4ee37ba534f04fb15eea",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-768-batch-011.json.gz": "3e1ddb97dd8454c8c71b4328f60bfe698c5055d3802a458940e5e36af1adc392",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-768-batch-012.json.gz": "b665c91e6a8faa152b46aa014509b66d4cbbed61a8f6d27a09c40f9b882c3f44",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-768-batch-013.json.gz": "d1ab4cab906316b6abc0ad7d4be097de0f1c181aebf6469be98a4dcb150d8614",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-768-batch-014.json.gz": "cb745a1f7c8718c1e60b257287a081d3d2178a9e3707ba9fd0a4faae6a337e36",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-large-768-batch-015.json.gz": "1c8adb8b6ec2db9ba3eeb8977c7455b8a27a2f1809af9999af2f8549100b722e",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-1536-batch-000.json.gz": "65b411cbd8a2f6d9bd1ac62c0a604dd2381e7d44a9f56181a308c834ddde16ae",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-1536-batch-001.json.gz": "abc9d8d9f680976187c3a5a7b360a4e8e1d17893a0568d2529a900666424eb86",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-1536-batch-002.json.gz": "d5d56e23a75dd5acdfdd24c92528978993247296346dd05b254c162f9e0aca44",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-1536-batch-003.json.gz": "8e7f306b932cf79dc8cac5f1a733919bf5de6c1ab847b58b0feb0e2b1038be6d",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-1536-batch-004.json.gz": "6c2f1afcc51c8bc3df611a453bb5fb04a4d3178e2abc03eedc27e527380836ae",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-1536-batch-005.json.gz": "dfd3b339fe3a24aae19563cdd1e2944aba879ce75220b6b2f3b762a8c90bf42f",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-1536-batch-006.json.gz": "d0898ec357b1744e8d0aefac73b0e0e82d330f10e46039c04f016a601bc00dd2",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-1536-batch-007.json.gz": "fce81446ee93a2f7d9e5d21076dea99ac37e67586947f0dbe46525fed9892901",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-1536-batch-008.json.gz": "f7a147008130e58c76ad76b52d10f4aac2787bbd2af456d54b9dbacb57a693ab",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-1536-batch-009.json.gz": "9de634ef02faedf819f51d1c3892e20a65742ec57ebd8a7570e7ed9073621220",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-1536-batch-010.json.gz": "6f19ebee5b8c6e59b8c28527b3fd10948cfca27d494c8fa34307a1612d919d57",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-1536-batch-011.json.gz": "5839bb1ba1c79034f66fdd3d17efc7d4eb8627111d2850fa492b0bc77e7e7ead",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-1536-batch-012.json.gz": "36786329e9db9389b8274f897b91cb9be3a377702bea5cdccfe579e2a3aadb0a",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-1536-batch-013.json.gz": "00b9ffeb48717b3b8d3115fa56c773b006b2590de69cf993e3a31226b9b27217",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-1536-batch-014.json.gz": "8269aeb350e0adf2eebea4aa9580c0cee846d50296b7436ac78a2d444c0795f4",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-1536-batch-015.json.gz": "109afc860e174168d35a59e90bb23960c5033d8fe9193efb69947f25897e2a52",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-768-batch-000.json.gz": "6903bd9db59f5ced8fc8dda80b4969fa51b3c9353a576ce26b72483a20c90613",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-768-batch-001.json.gz": "ef350a47aee98d2e4332b938d1af429e440f1346e2264d7d9c0a2eed8bb9ac7c",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-768-batch-002.json.gz": "83151b4ed19e7df5b57bf4c540f4669ac7d86ca378919487caeffafbfce6ee31",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-768-batch-003.json.gz": "91e4e0f833b2135c2932d4eee93eb2bfe2e95a59298d1344368cd69eed705d9a",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-768-batch-004.json.gz": "0c4d25308eaaa2b8fa25eb5bce088aa51c6888eed60f6915032daccb04bdfbff",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-768-batch-005.json.gz": "d949cf9603ca5e394b7429da0ec343b0dbcdc72073b94bfa22a48ae2196b8974",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-768-batch-006.json.gz": "1b9497d0ae835a9cb5f78623c902fc728ee123a75e69b0feda111ccaabd7ce1d",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-768-batch-007.json.gz": "6603df87ee7dbf1c16f394e9b5c0771ae72d6b55768ae404b90b0e56100d3031",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-768-batch-008.json.gz": "a376e67b12a40bf0326fa3a78a121c2ffcd79ae0c8f6ebdf7c58c172258da404",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-768-batch-009.json.gz": "321588df624c62d59ab31665f70f6cfd315348364d13e8bae225618e90c489f3",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-768-batch-010.json.gz": "06b63aba4ec57f0e5df26e8c589722a66acbea0721c3b85eaa01a3c5708dfc99",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-768-batch-011.json.gz": "bb7e6b1ba659dfae0eda86acab3b8543871b0e00b4cf9dee53371ecb73790470",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-768-batch-012.json.gz": "ba2676d0ca2e8d4d99534c45356013859e46d750fcec9ab6b962e6dc1e50ada4",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-768-batch-013.json.gz": "e0d12d13dfef3e6fe8f40ca6a2e72521c6ff3fc656a2766e995b9b3c9d03ae59",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-768-batch-014.json.gz": "8dfeee03de81652667e6437d67547429211d5d694be63806bafd1cbff6a0cbea",
+      "docs/benchmarks/graphrag-legal-v2/embeddings-2026-09-12/prepared/text-embedding-3-small-768-batch-015.json.gz": "c4d5af5bb9d287dc9f845a1114e7bee3c8250c1edb6b80f1a38f56d2529f539a"
+    },
+    "files_uncompressed_sha256": {
+      "business.json.gz": "27bca4eedbf36a1ab1ac0b2a42530357b0260f93da60bc2547a1c85ce7aaeeb8",
+      "legal.json.gz": "1baea23aa75ab4685008452ee550bd6d5ed734261dca1c4378a4b2adfb51109c",
+      "models.json.gz": "ee9ec268701f5ec99d1beaa551217a5c0aa7b5cb1d004937061a17a920d4ba20"
+    }
+  },
+  "code_sha256": {
+    "common.py": "d5c86a174d0ffb8f6f28b9ae7ae7b17a04f4059e2c6bced70408a34f7799bb88",
+    "eli_temporal.py": "40138deb47725df4becbd136b7df2a2440a6f92e2f85e70457fdb7aeb2445886",
+    "graph.py": "99f50a23a4390d18b9fdff75e93caa3ef59e07a827ba2336ece25493681a163a",
+    "import_inputs.py": "3a5b28332c6dec4996d78a4572c6c3f6b00800a9d55abaf69dc5c37e834f91b0",
+    "legal.py": "99e477eeb889b51e167e40e37848666fb86c99ebbcec6dcbf3e81c5443a23c9e",
+    "mixed.py": "134bb9f4667eb3ea8c6af1590e90874ce5a194c9443334f9c0293fa195cee234",
+    "native.py": "5558364a9e3b5a0e0ad13f9c9bb9be8a41938d25136866affed7fa49a552254f",
+    "run.py": "4381e3d83576f7308bc20c0e42f43989c0244f51d97ed734e153529852df5650",
+    "validate_graphrag_business_fixture.py": "023042d80244db2b5c3c778b15a64ff4723c5eb957b113d998735e41f2827ac9"
+  },
+  "native_source_sha256": {
+    "sql/sqlite_mindbrain--1.0.0.sql": "766d0a349b9d5a0e4d80eff006018d75a11a5cb790977e31aa12d1d58c90b00a",
+    "src/standalone/search_sqlite.zig": "4a70fc39dc24e3400ece03b41c2e691207b9b9006812f0e530b668a08c3ea834",
+    "src/standalone/hybrid_search.zig": "12c96558ce929a9a0b98df94fc5cd9d2a62d909fa8dbd4598674f7bc0ac4760e"
+  },
+  "protocol": {
+    "split": "dev",
+    "generation_evaluated": false,
+    "product_acl_evaluated": false,
+    "external_graphrag_evaluated": false,
+    "candidate_pool": "all visible passages, at most 1000",
+    "lexical_reference": "SQLite FTS5 unicode61, native query preparation, SQL score reference",
+    "rrf_k": 60,
+    "vector_weight": 0.5,
+    "business_top_k": 8,
+    "legal_source_budget_utf8_bytes": 6000,
+    "bidirectional_graph": "adapter BFS over native inbound/outbound HTTP calls"
+  },
+  "summaries": {
+    "business": {
+      "lexical": {
+        "scored_questions": 21,
+        "complete": 13,
+        "mean_claim_coverage": 0.6746031746031746
+      },
+      "vector": {
+        "scored_questions": 21,
+        "complete": 15,
+        "mean_claim_coverage": 0.7380952380952381
+      },
+      "hybrid": {
+        "scored_questions": 21,
+        "complete": 15,
+        "mean_claim_coverage": 0.7619047619047619
+      },
+      "full_context": {
+        "scored_questions": 21,
+        "complete": 21,
+        "mean_claim_coverage": 1.0
+      },
+      "document_graph": {
+        "scored_questions": 21,
+        "complete": 17,
+        "mean_claim_coverage": 0.8333333333333334
+      },
+      "entity_graph_outbound": {
+        "scored_questions": 21,
+        "complete": 19,
+        "mean_claim_coverage": 0.9285714285714286
+      },
+      "entity_graph_both": {
+        "scored_questions": 21,
+        "complete": 16,
+        "mean_claim_coverage": 0.8095238095238095
+      },
+      "mixed_rrf": {
+        "scored_questions": 21,
+        "complete": 17,
+        "mean_claim_coverage": 0.8571428571428571
+      }
+    },
+    "legal": {
+      "legal_context": {
+        "lexical": {
+          "scored_questions": 24,
+          "complete": 19,
+          "mean_span_coverage": 0.8839108665476899
+        },
+        "vector": {
+          "scored_questions": 24,
+          "complete": 11,
+          "mean_span_coverage": 0.4861111111111111
+        },
+        "hybrid": {
+          "scored_questions": 24,
+          "complete": 18,
+          "mean_span_coverage": 0.8376243256419437
+        },
+        "hybrid_graph": {
+          "scored_questions": 24,
+          "complete": 18,
+          "mean_span_coverage": 0.8376243256419437
+        },
+        "hybrid_enriched_secondary": {
+          "scored_questions": 24,
+          "complete": 13,
+          "mean_span_coverage": 0.5902777777777778
+        }
+      },
+      "legal_descriptors": {
+        "lexical": {
+          "scored_questions": 24,
+          "complete": 21,
+          "mean_span_coverage": 0.932521977658801
+        },
+        "vector": {
+          "scored_questions": 24,
+          "complete": 7,
+          "mean_span_coverage": 0.37038012576092044
+        },
+        "hybrid": {
+          "scored_questions": 24,
+          "complete": 17,
+          "mean_span_coverage": 0.7523245702053649
+        },
+        "hybrid_graph": {
+          "scored_questions": 24,
+          "complete": 17,
+          "mean_span_coverage": 0.7523245702053649
+        },
+        "hybrid_enriched_secondary": {
+          "scored_questions": 24,
+          "complete": 12,
+          "mean_span_coverage": 0.5787134590942538
+        }
+      },
+      "technical_context": {
+        "lexical": {
+          "scored_questions": 24,
+          "complete": 16,
+          "mean_span_coverage": 0.7519871882890357
+        },
+        "vector": {
+          "scored_questions": 24,
+          "complete": 7,
+          "mean_span_coverage": 0.3321995570238803
+        },
+        "hybrid": {
+          "scored_questions": 24,
+          "complete": 11,
+          "mean_span_coverage": 0.5567463494514675
+        },
+        "hybrid_graph": {
+          "scored_questions": 24,
+          "complete": 11,
+          "mean_span_coverage": 0.5567463494514675
+        },
+        "hybrid_enriched_secondary": {
+          "scored_questions": 24,
+          "complete": 10,
+          "mean_span_coverage": 0.5150796827848008
+        }
+      },
+      "technical_raw": {
+        "lexical": {
+          "scored_questions": 24,
+          "complete": 15,
+          "mean_span_coverage": 0.7400647215033922
+        },
+        "vector": {
+          "scored_questions": 24,
+          "complete": 11,
+          "mean_span_coverage": 0.6081202770589477
+        },
+        "hybrid": {
+          "scored_questions": 24,
+          "complete": 16,
+          "mean_span_coverage": 0.7886758326145032
+        },
+        "hybrid_graph": {
+          "scored_questions": 24,
+          "complete": 16,
+          "mean_span_coverage": 0.808765118328789
+        },
+        "hybrid_enriched_secondary": {
+          "scored_questions": 24,
+          "complete": 16,
+          "mean_span_coverage": 0.7886758326145032
+        }
+      }
+    },
+    "embeddings": {
+      "nomic-local-768": {
+        "lexical": {
+          "scored_questions": 24,
+          "complete": 21,
+          "mean_span_coverage": 0.932521977658801
+        },
+        "vector": {
+          "scored_questions": 24,
+          "complete": 7,
+          "mean_span_coverage": 0.37038012576092044
+        },
+        "hybrid": {
+          "scored_questions": 24,
+          "complete": 17,
+          "mean_span_coverage": 0.7523245702053649
+        },
+        "hybrid_graph": {
+          "scored_questions": 24,
+          "complete": 17,
+          "mean_span_coverage": 0.7523245702053649
+        },
+        "hybrid_enriched_secondary": {
+          "scored_questions": 24,
+          "complete": 12,
+          "mean_span_coverage": 0.5787134590942538
+        }
+      },
+      "bge-m3:latest": {
+        "lexical": {
+          "scored_questions": 24,
+          "complete": 21,
+          "mean_span_coverage": 0.932521977658801
+        },
+        "vector": {
+          "scored_questions": 24,
+          "complete": 18,
+          "mean_span_coverage": 0.7986111111111112
+        },
+        "hybrid": {
+          "scored_questions": 24,
+          "complete": 18,
+          "mean_span_coverage": 0.819086296342325
+        },
+        "hybrid_graph": {
+          "scored_questions": 24,
+          "complete": 19,
+          "mean_span_coverage": 0.8329751852312138
+        },
+        "hybrid_enriched_secondary": {
+          "scored_questions": 24,
+          "complete": 17,
+          "mean_span_coverage": 0.7982529630089916
+        }
+      },
+      "embeddinggemma:latest": {
+        "lexical": {
+          "scored_questions": 24,
+          "complete": 21,
+          "mean_span_coverage": 0.932521977658801
+        },
+        "vector": {
+          "scored_questions": 24,
+          "complete": 22,
+          "mean_span_coverage": 0.9652777777777778
+        },
+        "hybrid": {
+          "scored_questions": 24,
+          "complete": 19,
+          "mean_span_coverage": 0.870021977658801
+        },
+        "hybrid_graph": {
+          "scored_questions": 24,
+          "complete": 20,
+          "mean_span_coverage": 0.8839108665476899
+        },
+        "hybrid_enriched_secondary": {
+          "scored_questions": 24,
+          "complete": 17,
+          "mean_span_coverage": 0.8005775332143565
+        }
+      },
+      "qwen3-embedding:0.6b": {
+        "lexical": {
+          "scored_questions": 24,
+          "complete": 21,
+          "mean_span_coverage": 0.932521977658801
+        },
+        "vector": {
+          "scored_questions": 24,
+          "complete": 20,
+          "mean_span_coverage": 0.8611111111111112
+        },
+        "hybrid": {
+          "scored_questions": 24,
+          "complete": 20,
+          "mean_span_coverage": 0.9186330887699121
+        },
+        "hybrid_graph": {
+          "scored_questions": 24,
+          "complete": 21,
+          "mean_span_coverage": 0.932521977658801
+        },
+        "hybrid_enriched_secondary": {
+          "scored_questions": 24,
+          "complete": 17,
+          "mean_span_coverage": 0.7774196296756583
+        }
+      },
+      "text-embedding-3-large-1536": {
+        "lexical": {
+          "scored_questions": 24,
+          "complete": 21,
+          "mean_span_coverage": 0.932521977658801
+        },
+        "vector": {
+          "scored_questions": 24,
+          "complete": 18,
+          "mean_span_coverage": 0.8148245702053649
+        },
+        "hybrid": {
+          "scored_questions": 24,
+          "complete": 20,
+          "mean_span_coverage": 0.920957658975277
+        },
+        "hybrid_graph": {
+          "scored_questions": 24,
+          "complete": 20,
+          "mean_span_coverage": 0.920957658975277
+        },
+        "hybrid_enriched_secondary": {
+          "scored_questions": 24,
+          "complete": 16,
+          "mean_span_coverage": 0.8029021034197215
+        }
+      },
+      "text-embedding-3-large-3072": {
+        "lexical": {
+          "scored_questions": 24,
+          "complete": 21,
+          "mean_span_coverage": 0.932521977658801
+        },
+        "vector": {
+          "scored_questions": 24,
+          "complete": 18,
+          "mean_span_coverage": 0.8148245702053649
+        },
+        "hybrid": {
+          "scored_questions": 24,
+          "complete": 19,
+          "mean_span_coverage": 0.8792909923086103
+        },
+        "hybrid_graph": {
+          "scored_questions": 24,
+          "complete": 19,
+          "mean_span_coverage": 0.8792909923086103
+        },
+        "hybrid_enriched_secondary": {
+          "scored_questions": 24,
+          "complete": 16,
+          "mean_span_coverage": 0.8029021034197215
+        }
+      },
+      "text-embedding-3-large-768": {
+        "lexical": {
+          "scored_questions": 24,
+          "complete": 21,
+          "mean_span_coverage": 0.932521977658801
+        },
+        "vector": {
+          "scored_questions": 24,
+          "complete": 17,
+          "mean_span_coverage": 0.7430555555555556
+        },
+        "hybrid": {
+          "scored_questions": 24,
+          "complete": 19,
+          "mean_span_coverage": 0.870021977658801
+        },
+        "hybrid_graph": {
+          "scored_questions": 24,
+          "complete": 19,
+          "mean_span_coverage": 0.870021977658801
+        },
+        "hybrid_enriched_secondary": {
+          "scored_questions": 24,
+          "complete": 16,
+          "mean_span_coverage": 0.7843640741201028
+        }
+      },
+      "text-embedding-3-small-1536": {
+        "lexical": {
+          "scored_questions": 24,
+          "complete": 21,
+          "mean_span_coverage": 0.932521977658801
+        },
+        "vector": {
+          "scored_questions": 24,
+          "complete": 19,
+          "mean_span_coverage": 0.8541666666666666
+        },
+        "hybrid": {
+          "scored_questions": 24,
+          "complete": 18,
+          "mean_span_coverage": 0.8561330887699121
+        },
+        "hybrid_graph": {
+          "scored_questions": 24,
+          "complete": 19,
+          "mean_span_coverage": 0.870021977658801
+        },
+        "hybrid_enriched_secondary": {
+          "scored_questions": 24,
+          "complete": 16,
+          "mean_span_coverage": 0.7843640741201028
+        }
+      },
+      "text-embedding-3-small-768": {
+        "lexical": {
+          "scored_questions": 24,
+          "complete": 21,
+          "mean_span_coverage": 0.932521977658801
+        },
+        "vector": {
+          "scored_questions": 24,
+          "complete": 19,
+          "mean_span_coverage": 0.8541666666666666
+        },
+        "hybrid": {
+          "scored_questions": 24,
+          "complete": 18,
+          "mean_span_coverage": 0.8561330887699121
+        },
+        "hybrid_graph": {
+          "scored_questions": 24,
+          "complete": 20,
+          "mean_span_coverage": 0.8977997554365788
+        },
+        "hybrid_enriched_secondary": {
+          "scored_questions": 24,
+          "complete": 17,
+          "mean_span_coverage": 0.8260307407867694
+        }
+      }
+    },
+    "temporal": {
+      "total": 31,
+      "passed": 31,
+      "native_execution": false
+    }
+  },
+  "runtimes": {
+    "business": [
+      {
+        "cleanup": true,
+        "reads": 364,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-n5sqe_3l",
+        "startup": "255fc60d80982c588993718ff30529e54a3e81aec50346dc5445a0bde6b2d2b3",
+        "indexed": 22,
+        "dimension": 768,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 18.94969999921159,
+        "graph": {
+          "nodes": 16,
+          "edges": 18,
+          "provenance_sha256": "a79ff8ec41582b64b937cc97550270c339cbe7551f2a07f5f5679659814a2af9"
+        },
+        "after_preparation": "e7d7d48f199e3a3aee5a0137a89e8a4505c138477aec19869835291731ffa4e7",
+        "after_reads": "e7d7d48f199e3a3aee5a0137a89e8a4505c138477aec19869835291731ffa4e7",
+        "reads_unchanged": true,
+        "exit_code": -15
+      },
+      {
+        "cleanup": true,
+        "reads": 3,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-v7kq3e25",
+        "startup": "9d6934d572c6a08bd46ead9053a6253bd95f03cb3b1c736a0976ecbcfc8b4503",
+        "indexed": 1,
+        "dimension": 768,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 14.495223000267288,
+        "graph": {
+          "nodes": 0,
+          "edges": 0,
+          "provenance_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "after_preparation": "c7183fbf2fcfad4adf533372d8e970685a96b639c8ee246a40954ee045b93185",
+        "after_reads": "c7183fbf2fcfad4adf533372d8e970685a96b639c8ee246a40954ee045b93185",
+        "reads_unchanged": true,
+        "exit_code": -15
+      },
+      {
+        "cleanup": true,
+        "reads": 22,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-hebf10ee",
+        "startup": "9d6934d572c6a08bd46ead9053a6253bd95f03cb3b1c736a0976ecbcfc8b4503",
+        "indexed": 22,
+        "dimension": 768,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 28.402293999533867,
+        "graph": {
+          "nodes": 16,
+          "edges": 18,
+          "provenance_sha256": "a79ff8ec41582b64b937cc97550270c339cbe7551f2a07f5f5679659814a2af9"
+        },
+        "after_preparation": "cb691e975d689fbe71a88de6b56177d039aed7a6b58da14abeedf86da8172a67",
+        "after_reads": "cb691e975d689fbe71a88de6b56177d039aed7a6b58da14abeedf86da8172a67",
+        "reads_unchanged": true,
+        "exit_code": -15
+      },
+      {
+        "cleanup": true,
+        "reads": 3,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-aqo1wn4o",
+        "startup": "9d6934d572c6a08bd46ead9053a6253bd95f03cb3b1c736a0976ecbcfc8b4503",
+        "indexed": 1,
+        "dimension": 768,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 13.407414000539575,
+        "graph": {
+          "nodes": 0,
+          "edges": 0,
+          "provenance_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "after_preparation": "c7183fbf2fcfad4adf533372d8e970685a96b639c8ee246a40954ee045b93185",
+        "after_reads": "c7183fbf2fcfad4adf533372d8e970685a96b639c8ee246a40954ee045b93185",
+        "reads_unchanged": true,
+        "exit_code": -15
+      },
+      {
+        "cleanup": true,
+        "reads": 22,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-umywaet4",
+        "startup": "9d6934d572c6a08bd46ead9053a6253bd95f03cb3b1c736a0976ecbcfc8b4503",
+        "indexed": 22,
+        "dimension": 768,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 18.092510999849765,
+        "graph": {
+          "nodes": 16,
+          "edges": 18,
+          "provenance_sha256": "a79ff8ec41582b64b937cc97550270c339cbe7551f2a07f5f5679659814a2af9"
+        },
+        "after_preparation": "cb691e975d689fbe71a88de6b56177d039aed7a6b58da14abeedf86da8172a67",
+        "after_reads": "cb691e975d689fbe71a88de6b56177d039aed7a6b58da14abeedf86da8172a67",
+        "reads_unchanged": true,
+        "exit_code": -15
+      },
+      {
+        "cleanup": true,
+        "reads": 44,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-ez0btge8",
+        "startup": "e0b2ca079e0b9d3524765cc7d4efd27f7117f6b7dfb1f805f579bf674c1dc734",
+        "indexed": 24,
+        "dimension": 768,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 18.490896000002977,
+        "graph": {
+          "nodes": 16,
+          "edges": 18,
+          "provenance_sha256": "a79ff8ec41582b64b937cc97550270c339cbe7551f2a07f5f5679659814a2af9"
+        },
+        "after_preparation": "a30666fc8d571a1a3749f5894e64768cbeeb9407734339e20bc202cd880ee241",
+        "after_reads": "a30666fc8d571a1a3749f5894e64768cbeeb9407734339e20bc202cd880ee241",
+        "reads_unchanged": true,
+        "exit_code": -15
+      }
+    ],
+    "legal": [
+      {
+        "arm": "legal_context",
+        "cleanup": true,
+        "reads": 78,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-_h58gt08",
+        "startup": "e0b2ca079e0b9d3524765cc7d4efd27f7117f6b7dfb1f805f579bf674c1dc734",
+        "indexed": 482,
+        "dimension": 768,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 59.73286899825325,
+        "graph": {
+          "nodes": 3,
+          "edges": 2,
+          "provenance_sha256": "d27fcb275e502fe665a6ca091e54c99302bea31643675f1cafd8859396fe1cef"
+        },
+        "after_preparation": "9162baf58f854628201fe0e50ce66853405affe8895eb52dbf0fe1a064ad2bb6",
+        "after_reads": "9162baf58f854628201fe0e50ce66853405affe8895eb52dbf0fe1a064ad2bb6",
+        "reads_unchanged": true,
+        "exit_code": -15
+      },
+      {
+        "arm": "legal_descriptors",
+        "cleanup": true,
+        "reads": 86,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-rr98274s",
+        "startup": "eb38ecda73b7e494d07513ac29d4fbbe21523083e73412ece4bc2e9bbf33db91",
+        "indexed": 482,
+        "dimension": 768,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 63.952438002161216,
+        "graph": {
+          "nodes": 3,
+          "edges": 2,
+          "provenance_sha256": "d27fcb275e502fe665a6ca091e54c99302bea31643675f1cafd8859396fe1cef"
+        },
+        "after_preparation": "caad44ace94286d5de4fd9b39017da06887a36bd11fb10416e80c098541f4dd4",
+        "after_reads": "caad44ace94286d5de4fd9b39017da06887a36bd11fb10416e80c098541f4dd4",
+        "reads_unchanged": true,
+        "exit_code": -15
+      },
+      {
+        "arm": "technical_context",
+        "cleanup": true,
+        "reads": 78,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-9vkjkpg5",
+        "startup": "466793b2b249429c8cbd10e4f6bec0de733486b600ee027bc47ba791442f1184",
+        "indexed": 189,
+        "dimension": 768,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 49.53005100105656,
+        "graph": {
+          "nodes": 3,
+          "edges": 2,
+          "provenance_sha256": "d27fcb275e502fe665a6ca091e54c99302bea31643675f1cafd8859396fe1cef"
+        },
+        "after_preparation": "ca4434de02bff38bb8c81a4addb71b53189962d432214484354efcaebaa03e02",
+        "after_reads": "ca4434de02bff38bb8c81a4addb71b53189962d432214484354efcaebaa03e02",
+        "reads_unchanged": true,
+        "exit_code": -15
+      },
+      {
+        "arm": "technical_raw",
+        "cleanup": true,
+        "reads": 108,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-hot29yiy",
+        "startup": "6874f4b898f0cfda61503eed23734c81e473cfabc83e184f8bac73c470f606f7",
+        "indexed": 189,
+        "dimension": 768,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 32.11742999701528,
+        "graph": {
+          "nodes": 3,
+          "edges": 2,
+          "provenance_sha256": "d27fcb275e502fe665a6ca091e54c99302bea31643675f1cafd8859396fe1cef"
+        },
+        "after_preparation": "b595a94a4603a6885e521c149d9e70fee98fee45921089e2fdf32a1eaee68702",
+        "after_reads": "b595a94a4603a6885e521c149d9e70fee98fee45921089e2fdf32a1eaee68702",
+        "reads_unchanged": true,
+        "exit_code": -15
+      }
+    ],
+    "embeddings": [
+      {
+        "arm": "nomic-local-768",
+        "cleanup": true,
+        "reads": 86,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-phjs4zcb",
+        "startup": "71cdfb627ca21c7c6c6e135befaefd8410be6379c0f99d884abf970342b44c5d",
+        "indexed": 482,
+        "dimension": 768,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 65.5177629996615,
+        "graph": {
+          "nodes": 3,
+          "edges": 2,
+          "provenance_sha256": "d27fcb275e502fe665a6ca091e54c99302bea31643675f1cafd8859396fe1cef"
+        },
+        "after_preparation": "0ed27ddd89699d462554cafaeb90b4d95adda0cfaf12a1e4a18316463e23ad6e",
+        "after_reads": "0ed27ddd89699d462554cafaeb90b4d95adda0cfaf12a1e4a18316463e23ad6e",
+        "reads_unchanged": true,
+        "exit_code": -15
+      },
+      {
+        "arm": "bge-m3:latest",
+        "cleanup": true,
+        "reads": 112,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-iqzippw6",
+        "startup": "84d111d00df69d06e3828e5526c131a5d5c94b98d83aad7160c2b95a1308f540",
+        "indexed": 482,
+        "dimension": 1024,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 65.2397949997976,
+        "graph": {
+          "nodes": 3,
+          "edges": 2,
+          "provenance_sha256": "d27fcb275e502fe665a6ca091e54c99302bea31643675f1cafd8859396fe1cef"
+        },
+        "after_preparation": "985a10900e992d8ebbc915012bad957ef7fd5d6643674fe833fc441a7bbee4b4",
+        "after_reads": "985a10900e992d8ebbc915012bad957ef7fd5d6643674fe833fc441a7bbee4b4",
+        "reads_unchanged": true,
+        "exit_code": -15
+      },
+      {
+        "arm": "embeddinggemma:latest",
+        "cleanup": true,
+        "reads": 104,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-9uqttdnh",
+        "startup": "d16a65351a1762d88914ec4caaa7672632de0a9c65a5331c0e994c611aeea5b5",
+        "indexed": 482,
+        "dimension": 768,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 63.83262300005299,
+        "graph": {
+          "nodes": 3,
+          "edges": 2,
+          "provenance_sha256": "d27fcb275e502fe665a6ca091e54c99302bea31643675f1cafd8859396fe1cef"
+        },
+        "after_preparation": "2b1b87cf91548cb4dac69d721da16fef51d13281496c94e8c91f6ffb57292d44",
+        "after_reads": "2b1b87cf91548cb4dac69d721da16fef51d13281496c94e8c91f6ffb57292d44",
+        "reads_unchanged": true,
+        "exit_code": -15
+      },
+      {
+        "arm": "qwen3-embedding:0.6b",
+        "cleanup": true,
+        "reads": 98,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-slrk1tlk",
+        "startup": "fd7811568adf655c7e068ec42323a37afe57e57f6ca569ce9bf13adb706363e9",
+        "indexed": 482,
+        "dimension": 1024,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 64.65915800072253,
+        "graph": {
+          "nodes": 3,
+          "edges": 2,
+          "provenance_sha256": "d27fcb275e502fe665a6ca091e54c99302bea31643675f1cafd8859396fe1cef"
+        },
+        "after_preparation": "695d7c6324b9b2de924f91501acba672fce98493943ead89700a4340c3686e52",
+        "after_reads": "695d7c6324b9b2de924f91501acba672fce98493943ead89700a4340c3686e52",
+        "reads_unchanged": true,
+        "exit_code": -15
+      },
+      {
+        "arm": "text-embedding-3-large-1536",
+        "cleanup": true,
+        "reads": 100,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-17oac5st",
+        "startup": "aff513c41b896d1dadc6c3a0931aaa9633c47a0c5581c5e690ed3ebe949b2835",
+        "indexed": 482,
+        "dimension": 1536,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 69.41123600336141,
+        "graph": {
+          "nodes": 3,
+          "edges": 2,
+          "provenance_sha256": "d27fcb275e502fe665a6ca091e54c99302bea31643675f1cafd8859396fe1cef"
+        },
+        "after_preparation": "3e1488fa17123da2b55fcc3154e83185b483a7d840345657c667c8bb051d8e2a",
+        "after_reads": "3e1488fa17123da2b55fcc3154e83185b483a7d840345657c667c8bb051d8e2a",
+        "reads_unchanged": true,
+        "exit_code": -15
+      },
+      {
+        "arm": "text-embedding-3-large-3072",
+        "cleanup": true,
+        "reads": 100,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-p26t8rv0",
+        "startup": "da8214353bc0a9de3a5b134d476ec51800bab35e1f3440f2f89985be0682d4a7",
+        "indexed": 482,
+        "dimension": 3072,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 77.38674899883335,
+        "graph": {
+          "nodes": 3,
+          "edges": 2,
+          "provenance_sha256": "d27fcb275e502fe665a6ca091e54c99302bea31643675f1cafd8859396fe1cef"
+        },
+        "after_preparation": "b7351d3108800a80974fcefc62c84a5063c95efc17bd8cbaa057793f701165c3",
+        "after_reads": "b7351d3108800a80974fcefc62c84a5063c95efc17bd8cbaa057793f701165c3",
+        "reads_unchanged": true,
+        "exit_code": -15
+      },
+      {
+        "arm": "text-embedding-3-large-768",
+        "cleanup": true,
+        "reads": 100,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-g8fqfaxq",
+        "startup": "f8e1da4d5bcc734e708945858b6f4f88bbabe7084cb8ada907fc7a30fcc837de",
+        "indexed": 482,
+        "dimension": 768,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 63.20162799966056,
+        "graph": {
+          "nodes": 3,
+          "edges": 2,
+          "provenance_sha256": "d27fcb275e502fe665a6ca091e54c99302bea31643675f1cafd8859396fe1cef"
+        },
+        "after_preparation": "4e2b708d8ce0f73fbae18dfa9d6cf4e90a2f2fb244d7355ad42cd6a542789f44",
+        "after_reads": "4e2b708d8ce0f73fbae18dfa9d6cf4e90a2f2fb244d7355ad42cd6a542789f44",
+        "reads_unchanged": true,
+        "exit_code": -15
+      },
+      {
+        "arm": "text-embedding-3-small-1536",
+        "cleanup": true,
+        "reads": 90,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-odx2yj5b",
+        "startup": "075f043562695e51047ccf1e5e540050e3a534b482a40116b7eb6f7796cce10f",
+        "indexed": 482,
+        "dimension": 1536,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 69.8207019995607,
+        "graph": {
+          "nodes": 3,
+          "edges": 2,
+          "provenance_sha256": "d27fcb275e502fe665a6ca091e54c99302bea31643675f1cafd8859396fe1cef"
+        },
+        "after_preparation": "9ae4d23ba1003fa7c7647e1525cce15fcd3839012ac9056618399485831884a2",
+        "after_reads": "9ae4d23ba1003fa7c7647e1525cce15fcd3839012ac9056618399485831884a2",
+        "reads_unchanged": true,
+        "exit_code": -15
+      },
+      {
+        "arm": "text-embedding-3-small-768",
+        "cleanup": true,
+        "reads": 96,
+        "binary": "/home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/zig-out/bin/ghostcrab-backend",
+        "binary_sha256": "06bea894cc2284d754eeb63da217345fbccfbba458c0d1caa607f52689a1f85e",
+        "health": {
+          "kind": "mindbrain_health",
+          "status": "ok",
+          "mindbrain_version": "1.9.0"
+        },
+        "capabilities": {
+          "kind": "mindbrain_capabilities",
+          "mindbrain_version": "1.9.0",
+          "features": {
+            "collection_facet_targets": true,
+            "graph_diagnostics": true,
+            "graph_gap_rules": true,
+            "graph_gap_rules_import": true,
+            "graph_gap_rules_delete": true,
+            "graph_rule_evaluations": true,
+            "graph_rule_evaluations_run": true,
+            "graph_rule_events": true,
+            "graph_pattern_query": true,
+            "ontology_import": true,
+            "ontology_compile_linkml": true,
+            "ontology_inspect": true,
+            "ontology_reconciliation": true,
+            "quality_convergence": true,
+            "quality_remediation_actions": true,
+            "live_answer_view_create": true
+          },
+          "bitmap": {
+            "bitmap_mode_configured": "dense32",
+            "bitmap_mode_effective": "dense32",
+            "direct64_supported": false,
+            "bitmap_element_domain": "u32_dense_ids"
+          }
+        },
+        "sqlite_reference_version": "3.45.1",
+        "directory": "/tmp/personal-graphrag-j5t69xzo",
+        "startup": "c16bacbea39ab291a960d32fcc27ac0d67aa59bc374c0a0eea07a157c07d1ceb",
+        "indexed": 482,
+        "dimension": 768,
+        "fts_schema": "CREATE VIRTUAL TABLE search_fts USING fts5(content)",
+        "fixture_import": "Python SQLite transaction into canonical native tables",
+        "preparation_ms": 64.23825700039743,
+        "graph": {
+          "nodes": 3,
+          "edges": 2,
+          "provenance_sha256": "d27fcb275e502fe665a6ca091e54c99302bea31643675f1cafd8859396fe1cef"
+        },
+        "after_preparation": "eee0a0596a03345d321cfb7fa36fd2f5fdac1a1ebd2086f07a12c7af63ea28af",
+        "after_reads": "eee0a0596a03345d321cfb7fa36fd2f5fdac1a1ebd2086f07a12c7af63ea28af",
+        "reads_unchanged": true,
+        "exit_code": -15
+      }
+    ]
+  },
+  "finished_at": "2026-09-12T14:58:35.142096+00:00",
+  "artifacts_sha256": {
+    "bge-m3-latest-metrics.json": "8646adc8685d27f379e3e36ea340f95a98efbc2beff5df1461276390656f58d8",
+    "bge-m3-latest-retrieval.json.gz": "1ee5589a38c7af4295a0559da4f06c1048178346dd46751a78716cecfcb18efe",
+    "bge-m3-latest-runtime.json": "e817bf8398231dff2b1198ade6a211c2a533b908e0c07e4f3bbd86609643c02d",
+    "business-metrics.json": "a3696f5eaa933620fdac36af383039022f86a20ecb62bf55fa94eaf3e2d18110",
+    "business-retrieval.json.gz": "4ec2cd1fd870cd7da07d17b0af55e88773078353458e9b4222d3290a00d0955a",
+    "business-runtime-00.json": "dd7a7b18539845d57cc4d10e04d169af9a29c328bc5edfad1cbe07568049c63a",
+    "business-runtime-01.json": "7bb0249661572969769467b2ef4d50143868950915214c7f8ec1a17f39739422",
+    "business-runtime-02.json": "3e8a3c7a9ea88c238849ef2097fbf2066c0029a732c408e56dcaa17ddd8ee44b",
+    "business-runtime-03.json": "4e2211f941cda37680e01147e44bac5e1b373fe9760988d98a65cc428c62f302",
+    "business-runtime-04.json": "49d2a53fdeb78848f15c6bb5972ba723ccb751adb0a948ff01fac0f4df53d347",
+    "business-runtime-05.json": "b6a67bc0c76bd7229c103bec35083a9e368e73564af7f03684a3bfb4bd2dab7b",
+    "embeddinggemma-latest-metrics.json": "367b308fa044dc342d3d01e488e946b2e03b268853f3ca4b1fd416f23eb3cdd5",
+    "embeddinggemma-latest-retrieval.json.gz": "9b2edf86b05d0b4d66a678ceccd60012c7ab2eed9ab2a4deb2939e59dbef45fe",
+    "embeddinggemma-latest-runtime.json": "2e587b926328c5e13bb818edf6c957c4a71f44fdb082e4be7ddd3160ec8d373d",
+    "legal_context-metrics.json": "88dbb5afb7813bac0d8644ddc2dd311c36b9b3f2d06954e89d01e0e379a2f34d",
+    "legal_context-retrieval.json.gz": "d6e936de68433ff0b428801f73ddd4fc1559cb72c7f08e2b13b95f4a72e98833",
+    "legal_context-runtime.json": "a8b942514a568647ff403e2bb5a5a1480b47021d28a6c295b85b6dc36200979b",
+    "legal_descriptors-metrics.json": "d5f20ffe74e85202b9ee370cd44b933d69b29bb2823cc98f66e283717a1a2934",
+    "legal_descriptors-retrieval.json.gz": "12c1d88d3d5562f90c8a62cae1ec04176674d961acb3aa078533ef09b737567f",
+    "legal_descriptors-runtime.json": "505fbfbc4e8e2f3bb19e5740d91544f4125572d582ecb52dc7d3ef9e884370b5",
+    "nomic-local-768-metrics.json": "d5f20ffe74e85202b9ee370cd44b933d69b29bb2823cc98f66e283717a1a2934",
+    "nomic-local-768-retrieval.json.gz": "ad403b93aca5ffa27b9663981c111c5ad20b8c4748092c72fb89d65323cf8b53",
+    "nomic-local-768-runtime.json": "f31b7cd5bff1e47cfbdfe3db0e62a948badb66b060de197726c2b92b4f7d9c6c",
+    "qwen3-embedding-0.6b-metrics.json": "02c84dd4ca7acad4c2791909870412d00b3bd037a693baabb9f5fdfaf7ce7921",
+    "qwen3-embedding-0.6b-retrieval.json.gz": "edd70c267ad1f414db80d20b48321ffec24f5e6471a6b3d95efe96167b717916",
+    "qwen3-embedding-0.6b-runtime.json": "fb0367da6c57f74119546ac83e0e3b13ce7f3b7d5609121f1d445977d7d217a9",
+    "technical_context-metrics.json": "caad83d5deef5bca161949cef8e032d9d095234253893989ea4c38aa7a6d22b0",
+    "technical_context-retrieval.json.gz": "dad16959a7842d0ac62f4a8c1430cabd7319285f6a5b0d2e590a02eb68f9dd31",
+    "technical_context-runtime.json": "51c4959963cf1834f431e8c47a739d51679f6e2a29c2971f3d7ab47ee600ffb1",
+    "technical_raw-metrics.json": "1ce8ee08f897ac27f5e531b3039b4fbd062b7b2335191f3bf5ea85953a9f72fb",
+    "technical_raw-retrieval.json.gz": "d5934ecf5dd18a3ce27f8e7a3e46ef55c1da0ef8bd8ccaf2c73182205ed5c587",
+    "technical_raw-runtime.json": "5c4af3f4d6f0742212c2bcef32d4bbc43ca2eabcc81c8b9076e272334a673e6a",
+    "temporal-reference.json": "3cf60a2ad7eb8e8482475b48306a12898b89ff262a45e5e67c2765bfc939e70a",
+    "text-embedding-3-large-1536-metrics.json": "f8575eec81859c5ab88dd93fe4ef89b14dcc8dfe522f63392cb48893cdc07ff4",
+    "text-embedding-3-large-1536-retrieval.json.gz": "df2838f3e3fce0f4660178ecb3f2f90e67ca6a566d8e5fcff093e283933612ee",
+    "text-embedding-3-large-1536-runtime.json": "a248162f776e917a50cd0333fe4d8dc76ba4bbbe94e8292b6fe245fb0557e9b4",
+    "text-embedding-3-large-3072-metrics.json": "2375f729f5b307e26758f15ec8341df45fbd1c8740d1c5a3911d2420c933c69d",
+    "text-embedding-3-large-3072-retrieval.json.gz": "1bc917915ee99141a1938837139f63583efa177810df5297c405f5207f0d3115",
+    "text-embedding-3-large-3072-runtime.json": "3d64d9f06e83cc925107b9a8db883ca68b8586a5733fdb7fc67ed0b90d88d937",
+    "text-embedding-3-large-768-metrics.json": "80269253023935691aba7bf920b3f311525a81bff5aec94f2ed1be8a99c01878",
+    "text-embedding-3-large-768-retrieval.json.gz": "6943675c771e3d363580e511b58c906e2f9fdbe583a61711b6d66fb2fa507b2d",
+    "text-embedding-3-large-768-runtime.json": "c38e821fb3de56d4a1f68554167ccac089e7e02d0bb72041cf7d04cb9e57050b",
+    "text-embedding-3-small-1536-metrics.json": "69031345b21aad64a6cbc26551a5dde0754ca0e84f88d64d4e7fc460e46c05b1",
+    "text-embedding-3-small-1536-retrieval.json.gz": "bf5f8648a62f96b86b33ee22eaf79eb4a36fbae0fa10e25bcfee90ca1a9d0d22",
+    "text-embedding-3-small-1536-runtime.json": "533a65714e6c4084d45c88f1577edff46f308d5960dd971c18f1270d0eac6892",
+    "text-embedding-3-small-768-metrics.json": "9bd0195bfc718d85fb1d7e2f5d9d49e6cbb3caf7adc4caa5af68bf51996eaf95",
+    "text-embedding-3-small-768-retrieval.json.gz": "d66357a4576c0c93e3214ecc6a34f66255d17b5e14797afb44ee97f9f51521d2",
+    "text-embedding-3-small-768-runtime.json": "86faf537971ff1c515495b1841072a5171a24cbe22674a32faa685a9ccc73ac9"
+  }
+}

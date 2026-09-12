@@ -1,0 +1,1187 @@
+[
+  {
+    "question_id": "L01",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "L02",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "L03",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "L04",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "L05",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "L06",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "L07",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": false,
+        "mean_span_coverage": 0.6666666666666666,
+        "per_span": [
+          1.0,
+          1.0,
+          0.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "L08",
+    "variants": {
+      "lexical": {
+        "complete": false,
+        "mean_span_coverage": 0.6666666666666666,
+        "per_span": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": false,
+        "mean_span_coverage": 0.0,
+        "per_span": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": false,
+        "mean_span_coverage": 0.6666666666666666,
+        "per_span": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": false,
+        "mean_span_coverage": 0.6666666666666666,
+        "per_span": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": false,
+        "mean_span_coverage": 0.3333333333333333,
+        "per_span": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "L09",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": false,
+        "mean_span_coverage": 0.3333333333333333,
+        "per_span": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": false,
+        "mean_span_coverage": 0.3333333333333333,
+        "per_span": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "L10",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0,
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": false,
+        "mean_span_coverage": 0.5,
+        "per_span": [
+          1.0,
+          0.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": false,
+        "mean_span_coverage": 0.5,
+        "per_span": [
+          1.0,
+          0.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": false,
+        "mean_span_coverage": 0.5,
+        "per_span": [
+          1.0,
+          0.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": false,
+        "mean_span_coverage": 0.5,
+        "per_span": [
+          1.0,
+          0.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "L11",
+    "variants": {
+      "lexical": {
+        "complete": null,
+        "mean_span_coverage": null,
+        "per_span": [],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": null,
+        "mean_span_coverage": null,
+        "per_span": [],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": null,
+        "mean_span_coverage": null,
+        "per_span": [],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": null,
+        "mean_span_coverage": null,
+        "per_span": [],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": null,
+        "mean_span_coverage": null,
+        "per_span": [],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "L12",
+    "variants": {
+      "lexical": {
+        "complete": null,
+        "mean_span_coverage": null,
+        "per_span": [],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": null,
+        "mean_span_coverage": null,
+        "per_span": [],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": null,
+        "mean_span_coverage": null,
+        "per_span": [],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": null,
+        "mean_span_coverage": null,
+        "per_span": [],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": null,
+        "mean_span_coverage": null,
+        "per_span": [],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "F01",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "F02",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "F03",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "F04",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "F05",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "F06",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": false,
+        "mean_span_coverage": 0.0,
+        "per_span": [
+          0.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "F07",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "F08",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "F09",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "F10",
+    "variants": {
+      "lexical": {
+        "complete": false,
+        "mean_span_coverage": 0.0,
+        "per_span": [
+          0.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": false,
+        "mean_span_coverage": 0.0,
+        "per_span": [
+          0.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": false,
+        "mean_span_coverage": 0.0,
+        "per_span": [
+          0.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": false,
+        "mean_span_coverage": 0.0,
+        "per_span": [
+          0.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "F11",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": false,
+        "mean_span_coverage": 0.0,
+        "per_span": [
+          0.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": false,
+        "mean_span_coverage": 0.0,
+        "per_span": [
+          0.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": false,
+        "mean_span_coverage": 0.0,
+        "per_span": [
+          0.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": false,
+        "mean_span_coverage": 0.0,
+        "per_span": [
+          0.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "F12",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": false,
+        "mean_span_coverage": 0.0,
+        "per_span": [
+          0.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "F13",
+    "variants": {
+      "lexical": {
+        "complete": false,
+        "mean_span_coverage": 0.7138607971445569,
+        "per_span": [
+          0.7138607971445569
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": false,
+        "mean_span_coverage": 0.7138607971445569,
+        "per_span": [
+          0.7138607971445569
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": false,
+        "mean_span_coverage": 0.7138607971445569,
+        "per_span": [
+          0.7138607971445569
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": false,
+        "mean_span_coverage": 0.7138607971445569,
+        "per_span": [
+          0.7138607971445569
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  },
+  {
+    "question_id": "F14",
+    "variants": {
+      "lexical": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "vector": {
+        "complete": false,
+        "mean_span_coverage": 0.0,
+        "per_span": [
+          0.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_graph": {
+        "complete": true,
+        "mean_span_coverage": 1.0,
+        "per_span": [
+          1.0
+        ],
+        "abstention_evaluated": false
+      },
+      "hybrid_enriched_secondary": {
+        "complete": false,
+        "mean_span_coverage": 0.27754364840457557,
+        "per_span": [
+          0.27754364840457557
+        ],
+        "abstention_evaluated": false
+      }
+    }
+  }
+]

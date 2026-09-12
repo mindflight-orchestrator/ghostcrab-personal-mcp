@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "unit_and_native_regressions": 35,
+  "test_command": "PERSONAL_GRAPHRAG_NATIVE=1 npm run test:graphrag",
+  "test_files_sha256": {
+    "test_eli_temporal.py": "7bdeaa44b25af182ce28976b40426abeaf5447cdec9000e3fecff5445c1341f8",
+    "test_personal.py": "b59a8ed7b27c22a108e8fd564d4c7f2863adc8a59b43ccc880529e90cdca6169"
+  },
+  "independent_reimport_manifest_identical": true,
+  "retrieval_questions": 362,
+  "native_search_requests": 1086,
+  "native_http_reads": 1694,
+  "owned_runtimes_cleaned": 19,
+  "all_sqlite_reads_unchanged": true,
+  "max_bm25_reference_error": 7.105427357601002e-15,
+  "max_cosine_reference_error": 3.774758283725532e-15,
+  "bm25_queries_with_subtolerance_reordering": 11,
+  "cosine_queries_with_subtolerance_reordering": 0,
+  "full_trace_directory": "../../runs/20260912-personal-final",
+  "receipt_sha256": "b984d8876f5f8a7f38b62043042add704d61fcce3c1c7ba6852afa2e93fdb3aa"
+}

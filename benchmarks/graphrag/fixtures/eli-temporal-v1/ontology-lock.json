@@ -1,0 +1,80 @@
+{
+  "profile": "mindflight-eli-temporal-v1",
+  "retrieved_on": "2026-09-12",
+  "scope": "Pinned research versions; no assertion that these are latest releases. No ontology activation.",
+  "ontologies": [
+    {
+      "file": "eli.owl",
+      "ontology": "http://data.europa.eu/eli/ontology#",
+      "url": "https://op.europa.eu/documents/3938058/11669184/eli.owl/",
+      "version": "1.4",
+      "format": "xml",
+      "sha256": "03b30ed5007ab97e9b936cef5d6deb870fcc7486647e89fe27ad48a4b4136d1f",
+      "imports": [
+        "http://www.w3.org/2004/02/skos/core"
+      ]
+    },
+    {
+      "file": "ELI-I-v1.0.ttl",
+      "ontology": "http://data.europa.eu/eli/eli-impact-ontology#",
+      "url": "https://interoperable-europe.ec.europa.eu/sites/default/files/distribution/access_url/2023-11/5a465842-aaef-43b2-9812-998534589384/ELI-I-v1.zip",
+      "version": "1.0",
+      "format": "turtle",
+      "sha256": "c07bbffd5a0a0def194a0246f81acd3e4bf0292c9512a39fbf1fd1f72619cba5",
+      "imports": [
+        "http://data.europa.eu/eli/eli-draft-legislation-ontology#",
+        "http://data.europa.eu/eli/ontology#",
+        "http://www.w3.org/2004/02/skos/core"
+      ],
+      "member": "ELI-I-v1/ELI-I-v1.0.ttl",
+      "archive_sha256": "a775868fa47c54aed528b127455b733b02de6a38e9775beb17985cd15c62ba18"
+    },
+    {
+      "file": "eli-dl.owl",
+      "ontology": "http://data.europa.eu/eli/eli-draft-legislation-ontology#",
+      "url": "https://interoperable-europe.ec.europa.eu/sites/default/files/distribution/access_url/2022-03/425ea67e-2eec-4c07-9af0-a6aee3915919/ELI-DL-v2.zip",
+      "version": "2",
+      "format": "xml",
+      "sha256": "a4850904bc9d6c387e7f5b4d714e878d4e75258b929677c8380fbd9b32df93cf",
+      "imports": [
+        "http://data.europa.eu/eli/ontology#",
+        "http://iflastandards.info/ns/fr/frbr/frbroo/",
+        "http://www.cidoc-crm.org/cidoc-crm/",
+        "http://www.w3.org/2004/02/skos/core"
+      ],
+      "member": "ELI-DL-v2/ELI-DL-OWL/eli-dl.owl",
+      "archive_sha256": "372b20c4caed8564a8e2b63a28f3f094b0507fc0330d21fa30742aab804e8399"
+    },
+    {
+      "file": "FRBR2.4-draft.rdf",
+      "ontology": "http://iflastandards.info/ns/fr/frbr/frbroo/",
+      "url": "https://interoperable-europe.ec.europa.eu/sites/default/files/distribution/access_url/2022-03/425ea67e-2eec-4c07-9af0-a6aee3915919/ELI-DL-v2.zip",
+      "version": "2.4-draft",
+      "format": "xml",
+      "sha256": "c04fe6b4a63b7f66eeacf539d291652235ee80042cea61e2a5eb84f01b0282a9",
+      "imports": [],
+      "member": "ELI-DL-v2/ELI-DL-OWL/FRBR2.4-draft.rdf",
+      "archive_sha256": "372b20c4caed8564a8e2b63a28f3f094b0507fc0330d21fa30742aab804e8399"
+    },
+    {
+      "file": "cidoc_crm_v6.2.1-2018April.rdf",
+      "ontology": "http://www.cidoc-crm.org/cidoc-crm/",
+      "url": "https://interoperable-europe.ec.europa.eu/sites/default/files/distribution/access_url/2022-03/425ea67e-2eec-4c07-9af0-a6aee3915919/ELI-DL-v2.zip",
+      "version": "6.2.1",
+      "format": "xml",
+      "sha256": "e570649d1dd3f3f508f6ba67c9d3d9951a23acd156de2fd39674d240c9e8ced5",
+      "imports": [],
+      "member": "ELI-DL-v2/ELI-DL-OWL/cidoc_crm_v6.2.1-2018April.rdf",
+      "archive_sha256": "372b20c4caed8564a8e2b63a28f3f094b0507fc0330d21fa30742aab804e8399"
+    },
+    {
+      "file": "skos.rdf",
+      "ontology": "http://www.w3.org/2004/02/skos/core",
+      "url": "https://www.w3.org/2009/08/skos-reference/skos.rdf",
+      "version": "2009-08",
+      "format": "xml",
+      "sha256": "e79633b8d0564816cee8a99f5c9acf9a0e6fc7257c7209acd684ecad53a89dd6",
+      "imports": []
+    }
+  ]
+}
