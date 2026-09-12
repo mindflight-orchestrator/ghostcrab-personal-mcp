@@ -97,3 +97,15 @@ describe("tool catalog", () => {
     expect(classifyToolAccess("ghostcrab_projection_get")).toBe("model");
   });
 });
+
+it("evidence is discoverable as a graph read and reindex stays a write", () => {
+  const catalog = buildToolCatalog([
+    { name: "ghostcrab_evidence_get", inputSchema: { type: "object" } }
+  ]);
+  expect(catalog[0]).toMatchObject({
+    access: "read",
+    subsystem: "graph",
+    visibility: "extended"
+  });
+  expect(classifyToolAccess("ghostcrab_reindex_all")).toBe("write");
+});

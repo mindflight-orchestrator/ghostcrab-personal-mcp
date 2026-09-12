@@ -1490,6 +1490,52 @@ async function fetchJson<T>(
   }
 }
 
+/** Bounded native knowledge surfaces; never accepts an arbitrary URL or SQL. */
+export async function runStandaloneKnowledge<T>(params: {
+  mindbrainUrl: string;
+  operation:
+    | "capabilities"
+    | "search"
+    | "traverse"
+    | "evidence"
+    | "facts_status"
+    | "facts_reindex";
+  workspaceId?: string;
+  input?: Record<string, unknown>;
+  timeoutMs?: number;
+}): Promise<T> {
+  const paths = {
+    capabilities: "/api/mindbrain/capabilities",
+    search: "/api/mindbrain/ghostcrab/search",
+    traverse: "/api/mindbrain/traverse",
+    evidence: "/api/mindbrain/ghostcrab/evidence",
+    facts_status: "/api/mindbrain/ghostcrab/facts-index",
+    facts_reindex: "/api/mindbrain/ghostcrab/facts-index"
+  } as const;
+  const url = new URL(
+    paths[params.operation],
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  const read =
+    params.operation === "capabilities" || params.operation === "facts_status";
+  if (read && params.workspaceId)
+    url.searchParams.set("workspace_id", params.workspaceId);
+  return fetchJson<T>(
+    url,
+    read
+      ? { method: "GET" }
+      : {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            ...params.input,
+            workspace_id: params.workspaceId
+          })
+        },
+    params.timeoutMs
+  );
+}
+
 function withTimeout(
   init: RequestInit,
   timeoutMs: number | undefined

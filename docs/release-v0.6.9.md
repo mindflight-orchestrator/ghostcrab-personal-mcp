@@ -3,7 +3,9 @@
 The launch-plan ticket is fixed by GhostCrab commit `df7b3af` and MindBrain
 commit `95af807`. Release `0.6.8` at `ec95fa0` predates those fixes.
 This candidate packages them with MindBrain **1.9.0**, prepared for tag `v1.9`
-at `49b89969e74943e0e6cfb3d4b357b73169396283`.
+initially at `49b89969e74943e0e6cfb3d4b357b73169396283`.
+The current native knowledge candidate pins engine commit
+`bf9e9b5e049bf8a677093cd4f32b63fb2ae18af3`; no tags were moved or pushed.
 The MCP surface version is `2026-09-12`.
 
 ## Delivered behavior
@@ -90,3 +92,21 @@ Git and the npm package.
 
 Git tags and publication remain explicit release steps. Preparing these versions
 does not publish a Git tag or an npm package.
+
+## Native knowledge extension (B1)
+
+See the [MCP contract](reference/native-knowledge.md) and
+[qualification receipt](../reports/validation/native-knowledge-20260912/README.md).
+The native writer now indexes structured facts transactionally; typed references
+resolve imported IDs without a name fallback. `ghostcrab_evidence_get` follows
+declared ontology profiles and verifies stored source spans, without inventing an
+Evidence object. A separately enriched synthetic fixture proves a real Evidence
+node path. Node startup and SQL upserts reconcile through the engine during their
+write phase; native reads do not backfill indexes.
+
+Validation: 454 native tests; 803 GhostCrab tests (15 skipped); 104 integration/e2e
+tests; real MCP synthetic B1 replay and the supplied Pack/Unicode/combined replay.
+The B1 SQLite, source text and client proxy are still unavailable; the exact client
+fixture is not certified. This qualification targets Linux x64 local archives.
+Other platform binaries are not rebuilt or certified by this extension's replay.
+No push, tag update or npm publication was performed.

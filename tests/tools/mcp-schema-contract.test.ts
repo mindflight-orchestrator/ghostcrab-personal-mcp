@@ -1056,7 +1056,7 @@ describe("MCP inputSchema contract (drift guard)", () => {
 
   describe("ghostcrab_traverse", () => {
     const schema = traverseTool.definition.inputSchema as {
-      required?: string[];
+      oneOf: Array<{ required: string[] }>;
       properties: {
         direction: { enum?: string[] };
         depth: { minimum?: number; maximum?: number };
@@ -1064,8 +1064,11 @@ describe("MCP inputSchema contract (drift guard)", () => {
       };
     };
 
-    it("requires start and documents direction and depth", () => {
-      expect(schema.required).toEqual(expect.arrayContaining(["start"]));
+    it("requires one start selector and documents direction and depth", () => {
+      expect(schema.oneOf.map((branch) => branch.required)).toEqual([
+        ["start"],
+        ["start_ref"]
+      ]);
       expect(schema.properties.direction.enum).toEqual(["outbound", "inbound"]);
       expect(schema.properties.depth.minimum).toBe(1);
       expect(schema.properties.depth.maximum).toBe(10);

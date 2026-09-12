@@ -1,6 +1,7 @@
 import "./dgraph/coverage.js";
 import "./dgraph/diagnostics.js";
 import "./dgraph/entity-chunks.js";
+import "./dgraph/evidence-get.js";
 import "./dgraph/graph-path.js";
 import "./dgraph/graph-reindex.js";
 import "./dgraph/collection-reindex.js";

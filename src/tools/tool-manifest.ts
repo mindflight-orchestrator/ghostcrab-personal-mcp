@@ -17,6 +17,7 @@ export const EXPECTED_TOOL_NAMES = [
   "ghostcrab_ddl_list_pending",
   "ghostcrab_ddl_propose",
   "ghostcrab_entity_chunks",
+  "ghostcrab_evidence_get",
   "ghostcrab_facet_catalog",
   "ghostcrab_facet_inspect",
   "ghostcrab_facet_register",

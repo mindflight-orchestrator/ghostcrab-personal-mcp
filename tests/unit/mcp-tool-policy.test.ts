@@ -84,6 +84,10 @@ describe("mcp-tool-policy", () => {
   it("read preset asks on write and model tools", () => {
     const policy = buildToolPermissionPreset("read", { serverName: server });
     expect(policy.allow.length).toBeGreaterThan(0);
+    expect(policy.allow).toContainEqual({
+      serverName: server,
+      toolName: "ghostcrab_evidence_get"
+    });
     expect(
       policy.ask.some((ref) => ref.toolName === "ghostcrab_remember")
     ).toBe(true);
@@ -94,6 +98,7 @@ describe("mcp-tool-policy", () => {
       policy.allow.some((ref) => ref.toolName === "ghostcrab_status")
     ).toBe(true);
     for (const name of [
+      "ghostcrab_reindex_all",
       "ghostcrab_graph_reindex",
       "ghostcrab_collection_reindex",
       "ghostcrab_workspace_delete",

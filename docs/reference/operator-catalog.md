@@ -94,7 +94,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 
 ---
 
-## B — MCP tools (73 registered)
+## B — MCP tools (74 registered)
 
 | Tool | Basic | Subsystem | Access | Tables / impact |
 |------|-------|-----------|--------|-----------------|
@@ -111,6 +111,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | `ghostcrab_ddl_list_pending` | no | workspace | model | pending DDL metadata |
 | `ghostcrab_ddl_propose` | no | workspace | model | pending DDL metadata |
 | `ghostcrab_entity_chunks` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
+| `ghostcrab_evidence_get` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_facet_catalog` | no | facets | read | facet catalog metadata |
 | `ghostcrab_facet_inspect` | no | facets | read | facet catalog metadata |
 | `ghostcrab_facet_register` | no | facets | write | facet catalog metadata |

@@ -9,8 +9,13 @@ import {
 } from "../../db/facets-fts-search.js";
 import {
   runStandaloneGhostcrabSearch,
+  runStandaloneKnowledge,
   type StandaloneGhostcrabSearchMatch
 } from "../../db/standalone-mindbrain.js";
+import {
+  knowledgeError,
+  requireKnowledgeCapability
+} from "../dgraph/native-knowledge.js";
 import { isFactsFtsReady } from "../../runtime/facets-fts-state.js";
 import {
   createToolSuccessResult,
@@ -27,6 +32,7 @@ export const SearchInput = z.object({
   filters: z.record(z.string(), z.unknown()).default({}),
   limit: z.coerce.number().int().min(1).max(100).default(10),
   mode: z.enum(["hybrid", "bm25", "semantic"]).default("hybrid"),
+  execution: z.enum(["auto", "native_required"]).default("auto"),
   schema_id: z.string().min(1).optional(),
   workspace_id: z.string().min(1).optional()
 });
@@ -84,6 +90,13 @@ export const searchTool: ToolHandler = {
           enum: ["hybrid", "bm25", "semantic"],
           default: "hybrid"
         },
+        execution: {
+          type: "string",
+          enum: ["auto", "native_required"],
+          default: "auto",
+          description:
+            "native_required requires the native index and never falls back to SQL keyword search."
+        },
         schema_id: {
           type: "string",
           description:
@@ -99,6 +112,8 @@ export const searchTool: ToolHandler = {
   },
   async handler(args, context) {
     const input = SearchInput.parse(args);
+    if (input.execution === "native_required")
+      return runNativeSearch(input, context);
     const effectiveWorkspaceId =
       input.workspace_id ?? context.session.workspace_id;
     const effectiveSchemaId =
@@ -428,6 +443,86 @@ export const searchTool: ToolHandler = {
 };
 
 registerTool(searchTool);
+
+async function runNativeSearch(
+  input: z.infer<typeof SearchInput>,
+  context: Parameters<ToolHandler["handler"]>[1]
+) {
+  try {
+    const config = await requireKnowledgeCapability("native_fact_index");
+    if (!input.query.trim())
+      throw new Error(
+        "BadRequest: native retrieval requires a nonempty question"
+      );
+    const workspace = input.workspace_id ?? context.session.workspace_id;
+    const schema = input.schema_id ?? context.session.schema_id ?? undefined;
+    let embedding: number[] = [];
+    if (input.mode !== "bm25") {
+      if (!context.embeddings.getStatus().vectorSearchReady)
+        throw new Error("CapabilityUnavailable: semantic search is not ready");
+      embedding = (await context.embeddings.embedMany([input.query]))[0] ?? [];
+      if (embedding.length === 0 || embedding.some((n) => !Number.isFinite(n)))
+        throw new Error("BadRequest: invalid query embedding");
+    }
+    const response = await runStandaloneKnowledge<{
+      facts: Array<{
+        id: string;
+        schema_id: string;
+        content: string;
+        facets: Record<string, unknown>;
+        created_at_unix: number;
+        version: number;
+        source_ref: string | null;
+        entity_ref: unknown;
+        score: number;
+      }>;
+      index: Record<string, unknown>;
+    }>({
+      mindbrainUrl: config.mindbrainUrl,
+      timeoutMs: config.mindbrainHttpTimeoutMs,
+      operation: "search",
+      workspaceId: workspace,
+      input: {
+        table_id: 1,
+        query: input.mode === "semantic" ? "" : input.query,
+        embedding,
+        vector_weight:
+          input.mode === "bm25"
+            ? 0
+            : input.mode === "semantic"
+              ? 1
+              : context.retrieval.hybridVectorWeight,
+        limit: input.limit,
+        schema_id: schema,
+        filters: input.filters,
+        require_ready: true
+      }
+    });
+    if (!Array.isArray(response.facts))
+      throw new Error("Native search response has no fact identities");
+    return createToolSuccessResult("ghostcrab_search", {
+      query: input.query,
+      filters: input.filters,
+      workspace_id: workspace,
+      schema_id: schema ?? null,
+      returned: response.facts.length,
+      exact_structured_read: false,
+      mode_requested: input.mode,
+      mode_applied: input.mode,
+      execution: input.execution,
+      backend: "mindbrain",
+      index: response.index,
+      semantic_available: embedding.length > 0,
+      searched_layers: ["facets"],
+      results: response.facts.map(({ created_at_unix, ...row }) => ({
+        ...row,
+        created_at: new Date(created_at_unix * 1000).toISOString()
+      }))
+    });
+  } catch (error) {
+    return knowledgeError("ghostcrab_search", error);
+  }
+}
 
 interface RunFtsSearchArgs {
   database: {

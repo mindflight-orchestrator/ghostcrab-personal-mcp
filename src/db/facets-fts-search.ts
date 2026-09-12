@@ -1,3 +1,4 @@
+import { isNativeFactIndexOwned } from "../runtime/facets-fts-state.js";
 import type { Queryable } from "./client.js";
 import { FACETS_SEARCH_TABLE_ID } from "./fact-store.js";
 import { openFactRowSql } from "./temporal.js";
@@ -67,6 +68,7 @@ export async function ensureSearchFtsCaughtUp(
   queryable: Queryable,
   tableId = FACETS_SEARCH_TABLE_ID
 ): Promise<void> {
+  if (isNativeFactIndexOwned()) return;
   try {
     await queryable.query(
       `

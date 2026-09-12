@@ -12,7 +12,7 @@ import { ZodError } from "zod";
 
 import { resolveGhostcrabConfig } from "./config/env.js";
 import { createDatabaseClient } from "./db/client.js";
-import { ensureFactsFtsSync } from "./db/facets-fts-sync.js";
+import { reconcileWorkspaceFacts } from "./db/native-facts-maintenance.js";
 import { setFactsFtsReady } from "./runtime/facets-fts-state.js";
 import { EmbeddingProviderError } from "./embeddings/errors.js";
 import { createEmbeddingProvider } from "./embeddings/provider.js";
@@ -312,33 +312,6 @@ export async function startMcpServer(): Promise<void> {
         (serverState.databaseReady ? "" : " [DEGRADED — backend unreachable]")
     );
 
-    if (serverState.databaseReady) {
-      // FTS-sync bootstrap: register `agent_facts` in MindBrain's `bm25_sync_triggers`
-      // and backfill `search_fts` from existing rows. Required because the
-      // v1.2.1 baseline does not auto-register `agent_facts` for sync. Failures are
-      // non-fatal — the search path falls back to keyword_sql until this
-      // succeeds.
-      try {
-        const ftsSummary = await ensureFactsFtsSync(database);
-        setFactsFtsReady(ftsSummary.ready);
-        if (ftsSummary.ready) {
-          console.error(
-            `[ghostcrab] facets FTS5 sync ready (registered=${ftsSummary.registered}, +${ftsSummary.documentsInserted} documents, +${ftsSummary.ftsDocsInserted} fts_docs, +${ftsSummary.ftsRowsInserted} fts rows)`
-          );
-        } else {
-          console.error(
-            `[ghostcrab] facets FTS5 sync NOT READY — falling back to keyword_sql. Reason: ${ftsSummary.error ?? "unknown"}`
-          );
-        }
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        console.error(
-          `[ghostcrab] facets FTS5 sync raised an unexpected error — keyword_sql fallback active. Reason: ${message}`
-        );
-        setFactsFtsReady(false);
-      }
-    }
-
     if (serverState.databaseReady && config.bootstrapSeedEnabled) {
       try {
         const seedSummary = await ensureBootstrapData(database);
@@ -393,6 +366,30 @@ export async function startMcpServer(): Promise<void> {
         cliWorkspaceName: config.cliWorkspaceName,
         database
       });
+      // Explicit, workspace-scoped repair after seed and session selection.
+      // Subsequent reads defer indexing to the native writer on capable engines.
+      try {
+        const ftsSummary = await reconcileWorkspaceFacts(
+          database,
+          getSessionContext().workspace_id
+        );
+        setFactsFtsReady(ftsSummary.ready);
+        if (ftsSummary.ready) {
+          console.error(
+            `[ghostcrab] facets FTS5 sync ready (registered=${ftsSummary.registered}, +${ftsSummary.documentsInserted} documents, +${ftsSummary.ftsDocsInserted} fts_docs, +${ftsSummary.ftsRowsInserted} fts rows)`
+          );
+        } else {
+          console.error(
+            `[ghostcrab] facets FTS5 sync NOT READY — falling back to keyword_sql. Reason: ${ftsSummary.error ?? "unknown"}`
+          );
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(
+          `[ghostcrab] facets FTS5 sync raised an unexpected error — keyword_sql fallback active. Reason: ${message}`
+        );
+        setFactsFtsReady(false);
+      }
       console.error(
         `[ghostcrab] session workspace pinned: ${pinResult.resolved_workspace_id} ` +
           `(source=${pinResult.pin_source}, status=${pinResult.pin_status}` +

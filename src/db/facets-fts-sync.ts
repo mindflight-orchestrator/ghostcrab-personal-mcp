@@ -52,7 +52,8 @@ export interface FactsFtsSyncSummary {
  */
 export async function ensureFactsFtsSync(
   database: DatabaseClient,
-  tableId = FACETS_SEARCH_TABLE_ID
+  tableId = FACETS_SEARCH_TABLE_ID,
+  workspaceId?: string
 ): Promise<FactsFtsSyncSummary> {
   const summary: FactsFtsSyncSummary = {
     ready: false,
@@ -72,9 +73,21 @@ export async function ensureFactsFtsSync(
 
     await database.transaction(async (tx) => {
       summary.registered = await registerFacetsForSync(tx, tableId);
-      summary.documentsInserted = await backfillSearchDocuments(tx, tableId);
-      summary.ftsDocsInserted = await backfillSearchFtsDocs(tx, tableId);
-      summary.ftsRowsInserted = await backfillSearchFtsRows(tx, tableId);
+      summary.documentsInserted = await backfillSearchDocuments(
+        tx,
+        tableId,
+        workspaceId
+      );
+      summary.ftsDocsInserted = await backfillSearchFtsDocs(
+        tx,
+        tableId,
+        workspaceId
+      );
+      summary.ftsRowsInserted = await backfillSearchFtsRows(
+        tx,
+        tableId,
+        workspaceId
+      );
     });
 
     summary.ready = await isRegistered(database, tableId);
@@ -134,7 +147,8 @@ async function registerFacetsForSync(
 
 async function backfillSearchDocuments(
   tx: Queryable,
-  tableId: number
+  tableId: number,
+  workspaceId?: string
 ): Promise<number> {
   const before = await countRows(
     tx,
@@ -148,8 +162,9 @@ async function backfillSearchDocuments(
       FROM agent_facts
       WHERE doc_id IS NOT NULL
         AND ${OPEN_FACT_ROW_SQL}
+        ${workspaceId ? "AND workspace_id = ?" : ""}
     `,
-    [tableId]
+    workspaceId ? [tableId, workspaceId] : [tableId]
   );
   const after = await countRows(
     tx,
@@ -161,7 +176,8 @@ async function backfillSearchDocuments(
 
 async function backfillSearchFtsDocs(
   tx: Queryable,
-  tableId: number
+  tableId: number,
+  workspaceId?: string
 ): Promise<number> {
   const before = await countRows(
     tx,
@@ -175,8 +191,9 @@ async function backfillSearchFtsDocs(
       FROM agent_facts
       WHERE doc_id IS NOT NULL
         AND ${OPEN_FACT_ROW_SQL}
+        ${workspaceId ? "AND workspace_id = ?" : ""}
     `,
-    [tableId]
+    workspaceId ? [tableId, workspaceId] : [tableId]
   );
   const after = await countRows(
     tx,
@@ -188,7 +205,8 @@ async function backfillSearchFtsDocs(
 
 async function backfillSearchFtsRows(
   tx: Queryable,
-  tableId: number
+  tableId: number,
+  workspaceId?: string
 ): Promise<number> {
   // Insert into the FTS5 virtual table for every (table_id, doc_id) that
   // already has a row in search_fts_docs but is missing from search_fts.
@@ -208,11 +226,12 @@ async function backfillSearchFtsRows(
       FROM search_fts_docs sd
       JOIN agent_facts f ON f.doc_id = sd.doc_id
       WHERE sd.table_id = ?
+        ${workspaceId ? "AND f.workspace_id = ?" : ""}
         AND NOT EXISTS (
           SELECT 1 FROM search_fts WHERE rowid = sd.fts_rowid
         )
     `,
-    [tableId]
+    workspaceId ? [tableId, workspaceId] : [tableId]
   );
 
   const afterRows = await tx.query<{ c: number }>(

@@ -7,7 +7,10 @@ import {
   buildWorkspaceContextStatus
 } from "../../mcp/workspace-context-status.js";
 import { resolveGhostcrabConfig } from "../../config/env.js";
-import { probeMindbrainCapabilities } from "../../db/standalone-mindbrain.js";
+import {
+  probeMindbrainCapabilities,
+  runStandaloneKnowledge
+} from "../../db/standalone-mindbrain.js";
 import { isFactsFtsReady } from "../../runtime/facets-fts-state.js";
 import {
   GHOSTCRAB_MCP_SURFACE_VERSION,
@@ -130,6 +133,15 @@ export const statusTool: ToolHandler = {
     );
     const runtimeCapabilities = {
       ...sqliteCapabilities,
+      native_fact_index:
+        capabilityProbe.ok &&
+        capabilityProbe.capabilities.features.native_fact_index === true,
+      typed_entity_references:
+        capabilityProbe.ok &&
+        capabilityProbe.capabilities.features.typed_entity_references === true,
+      evidence_get:
+        capabilityProbe.ok &&
+        capabilityProbe.capabilities.features.evidence_get === true,
       graph_gap_diagnostics:
         capabilityProbe.ok === true &&
         capabilityProbe.capabilities.features.graph_diagnostics === true,
@@ -158,6 +170,25 @@ export const statusTool: ToolHandler = {
     };
 
     const directives: string[] = [...buildWorkspaceContextDirectives()];
+    let nativeFactIndex: Record<string, unknown> | null = null;
+    if (runtimeCapabilities.native_fact_index) {
+      try {
+        const config = resolveGhostcrabConfig();
+        nativeFactIndex = await runStandaloneKnowledge<Record<string, unknown>>(
+          {
+            mindbrainUrl: config.mindbrainUrl,
+            timeoutMs: config.mindbrainHttpTimeoutMs,
+            operation: "facts_status",
+            workspaceId: context.session.workspace_id
+          }
+        );
+      } catch (error) {
+        nativeFactIndex = {
+          ready: false,
+          error: error instanceof Error ? error.message : String(error)
+        };
+      }
+    }
     if (!runtimeCapabilities.graph_gap_diagnostics) {
       directives.push(
         "Backend missing graph diagnostics routes — rebuild ghostcrab-backend (pnpm run prebuild:local) and restart."
@@ -257,6 +288,7 @@ export const statusTool: ToolHandler = {
         },
         sqlite_readiness: sqliteReadiness,
         capabilities: runtimeCapabilities,
+        native_fact_index: nativeFactIndex,
         mindbrain_capabilities_probe: capabilityProbe.ok
           ? {
               ok: true,

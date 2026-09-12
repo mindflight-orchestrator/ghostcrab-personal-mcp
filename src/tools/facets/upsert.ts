@@ -1,3 +1,5 @@
+import { isNativeFactIndexOwned } from "../../runtime/facets-fts-state.js";
+import { reconcileWorkspaceFacts } from "../../db/native-facts-maintenance.js";
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
 
@@ -652,6 +654,22 @@ export const upsertTool: ToolHandler = {
       }
     }
 
+    if (isNativeFactIndexOwned() && !result.result.isError) {
+      // The SQL upsert owns its archive transaction. Reconcile through the
+      // engine in this explicit write phase, never during a subsequent search.
+      const index = await reconcileWorkspaceFacts(
+        context.database,
+        effectiveWorkspaceId
+      );
+      return createToolSuccessResult("ghostcrab_upsert", {
+        ...result.result.structuredContent,
+        native_index: {
+          ready: index.ready,
+          repaired: index.documentsInserted,
+          error: index.error
+        }
+      });
+    }
     return result.result;
   }
 };

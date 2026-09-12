@@ -1,7 +1,16 @@
 import { z } from "zod";
 
 import { resolveGhostcrabConfig } from "../../config/env.js";
-import { runStandaloneTraverse } from "../../db/standalone-mindbrain.js";
+import {
+  runStandaloneTraverse,
+  runStandaloneKnowledge
+} from "../../db/standalone-mindbrain.js";
+import {
+  EntityReferenceInput,
+  entityReferenceSchema,
+  knowledgeError,
+  requireKnowledgeCapability
+} from "./native-knowledge.js";
 import {
   createToolErrorFromException,
   createToolSuccessResult,
@@ -9,14 +18,29 @@ import {
   type ToolHandler
 } from "../registry.js";
 
-export const TraverseInput = z.object({
-  start: z.string().trim().min(1),
-  direction: z.enum(["outbound", "inbound"]).default("outbound"),
-  edge_labels: z.array(z.string().min(1).max(63)).max(50).default([]),
-  depth: z.coerce.number().int().min(1).max(10).default(3),
-  target: z.string().min(1).optional(),
-  workspace_id: z.string().min(1).optional()
-});
+export const TraverseInput = z
+  .object({
+    start: z.string().trim().min(1).optional(),
+    start_ref: EntityReferenceInput.optional(),
+    target_ref: EntityReferenceInput.optional(),
+    direction: z.enum(["outbound", "inbound"]).default("outbound"),
+    edge_labels: z.array(z.string().min(1).max(63)).max(50).default([]),
+    depth: z.coerce.number().int().min(1).max(10).default(3),
+    target: z.string().min(1).optional(),
+    workspace_id: z.string().min(1).optional()
+  })
+  .superRefine((input, ctx) => {
+    if (Boolean(input.start) === Boolean(input.start_ref))
+      ctx.addIssue({
+        code: "custom",
+        message: "Exactly one of start and start_ref is required"
+      });
+    if (input.target && input.target_ref)
+      ctx.addIssue({
+        code: "custom",
+        message: "target and target_ref are mutually exclusive"
+      });
+  });
 
 export const traverseTool: ToolHandler = {
   definition: {
@@ -25,8 +49,14 @@ export const traverseTool: ToolHandler = {
       "Traverse the directed knowledge graph from a start node and return the discovered path.",
     inputSchema: {
       type: "object",
-      required: ["start"],
+      not: { required: ["target", "target_ref"] },
+      oneOf: [
+        { required: ["start"], not: { required: ["start_ref"] } },
+        { required: ["start_ref"], not: { required: ["start"] } }
+      ],
       properties: {
+        start_ref: entityReferenceSchema,
+        target_ref: entityReferenceSchema,
         start: {
           type: "string"
         },
@@ -79,6 +109,59 @@ export const traverseTool: ToolHandler = {
       }
       return {};
     };
+
+    if (input.start_ref || input.target_ref) {
+      try {
+        const config = await requireKnowledgeCapability(
+          "typed_entity_references"
+        );
+        const result = await runStandaloneKnowledge<{
+          rows: Array<Record<string, unknown> & { entity_id: number }>;
+          target_found: boolean;
+          resolved_start_id: number;
+          resolved_target_id: number | null;
+        }>({
+          mindbrainUrl: config.mindbrainUrl,
+          timeoutMs: config.mindbrainHttpTimeoutMs,
+          operation: "traverse",
+          workspaceId: effectiveWorkspaceId,
+          input: {
+            start_ref: input.start_ref ?? { kind: "name", value: input.start },
+            target_ref:
+              input.target_ref ??
+              (input.target
+                ? { kind: "name", value: input.target }
+                : undefined),
+            direction: input.direction,
+            edge_labels: input.edge_labels,
+            depth: input.depth
+          }
+        });
+        return createToolSuccessResult("ghostcrab_traverse", {
+          workspace_id: effectiveWorkspaceId,
+          start_ref: input.start_ref,
+          start_node: input.start ?? null,
+          direction: input.direction,
+          depth: input.depth,
+          edge_labels: input.edge_labels,
+          target_found:
+            result.resolved_target_id !== null ? result.target_found : null,
+          resolved_start_id: result.resolved_start_id,
+          resolved_target_id: result.resolved_target_id,
+          path: result.rows.map((row) => ({
+            ...row,
+            properties: parseMetadata(row.metadata_json),
+            entity_ref: { kind: "entity_id", value: row.entity_id }
+          })),
+          node_count: result.rows.length,
+          graph_backend: "api/mindbrain/traverse",
+          backend: "native"
+        });
+      } catch (error) {
+        return knowledgeError("ghostcrab_traverse", error);
+      }
+    }
+
     const config = resolveGhostcrabConfig();
     let rows: Array<{
       node_id: string;
@@ -94,7 +177,7 @@ export const traverseTool: ToolHandler = {
     try {
       const result = await runStandaloneTraverse({
         mindbrainUrl: config.mindbrainUrl,
-        start: input.start,
+        start: input.start!,
         direction: input.direction,
         edgeLabels: input.edge_labels,
         depth: input.depth,

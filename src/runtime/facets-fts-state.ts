@@ -19,3 +19,12 @@ export function setFactsFtsReady(value: boolean): void {
 export function isFactsFtsReady(): boolean {
   return factsFtsReady;
 }
+
+// A capable engine owns all indexing; read handlers must never repair its tables.
+let nativeFactIndexOwned = false;
+export function setNativeFactIndexOwned(value: boolean): void {
+  nativeFactIndexOwned = value;
+}
+export function isNativeFactIndexOwned(): boolean {
+  return nativeFactIndexOwned;
+}

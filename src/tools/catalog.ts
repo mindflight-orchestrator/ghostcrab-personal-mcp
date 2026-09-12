@@ -274,6 +274,7 @@ function classifySubsystem(name: string): ToolSubsystem {
   if (
     name.startsWith("ghostcrab_traverse") ||
     name.startsWith("ghostcrab_entity_chunks") ||
+    name === "ghostcrab_evidence_get" ||
     name.startsWith("ghostcrab_graph") ||
     name.startsWith("ghostcrab_collection_") ||
     name.startsWith("ghostcrab_coverage") ||

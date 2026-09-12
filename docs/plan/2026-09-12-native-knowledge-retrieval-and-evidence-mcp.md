@@ -1,9 +1,13 @@
 # Native knowledge retrieval and evidence through MCP
 
-Status: implementation plan, 2026-09-12. Target: extend the unpublished Personal
-0.6.9 candidate / MindBrain 1.9 candidate to qualify client POC B1 as well as the
-already qualified Pack ticket. These proposed parameters and tools are **not yet
-implemented**. Do not advertise B1 as fixed until the acceptance gates pass.
+Status: implemented on `main`, 2026-09-12; synthetic import-to-MCP qualification
+passes. Native engine commit: `bf9e9b5e049bf8a677093cd4f32b63fb2ae18af3`.
+The unpublished Personal 0.6.9 candidate now exposes native-required search,
+typed traversal, evidence reads and scoped native index maintenance. See the
+[implemented contract](../reference/native-knowledge.md) and release receipt.
+Exact client certification remains pending: no B1 SQLite, authoritative source,
+import manifest or client proxy was found in the supplied engine directory.
+Do not treat the synthetic witness as certification of that unavailable fixture.
 
 Branch decision: this plan and the subsequent GhostCrab implementation belong
 on **`main`**, as explicitly requested. Native engine changes belong in the

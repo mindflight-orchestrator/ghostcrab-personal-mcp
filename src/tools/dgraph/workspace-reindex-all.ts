@@ -1,8 +1,13 @@
 import { z } from "zod";
+import { runStandaloneKnowledge } from "../../db/standalone-mindbrain.js";
+import {
+  knowledgeError,
+  requireKnowledgeCapability
+} from "./native-knowledge.js";
 
 import { resolveGhostcrabConfig } from "../../config/env.js";
 import { discoverWorkspaceReindexTargets } from "../../db/reindex-workspace.js";
-import { ensureFactsFtsSync } from "../../db/facets-fts-sync.js";
+import { reconcileWorkspaceFacts } from "../../db/native-facts-maintenance.js";
 import {
   runStandaloneReindexAll,
   runStandaloneReindexGraph
@@ -19,7 +24,7 @@ const WorkspaceReindexAllInput = z.object({
   workspace_id: z.string().trim().min(1).optional(),
   document_table_id: z.coerce.number().int().positive().optional(),
   include_agent_facts: z.boolean().default(true),
-  scope: z.enum(["all", "collections", "graph"]).default("all")
+  scope: z.enum(["all", "collections", "graph", "facts"]).default("all")
 });
 
 export interface CollectionReindexOutcome {
@@ -42,7 +47,7 @@ export const workspaceReindexAllTool: ToolHandler = {
   definition: {
     name: "ghostcrab_reindex_all",
     description:
-      "Write. Rebuild all derived indexes for a workspace: every registered collection (BM25, facet postings, graph via MindBrain reindexAll) plus agent_facts FTS bootstrap by default. Use scope graph|collections|all to limit work.",
+      "Write. Rebuild all derived indexes for a workspace: every registered collection (BM25, facet postings, graph via MindBrain reindexAll) plus agent_facts FTS bootstrap by default. Use scope facts|graph|collections|all to limit work.",
     inputSchema: {
       type: "object",
       properties: {
@@ -61,14 +66,14 @@ export const workspaceReindexAllTool: ToolHandler = {
           type: "boolean",
           default: true,
           description:
-            "When true, run agent_facts FTS bootstrap (ensureFactsFtsSync) after collection reindex."
+            "When true, reconcile the native facts index for this workspace after collection reindex."
         },
         scope: {
           type: "string",
-          enum: ["all", "collections", "graph"],
+          enum: ["all", "collections", "graph", "facts"],
           default: "all",
           description:
-            "all: collections loop + agent_facts FTS; collections: per-collection reindexAll only; graph: workspace graph reindex only."
+            "facts: native fact-index reconciliation for this workspace; all: collections loop + agent_facts FTS; collections: per-collection reindexAll; graph: workspace graph reindex."
         }
       }
     }
@@ -76,6 +81,24 @@ export const workspaceReindexAllTool: ToolHandler = {
   async handler(args, context) {
     const input = WorkspaceReindexAllInput.parse(args);
     const workspaceId = input.workspace_id ?? context.session.workspace_id;
+    if (input.scope === "facts") {
+      try {
+        const config = await requireKnowledgeCapability("native_fact_index");
+        const result = await runStandaloneKnowledge<Record<string, unknown>>({
+          mindbrainUrl: config.mindbrainUrl,
+          timeoutMs: config.mindbrainHttpTimeoutMs,
+          operation: "facts_reindex",
+          workspaceId
+        });
+        return createToolSuccessResult("ghostcrab_reindex_all", {
+          ...result,
+          scope: "facts",
+          backend: "native"
+        });
+      } catch (error) {
+        return knowledgeError("ghostcrab_reindex_all", error);
+      }
+    }
     const config = resolveGhostcrabConfig();
     const warnings: string[] = [];
     const collectionsReindexed: CollectionReindexOutcome[] = [];
@@ -115,7 +138,7 @@ export const workspaceReindexAllTool: ToolHandler = {
       }
 
       const agentFactsFts = input.include_agent_facts
-        ? await ensureFactsFtsSync(context.database)
+        ? await reconcileWorkspaceFacts(context.database, workspaceId)
         : null;
 
       return createToolSuccessResult("ghostcrab_reindex_all", {
@@ -226,7 +249,7 @@ export const workspaceReindexAllTool: ToolHandler = {
     }
 
     const agentFactsFts = input.include_agent_facts
-      ? await ensureFactsFtsSync(context.database)
+      ? await reconcileWorkspaceFacts(context.database, workspaceId)
       : null;
 
     return createToolSuccessResult("ghostcrab_reindex_all", {
