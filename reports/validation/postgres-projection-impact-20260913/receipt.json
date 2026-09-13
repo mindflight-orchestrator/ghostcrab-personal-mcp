@@ -1,0 +1,101 @@
+{
+  "schema": "ghostcrab/postgres-projection-impact/v1",
+  "image": "pg-mindbrain:3.4-86689a4",
+  "container": "pgmb-projection-audit-ccefc425f3",
+  "source_commit": "7eff65b0cf62035c6082ef05c3e6905306e81e69",
+  "main_commit": "86689a4c8eee73b89c0b4fcb247f6db7a2ee10e0",
+  "calls": [
+    {
+      "sql": "CREATE EXTENSION pg_mindbrain CASCADE;",
+      "stdout": "",
+      "stderr": "NOTICE:  installing required extension \"pgcrypto\"\nNOTICE:  installing required extension \"vector\"\nNOTICE:  installing required extension \"roaringbitmap\"\nNOTICE:  installing required extension \"dblink\"\nNOTICE:  installing required extension \"pg_trgm\"\nNOTICE:  installing required extension \"pgmq\"\n"
+    },
+    {
+      "sql": "SELECT json_build_object('extension',extversion,'server',current_setting('server_version')) FROM pg_extension WHERE extname='pg_mindbrain';",
+      "stdout": "{\"extension\" : \"3.4\", \"server\" : \"17.11 (Debian 17.11-1.pgdg12+2)\"}\n",
+      "stderr": ""
+    },
+    {
+      "sql": "SELECT md5(prosrc) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='mb_core' AND proname='answer_artifact_create';",
+      "stdout": "6bd02555d4858eae41d11918f9fe81b2\n",
+      "stderr": ""
+    },
+    {
+      "sql": "SELECT md5(prosrc) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='mb_core' AND proname='answer_artifact_get';",
+      "stdout": "d303ea226cf83f508a3c7c5ce2cfcbcb\n",
+      "stderr": ""
+    },
+    {
+      "sql": "SELECT md5(prosrc) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='mb_core' AND proname='answer_artifact_refresh';",
+      "stdout": "1d4980d9a77c734e7563acde01769ffb\n",
+      "stderr": ""
+    },
+    {
+      "sql": "SELECT mb_core.ensure_workspace('projection_impact','Isolated projection impact');",
+      "stdout": "projection_impact:default\n",
+      "stderr": ""
+    },
+    {
+      "sql": "SELECT mb_core.answer_artifact_create('projection_impact','sum','sum',$def${\"projection_contract\": {\"version\": 999, \"ontology_id\": \"missing::ontology\", \"operation\": \"group_sum\", \"business_question\": \"sum\"}}$def$::jsonb);",
+      "stdout": "{\"kind\": \"answer_artifact_create\", \"created\": true, \"artifact\": {\"slug\": \"sum\", \"scope\": null, \"state\": \"dirty\", \"is_live\": true, \"agent_id\": null, \"is_frozen\": false, \"lifecycle\": \"stale\", \"created_at\": \"2026-09-13T19:49:33.532535+00:00\", \"legacy_ref\": null, \"updated_at\": \"2026-09-13T19:49:33.532535+00:00\", \"artifact_id\": \"live_answer_view__sum\", \"payload_json\": {\"projection_contract\": {\"version\": 999, \"operation\": \"group_sum\", \"ontology_id\": \"missing::ontology\", \"business_question\": \"sum\"}}, \"public_label\": \"sum\", \"workspace_id\": \"projection_impact\", \"artifact_kind\": \"live_answer_view\", \"current_version\": 1, \"is_terminal_answer\": false}, \"idempotent\": false}\n",
+      "stderr": ""
+    },
+    {
+      "sql": "SELECT mb_core.answer_artifact_create('projection_impact','missing','missing',$def${\"projection_contract\": {\"version\": 999, \"ontology_id\": \"missing::ontology\", \"operation\": \"missing_inbound\", \"business_question\": \"missing\"}}$def$::jsonb);",
+      "stdout": "{\"kind\": \"answer_artifact_create\", \"created\": true, \"artifact\": {\"slug\": \"missing\", \"scope\": null, \"state\": \"dirty\", \"is_live\": true, \"agent_id\": null, \"is_frozen\": false, \"lifecycle\": \"stale\", \"created_at\": \"2026-09-13T19:49:33.607925+00:00\", \"legacy_ref\": null, \"updated_at\": \"2026-09-13T19:49:33.607925+00:00\", \"artifact_id\": \"live_answer_view__missing\", \"payload_json\": {\"projection_contract\": {\"version\": 999, \"operation\": \"missing_inbound\", \"ontology_id\": \"missing::ontology\", \"business_question\": \"missing\"}}, \"public_label\": \"missing\", \"workspace_id\": \"projection_impact\", \"artifact_kind\": \"live_answer_view\", \"current_version\": 1, \"is_terminal_answer\": false}, \"idempotent\": false}\n",
+      "stderr": ""
+    },
+    {
+      "sql": "SELECT mb_core.answer_artifact_refresh('projection_impact','live_answer_view__sum');",
+      "stdout": "{\"kind\": \"answer_artifact_refresh\", \"event\": {\"event_id\": 5, \"event_kind\": \"answer_update_event\", \"to_version\": 2, \"artifact_id\": \"live_answer_view__sum\", \"from_version\": 1}, \"artifact\": {\"slug\": \"sum\", \"scope\": null, \"state\": \"active\", \"is_live\": true, \"agent_id\": null, \"is_frozen\": false, \"lifecycle\": \"active\", \"created_at\": \"2026-09-13T19:49:33.532535+00:00\", \"legacy_ref\": null, \"updated_at\": \"2026-09-13T19:49:33.688316+00:00\", \"artifact_id\": \"live_answer_view__sum\", \"payload_json\": {\"materialized\": {\"fact_count\": 0, \"entity_count\": 0, \"refreshed_at\": \"2026-09-13T19:49:33.68927+00:00\", \"relation_count\": 0, \"workspace_count\": 1}, \"projection_contract\": {\"version\": 999, \"operation\": \"group_sum\", \"ontology_id\": \"missing::ontology\", \"business_question\": \"sum\"}}, \"public_label\": \"sum\", \"workspace_id\": \"projection_impact\", \"artifact_kind\": \"live_answer_view\", \"current_version\": 2, \"is_terminal_answer\": false}}\n",
+      "stderr": ""
+    },
+    {
+      "sql": "SELECT mb_core.answer_artifact_refresh('projection_impact','live_answer_view__missing');",
+      "stdout": "{\"kind\": \"answer_artifact_refresh\", \"event\": {\"event_id\": 6, \"event_kind\": \"answer_update_event\", \"to_version\": 2, \"artifact_id\": \"live_answer_view__missing\", \"from_version\": 1}, \"artifact\": {\"slug\": \"missing\", \"scope\": null, \"state\": \"active\", \"is_live\": true, \"agent_id\": null, \"is_frozen\": false, \"lifecycle\": \"active\", \"created_at\": \"2026-09-13T19:49:33.607925+00:00\", \"legacy_ref\": null, \"updated_at\": \"2026-09-13T19:49:33.75613+00:00\", \"artifact_id\": \"live_answer_view__missing\", \"payload_json\": {\"materialized\": {\"fact_count\": 0, \"entity_count\": 0, \"refreshed_at\": \"2026-09-13T19:49:33.757162+00:00\", \"relation_count\": 0, \"workspace_count\": 1}, \"projection_contract\": {\"version\": 999, \"operation\": \"missing_inbound\", \"ontology_id\": \"missing::ontology\", \"business_question\": \"missing\"}}, \"public_label\": \"missing\", \"workspace_id\": \"projection_impact\", \"artifact_kind\": \"live_answer_view\", \"current_version\": 2, \"is_terminal_answer\": false}}\n",
+      "stderr": ""
+    },
+    {
+      "sql": "INSERT INTO mb_graph.entity(workspace_id,type,name,metadata) VALUES ('projection_impact','unit','Changed after refresh','{}');",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "sql": "SELECT mb_core.answer_artifact_get('live_answer_view__sum','{\"workspace_id\":\"projection_impact\",\"expected_version\":999,\"expected_source_digest\":\"deliberately_wrong\",\"include_answer\":true}'::jsonb);",
+      "stdout": "{\"kind\": \"answer_artifact_get\", \"found\": true, \"artifact\": {\"slug\": \"sum\", \"scope\": null, \"state\": \"active\", \"is_live\": true, \"agent_id\": null, \"is_frozen\": false, \"lifecycle\": \"active\", \"created_at\": \"2026-09-13T19:49:33.532535+00:00\", \"legacy_ref\": null, \"updated_at\": \"2026-09-13T19:49:33.688316+00:00\", \"artifact_id\": \"live_answer_view__sum\", \"payload_json\": {\"materialized\": {\"fact_count\": 0, \"entity_count\": 0, \"refreshed_at\": \"2026-09-13T19:49:33.68927+00:00\", \"relation_count\": 0, \"workspace_count\": 1}, \"projection_contract\": {\"version\": 999, \"operation\": \"group_sum\", \"ontology_id\": \"missing::ontology\", \"business_question\": \"sum\"}}, \"public_label\": \"sum\", \"workspace_id\": \"projection_impact\", \"artifact_kind\": \"live_answer_view\", \"current_version\": 2, \"is_terminal_answer\": false}, \"workspace_id\": \"projection_impact\"}\n",
+      "stderr": ""
+    },
+    {
+      "sql": "SELECT count(*) FROM mb_graph.entity WHERE workspace_id='projection_impact';",
+      "stdout": "1\n",
+      "stderr": ""
+    },
+    {
+      "sql": "SELECT mb_core.answer_artifact_create('projection_impact','caller_result','Caller result','{\"qualified_result\":{\"status\":\"ready\",\"rows\":[{\"total\":1000}]}}'::jsonb);",
+      "stdout": "{\"kind\": \"answer_artifact_create\", \"created\": true, \"artifact\": {\"slug\": \"caller_result\", \"scope\": null, \"state\": \"dirty\", \"is_live\": true, \"agent_id\": null, \"is_frozen\": false, \"lifecycle\": \"stale\", \"created_at\": \"2026-09-13T19:49:34.036386+00:00\", \"legacy_ref\": null, \"updated_at\": \"2026-09-13T19:49:34.036386+00:00\", \"artifact_id\": \"live_answer_view__caller_result\", \"payload_json\": {\"qualified_result\": {\"rows\": [{\"total\": 1000}], \"status\": \"ready\"}}, \"public_label\": \"Caller result\", \"workspace_id\": \"projection_impact\", \"artifact_kind\": \"live_answer_view\", \"current_version\": 1, \"is_terminal_answer\": false}, \"idempotent\": false}\n",
+      "stderr": ""
+    }
+  ],
+  "image_id": "sha256:28d525a4e8faac30a4733de34ffbeed922dada36cf32472452e673012feedcb8",
+  "runtime": {
+    "extension": "3.4",
+    "server": "17.11 (Debian 17.11-1.pgdg12+2)"
+  },
+  "function_bodies_match_checkout_and_main": {
+    "answer_artifact_create": "6bd02555d4858eae41d11918f9fe81b2",
+    "answer_artifact_get": "d303ea226cf83f508a3c7c5ce2cfcbcb",
+    "answer_artifact_refresh": "1d4980d9a77c734e7563acde01769ffb"
+  },
+  "existing_registry_suite": "passed",
+  "gaps": {
+    "invalid_projection_contract_accepted": true,
+    "different_contracts_produce_same_workspace_counts": true,
+    "refresh_reads_agent_facts": true,
+    "source_mutation_not_checked_by_get": true,
+    "expected_binding_options_ignored": true,
+    "caller_qualified_result_not_reserved": true,
+    "qualified_answer_and_ontology_not_produced": true
+  },
+  "conclusion": "baseline_gaps_reproduced_not_feature_qualified",
+  "isolated_container_removed": true
+}

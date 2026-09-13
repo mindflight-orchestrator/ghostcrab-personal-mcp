@@ -1,0 +1,36 @@
+Answer artifact taxonomy tests
+      ensure_workspace
+-----------------------------
+ ws_answer_artifacts:default
+(1 row)
+
+         ensure_workspace
+-----------------------------------
+ ws_answer_artifacts_other:default
+(1 row)
+
+DELETE 0
+DELETE 0
+DELETE 0
+DELETE 0
+DO
+DO
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+                                                                                                                                                                                                                                                                                                                                                                                                                                       answer_artifact_refresh
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"kind": "answer_artifact_refresh", "event": {"event_id": 1, "event_kind": "answer_update_event", "to_version": 2, "artifact_id": "live_answer_view__aa_refresh", "from_version": 1}, "artifact": {"slug": "aa_refresh", "scope": null, "state": "active", "is_live": true, "agent_id": null, "is_frozen": false, "lifecycle": "active", "created_at": "2026-09-13T19:49:33.37578+00:00", "legacy_ref": null, "updated_at": "2026-09-13T19:49:33.375912+00:00", "artifact_id": "live_answer_view__aa_refresh", "payload_json": {"initial": "other", "materialized": {"fact_count": 0, "entity_count": 0, "refreshed_at": "2026-09-13T19:49:33.376058+00:00", "relation_count": 0, "workspace_count": 1}}, "public_label": "AA live view in another workspace", "workspace_id": "ws_answer_artifacts_other", "artifact_kind": "live_answer_view", "current_version": 2, "is_terminal_answer": false}}
+(1 row)
+
+DO
+DO
+INSERT 0 1
+DO
+DO
+DO
+INSERT 0 1
+DO
+INSERT 0 1
+DO
+Answer artifact taxonomy tests passed

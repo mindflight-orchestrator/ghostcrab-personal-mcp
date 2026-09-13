@@ -13,6 +13,7 @@ Single hub: [GhostCrab MCP — explications (architecture + lab)](explanation/RE
 - [Projection discovery — `ghostcrab_projections_list`](reference/projections-discovery.md)
 - [Studio two-call qualification](reference/studio-projection-two-calls-qualification.md) · [Reliability implementation plan](plan/2026-09-13-projection-two-call-reliability.md)
 - [Qualified projection answers — usage and limits](reference/qualified-projection-answers.md) · [Implementation validation](reference/projection-two-call-implementation-validation.md)
+- [Projection contracts — architecture and PostgreSQL impact](reference/projection-contracts-architecture-and-postgres-impact.md)
 
 | Chapitre | Document |
 |----------|----------|
