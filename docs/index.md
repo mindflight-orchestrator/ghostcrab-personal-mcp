@@ -11,6 +11,7 @@ Single hub: [GhostCrab MCP — explications (architecture + lab)](explanation/RE
 - [Operator catalog — `gcp` + MCP tools](reference/operator-catalog.md)
 - [MCP tools reference — generated runtime catalog](reference/mcp-tools.md)
 - [Projection discovery — `ghostcrab_projections_list`](reference/projections-discovery.md)
+- [Studio two-call qualification](reference/studio-projection-two-calls-qualification.md) · [Reliability implementation plan](plan/2026-09-13-projection-two-call-reliability.md)
 
 | Chapitre | Document |
 |----------|----------|
