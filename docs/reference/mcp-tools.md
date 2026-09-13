@@ -11,7 +11,7 @@ All successful tool calls use the additive envelope:
   "ok": true,
   "tool": "ghostcrab_status",
   "surface_version": "2026-09-12",
-  "generated_at": "2026-09-12T16:16:07.323Z"
+  "generated_at": "2026-09-13T08:05:15.050Z"
 }
 ```
 
@@ -21,7 +21,7 @@ Tool-specific fields are added next to that envelope. Structured failures use th
 
 ### `ghostcrab_artifact_get`
 
-Read. Fetch one answer artifact from the registry by artifact_id (analysis plan, live answer, snapshot, or evidence pack). When workspace_id is provided or active in session, validates that the artifact belongs to that workspace. Returns public_label for user-facing text. Use ghostcrab_tool_search to discover this extended tool.
+Read. Fetch one workspace-scoped answer artifact. Use include_answer and all expected_* arguments supplied by business_query_answer to retrieve a qualified native result with evidence, ontology and freshness validation. Stale or changed bindings cannot return a complete answer. Without include_answer, returns the raw registry payload.
 
 | Field | Value |
 |-------|-------|
@@ -32,12 +32,17 @@ Read. Fetch one answer artifact from the registry by artifact_id (analysis plan,
 
 | Argument | Required | Type | Description |
 |----------|----------|------|-------------|
+| `include_answer` | no | `boolean` | Read the qualified native result with evidence and ontology using the binding returned by business_query_answer. |
+| `expected_version` | no | `integer` | - |
+| `expected_contract_digest` | no | `string` | - |
+| `expected_source_digest` | no | `string` | - |
+| `expected_as_of` | no | `string` | - |
 | `artifact_id` | yes | `string` | Registry id, e.g. live_answer_view__pilotage_hebdomadaire or analysis_plan__scope_slug. |
 | `workspace_id` | no | `string` | Optional workspace context for the call. The returned artifact must match this workspace. |
 
 ### `ghostcrab_business_query_answer`
 
-Read. Route a natural-language business question to answer_snapshot, live_answer_view, analysis_plan, live_query, gap_report, or clarification using runtime inventories.
+Read. Resolve a business question against prepared native projection contracts and return the exact next_call for its bound result, evidence and ontology. Canonical questions and declared paraphrases are supported; ambiguity and unsupported conditions abstain. projection_only disables the legacy agent-fact capability fallback.
 
 | Field | Value |
 |-------|-------|
@@ -50,6 +55,8 @@ Read. Route a natural-language business question to answer_snapshot, live_answer
 |----------|----------|------|-------------|
 | `workspace_id` | no | `string` | Target workspace id. Overrides session context. |
 | `question` | yes | `string` | Business question to normalize and route. |
+| `as_of` | no | `string` | Requested date must match the prepared contract. When omitted, dated projections require today's UTC date; other projections use their declared date. |
+| `projection_only` | no | `boolean` | Never fall back to the agent-fact capability registry, including when no native projection contract is prepared. |
 | `explain_route` | no | `boolean` | When true, include more evidence references. |
 | `dry_run` | no | `boolean` | When true, plan and route without executing live fact reads. |
 

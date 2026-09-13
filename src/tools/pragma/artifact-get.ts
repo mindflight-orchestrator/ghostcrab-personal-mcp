@@ -15,6 +15,20 @@ import {
 
 export const ArtifactGetInput = z.object({
   artifact_id: z.string().trim().min(1),
+  include_answer: z.boolean().default(false),
+  expected_version: z.number().int().positive().optional(),
+  expected_contract_digest: z
+    .string()
+    .regex(/^[a-f0-9]{64}$/)
+    .optional(),
+  expected_source_digest: z
+    .string()
+    .regex(/^[a-f0-9]{64}$/)
+    .optional(),
+  expected_as_of: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
   workspace_id: z.string().trim().min(1).optional()
 });
 
@@ -22,11 +36,21 @@ export const artifactGetTool: ToolHandler = {
   definition: {
     name: "ghostcrab_artifact_get",
     description:
-      "Read. Fetch one answer artifact from the registry by artifact_id (analysis plan, live answer, snapshot, or evidence pack). When workspace_id is provided or active in session, validates that the artifact belongs to that workspace. Returns public_label for user-facing text. Use ghostcrab_tool_search to discover this extended tool.",
+      "Read. Fetch one workspace-scoped answer artifact. Use include_answer and all expected_* arguments supplied by business_query_answer to retrieve a qualified native result with evidence, ontology and freshness validation. Stale or changed bindings cannot return a complete answer. Without include_answer, returns the raw registry payload.",
     inputSchema: {
       type: "object",
       required: ["artifact_id"],
       properties: {
+        include_answer: {
+          type: "boolean",
+          default: false,
+          description:
+            "Read the qualified native result with evidence and ontology using the binding returned by business_query_answer."
+        },
+        expected_version: { type: "integer", minimum: 1 },
+        expected_contract_digest: { type: "string", pattern: "^[a-f0-9]{64}$" },
+        expected_source_digest: { type: "string", pattern: "^[a-f0-9]{64}$" },
+        expected_as_of: { type: "string", pattern: "^\\d{4}-\\d{2}-\\d{2}$" },
         artifact_id: {
           type: "string",
           description:
@@ -79,6 +103,75 @@ export const artifactGetTool: ToolHandler = {
           artifact_id: row.artifact_id
         }
       );
+    }
+
+    if (input.include_answer) {
+      if (row.state !== "refreshed" || row.lifecycle !== "active") {
+        return createToolErrorResult(
+          "ghostcrab_artifact_get",
+          "The selected projection is no longer an active refreshed answer.",
+          "projection_stale"
+        );
+      }
+      if (!workspaceId)
+        return createToolErrorResult(
+          "ghostcrab_artifact_get",
+          "A workspace is required for a qualified answer.",
+          "missing_workspace"
+        );
+      if (
+        !input.expected_version ||
+        !input.expected_contract_digest ||
+        !input.expected_source_digest ||
+        !input.expected_as_of
+      ) {
+        return createToolErrorResult(
+          "ghostcrab_artifact_get",
+          "Use all bound arguments supplied by ghostcrab_business_query_answer.",
+          "missing_answer_binding"
+        );
+      }
+      if (row.current_version !== input.expected_version)
+        return createToolErrorResult(
+          "ghostcrab_artifact_get",
+          "The selected artifact version changed.",
+          "projection_version_changed"
+        );
+      if (!row.answer_json)
+        return createToolErrorResult(
+          "ghostcrab_artifact_get",
+          "No qualified native answer is available.",
+          "projection_unavailable"
+        );
+      const answer = parseAnswerArtifactPayload(row.answer_json);
+      if (answer.status !== "ready" && answer.status !== "indeterminate")
+        return createToolErrorResult(
+          "ghostcrab_artifact_get",
+          "The prepared answer is stale or unavailable; explicit refresh is required.",
+          "projection_stale",
+          { status: answer.status, reason: answer.reason }
+        );
+      if (
+        answer.contract_digest !== input.expected_contract_digest ||
+        answer.source_digest !== input.expected_source_digest ||
+        answer.as_of !== input.expected_as_of ||
+        answer.workspace_id !== workspaceId
+      ) {
+        return createToolErrorResult(
+          "ghostcrab_artifact_get",
+          "The answer no longer matches the selected contract, scope, date or source revision.",
+          "projection_binding_changed"
+        );
+      }
+      return createToolSuccessResult("ghostcrab_artifact_get", {
+        workspace_id: workspaceId,
+        artifact_id: row.artifact_id,
+        current_version: row.current_version,
+        public_label: row.public_label,
+        backend: "native_projection_contract",
+        answer_available: answer.status === "ready",
+        answer
+      });
     }
 
     return createToolSuccessResult("ghostcrab_artifact_get", {

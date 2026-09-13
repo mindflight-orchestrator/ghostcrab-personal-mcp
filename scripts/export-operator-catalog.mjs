@@ -32,6 +32,8 @@ const mcpOutPath = join(root, "docs/reference/mcp-tools.md");
 const { manifest, catalog } = loadToolManifestFromDist();
 
 function tablesFor(name, subsystem) {
+  if (name === "ghostcrab_business_query_answer")
+    return "mindbrain_answer_artifacts; legacy agent_facts only when projection_only is false and no native contract is prepared";
   if (subsystem === "session") return "— (routing only)";
   if (subsystem === "workspace") {
     if (name.startsWith("ghostcrab_ddl_")) return "pending DDL metadata";
@@ -40,13 +42,13 @@ function tablesFor(name, subsystem) {
   if (subsystem === "loadout") return "bootstrap recipes / schemas seed";
   if (subsystem === "pragma") {
     if (name === "ghostcrab_artifact_get") {
-      return "mindbrain_answer_artifacts";
+      return "mindbrain_answer_artifacts; entities_raw, relations_raw, ontology_* for qualified answers";
     }
     if (name === "ghostcrab_live_create") {
       return "mindbrain_answer_artifacts";
     }
     if (name === "ghostcrab_live_refresh") {
-      return "mindbrain_answer_artifacts, mindbrain_answer_events";
+      return "mindbrain_answer_artifacts, mindbrain_answer_events; entities_raw, relations_raw, ontology_* for qualified contracts";
     }
     if (name === "ghostcrab_projection_get")
       return "graph_entity (ProjectionResult)";

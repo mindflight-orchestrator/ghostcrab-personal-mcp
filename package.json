@@ -49,6 +49,7 @@
     "docs/reference",
     "docs/setup",
     "examples/ghostcrab-docs",
+    "examples/immeuble/contracts/qualified_projections.json",
     "examples/node-stdio-client",
     "README.md",
     "INSTALL.md",

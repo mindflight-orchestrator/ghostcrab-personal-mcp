@@ -1,5 +1,10 @@
 # Studio projections in two MCP calls — qualification, 2026-09-13
 
+This is the historical baseline before the native contract implementation.
+See [qualified projection answers](qualified-projection-answers.md) for the
+subsequent bounded pilot and its validation; the original measurements below
+remain unchanged.
+
 The general claim is **not qualified**: starting from a natural-language question,
 the current MCP does not reliably return both the matching projection's business
 result and its explanatory ontology in two calls. Zero `agent_facts` rows are

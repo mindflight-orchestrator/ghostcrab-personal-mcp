@@ -24,6 +24,9 @@ const DefinitionInput = z
   })
   .refine((value) => !("materialized" in value), {
     message: "definition.materialized is reserved for MindBrain"
+  })
+  .refine((value) => !("qualified_result" in value), {
+    message: "definition.qualified_result is reserved for MindBrain"
   });
 
 export const LiveCreateInput = z

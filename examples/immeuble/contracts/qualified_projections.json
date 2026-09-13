@@ -1,0 +1,176 @@
+[
+  {
+    "slug": "qualified_baux_actifs",
+    "public_label": "Baux actifs et déclarations associées",
+    "workspace_id": "immeuble",
+    "definition": {
+      "business_question": "Quels appartements sont loues, a qui, depuis quelle date et par quel bailleur ?",
+      "projection_contract": {
+        "version": 1,
+        "ontology_id": "immeuble::core",
+        "ontology_version": "2.1.0",
+        "as_of": "2026-09-13",
+        "business_question": "Quels appartements sont loues, a qui, depuis quelle date et par quel bailleur ?",
+        "paraphrases": [
+          "liste des baux actifs",
+          "Montre-moi les locations en cours."
+        ],
+        "operation": "dated_relations",
+        "subject_type": "lease_contract",
+        "member_type": "unit",
+        "relation": "leases",
+        "ontology_relation": "leases",
+        "start_field": "validFrom",
+        "end_field": "validTo",
+        "required_fields": ["landlord_id"],
+        "columns": [
+          {
+            "key": "name",
+            "description": "Declared lease name",
+            "concept": "lease_contract"
+          },
+          {
+            "key": "start_date",
+            "description": "Inclusive start of the lease at the explicit as_of date",
+            "concept": "lease_contract"
+          },
+          {
+            "key": "end_date",
+            "description": "Inclusive end; an absent end date means open-ended under this contract",
+            "concept": "lease_contract"
+          },
+          {
+            "key": "attributes",
+            "description": "Source lease attributes. landlord_id is the declared source identifier, not an inferred owner. Missing landlord_id makes the result indeterminate.",
+            "concept": "person"
+          },
+          {
+            "key": "related_entities",
+            "description": "Outgoing declared relations with evidence IDs and endpoint records; unit and household declarations can be incomplete.",
+            "concept": "household"
+          }
+        ],
+        "assumptions": [
+          "Only native records in the bound workspace and ontology are covered; import completeness outside this dataset is unknown.",
+          "Active means validFrom <= as_of and validTo absent or >= as_of. Cancelled, terminated and inactive leases are excluded. Missing/invalid dates or unknown status are indeterminate.",
+          "A declared lease-to-unit link and landlord_id are required. Ownership is not silently equated with the lessor. This fixture contains incomplete landlord declarations."
+        ]
+      }
+    }
+  },
+  {
+    "slug": "qualified_lots_sans_proprietaire",
+    "public_label": "Lots sans propriétaire déclaré",
+    "workspace_id": "immeuble",
+    "definition": {
+      "business_question": "Quels lots actifs n'ont pas de proprietaire declare ?",
+      "projection_contract": {
+        "version": 1,
+        "ontology_id": "immeuble::core",
+        "ontology_version": "2.1.0",
+        "as_of": "2026-09-13",
+        "business_question": "Quels lots actifs n'ont pas de proprietaire declare ?",
+        "paraphrases": [
+          "Quels appartements n’ont aucun propriétaire renseigné ?",
+          "liste des lots sans propriétaire déclaré"
+        ],
+        "operation": "missing_inbound",
+        "subject_type": "unit",
+        "member_type": "person",
+        "member_types": ["person", "organization"],
+        "relation": "owns",
+        "ontology_relation": "owns",
+        "columns": [
+          {
+            "key": "name",
+            "description": "Lot name within the imported population",
+            "concept": "unit"
+          },
+          {
+            "key": "finding",
+            "description": "No date-valid incoming owns declaration from a person or organization in the same ontology",
+            "concept": "unit"
+          },
+          {
+            "key": "attributes",
+            "description": "Declared lot attributes; evidence comes from the native source entity",
+            "concept": "unit"
+          }
+        ],
+        "assumptions": [
+          "The imported unit population is the demo active-lot population; this contract cannot establish real-world absence of an owner.",
+          "Only date-valid owns relations with source type person or organization count as ownership declarations. These are the explicit concrete source types bound to the ontology Agent role.",
+          "Missing relations express missing declarations within this dataset, not proof that a property has no legal owner."
+        ]
+      }
+    }
+  },
+  {
+    "slug": "qualified_quotites_par_immeuble",
+    "public_label": "Quotités par immeuble",
+    "workspace_id": "immeuble",
+    "definition": {
+      "business_question": "Les quotites de chaque immeuble totalisent-elles 1000 ?",
+      "projection_contract": {
+        "version": 1,
+        "ontology_id": "immeuble::core",
+        "ontology_version": "2.1.0",
+        "as_of": "2026-09-13",
+        "business_question": "Les quotites de chaque immeuble totalisent-elles 1000 ?",
+        "paraphrases": [
+          "liste des quotités par immeuble",
+          "Dans quels immeubles la somme des millièmes est-elle incorrecte ?"
+        ],
+        "operation": "group_sum",
+        "subject_type": "building",
+        "member_type": "unit",
+        "relation": "contains",
+        "ontology_relation": "building_contains_unit",
+        "numeric_field": "tantiemes",
+        "expected_field": "quota_basis",
+        "columns": [
+          {
+            "key": "name",
+            "description": "Building name",
+            "concept": "building"
+          },
+          {
+            "key": "member_count",
+            "description": "Count of distinct directly contained units",
+            "concept": "unit"
+          },
+          {
+            "key": "total",
+            "description": "Sum of declared unit tantiemes; missing numeric evidence yields null",
+            "concept": "unit",
+            "unit": "millièmes"
+          },
+          {
+            "key": "expected",
+            "description": "Declared building quota_basis; the demo uses 1000",
+            "concept": "building",
+            "unit": "millièmes"
+          },
+          {
+            "key": "matches",
+            "description": "1 when abs(total - expected) < 0.000001, 0 when it differs, null when indeterminate",
+            "concept": "building"
+          },
+          {
+            "key": "evidence_entity_ids",
+            "description": "Native unit IDs contributing to this building total, within the bound ontology",
+            "concept": "unit"
+          }
+        ],
+        "assumptions": [
+          "The raw contains predicate is explicitly bound to building_contains_unit for building-to-unit endpoints. Other contains relations are excluded.",
+          "Duplicate relationships do not count a lot twice. A building without units or with nonnumeric/missing quota evidence is indeterminate.",
+          "The imported population defines dataset coverage. These totals do not establish completeness of a real-world property register.",
+          "Member quota_basis must agree with the building basis, which must equal the declared contract value 1000; mismatches are indeterminate."
+        ],
+        "member_basis_field": "quota_basis",
+        "expected_value": 1000
+      }
+    }
+  }
+]

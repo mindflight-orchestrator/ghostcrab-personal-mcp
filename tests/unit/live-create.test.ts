@@ -68,6 +68,13 @@ describe("ghostcrab_live_create", () => {
         definition: { materialized: {} }
       }).success
     ).toBe(false);
+    expect(
+      LiveCreateInput.safeParse({
+        slug: "weekly_status",
+        public_label: "Weekly status",
+        definition: { qualified_result: {} }
+      }).success
+    ).toBe(false);
   });
 
   it.each([

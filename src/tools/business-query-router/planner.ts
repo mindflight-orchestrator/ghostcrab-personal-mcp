@@ -189,8 +189,10 @@ export function chooseRouteFromScores(params: {
   }
 
   const snapshotMatch = bestForMode(rankedCandidates, "answer_snapshot");
+  const liveAnswerMatch = bestForMode(rankedCandidates, "live_answer_view");
   if (
     snapshotMatch &&
+    (!liveAnswerMatch || snapshotMatch.score >= liveAnswerMatch.score) &&
     snapshotMatch.score >= ROUTE_THRESHOLDS.execution_snapshot_min_score
   ) {
     const route: RouteDecision = {
@@ -214,7 +216,6 @@ export function chooseRouteFromScores(params: {
     };
   }
 
-  const liveAnswerMatch = bestForMode(rankedCandidates, "live_answer_view");
   if (
     liveAnswerMatch &&
     liveAnswerMatch.score >= ROUTE_THRESHOLDS.execution_live_view_min_score

@@ -147,6 +147,8 @@ export interface StandaloneGhostcrabProjectionGetResponse {
 }
 
 export interface StandaloneAnswerArtifactRow {
+  /** Validated native projection result; absent for legacy artifacts. */
+  answer_json?: string | null;
   artifact_id: string;
   slug: string;
   workspace_id: string | null;

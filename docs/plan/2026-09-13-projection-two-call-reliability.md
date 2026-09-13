@@ -1,8 +1,18 @@
 # Reliable projection answers in two MCP calls
 
-Date: 2026-09-13. Status: proposed implementation plan; this branch saves the
-qualification and design, not a completed feature. Baseline:
+Date: 2026-09-13. Status: bounded three-contract pilot implemented and qualified
+locally; expansion and publication remain pending. Baseline:
 [Studio qualification](../reference/studio-projection-two-calls-qualification.md).
+
+Implementation: [usage and limits](../reference/qualified-projection-answers.md)
+and [validation receipt](../reference/projection-two-call-implementation-validation.md).
+Steps 0–3 have a local implementation and business replay for the three pilot
+shapes. The original lease data deliberately remains indeterminate. Step 4's
+other 22 views are not implemented. Step 5 covers an installed Linux x64 candidate
+and real MCP exposure; external client qualification, other platforms and release
+publication remain pending. Matching is limited to declared phrases and safe
+normalization, with one held-out polite variation; broad semantic recall is not
+claimed.
 
 ## Objective and boundary
 
@@ -214,8 +224,10 @@ integrity checks completed.
 Each behavioral fix gets regression coverage. Native contract/execution changes
 precede the GhostCrab vendor pin and consumer changes. Studio supplies demo
 examples; tests against a copied fixture do not prove its active database was
-migrated. This documentation branch does not change sibling repositories or
-publish a release.
+migrated. Native changes were committed on a dedicated branch/worktree in the
+canonical MindBrain repository and pinned in GhostCrab's vendor submodule;
+the sibling main checkout and the active Studio database remain untouched.
+Neither native nor consumer changes have been published.
 
 The first useful milestone is one correct complete business answer through the
 actual two calls, followed by the three pilot query shapes. Expanding matching

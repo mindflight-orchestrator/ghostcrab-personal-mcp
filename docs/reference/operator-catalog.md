@@ -98,8 +98,8 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 
 | Tool | Basic | Subsystem | Access | Tables / impact |
 |------|-------|-----------|--------|-----------------|
-| `ghostcrab_artifact_get` | no | pragma | read | mindbrain_answer_artifacts |
-| `ghostcrab_business_query_answer` | no | facets | read | agent_facts (+ facet_tables FTS when indexed) |
+| `ghostcrab_artifact_get` | no | pragma | read | mindbrain_answer_artifacts; entities_raw, relations_raw, ontology_* for qualified answers |
+| `ghostcrab_business_query_answer` | no | facets | read | mindbrain_answer_artifacts; legacy agent_facts only when projection_only is false and no native contract is prepared |
 | `ghostcrab_business_query_register` | no | facets | write | agent_facts (+ facet_tables FTS when indexed) |
 | `ghostcrab_collection_facet_search` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_collection_reindex` | no | graph | write | documents_raw, search_fts, graph |
@@ -129,7 +129,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | `ghostcrab_graph_subgraph` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_learn` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_live_create` | no | pragma | write | mindbrain_answer_artifacts |
-| `ghostcrab_live_refresh` | no | pragma | write | mindbrain_answer_artifacts, mindbrain_answer_events |
+| `ghostcrab_live_refresh` | no | pragma | write | mindbrain_answer_artifacts, mindbrain_answer_events; entities_raw, relations_raw, ontology_* for qualified contracts |
 | `ghostcrab_loadout_apply` | no | loadout | write | bootstrap recipes / schemas seed |
 | `ghostcrab_loadout_inspect` | no | loadout | read | bootstrap recipes / schemas seed |
 | `ghostcrab_loadout_list` | no | loadout | read | bootstrap recipes / schemas seed |

@@ -15,6 +15,7 @@ import { normalizeBusinessQuestion } from "./normalizer.js";
 import { buildPlan, chooseRouteFromScores } from "./planner.js";
 import type { BusinessIntent, BusinessQueryResult } from "./types.js";
 import { ACTIVE_FACT_WINDOW_SQL } from "../../db/temporal.js";
+import { routeQualifiedProjection } from "./projection-contract-route.js";
 
 const LIVE_QUERY_FACET_WHITELIST = new Set([
   "demo_week",
@@ -33,6 +34,11 @@ const BusinessQueryAnswerInput = z
   .object({
     workspace_id: z.string().trim().min(1).optional(),
     question: z.string().trim().min(1).max(4096),
+    as_of: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .optional(),
+    projection_only: z.boolean().default(false),
     explain_route: z.boolean().default(false),
     dry_run: z.boolean().default(false)
   })
@@ -329,7 +335,7 @@ export const businessQueryAnswerTool: ToolHandler = {
   definition: {
     name: "ghostcrab_business_query_answer",
     description:
-      "Read. Route a natural-language business question to answer_snapshot, live_answer_view, analysis_plan, live_query, gap_report, or clarification using runtime inventories.",
+      "Read. Resolve a business question against prepared native projection contracts and return the exact next_call for its bound result, evidence and ontology. Canonical questions and declared paraphrases are supported; ambiguity and unsupported conditions abstain. projection_only disables the legacy agent-fact capability fallback.",
     inputSchema: {
       type: "object",
       required: ["question"],
@@ -341,6 +347,18 @@ export const businessQueryAnswerTool: ToolHandler = {
         question: {
           type: "string",
           description: "Business question to normalize and route."
+        },
+        as_of: {
+          type: "string",
+          pattern: "^\\d{4}-\\d{2}-\\d{2}$",
+          description:
+            "Requested date must match the prepared contract. When omitted, dated projections require today's UTC date; other projections use their declared date."
+        },
+        projection_only: {
+          type: "boolean",
+          default: false,
+          description:
+            "Never fall back to the agent-fact capability registry, including when no native projection contract is prepared."
         },
         explain_route: {
           type: "boolean",
@@ -360,6 +378,29 @@ export const businessQueryAnswerTool: ToolHandler = {
   async handler(args, context) {
     const input = BusinessQueryAnswerInput.parse(args);
     try {
+      const workspaceId = input.workspace_id ?? context.session.workspace_id;
+      if (workspaceId) {
+        const projection = await routeQualifiedProjection(
+          context,
+          workspaceId,
+          input.question,
+          input.as_of
+        );
+        if (projection)
+          return createToolSuccessResult(
+            "ghostcrab_business_query_answer",
+            projection
+          );
+        if (input.projection_only)
+          return createToolSuccessResult("ghostcrab_business_query_answer", {
+            workspace_id: workspaceId,
+            match_status: "unsupported",
+            answer_available: false,
+            reason:
+              "No qualified native projection contract is prepared in this workspace.",
+            next_call: null
+          });
+      }
       const result = await answerBusinessQuery({ context, input });
       return createToolSuccessResult("ghostcrab_business_query_answer", {
         workspace_id: input.workspace_id ?? context.session.workspace_id,
