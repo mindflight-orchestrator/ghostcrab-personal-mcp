@@ -225,9 +225,11 @@ Each behavioral fix gets regression coverage. Native contract/execution changes
 precede the GhostCrab vendor pin and consumer changes. Studio supplies demo
 examples; tests against a copied fixture do not prove its active database was
 migrated. Native changes were committed on a dedicated branch/worktree in the
-canonical MindBrain repository and pinned in GhostCrab's vendor submodule;
-the sibling main checkout and the active Studio database remain untouched.
-Neither native nor consumer changes have been published.
+canonical MindBrain repository and pinned in GhostCrab's vendor submodule.
+The user subsequently authorized local main integration: MindBrain `main` now
+contains `500f381` and GhostCrab `main` contains `992b1c1`, including the tests
+and documentation. The active Studio database remains untouched. Neither native
+nor consumer changes have been published.
 
 The first useful milestone is one correct complete business answer through the
 actual two calls, followed by the three pilot query shapes. Expanding matching

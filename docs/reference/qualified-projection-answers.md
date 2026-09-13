@@ -7,6 +7,11 @@ the relevant ontology definitions, column meanings, assumptions and freshness.
 Incomplete evidence remains `indeterminate`; a successful tool call alone does
 not establish that the business answer is complete.
 
+This feature adds no MCP tools. It extends the existing
+`ghostcrab_business_query_answer` and `ghostcrab_artifact_get` interfaces; the
+existing `ghostcrab_live_create` and `ghostcrab_live_refresh` tools prepare the
+native contracts. The new execution behavior lives in MindBrain.
+
 ## Preparation
 
 Use a backend containing MindBrain commit `500f381` or its successor with the

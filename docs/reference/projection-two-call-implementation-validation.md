@@ -4,8 +4,24 @@ Date: 2026-09-13. Consumer branch: `docs/projection-two-call-reliability`.
 Historical baseline/report commit: `bf80d07`. Canonical MindBrain implementation:
 `500f3818936d49e53f35303d4dfece21900a3693`, branch
 `feat/projection-two-call-reliability`, pinned by this change in `vendor/mindbrain`.
-Both changes are local and unpublished. The sibling MindBrain main checkout and
-Studio's source fixture were preserved.
+Both changes are local and unpublished. The sibling MindBrain main checkout was
+preserved during implementation; its subsequent authorized local integration is
+recorded below. Studio's source fixture remains unchanged.
+
+## Local main integration
+
+On 2026-09-13, both local `main` branches were advanced without conflicts:
+MindBrain from `bf9e9b5` to `500f381`, then GhostCrab from `e09b2af` to `992b1c1`.
+The GhostCrab integration includes the baseline analysis, plan, implementation,
+native submodule pin, regression tests, usage documentation and all three replay
+receipts. This documentation update records the integration after those merges.
+
+Before merging, the existing full-suite logs and recorded business receipts were
+checked against the unchanged implementation. The backend and fixture SHA-256
+hashes still match both receipts; all 132 built JavaScript files and the example
+contracts match the qualified installed package byte for byte. The merges leave
+the tested code unchanged, so the same full suites were not rerun. No new tool
+was added, no source data was migrated and no remote was pushed.
 
 The result qualifies the **bounded three-contract pilot**, with complete answers
 for quotities and missing owner declarations and an explicit incomplete-evidence
