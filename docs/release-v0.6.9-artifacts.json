@@ -1,0 +1,62 @@
+{
+  "release": "v0.6.9",
+  "date": "2026-09-13",
+  "implementation_commit": "1ab124c1b94bbb211f5088188c31579150e6821f",
+  "engine_commit": "bf9e9b5e049bf8a677093cd4f32b63fb2ae18af3",
+  "engine_runtime": "1.9.0",
+  "zig": "0.16.0",
+  "node": "22.17.0",
+  "archives": {
+    "mindflight-ghostcrab-personal-mcp-0.6.9.tgz": "817aa735b021446583363ae100881a14f0495c187fa1e5057159d00bd4d93580",
+    "mindflight-ghostcrab-personal-mcp-darwin-arm64-0.6.9.tgz": "070829a8435bec86b580c70eb3aae6e4dfefb76cddf85e484060996a5e69c5d9",
+    "mindflight-ghostcrab-personal-mcp-darwin-x64-0.6.9.tgz": "442449fe22cdcf7b93aecda15026b820fd920ab3ffac5b00042748044547e93e",
+    "mindflight-ghostcrab-personal-mcp-linux-arm64-0.6.9.tgz": "928465a6cb3ce519d66a4edf93142a86cedb6cd174c0a5c3ace17511424d5f55",
+    "mindflight-ghostcrab-personal-mcp-linux-x64-0.6.9.tgz": "64b61c4de4edcd9a343d6facc62ce5b63a0a808ae70374486505af0cad22db9f",
+    "mindflight-ghostcrab-personal-mcp-win32-arm64-0.6.9.tgz": "82238e8add691775e1e15bed9707a2fafb69428353373ae09cb30546102d0b12",
+    "mindflight-ghostcrab-personal-mcp-win32-x64-0.6.9.tgz": "ac3a10105238e1bf819825fa8cb624d73169859a1dee5002bf3a618f3b26b4cb"
+  },
+  "beta_bundle": {
+    "filename": "ghostcrab-beta-0.6.9.zip",
+    "sha256": "599fea5bd59284427ca70592d0c60f949b12c429c0c24b280b0989de9190e81a"
+  },
+  "binaries": {
+    "darwin-arm64/ghostcrab-backend": "e5760f5e23e2c31b5bdec994a3b61261c91829d1387c4c8188dd0798f9ef1806",
+    "darwin-arm64/ghostcrab-document": "08aee769f30524c90cbe8b4fdd168c56e8a3b86d2faf8a1b6222990baa6e98b1",
+    "darwin-x64/ghostcrab-backend": "4e9c84293656125dec100927d32b392ff4a733b5e1b0114ad58a4a56b5980e9d",
+    "darwin-x64/ghostcrab-document": "c555c58a6274b3cb8a50946ac46dc01070f9a8cc065260f1c4b78f3d14241671",
+    "linux-arm64/ghostcrab-backend": "0116409d9831132b80e3ec04c4e003b3112f4334438ff124b5c3eb41395f0c0b",
+    "linux-arm64/ghostcrab-document": "6a9f66472e8bf61b9c8449b457dab9b32e2326156f39e06ffc8f7e882dd522c0",
+    "linux-x64/ghostcrab-backend": "610736029d123887799950012be3d91a447c4428b59ff52603dfa17ddb32a969",
+    "linux-x64/ghostcrab-document": "2501580d22f594c2735f5c86aa06d5f48d038002887b7ca586e36053adb09234",
+    "win32-arm64/ghostcrab-backend.exe": "9d32662a34658df60c1ef95c4ae1d60574e5a40e10f3b314d432f095e76a5edf",
+    "win32-arm64/ghostcrab-document.exe": "62d13380322a65f713d25de54fac4fdc2a256f7bbadd3433faf7cee2f2256e2a",
+    "win32-x64/ghostcrab-backend.exe": "a7896cdc4e629aa527b1f56611de8678761c22c5c2f4e55455b1d80fb6743402",
+    "win32-x64/ghostcrab-document.exe": "f31af39102b4cb808b26d146b9599f83079d00d0a19e6a8f70c877bfe5847cbd"
+  },
+  "validation": {
+    "native_tests": 454,
+    "ghostcrab_default_tests": 816,
+    "additional_native_search_tests": 4,
+    "integration_tests": 104,
+    "graphrag_tests": 35,
+    "installed_native_knowledge_reads": 17,
+    "installed_native_replay": "passed",
+    "installed_search_ticket_replay": "passed",
+    "local_install": "passed",
+    "beta_install": "passed",
+    "runtime_platform": "linux-x64",
+    "other_platforms": "cross-compiled and binary formats checked; not executed",
+    "global_path_and_upgrade_hooks": "disabled",
+    "automatic_postinstall": "deferred by local npm allow-scripts policy; runtime and bootstrap checked explicitly"
+  },
+  "installed_dist_sha256": {
+    "index.js": "3cb17bc620af99621693a6f55d237df8f066cf57f12cec7b06e3bf8df6eeb835",
+    "tools/facets/search.js": "6a1bb63ffa2253aaa38e61574b94a70cb8d854d4ebcde308e287966faa214ef0",
+    "tools/facets/upsert.js": "4d16be78985751ba069ca5e29d4d9baf3804dc02846f584c22fb5afcf19825ca",
+    "tools/dgraph/traverse.js": "352a58ed38609c96e3241eab84aaf420d22154bee1e61da518e05b508d1a1e73",
+    "tools/dgraph/evidence-get.js": "95c13fba12e105f31650e469287adad790ed92c33b4d5f7fb70152c42ff55273",
+    "db/native-facts-maintenance.js": "bec7f74e849cd7a172e653d584152fead282dec5c135c9044e80bf9230f9c5ae"
+  },
+  "npm_staged": false,
+  "npm_published": false
+}

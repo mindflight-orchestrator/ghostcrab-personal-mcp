@@ -1,6 +1,6 @@
 name: Publish
 
-# GitHub Actions — stage releases on tags when this repository is hosted on GitHub.
+# GitHub Actions — build tags; stage to npm only on an explicit manual run.
 # npm OIDC / provenance assume GitHub; for other hosts (e.g. GitLab-only), replicate
 # the same steps with a masked NPM_TOKEN.
 #
@@ -17,6 +17,13 @@ name: Publish
 #   4. Maintainer reviews + approves the 7 staged packages with 2FA (platform packages first, root last).
 
 on:
+  workflow_dispatch:
+    inputs:
+      stage_npm:
+        description: "Submit all seven packages to npm staging (select a release tag)"
+        type: boolean
+        required: true
+        default: false
   push:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+*"
@@ -29,7 +36,7 @@ env:
   ZIG_VERSION: "0.16.0"
   SQLITE_VERSION: "3490100"
   SQLITE_YEAR: "2025"
-  NODE_VERSION: "20"
+  NODE_VERSION: "22"
 
 jobs:
   # ── Job 1: cross-compile the Zig backend for all platforms ─────────────────
@@ -39,6 +46,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Set up Zig ${{ env.ZIG_VERSION }}
         uses: mlugg/setup-zig@v2
@@ -86,8 +95,9 @@ jobs:
   # ── Job 2: stage to npm with provenance (maintainer approves with 2FA) ──────
   publish:
     name: Stage to npm
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.stage_npm == true && startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
-    needs: build-backends
+    needs: [build-backends, beta-install-windows]
     environment: npm-publish # configure trusted publishing in this environment
 
     steps:

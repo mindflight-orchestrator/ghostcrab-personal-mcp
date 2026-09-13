@@ -1,5 +1,60 @@
 # GhostCrab Personal v0.6.9 release preparation
 
+## Release finalization — 13 September 2026
+
+`main` is rebased onto `research/graphrag-mindbrain-comparison` at `116ee1f`.
+The three native knowledge commits were replayed without patch changes, verified
+with `git range-diff`. This includes the Personal SQLite GraphRAG comparison,
+its pinned fixtures and results, temporal controls, and legal research handoff.
+The original qualification receipts below retain their historical commit IDs.
+
+The release pins MindBrain `bf9e9b5e049bf8a677093cd4f32b63fb2ae18af3`, runtime
+`1.9.0`. A fresh checkout requires that engine commit to be available from the
+submodule's GitHub repository before pushing this release.
+
+Fresh validation on the rebased source:
+
+- Native engine: 454/454 tests.
+- GhostCrab: 816 passing tests in the default suite; the four optional
+  live-search tests also pass in a separate run with a disposable backend.
+- Integration: 104/104 tests against an owned release backend and fresh SQLite;
+  `/health` reports MindBrain `1.9.0`.
+- GraphRAG: 35/35 tests, including the native loopback tests.
+- Real MCP native knowledge and supplied Pack/Unicode/combined ticket replays:
+  passed using rebuilt Linux x64 binaries and disposable fixtures.
+- Typecheck, lint, TypeScript build, npm package contents (752 files), frozen
+  pnpm lockfile and offline npm install dry-run: passed. Root, six platform
+  manifests and both lockfiles align at `0.6.9`.
+- All 12 release binaries rebuilt with Zig 0.16.0; archive contents match those
+  binaries byte for byte. Seven tarballs and `ghostcrab-beta-0.6.9.zip` are in
+  `dist-pack/`. See [the archive and binary checksums](release-v0.6.9-artifacts.json).
+- Installation from the archives passed MCP tool verification, host bootstrap
+  and Cursor configuration. The generated beta installer also passed offline;
+  its installed package passed both real MCP replays, including all 17 native
+  knowledge business reads. The local npm policy deferred automatic postinstall;
+  runtime and bootstrap behavior were checked explicitly. Global PATH and upgrade
+  hooks were disabled for this qualification.
+
+Linux x64 is runtime-qualified. The other five targets are cross-compiled and
+their binary formats checked, but were not executed on this Linux host.
+
+### Deferred npm publication
+
+Pushing `v0.6.9` runs the cross-build and Windows beta installation workflow;
+it does **not** stage or publish packages on npm. The npm job now requires a
+manual **Publish** workflow run on the release tag with `stage_npm: true`, and
+waits for the Windows smoke test. Its default is `false`. The cross-build checks
+out the pinned engine submodule, and Windows uses Node 22 for the npm toolchain.
+Regression tests enforce these release boundaries.
+
+When npm publication is authorized later, select `v0.6.9` in the **Publish**
+workflow and enable `stage_npm`, or rebuild locally from this tag and run
+`pnpm run publish:npm-split` with the required npm authentication. Review the
+seven staged packages, then approve the six platform packages before the root.
+No npm staging or approval is part of this Git release.
+
+## Initial release qualification
+
 The launch-plan ticket is fixed by GhostCrab commit `df7b3af` and MindBrain
 commit `95af807`. Release `0.6.8` at `ec95fa0` predates those fixes.
 This candidate packages them with MindBrain **1.9.0**, prepared for tag `v1.9`
