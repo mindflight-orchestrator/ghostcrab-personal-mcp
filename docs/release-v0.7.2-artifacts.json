@@ -11,7 +11,7 @@
     "zig": "0.16.0"
   },
   "archives": {
-    "mindflight-ghostcrab-personal-mcp-0.7.2.tgz": "e9491df9d3c2f957a718d5e8cf3f0b51d423d29f32d32d428c29c07d97be9171",
+    "mindflight-ghostcrab-personal-mcp-0.7.2.tgz": "7df296c77e60d92487e707dcc8ab92f6fe1f777bc59b54a9b7c77b15a79a4377",
     "mindflight-ghostcrab-personal-mcp-darwin-arm64-0.7.2.tgz": "1b97592b20d6f1efdb746a4d380c99152609633dbbce99779bd2927cd0272e5c",
     "mindflight-ghostcrab-personal-mcp-darwin-x64-0.7.2.tgz": "c8ff26be55874cb4878a0447396775c6090f150a35bf1051048cd970ff1731e6",
     "mindflight-ghostcrab-personal-mcp-linux-arm64-0.7.2.tgz": "5b309b28199f3dad8c832975b5a42fef0daab73082c1a32ced79c6342a529135",
@@ -28,7 +28,7 @@
     "graphrag_tests": 35,
     "mutation_score": 85.06,
     "mcp_tools_called": 74,
-    "package_files": 760,
+    "package_files": 688,
     "local_install": "passed"
   },
   "npm_staged": false,
