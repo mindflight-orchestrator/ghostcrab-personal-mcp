@@ -2,7 +2,7 @@
 
 # GhostCrab Personal MCP
 
-**Release candidate:** `@mindflight/ghostcrab-personal-mcp@0.6.9` · MindBrain backend **1.9.0** (planned tag `v1.9`) · MCP tool surface **`2026-09-12`**
+**Release candidate:** `@mindflight/ghostcrab-personal-mcp@0.7.0` · MindBrain backend **1.9.0** (commit `500f381`) · MCP tool surface **`2026-09-14`**
 
 ### The MCP interface to mindBrain — SQLite edition
 
