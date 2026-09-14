@@ -168,7 +168,7 @@ export function runAudit(options) {
   const parsedDocIds = docIdsFromEntityDocuments(parsed.entity_documents_raw);
 
   const DatabaseSync = loadDatabaseSync();
-  const db = new DatabaseSync(options.dbPath);
+  const db = new DatabaseSync(options.dbPath, { readOnly: true });
   try {
     const documents = queryAll(
       db,

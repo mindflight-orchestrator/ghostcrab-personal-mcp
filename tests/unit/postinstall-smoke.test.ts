@@ -13,6 +13,19 @@ import { runPostinstallSmoke } from "../../bin/lib/postinstall-smoke.mjs";
 describe("postinstall-smoke document engine", () => {
   let root = "";
 
+  function successfulSpawn() {
+    return vi.fn((command: string) => ({
+      status: 0,
+      signal: null,
+      stdout:
+        command === process.execPath ? "GhostCrab CLI" : "usage: ghostcrab",
+      stderr: "",
+      pid: 1,
+      output: [],
+      error: undefined
+    }));
+  }
+
   afterEach(() => {
     vi.restoreAllMocks();
     if (root) {
@@ -50,11 +63,13 @@ describe("postinstall-smoke document engine", () => {
     const exitSpy = vi
       .spyOn(process, "exit")
       .mockImplementation((() => {}) as never);
+    const spawn = successfulSpawn();
 
     runPostinstallSmoke({
       pkgRoot: root,
       backendPath,
-      quiet: false
+      quiet: false,
+      spawn
     });
 
     expect(exitSpy).not.toHaveBeenCalled();
@@ -64,6 +79,7 @@ describe("postinstall-smoke document engine", () => {
     expect(logSpy.mock.calls.map((c) => String(c[0])).join("\n")).toMatch(
       /document engine skipped/
     );
+    expect(spawn).toHaveBeenCalledTimes(2);
   });
 
   it("runs document smoke when documentPath is provided", () => {
@@ -87,17 +103,25 @@ describe("postinstall-smoke document engine", () => {
     const exitSpy = vi
       .spyOn(process, "exit")
       .mockImplementation((() => {}) as never);
+    const spawn = successfulSpawn();
 
     runPostinstallSmoke({
       pkgRoot: root,
       backendPath,
       documentPath,
-      quiet: false
+      quiet: false,
+      spawn
     });
 
     expect(exitSpy).not.toHaveBeenCalled();
     expect(logSpy.mock.calls.map((c) => String(c[0])).join("\n")).toMatch(
       /ghostcrab-document --help/
+    );
+    expect(spawn).toHaveBeenCalledTimes(3);
+    expect(spawn).toHaveBeenLastCalledWith(
+      documentPath,
+      ["--help"],
+      expect.objectContaining({ shell: false })
     );
   });
 });

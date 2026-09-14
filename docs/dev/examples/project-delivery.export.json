@@ -1,0 +1,341 @@
+{
+  "schema_version": "1.0.0",
+  "exported_at": "2026-03-31T00:00:00Z",
+  "workspace": {
+    "id": "project-delivery",
+    "label": "Project Delivery",
+    "description": "Software delivery portfolio: programs, projects, phases, stages, tasks, pull requests, decisions and risks.",
+    "domain_profile": "project_delivery",
+    "pg_schema": "ws_project_delivery"
+  },
+  "tables": [
+    {
+      "schema_name": "delivery",
+      "table_name": "programs",
+      "table_role": "hierarchy",
+      "entity_family": "program",
+      "primary_time_column": "started_at",
+      "volume_driver": "tiny",
+      "generation_strategy": "seed_table",
+      "emit_facets": true,
+      "emit_graph_entities": true,
+      "emit_graph_relations": false,
+      "emit_projections": true,
+      "notes": null
+    },
+    {
+      "schema_name": "delivery",
+      "table_name": "projects",
+      "table_role": "stateful_item",
+      "entity_family": "project",
+      "primary_time_column": "started_at",
+      "volume_driver": "low",
+      "generation_strategy": "per_parent",
+      "emit_facets": true,
+      "emit_graph_entities": true,
+      "emit_graph_relations": true,
+      "emit_projections": true,
+      "notes": { "parent_table": "programs", "avg_per_parent": 5 }
+    },
+    {
+      "schema_name": "delivery",
+      "table_name": "phases",
+      "table_role": "hierarchy",
+      "entity_family": "phase",
+      "primary_time_column": "started_at",
+      "volume_driver": "low",
+      "generation_strategy": "per_parent",
+      "emit_facets": false,
+      "emit_graph_entities": false,
+      "emit_graph_relations": false,
+      "emit_projections": false,
+      "notes": { "parent_table": "projects", "avg_per_parent": 4 }
+    },
+    {
+      "schema_name": "delivery",
+      "table_name": "stages",
+      "table_role": "reference",
+      "entity_family": "stage",
+      "primary_time_column": null,
+      "volume_driver": "tiny",
+      "generation_strategy": "static_ref",
+      "emit_facets": false,
+      "emit_graph_entities": false,
+      "emit_graph_relations": false,
+      "emit_projections": false,
+      "notes": { "values": ["planning", "development", "review", "staging", "production"] }
+    },
+    {
+      "schema_name": "delivery",
+      "table_name": "tasks",
+      "table_role": "stateful_item",
+      "entity_family": "task",
+      "primary_time_column": "created_at",
+      "volume_driver": "medium",
+      "generation_strategy": "per_parent",
+      "emit_facets": true,
+      "emit_graph_entities": true,
+      "emit_graph_relations": true,
+      "emit_projections": true,
+      "notes": { "parent_table": "phases", "avg_per_parent": 12 }
+    },
+    {
+      "schema_name": "delivery",
+      "table_name": "prs",
+      "table_role": "event",
+      "entity_family": "pull_request",
+      "primary_time_column": "opened_at",
+      "volume_driver": "medium",
+      "generation_strategy": "per_parent",
+      "emit_facets": true,
+      "emit_graph_entities": false,
+      "emit_graph_relations": true,
+      "emit_projections": false,
+      "notes": { "parent_table": "tasks", "avg_per_parent": 1.5 }
+    },
+    {
+      "schema_name": "delivery",
+      "table_name": "decisions",
+      "table_role": "event",
+      "entity_family": "decision",
+      "primary_time_column": "decided_at",
+      "volume_driver": "low",
+      "generation_strategy": "sparse_events",
+      "emit_facets": true,
+      "emit_graph_entities": false,
+      "emit_graph_relations": false,
+      "emit_projections": false,
+      "notes": { "parent_table": "projects", "coverage_pct": 0.6 }
+    },
+    {
+      "schema_name": "delivery",
+      "table_name": "risks",
+      "table_role": "stateful_item",
+      "entity_family": "risk",
+      "primary_time_column": "identified_at",
+      "volume_driver": "low",
+      "generation_strategy": "sparse_events",
+      "emit_facets": true,
+      "emit_graph_entities": false,
+      "emit_graph_relations": false,
+      "emit_projections": true,
+      "notes": { "parent_table": "projects", "coverage_pct": 0.8 }
+    }
+  ],
+  "columns": [
+    {
+      "schema_name": "delivery",
+      "table_name": "programs",
+      "column_name": "id",
+      "column_role": "id",
+      "semantic_type": "identifier",
+      "facet_key": null,
+      "graph_usage": "entity_name",
+      "projection_signal": null,
+      "is_nullable": false,
+      "distribution_hint": { "format": "uuid" }
+    },
+    {
+      "schema_name": "delivery",
+      "table_name": "programs",
+      "column_name": "name",
+      "column_role": "label",
+      "semantic_type": "free_text",
+      "facet_key": "program_name",
+      "graph_usage": "entity_property",
+      "projection_signal": null,
+      "is_nullable": false,
+      "distribution_hint": { "format": "program_name" }
+    },
+    {
+      "schema_name": "delivery",
+      "table_name": "projects",
+      "column_name": "status",
+      "column_role": "status",
+      "semantic_type": "state",
+      "facet_key": "project_status",
+      "graph_usage": "entity_property",
+      "projection_signal": "alert_trigger",
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["planning", "active", "on_hold", "completed", "cancelled"],
+        "weights": [0.10, 0.55, 0.10, 0.20, 0.05]
+      }
+    },
+    {
+      "schema_name": "delivery",
+      "table_name": "tasks",
+      "column_name": "status",
+      "column_role": "status",
+      "semantic_type": "state",
+      "facet_key": "task_status",
+      "graph_usage": "entity_property",
+      "projection_signal": "alert_trigger",
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["todo", "in_progress", "blocked", "done", "cancelled"],
+        "weights": [0.25, 0.35, 0.10, 0.25, 0.05]
+      }
+    },
+    {
+      "schema_name": "delivery",
+      "table_name": "tasks",
+      "column_name": "priority",
+      "column_role": "score",
+      "semantic_type": "enum",
+      "facet_key": "task_priority",
+      "graph_usage": null,
+      "projection_signal": "priority",
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["p0", "p1", "p2", "p3"],
+        "weights": [0.05, 0.25, 0.50, 0.20]
+      }
+    },
+    {
+      "schema_name": "delivery",
+      "table_name": "risks",
+      "column_name": "severity",
+      "column_role": "score",
+      "semantic_type": "enum",
+      "facet_key": "risk_severity",
+      "graph_usage": null,
+      "projection_signal": "alert_trigger",
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["low", "medium", "high", "critical"],
+        "weights": [0.30, 0.40, 0.20, 0.10]
+      }
+    },
+    {
+      "schema_name": "delivery",
+      "table_name": "prs",
+      "column_name": "status",
+      "column_role": "status",
+      "semantic_type": "state",
+      "facet_key": "pr_status",
+      "graph_usage": null,
+      "projection_signal": null,
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["open", "merged", "closed", "draft"],
+        "weights": [0.20, 0.65, 0.10, 0.05]
+      }
+    }
+  ],
+  "relations": [
+    {
+      "source_schema": "delivery",
+      "source_table": "projects",
+      "source_column": "program_id",
+      "target_schema": "delivery",
+      "target_table": "programs",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": true,
+      "graph_label": "CONTAINS",
+      "cardinality": "1:n",
+      "notes": null
+    },
+    {
+      "source_schema": "delivery",
+      "source_table": "phases",
+      "source_column": "project_id",
+      "target_schema": "delivery",
+      "target_table": "projects",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": true,
+      "graph_label": "CONTAINS",
+      "cardinality": "1:n",
+      "notes": null
+    },
+    {
+      "source_schema": "delivery",
+      "source_table": "tasks",
+      "source_column": "phase_id",
+      "target_schema": "delivery",
+      "target_table": "phases",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": false,
+      "graph_label": "CONTAINS",
+      "cardinality": "1:n",
+      "notes": null
+    },
+    {
+      "source_schema": "delivery",
+      "source_table": "tasks",
+      "source_column": "blocked_by_id",
+      "target_schema": "delivery",
+      "target_table": "tasks",
+      "target_column": "id",
+      "relation_role": "depends_on",
+      "hierarchical": false,
+      "graph_label": "BLOCKS",
+      "cardinality": "1:n",
+      "notes": { "self_referential": true, "nullable": true }
+    },
+    {
+      "source_schema": "delivery",
+      "source_table": "prs",
+      "source_column": "task_id",
+      "target_schema": "delivery",
+      "target_table": "tasks",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": false,
+      "graph_label": null,
+      "cardinality": "1:n",
+      "notes": null
+    },
+    {
+      "source_schema": "delivery",
+      "source_table": "decisions",
+      "source_column": "project_id",
+      "target_schema": "delivery",
+      "target_table": "projects",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": false,
+      "graph_label": null,
+      "cardinality": "1:n",
+      "notes": null
+    },
+    {
+      "source_schema": "delivery",
+      "source_table": "risks",
+      "source_column": "project_id",
+      "target_schema": "delivery",
+      "target_table": "projects",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": false,
+      "graph_label": null,
+      "cardinality": "1:n",
+      "notes": null
+    }
+  ],
+  "generation_hints": {
+    "table_order": [
+      "delivery.stages",
+      "delivery.programs",
+      "delivery.projects",
+      "delivery.phases",
+      "delivery.tasks",
+      "delivery.prs",
+      "delivery.decisions",
+      "delivery.risks"
+    ],
+    "estimated_total_rows": 12000,
+    "seed_multipliers": {
+      "tiny": 5,
+      "low": 50,
+      "medium": 500,
+      "high": 3000
+    },
+    "domain_profile": "project_delivery",
+    "time_window_days": 730
+  },
+  "validation_warnings": []
+}

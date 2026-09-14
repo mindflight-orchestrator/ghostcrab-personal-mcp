@@ -7,10 +7,10 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 
 /**
- * @param {{ pkgRoot: string, backendPath: string, documentPath?: string | null, quiet: boolean }} opts
+ * @param {{ pkgRoot: string, backendPath: string, documentPath?: string | null, quiet: boolean, spawn?: typeof spawnSync }} opts
  */
 export function runPostinstallSmoke(opts) {
-  const { pkgRoot, backendPath, documentPath, quiet } = opts;
+  const { pkgRoot, backendPath, documentPath, quiet, spawn = spawnSync } = opts;
 
   if (!existsSync(backendPath)) {
     console.error(
@@ -25,7 +25,7 @@ export function runPostinstallSmoke(opts) {
     process.exit(1);
   }
 
-  const gcp = spawnSync(process.execPath, [gcpScript, "--help"], {
+  const gcp = spawn(process.execPath, [gcpScript, "--help"], {
     encoding: "utf8",
     maxBuffer: 2 * 1024 * 1024
   });
@@ -42,7 +42,7 @@ export function runPostinstallSmoke(opts) {
     process.exit(1);
   }
 
-  smokeBackendHelp(backendPath);
+  smokeBackendHelp(backendPath, spawn);
 
   if (documentPath) {
     if (!existsSync(documentPath)) {
@@ -51,7 +51,7 @@ export function runPostinstallSmoke(opts) {
       );
       process.exit(1);
     }
-    smokeDocumentHelp(documentPath);
+    smokeDocumentHelp(documentPath, spawn);
   } else if (!quiet) {
     console.error(
       "[ghostcrab] postinstall smoke: ghostcrab-document not installed — skipping document engine check (MCP-only OK)"
@@ -70,9 +70,10 @@ export function runPostinstallSmoke(opts) {
 
 /**
  * @param {string} backendPath
+ * @param {typeof spawnSync} spawn
  */
-function smokeBackendHelp(backendPath) {
-  const be = spawnSync(backendPath, ["--help"], {
+function smokeBackendHelp(backendPath, spawn) {
+  const be = spawn(backendPath, ["--help"], {
     encoding: "utf8",
     maxBuffer: 1024 * 1024,
     shell: false
@@ -102,9 +103,10 @@ function smokeBackendHelp(backendPath) {
 
 /**
  * @param {string} documentPath
+ * @param {typeof spawnSync} spawn
  */
-function smokeDocumentHelp(documentPath) {
-  const doc = spawnSync(documentPath, ["--help"], {
+function smokeDocumentHelp(documentPath, spawn) {
+  const doc = spawn(documentPath, ["--help"], {
     encoding: "utf8",
     maxBuffer: 1024 * 1024,
     shell: false

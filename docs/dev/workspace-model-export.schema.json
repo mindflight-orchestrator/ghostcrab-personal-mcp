@@ -85,27 +85,13 @@
 
     "TableRole": {
       "type": "string",
-      "enum": [
-        "actor",
-        "event",
-        "transaction",
-        "stateful_item",
-        "reference",
-        "hierarchy",
-        "association"
-      ],
+      "enum": ["actor", "event", "transaction", "stateful_item", "reference", "hierarchy", "association"],
       "description": "Business role of this table. Drives generation strategy selection.\n- actor: a persistent entity that performs actions (players, contacts, users)\n- event: an immutable record of something that happened (visits, clicks, logs)\n- transaction: a financial or state-change record (payments, bookings)\n- stateful_item: an entity that transitions through lifecycle states (tasks, orders, leads)\n- reference: a small, stable lookup table (game types, categories, regions)\n- hierarchy: a self-referencing or tree-structured table (org charts, nested categories)\n- association: a many-to-many join table with its own attributes"
     },
 
     "GenerationStrategy": {
       "type": "string",
-      "enum": [
-        "seed_table",
-        "per_parent",
-        "time_series",
-        "sparse_events",
-        "static_ref"
-      ],
+      "enum": ["seed_table", "per_parent", "time_series", "sparse_events", "static_ref"],
       "description": "How a synthetic generator should approach populating this table.\n- seed_table: generate N independent root records\n- per_parent: generate X records per parent row (respects FK hierarchy)\n- time_series: distribute records across a time window with realistic density\n- sparse_events: low-frequency events, not every parent has one\n- static_ref: small static reference data, typically < 50 rows"
     },
 
@@ -134,14 +120,7 @@
         "entity_family": {
           "type": ["string", "null"],
           "description": "Semantic entity type, e.g. player, contact, task, opportunity.",
-          "examples": [
-            "player",
-            "contact",
-            "task",
-            "opportunity",
-            "visit",
-            "payment"
-          ]
+          "examples": ["player", "contact", "task", "opportunity", "visit", "payment"]
         },
         "primary_time_column": {
           "type": ["string", "null"],
@@ -185,49 +164,22 @@
     "ColumnRole": {
       "type": "string",
       "enum": [
-        "id",
-        "fk",
-        "status",
-        "timestamp",
-        "amount",
-        "score",
-        "category",
-        "owner",
-        "parent_ref",
-        "text_content",
-        "geo",
-        "embedding_source",
-        "label",
-        "flag"
+        "id", "fk", "status", "timestamp", "amount", "score",
+        "category", "owner", "parent_ref", "text_content",
+        "geo", "embedding_source", "label", "flag"
       ],
       "description": "Semantic role of this column. Drives value generation strategy.\n- id: primary key or unique identifier\n- fk: foreign key reference to another table\n- status: lifecycle state enum (active, closed, pending)\n- timestamp: temporal column\n- amount: numeric monetary or quantity value\n- score: numeric ranking or probability\n- category: discrete classification\n- owner: user/actor reference\n- parent_ref: self-referential FK for hierarchy\n- text_content: free text, description, note\n- geo: geographic coordinates or region code\n- embedding_source: source text for vector embedding\n- label: human-readable name or title\n- flag: boolean indicator"
     },
 
     "SemanticType": {
       "type": "string",
-      "enum": [
-        "identifier",
-        "state",
-        "measure",
-        "enum",
-        "free_text",
-        "temporal",
-        "spatial",
-        "vector",
-        "boolean"
-      ],
+      "enum": ["identifier", "state", "measure", "enum", "free_text", "temporal", "spatial", "vector", "boolean"],
       "description": "Abstract semantic type independent of SQL storage type."
     },
 
     "GraphUsage": {
       "type": "string",
-      "enum": [
-        "entity_name",
-        "entity_property",
-        "edge_source",
-        "edge_target",
-        "edge_metadata"
-      ],
+      "enum": ["entity_name", "entity_property", "edge_source", "edge_target", "edge_metadata"],
       "description": "How this column is used when building the graph layer."
     },
 
@@ -278,14 +230,8 @@
     "RelationRole": {
       "type": "string",
       "enum": [
-        "belongs_to",
-        "contains",
-        "depends_on",
-        "targets",
-        "registered_for",
-        "works_at",
-        "assigned_to",
-        "references"
+        "belongs_to", "contains", "depends_on", "targets",
+        "registered_for", "works_at", "assigned_to", "references"
       ],
       "description": "Business meaning of this relationship."
     },
@@ -298,14 +244,7 @@
 
     "RelationExport": {
       "type": "object",
-      "required": [
-        "source_schema",
-        "source_table",
-        "source_column",
-        "target_schema",
-        "target_table",
-        "target_column"
-      ],
+      "required": ["source_schema", "source_table", "source_column", "target_schema", "target_table", "target_column"],
       "additionalProperties": false,
       "properties": {
         "source_schema": { "type": "string" },
@@ -325,13 +264,7 @@
         "graph_label": {
           "type": ["string", "null"],
           "description": "Edge label in the graph layer, e.g. CONTAINS, BLOCKS, TARGETED_BY.",
-          "examples": [
-            "CONTAINS",
-            "BLOCKS",
-            "TARGETED_BY",
-            "VISITED_BY",
-            "PLACED_BY"
-          ]
+          "examples": ["CONTAINS", "BLOCKS", "TARGETED_BY", "VISITED_BY", "PLACED_BY"]
         },
         "cardinality": {
           "$ref": "#/$defs/Cardinality"
@@ -352,9 +285,7 @@
           "type": "array",
           "description": "Topologically sorted list of fully-qualified table names (schema.table) for insertion order. Parents before children.",
           "items": { "type": "string" },
-          "examples": [
-            ["casino.players", "casino.visits", "casino.transactions"]
-          ]
+          "examples": [["casino.players", "casino.visits", "casino.transactions"]]
         },
         "estimated_total_rows": {
           "type": "integer",

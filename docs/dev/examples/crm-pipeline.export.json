@@ -1,0 +1,266 @@
+{
+  "schema_version": "1.0.0",
+  "exported_at": "2026-03-31T00:00:00Z",
+  "workspace": {
+    "id": "crm-pipeline",
+    "label": "CRM Pipeline",
+    "description": "B2B CRM domain: accounts, contacts, leads, opportunities, and sales activities.",
+    "domain_profile": "crm",
+    "pg_schema": "ws_crm_pipeline"
+  },
+  "tables": [
+    {
+      "schema_name": "crm",
+      "table_name": "accounts",
+      "table_role": "actor",
+      "entity_family": "account",
+      "primary_time_column": "created_at",
+      "volume_driver": "medium",
+      "generation_strategy": "seed_table",
+      "emit_facets": true,
+      "emit_graph_entities": true,
+      "emit_graph_relations": false,
+      "emit_projections": true,
+      "notes": { "identity_fields": ["domain"] }
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "contacts",
+      "table_role": "actor",
+      "entity_family": "contact",
+      "primary_time_column": "created_at",
+      "volume_driver": "medium",
+      "generation_strategy": "per_parent",
+      "emit_facets": true,
+      "emit_graph_entities": true,
+      "emit_graph_relations": true,
+      "emit_projections": false,
+      "notes": { "parent_table": "accounts", "avg_per_parent": 4 }
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "leads",
+      "table_role": "stateful_item",
+      "entity_family": "lead",
+      "primary_time_column": "created_at",
+      "volume_driver": "medium",
+      "generation_strategy": "per_parent",
+      "emit_facets": true,
+      "emit_graph_entities": false,
+      "emit_graph_relations": true,
+      "emit_projections": true,
+      "notes": { "parent_table": "contacts", "avg_per_parent": 2 }
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "opportunities",
+      "table_role": "stateful_item",
+      "entity_family": "opportunity",
+      "primary_time_column": "created_at",
+      "volume_driver": "medium",
+      "generation_strategy": "per_parent",
+      "emit_facets": true,
+      "emit_graph_entities": true,
+      "emit_graph_relations": true,
+      "emit_projections": true,
+      "notes": { "parent_table": "accounts", "avg_per_parent": 3 }
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "activities",
+      "table_role": "event",
+      "entity_family": "activity",
+      "primary_time_column": "occurred_at",
+      "volume_driver": "high",
+      "generation_strategy": "time_series",
+      "emit_facets": true,
+      "emit_graph_entities": false,
+      "emit_graph_relations": false,
+      "emit_projections": false,
+      "notes": { "parent_table": "contacts", "avg_per_parent": 12 }
+    }
+  ],
+  "columns": [
+    {
+      "schema_name": "crm",
+      "table_name": "accounts",
+      "column_name": "id",
+      "column_role": "id",
+      "semantic_type": "identifier",
+      "facet_key": null,
+      "graph_usage": "entity_name",
+      "projection_signal": null,
+      "is_nullable": false,
+      "distribution_hint": { "format": "uuid" }
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "accounts",
+      "column_name": "name",
+      "column_role": "label",
+      "semantic_type": "free_text",
+      "facet_key": "account_name",
+      "graph_usage": "entity_property",
+      "projection_signal": null,
+      "is_nullable": false,
+      "distribution_hint": { "format": "company_name" }
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "accounts",
+      "column_name": "stage",
+      "column_role": "status",
+      "semantic_type": "state",
+      "facet_key": "account_stage",
+      "graph_usage": "entity_property",
+      "projection_signal": "priority",
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["prospect", "qualified", "customer", "churned"],
+        "weights": [0.30, 0.25, 0.40, 0.05]
+      }
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "accounts",
+      "column_name": "arr",
+      "column_role": "amount",
+      "semantic_type": "measure",
+      "facet_key": "account_arr",
+      "graph_usage": null,
+      "projection_signal": "rank_signal",
+      "is_nullable": true,
+      "distribution_hint": { "min": 0, "max": 2000000, "currency": "USD", "distribution": "lognormal" }
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "opportunities",
+      "column_name": "stage",
+      "column_role": "status",
+      "semantic_type": "state",
+      "facet_key": "opp_stage",
+      "graph_usage": "entity_property",
+      "projection_signal": "alert_trigger",
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["discovery", "proposal", "negotiation", "closed_won", "closed_lost"],
+        "weights": [0.25, 0.25, 0.20, 0.20, 0.10]
+      }
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "opportunities",
+      "column_name": "value",
+      "column_role": "amount",
+      "semantic_type": "measure",
+      "facet_key": "opp_value",
+      "graph_usage": null,
+      "projection_signal": "rank_signal",
+      "is_nullable": true,
+      "distribution_hint": { "min": 5000, "max": 500000, "currency": "USD", "distribution": "lognormal" }
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "activities",
+      "column_name": "type",
+      "column_role": "category",
+      "semantic_type": "enum",
+      "facet_key": "activity_type",
+      "graph_usage": null,
+      "projection_signal": null,
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["email", "call", "meeting", "demo", "proposal_sent"],
+        "weights": [0.40, 0.25, 0.15, 0.12, 0.08]
+      }
+    },
+    {
+      "schema_name": "crm",
+      "table_name": "leads",
+      "column_name": "status",
+      "column_role": "status",
+      "semantic_type": "state",
+      "facet_key": "lead_status",
+      "graph_usage": null,
+      "projection_signal": "alert_trigger",
+      "is_nullable": false,
+      "distribution_hint": {
+        "values": ["new", "contacted", "qualified", "disqualified", "converted"],
+        "weights": [0.20, 0.30, 0.25, 0.15, 0.10]
+      }
+    }
+  ],
+  "relations": [
+    {
+      "source_schema": "crm",
+      "source_table": "contacts",
+      "source_column": "account_id",
+      "target_schema": "crm",
+      "target_table": "accounts",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": false,
+      "graph_label": "WORKS_AT",
+      "cardinality": "1:n",
+      "notes": null
+    },
+    {
+      "source_schema": "crm",
+      "source_table": "leads",
+      "source_column": "contact_id",
+      "target_schema": "crm",
+      "target_table": "contacts",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": false,
+      "graph_label": null,
+      "cardinality": "1:n",
+      "notes": null
+    },
+    {
+      "source_schema": "crm",
+      "source_table": "opportunities",
+      "source_column": "account_id",
+      "target_schema": "crm",
+      "target_table": "accounts",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": false,
+      "graph_label": "TARGETS",
+      "cardinality": "1:n",
+      "notes": null
+    },
+    {
+      "source_schema": "crm",
+      "source_table": "activities",
+      "source_column": "contact_id",
+      "target_schema": "crm",
+      "target_table": "contacts",
+      "target_column": "id",
+      "relation_role": "belongs_to",
+      "hierarchical": false,
+      "graph_label": null,
+      "cardinality": "1:n",
+      "notes": null
+    }
+  ],
+  "generation_hints": {
+    "table_order": [
+      "crm.accounts",
+      "crm.contacts",
+      "crm.leads",
+      "crm.opportunities",
+      "crm.activities"
+    ],
+    "estimated_total_rows": 18000,
+    "seed_multipliers": {
+      "tiny": 10,
+      "low": 100,
+      "medium": 500,
+      "high": 5000
+    },
+    "domain_profile": "crm",
+    "time_window_days": 365
+  },
+  "validation_warnings": []
+}
