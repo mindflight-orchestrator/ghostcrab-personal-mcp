@@ -106,7 +106,7 @@ See `evidence.json` for the measured summary and local backend SHA-256.
 
 | Validation                                                               | Result                                                          |
 | ------------------------------------------------------------------------ | --------------------------------------------------------------- |
-| Default suite, with global and critical-module coverage gates            | 879 passed, 15 skipped                                          |
+| Default suite, with global and critical-module coverage gates            | 880 passed, 15 skipped                                          |
 | Required canonical SQLite integrity suite                                | 52 passed, zero skipped                                         |
 | Required native integrity suite                                          | 14 passed, zero skipped                                         |
 | Mutation pilot: graph storage and executable learn/reset/delete handlers | 205 killed / 241 mutants = 85.06%; zero timeouts/errors         |

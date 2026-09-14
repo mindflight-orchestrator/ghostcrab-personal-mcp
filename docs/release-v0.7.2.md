@@ -24,7 +24,7 @@ The detailed operation inventory, measured coverage and remaining risks are in
 
 ## Validation
 
-- Default suite with coverage: 879 passed, 15 explicitly skipped.
+- Default suite with coverage: 880 passed, 15 explicitly skipped.
 - Required SQLite integrity suite: 52 passed.
 - Required native integrity suite: 14 passed.
 - Integration/e2e: 107 passed.

@@ -11,7 +11,7 @@
     "zig": "0.16.0"
   },
   "archives": {
-    "mindflight-ghostcrab-personal-mcp-0.7.2.tgz": "e907f64ca473994eafa53e9835be1be2353feeaf432e67a34cde1dde523a365f",
+    "mindflight-ghostcrab-personal-mcp-0.7.2.tgz": "19b7af882bd92d353194ec8d92adb3ebedc268ee69dee23f48f322856645b30f",
     "mindflight-ghostcrab-personal-mcp-darwin-arm64-0.7.2.tgz": "1b97592b20d6f1efdb746a4d380c99152609633dbbce99779bd2927cd0272e5c",
     "mindflight-ghostcrab-personal-mcp-darwin-x64-0.7.2.tgz": "c8ff26be55874cb4878a0447396775c6090f150a35bf1051048cd970ff1731e6",
     "mindflight-ghostcrab-personal-mcp-linux-arm64-0.7.2.tgz": "5b309b28199f3dad8c832975b5a42fef0daab73082c1a32ced79c6342a529135",
@@ -20,7 +20,7 @@
     "mindflight-ghostcrab-personal-mcp-win32-x64-0.7.2.tgz": "241d0aff8084888a03b35944074a9e6b8a951f7972d283483d3c2d749fc4722f"
   },
   "validation": {
-    "default_tests": 879,
+    "default_tests": 880,
     "default_skipped": 15,
     "sqlite_integrity_tests": 52,
     "native_integrity_tests": 14,

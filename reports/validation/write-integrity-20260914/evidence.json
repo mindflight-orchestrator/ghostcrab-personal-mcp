@@ -1,9 +1,9 @@
 {
   "baseline": "836 passing, 15 skipped; 66.55% lines, 55.27% branches before this hardening pass",
   "default_suite": {
-    "passed": 879,
+    "passed": 880,
     "skipped": 15,
-    "files_passed": 99
+    "files_passed": 100
   },
   "sqlite_integrity_suite": {
     "passed": 52,

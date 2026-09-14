@@ -104,7 +104,7 @@
     "structured-import:smoke": "node examples/immeuble/scripts/build-immeuble-model.mjs && node examples/immeuble/scripts/run-immeuble-import.mjs --skip-preflight --skip-provenance-validation",
     "immeuble:build": "node examples/immeuble/scripts/build-immeuble-model.mjs",
     "immeuble:import": "node examples/immeuble/scripts/run-immeuble-import.mjs --skip-preflight --skip-provenance-validation --apply",
-    "immeuble:import:hybrid": "node examples/immeuble/scripts/run-immeuble-import.mjs --apply --engine both --skip-preflight --skip-provenance-validation --db /tmp/immeuble-hybrid.sqlite --compare-output examples/immeuble/reports/hybrid-compare.json && node examples/immeuble/scripts/verify-immeuble-acceptance.mjs --db /tmp/immeuble-hybrid.sqlite --require-hybrid",
+    "immeuble:import:hybrid": "npm run immeuble:build && node examples/immeuble/scripts/run-immeuble-import.mjs --apply --engine both --skip-preflight --skip-provenance-validation --db /tmp/immeuble-hybrid.sqlite --compare-output examples/immeuble/reports/hybrid-compare.json && node examples/immeuble/scripts/verify-immeuble-acceptance.mjs --db /tmp/immeuble-hybrid.sqlite --require-hybrid",
     "immeuble:audit": "node examples/immeuble/scripts/audit-immeuble-projections.mjs",
     "immeuble:projection:plan": "node examples/immeuble/scripts/starterkit/analyze-projection-candidates.mjs --db \"${GHOSTCRAB_SQLITE_PATH:-data/immeuble.sqlite}\" --workspace immeuble --projection-catalog examples/immeuble/contracts/projection_catalog.yaml --model-contract examples/immeuble/contracts/model_contract.json --output-dir examples/immeuble/reports --include-blind-spots --include-jtbd",
     "immeuble:projection:plan:strict": "npm run immeuble:projection:plan -- --strict",

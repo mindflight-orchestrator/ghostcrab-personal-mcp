@@ -19,6 +19,9 @@ const integrationConfig = readFileSync(
   new URL("../../vitest.integration.config.ts", import.meta.url),
   "utf8"
 );
+const packageJson = JSON.parse(
+  readFileSync(new URL("../../package.json", import.meta.url), "utf8")
+) as { scripts: Record<string, string> };
 
 function checkoutStep(job: { steps: Array<{ uses?: string }> }) {
   return job.steps.find((step) => step.uses?.startsWith("actions/checkout@"));
@@ -105,5 +108,11 @@ describe("release publication boundary", () => {
     );
     expect(buildIndex).toBeGreaterThanOrEqual(0);
     expect(hybridIndex).toBeGreaterThan(buildIndex);
+  });
+
+  it("builds the Immeuble audit before the hybrid acceptance check", () => {
+    expect(packageJson.scripts["immeuble:import:hybrid"]).toMatch(
+      /^npm run immeuble:build && .*verify-immeuble-acceptance\.mjs/
+    );
   });
 });
