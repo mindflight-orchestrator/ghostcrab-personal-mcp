@@ -15,6 +15,10 @@ const workflow = loadWorkflow("publish.yml");
 const ciWorkflow = loadWorkflow("ci.yml");
 const nodeWorkflow = loadWorkflow("test-node.yml");
 const integrityWorkflow = loadWorkflow("write-integrity.yml");
+const integrationConfig = readFileSync(
+  new URL("../../vitest.integration.config.ts", import.meta.url),
+  "utf8"
+);
 
 function checkoutStep(job: { steps: Array<{ uses?: string }> }) {
   return job.steps.find((step) => step.uses?.startsWith("actions/checkout@"));
@@ -76,5 +80,30 @@ describe("release publication boundary", () => {
         "--config vitest.integration.config.ts tests/integration/"
       );
     }
+    expect(integrationConfig).toContain(
+      'exclude: ["tests/integration/mcp/write-integrity.test.ts"]'
+    );
+  });
+
+  it("runs the Immeuble hybrid gate only after building the native engine", () => {
+    const nodeSteps = ciWorkflow.jobs.node.steps as Array<{
+      name?: string;
+      run?: string;
+    }>;
+    const liveSteps = ciWorkflow.jobs["immeuble-live"].steps as Array<{
+      name?: string;
+      run?: string;
+    }>;
+    expect(
+      nodeSteps.some((step) => step.run === "npm run immeuble:import:hybrid")
+    ).toBe(false);
+    const buildIndex = liveSteps.findIndex((step) =>
+      step.run?.includes("npm run backend:build")
+    );
+    const hybridIndex = liveSteps.findIndex(
+      (step) => step.run === "npm run immeuble:import:hybrid"
+    );
+    expect(buildIndex).toBeGreaterThanOrEqual(0);
+    expect(hybridIndex).toBeGreaterThan(buildIndex);
   });
 });
