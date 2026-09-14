@@ -50,6 +50,12 @@ data/
 docs/audit/
 docs/dev/*
 !docs/dev/README.md
+!docs/dev/INTERNALS.md
+!docs/dev/architecture.md
+!docs/dev/getting_started_mcp_client.md
+!docs/dev/known_limits.md
+!docs/dev/mcp_tools_contract.md
+!docs/dev/npm_split_release_process.md
 !docs/dev/workspace-model-export.schema.json
 !docs/dev/examples/
 docs/dev/examples/*
