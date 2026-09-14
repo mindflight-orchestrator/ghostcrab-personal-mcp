@@ -33,7 +33,9 @@ The detailed operation inventory, measured coverage and remaining risks are in
   explicitly reviewed.
 - Typecheck, lint, build, frozen offline pnpm lockfile, npm lockfile validation,
   package verification and 74/74 MCP smoke calls passed.
-- The installer contains 685 files from an explicit, Git-tracked package list.
+- The local pnpm archive contains 685 files from an explicit, Git-tracked
+  package list. `npm pack` validates 686 files because npm also includes the
+  nested `examples/immeuble/README.md` automatically.
 - Local archive installation passed CLI startup, authorization, MCP tool
   verification, host bootstrap and Cursor setup.
 

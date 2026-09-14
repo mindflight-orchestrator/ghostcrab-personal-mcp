@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import { formatSpawnFailure, spawnNpm } from "./lib/spawn-npm.mjs";
 
-const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const packDir = "/tmp/ghostcrab-verify-pack";
 const pkg = JSON.parse(
   readFileSync(join(process.cwd(), "package.json"), "utf8")
@@ -40,7 +40,7 @@ function packFilename(name, version) {
 rmSync(packDir, { recursive: true, force: true });
 mkdirSync(packDir, { recursive: true });
 
-const result = spawnSync(pnpm, ["pack", "--pack-destination", packDir], {
+const result = spawnNpm(["pack", "--pack-destination", packDir], {
   cwd: process.cwd(),
   encoding: "utf8",
   env: {
@@ -51,13 +51,13 @@ const result = spawnSync(pnpm, ["pack", "--pack-destination", packDir], {
 
 if (result.status !== 0) {
   throw new Error(
-    `pnpm pack failed with exit=${result.status ?? "null"}.\nSTDERR:\n${result.stderr}\nSTDOUT:\n${result.stdout}`
+    `npm pack failed (${formatSpawnFailure(result)}).\nSTDERR:\n${result.stderr}\nSTDOUT:\n${result.stdout}`
   );
 }
 
 const tarball = join(packDir, packFilename(pkg.name, pkg.version));
 if (!existsSync(tarball)) {
-  throw new Error(`pnpm pack did not produce expected tarball: ${tarball}`);
+  throw new Error(`npm pack did not produce expected tarball: ${tarball}`);
 }
 
 const listing = spawnSync("tar", ["-tzf", tarball], {

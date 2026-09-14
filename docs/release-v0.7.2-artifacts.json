@@ -29,6 +29,7 @@
     "mutation_score": 85.06,
     "mcp_tools_called": 74,
     "package_files": 685,
+    "npm_package_files": 686,
     "local_install": "passed"
   },
   "npm_staged": false,
