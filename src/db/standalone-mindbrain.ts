@@ -263,12 +263,33 @@ export interface StandaloneSearchEmbeddingUpsertParams {
   embedding: number[];
 }
 
+export interface StandaloneSearchEmbeddingBatchItem {
+  tableId: number;
+  docId: number;
+  embedding: number[];
+}
+
+export interface StandaloneSearchEmbeddingBatchUpsertParams {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  items: StandaloneSearchEmbeddingBatchItem[];
+}
+
+export interface StandaloneSearchEmbeddingBatchUpsertResponse {
+  ok: true;
+  processed: number;
+  dimensions: number;
+}
+
 export interface StandaloneGhostcrabSearchParams {
   mindbrainUrl: string;
   timeoutMs?: number;
   workspaceId: string;
   collectionId?: string;
   tableId?: number;
+  schemaId?: string;
+  filters?: Record<string, unknown>;
+  requireReady?: boolean;
   query: string;
   embedding: number[];
   vectorWeight: number;
@@ -935,6 +956,30 @@ export async function runStandaloneSearchEmbeddingUpsert(
   );
 }
 
+export async function runStandaloneSearchEmbeddingBatchUpsert(
+  params: StandaloneSearchEmbeddingBatchUpsertParams
+): Promise<StandaloneSearchEmbeddingBatchUpsertResponse> {
+  const url = new URL(
+    "/api/mindbrain/search-embedding-batch-upsert",
+    normalizeBaseUrl(params.mindbrainUrl)
+  );
+  return await fetchJson<StandaloneSearchEmbeddingBatchUpsertResponse>(
+    url,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        items: params.items.map((item) => ({
+          table_id: item.tableId,
+          doc_id: item.docId,
+          embedding: item.embedding
+        }))
+      }),
+      headers: { "content-type": "application/json" }
+    },
+    params.timeoutMs
+  );
+}
+
 export async function runStandaloneGhostcrabSearch(
   params: StandaloneGhostcrabSearchParams
 ): Promise<StandaloneGhostcrabSearchResponse> {
@@ -950,6 +995,9 @@ export async function runStandaloneGhostcrabSearch(
         workspace_id: params.workspaceId,
         collection_id: params.collectionId,
         table_id: params.tableId,
+        schema_id: params.schemaId,
+        filters: params.filters,
+        require_ready: params.requireReady,
         query: params.query,
         embedding: params.embedding,
         vector_weight: params.vectorWeight,

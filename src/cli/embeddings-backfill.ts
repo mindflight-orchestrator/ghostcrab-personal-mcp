@@ -1,6 +1,5 @@
 import { pathToFileURL } from "node:url";
 
-import { encodeEmbedding } from "../embeddings/blob.js";
 import { resolveGhostcrabConfig } from "../config/env.js";
 import { createDatabaseClient } from "../db/client.js";
 import { createEmbeddingProvider } from "../embeddings/provider.js";
@@ -8,7 +7,7 @@ import {
   FACETS_SEARCH_TABLE_ID,
   SQLITE_FACT_STORE_TABLE
 } from "../db/fact-store.js";
-import { runStandaloneSearchEmbeddingUpsert } from "../db/standalone-mindbrain.js";
+import { runStandaloneSearchEmbeddingBatchUpsert } from "../db/standalone-mindbrain.js";
 import { ACTIVE_FACT_WINDOW_SQL } from "../db/temporal.js";
 
 interface BackfillOptions {
@@ -71,12 +70,14 @@ export async function runBackfill(
   };
 
   let remaining = options.limit ?? Number.POSITIVE_INFINITY;
+  let dryRunOffset = 0;
 
   while (remaining > 0) {
     const batchLimit = Math.min(options.batchSize, remaining);
     const { params, whereClause } = buildWhereClause(
       options.schemaId,
-      batchLimit
+      batchLimit,
+      dryRunOffset
     );
     const rows = await database.query<{
       content: string;
@@ -88,7 +89,7 @@ export async function runBackfill(
         FROM agent_facts
         ${whereClause}
         ORDER BY created_at_unix ASC
-        LIMIT ?
+        LIMIT ? OFFSET ?
       `,
       params
     );
@@ -102,61 +103,38 @@ export async function runBackfill(
 
     if (options.dryRun) {
       summary.skipped += rows.length;
+      dryRunOffset += rows.length;
       continue;
     }
 
     const vectors = await embeddings.embedMany(rows.map((row) => row.content));
-    const nowUnix = Math.floor(Date.now() / 1000);
-
-    // Collect successful (doc_id, vector) pairs for search_embeddings sync
-    // after the SQL transaction commits.
-    const syncPending: { docId: number; embedding: number[] }[] = [];
-
-    await database.transaction(async (tx) => {
-      for (const [index, row] of rows.entries()) {
-        const vector = vectors[index];
-
-        if (!Array.isArray(vector) || vector.length === 0) {
-          summary.skipped += 1;
-          continue;
-        }
-
-        // Aligned with the active write path via the shared `encodeEmbedding`
-        // helper. remember.ts, upsert.ts, and this CLI all use the same
-        // canonical JSON-array text payload so a backfilled row is
-        // indistinguishable from a freshly written one.
-        await tx.query(
-          `
-            UPDATE ${SQLITE_FACT_STORE_TABLE}
-            SET embedding_blob = ?, updated_at_unix = ?
-            WHERE id = ?
-              AND embedding_blob IS NULL
-          `,
-          [encodeEmbedding(vector), nowUnix, row.id]
+    const items = rows.map((row, index) => {
+      const embedding = vectors[index];
+      if (!Array.isArray(embedding) || embedding.length === 0) {
+        throw new Error(
+          `Embedding provider returned no vector for fact ${row.id}.`
         );
-        summary.updated += 1;
-
-        if (row.doc_id) {
-          syncPending.push({ docId: Number(row.doc_id), embedding: vector });
-        }
       }
+      return {
+        tableId: FACETS_SEARCH_TABLE_ID,
+        docId: Number(row.doc_id),
+        embedding
+      };
     });
 
-    // Mirror embeddings into search_embeddings so the MindBrain native
-    // hybrid search engine can find them. Best-effort per-row; failures are
-    // counted but do not abort the backfill.
+    // MindBrain packs and persists the whole batch transactionally. Node only
+    // orchestrates the provider request and forwards its numeric vectors.
     const config = resolveGhostcrabConfig();
-    for (const { docId, embedding } of syncPending) {
-      try {
-        await runStandaloneSearchEmbeddingUpsert({
-          mindbrainUrl: config.mindbrainUrl,
-          tableId: FACETS_SEARCH_TABLE_ID,
-          docId,
-          embedding
-        });
-      } catch {
-        summary.failed += 1;
-      }
+    try {
+      const result = await runStandaloneSearchEmbeddingBatchUpsert({
+        mindbrainUrl: config.mindbrainUrl,
+        timeoutMs: config.mindbrainHttpTimeoutMs,
+        items
+      });
+      summary.updated += result.processed;
+    } catch (error) {
+      summary.failed += items.length;
+      throw error;
     }
   }
 
@@ -165,7 +143,8 @@ export async function runBackfill(
 
 function buildWhereClause(
   schemaId: string | undefined,
-  limit: number
+  limit: number,
+  offset: number
 ): {
   params: unknown[];
   whereClause: string;
@@ -173,14 +152,23 @@ function buildWhereClause(
   const params: unknown[] = [];
   // Archived rows are history: embedding them costs API calls for content no
   // read path will ever score.
-  const conditions = ["embedding_blob IS NULL", ACTIVE_FACT_WINDOW_SQL];
+  const conditions = [
+    "doc_id IS NOT NULL",
+    `NOT EXISTS (
+      SELECT 1 FROM search_embeddings indexed
+      WHERE indexed.table_id = ?
+        AND indexed.doc_id = ${SQLITE_FACT_STORE_TABLE}.doc_id
+    )`,
+    ACTIVE_FACT_WINDOW_SQL
+  ];
+  params.push(FACETS_SEARCH_TABLE_ID);
 
   if (schemaId) {
     params.push(schemaId);
     conditions.push(`schema_id = ?`);
   }
 
-  params.push(limit);
+  params.push(limit, offset);
 
   return {
     params,

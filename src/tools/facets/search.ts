@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import { resolveGhostcrabConfig } from "../../config/env.js";
-import { cosineSimilarity, decodeEmbedding } from "../../embeddings/blob.js";
 import { FACETS_SEARCH_TABLE_ID } from "../../db/fact-store.js";
 import {
   buildFtsMatchExpression,
@@ -47,16 +46,6 @@ interface FacetsSearchRow {
   version: number;
 }
 
-interface FacetsCandidateRow extends FacetsSearchRow {
-  embedding_blob: unknown;
-}
-
-/**
- * Upper bound on the semantic candidate pool. Phase 3 cosine ranking runs in
- * Node, so the pool size directly maps to memory + latency. 5 000 is a safe
- * guard that avoids recency bias while keeping most corpora fully covered.
- */
-const SEMANTIC_CANDIDATE_LIMIT = 5_000;
 const HYBRID_CANDIDATE_MULTIPLIER = 5;
 const HYBRID_CANDIDATE_FLOOR = 50;
 
@@ -159,9 +148,8 @@ export const searchTool: ToolHandler = {
     let rows: FacetsSearchRow[] = [];
     let semanticAvailable = false;
 
-    // Phase 3: when the embedding provider is configured AND the caller asks
-    // for semantic or hybrid, embed the query once and reuse it across both
-    // the standalone semantic path and the hybrid blend.
+    // JavaScript obtains the query vector from the configured provider, then
+    // delegates all candidate selection and scoring to MindBrain Zig.
     let queryVector: number[] | null = null;
     const wantsSemanticLayer =
       (input.mode === "semantic" || input.mode === "hybrid") &&
@@ -191,12 +179,14 @@ export const searchTool: ToolHandler = {
         : null;
     const ftsRequested = input.mode === "bm25" || input.mode === "hybrid";
 
-    // Path 1a — MindBrain native hybrid (preferred when MindBrain is reachable).
-    // Delegates to the Zig hybrid_search engine which performs a true BM25
-    // posting-bitmap union ∪ ANN vector search, then blends the scores.
-    // Falls through silently on any error so the TypeScript fallback runs.
+    // Path 1a — MindBrain native vector/hybrid search (preferred when MindBrain
+    // is reachable). Pure semantic search sends an empty lexical query and a
+    // vector weight of 1 so embeddings stay inside the Zig engine instead of
+    // crossing the SQL/JSON boundary for TypeScript cosine ranking.
+    // On failure, semantic mode falls back to keyword SQL and hybrid mode to
+    // native SQLite BM25/keyword SQL. JavaScript never recomputes vector ranks.
     if (
-      input.mode === "hybrid" &&
+      (input.mode === "hybrid" || input.mode === "semantic") &&
       queryVector !== null &&
       normalizedQuery.length > 0
     ) {
@@ -217,9 +207,14 @@ export const searchTool: ToolHandler = {
           timeoutMs: config.mindbrainHttpTimeoutMs,
           workspaceId: effectiveWorkspaceId,
           tableId: FACETS_SEARCH_TABLE_ID,
-          query: normalizedQuery,
+          schemaId: effectiveSchemaId,
+          filters: input.filters,
+          query: input.mode === "semantic" ? "" : normalizedQuery,
           embedding: queryVector,
-          vectorWeight: context.retrieval.hybridVectorWeight / totalWeight,
+          vectorWeight:
+            input.mode === "semantic"
+              ? 1
+              : context.retrieval.hybridVectorWeight / totalWeight,
           limit: poolLimit
         });
         if (pool.matches.length > 0) {
@@ -233,108 +228,14 @@ export const searchTool: ToolHandler = {
           );
           if (fetched.length > 0) {
             rows = fetched;
-            modeApplied = "hybrid";
+            modeApplied = input.mode;
             searchBackend = "mindbrain";
             semanticAvailable = pool.matches.some((m) => m.vector_score > 0);
           }
         }
-      } catch {
-        // MindBrain unreachable or not yet running — fall through to TypeScript hybrid.
-      }
-    }
-
-    // Path 1b — TypeScript hybrid fallback: union of BM25 + semantic candidate
-    // pools, re-ranked by a blended score. Used when MindBrain is unavailable.
-    if (
-      modeApplied === "filter" &&
-      input.mode === "hybrid" &&
-      ftsReady &&
-      ftsExpression !== null &&
-      queryVector !== null
-    ) {
-      try {
-        await ensureSearchFtsCaughtUp(context.database);
-        const poolLimit = Math.max(
-          HYBRID_CANDIDATE_FLOOR,
-          input.limit * HYBRID_CANDIDATE_MULTIPLIER
-        );
-        const bm25Candidates = await runFtsCandidatePool({
-          database: context.database,
-          ftsExpression,
-          workspaceId: effectiveWorkspaceId,
-          facetWhereClauses,
-          facetWhereParams,
-          limit: poolLimit
-        });
-        const semanticCandidates = await runSemanticCandidatePool({
-          database: context.database,
-          workspaceId: effectiveWorkspaceId,
-          facetWhereClauses,
-          facetWhereParams,
-          limit: SEMANTIC_CANDIDATE_LIMIT
-        });
-        if (bm25Candidates.length === 0) {
-          notes.push(
-            "Hybrid: BM25 pool returned 0 rows (no keyword matches); ranking by semantic score only."
-          );
-        }
-        const candidates = unionCandidatePools(
-          bm25Candidates,
-          semanticCandidates
-        );
-        const blended = blendBm25AndCosine(candidates, queryVector, {
-          bm25: context.retrieval.hybridBm25Weight,
-          vector: context.retrieval.hybridVectorWeight
-        });
-        if (blended.rows.length > 0) {
-          rows = blended.rows.slice(0, input.limit);
-          modeApplied = "hybrid";
-          semanticAvailable = blended.semanticHits > 0;
-          if (blended.semanticHits === 0) {
-            notes.push(
-              "Hybrid blend ran but no candidate row had a usable embedding; results are BM25-only."
-            );
-          }
-        } else {
-          notes.push(
-            "Hybrid blend produced no results; falling back to bm25/keyword_sql."
-          );
-        }
-      } catch (error) {
-        rows = [];
-        notes.push(
-          `Hybrid path failed (${error instanceof Error ? error.message : "unknown error"}); falling back to bm25/keyword_sql.`
-        );
-      }
-    }
-
-    // Path 2 — pure semantic: cosine over candidate pool.
-    if (
-      modeApplied === "filter" &&
-      input.mode === "semantic" &&
-      queryVector !== null
-    ) {
-      try {
-        const candidates = await runSemanticCandidatePool({
-          database: context.database,
-          workspaceId: effectiveWorkspaceId,
-          facetWhereClauses,
-          facetWhereParams,
-          limit: SEMANTIC_CANDIDATE_LIMIT
-        });
-        const ranked = rankByCosine(candidates, queryVector);
-        if (ranked.semanticHits > 0) {
-          rows = ranked.rows.slice(0, input.limit);
-          modeApplied = "semantic";
-          semanticAvailable = true;
-        } else {
-          notes.push(
-            "Semantic ranking found no rows with usable embeddings; falling back to BM25/keyword_sql. Run `ghostcrab-embeddings backfill` to populate embeddings."
-          );
-        }
       } catch (error) {
         notes.push(
-          `Semantic path failed (${error instanceof Error ? error.message : "unknown error"}); falling back to BM25/keyword_sql.`
+          `Native ${input.mode} search failed (${error instanceof Error ? error.message : "unknown error"}); falling back without JavaScript vector scoring.`
         );
       }
     }
@@ -571,87 +472,6 @@ async function runFtsSearch(
   return await args.database.query<FacetsSearchRow>(sql, params);
 }
 
-async function runFtsCandidatePool(
-  args: RunFtsSearchArgs
-): Promise<FacetsCandidateRow[]> {
-  const whereClauses = buildFAliasedWhere(args.facetWhereClauses);
-
-  const sql = `
-    SELECT
-      f.id,
-      f.schema_id,
-      f.content,
-      f.facets_json,
-      f.created_at_unix,
-      f.version,
-      f.embedding_blob AS embedding_blob,
-      bm25(search_fts) AS score
-    FROM agent_facts AS f
-    JOIN search_fts_docs AS sd
-      ON sd.table_id = ? AND sd.doc_id = f.doc_id
-    JOIN search_fts AS sf
-      ON sf.rowid = sd.fts_rowid
-    WHERE search_fts MATCH ?
-      AND ${whereClauses.join(" AND ")}
-    ORDER BY score
-    LIMIT ?
-  `;
-
-  const params: unknown[] = [
-    FACETS_SEARCH_TABLE_ID,
-    args.ftsExpression,
-    args.workspaceId,
-    ...args.facetWhereParams,
-    args.limit
-  ];
-
-  return await args.database.query<FacetsCandidateRow>(sql, params);
-}
-
-interface RunSemanticCandidatePoolArgs {
-  database: {
-    query: <T>(sql: string, params?: readonly unknown[]) => Promise<T[]>;
-  };
-  workspaceId: string;
-  facetWhereClauses: string[];
-  facetWhereParams: unknown[];
-  limit: number;
-}
-
-async function runSemanticCandidatePool(
-  args: RunSemanticCandidatePoolArgs
-): Promise<FacetsCandidateRow[]> {
-  const whereClauses: string[] = [
-    ACTIVE_FACT_WINDOW_SQL,
-    "workspace_id = ?",
-    "embedding_blob IS NOT NULL",
-    ...args.facetWhereClauses
-  ];
-
-  const sql = `
-    SELECT
-      id,
-      schema_id,
-      content,
-      facets_json,
-      created_at_unix,
-      version,
-      embedding_blob AS embedding_blob,
-      0.0 AS score
-    FROM agent_facts
-    WHERE ${whereClauses.join(" AND ")}
-    LIMIT ?
-  `;
-
-  const params: unknown[] = [
-    args.workspaceId,
-    ...args.facetWhereParams,
-    args.limit
-  ];
-
-  return await args.database.query<FacetsCandidateRow>(sql, params);
-}
-
 function buildFAliasedWhere(facetWhereClauses: string[]): string[] {
   return [
     "f.workspace_id = ?",
@@ -663,16 +483,6 @@ function buildFAliasedWhere(facetWhereClauses: string[]): string[] {
       )
     )
   ];
-}
-
-interface BlendResult {
-  rows: FacetsSearchRow[];
-  semanticHits: number;
-}
-
-interface HybridWeights {
-  bm25: number;
-  vector: number;
 }
 
 /**
@@ -709,10 +519,6 @@ async function fetchFacetsByDocIds(
 ): Promise<FacetsSearchRow[]> {
   if (matches.length === 0) return [];
 
-  const scoreByDocId = new Map<number, number>(
-    matches.map((m) => [m.doc_id, m.combined_score])
-  );
-
   const placeholders = matches.map(() => "?").join(", ");
   const whereClauses = [
     ACTIVE_FACT_WINDOW_SQL,
@@ -744,113 +550,15 @@ async function fetchFacetsByDocIds(
     params
   );
 
-  return rawRows
-    .map((row) => ({
-      ...row,
-      score: scoreByDocId.get(Number(row.doc_id)) ?? 0
-    }))
-    .sort((a, b) => b.score - a.score)
+  const rowByDocId = new Map(
+    rawRows.map((row) => [Number(row.doc_id), row] as const)
+  );
+  return matches
+    .flatMap((match) => {
+      const row = rowByDocId.get(match.doc_id);
+      return row ? [{ ...row, score: match.combined_score }] : [];
+    })
     .slice(0, limit);
-}
-
-/**
- * Merge two candidate pools, keeping BM25-ranked rows first and appending any
- * semantic-only rows (i.e. rows that had no keyword match) at the end.
- * BM25 rows keep their raw BM25 score; semantic-only rows keep score=0.0,
- * which after sign inversion gives them the minimum normalised BM25 component
- * in blendBm25AndCosine, letting the cosine term alone decide their rank.
- */
-function unionCandidatePools(
-  bm25Rows: FacetsCandidateRow[],
-  semanticRows: FacetsCandidateRow[]
-): FacetsCandidateRow[] {
-  const seen = new Set<string>(bm25Rows.map((r) => r.id));
-  const semanticOnly = semanticRows.filter((r) => !seen.has(r.id));
-  return [...bm25Rows, ...semanticOnly];
-}
-
-function blendBm25AndCosine(
-  candidates: FacetsCandidateRow[],
-  queryVector: number[],
-  weights: HybridWeights
-): BlendResult {
-  if (candidates.length === 0) {
-    return { rows: [], semanticHits: 0 };
-  }
-
-  // SQLite's bm25() returns a negative number where smaller is better. Flip
-  // the sign so larger == better and min-max scale within the candidate pool.
-  // Semantic-only rows (score=0.0) land at the minimum after inversion and
-  // therefore receive normalizedBm25=0, relying entirely on their cosine share.
-  const invertedBm25 = candidates.map((row) => -Number(row.score ?? 0));
-  const minBm25 = Math.min(...invertedBm25);
-  const maxBm25 = Math.max(...invertedBm25);
-  const bm25Range = maxBm25 - minBm25;
-
-  // Normalise weights to sum to 1 so the blend is always in [0, 1] regardless
-  // of the raw values supplied by the caller.
-  const totalWeight = weights.bm25 + weights.vector;
-  const bm25Weight = weights.bm25 / totalWeight;
-  const vectorWeight = weights.vector / totalWeight;
-
-  let semanticHits = 0;
-  const scored = candidates.map((row, index) => {
-    const normalizedBm25 =
-      bm25Range > 0 ? (invertedBm25[index] - minBm25) / bm25Range : 1;
-    const decoded = decodeEmbedding(row.embedding_blob);
-    let cosineUnit = 0;
-    if (decoded !== null && decoded.length > 0) {
-      semanticHits += 1;
-      const cos = cosineSimilarity(decoded, queryVector);
-      // Map cosine from [-1,1] to [0,1] so it stays commensurate with the
-      // normalised BM25 score.
-      cosineUnit = Math.max(0, Math.min(1, (cos + 1) / 2));
-    }
-    return {
-      row,
-      normalizedBm25,
-      cosineUnit
-    };
-  });
-
-  // Hybrid scoring formula:
-  //   blended = bm25_weight * norm_bm25 + vector_weight * cosine_unit
-  // Both terms live in [0,1] and weights are normalised to sum to 1, so the
-  // blend is guaranteed to stay in [0,1]. Rows without a usable embedding
-  // receive cosineUnit=0 and rely entirely on their normalised BM25 share.
-  return {
-    rows: scored
-      .map((entry) => ({
-        ...entry.row,
-        score:
-          bm25Weight * entry.normalizedBm25 + vectorWeight * entry.cosineUnit
-      }))
-      .sort((a, b) => b.score - a.score),
-    semanticHits
-  };
-}
-
-function rankByCosine(
-  candidates: FacetsCandidateRow[],
-  queryVector: number[]
-): BlendResult {
-  let semanticHits = 0;
-  const scored: FacetsSearchRow[] = [];
-  for (const candidate of candidates) {
-    const decoded = decodeEmbedding(candidate.embedding_blob);
-    if (decoded === null || decoded.length === 0) {
-      continue;
-    }
-    semanticHits += 1;
-    const cos = cosineSimilarity(decoded, queryVector);
-    // Map from [-1,1] to [0,1] to match the hybrid mode cosine scale.
-    scored.push({
-      ...candidate,
-      score: (cos + 1) / 2
-    });
-  }
-  scored.sort((a, b) => b.score - a.score);
-  return { rows: scored, semanticHits };
 }
 
 interface RunKeywordSqlSearchArgs {

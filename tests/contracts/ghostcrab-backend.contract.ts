@@ -70,6 +70,7 @@ const ADDITIONAL_REQUIRED_ROUTES = [
   route("GET", "/api/mindbrain/graph/subgraph"),
   route("POST", "/api/mindbrain/facts/write"),
   route("POST", "/api/mindbrain/search-embedding-upsert"),
+  route("POST", "/api/mindbrain/search-embedding-batch-upsert"),
   route("POST", "/api/mindbrain/ghostcrab/search"),
   route("GET", "/api/mindbrain/ghostcrab/projection-get"),
   route("GET", "/api/mindbrain/ghostcrab/graph-search"),

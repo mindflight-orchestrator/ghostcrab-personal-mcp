@@ -1,7 +1,7 @@
 # GhostCrab Personal v0.7.2
 
 Prepared on 14 September 2026 with GhostCrab Personal `0.7.2` and the pinned
-MindBrain engine commit `500f3818936d49e53f35303d4dfece21900a3693`. The
+MindBrain engine commit `bf3230ebd151156a1d0597cded32718609c7249d`. The
 vendored engine is identical to `../mindbrain-perso` `main`.
 
 ## Changes
@@ -14,6 +14,13 @@ vendored engine is identical to `../mindbrain-perso` `main`.
   write paths. Publication now depends on the write-integrity workflows.
 - Clean CI checkouts initialize the pinned MindBrain submodule, build the native
   document binary and use tracked test fixtures.
+- The sequential E2E gate starts and health-checks its own native backend, and
+  upsert accepts the opaque row identifiers returned by MindBrain.
+- Semantic and hybrid retrieval no longer decode or score vectors in
+  JavaScript. MindBrain Zig owns candidate selection, cosine scoring and score
+  fusion; JavaScript only obtains provider vectors and forwards requests.
+- Embedding backfill sends one transactional batch to MindBrain Zig instead of
+  updating facts and mirroring every vector from JavaScript.
 - Every build removes stale compiler output before recreating `dist`, keeping
   local and clean-checkout tarballs aligned.
 - The all-tools smoke matrix covers all 74 registered MCP tools, including
@@ -24,18 +31,17 @@ The detailed operation inventory, measured coverage and remaining risks are in
 
 ## Validation
 
-- Default suite with coverage: 880 passed, 15 explicitly skipped.
+- Default suite with coverage: 868 passed, 20 explicitly skipped.
 - Required SQLite integrity suite: 52 passed.
-- Required native integrity suite: 14 passed.
-- Integration/e2e: 107 passed.
+- Required native integrity suite: 15 passed, including the real
+  TypeScript-to-Zig embedding batch contract.
+- Integration/e2e: 104 passed.
 - GraphRAG: 35 passed, including 2 explicitly optional native cases.
 - Mutation pilot: 205/241 killed, score 85.06%; all 36 undetected mutations are
   explicitly reviewed.
 - Typecheck, lint, build, frozen offline pnpm lockfile, npm lockfile validation,
   package verification and 74/74 MCP smoke calls passed.
-- The local pnpm archive contains 685 files from an explicit, Git-tracked
-  package list. `npm pack` validates 686 files because npm also includes the
-  nested `examples/immeuble/README.md` automatically.
+- The local pnpm archive and `npm pack` validation both contain 686 files.
 - Local archive installation passed CLI startup, authorization, MCP tool
   verification, host bootstrap and Cursor setup.
 

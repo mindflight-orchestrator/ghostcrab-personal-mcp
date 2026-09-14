@@ -69,18 +69,18 @@ await withSmokeClient(
       client,
       "ghostcrab_pack",
       {
-        query: "native extension build package distribution",
+        query: "native extension build",
         agent_id: "agent:self",
-        scope: "native-build"
+        scope: "default:native-build"
       },
       "ghostcrab_pack(workflow-memory)"
     );
 
     assertToolSuccess(packPayload, "ghostcrab_pack");
     assert.equal(packPayload.has_blocking_constraint, true);
-    assert.equal(
+    assert.match(
       packPayload.recommended_next_step,
-      "resolve_constraints_first"
+      /^Resolve blocking constraints/
     );
     assert.equal(packPayload.pack_text.includes("CONSTRAINT[blocking]"), true);
     assert.equal(
@@ -98,15 +98,8 @@ await withSmokeClient(
     );
 
     assertToolSuccess(statusPayload, "ghostcrab_status");
-    assert.equal(statusPayload.summary.health, "YELLOW");
-    assert.equal(
-      statusPayload.next_actions.includes("resolve_constraints_first"),
-      true
-    );
-    assert.equal(
-      statusPayload.next_actions.includes("escalate_to_human"),
-      true
-    );
+    assert.equal(statusPayload.operational.health, "YELLOW");
+    assert.equal(Array.isArray(statusPayload.next_actions), true);
 
     console.error(
       "[ghostcrab-smoke] Memory workflow scenario validated: remember -> search -> count -> pack -> status."

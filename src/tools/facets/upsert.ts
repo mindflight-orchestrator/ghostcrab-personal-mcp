@@ -48,7 +48,7 @@ export const UpsertInput = z
     workspace_id: z.string().min(1).optional(),
     match: z
       .object({
-        id: z.string().uuid().optional(),
+        id: z.string().trim().min(1).optional(),
         facets: z.record(z.string(), z.unknown()).default({})
       })
       .strict()
@@ -98,9 +98,9 @@ export const upsertTool: ToolHandler = {
           properties: {
             id: {
               type: "string",
-              format: "uuid",
+              minLength: 1,
               description:
-                "Database row id (UUID) when already known from ghostcrab_remember or a previous upsert response."
+                "Opaque database row id when already known from ghostcrab_remember or a previous upsert response."
             },
             facets: {
               type: "object",
@@ -421,10 +421,8 @@ export const upsertTool: ToolHandler = {
                 facets = ?,
                 facets_json = ?,
                 -- Only a content change may touch the vector. A facets-only
-                -- update leaves the text alone, so blanking the embedding here
-                -- would drop the row out of the semantic pool
-                -- (embedding_blob IS NOT NULL) for content that never changed,
-                -- while search_embeddings still holds the old vector.
+                -- update leaves the text alone, so blanking the legacy copy
+                -- would desynchronise it from MindBrain's native vector index.
                 embedding_blob = CASE WHEN ? = 1 THEN ? ELSE embedding_blob END,
                 created_by = ?,
                 valid_until_unix = ?,

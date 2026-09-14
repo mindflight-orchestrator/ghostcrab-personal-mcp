@@ -99,7 +99,11 @@ export async function callToolJson(client, name, args, label = name) {
 }
 
 export function assertToolSuccess(payload, toolName) {
-  assert.equal(payload.ok, true, `Expected ${toolName} to return ok=true.`);
+  assert.equal(
+    payload.ok,
+    true,
+    `Expected ${toolName} to return ok=true. Payload: ${JSON.stringify(payload)}`
+  );
   assert.equal(payload.tool, toolName);
   assert.equal(typeof payload.surface_version, "string");
 }

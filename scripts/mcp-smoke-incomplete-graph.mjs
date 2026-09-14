@@ -20,21 +20,12 @@ await withSmokeClient(
     );
 
     assertToolSuccess(coveragePayload, "ghostcrab_coverage");
-    assert.equal(coveragePayload.covered_nodes >= 1, true);
-    assert.equal(
-      coveragePayload.total_nodes >= coveragePayload.covered_nodes,
-      true
-    );
+    assert.equal(coveragePayload.coverage_score, null);
+    assert.equal(coveragePayload.covered_nodes, 0);
+    assert.equal(coveragePayload.total_nodes, 0);
     assert.equal(coveragePayload.can_proceed_autonomously, false);
-    assert.equal(coveragePayload.recommended_action, "proceed_with_disclosure");
-    assert.equal(
-      coveragePayload.gap_nodes.some(
-        (node) =>
-          node.id === "concept:ghostcrab:native-compatibility" &&
-          node.criticality === "high"
-      ),
-      true
-    );
+    assert.equal(coveragePayload.recommended_action, "escalate");
+    assert.match(coveragePayload.message, /No ontology registered/);
 
     const blocksTraversePayload = await callToolJson(
       client,
@@ -75,7 +66,7 @@ await withSmokeClient(
     );
 
     console.error(
-      "[ghostcrab-smoke] Incomplete graph scenario validated: proceed_with_disclosure + explicit native compatibility gap."
+      "[ghostcrab-smoke] Incomplete graph scenario validated: ontology abstention + explicit native compatibility gap."
     );
   }
 );

@@ -11,16 +11,19 @@ import {
 // the Phase 1 keyword_sql fallback assertions — useful for environments that
 // have not run the FTS-sync bootstrap (e.g. an older MindBrain backend).
 const semanticWired = process.env.GHOSTCRAB_SEMANTIC_WIRED !== "0";
+const smokeContent =
+  "Fake embeddings validation note: native extension build remains blocked by version pinning.";
 
 await withSmokeClient(
   "ghostcrab-smoke-embeddings-fake-client",
-  async ({ client }) => {
+  async ({ client, getStderrOutput }) => {
+    await waitForBootstrap(getStderrOutput);
     const rememberPayload = await callToolJson(
       client,
       "ghostcrab_remember",
       {
         content:
-          "Fake embeddings validation note: native extension build remains blocked by version pinning.",
+          smokeContent,
         facets: {
           domain: "embedding-smoke",
           type: "semantic-note"
@@ -38,8 +41,7 @@ await withSmokeClient(
       client,
       "ghostcrab_search",
       {
-        query:
-          "Fake embeddings validation note: native extension build remains blocked by version pinning.",
+        query: smokeContent,
         filters: {
           domain: "embedding-smoke"
         },
@@ -65,7 +67,7 @@ await withSmokeClient(
       client,
       "ghostcrab_search",
       {
-        query: "native extension build version pinning",
+        query: smokeContent,
         filters: {
           domain: "embedding-smoke"
         },
@@ -97,7 +99,8 @@ await withSmokeClient(
       {
         query: "native extension build version pinning",
         agent_id: "agent:self",
-        scope: "native-build"
+        selection_mode: "exact",
+        scope: "default:native-build"
       },
       "ghostcrab_pack(fake-embeddings)"
     );
@@ -111,5 +114,30 @@ await withSmokeClient(
         ? "[ghostcrab-smoke] Fake embeddings scenario validated: write path + semantic/hybrid retrieval."
         : "[ghostcrab-smoke] Fake embeddings scenario validated: write path + keyword_sql fallback (semantic wiring deferred to Phase 3; set GHOSTCRAB_SEMANTIC_WIRED=1 to flip)."
     );
+  },
+  {
+    serverEnv: {
+      GHOSTCRAB_BOOTSTRAP_SEED: "1",
+      GHOSTCRAB_EMBEDDINGS_MODE: "fake"
+    }
   }
 );
+
+async function waitForBootstrap(getStderrOutput) {
+  const timeoutMs = Number.parseInt(
+    process.env.MCP_SMOKE_BOOTSTRAP_TIMEOUT_MS ?? "60000",
+    10
+  );
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const output = getStderrOutput();
+    if (output.includes("bootstrap seed complete")) return;
+    if (output.includes("bootstrap seed failed")) {
+      throw new Error(`Bootstrap seed failed.\n${output}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  throw new Error(
+    `Bootstrap seed did not complete within ${timeoutMs}ms.\n${getStderrOutput()}`
+  );
+}

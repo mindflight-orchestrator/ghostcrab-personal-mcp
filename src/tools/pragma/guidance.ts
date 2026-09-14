@@ -470,117 +470,6 @@ function escapeRegex(s: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Embedding similarity layer (on-the-fly expansion embeddings)
-// ---------------------------------------------------------------------------
-
-interface EmbeddingMatch {
-  family: string;
-  score: number;
-  source: "signal_content" | "expansion";
-}
-
-type GuidanceContext = Parameters<ToolHandler["handler"]>[1];
-
-async function scoreEmbeddingSimilarity(
-  goal: string,
-  signalRows: SignalRow[],
-  context: GuidanceContext
-): Promise<EmbeddingMatch[]> {
-  const embeddingRuntime = context.embeddings.getStatus();
-  if (!embeddingRuntime.vectorSearchReady) {
-    return [];
-  }
-
-  let goalEmbedding: number[];
-  try {
-    const [emb] = await context.embeddings.embedMany([goal]);
-    if (!emb || emb.length === 0) return [];
-    goalEmbedding = emb;
-  } catch {
-    return [];
-  }
-
-  const familyTexts: Array<{
-    family: string;
-    text: string;
-    source: "signal_content" | "expansion";
-  }> = [];
-
-  for (const row of signalRows) {
-    const families: string[] = Array.isArray(row.candidate_activity_families)
-      ? row.candidate_activity_families
-      : [];
-    for (const fam of families) {
-      familyTexts.push({
-        family: fam,
-        text: row.content,
-        source: "signal_content"
-      });
-    }
-  }
-
-  for (const [family, bank] of Object.entries(FAMILY_ALIAS_BANK)) {
-    for (const exp of bank.expansions) {
-      familyTexts.push({ family, text: exp, source: "expansion" });
-    }
-  }
-
-  const uniqueTexts = [...new Set(familyTexts.map((ft) => ft.text))];
-
-  let textEmbeddings: number[][];
-  try {
-    textEmbeddings = await context.embeddings.embedMany(uniqueTexts);
-  } catch {
-    return [];
-  }
-
-  const textToEmbedding = new Map<string, number[]>();
-  for (let i = 0; i < uniqueTexts.length; i++) {
-    if (textEmbeddings[i]) {
-      textToEmbedding.set(uniqueTexts[i], textEmbeddings[i]);
-    }
-  }
-
-  const familyBestScore = new Map<
-    string,
-    { score: number; source: "signal_content" | "expansion" }
-  >();
-
-  for (const ft of familyTexts) {
-    const emb = textToEmbedding.get(ft.text);
-    if (!emb) continue;
-    const sim = cosineSimilarity(goalEmbedding, emb);
-    const prev = familyBestScore.get(ft.family);
-    if (!prev || sim > prev.score) {
-      familyBestScore.set(ft.family, { score: sim, source: ft.source });
-    }
-  }
-
-  const results: EmbeddingMatch[] = [];
-  for (const [family, val] of familyBestScore) {
-    if (val.score > 0.15) {
-      results.push({ family, score: val.score, source: val.source });
-    }
-  }
-  results.sort((a, b) => b.score - a.score);
-  return results;
-}
-
-function cosineSimilarity(a: number[], b: number[]): number {
-  if (a.length !== b.length || a.length === 0) return 0;
-  let dot = 0;
-  let normA = 0;
-  let normB = 0;
-  for (let i = 0; i < a.length; i++) {
-    dot += a[i] * b[i];
-    normA += a[i] * a[i];
-    normB += b[i] * b[i];
-  }
-  const denom = Math.sqrt(normA) * Math.sqrt(normB);
-  return denom > 0 ? dot / denom : 0;
-}
-
-// ---------------------------------------------------------------------------
 // Heuristic LLM-free classification fallback (bounded, no external calls)
 // ---------------------------------------------------------------------------
 
@@ -729,7 +618,6 @@ interface MergedFamilyMatch {
 
 function mergeScores(
   keywordMatches: KeywordMatch[],
-  embeddingMatches: EmbeddingMatch[],
   heuristicMatches: ClassificationResult[],
   familyMeta: Map<
     string,
@@ -740,7 +628,6 @@ function mergeScores(
     string,
     {
       keyword: number;
-      embedding: number;
       heuristic: number;
       matchSources: Set<string>;
       matchedTerms: string[];
@@ -751,7 +638,6 @@ function mergeScores(
     if (!merged.has(family)) {
       merged.set(family, {
         keyword: 0,
-        embedding: 0,
         heuristic: 0,
         matchSources: new Set(),
         matchedTerms: []
@@ -766,11 +652,6 @@ function mergeScores(
     entry.matchSources.add("keyword");
     entry.matchedTerms = km.matched_terms;
   }
-  for (const em of embeddingMatches) {
-    const entry = ensure(em.family);
-    entry.embedding = Math.max(entry.embedding, em.score);
-    entry.matchSources.add(`embedding:${em.source}`);
-  }
   for (const hm of heuristicMatches) {
     const entry = ensure(hm.family);
     entry.heuristic = hm.confidence;
@@ -780,7 +661,7 @@ function mergeScores(
   const results: MergedFamilyMatch[] = [];
   for (const [family, scores] of merged) {
     const combinedScore =
-      0.4 * scores.keyword + 0.35 * scores.embedding + 0.25 * scores.heuristic;
+      (0.4 * scores.keyword + 0.25 * scores.heuristic) / 0.65;
 
     const meta = familyMeta.get(family);
     results.push({
@@ -1105,14 +986,6 @@ function generateInterpretation(
 // Types
 // ---------------------------------------------------------------------------
 
-interface SignalRow {
-  signal_id: string;
-  signal_type: string | null;
-  content: string;
-  examples: unknown;
-  candidate_activity_families: unknown;
-}
-
 // ---------------------------------------------------------------------------
 // Tool definition
 // ---------------------------------------------------------------------------
@@ -1179,55 +1052,21 @@ export const guidanceTool: ToolHandler = {
       }
     }
 
-    // 2. Load signal patterns from DB
-    const signalRows = await context.database.query<SignalRow>(
-      `
-        SELECT
-          facets_json->>'signal_id' AS signal_id,
-          facets_json->>'signal_type' AS signal_type,
-          content,
-          facets_json->'examples' AS examples,
-          facets_json->'candidate_activity_families' AS candidate_activity_families
-        FROM mb_pragma.agent_facts
-        WHERE schema_id = 'ghostcrab:signal-pattern'
-          AND ${ACTIVE_FACT_WINDOW_SQL}
-      `
-    );
-
-    // 3. Layer 1: keyword matching (expanded pattern bank)
+    // 2. Keyword matching (expanded pattern bank)
     const keywordMatches = scoreKeywordMatches(goalNormalized);
 
-    // 4. Layer 2: embedding similarity (on-the-fly expansion — SQLite has no pgvector)
-    let embeddingMatches: EmbeddingMatch[] = [];
-
-    try {
-      embeddingMatches = await scoreEmbeddingSimilarity(
-        input.goal,
-        signalRows,
-        context
-      );
-    } catch {
-      notes.push(
-        "Embedding similarity unavailable; using keyword and heuristic matching only."
-      );
-    }
-
-    // 5. Layer 3: structural heuristic classification
+    // 3. Structural heuristic classification. Semantic guidance matching will
+    // only return when MindBrain exposes a native indexed contract for it.
     const heuristicMatches = classifyByHeuristics(goalNormalized);
 
-    // 6. Merge all layers
-    const merged = mergeScores(
-      keywordMatches,
-      embeddingMatches,
-      heuristicMatches,
-      familyMeta
-    );
+    // 4. Merge the bounded orchestration layers.
+    const merged = mergeScores(keywordMatches, heuristicMatches, familyMeta);
 
     // Keep top matches above a minimum threshold
     const MIN_SCORE = 0.05;
     const topMatches = merged.filter((m) => m.score >= MIN_SCORE).slice(0, 5);
 
-    // 7. Check if workspace exists
+    // 5. Check if workspace exists
     let hasExistingWorkspace = false;
     if (input.workspace_id) {
       const wsRows = await context.database.query<{ id: string }>(
@@ -1246,7 +1085,7 @@ export const guidanceTool: ToolHandler = {
       }
     }
 
-    // 8. Generate outputs
+    // 6. Generate outputs
     const matchedFamilies = topMatches.map((m) => m.activity_family);
     const interpretation = generateInterpretation(input.goal, topMatches);
     const clarifyingQuestions = generateClarifyingQuestions(
@@ -1260,7 +1099,7 @@ export const guidanceTool: ToolHandler = {
       hasExistingWorkspace
     );
 
-    // 9. Load recipe hints for top family
+    // 7. Load recipe hints for top family
     let recipeHint: Record<string, unknown> | null = null;
     if (topFamily) {
       const recipeRows = await context.database.query<{
@@ -1296,8 +1135,6 @@ export const guidanceTool: ToolHandler = {
       }
     }
 
-    const embeddingRuntime = context.embeddings.getStatus();
-
     return createToolSuccessResult("ghostcrab_modeling_guidance", {
       goal: input.goal,
       workspace_id: input.workspace_id ?? null,
@@ -1305,9 +1142,9 @@ export const guidanceTool: ToolHandler = {
       matched_activity_families: topMatches,
       matching_layers: {
         keyword_matches: keywordMatches.length,
-        embedding_matches: embeddingMatches.length,
+        embedding_matches: 0,
         heuristic_matches: heuristicMatches.length,
-        embedding_available: embeddingRuntime.vectorSearchReady
+        embedding_available: false
       },
       clarifying_questions: clarifyingQuestions,
       suggested_tool_steps: suggestedSteps,

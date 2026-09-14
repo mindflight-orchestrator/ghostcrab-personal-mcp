@@ -372,10 +372,6 @@ async function fetchFacetsByDocIds(
 ): Promise<FactRow[]> {
   if (matches.length === 0) return [];
   const docIds = matches.map((m) => m.doc_id);
-  const scoreByDocId = new Map(
-    matches.map((m) => [m.doc_id, m.combined_score])
-  );
-
   const whereClauses = [
     `doc_id IN (${docIds.map(() => "?").join(", ")})`,
     "workspace_id = ?",
@@ -397,13 +393,15 @@ async function fetchFacetsByDocIds(
     sqlParams
   );
 
-  return rows
-    .map((row) => ({
-      id: row.id,
-      content: row.content,
-      score: scoreByDocId.get(Number(row.doc_id)) ?? 0
-    }))
-    .sort((a, b) => b.score - a.score);
+  const rowByDocId = new Map(
+    rows.map((row) => [Number(row.doc_id), row] as const)
+  );
+  return matches.flatMap((match) => {
+    const row = rowByDocId.get(match.doc_id);
+    return row
+      ? [{ id: row.id, content: row.content, score: match.combined_score }]
+      : [];
+  });
 }
 
 async function fetchFacetsByLocalFts(

@@ -3916,7 +3916,7 @@ const BOOTSTRAP_PROJECTIONS: BootstrapProjection[] = [
       "Deliver a public GhostCrab MCP package with reproducible Docker fallback validation and stable tool contracts.",
     weight: 0.95,
     status: "active",
-    scope: "ghostcrab-product",
+    scope: "default:ghostcrab-product",
     sourceType: "bootstrap",
     lookup: {
       agent_id: "agent:self",
@@ -3932,7 +3932,7 @@ const BOOTSTRAP_PROJECTIONS: BootstrapProjection[] = [
       "Treat native extension build as blocked until the canonical Zig/PostgreSQL version matrix is pinned.",
     weight: 1,
     status: "blocking",
-    scope: "native-build",
+    scope: "default:native-build",
     sourceType: "bootstrap",
     lookup: {
       agent_id: "agent:self",
@@ -3948,7 +3948,7 @@ const BOOTSTRAP_PROJECTIONS: BootstrapProjection[] = [
       "Run verify:e2e before distribution-facing changes so the native Docker bootstrap stack and public MCP scenarios stay aligned.",
     weight: 0.82,
     status: "active",
-    scope: "distribution",
+    scope: "default:distribution",
     sourceType: "bootstrap",
     lookup: {
       agent_id: "agent:self",

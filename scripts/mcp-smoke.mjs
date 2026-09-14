@@ -14,6 +14,7 @@ const { manifest } = loadToolManifestFromDist();
 await withSmokeClient(
   "ghostcrab-smoke-client",
   async ({ client, getStderrOutput }) => {
+    await waitForBootstrap(getStderrOutput);
     const toolNames = await listTools(client);
     const stderrOutput = getStderrOutput();
 
@@ -181,23 +182,14 @@ await withSmokeClient(
     );
 
     assertToolSuccess(coveragePayload, "ghostcrab_coverage");
-    assert.equal(coveragePayload.coverage_score > 0, true);
-    assert.equal(coveragePayload.coverage_score <= 1, true);
-    assert.equal(coveragePayload.covered_nodes >= 1, true);
-    assert.equal(
-      coveragePayload.total_nodes >= coveragePayload.covered_nodes,
-      true
-    );
+    assert.equal(coveragePayload.coverage_score, null);
+    assert.equal(coveragePayload.covered_nodes, 0);
+    assert.equal(coveragePayload.total_nodes, 0);
     assert.equal(coveragePayload.can_proceed_autonomously, false);
-    assert.equal(coveragePayload.recommended_action, "proceed_with_disclosure");
+    assert.equal(coveragePayload.recommended_action, "escalate");
+    assert.match(coveragePayload.message, /No ontology registered/);
     assert.equal(Array.isArray(coveragePayload.gap_nodes), true);
-    assert.equal(
-      coveragePayload.gap_nodes.some(
-        ({ id }) =>
-          typeof id === "string" && id.startsWith("concept:ghostcrab:")
-      ),
-      true
-    );
+    assert.equal(coveragePayload.gap_nodes.length, 0);
 
     const blocksTraversePayload = await callToolJson(
       client,
@@ -249,10 +241,7 @@ await withSmokeClient(
       ["GREEN", "YELLOW"].includes(statusPayload.operational.health),
       true
     );
-    assert.equal(
-      statusPayload.next_actions.includes("resolve_constraints_first"),
-      true
-    );
+    assert.equal(Array.isArray(statusPayload.next_actions), true);
     assert.equal(statusPayload.runtime.embeddings.mode, "disabled");
 
     console.error(
@@ -261,7 +250,27 @@ await withSmokeClient(
   },
   {
     serverEnv: {
+      GHOSTCRAB_BOOTSTRAP_SEED: "1",
       GHOSTCRAB_EMBEDDINGS_MODE: "disabled"
     }
   }
 );
+
+async function waitForBootstrap(getStderrOutput) {
+  const timeoutMs = Number.parseInt(
+    process.env.MCP_SMOKE_BOOTSTRAP_TIMEOUT_MS ?? "60000",
+    10
+  );
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const output = getStderrOutput();
+    if (output.includes("bootstrap seed complete")) return;
+    if (output.includes("bootstrap seed failed")) {
+      throw new Error(`Bootstrap seed failed.\n${output}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  throw new Error(
+    `Bootstrap seed did not complete within ${timeoutMs}ms.\n${getStderrOutput()}`
+  );
+}

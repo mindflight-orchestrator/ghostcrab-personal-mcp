@@ -1,18 +1,18 @@
 {
   "baseline": "836 passing, 15 skipped; 66.55% lines, 55.27% branches before this hardening pass",
   "default_suite": {
-    "passed": 880,
-    "skipped": 15,
-    "files_passed": 100
+    "passed": 868,
+    "skipped": 20,
+    "files_passed": 102
   },
   "sqlite_integrity_suite": {
     "passed": 52,
     "skipped": 0
   },
   "native_integrity_suite": {
-    "passed": 14,
+    "passed": 15,
     "skipped": 0,
-    "includes": "3 real MCP cases + 10 native memory cases + 1 collection lifecycle case"
+    "includes": "3 real MCP cases + 10 native memory cases + 1 collection lifecycle case + 1 TypeScript-to-Zig embedding batch case"
   },
   "generated_sequences": {
     "seed": 20260914,
@@ -51,28 +51,28 @@
   },
   "coverage": {
     "lines": {
-      "total": 5905,
-      "covered": 3965,
+      "total": 5730,
+      "covered": 3906,
       "skipped": 0,
-      "pct": 67.14
+      "pct": 68.16
     },
     "statements": {
-      "total": 6132,
-      "covered": 4071,
+      "total": 5944,
+      "covered": 4011,
       "skipped": 0,
-      "pct": 66.38
+      "pct": 67.47
     },
     "functions": {
-      "total": 955,
-      "covered": 713,
+      "total": 935,
+      "covered": 710,
       "skipped": 0,
-      "pct": 74.65
+      "pct": 75.93
     },
     "branches": {
-      "total": 5104,
-      "covered": 2832,
+      "total": 5017,
+      "covered": 2813,
       "skipped": 0,
-      "pct": 55.48
+      "pct": 56.06
     },
     "branchesTrue": {
       "total": 0,
@@ -196,8 +196,8 @@
   },
   "local_backend": {
     "path": "cmd/backend/zig-out/bin/ghostcrab-backend",
-    "sha256": "9f471e2f778de51fe98aafa4fed207432eccdcbde860c3d949d95f6ad3d34744",
-    "rebuilt_in_this_audit": false
+    "sha256": "dbc06be33862c659887582ced2d8e3f1166e538cbc36f235dc990bd87ee49add",
+    "rebuilt_in_this_audit": true
   },
   "publication": "No commit, push, remote CI run, npm stage or live data mutation",
   "npm_isolated_install": {
@@ -208,5 +208,5 @@
     "package_lock_sha256": "104211df684254c052d4efbcf365005a86c0e48f3b442d55dbdd4be267604a2c"
   },
   "base_commit": "8bc475615e054e0ce3c3fc10ae3ae2947dcfd494",
-  "vendored_engine_commit": "500f3818936d49e53f35303d4dfece21900a3693"
+  "vendored_engine_commit": "bf3230ebd151156a1d0597cded32718609c7249d"
 }

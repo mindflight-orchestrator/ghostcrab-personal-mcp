@@ -39,7 +39,7 @@ jobs:
         run: npm run test
 
   docker-native:
-    name: Docker native
+    name: Sequential native E2E
     runs-on: ubuntu-latest
     needs: node
     steps:
@@ -52,12 +52,33 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Set up Zig 0.16.0
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.16.0
+
       - name: Install dependencies
         run: npm ci
 
+      - name: Build ghostcrab-backend
+        run: BACKEND_VENDOR_UPDATE=0 npm run backend:build
+
       - name: Run sequential E2E verification
         run: |
-          GHOSTCRAB_POSTGRES_STACK=native PG_PORT=5432 DATABASE_URL=postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab npm run verify:e2e
+          cmd/backend/zig-out/bin/ghostcrab-backend \
+            --addr 127.0.0.1:8091 --db "$RUNNER_TEMP/e2e.sqlite" > "$RUNNER_TEMP/e2e-backend.log" 2>&1 &
+          e2e_backend_pid=$!
+          trap 'kill "$e2e_backend_pid"; wait "$e2e_backend_pid" || true' EXIT
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8091/health; then break; fi
+            if ! kill -0 "$e2e_backend_pid" 2>/dev/null; then
+              cat "$RUNNER_TEMP/e2e-backend.log"
+              exit 1
+            fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8091/health
+          GHOSTCRAB_MINDBRAIN_URL=http://127.0.0.1:8091 npm run verify:e2e
 
   immeuble-live:
     name: Immeuble live backend

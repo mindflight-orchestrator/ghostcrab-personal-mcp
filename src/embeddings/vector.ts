@@ -5,27 +5,24 @@ export function createDeterministicUnitVector(
   dimensions: number
 ): number[] {
   const values = new Array<number>(dimensions).fill(0);
-  let norm = 0;
+  if (dimensions === 0) return values;
 
-  for (let index = 0; index < dimensions; index += 1) {
-    const digest = createHash("sha256").update(`${text}:${index}`).digest();
-    const raw = digest.readInt16BE(index % (digest.length - 1));
-    const normalized = raw / 32_768;
-
-    values[index] = normalized;
-    norm += normalized * normalized;
+  // Test-only fake provider: one digest and at most eight assignments. It must
+  // not turn local validation into a JavaScript embedding workload.
+  const digest = createHash("sha256").update(text).digest();
+  const activeDimensions = Math.min(8, dimensions);
+  const components = new Map<number, number>();
+  for (let index = 0; index < activeDimensions; index += 1) {
+    const digestOffset = (index * 2) % (digest.length - 1);
+    const vectorIndex = digest.readUInt16BE(digestOffset) % dimensions;
+    const sign = (digest[(index + 16) % digest.length] & 1) === 0 ? -1 : 1;
+    components.set(vectorIndex, (components.get(vectorIndex) ?? 0) + sign);
   }
 
-  const scale = Math.sqrt(norm) || 1;
-  return values.map((value) => value / scale);
-}
-
-/**
- * @deprecated Prefer `encodeEmbedding` from `./blob.js`. Kept as a thin alias
- * because the wire format is the same (canonical JSON-array text payload
- * stored in `facets.embedding_blob`). Will be removed once all call sites
- * have migrated.
- */
-export function formatPgVector(vector: number[]): string {
-  return `[${vector.map((value) => Number(value).toString()).join(",")}]`;
+  const norm =
+    Math.sqrt(
+      [...components.values()].reduce((sum, value) => sum + value * value, 0)
+    ) || 1;
+  for (const [index, value] of components) values[index] = value / norm;
+  return values;
 }

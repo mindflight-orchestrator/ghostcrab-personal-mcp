@@ -134,6 +134,16 @@ describe("MCP inputSchema contract (drift guard)", () => {
       ).toBe(false);
     });
 
+    it("accepts the opaque row ids returned by the native MindBrain engine", () => {
+      expect(
+        UpsertInput.safeParse({
+          schema_id: "mindbrain:note",
+          match: { id: "V1StGXR8_Z5jdHi6B-myT" },
+          set_facets: { status: "active" }
+        }).success
+      ).toBe(true);
+    });
+
     it("documents set_facets as an open object", () => {
       const setFacets = (
         upsertTool.definition.inputSchema as {

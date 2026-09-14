@@ -15,7 +15,8 @@ export default defineConfig({
     include: [
       "tests/integration/mcp/write-integrity.test.ts",
       "tests/unit/memory-personal-native.test.ts",
-      "tests/unit/collection-facets-native.test.ts"
+      "tests/unit/collection-facets-native.test.ts",
+      "tests/unit/search-embedding-batch-native.test.ts"
     ],
     hookTimeout: 20_000,
     testTimeout: 60_000

@@ -115,4 +115,22 @@ describe("release publication boundary", () => {
       /^npm run immeuble:build && .*verify-immeuble-acceptance\.mjs/
     );
   });
+
+  it("starts a healthy native backend before sequential E2E verification", () => {
+    const job = ciWorkflow.jobs["docker-native"];
+    expect(
+      job.steps.some(
+        (step: { run?: string }) =>
+          step.run === "BACKEND_VENDOR_UPDATE=0 npm run backend:build"
+      )
+    ).toBe(true);
+    const e2e = job.steps.find(
+      (step: { name?: string }) =>
+        step.name === "Run sequential E2E verification"
+    );
+    expect(e2e.run).toContain("ghostcrab-backend");
+    expect(e2e.run).toContain("curl -fsS http://127.0.0.1:8091/health");
+    expect(e2e.run).toContain("npm run verify:e2e");
+    expect(e2e.run).not.toContain("GHOSTCRAB_POSTGRES_STACK");
+  });
 });

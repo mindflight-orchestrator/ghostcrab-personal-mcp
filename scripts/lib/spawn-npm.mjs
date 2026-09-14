@@ -87,7 +87,10 @@ function spawnPackageManager(tool, args, opts = {}) {
     if (hasRuntimeSuccess(result)) {
       return result;
     }
-    if (result.error.code === "EPERM" || result.error.code === "ENOENT") {
+    if (
+      result.error &&
+      (result.error.code === "EPERM" || result.error.code === "ENOENT")
+    ) {
       const cliPath = resolveNodeManagerCli(tool);
       if (cliPath) {
         const cliResult = spawnSync(

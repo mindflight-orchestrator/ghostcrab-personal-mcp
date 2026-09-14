@@ -52,9 +52,10 @@ try {
     client,
     "ghostcrab_pack",
     {
-      query: "native extension build package distribution",
+      query: "native extension build",
       agent_id: "agent:self",
-      scope: "native-build"
+      selection_mode: "exact",
+      scope: "default:native-build"
     },
     "ghostcrab_pack"
   );
@@ -65,7 +66,7 @@ try {
       tool_count: toolNames.length,
       tools: toolNames,
       status: {
-        health: statusPayload.summary.health,
+        health: statusPayload.operational.health,
         next_actions: statusPayload.next_actions
       },
       pack: {

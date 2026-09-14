@@ -6,12 +6,14 @@ import type { DatabaseClient, Queryable } from "../../src/db/client.js";
 function createMockDatabase(): {
   database: DatabaseClient;
   insertedFacetKeys: Set<string>;
+  insertedProjectionScopes: Set<string>;
 } {
   const insertedAgentStates = new Set<string>();
   const insertedFacetKeys = new Set<string>();
   const insertedNodeIds = new Set<string>();
   const insertedEdgeKeys = new Set<string>();
   const insertedProjectionKeys = new Set<string>();
+  const insertedProjectionScopes = new Set<string>();
   const nodeNameToEntityId = new Map<string, number>();
   let lastEdgeLookupKey: string | null = null;
   let maxEntityId = 0;
@@ -174,6 +176,7 @@ function createMockDatabase(): {
     }
 
     if (sql.includes("INSERT INTO mb_pragma.projections")) {
+      insertedProjectionScopes.add(String(params[2]));
       insertedProjectionKeys.add(
         `${params[1]}:${params[2]}:${params[3]}:${params[4]}`
       );
@@ -198,7 +201,8 @@ function createMockDatabase(): {
         return operation(queryable);
       }
     },
-    insertedFacetKeys
+    insertedFacetKeys,
+    insertedProjectionScopes
   };
 }
 
@@ -214,7 +218,7 @@ function expectFacetSeed(
 
 describe("ensureBootstrapData", () => {
   it("seeds system entries, schemas, and ontology nodes only once", async () => {
-    const { database } = createMockDatabase();
+    const { database, insertedProjectionScopes } = createMockDatabase();
 
     const first = await ensureBootstrapData(database);
     const second = await ensureBootstrapData(database);
@@ -227,6 +231,13 @@ describe("ensureBootstrapData", () => {
     expect(first.insertedGraphEdges).toBeGreaterThan(0);
     expect(first.insertedAgentStates).toBeGreaterThan(0);
     expect(first.insertedProjections).toBeGreaterThan(0);
+    expect(insertedProjectionScopes).toEqual(
+      new Set([
+        "default:ghostcrab-product",
+        "default:native-build",
+        "default:distribution"
+      ])
+    );
     expect(second.insertedSystemEntries).toBe(0);
     expect(second.insertedSchemas).toBe(0);
     expect(second.insertedOntologies).toBe(0);

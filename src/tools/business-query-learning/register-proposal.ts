@@ -198,11 +198,13 @@ export const businessQueryRegisterProposalTool: ToolHandler = {
     const content = capability.business_question ?? input.proposal.proposal_id;
     let embeddingStored = false;
     let embeddingBlob: string | undefined;
+    let rawEmbedding: number[] | undefined;
 
     if (context.embeddings.getStatus().writeEmbeddingsEnabled) {
       try {
         const [embedding] = await context.embeddings.embedMany([content]);
         if (embedding.length > 0) {
+          rawEmbedding = embedding;
           embeddingBlob = encodeEmbedding(embedding);
           embeddingStored = true;
         }
@@ -221,6 +223,7 @@ export const businessQueryRegisterProposalTool: ToolHandler = {
         content,
         facetsJson: JSON.stringify(facets),
         embeddingBlob: embeddingBlob,
+        embedding: rawEmbedding,
         createdBy: input.accepted_by
       });
     } else {
@@ -232,6 +235,7 @@ export const businessQueryRegisterProposalTool: ToolHandler = {
         content,
         facetsJson: JSON.stringify(facets),
         embeddingBlob: embeddingBlob,
+        embedding: rawEmbedding,
         createdBy: input.accepted_by
       });
     }

@@ -1,7 +1,7 @@
 {
   "release": "v0.7.2",
   "date": "2026-09-14",
-  "engine_commit": "500f3818936d49e53f35303d4dfece21900a3693",
+  "engine_commit": "bf3230ebd151156a1d0597cded32718609c7249d",
   "engine_runtime": "1.9.0",
   "mcp_surface": "2026-09-14",
   "toolchain": {
@@ -11,24 +11,24 @@
     "zig": "0.16.0"
   },
   "archives": {
-    "mindflight-ghostcrab-personal-mcp-0.7.2.tgz": "19b7af882bd92d353194ec8d92adb3ebedc268ee69dee23f48f322856645b30f",
-    "mindflight-ghostcrab-personal-mcp-darwin-arm64-0.7.2.tgz": "1b97592b20d6f1efdb746a4d380c99152609633dbbce99779bd2927cd0272e5c",
-    "mindflight-ghostcrab-personal-mcp-darwin-x64-0.7.2.tgz": "c8ff26be55874cb4878a0447396775c6090f150a35bf1051048cd970ff1731e6",
-    "mindflight-ghostcrab-personal-mcp-linux-arm64-0.7.2.tgz": "5b309b28199f3dad8c832975b5a42fef0daab73082c1a32ced79c6342a529135",
-    "mindflight-ghostcrab-personal-mcp-linux-x64-0.7.2.tgz": "08212f7d4eaf40dab559bb88919e68634f161846ca8f258a8697ebec43164c9a",
-    "mindflight-ghostcrab-personal-mcp-win32-arm64-0.7.2.tgz": "a421740e2b3e294fbc30c38e7318f70cad2ece567cbeb2d163f836c199bfbac3",
-    "mindflight-ghostcrab-personal-mcp-win32-x64-0.7.2.tgz": "241d0aff8084888a03b35944074a9e6b8a951f7972d283483d3c2d749fc4722f"
+    "mindflight-ghostcrab-personal-mcp-0.7.2.tgz": "40c283a48a788322e2f4d06c472683139a8979f32345c2927e47613db78a4b36",
+    "mindflight-ghostcrab-personal-mcp-darwin-arm64-0.7.2.tgz": "77f7cf4271b08ec5ca4a5843300cfc194ba9e3b136c4eb7100fa87bb2b9c9794",
+    "mindflight-ghostcrab-personal-mcp-darwin-x64-0.7.2.tgz": "7d8491827c7b605c7e0fd36255fd0e720ab4d7fe5d75bc46f334060a053d8b4c",
+    "mindflight-ghostcrab-personal-mcp-linux-arm64-0.7.2.tgz": "987c6f7874a74282aa1db7cd4a1365c11162d247bc7b60ae48f7dfa942ce2533",
+    "mindflight-ghostcrab-personal-mcp-linux-x64-0.7.2.tgz": "1ef1dea8847e67d63e70721dce97da8771edcf3ec8652857495cc1234c322c09",
+    "mindflight-ghostcrab-personal-mcp-win32-arm64-0.7.2.tgz": "41ea8652c20d8bc62e60da860a9512d475ec46e12e04fa611b3566bf749487fb",
+    "mindflight-ghostcrab-personal-mcp-win32-x64-0.7.2.tgz": "2ea8d7507563b7e2c93f9c3078f71f413f80f89840870c13897199b34a784bd1"
   },
   "validation": {
-    "default_tests": 880,
-    "default_skipped": 15,
+    "default_tests": 868,
+    "default_skipped": 20,
     "sqlite_integrity_tests": 52,
-    "native_integrity_tests": 14,
-    "integration_tests": 107,
+    "native_integrity_tests": 15,
+    "integration_tests": 104,
     "graphrag_tests": 35,
     "mutation_score": 85.06,
     "mcp_tools_called": 74,
-    "package_files": 685,
+    "package_files": 686,
     "npm_package_files": 686,
     "local_install": "passed"
   },

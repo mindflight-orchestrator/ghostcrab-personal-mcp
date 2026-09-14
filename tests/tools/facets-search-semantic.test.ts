@@ -1,47 +1,27 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { DatabaseClient, Queryable } from "../../src/db/client.js";
-import { encodeEmbedding } from "../../src/embeddings/blob.js";
-import { createDeterministicUnitVector } from "../../src/embeddings/vector.js";
 import { setFactsFtsReady } from "../../src/runtime/facets-fts-state.js";
 import { searchTool } from "../../src/tools/facets/search.js";
 import { createToolContext } from "../helpers/tool-context.js";
 
-const FIXED_CREATED_AT_UNIX = Date.parse("2026-03-23T12:00:00.000Z") / 1000;
+const CREATED_AT = Date.parse("2026-03-23T12:00:00.000Z") / 1000;
 const FAKE_DIMENSIONS = 8;
 
-interface SeedRow {
-  id: string;
-  schema_id: string;
-  content: string;
-  facets_json: string;
-  created_at_unix: number;
-  version: number;
-  embedding_blob: string | null;
-}
-
-function seedRow(
-  id: string,
-  content: string,
-  options?: { embedded?: boolean }
-): SeedRow {
-  const embedded = options?.embedded ?? true;
+function row(id: string, content: string, docId = 1) {
   return {
     id,
+    doc_id: docId,
     schema_id: "agent:observation",
     content,
     facets_json: JSON.stringify({ domain: "product" }),
-    created_at_unix: FIXED_CREATED_AT_UNIX,
+    created_at_unix: CREATED_AT,
     version: 1,
-    embedding_blob: embedded
-      ? encodeEmbedding(createDeterministicUnitVector(content, FAKE_DIMENSIONS))
-      : null
+    score: 0
   };
 }
 
-function createMockDatabase(
-  queryImpl: DatabaseClient["query"]
-): DatabaseClient {
+function database(queryImpl: DatabaseClient["query"]): DatabaseClient {
   return {
     query: queryImpl,
     ping: async () => true,
@@ -53,142 +33,88 @@ function createMockDatabase(
   };
 }
 
-function readStructured(
-  result: Awaited<ReturnType<typeof searchTool.handler>>
-): Record<string, unknown> {
-  expect(result.structuredContent).toBeDefined();
-  return result.structuredContent as Record<string, unknown>;
+function nativeResponse(matches: Array<Record<string, number>>): Response {
+  return new Response(
+    JSON.stringify({ workspace_id: "default", query: "", matches }),
+    { status: 200, headers: { "content-type": "application/json" } }
+  );
 }
 
-interface ResultRow {
-  id: string;
-  content: string;
-  score: number;
-}
-
-describe("ghostcrab_search semantic and hybrid (fake embeddings)", () => {
+describe("ghostcrab_search native semantic and hybrid", () => {
   afterEach(() => {
     setFactsFtsReady(false);
+    vi.unstubAllGlobals();
   });
 
-  it("ranks the closest semantic match first when mode=semantic", async () => {
-    const exactMatch = seedRow("facet-exact", "The semantic anchor sentence");
-    const distractor = seedRow(
-      "facet-distractor",
-      "Completely unrelated administrative paperwork"
-    );
-
+  it("keeps pure semantic ranking inside Zig and preserves its ordering", async () => {
+    const queries: string[] = [];
     const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
-      if (sql.includes("embedding_blob IS NOT NULL")) {
-        return [exactMatch, distractor];
+      queries.push(sql);
+      if (sql.includes("doc_id IN")) {
+        return [row("lower", "Lower", 1), row("higher", "Higher", 2)];
       }
       return [];
     });
-    const database = createMockDatabase(query);
-
-    const result = await searchTool.handler(
-      {
-        query: "The semantic anchor sentence",
-        mode: "semantic",
-        limit: 5
-      },
-      createToolContext(database, {
-        embeddingsMode: "fake",
-        embeddingDimensions: FAKE_DIMENSIONS
-      })
-    );
-
-    const payload = readStructured(result) as Record<string, unknown> & {
-      results: ResultRow[];
-      notes?: string[];
-    };
-
-    expect(payload.mode_requested).toBe("semantic");
-    expect(payload.mode_applied).toBe("semantic");
-    expect(payload.semantic_available).toBe(true);
-    expect(payload.results.map((row) => row.id)).toEqual([
-      "facet-exact",
-      "facet-distractor"
-    ]);
-    expect(payload.results[0]?.score ?? 0).toBeGreaterThan(
-      payload.results[1]?.score ?? 0
-    );
-    expect(payload.results[0]?.score ?? 0).toBeCloseTo(1, 5);
-  });
-
-  it("falls back gracefully when no candidate row has an embedding", async () => {
-    const noEmbedding = seedRow("facet-none", "This row was never embedded", {
-      embedded: false
-    });
-
-    const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
-      if (sql.includes("embedding_blob IS NOT NULL")) {
-        return [];
-      }
-      if (sql.includes("FROM agent_facts")) {
-        return [{ ...noEmbedding, score: 0.42 }];
-      }
-      return [];
-    });
-    const database = createMockDatabase(query);
-
-    const result = await searchTool.handler(
-      {
-        query: "This row was never embedded",
-        mode: "semantic",
-        limit: 5
-      },
-      createToolContext(database, {
-        embeddingsMode: "fake",
-        embeddingDimensions: FAKE_DIMENSIONS
-      })
-    );
-
-    const payload = readStructured(result) as Record<string, unknown> & {
-      notes?: string[];
-    };
-    expect(payload.mode_applied).toBe("keyword_sql");
-    expect(payload.semantic_available).toBe(false);
-    expect(payload.notes).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining(
-          "Semantic ranking found no rows with usable embeddings"
-        )
+    const fetchMock = vi.fn(async () =>
+      nativeResponse([
+        { doc_id: 2, bm25_score: 0, vector_score: 0.9, combined_score: 0.9 },
+        { doc_id: 1, bm25_score: 0, vector_score: 0.4, combined_score: 0.4 }
       ])
     );
-  });
+    vi.stubGlobal("fetch", fetchMock);
 
-  it("blends BM25 and cosine for mode=hybrid when both layers are available", async () => {
-    setFactsFtsReady(true);
-
-    const ftsTopBm25 = seedRow("facet-bm25", "term term term term term phrase");
-    const ftsCosineWinner = seedRow(
-      "facet-cosine",
-      "shared semantic anchor reference"
-    );
-
-    const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
-      if (sql.includes("search_fts MATCH") && sql.includes("embedding_blob")) {
-        return [
-          { ...ftsTopBm25, score: -2 },
-          { ...ftsCosineWinner, score: -1 }
-        ];
-      }
-      return [];
-    });
-    const database = createMockDatabase(query);
-
-    // Use the cosine winner's content as the query so cosine ~= 1 for it.
-    // Heavy vector weight makes the cosine layer dominate even if the
-    // deterministic-but-arbitrary vector for the BM25 leader happens to land
-    // close to the query vector.
     const result = await searchTool.handler(
       {
-        query: ftsCosineWinner.content,
-        mode: "hybrid",
+        query: "Native semantic anchor",
+        filters: { domain: "product" },
+        schema_id: "agent:observation",
+        mode: "semantic",
         limit: 5
       },
-      createToolContext(database, {
+      createToolContext(database(query), {
+        embeddingsMode: "fake",
+        embeddingDimensions: FAKE_DIMENSIONS
+      })
+    );
+
+    expect(result.structuredContent).toMatchObject({
+      backend: "mindbrain",
+      mode_applied: "semantic",
+      semantic_available: true,
+      returned: 2,
+      results: [{ id: "higher" }, { id: "lower" }]
+    });
+    expect(queries.join("\n")).not.toContain("embedding_blob");
+
+    const request = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    const body = JSON.parse(String(request.body)) as Record<string, unknown>;
+    expect(body).toMatchObject({
+      workspace_id: "default",
+      table_id: 1,
+      schema_id: "agent:observation",
+      filters: { domain: "product" },
+      query: "",
+      vector_weight: 1
+    });
+    expect(body.embedding).toEqual(
+      expect.arrayContaining([expect.any(Number)])
+    );
+  });
+
+  it("delegates hybrid score fusion to Zig", async () => {
+    const query = vi.fn<DatabaseClient["query"]>(async (sql) =>
+      sql.includes("doc_id IN") ? [row("hybrid", "Hybrid", 7)] : []
+    );
+    const fetchMock = vi.fn(async () =>
+      nativeResponse([
+        { doc_id: 7, bm25_score: 0.6, vector_score: 0.8, combined_score: 0.78 }
+      ])
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await searchTool.handler(
+      { query: "hybrid query", mode: "hybrid", limit: 5 },
+      createToolContext(database(query), {
         embeddingsMode: "fake",
         embeddingDimensions: FAKE_DIMENSIONS,
         hybridBm25Weight: 0.1,
@@ -196,90 +122,68 @@ describe("ghostcrab_search semantic and hybrid (fake embeddings)", () => {
       })
     );
 
-    const payload = readStructured(result) as Record<string, unknown> & {
-      results: ResultRow[];
-      notes?: string[];
-    };
-    expect(payload.mode_requested).toBe("hybrid");
-    expect(payload.mode_applied).toBe("hybrid");
-    expect(payload.semantic_available).toBe(true);
-    // With vector_weight=0.7 the cosine winner outranks the BM25 winner.
-    expect(payload.results[0]?.id).toBe("facet-cosine");
-    expect(payload.results[1]?.id).toBe("facet-bm25");
+    expect(result.structuredContent).toMatchObject({
+      backend: "mindbrain",
+      mode_applied: "hybrid",
+      semantic_available: true,
+      results: [{ id: "hybrid", score: 0.78 }]
+    });
+    const request = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    const body = JSON.parse(String(request.body)) as Record<string, unknown>;
+    expect(body.query).toBe("hybrid query");
+    expect(body.vector_weight).toBe(0.9);
   });
 
-  it("flips to BM25-only when hybrid candidates have no embeddings", async () => {
+  it("falls back without computing vectors in JavaScript when Zig is unavailable", async () => {
     setFactsFtsReady(true);
-
-    const a = seedRow("facet-a", "alpha beta gamma", { embedded: false });
-    const b = seedRow("facet-b", "delta epsilon zeta", { embedded: false });
-
+    const queries: string[] = [];
     const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
-      if (sql.includes("search_fts MATCH") && sql.includes("embedding_blob")) {
-        return [
-          { ...a, score: -1 },
-          { ...b, score: -2 }
-        ];
-      }
+      queries.push(sql);
+      if (sql.includes("search_fts MATCH")) return [row("bm25", "BM25")];
       return [];
     });
-    const database = createMockDatabase(query);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => Promise.reject(new Error("offline")))
+    );
 
     const result = await searchTool.handler(
-      {
-        query: "alpha beta",
-        mode: "hybrid",
-        limit: 5
-      },
-      createToolContext(database, {
+      { query: "BM25", mode: "hybrid", limit: 5 },
+      createToolContext(database(query), {
         embeddingsMode: "fake",
         embeddingDimensions: FAKE_DIMENSIONS
       })
     );
 
-    const payload = readStructured(result) as Record<string, unknown> & {
-      notes?: string[];
-    };
-    expect(payload.mode_applied).toBe("hybrid");
-    expect(payload.semantic_available).toBe(false);
-    expect(payload.notes).toEqual(
+    expect(result.structuredContent).toMatchObject({
+      backend: "sql",
+      mode_applied: "bm25",
+      semantic_available: false
+    });
+    expect(result.structuredContent?.notes).toEqual(
       expect.arrayContaining([
-        expect.stringContaining("no candidate row had a usable embedding")
+        expect.stringContaining("without JavaScript vector scoring")
       ])
     );
+    expect(queries.join("\n")).not.toContain("embedding_blob");
   });
 
-  it("reports semantic_available=false when the embedding provider is disabled", async () => {
-    const seedNoFts = seedRow("facet-x", "filler text content");
-
-    const query = vi.fn<DatabaseClient["query"]>(async (sql) => {
-      if (sql.includes("FROM agent_facts")) {
-        return [{ ...seedNoFts, score: 0.5 }];
-      }
-      return [];
-    });
-    const database = createMockDatabase(query);
+  it("reports semantic unavailable when no embedding provider is configured", async () => {
+    const query = vi.fn<DatabaseClient["query"]>(async (sql) =>
+      sql.includes("FROM agent_facts") ? [row("keyword", "filler text")] : []
+    );
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
 
     const result = await searchTool.handler(
-      {
-        query: "filler",
-        mode: "semantic",
-        limit: 5
-      },
-      createToolContext(database)
+      { query: "filler", mode: "semantic", limit: 5 },
+      createToolContext(database(query))
     );
 
-    const payload = readStructured(result) as Record<string, unknown> & {
-      notes?: string[];
-    };
-    expect(payload.mode_applied).toBe("keyword_sql");
-    expect(payload.semantic_available).toBe(false);
-    expect(payload.notes).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining(
-          "Semantic mode unavailable: no embedding provider is configured"
-        )
-      ])
-    );
+    expect(result.structuredContent).toMatchObject({
+      mode_applied: "keyword_sql",
+      semantic_available: false
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

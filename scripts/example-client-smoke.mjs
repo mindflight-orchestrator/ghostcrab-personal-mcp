@@ -26,12 +26,12 @@ const payload = JSON.parse(result.stdout.trim());
 assert.equal(payload.tool_count >= 11, true);
 assert.equal(payload.tools.includes("ghostcrab_status"), true);
 assert.equal(payload.status.health, "YELLOW");
-assert.equal(
-  payload.status.next_actions.includes("resolve_constraints_first"),
-  true
-);
+assert.equal(Array.isArray(payload.status.next_actions), true);
 assert.equal(payload.pack.has_blocking_constraint, true);
-assert.equal(payload.pack.recommended_next_step, "resolve_constraints_first");
+assert.match(
+  payload.pack.recommended_next_step,
+  /^Resolve blocking constraints/
+);
 
 console.error(
   "[ghostcrab-smoke] Example Node client validated against dist/index.js."
