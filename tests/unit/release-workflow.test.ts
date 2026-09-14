@@ -19,6 +19,10 @@ const integrationConfig = readFileSync(
   new URL("../../vitest.integration.config.ts", import.meta.url),
   "utf8"
 );
+const integrationRunner = readFileSync(
+  new URL("../../scripts/run-integration-tests.sh", import.meta.url),
+  "utf8"
+);
 const packageJson = JSON.parse(
   readFileSync(new URL("../../package.json", import.meta.url), "utf8")
 ) as { scripts: Record<string, string> };
@@ -132,5 +136,10 @@ describe("release publication boundary", () => {
     expect(e2e.run).toContain("curl -fsS http://127.0.0.1:8091/health");
     expect(e2e.run).toContain("npm run verify:e2e");
     expect(e2e.run).not.toContain("GHOSTCRAB_POSTGRES_STACK");
+  });
+
+  it("runs integration tests without requiring a global package manager", () => {
+    expect(integrationRunner).toContain('"$ROOT/node_modules/.bin/vitest"');
+    expect(integrationRunner).not.toContain("exec pnpm");
   });
 });

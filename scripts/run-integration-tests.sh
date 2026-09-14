@@ -73,4 +73,4 @@ cd "$ROOT"
 if [ "${1:-}" = "--" ]; then
   shift
 fi
-exec pnpm exec vitest run --config vitest.integration.config.ts "$@"
+exec "$ROOT/node_modules/.bin/vitest" run --config vitest.integration.config.ts "$@"
