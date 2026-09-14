@@ -1,6 +1,6 @@
-# GhostCrab Personal v0.7.1
+# GhostCrab Personal v0.7.2
 
-Prepared on 14 September 2026 with GhostCrab Personal `0.7.1` and the pinned
+Prepared on 14 September 2026 with GhostCrab Personal `0.7.2` and the pinned
 MindBrain engine commit `500f3818936d49e53f35303d4dfece21900a3693`. The
 vendored engine is identical to `../mindbrain-perso` `main`.
 
@@ -12,6 +12,8 @@ vendored engine is identical to `../mindbrain-perso` `main`.
   cleanup or the final lifecycle transition rolls back the full operation.
 - Required SQLite, native MCP, coverage and mutation gates protect the audited
   write paths. Publication now depends on the write-integrity workflows.
+- Clean CI checkouts initialize the pinned MindBrain submodule, build the native
+  document binary and use tracked test fixtures.
 - The all-tools smoke matrix covers all 74 registered MCP tools, including
   `ghostcrab_evidence_get`.
 
@@ -20,7 +22,7 @@ The detailed operation inventory, measured coverage and remaining risks are in
 
 ## Validation
 
-- Default suite with coverage: 873 passed, 15 explicitly skipped.
+- Default suite with coverage: 876 passed, 15 explicitly skipped.
 - Required SQLite integrity suite: 52 passed.
 - Required native integrity suite: 14 passed.
 - Integration/e2e: 107 passed.
@@ -34,7 +36,7 @@ The detailed operation inventory, measured coverage and remaining risks are in
 
 All 12 native binaries were rebuilt for Linux, macOS and Windows on x64 and
 ARM64. Seven npm archives are available in `dist-pack/`; their checksums are in
-[`release-v0.7.1-artifacts.json`](release-v0.7.1-artifacts.json).
+[`release-v0.7.2-artifacts.json`](release-v0.7.2-artifacts.json).
 
 ## npm staging
 

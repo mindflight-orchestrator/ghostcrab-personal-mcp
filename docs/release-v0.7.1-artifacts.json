@@ -20,7 +20,7 @@
     "mindflight-ghostcrab-personal-mcp-win32-x64-0.7.1.tgz": "8e796da8950a3dcbe8d96b8f3fd81e0c775dd1ea39bfc3ca543e5c3c356fe23d"
   },
   "validation": {
-    "default_tests": 876,
+    "default_tests": 873,
     "default_skipped": 15,
     "sqlite_integrity_tests": 52,
     "native_integrity_tests": 14,

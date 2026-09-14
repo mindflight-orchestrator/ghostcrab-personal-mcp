@@ -1,0 +1,36 @@
+{
+  "release": "v0.7.2",
+  "date": "2026-09-14",
+  "engine_commit": "500f3818936d49e53f35303d4dfece21900a3693",
+  "engine_runtime": "1.9.0",
+  "mcp_surface": "2026-09-14",
+  "toolchain": {
+    "node": "22.17.0",
+    "npm": "11.18.0",
+    "pnpm": "10.10.0",
+    "zig": "0.16.0"
+  },
+  "archives": {
+    "mindflight-ghostcrab-personal-mcp-0.7.2.tgz": "e9491df9d3c2f957a718d5e8cf3f0b51d423d29f32d32d428c29c07d97be9171",
+    "mindflight-ghostcrab-personal-mcp-darwin-arm64-0.7.2.tgz": "1b97592b20d6f1efdb746a4d380c99152609633dbbce99779bd2927cd0272e5c",
+    "mindflight-ghostcrab-personal-mcp-darwin-x64-0.7.2.tgz": "c8ff26be55874cb4878a0447396775c6090f150a35bf1051048cd970ff1731e6",
+    "mindflight-ghostcrab-personal-mcp-linux-arm64-0.7.2.tgz": "5b309b28199f3dad8c832975b5a42fef0daab73082c1a32ced79c6342a529135",
+    "mindflight-ghostcrab-personal-mcp-linux-x64-0.7.2.tgz": "08212f7d4eaf40dab559bb88919e68634f161846ca8f258a8697ebec43164c9a",
+    "mindflight-ghostcrab-personal-mcp-win32-arm64-0.7.2.tgz": "a421740e2b3e294fbc30c38e7318f70cad2ece567cbeb2d163f836c199bfbac3",
+    "mindflight-ghostcrab-personal-mcp-win32-x64-0.7.2.tgz": "241d0aff8084888a03b35944074a9e6b8a951f7972d283483d3c2d749fc4722f"
+  },
+  "validation": {
+    "default_tests": 876,
+    "default_skipped": 15,
+    "sqlite_integrity_tests": 52,
+    "native_integrity_tests": 14,
+    "integration_tests": 107,
+    "graphrag_tests": 35,
+    "mutation_score": 85.06,
+    "mcp_tools_called": 74,
+    "package_files": 760,
+    "local_install": "passed"
+  },
+  "npm_staged": false,
+  "npm_published": false
+}

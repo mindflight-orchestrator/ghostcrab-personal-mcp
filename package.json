@@ -1,6 +1,6 @@
 {
   "name": "@mindflight/ghostcrab-personal-mcp",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "SQLite-backed MCP memory server (MindBrain + Zig backend), part of the MindBrain ecosystem.",
   "license": "SEE LICENSE IN Licence.md",
   "type": "module",
@@ -162,11 +162,11 @@
     "qs": "6.15.3"
   },
   "optionalDependencies": {
-    "@mindflight/ghostcrab-personal-mcp-darwin-arm64": "0.7.1",
-    "@mindflight/ghostcrab-personal-mcp-darwin-x64": "0.7.1",
-    "@mindflight/ghostcrab-personal-mcp-linux-arm64": "0.7.1",
-    "@mindflight/ghostcrab-personal-mcp-linux-x64": "0.7.1",
-    "@mindflight/ghostcrab-personal-mcp-win32-arm64": "0.7.1",
-    "@mindflight/ghostcrab-personal-mcp-win32-x64": "0.7.1"
+    "@mindflight/ghostcrab-personal-mcp-darwin-arm64": "0.7.2",
+    "@mindflight/ghostcrab-personal-mcp-darwin-x64": "0.7.2",
+    "@mindflight/ghostcrab-personal-mcp-linux-arm64": "0.7.2",
+    "@mindflight/ghostcrab-personal-mcp-linux-x64": "0.7.2",
+    "@mindflight/ghostcrab-personal-mcp-win32-arm64": "0.7.2",
+    "@mindflight/ghostcrab-personal-mcp-win32-x64": "0.7.2"
   }
 }
