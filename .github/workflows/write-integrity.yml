@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GHOSTCRAB_TEST_REQUIRE_SQLITE: "1"
+      GHOSTCRAB_TEST_REQUIRE_NATIVE_DOCUMENT: "1"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,10 +20,15 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.16.0
       - name: Install dependencies
         run: npm ci --ignore-scripts
       - name: Require SQLite and FTS5
         run: node -e 'const {DatabaseSync}=require("node:sqlite"); const db=new DatabaseSync(":memory:"); db.exec("CREATE VIRTUAL TABLE probe USING fts5(content)"); db.close();'
+      - name: Build required native document engine
+        run: BACKEND_VENDOR_UPDATE=0 npm run backend:build
       - name: Build
         run: npm run build
       - name: Test coverage including unimported sources

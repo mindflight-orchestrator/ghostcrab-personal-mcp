@@ -106,12 +106,12 @@ See `evidence.json` for the measured summary and local backend SHA-256.
 
 | Validation                                                               | Result                                                          |
 | ------------------------------------------------------------------------ | --------------------------------------------------------------- |
-| Default suite, with global and critical-module coverage gates            | 873 passed, 15 skipped                                          |
+| Default suite, with global and critical-module coverage gates            | 876 passed, 15 skipped                                          |
 | Required canonical SQLite integrity suite                                | 52 passed, zero skipped                                         |
 | Required native integrity suite                                          | 14 passed, zero skipped                                         |
 | Mutation pilot: graph storage and executable learn/reset/delete handlers | 205 killed / 241 mutants = 85.06%; zero timeouts/errors         |
 | Remaining mutations                                                      | 29 survived, 7 uncovered; all 36 explicitly reviewed            |
-| Global TypeScript coverage                                               | 67.14% lines, 55.77% branches                                   |
+| Global TypeScript coverage                                               | 67.14% lines, 55.48% branches                                   |
 | Graph storage                                                            | 96.96% lines, 95.83% branches                                   |
 | Learn                                                                    | 98.36% lines, 98.24% branches                                   |
 | Reset and delete handlers                                                | 100% lines and branches                                         |

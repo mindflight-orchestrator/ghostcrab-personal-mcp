@@ -10,7 +10,7 @@ import { join, dirname } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const contractsDir = join(__dirname, "../../docs/dev");
+const contractsDir = join(__dirname, "../fixtures/workspace-model-export");
 const examplesDir = join(contractsDir, "examples");
 
 function loadFixture(filename: string): Record<string, unknown> {

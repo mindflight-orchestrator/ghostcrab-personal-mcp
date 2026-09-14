@@ -1,7 +1,7 @@
 {
   "baseline": "836 passing, 15 skipped; 66.55% lines, 55.27% branches before this hardening pass",
   "default_suite": {
-    "passed": 873,
+    "passed": 876,
     "skipped": 15,
     "files_passed": 99
   },
@@ -58,9 +58,9 @@
     },
     "statements": {
       "total": 6132,
-      "covered": 4072,
+      "covered": 4071,
       "skipped": 0,
-      "pct": 66.4
+      "pct": 66.38
     },
     "functions": {
       "total": 955,
@@ -70,9 +70,9 @@
     },
     "branches": {
       "total": 5104,
-      "covered": 2847,
+      "covered": 2832,
       "skipped": 0,
-      "pct": 55.77
+      "pct": 55.48
     },
     "branchesTrue": {
       "total": 0,

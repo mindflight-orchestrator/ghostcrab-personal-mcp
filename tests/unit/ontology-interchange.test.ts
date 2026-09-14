@@ -3,7 +3,10 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { runNativeEngineSync } from "../../bin/lib/brain-engine-runner.mjs";
+import {
+  resolveNativeEnginePath,
+  runNativeEngineSync
+} from "../../bin/lib/brain-engine-runner.mjs";
 
 const repoRoot = resolve(import.meta.dirname, "../..");
 const pkgRoot = repoRoot;
@@ -12,6 +15,19 @@ const demoBundlePath = resolve(
   "examples/immeuble/bundle/immeuble.bundle.json"
 );
 const demoLinkmlPath = resolve(repoRoot, "ontologies/immeuble/core.yaml");
+const nativeEngineAvailable =
+  resolveNativeEnginePath(pkgRoot, { preferDev: true }) !== null;
+
+if (
+  !nativeEngineAvailable &&
+  process.env.GHOSTCRAB_TEST_REQUIRE_NATIVE_DOCUMENT === "1"
+) {
+  throw new Error(
+    "GHOSTCRAB_TEST_REQUIRE_NATIVE_DOCUMENT=1 but ghostcrab-document is unavailable"
+  );
+}
+
+const describeNative = nativeEngineAvailable ? describe : describe.skip;
 
 function sortedEntityTypes(rows: Array<{ entity_type: string }>) {
   return rows.map((row) => row.entity_type).sort();
@@ -27,7 +43,7 @@ function runNative(args: string[]) {
   return result;
 }
 
-describe("ontology interchange", () => {
+describeNative("ontology interchange", () => {
   it("compiles immeuble LinkML to native entity and edge types", () => {
     const outputPath = join(
       mkdtempSync(join(tmpdir(), "ontology-compile-")),

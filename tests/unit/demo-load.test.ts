@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -41,6 +43,29 @@ afterEach(() => {
 });
 
 describe("demo-load answer_artifact entries", () => {
+  it("keeps the checked-in Immeuble answer-artifact seed loadable", () => {
+    const entries = readFileSync(
+      new URL(
+        "../../examples/immeuble/contracts/answer_artifacts.seed.jsonl",
+        import.meta.url
+      ),
+      "utf8"
+    )
+      .trim()
+      .split("\n")
+      .map(
+        (line) =>
+          JSON.parse(line) as {
+            artifact: Parameters<typeof normalizeAnswerArtifactEntry>[0];
+          }
+      );
+
+    expect(entries).toHaveLength(4);
+    for (const entry of entries) {
+      expect(() => normalizeAnswerArtifactEntry(entry.artifact)).not.toThrow();
+    }
+  });
+
   it("normalizes analysis plans and live answer views", () => {
     expect(
       normalizeAnswerArtifactEntry({

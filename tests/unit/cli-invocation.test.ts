@@ -25,7 +25,7 @@ describe("runtime-node", () => {
   });
 
   it("resolveRuntimeNodePath prefers a normal execPath", () => {
-    expect(resolveRuntimeNodePath("/usr/bin/node")).toBe("/usr/bin/node");
+    expect(resolveRuntimeNodePath(process.execPath)).toBe(process.execPath);
   });
 });
 
