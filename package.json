@@ -1,6 +1,6 @@
 {
   "name": "@mindflight/ghostcrab-personal-mcp",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "SQLite-backed MCP memory server (MindBrain + Zig backend), part of the MindBrain ecosystem.",
   "license": "SEE LICENSE IN Licence.md",
   "type": "module",
@@ -112,6 +112,9 @@
     "immeuble:run:live-lab": "bash examples/immeuble/scripts/run-immeuble-live-lab.sh",
     "immeuble:backend:run": "bash examples/immeuble/scripts/run-immeuble-backend.sh",
     "test": "vitest run",
+    "test:integrity": "vitest run --config vitest.integrity.config.ts",
+    "test:integrity:native": "vitest run --config vitest.integrity-native.config.ts",
+    "test:mutation": "stryker run && node scripts/verify-mutation-review.mjs",
     "test:coverage": "vitest run --coverage --coverage.reporter=text-summary --coverage.reporter=json-summary",
     "test:integration": "sh scripts/run-integration-tests.sh",
     "test:integration:optional": "vitest run --config vitest.integration.config.ts",
@@ -136,9 +139,12 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@stryker-mutator/core": "9.6.1",
+    "@stryker-mutator/vitest-runner": "9.6.1",
     "@types/node": "^25.5.0",
     "@vitest/coverage-v8": "4.1.10",
     "eslint": "^10.1.0",
+    "fast-check": "4.10.0",
     "globals": "^17.4.0",
     "prettier": "^3.8.1",
     "tsx": "^4.23.1",
@@ -152,12 +158,15 @@
     "yaml": "^2.8.3",
     "zod": "^4.3.6"
   },
+  "overrides": {
+    "qs": "6.15.3"
+  },
   "optionalDependencies": {
-    "@mindflight/ghostcrab-personal-mcp-darwin-arm64": "0.7.0",
-    "@mindflight/ghostcrab-personal-mcp-darwin-x64": "0.7.0",
-    "@mindflight/ghostcrab-personal-mcp-linux-arm64": "0.7.0",
-    "@mindflight/ghostcrab-personal-mcp-linux-x64": "0.7.0",
-    "@mindflight/ghostcrab-personal-mcp-win32-x64": "0.7.0",
-    "@mindflight/ghostcrab-personal-mcp-win32-arm64": "0.7.0"
+    "@mindflight/ghostcrab-personal-mcp-darwin-arm64": "0.7.1",
+    "@mindflight/ghostcrab-personal-mcp-darwin-x64": "0.7.1",
+    "@mindflight/ghostcrab-personal-mcp-linux-arm64": "0.7.1",
+    "@mindflight/ghostcrab-personal-mcp-linux-x64": "0.7.1",
+    "@mindflight/ghostcrab-personal-mcp-win32-arm64": "0.7.1",
+    "@mindflight/ghostcrab-personal-mcp-win32-x64": "0.7.1"
   }
 }

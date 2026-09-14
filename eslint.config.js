@@ -11,6 +11,7 @@ export default tseslint.config(
       "docs/**",
       "extensions/**",
       "node_modules/**",
+      ".stryker-tmp/**",
       "vendor/**"
     ]
   },

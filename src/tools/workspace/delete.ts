@@ -74,32 +74,34 @@ export const workspaceDeleteTool: ToolHandler = {
       );
     }
 
-    const resetReport = await resetWorkspaceData(
-      context.database,
-      input.workspace_id
-    );
+    return context.database.transaction(async (database) => {
+      const resetReport = await resetWorkspaceData(
+        database,
+        input.workspace_id
+      );
 
-    if (input.mode === "soft") {
-      await archiveWorkspaceRow(context.database, input.workspace_id);
+      if (input.mode === "soft") {
+        await archiveWorkspaceRow(database, input.workspace_id);
+        return createToolSuccessResult("ghostcrab_workspace_delete", {
+          deleted: false,
+          archived: true,
+          mode: "soft",
+          ...resetReport
+        });
+      }
+
+      const workspace_rows_deleted = await deleteWorkspaceRow(
+        database,
+        input.workspace_id
+      );
+
       return createToolSuccessResult("ghostcrab_workspace_delete", {
-        deleted: false,
-        archived: true,
-        mode: "soft",
+        deleted: workspace_rows_deleted > 0,
+        archived: false,
+        mode: "hard",
+        workspace_rows_deleted,
         ...resetReport
       });
-    }
-
-    const workspace_rows_deleted = await deleteWorkspaceRow(
-      context.database,
-      input.workspace_id
-    );
-
-    return createToolSuccessResult("ghostcrab_workspace_delete", {
-      deleted: workspace_rows_deleted > 0,
-      archived: false,
-      mode: "hard",
-      workspace_rows_deleted,
-      ...resetReport
     });
   }
 };

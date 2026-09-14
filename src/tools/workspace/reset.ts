@@ -62,9 +62,8 @@ export const workspaceResetTool: ToolHandler = {
       );
     }
 
-    const report = await resetWorkspaceData(
-      context.database,
-      input.workspace_id
+    const report = await context.database.transaction((database) =>
+      resetWorkspaceData(database, input.workspace_id)
     );
 
     return createToolSuccessResult("ghostcrab_workspace_reset", {

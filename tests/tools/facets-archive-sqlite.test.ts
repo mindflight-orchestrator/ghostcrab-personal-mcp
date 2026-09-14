@@ -1,5 +1,4 @@
 import { readFileSync } from "node:fs";
-import { createRequire } from "node:module";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -21,7 +20,7 @@ import { createToolContext } from "../helpers/tool-context.js";
  * only exist in the canonical DDL, so a mock proves nothing about them.
  */
 
-const require = createRequire(import.meta.url);
+import { loadSqliteDatabase } from "../helpers/real-sqlite.js";
 
 type RealDb = {
   exec(sql: string): void;
@@ -33,11 +32,7 @@ type RealDb = {
 };
 
 function loadDatabaseSync(): (new (path: string) => RealDb) | null {
-  try {
-    return require("node:sqlite").DatabaseSync as new (path: string) => RealDb;
-  } catch {
-    return null;
-  }
+  return loadSqliteDatabase();
 }
 
 function canonicalSchema(): string {
@@ -119,11 +114,14 @@ function rows<T>(
 }
 
 describe("ghostcrab_upsert archiving on a real SQLite", () => {
-  it("archives the replaced state, keeps the current row, and keeps its vector", async () => {
+  it("archives the replaced state, keeps the current row, and keeps its vector", async ({
+    skip
+  }) => {
     const DatabaseSync = loadDatabaseSync();
     if (!DatabaseSync) {
-      // node:sqlite unavailable in this runtime.
-      return;
+      return skip(
+        "node:sqlite unavailable; run the required integrity gate under Node 22+"
+      );
     }
     const db = new DatabaseSync(":memory:");
     try {
@@ -203,10 +201,14 @@ describe("ghostcrab_upsert archiving on a real SQLite", () => {
     }
   });
 
-  it("refuses to update a closed archive matched on its stale facets", async () => {
+  it("refuses to update a closed archive matched on its stale facets", async ({
+    skip
+  }) => {
     const DatabaseSync = loadDatabaseSync();
     if (!DatabaseSync) {
-      return;
+      return skip(
+        "node:sqlite unavailable; run the required integrity gate under Node 22+"
+      );
     }
     const db = new DatabaseSync(":memory:");
     try {
@@ -250,10 +252,14 @@ describe("ghostcrab_upsert archiving on a real SQLite", () => {
     }
   });
 
-  it("stamps a deterministic source_ref and traces the archive to it", async () => {
+  it("stamps a deterministic source_ref and traces the archive to it", async ({
+    skip
+  }) => {
     const DatabaseSync = loadDatabaseSync();
     if (!DatabaseSync) {
-      return;
+      return skip(
+        "node:sqlite unavailable; run the required integrity gate under Node 22+"
+      );
     }
     const db = new DatabaseSync(":memory:");
     try {
@@ -296,10 +302,14 @@ describe("ghostcrab_upsert archiving on a real SQLite", () => {
     }
   });
 
-  it("revives an expired row instead of colliding on its source_ref", async () => {
+  it("revives an expired row instead of colliding on its source_ref", async ({
+    skip
+  }) => {
     const DatabaseSync = loadDatabaseSync();
     if (!DatabaseSync) {
-      return;
+      return skip(
+        "node:sqlite unavailable; run the required integrity gate under Node 22+"
+      );
     }
     const db = new DatabaseSync(":memory:");
     try {
@@ -350,10 +360,14 @@ describe("ghostcrab_upsert archiving on a real SQLite", () => {
     }
   });
 
-  it("matches a structured facet value instead of duplicating the row", async () => {
+  it("matches a structured facet value instead of duplicating the row", async ({
+    skip
+  }) => {
     const DatabaseSync = loadDatabaseSync();
     if (!DatabaseSync) {
-      return;
+      return skip(
+        "node:sqlite unavailable; run the required integrity gate under Node 22+"
+      );
     }
     const db = new DatabaseSync(":memory:");
     try {
@@ -395,10 +409,12 @@ describe("ghostcrab_upsert archiving on a real SQLite", () => {
     }
   });
 
-  it("matches a dotted facet key as a top-level key", async () => {
+  it("matches a dotted facet key as a top-level key", async ({ skip }) => {
     const DatabaseSync = loadDatabaseSync();
     if (!DatabaseSync) {
-      return;
+      return skip(
+        "node:sqlite unavailable; run the required integrity gate under Node 22+"
+      );
     }
     const db = new DatabaseSync(":memory:");
     try {
@@ -436,10 +452,12 @@ describe("ghostcrab_upsert archiving on a real SQLite", () => {
     }
   });
 
-  it("keeps the archive out of the BM25 corpus", async () => {
+  it("keeps the archive out of the BM25 corpus", async ({ skip }) => {
     const DatabaseSync = loadDatabaseSync();
     if (!DatabaseSync) {
-      return;
+      return skip(
+        "node:sqlite unavailable; run the required integrity gate under Node 22+"
+      );
     }
     const db = new DatabaseSync(":memory:");
     try {

@@ -1,0 +1,245 @@
+[
+  {
+    "file": "src/db/graph.ts",
+    "mutator": "BlockStatement",
+    "original": "{\n  await database.query(\n    `\n      UPDATE graph_entity\n      SET workspace_id = ?\n      WHERE entity_id = ?\n    `,\n    [workspaceId, toSqlIntegerId(entityId, \"entity_id\")]\n  );\n}",
+    "replacement": "{}",
+    "count": 1,
+    "disposition": "uncovered-helper",
+    "reason": "setGraphEntityWorkspaceId has no production callers in src. Its mutation remains in the score; require workspace-move invariants before introducing a caller."
+  },
+  {
+    "file": "src/db/graph.ts",
+    "mutator": "StringLiteral",
+    "original": "`\n      UPDATE graph_entity\n      SET workspace_id = ?\n      WHERE entity_id = ?\n    `",
+    "replacement": "``",
+    "count": 1,
+    "disposition": "uncovered-helper",
+    "reason": "setGraphEntityWorkspaceId has no production callers in src. Its mutation remains in the score; require workspace-move invariants before introducing a caller."
+  },
+  {
+    "file": "src/db/graph.ts",
+    "mutator": "ArrayDeclaration",
+    "original": "[workspaceId, toSqlIntegerId(entityId, \"entity_id\")]",
+    "replacement": "[]",
+    "count": 1,
+    "disposition": "uncovered-helper",
+    "reason": "setGraphEntityWorkspaceId has no production callers in src. Its mutation remains in the score; require workspace-move invariants before introducing a caller."
+  },
+  {
+    "file": "src/db/graph.ts",
+    "mutator": "StringLiteral",
+    "original": "\"entity_id\"",
+    "replacement": "\"\"",
+    "count": 5,
+    "disposition": "diagnostic-only",
+    "reason": "Only the integer-binding diagnostic label changes. Safe and unsafe bounds are checked separately; exact labels are not part of the integrity contract."
+  },
+  {
+    "file": "src/db/graph.ts",
+    "mutator": "BlockStatement",
+    "original": "{\n    return;\n  }",
+    "replacement": "{}",
+    "count": 1,
+    "disposition": "caller-constrained",
+    "reason": "The only production caller invokes typed-property persistence for a nonempty list. Empty-list behavior of the exported helper is not qualified; it remains counted as undetected."
+  },
+  {
+    "file": "src/db/graph.ts",
+    "mutator": "OptionalChaining",
+    "original": "row?.next_id",
+    "replacement": "row.next_id",
+    "count": 2,
+    "disposition": "unreachable-with-canonical-sql",
+    "reason": "The aggregate SELECT always returns one row and COALESCE(MAX,0)+1 over positive bounded INTEGER ids yields a positive integer. Exhaustion and unsafe existing ids are covered. A malformed database adapter remains outside this SQLite proof."
+  },
+  {
+    "file": "src/db/graph.ts",
+    "mutator": "ConditionalExpression",
+    "original": "!Number.isSafeInteger(nextId) ||\n    nextId < 1",
+    "replacement": "false",
+    "count": 1,
+    "disposition": "unreachable-with-canonical-sql",
+    "reason": "The aggregate SELECT always returns one row and COALESCE(MAX,0)+1 over positive bounded INTEGER ids yields a positive integer. Exhaustion and unsafe existing ids are covered. A malformed database adapter remains outside this SQLite proof."
+  },
+  {
+    "file": "src/db/graph.ts",
+    "mutator": "LogicalOperator",
+    "original": "!Number.isSafeInteger(nextId) ||\n    nextId < 1",
+    "replacement": "!Number.isSafeInteger(nextId) && nextId < 1",
+    "count": 1,
+    "disposition": "unreachable-with-canonical-sql",
+    "reason": "The aggregate SELECT always returns one row and COALESCE(MAX,0)+1 over positive bounded INTEGER ids yields a positive integer. Exhaustion and unsafe existing ids are covered. A malformed database adapter remains outside this SQLite proof."
+  },
+  {
+    "file": "src/db/graph.ts",
+    "mutator": "ConditionalExpression",
+    "original": "nextId < 1",
+    "replacement": "false",
+    "count": 1,
+    "disposition": "unreachable-with-canonical-sql",
+    "reason": "The aggregate SELECT always returns one row and COALESCE(MAX,0)+1 over positive bounded INTEGER ids yields a positive integer. Exhaustion and unsafe existing ids are covered. A malformed database adapter remains outside this SQLite proof."
+  },
+  {
+    "file": "src/db/graph.ts",
+    "mutator": "StringLiteral",
+    "original": "\"source_entity_id\"",
+    "replacement": "\"\"",
+    "count": 1,
+    "disposition": "diagnostic-only",
+    "reason": "Only the integer-binding diagnostic label changes. Safe and unsafe bounds are checked separately; exact labels are not part of the integrity contract."
+  },
+  {
+    "file": "src/db/graph.ts",
+    "mutator": "StringLiteral",
+    "original": "\"target_entity_id\"",
+    "replacement": "\"\"",
+    "count": 1,
+    "disposition": "diagnostic-only",
+    "reason": "Only the integer-binding diagnostic label changes. Safe and unsafe bounds are checked separately; exact labels are not part of the integrity contract."
+  },
+  {
+    "file": "src/db/graph.ts",
+    "mutator": "StringLiteral",
+    "original": "\"source_id\"",
+    "replacement": "\"\"",
+    "count": 3,
+    "disposition": "diagnostic-only",
+    "reason": "Only the integer-binding diagnostic label changes. Safe and unsafe bounds are checked separately; exact labels are not part of the integrity contract."
+  },
+  {
+    "file": "src/db/graph.ts",
+    "mutator": "StringLiteral",
+    "original": "\"target_id\"",
+    "replacement": "\"\"",
+    "count": 3,
+    "disposition": "diagnostic-only",
+    "reason": "Only the integer-binding diagnostic label changes. Safe and unsafe bounds are checked separately; exact labels are not part of the integrity contract."
+  },
+  {
+    "file": "src/db/graph.ts",
+    "mutator": "ConditionalExpression",
+    "original": "properties.length === 0",
+    "replacement": "false",
+    "count": 1,
+    "disposition": "caller-constrained",
+    "reason": "The only production caller invokes typed-property persistence for a nonempty list. Empty-list behavior of the exported helper is not qualified; it remains counted as undetected."
+  },
+  {
+    "file": "src/db/graph.ts",
+    "mutator": "LogicalOperator",
+    "original": "relation.confidence ?? 1",
+    "replacement": "relation.confidence && 1",
+    "count": 1,
+    "disposition": "caller-constrained",
+    "reason": "The learn caller always supplies validated weight, including zero. The exported helper default for omitted confidence needs a direct contract test before an additional caller relies on it."
+  },
+  {
+    "file": "src/tools/dgraph/learn.ts",
+    "mutator": "BlockStatement",
+    "original": "{\n          throw new Error(\n            \"Could not resolve graph.entity rows for edge endpoints.\"\n          );\n        }",
+    "replacement": "{}",
+    "count": 1,
+    "disposition": "defensive-path",
+    "reason": "The endpoints have just been found or created in the same serialized transaction; creation failure is checked earlier. The null re-resolution guard is retained. Non-session legacy fallback and concurrent endpoint disappearance are an explicit P1 compatibility gap in the audit."
+  },
+  {
+    "file": "src/tools/dgraph/learn.ts",
+    "mutator": "StringLiteral",
+    "original": "\"Could not resolve graph.entity rows for edge endpoints.\"",
+    "replacement": "\"\"",
+    "count": 1,
+    "disposition": "defensive-path",
+    "reason": "The endpoints have just been found or created in the same serialized transaction; creation failure is checked earlier. The null re-resolution guard is retained. Non-session legacy fallback and concurrent endpoint disappearance are an explicit P1 compatibility gap in the audit."
+  },
+  {
+    "file": "src/tools/dgraph/learn.ts",
+    "mutator": "ConditionalExpression",
+    "original": "sourceId === null || targetId === null",
+    "replacement": "false",
+    "count": 1,
+    "disposition": "defensive-path",
+    "reason": "The endpoints have just been found or created in the same serialized transaction; creation failure is checked earlier. The null re-resolution guard is retained. Non-session legacy fallback and concurrent endpoint disappearance are an explicit P1 compatibility gap in the audit."
+  },
+  {
+    "file": "src/tools/dgraph/learn.ts",
+    "mutator": "LogicalOperator",
+    "original": "sourceId === null || targetId === null",
+    "replacement": "sourceId === null && targetId === null",
+    "count": 1,
+    "disposition": "defensive-path",
+    "reason": "The endpoints have just been found or created in the same serialized transaction; creation failure is checked earlier. The null re-resolution guard is retained. Non-session legacy fallback and concurrent endpoint disappearance are an explicit P1 compatibility gap in the audit."
+  },
+  {
+    "file": "src/tools/dgraph/learn.ts",
+    "mutator": "ConditionalExpression",
+    "original": "sourceId === null",
+    "replacement": "false",
+    "count": 1,
+    "disposition": "defensive-path",
+    "reason": "The endpoints have just been found or created in the same serialized transaction; creation failure is checked earlier. The null re-resolution guard is retained. Non-session legacy fallback and concurrent endpoint disappearance are an explicit P1 compatibility gap in the audit."
+  },
+  {
+    "file": "src/tools/dgraph/learn.ts",
+    "mutator": "ConditionalExpression",
+    "original": "targetId === null",
+    "replacement": "false",
+    "count": 1,
+    "disposition": "defensive-path",
+    "reason": "The endpoints have just been found or created in the same serialized transaction; creation failure is checked earlier. The null re-resolution guard is retained. Non-session legacy fallback and concurrent endpoint disappearance are an explicit P1 compatibility gap in the audit."
+  },
+  {
+    "file": "src/tools/workspace/delete.ts",
+    "mutator": "StringLiteral",
+    "original": "\"The default workspace cannot be deleted.\"",
+    "replacement": "\"\"",
+    "count": 1,
+    "disposition": "diagnostic-only",
+    "reason": "The explanatory error text changes, while refusal, tool identity, error code and unchanged database are asserted. Exact message wording is not currently gated."
+  },
+  {
+    "file": "src/tools/workspace/delete.ts",
+    "mutator": "StringLiteral",
+    "original": "`Workspace '${input.workspace_id}' does not exist.`",
+    "replacement": "``",
+    "count": 1,
+    "disposition": "diagnostic-only",
+    "reason": "The explanatory error text changes, while refusal, tool identity, error code and unchanged database are asserted. Exact message wording is not currently gated."
+  },
+  {
+    "file": "src/tools/workspace/delete.ts",
+    "mutator": "ConditionalExpression",
+    "original": "workspace_rows_deleted > 0",
+    "replacement": "true",
+    "count": 1,
+    "disposition": "concurrency-follow-up",
+    "reason": "The selected successful delete cases have one existing workspace row. A competing deletion between the preflight read and the transaction could return zero; that response race still needs a concurrency case. Failure atomicity is independently tested."
+  },
+  {
+    "file": "src/tools/workspace/delete.ts",
+    "mutator": "EqualityOperator",
+    "original": "workspace_rows_deleted > 0",
+    "replacement": "workspace_rows_deleted >= 0",
+    "count": 1,
+    "disposition": "concurrency-follow-up",
+    "reason": "The selected successful delete cases have one existing workspace row. A competing deletion between the preflight read and the transaction could return zero; that response race still needs a concurrency case. Failure atomicity is independently tested."
+  },
+  {
+    "file": "src/tools/workspace/reset.ts",
+    "mutator": "StringLiteral",
+    "original": "\"The default workspace cannot be reset.\"",
+    "replacement": "\"\"",
+    "count": 1,
+    "disposition": "diagnostic-only",
+    "reason": "The explanatory error text changes, while refusal, tool identity, error code and unchanged database are asserted. Exact message wording is not currently gated."
+  },
+  {
+    "file": "src/tools/workspace/reset.ts",
+    "mutator": "StringLiteral",
+    "original": "`Workspace '${input.workspace_id}' does not exist.`",
+    "replacement": "``",
+    "count": 1,
+    "disposition": "diagnostic-only",
+    "reason": "The explanatory error text changes, while refusal, tool identity, error code and unchanged database are asserted. Exact message wording is not currently gated."
+  }
+]

@@ -237,6 +237,15 @@ export const learnTool: ToolHandler = {
 
       if (input.edge) {
         for (const nodeId of [input.edge.source, input.edge.target]) {
+          // A relation references existing nodes; only missing endpoints need
+          // placeholders. Upserting a placeholder would erase node metadata.
+          const existingId = await resolveGraphEntityId(
+            database,
+            nodeId,
+            effectiveWorkspaceId
+          );
+          if (existingId !== null) continue;
+
           await upsertGraphEntity(database, {
             nodeId,
             nodeType: "unknown",

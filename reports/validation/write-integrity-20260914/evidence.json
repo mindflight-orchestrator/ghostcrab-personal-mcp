@@ -1,0 +1,212 @@
+{
+  "baseline": "836 passing, 15 skipped; 66.55% lines, 55.27% branches before this hardening pass",
+  "default_suite": {
+    "passed": 873,
+    "skipped": 15,
+    "files_passed": 99
+  },
+  "sqlite_integrity_suite": {
+    "passed": 52,
+    "skipped": 0
+  },
+  "native_integrity_suite": {
+    "passed": 14,
+    "skipped": 0,
+    "includes": "3 real MCP cases + 10 native memory cases + 1 collection lifecycle case"
+  },
+  "generated_sequences": {
+    "seed": 20260914,
+    "num_runs": 75,
+    "max_operations_per_run": 25
+  },
+  "mutations": {
+    "score": 85.06,
+    "counts": {
+      "NoCoverage": 7,
+      "Killed": 205,
+      "Survived": 29
+    },
+    "files": {
+      "src/db/graph.ts": {
+        "NoCoverage": 5,
+        "Killed": 112,
+        "Survived": 19
+      },
+      "src/tools/dgraph/learn.ts": {
+        "NoCoverage": 2,
+        "Killed": 40,
+        "Survived": 4
+      },
+      "src/tools/workspace/delete.ts": {
+        "Killed": 33,
+        "Survived": 4
+      },
+      "src/tools/workspace/reset.ts": {
+        "Killed": 20,
+        "Survived": 2
+      }
+    },
+    "undetected_reviewed": 36,
+    "threshold": 80
+  },
+  "coverage": {
+    "lines": {
+      "total": 5905,
+      "covered": 3965,
+      "skipped": 0,
+      "pct": 67.14
+    },
+    "statements": {
+      "total": 6132,
+      "covered": 4072,
+      "skipped": 0,
+      "pct": 66.4
+    },
+    "functions": {
+      "total": 955,
+      "covered": 713,
+      "skipped": 0,
+      "pct": 74.65
+    },
+    "branches": {
+      "total": 5104,
+      "covered": 2847,
+      "skipped": 0,
+      "pct": 55.77
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "critical_coverage": {
+    "db/graph.ts": {
+      "lines": {
+        "total": 66,
+        "covered": 64,
+        "skipped": 0,
+        "pct": 96.96
+      },
+      "functions": {
+        "total": 12,
+        "covered": 11,
+        "skipped": 0,
+        "pct": 91.66
+      },
+      "statements": {
+        "total": 66,
+        "covered": 64,
+        "skipped": 0,
+        "pct": 96.96
+      },
+      "branches": {
+        "total": 48,
+        "covered": 46,
+        "skipped": 0,
+        "pct": 95.83
+      }
+    },
+    "tools/dgraph/learn.ts": {
+      "lines": {
+        "total": 61,
+        "covered": 60,
+        "skipped": 0,
+        "pct": 98.36
+      },
+      "functions": {
+        "total": 4,
+        "covered": 4,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 62,
+        "covered": 61,
+        "skipped": 0,
+        "pct": 98.38
+      },
+      "branches": {
+        "total": 57,
+        "covered": 56,
+        "skipped": 0,
+        "pct": 98.24
+      }
+    },
+    "tools/workspace/delete.ts": {
+      "lines": {
+        "total": 16,
+        "covered": 16,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 2,
+        "covered": 2,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 16,
+        "covered": 16,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 6,
+        "covered": 6,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "tools/workspace/reset.ts": {
+      "lines": {
+        "total": 12,
+        "covered": 12,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 2,
+        "covered": 2,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 12,
+        "covered": 12,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 4,
+        "covered": 4,
+        "skipped": 0,
+        "pct": 100
+      }
+    }
+  },
+  "checks": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "build": "passed",
+    "missing_native_binary_gate": "failed as required",
+    "mutation_review_gate": "passed; synthetic unknown survivors rejected by three unit cases"
+  },
+  "local_backend": {
+    "path": "cmd/backend/zig-out/bin/ghostcrab-backend",
+    "sha256": "9f471e2f778de51fe98aafa4fed207432eccdcbde860c3d949d95f6ad3d34744",
+    "rebuilt_in_this_audit": false
+  },
+  "publication": "No commit, push, remote CI run, npm stage or live data mutation",
+  "npm_isolated_install": {
+    "npm_ci": "passed",
+    "integrity_tests": 52,
+    "mutation_score": 85.06,
+    "unreviewed_mutations": 0,
+    "package_lock_sha256": "104211df684254c052d4efbcf365005a86c0e48f3b442d55dbdd4be267604a2c"
+  },
+  "base_commit": "8bc475615e054e0ce3c3fc10ae3ae2947dcfd494",
+  "vendored_engine_commit": "500f3818936d49e53f35303d4dfece21900a3693"
+}

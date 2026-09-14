@@ -1,12 +1,10 @@
-import { createRequire } from "node:module";
-
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { Queryable } from "../../src/db/client.js";
 import { ensureSearchFtsCaughtUp } from "../../src/db/facets-fts-search.js";
 import { FACETS_SEARCH_TABLE_ID } from "../../src/db/fact-store.js";
 
-const require = createRequire(import.meta.url);
+import { loadSqliteDatabase } from "../helpers/real-sqlite.js";
 
 type RealDb = {
   exec(sql: string): void;
@@ -18,11 +16,7 @@ type RealDb = {
 };
 
 function loadDatabaseSync(): (new (path: string) => RealDb) | null {
-  try {
-    return require("node:sqlite").DatabaseSync as new (path: string) => RealDb;
-  } catch {
-    return null;
-  }
+  return loadSqliteDatabase();
 }
 
 /** Adapter so ensureSearchFtsCaughtUp can run against a real node:sqlite DB. */
@@ -56,7 +50,7 @@ function createSearchSchema(db: RealDb): boolean {
     db.exec(`CREATE VIRTUAL TABLE search_fts USING fts5(content);`);
     return true;
   } catch {
-    // FTS5 not compiled into this Node.js sqlite build — caller should skip.
+    // FTS5 not compiled into this SQLite build; the regression must fail.
     return false;
   }
 }
@@ -66,18 +60,21 @@ describe("ensureSearchFtsCaughtUp", () => {
     vi.restoreAllMocks();
   });
 
-  it("catches up a fact inserted after bootstrap into all three search tables", async () => {
+  it("catches up a fact inserted after bootstrap into all three search tables", async ({
+    skip
+  }) => {
     const DatabaseSync = loadDatabaseSync();
     if (!DatabaseSync) {
-      // node:sqlite unavailable in this runtime.
-      return;
+      return skip(
+        "node:sqlite unavailable; run the required integrity gate under Node 22+"
+      );
     }
     const db = new DatabaseSync(":memory:");
     try {
       const ftsReady = createSearchSchema(db);
-      if (!ftsReady) {
-        return;
-      }
+      expect(ftsReady, "SQLite must provide FTS5 for this regression").toBe(
+        true
+      );
 
       db.prepare(
         `INSERT INTO agent_facts (id, content, doc_id) VALUES (?, ?, ?)`
@@ -120,18 +117,21 @@ describe("ensureSearchFtsCaughtUp", () => {
     }
   });
 
-  it("leaves a closed archive row out of the search corpus", async () => {
+  it("leaves a closed archive row out of the search corpus", async ({
+    skip
+  }) => {
     const DatabaseSync = loadDatabaseSync();
     if (!DatabaseSync) {
-      // node:sqlite unavailable in this runtime.
-      return;
+      return skip(
+        "node:sqlite unavailable; run the required integrity gate under Node 22+"
+      );
     }
     const db = new DatabaseSync(":memory:");
     try {
       const ftsReady = createSearchSchema(db);
-      if (!ftsReady) {
-        return;
-      }
+      expect(ftsReady, "SQLite must provide FTS5 for this regression").toBe(
+        true
+      );
 
       // What ghostcrab_upsert leaves behind on a state transition: the current
       // row, plus a closed copy of the state it replaced. The archive carries a

@@ -19,6 +19,11 @@ describe("release publication boundary", () => {
       "${{ github.event_name == 'workflow_dispatch' && inputs.stage_npm == true && startsWith(github.ref, 'refs/tags/v') }}"
     );
     expect(workflow.jobs.publish.needs).toContain("beta-install-windows");
+    expect(workflow.jobs.publish.needs).toContain("write-integrity");
+    expect(workflow.jobs.publish.needs).toContain("native-write-integrity");
+    expect(workflow.jobs["write-integrity"].uses).toBe(
+      "./.github/workflows/write-integrity.yml"
+    );
   });
 
   it("builds the pinned engine and supports the npm toolchain on Windows", () => {

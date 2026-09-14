@@ -282,6 +282,15 @@ const smokeCalls = [
     "ghostcrab_entity_chunks",
     { workspace_id: workspaceId, entity_id: 1, limit: 1 }
   ],
+  [
+    "ghostcrab_evidence_get",
+    {
+      workspace_id: workspaceId,
+      assertion_ref: { kind: "name", value: `missing-${runId}` },
+      include_text: false,
+      limit: 1
+    }
+  ],
   ["ghostcrab_coverage", { workspace_id: workspaceId, domain: workspaceId }],
   ["ghostcrab_graph_reindex", { workspace_id: workspaceId }],
   [

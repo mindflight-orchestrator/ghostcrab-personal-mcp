@@ -70,3 +70,14 @@ docs/source/
 docs/plan/
 reports/
 .ghostcrab/
+.stryker-tmp/
+
+# Keep this audit and its bounded evidence reviewable alongside the fixes.
+!docs/plan/
+docs/plan/*
+!docs/plan/2026-09-14-write-integrity-test-audit.md
+!/reports/
+/reports/*
+!/reports/validation/
+/reports/validation/*
+!/reports/validation/write-integrity-20260914/
