@@ -9,6 +9,7 @@ on:
       - "package.json"
       - "tsconfig.json"
       - "vitest.config.ts"
+      - "vitest.integration.config.ts"
       - ".github/workflows/test-node.yml"
   pull_request:
     branches: [main, master]
@@ -18,6 +19,7 @@ on:
       - "package.json"
       - "tsconfig.json"
       - "vitest.config.ts"
+      - "vitest.integration.config.ts"
       - ".github/workflows/test-node.yml"
 
 jobs:
@@ -79,14 +81,19 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Run tool + integration tests (sql-only)
-        run: npx vitest run tests/tools/ tests/integration/
+      - name: Run tool tests (sql-only)
+        run: npx vitest run tests/tools/
         env:
           DATABASE_URL: postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab
           MindBrain_NATIVE_EXTENSIONS: sql-only
-          # Extensions are not installed in vanilla postgres:17 — auto mode behaves like sql-only.
-          # This proves sql-only parity for all tool tests. Native parity requires the
-          # GhostCrab Docker image with pg_facets/pg_dgraph/pg_pragma installed.
+          # Extensions are not installed in vanilla postgres:17. This proves
+          # sql-only parity for the tool suite.
+
+      - name: Run integration tests (sql-only)
+        run: npx vitest run --config vitest.integration.config.ts tests/integration/
+        env:
+          DATABASE_URL: postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab
+          MindBrain_NATIVE_EXTENSIONS: sql-only
 
   native-tests:
     name: Integration tests (auto mode, vanilla Postgres)
@@ -124,7 +131,7 @@ jobs:
         run: npm run build
 
       - name: Run integration tests (auto)
-        run: npx vitest run tests/integration/
+        run: npx vitest run --config vitest.integration.config.ts tests/integration/
         env:
           DATABASE_URL: postgres://ghostcrab:ghostcrab@localhost:5432/ghostcrab
           MindBrain_NATIVE_EXTENSIONS: auto

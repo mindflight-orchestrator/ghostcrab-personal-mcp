@@ -65,4 +65,16 @@ describe("release publication boundary", () => {
       )
     ).toBe(true);
   });
+
+  it("runs integration directories with the integration Vitest config", () => {
+    for (const jobName of ["tool-tests", "native-tests"] as const) {
+      const integrationStep = nodeWorkflow.jobs[jobName].steps.find(
+        (step: { name?: string }) =>
+          step.name?.startsWith("Run integration tests")
+      );
+      expect(integrationStep?.run).toContain(
+        "--config vitest.integration.config.ts tests/integration/"
+      );
+    }
+  });
 });
