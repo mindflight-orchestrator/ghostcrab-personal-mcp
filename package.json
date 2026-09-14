@@ -70,7 +70,7 @@
   },
   "scripts": {
     "postinstall": "node ./bin/lib/postinstall-prebuilds.mjs",
-    "build": "tsc --project tsconfig.json && node scripts/copy-sql.mjs && node scripts/sync-ide-skill-bundles.mjs",
+    "build": "node scripts/clean-dist.mjs && tsc --project tsconfig.json && node scripts/copy-sql.mjs && node scripts/sync-ide-skill-bundles.mjs",
     "sync:ide-skills": "node scripts/sync-ide-skill-bundles.mjs",
     "clean": "rm -rf coverage dist",
     "dev": "tsx src/index.ts",

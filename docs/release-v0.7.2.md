@@ -14,6 +14,8 @@ vendored engine is identical to `../mindbrain-perso` `main`.
   write paths. Publication now depends on the write-integrity workflows.
 - Clean CI checkouts initialize the pinned MindBrain submodule, build the native
   document binary and use tracked test fixtures.
+- Every build removes stale compiler output before recreating `dist`, keeping
+  local and clean-checkout tarballs aligned.
 - The all-tools smoke matrix covers all 74 registered MCP tools, including
   `ghostcrab_evidence_get`.
 
@@ -22,7 +24,7 @@ The detailed operation inventory, measured coverage and remaining risks are in
 
 ## Validation
 
-- Default suite with coverage: 876 passed, 15 explicitly skipped.
+- Default suite with coverage: 877 passed, 15 explicitly skipped.
 - Required SQLite integrity suite: 52 passed.
 - Required native integrity suite: 14 passed.
 - Integration/e2e: 107 passed.
@@ -31,7 +33,7 @@ The detailed operation inventory, measured coverage and remaining risks are in
   explicitly reviewed.
 - Typecheck, lint, build, frozen offline pnpm lockfile, npm lockfile validation,
   package verification and 74/74 MCP smoke calls passed.
-- The installer contains 688 files from an explicit, Git-tracked package list.
+- The installer contains 685 files from an explicit, Git-tracked package list.
 - Local archive installation passed CLI startup, authorization, MCP tool
   verification, host bootstrap and Cursor setup.
 
