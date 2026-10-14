@@ -13,6 +13,7 @@ export default defineConfig({
     fileParallelism: false,
     env: { MINDBRAIN_TEST_BINARY: binary },
     include: [
+      "tests/integration/mcp/business-records-native.test.ts",
       "tests/integration/mcp/write-integrity.test.ts",
       "tests/unit/memory-personal-native.test.ts",
       "tests/unit/collection-facets-native.test.ts",

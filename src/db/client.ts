@@ -2,10 +2,12 @@ import type { GhostcrabConfig } from "../config/env.js";
 import {
   closeStandaloneMindbrainSqlSession,
   openStandaloneMindbrainSqlSession,
-  runStandaloneMindbrainSql
+  runStandaloneMindbrainSql,
+  runStandaloneKnowledge
 } from "./standalone-mindbrain.js";
 
 export interface Queryable {
+  rebuildBusinessAdjacency?(workspaceId: string): Promise<void>;
   query<T = Record<string, unknown>>(
     sql: string,
     params?: readonly unknown[]
@@ -133,6 +135,16 @@ function createMindbrainQueryable(
   sessionId?: number
 ): Queryable {
   return {
+    async rebuildBusinessAdjacency(workspaceId: string): Promise<void> {
+      if (sessionId === undefined) throw new Error("SQL transaction required");
+      await runStandaloneKnowledge({
+        mindbrainUrl: baseUrl,
+        operation: "graph_business_adjacency",
+        workspaceId,
+        input: { session_id: sessionId },
+        timeoutMs
+      });
+    },
     async query<T = Record<string, unknown>>(
       sql: string,
       params: readonly unknown[] = []

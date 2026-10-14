@@ -1,4 +1,9 @@
-import { beforeEach, afterEach, describe, it, expect } from "vitest";
+import { beforeEach, afterEach, describe, it, expect, vi } from "vitest";
+import { createDatabaseClient } from "../../src/db/client.js";
+vi.mock("../../src/db/client.js", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../src/db/client.js")>()),
+  createDatabaseClient: vi.fn()
+}));
 import "../../src/tools/dgraph/business-records.js";
 import { getRegisteredTool } from "../../src/tools/registry.js";
 import {
@@ -12,6 +17,14 @@ describe.skipIf(!loadSqliteDatabase())(
     let fixture: ReturnType<typeof createRealSqlite>;
     beforeEach(() => {
       fixture = createRealSqlite();
+      vi.mocked(createDatabaseClient).mockReturnValue(fixture.database);
+      fixture.sqlite.exec(`
+        INSERT INTO workspaces(id,workspace_id,label) VALUES('ws-a','ws-a','A'),('ws-b','ws-b','B');
+        INSERT INTO ontologies(ontology_id,workspace_id,name,source_kind) VALUES('model-a','ws-a','A','constructed');
+        INSERT INTO ontology_entity_types(ontology_id,entity_type) VALUES('model-a','building');
+        INSERT INTO entities_raw(entity_id,workspace_id,ontology_id,external_id,entity_type,name,metadata_json)
+          VALUES(1,'ws-a','model-a','B1','building','B1','{"address":"Rue A","label":"Bâtiment A"}');
+      `);
       fixture.sqlite
         .prepare(
           `INSERT INTO graph_entity(entity_id,workspace_id,entity_type,name,metadata_json) VALUES(1,'ws-a','building','B1','{"address":"Rue A","label":"Bâtiment A"}')`
@@ -30,7 +43,17 @@ describe.skipIf(!loadSqliteDatabase())(
           args,
           createToolContext(fixture.database)
         )
-      ).structuredContent as any;
+      ).structuredContent as {
+        ok: boolean;
+        found?: boolean;
+        node: {
+          id: string;
+          version: string;
+          label: string;
+          properties: Record<string, unknown>;
+        };
+        error?: { code: string };
+      };
     }
     it("gets only exact business workspace/type/id and opaque stable content version", async () => {
       const got = await call("get", {
@@ -71,6 +94,193 @@ describe.skipIf(!loadSqliteDatabase())(
             ...change
           })
         ).toMatchObject({ found: false, node: null });
+    });
+    it("creates only declared types and rejects duplicate external identities", async () => {
+      const input = {
+        workspace_id: "ws-a",
+        node_type: "building",
+        id: "external-new",
+        label: "New",
+        properties: { cost: 10 }
+      };
+      const created = await call("create", input);
+      expect(created).toMatchObject({
+        ok: true,
+        created: true,
+        node: { label: "New", properties: { cost: 10 } }
+      });
+      expect(
+        await call("get", {
+          ...input,
+          id: created.node.id,
+          label: undefined,
+          properties: undefined
+        })
+      ).toMatchObject({ ok: false });
+      expect(await call("create", input)).toMatchObject({
+        error: { code: "id_exists" }
+      });
+      expect(
+        await call("create", { ...input, id: "other", node_type: "unknown" })
+      ).toMatchObject({ error: { code: "type_not_found" } });
+    });
+    it("updates raw and runtime metadata, preserves properties and rejects stale versions", async () => {
+      const identity = { workspace_id: "ws-a", node_type: "building", id: "1" };
+      const before = await call("get", identity);
+      const updated = await call("update", {
+        ...identity,
+        expected_version: before.node.version,
+        label: "Updated",
+        properties: { notes: ["note"] }
+      });
+      expect(updated).toMatchObject({
+        ok: true,
+        updated: true,
+        node: {
+          label: "Updated",
+          properties: { address: "Rue A", notes: ["note"] }
+        }
+      });
+      expect(
+        await call("update", {
+          ...identity,
+          expected_version: before.node.version,
+          label: "Stale"
+        })
+      ).toMatchObject({ error: { code: "version_conflict" } });
+      expect(
+        fixture.sqlite
+          .prepare("SELECT metadata_json FROM entities_raw WHERE entity_id=1")
+          .get()
+      ).toEqual(
+        fixture.sqlite
+          .prepare("SELECT metadata_json FROM graph_entity WHERE entity_id=1")
+          .get()
+      );
+    });
+    it("rolls back a create if a later alias write fails", async () => {
+      fixture.sqlite.exec(
+        "CREATE TRIGGER reject_alias BEFORE INSERT ON graph_entity_alias BEGIN SELECT RAISE(ABORT,'injected'); END"
+      );
+      expect(
+        await call("create", {
+          workspace_id: "ws-a",
+          node_type: "building",
+          id: "new",
+          label: "New"
+        })
+      ).toMatchObject({ ok: false });
+      expect(
+        fixture.sqlite.prepare("SELECT COUNT(*) AS n FROM entities_raw").get()
+      ).toEqual({ n: 1 });
+      expect(
+        fixture.sqlite.prepare("SELECT COUNT(*) AS n FROM graph_entity").get()
+      ).toEqual({ n: 2 });
+    });
+    it("rolls back a runtime update if the raw write fails", async () => {
+      const identity = { workspace_id: "ws-a", node_type: "building", id: "1" };
+      const before = await call("get", identity);
+      fixture.sqlite.exec(
+        "CREATE TRIGGER reject_raw BEFORE UPDATE ON entities_raw BEGIN SELECT RAISE(ABORT,'injected'); END"
+      );
+      expect(
+        await call("update", {
+          ...identity,
+          expected_version: before.node.version,
+          label: "New"
+        })
+      ).toMatchObject({ ok: false });
+      expect((await call("get", identity)).node).toEqual(before.node);
+    });
+    it("refuses a deletion with a foreign relation and preserves the node", async () => {
+      const identity = { workspace_id: "ws-a", node_type: "building", id: "1" };
+      const before = await call("get", identity);
+      fixture.sqlite.exec(
+        "INSERT INTO graph_relation(relation_id,workspace_id,relation_type,source_id,target_id) VALUES(1,'ws-b','cross',2,1)"
+      );
+      expect(
+        await call("delete", {
+          ...identity,
+          expected_version: before.node.version
+        })
+      ).toMatchObject({ error: { code: "foreign_relation" } });
+      expect((await call("get", identity)).node).toEqual(before.node);
+    });
+    it("deletes raw/runtime rows and aliases in the same transaction as adjacency repair", async () => {
+      const identity = { workspace_id: "ws-a", node_type: "building", id: "1" };
+      const before = await call("get", identity);
+      const original = fixture.database.transaction.bind(fixture.database);
+      const rebuild = vi.fn(async () => {});
+      fixture.database.transaction = (operation) =>
+        original((tx) =>
+          operation({ ...tx, rebuildBusinessAdjacency: rebuild })
+        );
+      fixture.sqlite.exec(
+        "INSERT INTO entity_aliases_raw(workspace_id,entity_id,term) VALUES('ws-a',1,'Alias'); INSERT INTO graph_entity_alias(entity_id,term) VALUES(1,'Alias')"
+      );
+      expect(
+        await call("delete", {
+          ...identity,
+          expected_version: before.node.version
+        })
+      ).toMatchObject({ ok: true, deleted: true });
+      expect(rebuild).toHaveBeenCalledWith("ws-a");
+      expect(
+        fixture.sqlite.prepare("SELECT COUNT(*) AS n FROM entities_raw").get()
+      ).toEqual({ n: 0 });
+      expect(
+        fixture.sqlite
+          .prepare("SELECT COUNT(*) AS n FROM graph_entity_alias")
+          .get()
+      ).toEqual({ n: 0 });
+      expect(
+        await call("delete", {
+          ...identity,
+          expected_version: before.node.version
+        })
+      ).toMatchObject({ ok: true, deleted: false });
+      expect(
+        await call("get", { ...identity, workspace_id: "ws-b", id: "2" })
+      ).toMatchObject({ found: true });
+    });
+    it("rolls back deletion if transactional native adjacency is unavailable", async () => {
+      const identity = { workspace_id: "ws-a", node_type: "building", id: "1" };
+      const before = await call("get", identity);
+      expect(
+        await call("delete", {
+          ...identity,
+          expected_version: before.node.version
+        })
+      ).toMatchObject({ ok: false });
+      expect((await call("get", identity)).node).toEqual(before.node);
+      expect(
+        fixture.sqlite.prepare("SELECT COUNT(*) AS n FROM entities_raw").get()
+      ).toEqual({ n: 1 });
+    });
+    it("does not recycle deleted record identities or accept an old version for a replacement", async () => {
+      const input = {
+        workspace_id: "ws-a",
+        node_type: "building",
+        id: "external",
+        label: "Same"
+      };
+      const first = await call("create", input);
+      const original = fixture.database.transaction.bind(fixture.database);
+      fixture.database.transaction = (operation) =>
+        original((tx) =>
+          operation({ ...tx, rebuildBusinessAdjacency: async () => {} })
+        );
+      expect(
+        await call("delete", {
+          workspace_id: input.workspace_id,
+          node_type: input.node_type,
+          id: first.node.id,
+          expected_version: first.node.version
+        })
+      ).toMatchObject({ deleted: true });
+      const second = await call("create", input);
+      expect(Number(second.node.id)).toBeGreaterThan(Number(first.node.id));
+      expect(second.node.version).not.toBe(first.node.version);
     });
     it("rejects structural properties and SQL-shaped opaque IDs before write", async () => {
       expect(

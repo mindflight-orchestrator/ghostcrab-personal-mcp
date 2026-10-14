@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createRealSqlite,
   loadSqliteDatabase
@@ -6,9 +6,18 @@ import {
 import { createToolContext } from "../helpers/tool-context.js";
 import {
   recordGetTool,
+  recordDeleteTool,
   RecordDeleteInput
 } from "../../src/tools/facets/records.js";
 import { upsertTool } from "../../src/tools/facets/upsert.js";
+
+import { runStandaloneFactDelete } from "../../src/db/standalone-mindbrain.js";
+vi.mock("../../src/db/standalone-mindbrain.js", async (importOriginal) => ({
+  ...(await importOriginal<
+    typeof import("../../src/db/standalone-mindbrain.js")
+  >()),
+  runStandaloneFactDelete: vi.fn()
+}));
 
 describe.skipIf(!loadSqliteDatabase())(
   "exact business record access and version conflicts",
@@ -91,6 +100,57 @@ describe.skipIf(!loadSqliteDatabase())(
       ).toEqual({ n: 2 });
     });
 
+    it("forwards exact deletion identity and reports native idempotent absence", async () => {
+      vi.mocked(runStandaloneFactDelete).mockResolvedValue({
+        ok: true,
+        found: false,
+        deleted: false
+      });
+      expect(
+        (
+          await recordDeleteTool.handler(
+            { ...identity, expected_version: 3 },
+            context
+          )
+        ).structuredContent
+      ).toMatchObject({ ok: true, found: false, deleted: false });
+      expect(runStandaloneFactDelete).toHaveBeenLastCalledWith(
+        expect.objectContaining({ ...identity, expected_version: 3 })
+      );
+    });
+    it("preserves a native version conflict as a stable MCP error", async () => {
+      vi.mocked(runStandaloneFactDelete).mockRejectedValue(
+        new Error("HTTP 409", {
+          cause: {
+            body: JSON.stringify({ error: { code: "version_conflict" } })
+          }
+        })
+      );
+      expect(
+        (
+          await recordDeleteTool.handler(
+            { ...identity, expected_version: 3 },
+            context
+          )
+        ).structuredContent
+      ).toMatchObject({ ok: false, error: { code: "version_conflict" } });
+    });
+    it.each([undefined, "not JSON", '{"error":{"code":"other"}}'])(
+      "does not turn a transport failure into success (body %s)",
+      async (body) => {
+        vi.mocked(runStandaloneFactDelete).mockRejectedValue(
+          new Error("HTTP failure", { cause: { body } })
+        );
+        expect(
+          (
+            await recordDeleteTool.handler(
+              { ...identity, expected_version: 3 },
+              context
+            )
+          ).structuredContent
+        ).toMatchObject({ ok: false });
+      }
+    );
     it("requires exact deletion identity and a positive version", () => {
       expect(() => RecordDeleteInput.parse(identity)).toThrow();
       expect(() =>

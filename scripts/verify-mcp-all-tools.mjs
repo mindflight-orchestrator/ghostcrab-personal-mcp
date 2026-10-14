@@ -38,6 +38,50 @@ const smokeCalls = [
     { id: workspaceId, label: "MCP all-tools smoke" }
   ],
   ["ghostcrab_workspace_use", { workspace_id: workspaceId }],
+  [
+    "ghostcrab_record_get",
+    { workspace_id: workspaceId, schema_id: schemaId, id: "missing" }
+  ],
+  [
+    "ghostcrab_record_delete",
+    {
+      workspace_id: workspaceId,
+      schema_id: schemaId,
+      id: "missing",
+      expected_version: 1
+    }
+  ],
+  [
+    "ghostcrab_graph_record_get",
+    { workspace_id: workspaceId, node_type: "missing", id: "1" }
+  ],
+  [
+    "ghostcrab_graph_record_create",
+    {
+      workspace_id: workspaceId,
+      node_type: "missing",
+      id: "missing",
+      label: "Missing type"
+    }
+  ],
+  [
+    "ghostcrab_graph_record_update",
+    {
+      workspace_id: workspaceId,
+      node_type: "missing",
+      id: "1",
+      expected_version: "0".repeat(64)
+    }
+  ],
+  [
+    "ghostcrab_graph_record_delete",
+    {
+      workspace_id: workspaceId,
+      node_type: "missing",
+      id: "1",
+      expected_version: "0".repeat(64)
+    }
+  ],
   ["ghostcrab_status", { agent_id: "verify:mcp-all-tools" }],
   ["ghostcrab_workspace_list", {}],
   ["ghostcrab_workspace_inspect", { workspace_id: workspaceId }],

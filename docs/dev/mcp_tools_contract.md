@@ -128,7 +128,7 @@ or deleting. Structural metadata keys are excluded from `properties`.
 
 - Get takes `{workspace_id,node_type,id}` and returns `found` plus `node|null`.
 - Create takes `{workspace_id,node_type,id,label,properties}`. Its input `id` is
-  a new opaque external ID; it returns the allocated decimal ID. Reusing an
+  a new opaque external ID; it returns a decimal ID that is not recycled after deletion. Reusing an
   existing external ID fails `id_exists`. The type must already be represented
   in that workspace's raw/runtime graph or declared by its existing ontology.
 - Update takes `{workspace_id,node_type,id,expected_version,label?,properties}`.
@@ -145,7 +145,15 @@ and the native writer rejects other writers while this session owns the lane.
 SQL remains implementation code inside MCP tools and is never a model argument.
 
 The native bounded helper `POST /api/mindbrain/graph/business-adjacency` accepts
-only `{workspace_id}` and rebuilds adjacency/degree indices from existing graph
+`{workspace_id,session_id?}` and rebuilds adjacency/degree indices from existing graph
 relations. It does not replay raw data or erase the workspace's diagnostic
-history. Successful deletion includes this index reconciliation; a transport
-failure must not be reported as verified success by an application caller.
+history. With `session_id`, it joins the active SQL writer transaction; an
+unknown or expired session is rejected. MCP deletion invokes this helper before
+COMMIT, so a failed rebuild rolls back the entity, relation and index changes.
+Without a session, the helper owns its transaction. A lost response to COMMIT
+remains ambiguous: callers should reread the exact identity before retrying.
+
+The fingerprint detects changes to public content, not every intervening edit
+(A → B → A on the same record produces the original fingerprint). It is not a
+monotonic revision counter. Workspace scoping is not caller authorization;
+application hosts remain responsible for access policy.

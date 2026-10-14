@@ -23,8 +23,6 @@ await new Promise((resolve) => socket.listen(0, "127.0.0.1", resolve));
 const port = socket.address().port;
 await new Promise((resolve) => socket.close(resolve));
 const url = `http://127.0.0.1:${port}`;
-const workspace = "operator-crud-fixture";
-const schema = "fixture:task";
 const receipt = {
   schema: "ghostcrab/record-crud-native-proof/v1",
   fixture,
@@ -102,89 +100,417 @@ function inspect(callback) {
     db.close();
   }
 }
-const identity = (id) => ({ workspace_id: workspace, schema_id: schema, id });
 try {
   await start();
   const db = new DatabaseSync(database);
-  db.exec('PRAGMA foreign_keys=ON');
-  db.exec('BEGIN IMMEDIATE');
-  for (const ws of ['graph-own','graph-foreign']) {
-    db.prepare('INSERT INTO workspaces(id,workspace_id,label) VALUES(?,?,?)').run(ws,ws,ws);
-    db.prepare('INSERT INTO ontologies(ontology_id,workspace_id,name,source_kind) VALUES(?,?,?,?)').run(ws+'::model',ws,'Existing business model','constructed');
-    db.prepare('INSERT INTO ontology_entity_types(ontology_id,entity_type) VALUES(?,?)').run(ws+'::model','building');
+  db.exec("PRAGMA foreign_keys=ON");
+  db.exec("BEGIN IMMEDIATE");
+  for (const ws of ["graph-own", "graph-foreign"]) {
+    db.prepare(
+      "INSERT INTO workspaces(id,workspace_id,label) VALUES(?,?,?)"
+    ).run(ws, ws, ws);
+    db.prepare(
+      "INSERT INTO ontologies(ontology_id,workspace_id,name,source_kind) VALUES(?,?,?,?)"
+    ).run(ws + "::model", ws, "Existing business model", "constructed");
+    db.prepare(
+      "INSERT INTO ontology_entity_types(ontology_id,entity_type) VALUES(?,?)"
+    ).run(ws + "::model", "building");
   }
-  db.prepare('INSERT INTO ontology_entity_types(ontology_id,entity_type) VALUES(?,?)').run('graph-own::model','unit');
-  for (const [id,ws] of [[1,'graph-own'],[2,'graph-own'],[100,'graph-foreign'],[101,'graph-foreign']]) {
-    const properties=JSON.stringify({address:'Synthetic address '+id,notes:[]});
-    db.prepare('INSERT INTO entities_raw(entity_id,workspace_id,ontology_id,external_id,entity_type,name,metadata_json) VALUES(?,?,?,?,?,?,?)').run(id,ws,ws+'::model','seed-'+id,'building','seed-'+id,properties);
-    db.prepare('INSERT INTO graph_entity(entity_id,workspace_id,entity_type,name,metadata_json) VALUES(?,?,?,?,?)').run(id,ws,'building','seed-'+id,properties);
+  db.prepare(
+    "INSERT INTO ontology_entity_types(ontology_id,entity_type) VALUES(?,?)"
+  ).run("graph-own::model", "unit");
+  for (const [id, ws] of [
+    [1, "graph-own"],
+    [2, "graph-own"],
+    [100, "graph-foreign"],
+    [101, "graph-foreign"]
+  ]) {
+    const properties = JSON.stringify({
+      address: "Synthetic address " + id,
+      notes: []
+    });
+    db.prepare(
+      "INSERT INTO entities_raw(entity_id,workspace_id,ontology_id,external_id,entity_type,name,metadata_json) VALUES(?,?,?,?,?,?,?)"
+    ).run(
+      id,
+      ws,
+      ws + "::model",
+      "seed-" + id,
+      "building",
+      "seed-" + id,
+      properties
+    );
+    db.prepare(
+      "INSERT INTO graph_entity(entity_id,workspace_id,entity_type,name,metadata_json) VALUES(?,?,?,?,?)"
+    ).run(id, ws, "building", "seed-" + id, properties);
   }
-  for (const [rid,ws,a,b] of [[10,'graph-own',1,2],[1000,'graph-foreign',100,101]]) {
-    db.prepare('INSERT INTO relations_raw(relation_id,workspace_id,ontology_id,edge_type,source_entity_id,target_entity_id) VALUES(?,?,?,?,?,?)').run(rid,ws,ws+'::model','contains',a,b);
-    db.prepare('INSERT INTO graph_relation(relation_id,workspace_id,relation_type,source_id,target_id) VALUES(?,?,?,?,?)').run(rid,ws,'contains',a,b);
+  for (const [rid, ws, a, b] of [
+    [10, "graph-own", 1, 2],
+    [1000, "graph-foreign", 100, 101]
+  ]) {
+    db.prepare(
+      "INSERT INTO relations_raw(relation_id,workspace_id,ontology_id,edge_type,source_entity_id,target_entity_id) VALUES(?,?,?,?,?,?)"
+    ).run(rid, ws, ws + "::model", "contains", a, b);
+    db.prepare(
+      "INSERT INTO graph_relation(relation_id,workspace_id,relation_type,source_id,target_id) VALUES(?,?,?,?,?)"
+    ).run(rid, ws, "contains", a, b);
   }
-  db.exec('COMMIT');db.close();
-  const rebuild = async ws => {
-    const response=await fetch(url+'/api/mindbrain/graph/business-adjacency',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({workspace_id:ws})});
-    assert.equal(response.ok,true,await response.text());
+  db.exec("COMMIT");
+  db.close();
+  const rebuild = async (ws) => {
+    const response = await fetch(
+      url + "/api/mindbrain/graph/business-adjacency",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ workspace_id: ws })
+      }
+    );
+    assert.equal(response.ok, true, await response.text());
   };
-  await rebuild('graph-own');await rebuild('graph-foreign');
-  const ontologyBefore=inspect(db=>db.prepare('SELECT * FROM ontologies ORDER BY ontology_id').all());
-  const typesBefore=inspect(db=>db.prepare('SELECT * FROM ontology_entity_types ORDER BY ontology_id,entity_type').all());
-  const foreignBefore=inspect(db=>({entity:db.prepare('SELECT * FROM graph_entity WHERE workspace_id=?').all('graph-foreign'),relation:db.prepare('SELECT * FROM graph_relation WHERE workspace_id=?').all('graph-foreign'),adjacency:db.prepare('SELECT * FROM graph_lj_out WHERE entity_id=100').all()}));
-  const graphCall=async (action,args)=>call('ghostcrab_graph_record_'+action,args);
-  const identity={workspace_id:'graph-own',node_type:'building',id:'1'};
-  const old=await graphCall('get',identity);assert.equal(old.found,true);assert.match(old.node.version,/^[a-f0-9]{64}$/);
-  for (const scope of [{workspace_id:'graph-foreign'},{node_type:'unit'}]) {
-    assert.equal((await graphCall('get',{...identity,...scope})).found,false);
-    assert.equal((await graphCall('delete',{...identity,...scope,expected_version:old.node.version})).deleted,false);
+  await rebuild("graph-own");
+  await rebuild("graph-foreign");
+  const ontologyBefore = inspect((db) =>
+    db.prepare("SELECT * FROM ontologies ORDER BY ontology_id").all()
+  );
+  const typesBefore = inspect((db) =>
+    db
+      .prepare(
+        "SELECT * FROM ontology_entity_types ORDER BY ontology_id,entity_type"
+      )
+      .all()
+  );
+  const foreignBefore = inspect((db) => ({
+    entity: db
+      .prepare("SELECT * FROM graph_entity WHERE workspace_id=?")
+      .all("graph-foreign"),
+    relation: db
+      .prepare("SELECT * FROM graph_relation WHERE workspace_id=?")
+      .all("graph-foreign"),
+    adjacency: db
+      .prepare("SELECT * FROM graph_lj_out WHERE entity_id=100")
+      .all()
+  }));
+  const graphCall = async (action, args) =>
+    call("ghostcrab_graph_record_" + action, args);
+  const identity = {
+    workspace_id: "graph-own",
+    node_type: "building",
+    id: "1"
+  };
+  const old = await graphCall("get", identity);
+  assert.equal(old.found, true);
+  assert.match(old.node.version, /^[a-f0-9]{64}$/);
+  for (const scope of [
+    { workspace_id: "graph-foreign" },
+    { node_type: "unit" }
+  ]) {
+    assert.equal(
+      (await graphCall("get", { ...identity, ...scope })).found,
+      false
+    );
+    assert.equal(
+      (
+        await graphCall("delete", {
+          ...identity,
+          ...scope,
+          expected_version: old.node.version
+        })
+      ).deleted,
+      false
+    );
   }
-  const created=await graphCall('create',{workspace_id:'graph-own',node_type:'building',id:'operator:new-building',label:'Synthetic new building',properties:{address:'Rue Demo',notes:[]}});
-  assert.equal(created.ok,true,JSON.stringify(created));assert.equal(created.created,true);
-  const c={workspace_id:'graph-own',node_type:'building',id:created.node.id};
-  assert.equal((await graphCall('get',c)).node.label,'Synthetic new building');
-  assert.equal((await graphCall('create',{workspace_id:'graph-own',node_type:'building',id:'operator:new-building',label:'Duplicate',properties:{}})).error.code,'id_exists');
-  assert.equal((await graphCall('create',{workspace_id:'graph-own',node_type:'invented-model',id:'new-model',label:'Forbidden',properties:{}})).error.code,'type_not_found');
-  const declared=await graphCall('create',{workspace_id:'graph-own',node_type:'unit',id:'operator:first-unit',label:'First unit',properties:{lot:'A'}});
-  assert.equal(declared.ok,true,JSON.stringify(declared));
-  assert.equal((await graphCall('update',{...c,expected_version:'a'.repeat(64),properties:{address:'Wrong'}})).error.code,'version_conflict');
-  const updated=await graphCall('update',{...c,expected_version:created.node.version,label:'New label',properties:{address:'Rue Updated'}});
-  assert.equal(updated.ok,true,JSON.stringify(updated));assert.notEqual(updated.node.version,created.node.version);
-  const note=await graphCall('update',{...c,expected_version:updated.node.version,properties:{notes:['Verified note']}});
-  assert.equal(note.ok,true);assert.equal(note.node.properties.address,'Rue Updated');
-  assert.deepEqual(note.node.properties.notes,['Verified note']);
-  assert.equal((await graphCall('delete',{...c,expected_version:updated.node.version})).error.code,'version_conflict');
-  receipt.checks.push('native explicit SQL sessions make create/update/CAS atomic; strict existing identity and type validation');
-  // Synthetic fixture links exercise full incident cleanup and foreign-link refusal.
-  const writable=new DatabaseSync(database);const target=Number(c.id);
-  writable.prepare('INSERT INTO relations_raw(relation_id,workspace_id,ontology_id,edge_type,source_entity_id,target_entity_id) VALUES(20,?,?,?,?,?)').run('graph-own','graph-own::model','contains',1,target);
-  writable.prepare('INSERT INTO graph_relation(relation_id,workspace_id,relation_type,source_id,target_id) VALUES(20,?,?,?,?)').run('graph-own','contains',1,target);
-  writable.close();await rebuild('graph-own');
-  const guarded=new DatabaseSync(database);
-  guarded.prepare('INSERT INTO graph_relation(relation_id,workspace_id,relation_type,source_id,target_id) VALUES(21,?,?,?,?)').run('graph-foreign','cross',100,target);guarded.close();
-  assert.equal((await graphCall('delete',{...c,expected_version:note.node.version})).error.code,'foreign_relation');
-  assert.equal((await graphCall('get',c)).found,true);
-  const clean=new DatabaseSync(database);clean.exec('DELETE FROM graph_relation WHERE relation_id=21');clean.close();
-  assert.equal((await graphCall('delete',{...c,expected_version:note.node.version})).deleted,true);
-  assert.equal((await graphCall('get',c)).found,false);
-  inspect(db=>{
-    assert.equal(db.prepare('SELECT COUNT(*) AS n FROM entities_raw WHERE entity_id=?').get(target).n,0);
-    assert.equal(db.prepare('SELECT COUNT(*) AS n FROM graph_relation WHERE relation_id=20').get().n,0);
-    assert.equal(db.prepare('SELECT COUNT(*) AS n FROM relations_raw WHERE relation_id=20').get().n,0);
-    for(const table of ['graph_entity_alias','graph_entity_document','graph_lj_out','graph_lj_in','graph_entity_degree'])assert.equal(db.prepare(`SELECT COUNT(*) AS n FROM ${table} WHERE entity_id=?`).get(target).n,0);
+  const concurrent = await Promise.all([
+    graphCall("update", {
+      ...identity,
+      expected_version: old.node.version,
+      properties: { race: "a" }
+    }),
+    graphCall("update", {
+      ...identity,
+      expected_version: old.node.version,
+      properties: { race: "b" }
+    })
+  ]);
+  assert.equal(concurrent.filter((r) => r.ok).length, 1);
+  assert.equal(
+    concurrent.filter((r) => r.error?.code === "version_conflict").length,
+    1
+  );
+  receipt.checks.push(
+    "concurrent edits with the same version have exactly one winner"
+  );
+  for (const body of [
+    "{",
+    JSON.stringify({ workspace_id: "graph-own", unknown: true })
+  ]) {
+    const response = await fetch(
+      url + "/api/mindbrain/graph/business-adjacency",
+      { method: "POST", headers: { "content-type": "application/json" }, body }
+    );
+    assert.equal(response.status, 400);
+  }
+  const invalidSession = await fetch(
+    url + "/api/mindbrain/graph/business-adjacency",
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ workspace_id: "graph-own", session_id: 99999 })
+    }
+  );
+  assert.equal(invalidSession.ok, false);
+  const created = await graphCall("create", {
+    workspace_id: "graph-own",
+    node_type: "building",
+    id: "operator:new-building",
+    label: "Synthetic new building",
+    properties: { address: "Rue Demo", notes: [] }
   });
-  receipt.checks.push('exact deletion removes raw/runtime entity and incident relations/links; adjacency reconciled in own workspace; foreign incident relation prevents deletion');
-  await stop();await start();
-  assert.equal((await graphCall('get',c)).found,false);
-  await call('ghostcrab_graph_reindex',{workspace_id:'graph-own'});
-  assert.equal((await graphCall('get',c)).found,false);
-  const foreignAfter=inspect(db=>({entity:db.prepare('SELECT * FROM graph_entity WHERE workspace_id=?').all('graph-foreign'),relation:db.prepare('SELECT * FROM graph_relation WHERE workspace_id=?').all('graph-foreign'),adjacency:db.prepare('SELECT * FROM graph_lj_out WHERE entity_id=100').all()}));
-  assert.deepEqual(foreignAfter,foreignBefore);
-  assert.deepEqual(inspect(db=>db.prepare('SELECT * FROM ontologies ORDER BY ontology_id').all()),ontologyBefore);
-  assert.deepEqual(inspect(db=>db.prepare('SELECT * FROM ontology_entity_types ORDER BY ontology_id,entity_type').all()),typesBefore);
-  receipt.checks.push('restart/reindex do not resurrect deleted objects; foreign graph rows/adjacency and ontology/type definitions unchanged');
-  receipt.schema='ghostcrab/business-graph-native-proof/v1';receipt.status='passed';
-  console.log(JSON.stringify(receipt,null,2));
+  assert.equal(created.ok, true, JSON.stringify(created));
+  assert.equal(created.created, true);
+  const c = {
+    workspace_id: "graph-own",
+    node_type: "building",
+    id: created.node.id
+  };
+  assert.equal(
+    (await graphCall("get", c)).node.label,
+    "Synthetic new building"
+  );
+  assert.equal(
+    (
+      await graphCall("create", {
+        workspace_id: "graph-own",
+        node_type: "building",
+        id: "operator:new-building",
+        label: "Duplicate",
+        properties: {}
+      })
+    ).error.code,
+    "id_exists"
+  );
+  assert.equal(
+    (
+      await graphCall("create", {
+        workspace_id: "graph-own",
+        node_type: "invented-model",
+        id: "new-model",
+        label: "Forbidden",
+        properties: {}
+      })
+    ).error.code,
+    "type_not_found"
+  );
+  const declared = await graphCall("create", {
+    workspace_id: "graph-own",
+    node_type: "unit",
+    id: "operator:first-unit",
+    label: "First unit",
+    properties: { lot: "A" }
+  });
+  assert.equal(declared.ok, true, JSON.stringify(declared));
+  assert.equal(
+    (
+      await graphCall("update", {
+        ...c,
+        expected_version: "a".repeat(64),
+        properties: { address: "Wrong" }
+      })
+    ).error.code,
+    "version_conflict"
+  );
+  const updated = await graphCall("update", {
+    ...c,
+    expected_version: created.node.version,
+    label: "New label",
+    properties: { address: "Rue Updated" }
+  });
+  assert.equal(updated.ok, true, JSON.stringify(updated));
+  assert.notEqual(updated.node.version, created.node.version);
+  const note = await graphCall("update", {
+    ...c,
+    expected_version: updated.node.version,
+    properties: { notes: ["Verified note"] }
+  });
+  assert.equal(note.ok, true);
+  assert.equal(note.node.properties.address, "Rue Updated");
+  assert.deepEqual(note.node.properties.notes, ["Verified note"]);
+  assert.equal(
+    (
+      await graphCall("delete", {
+        ...c,
+        expected_version: updated.node.version
+      })
+    ).error.code,
+    "version_conflict"
+  );
+  receipt.checks.push(
+    "native explicit SQL sessions make create/update/CAS atomic; strict existing identity and type validation"
+  );
+  // Synthetic fixture links exercise full incident cleanup and foreign-link refusal.
+  const writable = new DatabaseSync(database);
+  const target = Number(c.id);
+  writable
+    .prepare(
+      "INSERT INTO relations_raw(relation_id,workspace_id,ontology_id,edge_type,source_entity_id,target_entity_id) VALUES(20,?,?,?,?,?)"
+    )
+    .run("graph-own", "graph-own::model", "contains", 1, target);
+  writable
+    .prepare(
+      "INSERT INTO graph_relation(relation_id,workspace_id,relation_type,source_id,target_id) VALUES(20,?,?,?,?)"
+    )
+    .run("graph-own", "contains", 1, target);
+  writable.close();
+  await rebuild("graph-own");
+  const guarded = new DatabaseSync(database);
+  guarded
+    .prepare(
+      "INSERT INTO graph_relation(relation_id,workspace_id,relation_type,source_id,target_id) VALUES(21,?,?,?,?)"
+    )
+    .run("graph-foreign", "cross", 100, target);
+  guarded.close();
+  assert.equal(
+    (await graphCall("delete", { ...c, expected_version: note.node.version }))
+      .error.code,
+    "foreign_relation"
+  );
+  assert.equal((await graphCall("get", c)).found, true);
+  const clean = new DatabaseSync(database);
+  clean.exec("DELETE FROM graph_relation WHERE relation_id=21");
+  clean.close();
+  const fault = new DatabaseSync(database);
+  fault.exec(
+    "CREATE TRIGGER reject_business_adjacency BEFORE DELETE ON graph_lj_out WHEN OLD.entity_id=1 BEGIN SELECT RAISE(ABORT,'injected adjacency failure'); END"
+  );
+  fault.close();
+  assert.equal(
+    (await graphCall("delete", { ...c, expected_version: note.node.version }))
+      .ok,
+    false
+  );
+  assert.equal(
+    (await graphCall("get", c)).found,
+    true,
+    "adjacency failure must roll back the node deletion"
+  );
+  inspect((db) =>
+    assert.equal(
+      db
+        .prepare(
+          "SELECT COUNT(*) AS n FROM graph_relation WHERE relation_id=20"
+        )
+        .get().n,
+      1
+    )
+  );
+  const repaired = new DatabaseSync(database);
+  repaired.exec("DROP TRIGGER reject_business_adjacency");
+  repaired.close();
+  receipt.checks.push(
+    "injected adjacency failure rolls back entity, relations and index changes"
+  );
+  assert.equal(
+    (await graphCall("delete", { ...c, expected_version: note.node.version }))
+      .deleted,
+    true
+  );
+  assert.equal((await graphCall("get", c)).found, false);
+  inspect((db) => {
+    assert.equal(
+      db
+        .prepare("SELECT COUNT(*) AS n FROM entities_raw WHERE entity_id=?")
+        .get(target).n,
+      0
+    );
+    assert.equal(
+      db
+        .prepare(
+          "SELECT COUNT(*) AS n FROM graph_relation WHERE relation_id=20"
+        )
+        .get().n,
+      0
+    );
+    assert.equal(
+      db
+        .prepare("SELECT COUNT(*) AS n FROM relations_raw WHERE relation_id=20")
+        .get().n,
+      0
+    );
+    for (const table of [
+      "graph_entity_alias",
+      "graph_entity_document",
+      "graph_lj_out",
+      "graph_lj_in",
+      "graph_entity_degree"
+    ])
+      assert.equal(
+        db
+          .prepare(`SELECT COUNT(*) AS n FROM ${table} WHERE entity_id=?`)
+          .get(target).n,
+        0
+      );
+  });
+  receipt.checks.push(
+    "exact deletion removes raw/runtime entity and incident relations/links; adjacency reconciled in own workspace; foreign incident relation prevents deletion"
+  );
+  const metadataDb = new DatabaseSync(database);
+  metadataDb.exec(
+    "UPDATE workspaces SET label='Owner label', description='Owner description' WHERE workspace_id='default'"
+  );
+  const workspacesBefore = metadataDb
+    .prepare("SELECT * FROM workspaces ORDER BY workspace_id")
+    .all();
+  metadataDb.close();
+  await stop();
+  await start();
+  assert.deepEqual(
+    inspect((db) =>
+      db.prepare("SELECT * FROM workspaces ORDER BY workspace_id").all()
+    ),
+    workspacesBefore
+  );
+
+  assert.equal((await graphCall("get", c)).found, false);
+  await call("ghostcrab_graph_reindex", { workspace_id: "graph-own" });
+  assert.equal((await graphCall("get", c)).found, false);
+  const foreignAfter = inspect((db) => ({
+    entity: db
+      .prepare("SELECT * FROM graph_entity WHERE workspace_id=?")
+      .all("graph-foreign"),
+    relation: db
+      .prepare("SELECT * FROM graph_relation WHERE workspace_id=?")
+      .all("graph-foreign"),
+    adjacency: db
+      .prepare("SELECT * FROM graph_lj_out WHERE entity_id=100")
+      .all()
+  }));
+  assert.deepEqual(foreignAfter, foreignBefore);
+  assert.deepEqual(
+    inspect((db) =>
+      db.prepare("SELECT * FROM ontologies ORDER BY ontology_id").all()
+    ),
+    ontologyBefore
+  );
+  assert.deepEqual(
+    inspect((db) =>
+      db
+        .prepare(
+          "SELECT * FROM ontology_entity_types ORDER BY ontology_id,entity_type"
+        )
+        .all()
+    ),
+    typesBefore
+  );
+  receipt.checks.push(
+    "restart/reindex do not resurrect deleted objects; foreign graph rows/adjacency and ontology/type definitions unchanged"
+  );
+  assert.deepEqual(
+    inspect((db) => db.prepare("PRAGMA foreign_key_check").all()),
+    []
+  );
+  receipt.schema = "ghostcrab/business-graph-native-proof/v1";
+  receipt.status = "passed";
+  console.log(JSON.stringify(receipt, null, 2));
 } finally {
   await stop();
   await writeFile(join(fixture, "backend.log"), backendLog);

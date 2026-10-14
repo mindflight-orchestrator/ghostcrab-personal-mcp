@@ -3,7 +3,6 @@ import { z } from "zod";
 import { canonicalJsonHash } from "../../db/canonical-json.js";
 import { createDatabaseClient, type Queryable } from "../../db/client.js";
 import { resolveGhostcrabConfig } from "../../config/env.js";
-import { runStandaloneKnowledge } from "../../db/standalone-mindbrain.js";
 import {
   createToolErrorFromException,
   createToolErrorResult,
@@ -84,15 +83,6 @@ async function read(
 function requireProperties(properties: Record<string, unknown>) {
   if (Object.keys(properties).some((key) => reserved.has(key)))
     throw new Error("reserved_property");
-}
-async function adjacency(workspace: string) {
-  const config = resolveGhostcrabConfig();
-  return await runStandaloneKnowledge({
-    mindbrainUrl: config.mindbrainUrl,
-    operation: "graph_business_adjacency",
-    workspaceId: workspace,
-    timeoutMs: config.mindbrainHttpTimeoutMs
-  });
 }
 const schemas = {
   workspace_id: { type: "string", minLength: 1 },
@@ -198,7 +188,9 @@ for (const action of ["get", "create", "update", "delete"] as const) {
             );
             if (existing) throw new Error("id_exists");
             const [allocation] = await tx.query<{ id: number }>(
-              `SELECT MAX(COALESCE((SELECT MAX(entity_id) FROM graph_entity),0),COALESCE((SELECT MAX(entity_id) FROM entities_raw),0))+1 AS id`
+              `SELECT MAX(COALESCE((SELECT MAX(entity_id) FROM graph_entity),0),
+                COALESCE((SELECT MAX(entity_id) FROM entities_raw),0),
+                COALESCE((SELECT seq FROM sqlite_sequence WHERE name='entities_raw'),0))+1 AS id`
             );
             const id = Number(allocation.id);
             if (!Number.isInteger(id) || id > 4294967295)
@@ -355,10 +347,11 @@ for (const action of ["get", "create", "update", "delete"] as const) {
             `DELETE FROM entities_raw WHERE workspace_id=? AND entity_id=?`,
             [ws, id]
           );
+          if (!tx.rebuildBusinessAdjacency)
+            throw new Error("Native adjacency transaction required");
+          await tx.rebuildBusinessAdjacency(ws);
           return { deleted: true, found: true, id: String(id) };
         });
-        if (action === "delete" && "deleted" in result && result.deleted)
-          await adjacency(input.workspace_id);
         return createToolSuccessResult(name, {
           workspace_id: input.workspace_id,
           node_type: input.node_type,

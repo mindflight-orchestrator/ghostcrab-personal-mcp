@@ -6,6 +6,8 @@ export default defineConfig({
     fileParallelism: false,
     env: { GHOSTCRAB_TEST_REQUIRE_SQLITE: "1" },
     include: [
+      "tests/tools/business-graph-sqlite.test.ts",
+      "tests/tools/records-sqlite.test.ts",
       "tests/tools/learn-sqlite.test.ts",
       "tests/tools/graph-storage-sqlite.test.ts",
       "tests/tools/workspace-integrity-sqlite.test.ts",

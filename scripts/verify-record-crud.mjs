@@ -205,6 +205,48 @@ try {
     body: JSON.stringify({ table_id: 1, doc_id: doc, embedding: [1, 0, 0] })
   });
   assert.equal(vector.ok, true, await vector.text());
+  const historyBefore = inspect((db) =>
+    db
+      .prepare(
+        "SELECT * FROM agent_facts WHERE workspace_id=? AND id<>? ORDER BY id"
+      )
+      .all(workspace, created.id)
+  );
+  assert.equal(
+    historyBefore.length,
+    1,
+    "upsert must retain the prior closed version"
+  );
+  const fault = new DatabaseSync(database);
+  fault.exec(
+    "CREATE TRIGGER reject_record_delete BEFORE DELETE ON agent_facts BEGIN SELECT RAISE(ABORT,'injected deletion failure'); END"
+  );
+  fault.close();
+  const failedDelete = await call("ghostcrab_record_delete", {
+    ...identity(created.id),
+    expected_version: 2
+  });
+  assert.equal(failedDelete.ok, false);
+  assert.equal(
+    (await call("ghostcrab_record_get", identity(created.id))).row.version,
+    2
+  );
+  inspect((db) =>
+    assert.equal(
+      db
+        .prepare(
+          "SELECT COUNT(*) AS n FROM search_embeddings WHERE table_id=1 AND doc_id=?"
+        )
+        .get(doc).n,
+      1
+    )
+  );
+  const repaired = new DatabaseSync(database);
+  repaired.exec("DROP TRIGGER reject_record_delete");
+  repaired.close();
+  receipt.checks.push(
+    "injected deletion failure rolls back row and vector/search cleanup through MCP"
+  );
   const deleted = await call("ghostcrab_record_delete", {
     ...identity(created.id),
     expected_version: 2
@@ -253,6 +295,20 @@ try {
       1
     );
   });
+  assert.deepEqual(
+    inspect((db) =>
+      db
+        .prepare(
+          "SELECT * FROM agent_facts WHERE workspace_id=? AND id<>? ORDER BY id"
+        )
+        .all(workspace, created.id)
+    ),
+    historyBefore
+  );
+  assert.deepEqual(
+    inspect((db) => db.prepare("PRAGMA foreign_key_check").all()),
+    []
+  );
   receipt.checks.push(
     "native deletion removes current row and FTS, vector, BM25 term and document artifacts atomically"
   );

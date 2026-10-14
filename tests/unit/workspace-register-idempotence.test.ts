@@ -1,4 +1,4 @@
-import { DatabaseSync } from "node:sqlite";
+import { loadSqliteDatabase } from "../helpers/real-sqlite.js";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -10,7 +10,9 @@ import { registerMindbrainWorkspace } from "../../bin/lib/mindbrain-workspace-re
 const pkgRoot = resolve(import.meta.dirname, "../..");
 const nativeEngineAvailable =
   resolveNativeEnginePath(pkgRoot, { preferDev: true }) !== null;
-const describeNative = nativeEngineAvailable ? describe : describe.skip;
+const DatabaseSync = loadSqliteDatabase();
+const describeNative =
+  nativeEngineAvailable && DatabaseSync ? describe : describe.skip;
 
 describeNative("mindbrain workspace registration", () => {
   it("does not reset an existing workspace metadata, columns, or data", () => {
@@ -29,7 +31,7 @@ describeNative("mindbrain workspace registration", () => {
       });
       expect(first.ok, first.stderr || first.stdout).toBe(true);
 
-      const database = new DatabaseSync(sqlitePath);
+      const database = new DatabaseSync!(sqlitePath);
       try {
         const workspaceBefore = database
           .prepare("SELECT * FROM workspaces WHERE workspace_id = ?")
@@ -40,7 +42,9 @@ describeNative("mindbrain workspace registration", () => {
           "CREATE TABLE g08_workspace_data (workspace_id TEXT NOT NULL, value TEXT NOT NULL)"
         );
         database
-          .prepare("INSERT INTO g08_workspace_data(workspace_id, value) VALUES (?, ?)")
+          .prepare(
+            "INSERT INTO g08_workspace_data(workspace_id, value) VALUES (?, ?)"
+          )
           .run("g08-existing", "must-survive");
         const columnsBefore = database
           .prepare("PRAGMA table_info(workspaces)")
@@ -78,7 +82,9 @@ describeNative("mindbrain workspace registration", () => {
         );
         expect(
           database
-            .prepare("SELECT value FROM g08_workspace_data WHERE workspace_id = ?")
+            .prepare(
+              "SELECT value FROM g08_workspace_data WHERE workspace_id = ?"
+            )
             .get("g08-existing")
         ).toEqual({ value: "must-survive" });
       } finally {
