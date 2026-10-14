@@ -31,6 +31,13 @@
     "default_skipped": 16,
     "install_upgrade_tests": 39,
     "named_local_install": "passed",
-    "source": "reports/validation/installer-v0.7.4/README.md"
-  }
+    "source": "reports/validation/installer-v0.7.4/README.md",
+    "registry_install": "passed with scoped npm lifecycle approval; automatic upgrade active",
+    "release_ci": "passed"
+  },
+  "git_pushed": true,
+  "npm_staged": true,
+  "npm_published": true,
+  "publication_receipt": "reports/validation/publication-v0.7.4/README.md",
+  "published_archives": "reports/validation/publication-v0.7.4/staged-archives.json"
 }

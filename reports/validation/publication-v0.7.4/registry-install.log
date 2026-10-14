@@ -1,0 +1,70 @@
+
+added 97 packages in 814ms
+npm warn allow-scripts 1 package has install scripts not yet covered by allowScripts:
+npm warn allow-scripts   @mindflight/ghostcrab-personal-mcp@0.7.4 (postinstall: node ./bin/lib/postinstall-prebuilds.mjs)
+npm warn allow-scripts
+npm warn allow-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+GhostCrab CLI — durable structured memory for AI agents
+
+Usage: gcp <command> [options]
+
+Info:
+  --version | version              Print installed GhostCrab package version
+  --info | info                    Print install paths and offline defaults
+
+── JTBD (recommended) ──
+  brain up [--workspace <id>]       Start MindBrain (Zig) + MCP on stdio
+  brain down [--all]                Stop the MindBrain backend (current DB or all)
+  smoke                            Read-only backend/tool registration check
+  status                           Read-only operational snapshot
+  tools list                       List MCP tools (recommended + full catalog metadata)
+  tools verify                     Verify full MCP catalog list + call smoke
+  maintenance ddl-approve|ddl-execute
+                                    Human DDL approval/execution controls
+  brain workspace create [name]   Create / register a workspace
+  brain workspace list            List workspaces
+  brain schema <sub>              Ontologies (knowledge structure in the DB)
+  brain ontology import|export    Import/export OWL2 N-Triples
+  brain backup [opts]             Export workspace/collection/taxonomy backup
+  brain export [opts]             Alias for brain backup
+  brain load <file>               Load JSONL profile or restore backup bundle (--overwrite --confirm to replace)
+  brain document <cmd> [args]     Corpus normalize/profile/ingest (stop MCP first)
+  brain structured-import <cmd>   Tabular CSV/JSON import (stop MCP first)
+  brain docs [topic]              Full import runbooks (structured | document | import)
+  brain setup <cursor|codex|claude|generic>
+                                    User-global MCP + IDE skills (generic prints snippets)
+  bootstrap                          Create .env / data/ / README symlinks in cwd
+  path install|print|doctor          Cross-platform PATH shim (~/.ghostcrab/bin)
+  agent skills <sub>              Registry skills (agent capabilities)
+  agent equip <owner/name>        Shortcut for: agent skills pull
+  env list | show | get | set     GhostCrab config file (~/.ghostcrab/…)
+  env path
+
+  gcp up | gcp start              Same as  gcp brain up
+  gcp down                        Same as  gcp brain down
+
+── Legacy (same behavior) ──
+  serve, init, config, ontologies, skills, load, authorize, bootstrap, path
+
+Quick start (new names):
+  gcp brain workspace create my-app
+  gcp brain up --workspace my-app
+
+Registry:
+  gcp env set registry.token <tok>
+  gcp brain schema pull mindflight/mindbrain
+  gcp agent skills pull mindflight/some-skill
+
+MCP client example:
+  { "command": "gcp", "args": ["brain", "up", "--workspace", "my-app"] }
+  { "command": "gcp", "args": ["up"] }   # default workspace; same as: "serve"
+
+IDE skills (Cursor / Claude Code / Codex):
+  gcp init can copy default rules from ghostcrab-skills when that tree is available.
+  gcp brain up --install-skills does the same explicitly during server startup.
+
+Run  gcp brain --help   /   gcp agent --help   /   gcp env --help   for details.
+[ghostcrab] No native backend available for this machine (linux-x64).
+  Expected optional dependency: @mindflight/ghostcrab-personal-mcp-linux-x64
+  Checked fallback path: /tmp/ghostcrab-v074-registry-install-mnsam7lg/node_modules/@mindflight/ghostcrab-personal-mcp/prebuilds/linux-x64/ghostcrab-backend
+  (OK if you use a self-built backend.)

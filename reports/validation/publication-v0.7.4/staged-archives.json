@@ -1,0 +1,241 @@
+[
+  {
+    "id": "131fcf96-c81c-4fce-9d6c-6d1ea78c792e",
+    "packageName": "@mindflight/ghostcrab-personal-mcp",
+    "version": "0.7.4",
+    "tag": "latest",
+    "createdAt": "2026-10-14T13:03:46.300Z",
+    "actor": "lanfeust21",
+    "actorType": "user",
+    "access": "public",
+    "shasum": "050305bc32cac86d5c54d7fe2d091b00ac7049b4",
+    "status": "validating",
+    "sha256": "02e17dcd161d6ba4690c72bd572b6547d64bd29b01b66e6952ac02216afee998",
+    "differences_from_local_pack": [
+      {
+        "file": "package/package.json",
+        "changes": {
+          "packageManager": [
+            null,
+            "pnpm@10.10.0"
+          ]
+        }
+      },
+      {
+        "file": "package/examples/immeuble/README.md",
+        "changes": "npm includes existing example README"
+      }
+    ],
+    "content_verified": true
+  },
+  {
+    "id": "0f3f3a9a-8193-49c1-b85f-015869ee9d1e",
+    "packageName": "@mindflight/ghostcrab-personal-mcp-win32-arm64",
+    "version": "0.7.4",
+    "tag": "latest",
+    "createdAt": "2026-10-14T13:03:42.783Z",
+    "actor": "lanfeust21",
+    "actorType": "user",
+    "access": "public",
+    "shasum": "383247d3feed78255fe9bd41aabcad912b32595f",
+    "status": "validating",
+    "sha256": "ee37e18d0be3b97abea5c55705c300f3055c1d3ee5d0b6702d8299bc31bc65c5",
+    "differences_from_local_pack": [
+      {
+        "file": "package/package.json",
+        "changes": {
+          "scripts": [
+            {},
+            {
+              "prepack": "node ../../scripts/stage-platform-packages.mjs --platform win32-arm64"
+            }
+          ]
+        }
+      },
+      {
+        "file": "package/bin/ghostcrab-document.exe",
+        "changes": "executable mode 0644 -> 0755; bytes identical"
+      },
+      {
+        "file": "package/bin/ghostcrab-backend.exe",
+        "changes": "executable mode 0644 -> 0755; bytes identical"
+      }
+    ],
+    "content_verified": true
+  },
+  {
+    "id": "ae41b95f-3226-4404-82e1-ff4ebcbd1f9a",
+    "packageName": "@mindflight/ghostcrab-personal-mcp-win32-x64",
+    "version": "0.7.4",
+    "tag": "latest",
+    "createdAt": "2026-10-14T13:03:37.911Z",
+    "actor": "lanfeust21",
+    "actorType": "user",
+    "access": "public",
+    "shasum": "bb15bd4c4adc9eccfa61289d643ffb7bbafc5e69",
+    "status": "validating",
+    "sha256": "096b8e4c8dda935e26417dd6f4df2dab3b55e4d6c73cebbe7e93122ea9d16f47",
+    "differences_from_local_pack": [
+      {
+        "file": "package/package.json",
+        "changes": {
+          "scripts": [
+            {},
+            {
+              "prepack": "node ../../scripts/stage-platform-packages.mjs --platform win32-x64"
+            }
+          ]
+        }
+      },
+      {
+        "file": "package/bin/ghostcrab-document.exe",
+        "changes": "executable mode 0644 -> 0755; bytes identical"
+      },
+      {
+        "file": "package/bin/ghostcrab-backend.exe",
+        "changes": "executable mode 0644 -> 0755; bytes identical"
+      }
+    ],
+    "content_verified": true
+  },
+  {
+    "id": "79ae0c08-f172-4562-aa55-a0d96df7c3b1",
+    "packageName": "@mindflight/ghostcrab-personal-mcp-darwin-arm64",
+    "version": "0.7.4",
+    "tag": "latest",
+    "createdAt": "2026-10-14T13:03:33.367Z",
+    "actor": "lanfeust21",
+    "actorType": "user",
+    "access": "public",
+    "shasum": "f3fd00d8b0adec23b5a4d2042147e34958fffaf9",
+    "status": "validating",
+    "sha256": "bfcf32d01688a6273e7e920e495e3743b7be77ad3db7dafc08904bdd7bb3bc70",
+    "differences_from_local_pack": [
+      {
+        "file": "package/package.json",
+        "changes": {
+          "scripts": [
+            {},
+            {
+              "prepack": "node ../../scripts/stage-platform-packages.mjs --platform darwin-arm64"
+            }
+          ]
+        }
+      },
+      {
+        "file": "package/bin/ghostcrab-backend",
+        "changes": "executable mode 0644 -> 0755; bytes identical"
+      },
+      {
+        "file": "package/bin/ghostcrab-document",
+        "changes": "executable mode 0644 -> 0755; bytes identical"
+      }
+    ],
+    "content_verified": true
+  },
+  {
+    "id": "3e74882e-7a27-42bd-b30a-b9be7089a7a6",
+    "packageName": "@mindflight/ghostcrab-personal-mcp-darwin-x64",
+    "version": "0.7.4",
+    "tag": "latest",
+    "createdAt": "2026-10-14T13:03:28.851Z",
+    "actor": "lanfeust21",
+    "actorType": "user",
+    "access": "public",
+    "shasum": "515b64fec12571014f7e3e79a37fceed4852921d",
+    "status": "validating",
+    "sha256": "99cbe047b97a925b53fab8fca4feefcec423ec22903b58c0fa200614cd15648d",
+    "differences_from_local_pack": [
+      {
+        "file": "package/package.json",
+        "changes": {
+          "scripts": [
+            {},
+            {
+              "prepack": "node ../../scripts/stage-platform-packages.mjs --platform darwin-x64"
+            }
+          ]
+        }
+      },
+      {
+        "file": "package/bin/ghostcrab-backend",
+        "changes": "executable mode 0644 -> 0755; bytes identical"
+      },
+      {
+        "file": "package/bin/ghostcrab-document",
+        "changes": "executable mode 0644 -> 0755; bytes identical"
+      }
+    ],
+    "content_verified": true
+  },
+  {
+    "id": "c3ad7068-8d2a-45ba-80da-dee63c6a863e",
+    "packageName": "@mindflight/ghostcrab-personal-mcp-linux-arm64",
+    "version": "0.7.4",
+    "tag": "latest",
+    "createdAt": "2026-10-14T13:03:24.277Z",
+    "actor": "lanfeust21",
+    "actorType": "user",
+    "access": "public",
+    "shasum": "599f46f92ce99ab00f06887acddf81a732789acc",
+    "status": "validating",
+    "sha256": "dcf1476d3aa67e22baad7a7c22884b75dbc822c5946266ea0b9fd8e7d0a7c4f9",
+    "differences_from_local_pack": [
+      {
+        "file": "package/package.json",
+        "changes": {
+          "scripts": [
+            {},
+            {
+              "prepack": "node ../../scripts/stage-platform-packages.mjs --platform linux-arm64"
+            }
+          ]
+        }
+      },
+      {
+        "file": "package/bin/ghostcrab-backend",
+        "changes": "executable mode 0644 -> 0755; bytes identical"
+      },
+      {
+        "file": "package/bin/ghostcrab-document",
+        "changes": "executable mode 0644 -> 0755; bytes identical"
+      }
+    ],
+    "content_verified": true
+  },
+  {
+    "id": "9ae03e06-2e60-4d7f-ae4d-4643f998a613",
+    "packageName": "@mindflight/ghostcrab-personal-mcp-linux-x64",
+    "version": "0.7.4",
+    "tag": "latest",
+    "createdAt": "2026-10-14T13:03:09.594Z",
+    "actor": "lanfeust21",
+    "actorType": "user",
+    "access": "public",
+    "shasum": "db9996ac6a4ca52694c7ffedb7b551b1df1da816",
+    "status": "validating",
+    "sha256": "9d0283a8d0e0c3cbb62cdadafdebf5117935ca27e2294764bb6b93c149cedd98",
+    "differences_from_local_pack": [
+      {
+        "file": "package/package.json",
+        "changes": {
+          "scripts": [
+            {},
+            {
+              "prepack": "node ../../scripts/stage-platform-packages.mjs --platform linux-x64"
+            }
+          ]
+        }
+      },
+      {
+        "file": "package/bin/ghostcrab-backend",
+        "changes": "executable mode 0644 -> 0755; bytes identical"
+      },
+      {
+        "file": "package/bin/ghostcrab-document",
+        "changes": "executable mode 0644 -> 0755; bytes identical"
+      }
+    ],
+    "content_verified": true
+  }
+]

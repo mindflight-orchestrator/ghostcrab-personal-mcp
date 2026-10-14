@@ -1,0 +1,142 @@
+[
+  {
+    "package": "@mindflight/ghostcrab-personal-mcp",
+    "version": "0.7.4",
+    "dist": {
+      "shasum": "050305bc32cac86d5c54d7fe2d091b00ac7049b4",
+      "tarball": "https://registry.npmjs.org/@mindflight/ghostcrab-personal-mcp/-/ghostcrab-personal-mcp-0.7.4.tgz",
+      "integrity": "sha512-uBPhbY/+1vsYFrqITbPJ46Tu9M6UVmkY2pYiFTUCbkefZ4iwlOTymCosYMSrKleaI58neLM5qBogHrdyXDZzjw==",
+      "fileCount": 692,
+      "unpackedSize": 3792342,
+      "signatures": [
+        {
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "sig": "MEUCIQDoJXpkoAGe40po8WslclXV+Y61oKtaZsnWTSzenxSStgIgBAeOshVNxqyRVHkpb6kUs7T7R3puJUhMGUyrt1xi884="
+        }
+      ]
+    },
+    "dist-tags": {
+      "latest": "0.7.4"
+    }
+  },
+  {
+    "package": "@mindflight/ghostcrab-personal-mcp-win32-arm64",
+    "version": "0.7.4",
+    "dist": {
+      "shasum": "383247d3feed78255fe9bd41aabcad912b32595f",
+      "tarball": "https://registry.npmjs.org/@mindflight/ghostcrab-personal-mcp-win32-arm64/-/ghostcrab-personal-mcp-win32-arm64-0.7.4.tgz",
+      "integrity": "sha512-tAyZB85O9qCoqU7eP1QPiD2+Qc/o85Tw99ii2zZJn1WAh4EJLwmiYjvVAVMsJ+M1uQou6O2zm4ZSgUhwJFCABA==",
+      "fileCount": 4,
+      "unpackedSize": 10554632,
+      "signatures": [
+        {
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "sig": "MEUCIQCVqhsNUhsdac8wFOMxCIybX0/9WcqAcUuy76YVMKIglAIgOJcZa15mI+vaPXCbN1CZhDwyuttai1/Atz5fVn9FjOc="
+        }
+      ]
+    },
+    "dist-tags": {
+      "latest": "0.7.4"
+    }
+  },
+  {
+    "package": "@mindflight/ghostcrab-personal-mcp-win32-x64",
+    "version": "0.7.4",
+    "dist": {
+      "shasum": "bb15bd4c4adc9eccfa61289d643ffb7bbafc5e69",
+      "tarball": "https://registry.npmjs.org/@mindflight/ghostcrab-personal-mcp-win32-x64/-/ghostcrab-personal-mcp-win32-x64-0.7.4.tgz",
+      "integrity": "sha512-nYnTv/PFyZZ0PJsum+hUKGzXDL6IgQKAt68jsJMhyZCRXxPnD8sWTwkGA6vYXt2qjmuYxOXDEjySnIW931EAKg==",
+      "fileCount": 4,
+      "unpackedSize": 12051712,
+      "signatures": [
+        {
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "sig": "MEUCIHWwCLA4xSF9dNWwVPY+8EOaFNC25kyXiRP7E+KlgoEBAiEAw2s3Mj2iu9spFEVx8IC2Lx8Mm4n0A9j7I+GXK5ee11s="
+        }
+      ]
+    },
+    "dist-tags": {
+      "latest": "0.7.4"
+    }
+  },
+  {
+    "package": "@mindflight/ghostcrab-personal-mcp-darwin-arm64",
+    "version": "0.7.4",
+    "dist": {
+      "shasum": "f3fd00d8b0adec23b5a4d2042147e34958fffaf9",
+      "tarball": "https://registry.npmjs.org/@mindflight/ghostcrab-personal-mcp-darwin-arm64/-/ghostcrab-personal-mcp-darwin-arm64-0.7.4.tgz",
+      "integrity": "sha512-Dbh5Hu4+xiRFViyEWL0FVEIeZJb8h6EHS8jaMAp6qsXGa938eAK8ALPZEjVzuof9nPSp9ma+4MNlwLPXalV1ww==",
+      "fileCount": 4,
+      "unpackedSize": 10742476,
+      "signatures": [
+        {
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "sig": "MEYCIQCZ7Bjnn/9qTti2AfIM/eoDrXPil1NgtOZNXhxAOjhxSAIhAPFlLMY1AFXwbWID2/Hc+2cMktV83CMRoog4HUCFvFil"
+        }
+      ]
+    },
+    "dist-tags": {
+      "latest": "0.7.4"
+    }
+  },
+  {
+    "package": "@mindflight/ghostcrab-personal-mcp-darwin-x64",
+    "version": "0.7.4",
+    "dist": {
+      "shasum": "515b64fec12571014f7e3e79a37fceed4852921d",
+      "tarball": "https://registry.npmjs.org/@mindflight/ghostcrab-personal-mcp-darwin-x64/-/ghostcrab-personal-mcp-darwin-x64-0.7.4.tgz",
+      "integrity": "sha512-085reQCHlKuKH/m3wQ12h2Slcn/YFOG4Y4lOvweBbsGyeb4svtKy3ki1XzNnvgd1CujP9AdBvYLVvjzKgfMW9w==",
+      "fileCount": 4,
+      "unpackedSize": 11303175,
+      "signatures": [
+        {
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "sig": "MEQCIDZZdWtruXRCdJPzW9JpwO8WnUR6iw/mKfjaflSAmzkIAiB23mCnQ+z1LgVpfVwTAAdWnLiOvlS9LWk5XoVBPIEyGg=="
+        }
+      ]
+    },
+    "dist-tags": {
+      "latest": "0.7.4"
+    }
+  },
+  {
+    "package": "@mindflight/ghostcrab-personal-mcp-linux-arm64",
+    "version": "0.7.4",
+    "dist": {
+      "shasum": "599f46f92ce99ab00f06887acddf81a732789acc",
+      "tarball": "https://registry.npmjs.org/@mindflight/ghostcrab-personal-mcp-linux-arm64/-/ghostcrab-personal-mcp-linux-arm64-0.7.4.tgz",
+      "integrity": "sha512-Q11sIM6RnKdhmZyr+NF9qlWQ4fn6rOImuFRVGQ5GAUPfx5E27jcInE9aj3trW91HmA0z8WoYL9ucstGcOLCtNw==",
+      "fileCount": 4,
+      "unpackedSize": 58042976,
+      "signatures": [
+        {
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "sig": "MEQCIE131wbWSl+uJeFlKXii0J4Gkg04sCK2iibkpf21w7KmAiBwt2/eLsz5TPknjEdhuaLFB7Rxb8CxepJu8KrDwPC98A=="
+        }
+      ]
+    },
+    "dist-tags": {
+      "latest": "0.7.4"
+    }
+  },
+  {
+    "package": "@mindflight/ghostcrab-personal-mcp-linux-x64",
+    "version": "0.7.4",
+    "dist": {
+      "shasum": "db9996ac6a4ca52694c7ffedb7b551b1df1da816",
+      "tarball": "https://registry.npmjs.org/@mindflight/ghostcrab-personal-mcp-linux-x64/-/ghostcrab-personal-mcp-linux-x64-0.7.4.tgz",
+      "integrity": "sha512-d54G19RmfwqTanboyEho2Y2RbTAep2YAmomhKYaLEZnhnSXhKj9OziWBGUVmaHZ+wJlM3RU6JfEEQRTncXhvXg==",
+      "fileCount": 4,
+      "unpackedSize": 57344816,
+      "signatures": [
+        {
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "sig": "MEQCICzTSP7dO/RrQwd66g+c+xrtudS5NH4kN4VEB2LwCcCQAiBYNkh+zW8MI/pBaAAN18rXHM3AtE1Hy1x8usBg1I8sSg=="
+        }
+      ]
+    },
+    "dist-tags": {
+      "latest": "0.7.4"
+    }
+  }
+]

@@ -13,7 +13,8 @@ A standard registry installation can terminate its own npm process: the upgrade
 cleanup matches the package name in `npm install`. The file-tarball smoke did
 not reproduce that command line. The verified temporary workaround is
 `GHOSTCRAB_SKIP_INSTALL_UPGRADE=1 npm install @mindflight/ghostcrab-personal-mcp@0.7.3`.
-A v0.7.4 corrective release is being prepared; see the publication receipt.
+The corrective v0.7.4 is now published; use it for new installations. See
+[the v0.7.4 release](release-v0.7.4.md).
 
 ## Changes
 
