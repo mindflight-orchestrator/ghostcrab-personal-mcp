@@ -30,6 +30,9 @@ const key = ({ file, mutator, original, replacement }) =>
 export function verifyMutationReview(report, reviews) {
   if (!report?.files || !Object.keys(report.files).length)
     throw new Error("Empty mutation report");
+  const signatures = reviews.map(key);
+  if (new Set(signatures).size !== signatures.length)
+    throw new Error("Duplicate mutation review");
   const budgets = new Map(
     reviews.map((review) => {
       if (
@@ -52,6 +55,9 @@ export function verifyMutationReview(report, reviews) {
     throw new Error(
       `Unreviewed undetected mutations:\n${JSON.stringify(unreviewed, null, 2)}`
     );
+  const stale = [...budgets].filter(([, remaining]) => remaining !== 0);
+  if (stale.length)
+    throw new Error(`Stale mutation reviews: ${JSON.stringify(stale)}`);
   return undetectedMutations(report).length;
 }
 

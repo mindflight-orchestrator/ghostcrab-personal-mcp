@@ -51,6 +51,7 @@ describe.skipIf(!loadSqliteDatabase())(
         (await recordGetTool.handler(identity, context)).structuredContent
       ).toMatchObject({
         ok: true,
+        tool: "ghostcrab_record_get",
         found: true,
         row: {
           ...identity,
@@ -80,7 +81,14 @@ describe.skipIf(!loadSqliteDatabase())(
       };
       expect(
         (await upsertTool.handler(input, context)).structuredContent
-      ).toMatchObject({ ok: false, error: { code: "version_conflict" } });
+      ).toMatchObject({
+        ok: false,
+        tool: "ghostcrab_upsert",
+        error: {
+          code: "version_conflict",
+          details: { expected_version: 9, actual_version: 1 }
+        }
+      });
       expect(
         fixture.sqlite.prepare("SELECT COUNT(*) AS n FROM agent_facts").get()
       ).toEqual({ n: 1 });
@@ -113,7 +121,12 @@ describe.skipIf(!loadSqliteDatabase())(
             context
           )
         ).structuredContent
-      ).toMatchObject({ ok: true, found: false, deleted: false });
+      ).toMatchObject({
+        ok: true,
+        tool: "ghostcrab_record_delete",
+        found: false,
+        deleted: false
+      });
       expect(runStandaloneFactDelete).toHaveBeenLastCalledWith(
         expect.objectContaining({ ...identity, expected_version: 3 })
       );
@@ -133,7 +146,11 @@ describe.skipIf(!loadSqliteDatabase())(
             context
           )
         ).structuredContent
-      ).toMatchObject({ ok: false, error: { code: "version_conflict" } });
+      ).toMatchObject({
+        ok: false,
+        tool: "ghostcrab_record_delete",
+        error: { code: "version_conflict" }
+      });
     });
     it.each([undefined, "not JSON", '{"error":{"code":"other"}}'])(
       "does not turn a transport failure into success (body %s)",
@@ -151,6 +168,59 @@ describe.skipIf(!loadSqliteDatabase())(
         ).toMatchObject({ ok: false });
       }
     );
+    it("returns a closed history row as inactive without leaking its encoded facets", async () => {
+      fixture.sqlite.exec("UPDATE agent_facts SET valid_until_unix=1");
+      const result = (await recordGetTool.handler(identity, context))
+        .structuredContent as { row: Record<string, unknown> };
+      expect(result.row.active).toBe(false);
+      expect(result.row).not.toHaveProperty("facets_json");
+    });
+    it("does not create a missing record when an expected version was supplied", async () => {
+      const result = await upsertTool.handler(
+        {
+          workspace_id: identity.workspace_id,
+          schema_id: identity.schema_id,
+          match: { id: "missing" },
+          create_if_missing: true,
+          set_content: "New",
+          expected_version: 1
+        },
+        context
+      );
+      expect(result.structuredContent).toMatchObject({
+        ok: false,
+        tool: "ghostcrab_upsert",
+        error: {
+          code: "version_conflict",
+          details: { expected_version: 1, actual_version: null }
+        }
+      });
+      expect(
+        fixture.sqlite.prepare("SELECT COUNT(*) AS n FROM agent_facts").get()
+      ).toEqual({ n: 1 });
+    });
+    it("keeps unexpected HTTP errors distinct from version conflicts and handles missing causes", async () => {
+      for (const error of [
+        new Error("network down"),
+        new Error("HTTP failure", {
+          cause: { body: '{"error":{"code":"other"}}' }
+        })
+      ]) {
+        vi.mocked(runStandaloneFactDelete).mockRejectedValue(error);
+        expect(
+          (
+            await recordDeleteTool.handler(
+              { ...identity, expected_version: 1 },
+              context
+            )
+          ).structuredContent
+        ).toMatchObject({
+          ok: false,
+          tool: "ghostcrab_record_delete",
+          error: { code: "tool_execution_error" }
+        });
+      }
+    });
     it("requires exact deletion identity and a positive version", () => {
       expect(() => RecordDeleteInput.parse(identity)).toThrow();
       expect(() =>

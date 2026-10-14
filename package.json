@@ -122,7 +122,7 @@
     "test": "vitest run",
     "test:integrity": "vitest run --config vitest.integrity.config.ts",
     "test:integrity:native": "vitest run --config vitest.integrity-native.config.ts",
-    "test:mutation": "stryker run && node scripts/verify-mutation-review.mjs",
+    "test:mutation": "stryker run && node scripts/verify-mutation-review.mjs && node scripts/verify-critical-mutations.mjs",
     "test:coverage": "vitest run --coverage --coverage.reporter=text-summary --coverage.reporter=json-summary",
     "test:integration": "sh scripts/run-integration-tests.sh",
     "test:integration:optional": "vitest run --config vitest.integration.config.ts",

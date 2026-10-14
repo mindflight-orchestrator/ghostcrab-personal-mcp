@@ -1,0 +1,551 @@
+
+> @mindflight/ghostcrab-personal-mcp@0.7.3 test:mutation /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp
+> stryker run && node scripts/verify-mutation-review.mjs && node scripts/verify-critical-mutations.mjs
+
+[32m13:18:16 (2180732) INFO ProjectReader[39m Found 7 of 277 file(s) to be mutated.
+[32m13:18:16 (2180732) INFO Instrumenter[39m Instrumented 7 source file(s) with 517 mutant(s)
+[32m13:18:17 (2180732) INFO ConcurrencyTokenProvider[39m Creating 2 test runner process(es).
+[32m13:18:17 (2180732) INFO DryRunExecutor[39m Starting initial test run (vitest test runner with "perTest" coverage analysis). This may take a while.
+[32m13:18:19 (2180732) INFO DryRunExecutor[39m Initial test run succeeded. Ran 83 tests in 1 second (net 1082.3116569999993 ms, overhead 718.6883430000007 ms).
+
+All tests
+  business-graph-sqlite.test.ts
+    ✓ business graph exact identities gets only exact business workspace/type/id and opaque stable content version (killed 33)
+    ✓ business graph exact identities creates only declared types and rejects duplicate external identities (killed 41)
+    ✓ business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions (killed 28)
+    ~ business graph exact identities rolls back a create if a later alias write fails (covered 54)
+    ~ business graph exact identities rolls back a runtime update if the raw write fails (covered 82)
+    ✓ business graph exact identities refuses a deletion with a foreign relation and preserves the node (killed 6)
+    ✓ business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair (killed 42)
+    ~ business graph exact identities rolls back deletion if transactional native adjacency is unavailable (covered 116)
+    ~ business graph exact identities does not recycle deleted record identities or accept an old version for a replacement (covered 155)
+    ✓ business graph exact identities handles generic graph entities without exposing structural metadata (killed 15)
+    ✓ business graph exact identities uses a concrete type even when metadata contains a different legacy node_type (killed 2)
+    ✓ business graph exact identities uses the declared type in the requested workspace even without a template node (killed 3)
+    ✓ business graph exact identities accepts the complete native id range and refuses overflow before a write (killed 10)
+    ✓ business graph exact identities distinguishes an absent node from a node without raw identity (killed 5)
+    ✓ business graph exact identities preserves omitted labels and updates both alias stores when a label changes (killed 9)
+    ✓ business graph exact identities removes incident relation properties and diagnostics but preserves unrelated rows (killed 12)
+    ✓ business graph exact identities rejects structural properties and SQL-shaped opaque IDs before write (killed 6)
+  facets-archive-sqlite.test.ts
+    ✓ ghostcrab_upsert archiving on a real SQLite archives the replaced state, keeps the current row, and keeps its vector (killed 4)
+    ~ ghostcrab_upsert archiving on a real SQLite refuses to update a closed archive matched on its stale facets (covered 5)
+    ~ ghostcrab_upsert archiving on a real SQLite stamps a deterministic source_ref and traces the archive to it (covered 5)
+    ~ ghostcrab_upsert archiving on a real SQLite revives an expired row instead of colliding on its source_ref (covered 5)
+    ~ ghostcrab_upsert archiving on a real SQLite matches a structured facet value instead of duplicating the row (covered 5)
+    ~ ghostcrab_upsert archiving on a real SQLite matches a dotted facet key as a top-level key (covered 5)
+    ~ ghostcrab_upsert archiving on a real SQLite keeps the archive out of the BM25 corpus (covered 5)
+  graph-storage-sqlite.test.ts
+    ✓ graph storage boundaries on SQLite changes only the selected runtime entity scope and preserves its metadata (killed 6)
+    ✓ graph storage boundaries on SQLite an empty typed-property batch leaves even an absent relation untouched (killed 2)
+    ✓ graph storage boundaries on SQLite typed properties preserve confidence undefined and their typed value (killed 41)
+    ~ graph storage boundaries on SQLite typed properties preserve confidence 0 and their typed value (covered 104)
+    ~ graph storage boundaries on SQLite typed properties preserve confidence 0.5 and their typed value (covered 104)
+    ✓ graph storage boundaries on SQLite refuses an existing unbindable id 9007199254740992n without overwriting its data (killed 6)
+    ✓ graph storage boundaries on SQLite refuses an existing unbindable id -9007199254740992n without overwriting its data (killed 1)
+    ✓ graph storage boundaries on SQLite keeps bindable boundary id 9007199254740991n, schema, default scope and aliases (killed 7)
+    ✓ graph storage boundaries on SQLite keeps bindable boundary id -9007199254740991n, schema, default scope and aliases (killed 1)
+    ✓ graph storage boundaries on SQLite refuses an exhausted safe id range instead of allocating an unsafe id (killed 6)
+    ✓ graph storage boundaries on SQLite allocates below legacy large ids and returns the exact relation identity (killed 5)
+  learn-sqlite.test.ts
+    ✓ ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values (killed 55)
+    ✓ ghostcrab_learn on real SQLite rejects a silently ignored graph_entity insert instead of reporting success (killed 8)
+    ✓ ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success (killed 3)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"text","currency":"EUR","value_text":"x"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"text"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"number"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"date_unix"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"doc_ref"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"number","value_number":1,"value_text":"x"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"text","value_text":"x","value_number":1} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"text","value_text":"x","value_integer":1} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"text","value_text":"x","ref_doc_id":1} before writing (covered 1)
+    ✓ ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails (killed 4)
+    ~ ghostcrab_learn on real SQLite rolls back nodes and relations when writing relations_raw fails (covered 129)
+    ~ ghostcrab_learn on real SQLite rolls back nodes and relations when writing relation_properties_raw fails (covered 147)
+    ✓ ghostcrab_learn on real SQLite reindexes repeatedly without changing canonical data or another workspace (killed 4)
+    ✓ ghostcrab_learn on real SQLite preserves a simple independent state model across generated write/link sequences (killed 2)
+    ✓ ghostcrab_learn on real SQLite preserves both endpoints and metadata filters when updating=false (killed 2)
+    ✓ ghostcrab_learn on real SQLite preserves both endpoints and metadata filters when updating=true (killed 1)
+    ~ ghostcrab_learn on real SQLite creates a missing endpoint and preserves the existing source (covered 130)
+    ~ ghostcrab_learn on real SQLite creates a missing endpoint and preserves the existing target (covered 130)
+    ~ ghostcrab_learn on real SQLite keeps an explicit node write in a combined node/edge call when updating=false (covered 130)
+    ~ ghostcrab_learn on real SQLite keeps an explicit node write in a combined node/edge call when updating=true (covered 137)
+    ~ ghostcrab_learn on real SQLite preserves a node when creating a self-relation (covered 128)
+    ~ ghostcrab_learn on real SQLite creates both absent endpoints in the requested workspace without reusing another workspace's nodes (covered 130)
+  records-sqlite.test.ts
+    ✓ exact business record access and version conflicts reads only an exact scoped row and includes its version (killed 13)
+    ✓ exact business record access and version conflicts rejects a stale edit before archive and leaves all state unchanged (killed 12)
+    ✓ exact business record access and version conflicts forwards exact deletion identity and reports native idempotent absence (killed 5)
+    ✓ exact business record access and version conflicts preserves a native version conflict as a stable MCP error (killed 10)
+    ~ exact business record access and version conflicts does not turn a transport failure into success (body undefined) (covered 10)
+    ~ exact business record access and version conflicts does not turn a transport failure into success (body not JSON) (covered 14)
+    ~ exact business record access and version conflicts does not turn a transport failure into success (body {"error":{"code":"other"}}) (covered 18)
+    ✓ exact business record access and version conflicts returns a closed history row as inactive without leaking its encoded facets (killed 2)
+    ✓ exact business record access and version conflicts does not create a missing record when an expected version was supplied (killed 1)
+    ✓ exact business record access and version conflicts keeps unexpected HTTP errors distinct from version conflicts and handles missing causes (killed 3)
+    ✘ exact business record access and version conflicts requires exact deletion identity and a positive version (covered 0)
+  workspace-integrity-sqlite.test.ts
+    ✓ workspace write integrity on real SQLite reports no second deletion if another writer deletes after the preflight read (killed 20)
+    ✓ workspace write integrity on real SQLite 'reset' refuses protected, missing and unconfirmed targets without writes (killed 14)
+    ✓ workspace write integrity on real SQLite 'hard delete' refuses protected, missing and unconfirmed targets without writes (killed 9)
+    ~ workspace write integrity on real SQLite 'soft delete' refuses protected, missing and unconfirmed targets without writes (covered 148)
+    ✓ workspace write integrity on real SQLite 'reset' rolls back all earlier deletions on failure (killed 3)
+    ~ workspace write integrity on real SQLite 'hard delete' rolls back all earlier deletions on failure (covered 141)
+    ~ workspace write integrity on real SQLite 'soft delete' rolls back all earlier deletions on failure (covered 141)
+    ~ workspace write integrity on real SQLite 'hard delete' rolls back cleanup when the final workspace change fails (covered 145)
+    ✓ workspace write integrity on real SQLite 'soft delete' rolls back cleanup when the final workspace change fails (killed 3)
+    ✓ workspace write integrity on real SQLite 'reset' only clears the requested workspace (killed 3)
+    ✓ workspace write integrity on real SQLite 'hard delete' only clears the requested workspace (killed 2)
+    ✓ workspace write integrity on real SQLite 'soft delete' only clears the requested workspace (killed 5)
+
+[Survived] OptionalChaining
+src/db/graph.ts:38:25
+-     const nextId = Number(row?.next_id ?? 1);
++     const nextId = Number(row.next_id ?? 1);
+Tests ran:
+    graph storage boundaries on SQLite typed properties preserve confidence undefined and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0 and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0.5 and their typed value
+  and 30 more tests!
+
+
+[Survived] ConditionalExpression
+src/db/graph.ts:40:5
+-       !Number.isSafeInteger(nextId) ||
+-       nextId < 1 ||
++       false ||
+Tests ran:
+    graph storage boundaries on SQLite typed properties preserve confidence undefined and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0 and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0.5 and their typed value
+  and 30 more tests!
+
+
+[Survived] LogicalOperator
+src/db/graph.ts:40:5
+-       !Number.isSafeInteger(nextId) ||
+-       nextId < 1 ||
++       !Number.isSafeInteger(nextId) && nextId < 1 ||
+Tests ran:
+    graph storage boundaries on SQLite typed properties preserve confidence undefined and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0 and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0.5 and their typed value
+  and 30 more tests!
+
+
+[Survived] ConditionalExpression
+src/db/graph.ts:41:5
+-       nextId < 1 ||
++       false ||
+Tests ran:
+    graph storage boundaries on SQLite typed properties preserve confidence undefined and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0 and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0.5 and their typed value
+  and 30 more tests!
+
+
+[Survived] OptionalChaining
+src/db/graph.ts:45:77
+-         `Could not allocate safe ${tableName}.${columnName}; next_id=${String(row?.next_id)}`
++         `Could not allocate safe ${tableName}.${columnName}; next_id=${String(row.next_id)}`
+Tests ran:
+    graph storage boundaries on SQLite refuses an exhausted safe id range instead of allocating an unsafe id
+
+
+[Survived] StringLiteral
+src/db/graph.ts:139:56
+-       [workspaceId, ontologyId, toSqlIntegerId(entityId, "entity_id")]
++       [workspaceId, ontologyId, toSqlIntegerId(entityId, "")]
+Tests ran:
+    graph storage boundaries on SQLite typed properties preserve confidence undefined and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0 and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0.5 and their typed value
+  and 30 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:185:32
+-         toSqlIntegerId(sourceId, "source_entity_id"),
++         toSqlIntegerId(sourceId, ""),
+Tests ran:
+    graph storage boundaries on SQLite typed properties preserve confidence undefined and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0 and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0.5 and their typed value
+  and 26 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:186:32
+-         toSqlIntegerId(targetId, "target_entity_id"),
++         toSqlIntegerId(targetId, ""),
+Tests ran:
+    graph storage boundaries on SQLite typed properties preserve confidence undefined and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0 and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0.5 and their typed value
+  and 26 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:228:34
+-           toSqlIntegerId(existing, "entity_id")
++           toSqlIntegerId(existing, "")
+Tests ran:
+    graph storage boundaries on SQLite refuses an existing unbindable id 9007199254740992n without overwriting its data
+    graph storage boundaries on SQLite refuses an existing unbindable id -9007199254740992n without overwriting its data
+    graph storage boundaries on SQLite keeps bindable boundary id 9007199254740991n, schema, default scope and aliases
+  and 7 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:237:48
+-         [params.nodeId, toSqlIntegerId(existing, "entity_id")]
++         [params.nodeId, toSqlIntegerId(existing, "")]
+Tests ran:
+    graph storage boundaries on SQLite keeps bindable boundary id 9007199254740991n, schema, default scope and aliases
+    graph storage boundaries on SQLite keeps bindable boundary id -9007199254740991n, schema, default scope and aliases
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 5 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:296:44
+-       [workspaceId, toSqlIntegerId(entityId, "entity_id")]
++       [workspaceId, toSqlIntegerId(entityId, "")]
+Tests ran:
+    graph storage boundaries on SQLite changes only the selected runtime entity scope and preserves its metadata
+
+
+[Survived] StringLiteral
+src/db/graph.ts:278:45
+-       [params.nodeId, toSqlIntegerId(created, "entity_id")]
++       [params.nodeId, toSqlIntegerId(created, "")]
+Tests ran:
+    graph storage boundaries on SQLite typed properties preserve confidence undefined and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0 and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0.5 and their typed value
+  and 28 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:361:39
+-         toSqlIntegerId(params.sourceId, "source_id"),
++         toSqlIntegerId(params.sourceId, ""),
+Tests ran:
+    graph storage boundaries on SQLite typed properties preserve confidence undefined and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0 and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0.5 and their typed value
+  and 28 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:362:39
+-         toSqlIntegerId(params.targetId, "target_id"),
++         toSqlIntegerId(params.targetId, ""),
+Tests ran:
+    graph storage boundaries on SQLite typed properties preserve confidence undefined and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0 and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0.5 and their typed value
+  and 28 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:411:39
+-         toSqlIntegerId(params.sourceId, "source_id"),
++         toSqlIntegerId(params.sourceId, ""),
+Tests ran:
+    graph storage boundaries on SQLite typed properties preserve confidence undefined and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0 and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0.5 and their typed value
+  and 28 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:412:39
+-         toSqlIntegerId(params.targetId, "target_id"),
++         toSqlIntegerId(params.targetId, ""),
+Tests ran:
+    graph storage boundaries on SQLite typed properties preserve confidence undefined and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0 and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0.5 and their typed value
+  and 28 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:431:39
+-         toSqlIntegerId(params.sourceId, "source_id"),
++         toSqlIntegerId(params.sourceId, ""),
+Tests ran:
+    graph storage boundaries on SQLite typed properties preserve confidence undefined and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0 and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0.5 and their typed value
+  and 27 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:432:39
+-         toSqlIntegerId(params.targetId, "target_id"),
++         toSqlIntegerId(params.targetId, ""),
+Tests ran:
+    graph storage boundaries on SQLite typed properties preserve confidence undefined and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0 and their typed value
+    graph storage boundaries on SQLite typed properties preserve confidence 0.5 and their typed value
+  and 27 more tests!
+
+
+[NoCoverage] StringLiteral
+src/tools/dgraph/business-records.ts:253:69
+-               ("expected_version" in input ? input.expected_version : "")
++               ("expected_version" in input ? input.expected_version : "Stryker was here!")
+
+[NoCoverage] StringLiteral
+src/tools/dgraph/business-records.ts:361:63
+-           const code = error instanceof Error ? error.message : "";
++           const code = error instanceof Error ? error.message : "Stryker was here!";
+
+[Survived] StringLiteral
+src/tools/dgraph/business-records.ts:173:23
+-                   name: "",
++                   name: "Stryker was here!",
+Tests ran:
+    business graph exact identities uses the declared type in the requested workspace even without a template node
+
+
+[Survived] StringLiteral
+src/tools/dgraph/business-records.ts:174:32
+-                   metadata_json: "{}",
++                   metadata_json: "",
+Tests ran:
+    business graph exact identities uses the declared type in the requested workspace even without a template node
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:196:17
+-               if (!Number.isInteger(id) || id > 4294967295)
++               if (false)
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities rolls back a create if a later alias write fails
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+  and 4 more tests!
+
+
+[Survived] LogicalOperator
+src/tools/dgraph/business-records.ts:196:17
+-               if (!Number.isInteger(id) || id > 4294967295)
++               if (!Number.isInteger(id) && id > 4294967295)
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities rolls back a create if a later alias write fails
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+  and 4 more tests!
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:196:42
+-               if (!Number.isInteger(id) || id > 4294967295)
++               if (!Number.isInteger(id) || false)
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities rolls back a create if a later alias write fails
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+  and 4 more tests!
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:350:15
+-             if (!tx.rebuildBusinessAdjacency)
++             if (false)
+Tests ran:
+    business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair
+    business graph exact identities rolls back deletion if transactional native adjacency is unavailable
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+  and 1 more test!
+
+
+[Survived] StringLiteral
+src/tools/dgraph/business-records.ts:351:29
+-               throw new Error("Native adjacency transaction required");
++               throw new Error("");
+Tests ran:
+    business graph exact identities rolls back deletion if transactional native adjacency is unavailable
+
+
+[NoCoverage] BlockStatement
+src/tools/dgraph/learn.ts:270:53
+-           if (sourceId === null || targetId === null) {
+-             throw new Error(
+-               "Could not resolve graph.entity rows for edge endpoints."
+-             );
+-           }
++           if (sourceId === null || targetId === null) {}
+
+[NoCoverage] StringLiteral
+src/tools/dgraph/learn.ts:272:13
+-               "Could not resolve graph.entity rows for edge endpoints."
++               ""
+
+[Survived] ConditionalExpression
+src/tools/dgraph/learn.ts:270:13
+-           if (sourceId === null || targetId === null) {
++           if (false) {
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 24 more tests!
+
+
+[Survived] LogicalOperator
+src/tools/dgraph/learn.ts:270:13
+-           if (sourceId === null || targetId === null) {
++           if (sourceId === null && targetId === null) {
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 24 more tests!
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/learn.ts:270:13
+-           if (sourceId === null || targetId === null) {
++           if (false || targetId === null) {
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 24 more tests!
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/learn.ts:270:34
+-           if (sourceId === null || targetId === null) {
++           if (sourceId === null || false) {
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 24 more tests!
+
+
+[Survived] ConditionalExpression
+src/tools/facets/records.ts:108:11
+-         if (typeof cause?.body === "string") {
++         if (true) {
+Tests ran:
+    exact business record access and version conflicts preserves a native version conflict as a stable MCP error
+    exact business record access and version conflicts does not turn a transport failure into success (body undefined)
+    exact business record access and version conflicts does not turn a transport failure into success (body not JSON)
+  and 2 more tests!
+
+
+[Survived] OptionalChaining
+src/tools/facets/records.ts:110:24
+-             const code = JSON.parse(cause.body)?.error?.code;
++             const code = JSON.parse(cause.body)?.error.code;
+Tests ran:
+    exact business record access and version conflicts preserves a native version conflict as a stable MCP error
+    exact business record access and version conflicts does not turn a transport failure into success (body not JSON)
+    exact business record access and version conflicts does not turn a transport failure into success (body {"error":{"code":"other"}})
+  and 1 more test!
+
+
+[Survived] OptionalChaining
+src/tools/facets/records.ts:110:24
+-             const code = JSON.parse(cause.body)?.error?.code;
++             const code = JSON.parse(cause.body).error?.code;
+Tests ran:
+    exact business record access and version conflicts preserves a native version conflict as a stable MCP error
+    exact business record access and version conflicts does not turn a transport failure into success (body not JSON)
+    exact business record access and version conflicts does not turn a transport failure into success (body {"error":{"code":"other"}})
+  and 1 more test!
+
+
+[Survived] StringLiteral
+src/tools/facets/records.ts:114:15
+-                 "The record version changed; read it again before deleting.",
++                 "",
+Tests ran:
+    exact business record access and version conflicts preserves a native version conflict as a stable MCP error
+
+
+[Survived] StringLiteral
+src/tools/facets/upsert.ts:269:13
+-               "The record version changed; read it again before applying the edit.",
++               "",
+Tests ran:
+    exact business record access and version conflicts rejects a stale edit before archive and leaves all state unchanged
+    exact business record access and version conflicts does not create a missing record when an expected version was supplied
+
+
+[Survived] StringLiteral
+src/tools/workspace/delete.ts:59:9
+-           "The default workspace cannot be deleted.",
++           "",
+Tests ran:
+    workspace write integrity on real SQLite 'hard delete' refuses protected, missing and unconfirmed targets without writes
+    workspace write integrity on real SQLite 'soft delete' refuses protected, missing and unconfirmed targets without writes
+
+
+[Survived] StringLiteral
+src/tools/workspace/delete.ts:72:9
+-           `Workspace '${input.workspace_id}' does not exist.`,
++           ``,
+Tests ran:
+    workspace write integrity on real SQLite 'hard delete' refuses protected, missing and unconfirmed targets without writes
+    workspace write integrity on real SQLite 'soft delete' refuses protected, missing and unconfirmed targets without writes
+
+
+[Survived] StringLiteral
+src/tools/workspace/reset.ts:47:9
+-           "The default workspace cannot be reset.",
++           "",
+Tests ran:
+    workspace write integrity on real SQLite 'reset' refuses protected, missing and unconfirmed targets without writes
+
+
+[Survived] StringLiteral
+src/tools/workspace/reset.ts:60:9
+-           `Workspace '${input.workspace_id}' does not exist.`,
++           ``,
+Tests ran:
+    workspace write integrity on real SQLite 'reset' refuses protected, missing and unconfirmed targets without writes
+
+
+Ran 3.36 tests per mutant on average.
+-----------------------|------------------|----------|-----------|------------|----------|----------|
+                       | % Mutation score |          |           |            |          |          |
+File                   |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files              |  91.88 |   92.59 |      475 |         0 |         38 |        4 |        0 |
+ db                    |  86.76 |   86.76 |      118 |         0 |         18 |        0 |        0 |
+  graph.ts             |  86.76 |   86.76 |      118 |         0 |         18 |        0 |        0 |
+ tools                 |  93.70 |   94.69 |      357 |         0 |         20 |        4 |        0 |
+  dgraph               |  94.38 |   95.82 |      252 |         0 |         11 |        4 |        0 |
+   business-records.ts |  95.93 |   96.80 |      212 |         0 |          7 |        2 |        0 |
+   learn.ts            |  86.96 |   90.91 |       40 |         0 |          4 |        2 |        0 |
+  facets               |  90.91 |   90.91 |       50 |         0 |          5 |        0 |        0 |
+   records.ts          |  89.19 |   89.19 |       33 |         0 |          4 |        0 |        0 |
+   upsert.ts           |  94.44 |   94.44 |       17 |         0 |          1 |        0 |        0 |
+  workspace            |  93.22 |   93.22 |       55 |         0 |          4 |        0 |        0 |
+   delete.ts           |  94.59 |   94.59 |       35 |         0 |          2 |        0 |        0 |
+   reset.ts            |  90.91 |   90.91 |       20 |         0 |          2 |        0 |        0 |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m13:19:05 (2180732) INFO MutationTestReportHelper[39m Final mutation score of 91.88 is greater than or equal to break threshold 90
+[32m13:19:05 (2180732) INFO JsonReporter[39m Your report can be found at: file:///home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/reports/mutation/mutation.json
+[32m13:19:05 (2180732) INFO HtmlReporter[39m Your report can be found at: file:///home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/reports/mutation/index.html
+[32m13:19:05 (2180732) INFO MutationTestExecutor[39m Done in 48 seconds.
+Mutation review verified: 42 undetected mutations have explicit reviews.
+Baseline: 28 tests passed
+Detected: graph-workspace-scope (gets only exact business workspace/type/id)
+Detected: graph-type-scope (gets only exact business workspace/type/id)
+Detected: fact-workspace-scope (reads only an exact scoped row)
+Detected: fact-schema-scope (reads only an exact scoped row)
+Detected: graph-transaction (rolls back a create if a later alias write fails)
+Detected: graph-version (updates raw and runtime metadata)
+Detected: foreign-relation-refusal (refuses a deletion with a foreign relation)
+Detected: transactional-adjacency (deletes raw/runtime rows and aliases)
+Detected: identity-no-reuse (does not recycle deleted record identities)
+Detected: fact-version (rejects a stale edit before archive)
+Critical mutations: 10/10 detected

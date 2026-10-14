@@ -10,7 +10,7 @@
     "zig": "0.16.0"
   },
   "archives": {
-    "mindflight-ghostcrab-personal-mcp-0.7.3.tgz": "c3e1da26191911a272b93da79a8e29d6a1dbee92a7a612f73e8f9647b028da9f",
+    "mindflight-ghostcrab-personal-mcp-0.7.3.tgz": "72d12e3b167e3da1798d8ca5020682e6a04a442150ee421c04f37f8a430e8013",
     "mindflight-ghostcrab-personal-mcp-darwin-arm64-0.7.3.tgz": "a23ad3c04b039010ffc03cc556642b17d51cd05eaf57186075ad80f1383a01fe",
     "mindflight-ghostcrab-personal-mcp-darwin-x64-0.7.3.tgz": "568922fc97b09b6da5f45f1d13ba14af332a2f99b9ff782ab25100c01757d558",
     "mindflight-ghostcrab-personal-mcp-linux-arm64-0.7.3.tgz": "0517d04b6729a17ed000ba8deb677488b4b3e37fb747380a98079f57caa401b1",
@@ -34,14 +34,14 @@
   },
   "validation": {
     "engine_tests": 469,
-    "default_tests": 892,
+    "default_tests": 909,
     "default_skipped": 16,
-    "sqlite_integrity_tests": 70,
+    "sqlite_integrity_tests": 86,
     "native_integrity_tests": 17,
     "integration_tests": 106,
     "graphrag_tests": 35,
     "graphrag_skipped": 2,
-    "mutation_score": 85.06,
+    "mutation_score": 91.88,
     "mcp_tools_called": 80,
     "npm_package_files": 692,
     "local_install": "passed",
@@ -50,10 +50,17 @@
       "linux-x64"
     ],
     "packaged_native_integrity_tests": 17,
-    "archive_hashes_and_binary_contents": "passed"
+    "archive_hashes_and_binary_contents": "passed",
+    "mutation_detected": 475,
+    "mutation_total": 517,
+    "mutation_reviewed_undetected": 42,
+    "critical_mutations_detected": 10,
+    "critical_mutations_total": 10,
+    "mutation_break_threshold": 90
   },
   "npm_staged": false,
   "npm_published": false,
   "git_pushed": false,
-  "reviewed_code_commit": "6062366f3259e078e00b1674b9f9372f844f38d2"
+  "reviewed_code_commit": "6062366f3259e078e00b1674b9f9372f844f38d2",
+  "test_hardening_report": "reports/validation/mutation-v073/README.md"
 }

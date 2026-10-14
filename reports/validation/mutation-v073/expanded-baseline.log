@@ -1,0 +1,1164 @@
+[32m13:07:34 (2102952) INFO ProjectReader[39m Found 7 of 277 file(s) to be mutated.
+[32m13:07:35 (2102952) INFO Instrumenter[39m Instrumented 7 source file(s) with 517 mutant(s)
+[32m13:07:35 (2102952) INFO ConcurrencyTokenProvider[39m Creating 2 test runner process(es).
+[32m13:07:35 (2102952) INFO DryRunExecutor[39m Starting initial test run (vitest test runner with "perTest" coverage analysis). This may take a while.
+[32m13:07:37 (2102952) INFO DryRunExecutor[39m Initial test run succeeded. Ran 67 tests in 1 second (net 1006.3664610000008 ms, overhead 725.6335389999992 ms).
+
+All tests
+  business-graph-sqlite.test.ts
+    ✓ business graph exact identities gets only exact business workspace/type/id and opaque stable content version (killed 33)
+    ✓ business graph exact identities creates only declared types and rejects duplicate external identities (killed 41)
+    ✓ business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions (killed 28)
+    ~ business graph exact identities rolls back a create if a later alias write fails (covered 54)
+    ~ business graph exact identities rolls back a runtime update if the raw write fails (covered 82)
+    ✓ business graph exact identities refuses a deletion with a foreign relation and preserves the node (killed 6)
+    ✓ business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair (killed 42)
+    ~ business graph exact identities rolls back deletion if transactional native adjacency is unavailable (covered 116)
+    ~ business graph exact identities does not recycle deleted record identities or accept an old version for a replacement (covered 155)
+    ✓ business graph exact identities rejects structural properties and SQL-shaped opaque IDs before write (killed 12)
+  facets-archive-sqlite.test.ts
+    ✓ ghostcrab_upsert archiving on a real SQLite archives the replaced state, keeps the current row, and keeps its vector (killed 3)
+    ~ ghostcrab_upsert archiving on a real SQLite refuses to update a closed archive matched on its stale facets (covered 5)
+    ~ ghostcrab_upsert archiving on a real SQLite stamps a deterministic source_ref and traces the archive to it (covered 5)
+    ~ ghostcrab_upsert archiving on a real SQLite revives an expired row instead of colliding on its source_ref (covered 5)
+    ~ ghostcrab_upsert archiving on a real SQLite matches a structured facet value instead of duplicating the row (covered 5)
+    ~ ghostcrab_upsert archiving on a real SQLite matches a dotted facet key as a top-level key (covered 5)
+    ~ ghostcrab_upsert archiving on a real SQLite keeps the archive out of the BM25 corpus (covered 5)
+  graph-storage-sqlite.test.ts
+    ✓ graph storage boundaries on SQLite refuses an existing unbindable id 9007199254740992n without overwriting its data (killed 10)
+    ✓ graph storage boundaries on SQLite refuses an existing unbindable id -9007199254740992n without overwriting its data (killed 2)
+    ✓ graph storage boundaries on SQLite keeps bindable boundary id 9007199254740991n, schema, default scope and aliases (killed 17)
+    ✓ graph storage boundaries on SQLite keeps bindable boundary id -9007199254740991n, schema, default scope and aliases (killed 1)
+    ✓ graph storage boundaries on SQLite refuses an exhausted safe id range instead of allocating an unsafe id (killed 11)
+    ✓ graph storage boundaries on SQLite allocates below legacy large ids and returns the exact relation identity (killed 11)
+  learn-sqlite.test.ts
+    ✓ ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values (killed 77)
+    ✓ ghostcrab_learn on real SQLite rejects a silently ignored graph_entity insert instead of reporting success (killed 8)
+    ✓ ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success (killed 3)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"text","currency":"EUR","value_text":"x"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"text"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"number"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"date_unix"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"doc_ref"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"number","value_number":1,"value_text":"x"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"text","value_text":"x","value_number":1} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"text","value_text":"x","value_integer":1} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"text","value_text":"x","ref_doc_id":1} before writing (covered 1)
+    ✓ ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails (killed 3)
+    ~ ghostcrab_learn on real SQLite rolls back nodes and relations when writing relations_raw fails (covered 129)
+    ~ ghostcrab_learn on real SQLite rolls back nodes and relations when writing relation_properties_raw fails (covered 147)
+    ✓ ghostcrab_learn on real SQLite reindexes repeatedly without changing canonical data or another workspace (killed 5)
+    ✓ ghostcrab_learn on real SQLite preserves a simple independent state model across generated write/link sequences (killed 1)
+    ✓ ghostcrab_learn on real SQLite preserves both endpoints and metadata filters when updating=false (killed 2)
+    ✓ ghostcrab_learn on real SQLite preserves both endpoints and metadata filters when updating=true (killed 1)
+    ~ ghostcrab_learn on real SQLite creates a missing endpoint and preserves the existing source (covered 130)
+    ~ ghostcrab_learn on real SQLite creates a missing endpoint and preserves the existing target (covered 130)
+    ~ ghostcrab_learn on real SQLite keeps an explicit node write in a combined node/edge call when updating=false (covered 130)
+    ~ ghostcrab_learn on real SQLite keeps an explicit node write in a combined node/edge call when updating=true (covered 137)
+    ~ ghostcrab_learn on real SQLite preserves a node when creating a self-relation (covered 128)
+    ~ ghostcrab_learn on real SQLite creates both absent endpoints in the requested workspace without reusing another workspace's nodes (covered 130)
+  records-sqlite.test.ts
+    ✓ exact business record access and version conflicts reads only an exact scoped row and includes its version (killed 12)
+    ✓ exact business record access and version conflicts rejects a stale edit before archive and leaves all state unchanged (killed 10)
+    ✓ exact business record access and version conflicts forwards exact deletion identity and reports native idempotent absence (killed 4)
+    ✓ exact business record access and version conflicts preserves a native version conflict as a stable MCP error (killed 9)
+    ~ exact business record access and version conflicts does not turn a transport failure into success (body undefined) (covered 10)
+    ~ exact business record access and version conflicts does not turn a transport failure into success (body not JSON) (covered 14)
+    ~ exact business record access and version conflicts does not turn a transport failure into success (body {"error":{"code":"other"}}) (covered 18)
+    ✘ exact business record access and version conflicts requires exact deletion identity and a positive version (covered 0)
+  workspace-integrity-sqlite.test.ts
+    ✓ workspace write integrity on real SQLite 'reset' refuses protected, missing and unconfirmed targets without writes (killed 14)
+    ✓ workspace write integrity on real SQLite 'hard delete' refuses protected, missing and unconfirmed targets without writes (killed 14)
+    ~ workspace write integrity on real SQLite 'soft delete' refuses protected, missing and unconfirmed targets without writes (covered 148)
+    ✓ workspace write integrity on real SQLite 'reset' rolls back all earlier deletions on failure (killed 3)
+    ✓ workspace write integrity on real SQLite 'hard delete' rolls back all earlier deletions on failure (killed 3)
+    ~ workspace write integrity on real SQLite 'soft delete' rolls back all earlier deletions on failure (covered 141)
+    ✓ workspace write integrity on real SQLite 'hard delete' rolls back cleanup when the final workspace change fails (killed 2)
+    ✓ workspace write integrity on real SQLite 'soft delete' rolls back cleanup when the final workspace change fails (killed 3)
+    ✓ workspace write integrity on real SQLite 'reset' only clears the requested workspace (killed 3)
+    ✓ workspace write integrity on real SQLite 'hard delete' only clears the requested workspace (killed 6)
+    ✓ workspace write integrity on real SQLite 'soft delete' only clears the requested workspace (killed 5)
+
+[NoCoverage] BlockStatement
+src/db/graph.ts:289:18
+-   ): Promise<void> {
+-     await database.query(
+-       `
+-         UPDATE graph_entity
+-         SET workspace_id = ?
+-         WHERE entity_id = ?
+-       `,
+-       [workspaceId, toSqlIntegerId(entityId, "entity_id")]
+-     );
+-   }
++   ): Promise<void> {}
+
+[NoCoverage] StringLiteral
+src/db/graph.ts:291:5
+-       `
+-         UPDATE graph_entity
+-         SET workspace_id = ?
+-         WHERE entity_id = ?
+-       `,
++       ``,
+
+[NoCoverage] ArrayDeclaration
+src/db/graph.ts:296:5
+-       [workspaceId, toSqlIntegerId(entityId, "entity_id")]
++       []
+
+[NoCoverage] StringLiteral
+src/db/graph.ts:296:44
+-       [workspaceId, toSqlIntegerId(entityId, "entity_id")]
++       [workspaceId, toSqlIntegerId(entityId, "")]
+
+[NoCoverage] BlockStatement
+src/db/graph.ts:485:32
+-     if (properties.length === 0) {
+-       return;
+-     }
++     if (properties.length === 0) {}
+
+[Survived] OptionalChaining
+src/db/graph.ts:38:25
+-     const nextId = Number(row?.next_id ?? 1);
++     const nextId = Number(row.next_id ?? 1);
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_entity insert instead of reporting success
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+  and 26 more tests!
+
+
+[Survived] ConditionalExpression
+src/db/graph.ts:40:5
+-       !Number.isSafeInteger(nextId) ||
+-       nextId < 1 ||
++       false ||
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_entity insert instead of reporting success
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+  and 26 more tests!
+
+
+[Survived] LogicalOperator
+src/db/graph.ts:40:5
+-       !Number.isSafeInteger(nextId) ||
+-       nextId < 1 ||
++       !Number.isSafeInteger(nextId) && nextId < 1 ||
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_entity insert instead of reporting success
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+  and 26 more tests!
+
+
+[Survived] ConditionalExpression
+src/db/graph.ts:41:5
+-       nextId < 1 ||
++       false ||
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_entity insert instead of reporting success
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+  and 26 more tests!
+
+
+[Survived] OptionalChaining
+src/db/graph.ts:45:77
+-         `Could not allocate safe ${tableName}.${columnName}; next_id=${String(row?.next_id)}`
++         `Could not allocate safe ${tableName}.${columnName}; next_id=${String(row.next_id)}`
+Tests ran:
+    graph storage boundaries on SQLite refuses an exhausted safe id range instead of allocating an unsafe id
+
+
+[Survived] StringLiteral
+src/db/graph.ts:139:56
+-       [workspaceId, ontologyId, toSqlIntegerId(entityId, "entity_id")]
++       [workspaceId, ontologyId, toSqlIntegerId(entityId, "")]
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 26 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:185:32
+-         toSqlIntegerId(sourceId, "source_entity_id"),
++         toSqlIntegerId(sourceId, ""),
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relations_raw fails
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relation_properties_raw fails
+  and 22 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:186:32
+-         toSqlIntegerId(targetId, "target_entity_id"),
++         toSqlIntegerId(targetId, ""),
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relations_raw fails
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relation_properties_raw fails
+  and 22 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:228:34
+-           toSqlIntegerId(existing, "entity_id")
++           toSqlIntegerId(existing, "")
+Tests ran:
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relations_raw fails
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relation_properties_raw fails
+  and 7 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:237:48
+-         [params.nodeId, toSqlIntegerId(existing, "entity_id")]
++         [params.nodeId, toSqlIntegerId(existing, "")]
+Tests ran:
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relations_raw fails
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relation_properties_raw fails
+  and 5 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:278:45
+-       [params.nodeId, toSqlIntegerId(created, "entity_id")]
++       [params.nodeId, toSqlIntegerId(created, "")]
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 24 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:361:39
+-         toSqlIntegerId(params.sourceId, "source_id"),
++         toSqlIntegerId(params.sourceId, ""),
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 24 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:362:39
+-         toSqlIntegerId(params.targetId, "target_id"),
++         toSqlIntegerId(params.targetId, ""),
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 24 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:411:39
+-         toSqlIntegerId(params.sourceId, "source_id"),
++         toSqlIntegerId(params.sourceId, ""),
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 24 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:412:39
+-         toSqlIntegerId(params.targetId, "target_id"),
++         toSqlIntegerId(params.targetId, ""),
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 24 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:431:39
+-         toSqlIntegerId(params.sourceId, "source_id"),
++         toSqlIntegerId(params.sourceId, ""),
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relations_raw fails
+  and 23 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:432:39
+-         toSqlIntegerId(params.targetId, "target_id"),
++         toSqlIntegerId(params.targetId, ""),
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relations_raw fails
+  and 23 more tests!
+
+
+[Survived] ConditionalExpression
+src/db/graph.ts:485:7
+-     if (properties.length === 0) {
++     if (false) {
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relation_properties_raw fails
+
+
+[Survived] LogicalOperator
+src/db/graph.ts:496:5
+-       relation.confidence ?? 1,
++       relation.confidence && 1,
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relation_properties_raw fails
+
+
+[NoCoverage] LogicalOperator
+src/tools/dgraph/business-records.ts:59:18
+-           ? String(data.node_type ?? row.entity_type)
++           ? String(data.node_type && row.entity_type)
+
+[NoCoverage] ObjectLiteral
+src/tools/dgraph/business-records.ts:169:26
+-                 template = {
+-                   entity_id: 0,
+-                   workspace_id: created.workspace_id,
+-                   entity_type: declared.entity_type,
+-                   name: "",
+-                   metadata_json: "{}",
+-                   ontology_id: declared.ontology_id
+-                 };
++                 template = {};
+
+[NoCoverage] StringLiteral
+src/tools/dgraph/business-records.ts:173:23
+-                   name: "",
++                   name: "Stryker was here!",
+
+[NoCoverage] StringLiteral
+src/tools/dgraph/business-records.ts:174:32
+-                   metadata_json: "{}",
++                   metadata_json: "",
+
+[NoCoverage] StringLiteral
+src/tools/dgraph/business-records.ts:197:31
+-                 throw new Error("invalid_id");
++                 throw new Error("");
+
+[NoCoverage] ObjectLiteral
+src/tools/dgraph/business-records.ts:202:19
+-                   ? { node_type: created.node_type }
++                   ? {}
+
+[NoCoverage] StringLiteral
+src/tools/dgraph/business-records.ts:248:29
+-               throw new Error("not_found");
++               throw new Error("");
+
+[NoCoverage] StringLiteral
+src/tools/dgraph/business-records.ts:253:69
+-               ("expected_version" in input ? input.expected_version : "")
++               ("expected_version" in input ? input.expected_version : "Stryker was here!")
+
+[NoCoverage] StringLiteral
+src/tools/dgraph/business-records.ts:256:49
+-             if (!row.ontology_id) throw new Error("raw_identity_missing");
++             if (!row.ontology_id) throw new Error("");
+
+[NoCoverage] StringLiteral
+src/tools/dgraph/business-records.ts:361:63
+-           const code = error instanceof Error ? error.message : "";
++           const code = error instanceof Error ? error.message : "Stryker was here!";
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:58:7
+-         row.entity_type === "entity"
++         true
+Tests ran:
+    business graph exact identities gets only exact business workspace/type/id and opaque stable content version
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+  and 5 more tests!
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:58:7
+-         row.entity_type === "entity"
++         false
+Tests ran:
+    business graph exact identities gets only exact business workspace/type/id and opaque stable content version
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+  and 5 more tests!
+
+
+[Survived] EqualityOperator
+src/tools/dgraph/business-records.ts:58:7
+-         row.entity_type === "entity"
++         row.entity_type !== "entity"
+Tests ran:
+    business graph exact identities gets only exact business workspace/type/id and opaque stable content version
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+  and 5 more tests!
+
+
+[Survived] StringLiteral
+src/tools/dgraph/business-records.ts:58:27
+-         row.entity_type === "entity"
++         row.entity_type === ""
+Tests ran:
+    business graph exact identities gets only exact business workspace/type/id and opaque stable content version
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+  and 5 more tests!
+
+
+[Survived] Regex
+src/tools/dgraph/business-records.ts:67:8
+-     if (!/^[1-9]\d{0,9}$/.test(id) || Number(id) > 4294967295)
++     if (!/^[1-9]\D{0,9}$/.test(id) || Number(id) > 4294967295)
+Tests ran:
+    business graph exact identities gets only exact business workspace/type/id and opaque stable content version
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+  and 6 more tests!
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:67:37
+-     if (!/^[1-9]\d{0,9}$/.test(id) || Number(id) > 4294967295)
++     if (!/^[1-9]\d{0,9}$/.test(id) || false)
+Tests ran:
+    business graph exact identities gets only exact business workspace/type/id and opaque stable content version
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+  and 5 more tests!
+
+
+[Survived] EqualityOperator
+src/tools/dgraph/business-records.ts:67:37
+-     if (!/^[1-9]\d{0,9}$/.test(id) || Number(id) > 4294967295)
++     if (!/^[1-9]\d{0,9}$/.test(id) || Number(id) >= 4294967295)
+Tests ran:
+    business graph exact identities gets only exact business workspace/type/id and opaque stable content version
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+  and 5 more tests!
+
+
+[Survived] ObjectLiteral
+src/tools/dgraph/business-records.ts:147:73
+-           const database = createDatabaseClient(resolveGhostcrabConfig(), {
+-             requireTransactions: true
+-           });
++           const database = createDatabaseClient(resolveGhostcrabConfig(), {});
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+    business graph exact identities rolls back a create if a later alias write fails
+  and 5 more tests!
+
+
+[Survived] BooleanLiteral
+src/tools/dgraph/business-records.ts:148:32
+-             requireTransactions: true
++             requireTransactions: false
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+    business graph exact identities rolls back a create if a later alias write fails
+  and 5 more tests!
+
+
+[Survived] ArrayDeclaration
+src/tools/dgraph/business-records.ts:158:15
+-                 [created.workspace_id, created.node_type]
++                 []
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities rolls back a create if a later alias write fails
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:160:17
+-               if (!template) {
++               if (true) {
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities rolls back a create if a later alias write fails
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] ArrayDeclaration
+src/tools/dgraph/business-records.ts:166:17
+-                   [created.workspace_id, created.node_type]
++                   []
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:168:19
+-                 if (!declared) throw new Error("type_not_found");
++                 if (true) throw new Error("type_not_found");
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:196:17
+-               if (!Number.isInteger(id) || id > 4294967295)
++               if (false)
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities rolls back a create if a later alias write fails
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] LogicalOperator
+src/tools/dgraph/business-records.ts:196:17
+-               if (!Number.isInteger(id) || id > 4294967295)
++               if (!Number.isInteger(id) && id > 4294967295)
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities rolls back a create if a later alias write fails
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:196:42
+-               if (!Number.isInteger(id) || id > 4294967295)
++               if (!Number.isInteger(id) || false)
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities rolls back a create if a later alias write fails
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] EqualityOperator
+src/tools/dgraph/business-records.ts:196:42
+-               if (!Number.isInteger(id) || id > 4294967295)
++               if (!Number.isInteger(id) || id >= 4294967295)
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities rolls back a create if a later alias write fails
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:201:19
+-                 ...(template.entity_type === "entity"
++                 ...(true
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities rolls back a create if a later alias write fails
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:201:19
+-                 ...(template.entity_type === "entity"
++                 ...(false
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities rolls back a create if a later alias write fails
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] EqualityOperator
+src/tools/dgraph/business-records.ts:201:19
+-                 ...(template.entity_type === "entity"
++                 ...(template.entity_type !== "entity"
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities rolls back a create if a later alias write fails
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] StringLiteral
+src/tools/dgraph/business-records.ts:201:44
+-                 ...(template.entity_type === "entity"
++                 ...(template.entity_type === ""
+Tests ran:
+    business graph exact identities creates only declared types and rejects duplicate external identities
+    business graph exact identities rolls back a create if a later alias write fails
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:247:17
+-               if (action === "delete") return { deleted: false, found: false };
++               if (true) return { deleted: false, found: false };
+Tests ran:
+    business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair
+
+
+[Survived] BooleanLiteral
+src/tools/dgraph/business-records.ts:247:70
+-               if (action === "delete") return { deleted: false, found: false };
++               if (action === "delete") return { deleted: false, found: true };
+Tests ran:
+    business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:256:15
+-             if (!row.ontology_id) throw new Error("raw_identity_missing");
++             if (false) throw new Error("raw_identity_missing");
+Tests ran:
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+    business graph exact identities rolls back a runtime update if the raw write fails
+    business graph exact identities refuses a deletion with a foreign relation and preserves the node
+  and 3 more tests!
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:260:17
+-               if (update.label !== undefined) data.label = update.label;
++               if (true) data.label = update.label;
+Tests ran:
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+    business graph exact identities rolls back a runtime update if the raw write fails
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:270:17
+-               if (update.label !== undefined) {
++               if (true) {
+Tests ran:
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:270:17
+-               if (update.label !== undefined) {
++               if (false) {
+Tests ran:
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+
+
+[Survived] EqualityOperator
+src/tools/dgraph/business-records.ts:270:17
+-               if (update.label !== undefined) {
++               if (update.label === undefined) {
+Tests ran:
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+
+
+[Survived] BlockStatement
+src/tools/dgraph/business-records.ts:270:45
+-               if (update.label !== undefined) {
+-                 await tx.query(
+-                   `DELETE FROM graph_entity_alias WHERE entity_id=? AND term=?`,
+-                   [row.entity_id, before.label]
+-                 );
+-                 await tx.query(
+-                   `DELETE FROM entity_aliases_raw WHERE workspace_id=? AND entity_id=? AND term=?`,
+-                   [input.workspace_id, row.entity_id, before.label]
+-                 );
+-                 await tx.query(
+-                   `INSERT OR IGNORE INTO graph_entity_alias(entity_id,term) VALUES(?,?)`,
+-                   [row.entity_id, update.label]
+-                 );
+-                 await tx.query(
+-                   `INSERT OR IGNORE INTO entity_aliases_raw(workspace_id,entity_id,term) VALUES(?,?,?)`,
+-                   [input.workspace_id, row.entity_id, update.label]
+-                 );
+-               }
++               if (update.label !== undefined) {}
+Tests ran:
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+
+
+[Survived] ArrayDeclaration
+src/tools/dgraph/business-records.ts:273:17
+-                   [row.entity_id, before.label]
++                   []
+Tests ran:
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+
+
+[Survived] ArrayDeclaration
+src/tools/dgraph/business-records.ts:277:17
+-                   [input.workspace_id, row.entity_id, before.label]
++                   []
+Tests ran:
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+
+
+[Survived] ArrayDeclaration
+src/tools/dgraph/business-records.ts:281:17
+-                   [row.entity_id, update.label]
++                   []
+Tests ran:
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+
+
+[Survived] ArrayDeclaration
+src/tools/dgraph/business-records.ts:285:17
+-                   [input.workspace_id, row.entity_id, update.label]
++                   []
+Tests ran:
+    business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions
+
+
+[Survived] ArrayDeclaration
+src/tools/dgraph/business-records.ts:298:31
+-             for (const table of [
+-               "graph_relation_property",
+-               "relation_properties_raw"
+-             ]) {
++             for (const table of []) {
+Tests ran:
+    business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair
+    business graph exact identities rolls back deletion if transactional native adjacency is unavailable
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] BlockStatement
+src/tools/dgraph/business-records.ts:301:14
+-             ]) {
+-               const relation =
+-                 table === "graph_relation_property"
+-                   ? `SELECT relation_id FROM graph_relation WHERE workspace_id=? AND (source_id=? OR target_id=?)`
+-                   : `SELECT relation_id FROM relations_raw WHERE workspace_id=? AND (source_entity_id=? OR target_entity_id=?)`;
+-               await tx.query(
+-                 `DELETE FROM ${table} WHERE relation_id IN (${relation})`,
+-                 [ws, id, id]
+-               );
+-             }
++             ]) {}
+Tests ran:
+    business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair
+    business graph exact identities rolls back deletion if transactional native adjacency is unavailable
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:303:15
+-                 table === "graph_relation_property"
++                 true
+Tests ran:
+    business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair
+    business graph exact identities rolls back deletion if transactional native adjacency is unavailable
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:303:15
+-                 table === "graph_relation_property"
++                 false
+Tests ran:
+    business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair
+    business graph exact identities rolls back deletion if transactional native adjacency is unavailable
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] EqualityOperator
+src/tools/dgraph/business-records.ts:303:15
+-                 table === "graph_relation_property"
++                 table !== "graph_relation_property"
+Tests ran:
+    business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair
+    business graph exact identities rolls back deletion if transactional native adjacency is unavailable
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] StringLiteral
+src/tools/dgraph/business-records.ts:303:25
+-                 table === "graph_relation_property"
++                 table === ""
+Tests ran:
+    business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair
+    business graph exact identities rolls back deletion if transactional native adjacency is unavailable
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] ArrayDeclaration
+src/tools/dgraph/business-records.ts:308:15
+-                 [ws, id, id]
++                 []
+Tests ran:
+    business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair
+    business graph exact identities rolls back deletion if transactional native adjacency is unavailable
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] ArrayDeclaration
+src/tools/dgraph/business-records.ts:313:13
+-               [ws, id, id]
++               []
+Tests ran:
+    business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair
+    business graph exact identities rolls back deletion if transactional native adjacency is unavailable
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] ArrayDeclaration
+src/tools/dgraph/business-records.ts:317:13
+-               [ws, id, id]
++               []
+Tests ran:
+    business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair
+    business graph exact identities rolls back deletion if transactional native adjacency is unavailable
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] ArrayDeclaration
+src/tools/dgraph/business-records.ts:337:31
+-             for (const table of ["graph_rule_evaluations", "graph_rule_events"])
++             for (const table of [])
+Tests ran:
+    business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair
+    business graph exact identities rolls back deletion if transactional native adjacency is unavailable
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] ArrayDeclaration
+src/tools/dgraph/business-records.ts:340:15
+-                 [ws, id]
++                 []
+Tests ran:
+    business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair
+    business graph exact identities rolls back deletion if transactional native adjacency is unavailable
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/business-records.ts:350:15
+-             if (!tx.rebuildBusinessAdjacency)
++             if (false)
+Tests ran:
+    business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair
+    business graph exact identities rolls back deletion if transactional native adjacency is unavailable
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] StringLiteral
+src/tools/dgraph/business-records.ts:351:29
+-               throw new Error("Native adjacency transaction required");
++               throw new Error("");
+Tests ran:
+    business graph exact identities rolls back deletion if transactional native adjacency is unavailable
+
+
+[Survived] BooleanLiteral
+src/tools/dgraph/business-records.ts:353:42
+-             return { deleted: true, found: true, id: String(id) };
++             return { deleted: true, found: false, id: String(id) };
+Tests ran:
+    business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair
+    business graph exact identities does not recycle deleted record identities or accept an old version for a replacement
+
+
+[Survived] StringLiteral
+src/tools/dgraph/business-records.ts:36:27
+-   const reserved = new Set(["node_type", "workspace_id", "schema_id", "label"]);
++   const reserved = new Set(["", "workspace_id", "schema_id", "label"]);
+Ran all tests for this mutant.
+
+[Survived] StringLiteral
+src/tools/dgraph/business-records.ts:36:56
+-   const reserved = new Set(["node_type", "workspace_id", "schema_id", "label"]);
++   const reserved = new Set(["node_type", "workspace_id", "", "label"]);
+Ran all tests for this mutant.
+
+[NoCoverage] BlockStatement
+src/tools/dgraph/learn.ts:270:53
+-           if (sourceId === null || targetId === null) {
+-             throw new Error(
+-               "Could not resolve graph.entity rows for edge endpoints."
+-             );
+-           }
++           if (sourceId === null || targetId === null) {}
+
+[NoCoverage] StringLiteral
+src/tools/dgraph/learn.ts:272:13
+-               "Could not resolve graph.entity rows for edge endpoints."
++               ""
+
+[Survived] ConditionalExpression
+src/tools/dgraph/learn.ts:270:13
+-           if (sourceId === null || targetId === null) {
++           if (false) {
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 23 more tests!
+
+
+[Survived] LogicalOperator
+src/tools/dgraph/learn.ts:270:13
+-           if (sourceId === null || targetId === null) {
++           if (sourceId === null && targetId === null) {
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 23 more tests!
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/learn.ts:270:13
+-           if (sourceId === null || targetId === null) {
++           if (false || targetId === null) {
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 23 more tests!
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/learn.ts:270:34
+-           if (sourceId === null || targetId === null) {
++           if (sourceId === null || false) {
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 23 more tests!
+
+
+[Survived] ConditionalExpression
+src/tools/facets/records.ts:63:19
+-             active: record.active === 1
++             active: true
+Tests ran:
+    exact business record access and version conflicts reads only an exact scoped row and includes its version
+    exact business record access and version conflicts rejects a stale edit before archive and leaves all state unchanged
+
+
+[Survived] ConditionalExpression
+src/tools/facets/records.ts:66:9
+-       if (row) delete row.facets_json;
++       if (false) delete row.facets_json;
+Tests ran:
+    exact business record access and version conflicts reads only an exact scoped row and includes its version
+    exact business record access and version conflicts rejects a stale edit before archive and leaves all state unchanged
+
+
+[Survived] StringLiteral
+src/tools/facets/records.ts:67:36
+-       return createToolSuccessResult("ghostcrab_record_get", {
++       return createToolSuccessResult("", {
+Tests ran:
+    exact business record access and version conflicts reads only an exact scoped row and includes its version
+    exact business record access and version conflicts rejects a stale edit before archive and leaves all state unchanged
+
+
+[Survived] StringLiteral
+src/tools/facets/records.ts:99:38
+-         return createToolSuccessResult("ghostcrab_record_delete", {
++         return createToolSuccessResult("", {
+Tests ran:
+    exact business record access and version conflicts forwards exact deletion identity and reports native idempotent absence
+
+
+[Survived] ConditionalExpression
+src/tools/facets/records.ts:108:11
+-         if (typeof cause?.body === "string") {
++         if (true) {
+Tests ran:
+    exact business record access and version conflicts preserves a native version conflict as a stable MCP error
+    exact business record access and version conflicts does not turn a transport failure into success (body undefined)
+    exact business record access and version conflicts does not turn a transport failure into success (body not JSON)
+  and 1 more test!
+
+
+[Survived] OptionalChaining
+src/tools/facets/records.ts:108:18
+-         if (typeof cause?.body === "string") {
++         if (typeof cause.body === "string") {
+Tests ran:
+    exact business record access and version conflicts preserves a native version conflict as a stable MCP error
+    exact business record access and version conflicts does not turn a transport failure into success (body undefined)
+    exact business record access and version conflicts does not turn a transport failure into success (body not JSON)
+  and 1 more test!
+
+
+[Survived] OptionalChaining
+src/tools/facets/records.ts:110:24
+-             const code = JSON.parse(cause.body)?.error?.code;
++             const code = JSON.parse(cause.body)?.error.code;
+Tests ran:
+    exact business record access and version conflicts preserves a native version conflict as a stable MCP error
+    exact business record access and version conflicts does not turn a transport failure into success (body not JSON)
+    exact business record access and version conflicts does not turn a transport failure into success (body {"error":{"code":"other"}})
+
+
+[Survived] OptionalChaining
+src/tools/facets/records.ts:110:24
+-             const code = JSON.parse(cause.body)?.error?.code;
++             const code = JSON.parse(cause.body).error?.code;
+Tests ran:
+    exact business record access and version conflicts preserves a native version conflict as a stable MCP error
+    exact business record access and version conflicts does not turn a transport failure into success (body not JSON)
+    exact business record access and version conflicts does not turn a transport failure into success (body {"error":{"code":"other"}})
+
+
+[Survived] ConditionalExpression
+src/tools/facets/records.ts:111:15
+-             if (code === "version_conflict")
++             if (true)
+Tests ran:
+    exact business record access and version conflicts preserves a native version conflict as a stable MCP error
+    exact business record access and version conflicts does not turn a transport failure into success (body {"error":{"code":"other"}})
+
+
+[Survived] StringLiteral
+src/tools/facets/records.ts:113:15
+-                 "ghostcrab_record_delete",
++                 "",
+Tests ran:
+    exact business record access and version conflicts preserves a native version conflict as a stable MCP error
+
+
+[Survived] StringLiteral
+src/tools/facets/records.ts:114:15
+-                 "The record version changed; read it again before deleting.",
++                 "",
+Tests ran:
+    exact business record access and version conflicts preserves a native version conflict as a stable MCP error
+
+
+[Survived] StringLiteral
+src/tools/facets/records.ts:121:43
+-         return createToolErrorFromException("ghostcrab_record_delete", error);
++         return createToolErrorFromException("", error);
+Tests ran:
+    exact business record access and version conflicts does not turn a transport failure into success (body undefined)
+    exact business record access and version conflicts does not turn a transport failure into success (body not JSON)
+    exact business record access and version conflicts does not turn a transport failure into success (body {"error":{"code":"other"}})
+
+
+[Survived] StringLiteral
+src/tools/facets/upsert.ts:268:13
+-               "ghostcrab_upsert",
++               "",
+Tests ran:
+    exact business record access and version conflicts rejects a stale edit before archive and leaves all state unchanged
+
+
+[Survived] StringLiteral
+src/tools/facets/upsert.ts:269:13
+-               "The record version changed; read it again before applying the edit.",
++               "",
+Tests ran:
+    exact business record access and version conflicts rejects a stale edit before archive and leaves all state unchanged
+
+
+[Survived] ObjectLiteral
+src/tools/facets/upsert.ts:271:13
+-               {
+-                 expected_version: input.expected_version,
+-                 actual_version: existing?.version ?? null
+-               }
++               {}
+Tests ran:
+    exact business record access and version conflicts rejects a stale edit before archive and leaves all state unchanged
+
+
+[Survived] LogicalOperator
+src/tools/facets/upsert.ts:273:31
+-                 actual_version: existing?.version ?? null
++                 actual_version: existing?.version && null
+Tests ran:
+    exact business record access and version conflicts rejects a stale edit before archive and leaves all state unchanged
+
+
+[Survived] OptionalChaining
+src/tools/facets/upsert.ts:273:31
+-                 actual_version: existing?.version ?? null
++                 actual_version: existing.version ?? null
+Tests ran:
+    exact business record access and version conflicts rejects a stale edit before archive and leaves all state unchanged
+
+
+[Survived] StringLiteral
+src/tools/workspace/delete.ts:59:9
+-           "The default workspace cannot be deleted.",
++           "",
+Tests ran:
+    workspace write integrity on real SQLite 'hard delete' refuses protected, missing and unconfirmed targets without writes
+    workspace write integrity on real SQLite 'soft delete' refuses protected, missing and unconfirmed targets without writes
+
+
+[Survived] StringLiteral
+src/tools/workspace/delete.ts:72:9
+-           `Workspace '${input.workspace_id}' does not exist.`,
++           ``,
+Tests ran:
+    workspace write integrity on real SQLite 'hard delete' refuses protected, missing and unconfirmed targets without writes
+    workspace write integrity on real SQLite 'soft delete' refuses protected, missing and unconfirmed targets without writes
+
+
+[Survived] ConditionalExpression
+src/tools/workspace/delete.ts:99:18
+-           deleted: workspace_rows_deleted > 0,
++           deleted: true,
+Tests ran:
+    workspace write integrity on real SQLite 'hard delete' only clears the requested workspace
+
+
+[Survived] EqualityOperator
+src/tools/workspace/delete.ts:99:18
+-           deleted: workspace_rows_deleted > 0,
++           deleted: workspace_rows_deleted >= 0,
+Tests ran:
+    workspace write integrity on real SQLite 'hard delete' only clears the requested workspace
+
+
+[Survived] StringLiteral
+src/tools/workspace/reset.ts:47:9
+-           "The default workspace cannot be reset.",
++           "",
+Tests ran:
+    workspace write integrity on real SQLite 'reset' refuses protected, missing and unconfirmed targets without writes
+
+
+[Survived] StringLiteral
+src/tools/workspace/reset.ts:60:9
+-           `Workspace '${input.workspace_id}' does not exist.`,
++           ``,
+Tests ran:
+    workspace write integrity on real SQLite 'reset' refuses protected, missing and unconfirmed targets without writes
+
+
+Ran 2.88 tests per mutant on average.
+-----------------------|------------------|----------|-----------|------------|----------|----------|
+                       | % Mutation score |          |           |            |          |          |
+File                   |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files              |  78.34 |   81.00 |      405 |         0 |         95 |       17 |        0 |
+ db                    |  82.35 |   85.50 |      112 |         0 |         19 |        5 |        0 |
+  graph.ts             |  82.35 |   85.50 |      112 |         0 |         19 |        5 |        0 |
+ tools                 |  76.90 |   79.40 |      293 |         0 |         76 |       12 |        0 |
+  dgraph               |  75.66 |   79.22 |      202 |         0 |         53 |       12 |        0 |
+   business-records.ts |  73.30 |   76.78 |      162 |         0 |         49 |       10 |        0 |
+   learn.ts            |  86.96 |   90.91 |       40 |         0 |          4 |        2 |        0 |
+  facets               |  69.09 |   69.09 |       38 |         0 |         17 |        0 |        0 |
+   records.ts          |  67.57 |   67.57 |       25 |         0 |         12 |        0 |        0 |
+   upsert.ts           |  72.22 |   72.22 |       13 |         0 |          5 |        0 |        0 |
+  workspace            |  89.83 |   89.83 |       53 |         0 |          6 |        0 |        0 |
+   delete.ts           |  89.19 |   89.19 |       33 |         0 |          4 |        0 |        0 |
+   reset.ts            |  90.91 |   90.91 |       20 |         0 |          2 |        0 |        0 |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+[91m13:08:21 (2102952) ERROR MutationTestReportHelper[39m Final mutation score 78.34 under breaking threshold 80, setting exit code to 1 (failure).
+[32m13:08:21 (2102952) INFO MutationTestReportHelper[39m (improve mutation score or set `thresholds.break = null` to prevent this error in the future)
+[32m13:08:21 (2102952) INFO JsonReporter[39m Your report can be found at: file:///home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/reports/mutation/mutation.json
+[32m13:08:21 (2102952) INFO HtmlReporter[39m Your report can be found at: file:///home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/reports/mutation/index.html
+[32m13:08:21 (2102952) INFO MutationTestExecutor[39m Done in 46 seconds.

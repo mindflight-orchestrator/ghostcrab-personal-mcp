@@ -6,7 +6,9 @@ import {
   findGraphRelationByEndpoints,
   resolveGraphEntityId,
   upsertGraphEntity,
-  upsertGraphRelation
+  upsertGraphRelation,
+  upsertGraphRelationProperties,
+  setGraphEntityWorkspaceId
 } from "../../src/db/graph.js";
 import {
   createRealSqlite,
@@ -45,6 +47,81 @@ describe.skipIf(!loadSqliteDatabase())(
     });
     afterEach(() => fixture?.sqlite.close());
 
+    it("changes only the selected runtime entity scope and preserves its metadata", async () => {
+      fixture.sqlite.exec(
+        "INSERT INTO graph_entity(entity_id,workspace_id,entity_type,name,metadata_json) VALUES(1,'a','entity','first','{\"keep\":1}'),(2,'a','entity','second','{\"keep\":2}')"
+      );
+      await setGraphEntityWorkspaceId(database, 1n, "b");
+      expect(
+        fixture.sqlite
+          .prepare(
+            "SELECT entity_id,workspace_id,metadata_json FROM graph_entity ORDER BY entity_id"
+          )
+          .all()
+      ).toEqual([
+        { entity_id: 1, workspace_id: "b", metadata_json: '{"keep":1}' },
+        { entity_id: 2, workspace_id: "a", metadata_json: '{"keep":2}' }
+      ]);
+    });
+    it("an empty typed-property batch leaves even an absent relation untouched", async () => {
+      await upsertGraphRelationProperties(
+        database,
+        "absent",
+        10n,
+        { label: "REUSES", properties: {}, sourceId: 1n, targetId: 2n },
+        []
+      );
+      for (const table of [
+        "relations_raw",
+        "graph_relation",
+        "workspaces",
+        "ontologies"
+      ])
+        expect(
+          fixture.sqlite.prepare(`SELECT COUNT(*) AS n FROM ${table}`).get()
+        ).toEqual({ n: 0 });
+    });
+    it.each([undefined, 0, 0.5])(
+      "typed properties preserve confidence %s and their typed value",
+      async (confidence) => {
+        const sourceId = await upsertGraphEntity(database, input);
+        const targetId = await upsertGraphEntity(database, {
+          ...input,
+          nodeId: "target"
+        });
+        const relation = {
+          label: "REUSES",
+          properties: { retained: true },
+          sourceId,
+          targetId,
+          confidence
+        };
+        const id = await upsertGraphRelation(database, relation);
+        await upsertGraphRelationProperties(
+          database,
+          "default",
+          BigInt(id),
+          relation,
+          [
+            {
+              property_key: "reason",
+              value_type: "text",
+              value_text: "verified"
+            }
+          ]
+        );
+        expect(
+          fixture.sqlite.prepare("SELECT confidence FROM relations_raw").get()
+        ).toEqual({ confidence: confidence ?? 1 });
+        for (const table of [
+          "graph_relation_property",
+          "relation_properties_raw"
+        ])
+          expect(
+            fixture.sqlite.prepare(`SELECT value_text FROM ${table}`).get()
+          ).toEqual({ value_text: "verified" });
+      }
+    );
     it.each([
       BigInt(Number.MAX_SAFE_INTEGER) + 1n,
       BigInt(Number.MIN_SAFE_INTEGER) - 1n

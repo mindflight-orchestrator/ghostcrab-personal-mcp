@@ -1,0 +1,5 @@
+
+> @mindflight/ghostcrab-personal-mcp@0.7.3 verify:local-install /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp
+> node scripts/verify-local-install.mjs
+
+[verify-local-install] OK — installer + @mindflight/ghostcrab-personal-mcp-linux-x64, gcp --help, gcp authorize, gcp tools verify, host bootstrap (.env / data/ / doc + skill symlinks), gcp brain setup cursor (mcp.json + permissions basic + skill bundle + legacy pruning) all succeeded.

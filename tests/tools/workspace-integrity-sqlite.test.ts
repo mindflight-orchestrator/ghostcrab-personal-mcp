@@ -62,6 +62,45 @@ describe.skipIf(!loadSqliteDatabase())(
     });
     afterEach(() => fixture?.sqlite.close());
 
+    it("reports no second deletion if another writer deletes after the preflight read", async () => {
+      const original = fixture.database;
+      const beforeForeign = snapshot().workspaces.filter(
+        (row) => row.workspace_id === "other-ws"
+      );
+      let competingDeletion = false;
+      context = createToolContext({
+        ...original,
+        async query<T>(sql: string, params?: readonly unknown[]): Promise<T[]> {
+          const rows = await original.query<T>(sql, params);
+          if (!competingDeletion && sql.includes("SELECT id FROM workspaces")) {
+            competingDeletion = true;
+            const winner = await workspaceDeleteTool.handler(
+              { workspace_id: "target-ws", confirm: true },
+              createToolContext(original)
+            );
+            expect(winner.structuredContent).toMatchObject({
+              deleted: true,
+              workspace_rows_deleted: 1
+            });
+          }
+          return rows;
+        }
+      });
+      const second = await workspaceDeleteTool.handler(
+        { workspace_id: "target-ws", confirm: true },
+        context
+      );
+      expect(competingDeletion).toBe(true);
+      expect(second.structuredContent).toMatchObject({
+        ok: true,
+        deleted: false,
+        archived: false,
+        workspace_rows_deleted: 0
+      });
+      expect(
+        snapshot().workspaces.filter((row) => row.workspace_id === "other-ws")
+      ).toEqual(beforeForeign);
+    });
     it.each(operations)(
       "$name refuses protected, missing and unconfirmed targets without writes",
       async ({ tool, mode }) => {

@@ -1,0 +1,110 @@
+{
+  "baselineTests": 28,
+  "mutations": [
+    {
+      "id": "graph-workspace-scope",
+      "file": "src/tools/dgraph/business-records.ts",
+      "original": "\"workspace_id = ? AND (CASE",
+      "replacement": "\"? IS NOT NULL AND (CASE",
+      "detectedBy": [
+        "business graph exact identities gets only exact business workspace/type/id and opaque stable content version"
+      ]
+    },
+    {
+      "id": "graph-type-scope",
+      "file": "src/tools/dgraph/business-records.ts",
+      "original": "ELSE entity_type END)=?",
+      "replacement": "ELSE entity_type END) IS NOT NULL AND ? IS NOT NULL",
+      "detectedBy": [
+        "business graph exact identities gets only exact business workspace/type/id and opaque stable content version",
+        "business graph exact identities creates only declared types and rejects duplicate external identities",
+        "business graph exact identities uses the declared type in the requested workspace even without a template node"
+      ]
+    },
+    {
+      "id": "fact-workspace-scope",
+      "file": "src/tools/facets/records.ts",
+      "original": "FROM agent_facts WHERE workspace_id = ?",
+      "replacement": "FROM agent_facts WHERE ? IS NOT NULL",
+      "detectedBy": [
+        "exact business record access and version conflicts reads only an exact scoped row and includes its version"
+      ]
+    },
+    {
+      "id": "fact-schema-scope",
+      "file": "src/tools/facets/records.ts",
+      "original": "AND schema_id = ? AND id = ?",
+      "replacement": "AND ? IS NOT NULL AND id = ?",
+      "detectedBy": [
+        "exact business record access and version conflicts reads only an exact scoped row and includes its version"
+      ]
+    },
+    {
+      "id": "graph-transaction",
+      "file": "src/tools/dgraph/business-records.ts",
+      "original": "database.transaction(async (tx) =>",
+      "replacement": "((operation) => operation(database))(async (tx) =>",
+      "detectedBy": [
+        "business graph exact identities rolls back a create if a later alias write fails",
+        "business graph exact identities rolls back a runtime update if the raw write fails",
+        "business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair",
+        "business graph exact identities rolls back deletion if transactional native adjacency is unavailable",
+        "business graph exact identities does not recycle deleted record identities or accept an old version for a replacement",
+        "business graph exact identities removes incident relation properties and diagnostics but preserves unrelated rows"
+      ]
+    },
+    {
+      "id": "graph-version",
+      "file": "src/tools/dgraph/business-records.ts",
+      "original": "before.version !==",
+      "replacement": "before.version ===",
+      "detectedBy": [
+        "business graph exact identities updates raw and runtime metadata, preserves properties and rejects stale versions",
+        "business graph exact identities refuses a deletion with a foreign relation and preserves the node",
+        "business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair",
+        "business graph exact identities does not recycle deleted record identities or accept an old version for a replacement",
+        "business graph exact identities distinguishes an absent node from a node without raw identity",
+        "business graph exact identities preserves omitted labels and updates both alias stores when a label changes",
+        "business graph exact identities removes incident relation properties and diagnostics but preserves unrelated rows"
+      ]
+    },
+    {
+      "id": "foreign-relation-refusal",
+      "file": "src/tools/dgraph/business-records.ts",
+      "original": "if (foreign) throw new Error(\"foreign_relation\");",
+      "replacement": "void foreign;",
+      "detectedBy": [
+        "business graph exact identities refuses a deletion with a foreign relation and preserves the node"
+      ]
+    },
+    {
+      "id": "transactional-adjacency",
+      "file": "src/tools/dgraph/business-records.ts",
+      "original": "await tx.rebuildBusinessAdjacency(ws);",
+      "replacement": "void ws;",
+      "detectedBy": [
+        "business graph exact identities deletes raw/runtime rows and aliases in the same transaction as adjacency repair"
+      ]
+    },
+    {
+      "id": "identity-no-reuse",
+      "file": "src/tools/dgraph/business-records.ts",
+      "original": "COALESCE((SELECT seq FROM sqlite_sequence WHERE name='entities_raw'),0)",
+      "replacement": "0",
+      "detectedBy": [
+        "business graph exact identities does not recycle deleted record identities or accept an old version for a replacement",
+        "business graph exact identities accepts the complete native id range and refuses overflow before a write"
+      ]
+    },
+    {
+      "id": "fact-version",
+      "file": "src/tools/facets/upsert.ts",
+      "original": "input.expected_version !== undefined &&",
+      "replacement": "false &&",
+      "detectedBy": [
+        "exact business record access and version conflicts rejects a stale edit before archive and leaves all state unchanged",
+        "exact business record access and version conflicts does not create a missing record when an expected version was supplied"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+
+> @mindflight/ghostcrab-personal-mcp@0.7.3 test:coverage /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp
+> vitest run --coverage --coverage.reporter=text-summary --coverage.reporter=json-summary
+
+
+ RUN  v4.1.10 /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp
+      Coverage enabled with v8
+
+(node:2166397) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2166589) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"ok":true,"tool":"ghostcrab_status","surface_version":"2026-10-14","generated_at":"2026-10-14T11:16:46.326Z","echoed":true}
+(node:2167858) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2167976) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2168133) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2168538) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2168618) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2168725) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2168824) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2169360) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  106 passed | 4 skipped (110)
+      Tests  909 passed | 16 skipped (925)
+   Start at  13:16:35
+   Duration  25.88s (transform 840ms, setup 0ms, import 3.80s, tests 13.65s, environment 5ms)
+
+ % Coverage report from v8
+
+=============================== Coverage summary ===============================
+Statements   : 68.21% ( 4150/6084 )
+Branches     : 56.87% ( 2905/5108 )
+Functions    : 76.18% ( 723/949 )
+Lines        : 68.87% ( 4037/5861 )
+================================================================================

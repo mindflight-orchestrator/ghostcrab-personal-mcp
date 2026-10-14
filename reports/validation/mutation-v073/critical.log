@@ -1,0 +1,12 @@
+Baseline: 28 tests passed
+Detected: graph-workspace-scope (gets only exact business workspace/type/id)
+Detected: graph-type-scope (gets only exact business workspace/type/id)
+Detected: fact-workspace-scope (reads only an exact scoped row)
+Detected: fact-schema-scope (reads only an exact scoped row)
+Detected: graph-transaction (rolls back a create if a later alias write fails)
+Detected: graph-version (updates raw and runtime metadata)
+Detected: foreign-relation-refusal (refuses a deletion with a foreign relation)
+Detected: transactional-adjacency (deletes raw/runtime rows and aliases)
+Detected: identity-no-reuse (does not recycle deleted record identities)
+Detected: fact-version (rejects a stale edit before archive)
+Critical mutations: 10/10 detected

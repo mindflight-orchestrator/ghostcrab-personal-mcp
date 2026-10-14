@@ -20,11 +20,20 @@ MCP surface: `2026-10-14`, 80 registered tools.
 
 ## Validation
 
-MindBrain 469 tests; GhostCrab 892 passed / 16 optional skips; SQLite integrity
-70; native integrity 17 (also on the packaged Linux binary); integration 106;
-GraphRAG 35 cases / 2 optional skips. Mutation pilot: 85.06%, with explicit
-reviews of the 36 undetected mutations. The 80-tool smoke and existing memory
-scenarios passed. Typecheck, lint, targeted formatting and package checks passed.
+MindBrain 469 tests; GhostCrab 909 passed / 16 optional skips; SQLite integrity
+86; native integrity 17 (also on the packaged Linux binary); integration 106;
+GraphRAG 35 cases / 2 optional skips. The expanded mutation gate detects 475/517
+mutations (91.88%), with 42 explicit residual reviews and a blocking threshold
+raised from 80% to 90%. Ten additional critical mutations, including SQL scope
+removal, are all detected. Stale or duplicate mutation exceptions fail the gate.
+The earlier 85.06% pilot used a smaller 241-mutation scope.
+
+The full unit/tool suite, coverage thresholds, typecheck, lint, formatting,
+package checks and local installation were rerun after test hardening. Runtime
+sources and all 12 native binaries are unchanged; the prior engine, native,
+integration, upgrade and 80-tool receipts remain applicable to those binaries.
+See [mutation hardening evidence](../reports/validation/mutation-v073/README.md)
+for exact scope, results and remaining defensive-path limitations.
 
 A database created by the packaged v0.7.2 backend retained workspace metadata,
 facts and a custom application table after upgrade. The new deletion endpoint
