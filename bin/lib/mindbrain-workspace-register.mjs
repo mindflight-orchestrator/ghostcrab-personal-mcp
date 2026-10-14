@@ -22,6 +22,7 @@ import { runNativeEngineSync } from "./brain-engine-runner.mjs";
 export function registerMindbrainWorkspace(opts) {
   const args = [
     "workspace-create",
+    "--if-absent",
     "--db",
     opts.sqlitePath,
     "--workspace-id",

@@ -94,3 +94,58 @@ Structured tool errors return the same envelope with `error.code` set from the t
 - `tool_execution_error` — any other handler or internal failure.
 
 Those errors are emitted by the MCP server wrapper or tool handlers. Older clients may only have handled `unknown_tool` and `tool_execution_error`; new codes are additive for better self-correction.
+
+
+## Exact fact records and single-record deletion
+
+`ghostcrab_record_get` requires `workspace_id`, `schema_id` and an exact opaque
+`id` returned by remember/upsert. It returns `found` and `row` (content, facets,
+version and validity); an absent or differently scoped row returns `found:false`.
+This read does not depend on ranked-search limits.
+
+`ghostcrab_upsert` accepts optional `expected_version`. When provided, the
+selected version must match before any archive or mutation; otherwise the
+response is `version_conflict`. Existing callers retain their prior behavior.
+Business clients should always send the version returned by record_get.
+
+`ghostcrab_record_delete` requires the same exact scope plus positive
+`expected_version`. The native `/api/mindbrain/facts/delete` endpoint removes
+one row and its BM25/FTS/vector artifacts in one transaction. Closed history
+rows remain historical records. No schema, ontology, workspace or registration
+is changed. Wrong scope and repeat deletion return `deleted:false`; a stale
+version returns `version_conflict`. The Operator host must enforce identity,
+application access and schema/field authorization before invoking these APIs.
+# Existing application graph records
+
+`ghostcrab_graph_record_get/create/update/delete` operate on existing business
+graph types in an exact `workspace_id` and `node_type`. They never call `learn`
+and never create or edit ontology/workspace definitions.
+
+All return `node: {id,node_type,label,properties,version}` when a row is present.
+The returned `id` is a decimal entity ID string. `version` is an opaque stable
+SHA256 fingerprint of this public content; callers must read it before editing
+or deleting. Structural metadata keys are excluded from `properties`.
+
+- Get takes `{workspace_id,node_type,id}` and returns `found` plus `node|null`.
+- Create takes `{workspace_id,node_type,id,label,properties}`. Its input `id` is
+  a new opaque external ID; it returns the allocated decimal ID. Reusing an
+  existing external ID fails `id_exists`. The type must already be represented
+  in that workspace's raw/runtime graph or declared by its existing ontology.
+- Update takes `{workspace_id,node_type,id,expected_version,label?,properties}`.
+  Properties are merged and hidden/structural metadata is preserved. A stale
+  fingerprint fails `version_conflict` before any write.
+- Delete takes `{workspace_id,node_type,id,expected_version}` and returns
+  `deleted`. It removes this exact raw/runtime entity, its incident own-workspace
+  relations and links, then reconciles own-workspace adjacency/degree indices.
+  A relation owned by another workspace prevents deletion (`foreign_relation`).
+
+Writes require native explicit SQL sessions with `BEGIN IMMEDIATE`; there is no
+non-transactional fallback. The session ID accompanies each sequential SQL call
+and the native writer rejects other writers while this session owns the lane.
+SQL remains implementation code inside MCP tools and is never a model argument.
+
+The native bounded helper `POST /api/mindbrain/graph/business-adjacency` accepts
+only `{workspace_id}` and rebuilds adjacency/degree indices from existing graph
+relations. It does not replay raw data or erase the workspace's diagnostic
+history. Successful deletion includes this index reconciliation; a transport
+failure must not be reported as verified success by an application caller.

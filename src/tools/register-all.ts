@@ -1,4 +1,5 @@
 import "./dgraph/coverage.js";
+import "./dgraph/business-records.js";
 import "./dgraph/diagnostics.js";
 import "./dgraph/entity-chunks.js";
 import "./dgraph/evidence-get.js";
@@ -14,6 +15,7 @@ import "./facets/collection-search.js";
 import "./facets/count.js";
 import "./facets/catalog.js";
 import "./facets/remember.js";
+import "./facets/records.js";
 import "./facets/schema.js";
 import "./facets/search.js";
 import "./facets/upsert.js";

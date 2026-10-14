@@ -1009,6 +1009,26 @@ export async function runStandaloneGhostcrabSearch(
   );
 }
 
+export async function runStandaloneFactDelete(params: {
+  mindbrainUrl: string;
+  timeoutMs?: number;
+  workspace_id: string;
+  schema_id: string;
+  id: string;
+  expected_version: number;
+}): Promise<{ ok: true; found: boolean; deleted: boolean; version?: number }> {
+  const { mindbrainUrl, timeoutMs, ...body } = params;
+  return await fetchJson(
+    new URL("/api/mindbrain/facts/delete", normalizeBaseUrl(mindbrainUrl)),
+    {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: { "content-type": "application/json" }
+    },
+    timeoutMs
+  );
+}
+
 export async function runStandaloneFactWrite(
   params: StandaloneFactWriteParams
 ): Promise<StandaloneFactWriteResponse> {
@@ -1549,7 +1569,8 @@ export async function runStandaloneKnowledge<T>(params: {
     | "traverse"
     | "evidence"
     | "facts_status"
-    | "facts_reindex";
+    | "facts_reindex"
+    | "graph_business_adjacency";
   workspaceId?: string;
   input?: Record<string, unknown>;
   timeoutMs?: number;
@@ -1560,7 +1581,8 @@ export async function runStandaloneKnowledge<T>(params: {
     traverse: "/api/mindbrain/traverse",
     evidence: "/api/mindbrain/ghostcrab/evidence",
     facts_status: "/api/mindbrain/ghostcrab/facts-index",
-    facts_reindex: "/api/mindbrain/ghostcrab/facts-index"
+    facts_reindex: "/api/mindbrain/ghostcrab/facts-index",
+    graph_business_adjacency: "/api/mindbrain/graph/business-adjacency"
   } as const;
   const url = new URL(
     paths[params.operation],

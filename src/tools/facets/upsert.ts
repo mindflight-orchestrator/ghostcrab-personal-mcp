@@ -62,7 +62,8 @@ export const UpsertInput = z
     created_by: z.string().min(1).optional(),
     valid_until: z.union([isoDateSchema, z.null()]).optional(),
     valid_from: isoDate("valid_from").optional(),
-    create_if_missing: z.boolean().default(false)
+    create_if_missing: z.boolean().default(false),
+    expected_version: z.number().int().positive().optional()
   })
   .strict()
   .refine(
@@ -135,6 +136,12 @@ export const upsertTool: ToolHandler = {
           type: "string",
           description:
             "Optional start of validity in YYYY-MM-DD format, applied only when creating a new record. Ignored on an update: rewriting the start date of an existing record would falsify its history."
+        },
+        expected_version: {
+          type: "integer",
+          minimum: 1,
+          description:
+            "Require the selected record version before changing it. A mismatch returns version_conflict without any archive or write."
         },
         create_if_missing: {
           type: "boolean",
@@ -246,6 +253,24 @@ export const upsertTool: ToolHandler = {
             {
               schema_id: input.schema_id,
               match: input.match
+            }
+          )
+        };
+      }
+
+      if (
+        input.expected_version !== undefined &&
+        (!existing || existing.version !== input.expected_version)
+      ) {
+        return {
+          kind: "error" as const,
+          result: createToolErrorResult(
+            "ghostcrab_upsert",
+            "The record version changed; read it again before applying the edit.",
+            "version_conflict",
+            {
+              expected_version: input.expected_version,
+              actual_version: existing?.version ?? null
             }
           )
         };
