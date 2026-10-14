@@ -65,6 +65,14 @@ jobs:
           chmod +x prebuilds/linux-x64/ghostcrab-backend
           MINDBRAIN_TEST_BINARY="$PWD/prebuilds/linux-x64/ghostcrab-backend" npm run test:integrity:native
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.10.0
+          run_install: false
+      - name: Verify named npm installation does not terminate its installer
+        run: |
+          npm run verify:local-install
+
   # ── Job 1: cross-compile the Zig backend for all platforms ─────────────────
   build-backends:
     name: Cross-compile backends

@@ -1,0 +1,4 @@
+
+> @mindflight/ghostcrab-personal-mcp@0.7.4 typecheck /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp
+> tsc --noEmit --project tsconfig.json
+

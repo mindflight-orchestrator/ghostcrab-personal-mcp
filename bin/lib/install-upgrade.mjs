@@ -454,11 +454,12 @@ export function listGhostcrabProcesses(io = {}) {
     encoding: "utf8"
   });
   if (r.status !== 0 || r.error) return [];
-  return String(r.stdout ?? "")
-    .split(/\r?\n/)
-    .map(parsePsLine)
-    .filter(Boolean)
-    .filter(isGhostcrabProcess);
+  return selectGhostcrabProcesses(
+    String(r.stdout ?? "")
+      .split(/\r?\n/)
+      .map(parsePsLine)
+      .filter(Boolean)
+  );
 }
 
 function parsePsLine(line) {
@@ -481,34 +482,85 @@ function listWindowsGhostcrabProcesses(spawnSyncFn) {
   try {
     const parsed = JSON.parse(String(ps.stdout ?? "[]"));
     const rows = Array.isArray(parsed) ? parsed : [parsed];
-    return rows
-      .map((row) => ({
-        pid: Number(row.ProcessId),
-        ppid: Number(row.ParentProcessId),
-        command: String(row.CommandLine ?? "")
-      }))
-      .filter((row) => Number.isFinite(row.pid))
-      .filter(isGhostcrabProcess);
+    return selectGhostcrabProcesses(
+      rows
+        .map((row) => ({
+          pid: Number(row.ProcessId),
+          ppid: Number(row.ParentProcessId),
+          command: String(row.CommandLine ?? "")
+        }))
+        .filter((row) => Number.isFinite(row.pid))
+    );
   } catch {
     return [];
   }
 }
 
-function isGhostcrabProcess(proc) {
-  if (
-    proc.pid === process.pid ||
-    proc.ppid === process.pid ||
-    proc.pid === process.ppid
-  ) {
-    return false;
+// npm's postinstall parent may be a shell: preserve the entire ancestor chain,
+// not just process.ppid. Never signal the installer that launched this process.
+export function selectGhostcrabProcesses(
+  rows,
+  current = { pid: process.pid, ppid: process.ppid }
+) {
+  const parents = new Map(rows.map((row) => [row.pid, row.ppid]));
+  const protectedPids = new Set([current.pid]);
+  let ancestor = current.ppid;
+  while (ancestor > 0 && !protectedPids.has(ancestor)) {
+    protectedPids.add(ancestor);
+    ancestor = parents.get(ancestor);
   }
-  const cmd = proc.command.toLowerCase();
-  return (
-    cmd.includes("ghostcrab-backend") ||
-    cmd.includes("ghostcrab.mjs") ||
-    cmd.includes("gcp.mjs") ||
-    cmd.includes("@mindflight/ghostcrab-personal-mcp") ||
-    (cmd.includes("gcp") && cmd.includes("brain") && cmd.includes("up"))
+  return rows.filter(
+    (row) =>
+      !protectedPids.has(row.pid) &&
+      row.ppid !== current.pid &&
+      isGhostcrabRuntimeCommand(row.command)
+  );
+}
+
+function isGhostcrabRuntimeCommand(command) {
+  // Match the executable/script position, never a package name in an argument.
+  // Unknown wrappers and ambiguous command lines are deliberately left running.
+  const args = Array.from(
+    command.matchAll(/"([^"]*)"|'([^']*)'|(\S+)/g),
+    (match) => match[1] ?? match[2] ?? match[3]
+  );
+  const fileName = (path) =>
+    path.replaceAll("\\", "/").split("/").at(-1).toLowerCase();
+  if (!args.length) return false;
+  let executable = args.shift();
+  if (
+    ["node", "node.exe", "nodejs", "nodejs.exe"].includes(fileName(executable))
+  ) {
+    while (
+      [
+        "--no-warnings",
+        "--enable-source-maps",
+        "--experimental-sqlite"
+      ].includes(args[0])
+    )
+      args.shift();
+    if (!args.length || args[0].startsWith("-")) return false;
+    executable = args.shift();
+  }
+  const name = fileName(executable);
+  if (["ghostcrab-backend", "ghostcrab-backend.exe"].includes(name))
+    return true;
+  if (["gcp", "gcp.mjs"].includes(name))
+    return (
+      ["serve", "up", "start"].includes(args[0]) ||
+      (args[0] === "brain" && args[1] === "up")
+    );
+  if (["ghostcrab", "ghostcrab.mjs"].includes(name))
+    return ![
+      "smoke",
+      "status",
+      "tools",
+      "maintenance",
+      "--help",
+      "--version"
+    ].includes(args[0]);
+  return /(?:^|\/)ghostcrab-personal-mcp\/dist\/index\.js$/i.test(
+    executable.replaceAll("\\", "/")
   );
 }
 

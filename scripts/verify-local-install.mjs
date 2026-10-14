@@ -251,8 +251,10 @@ try {
       "install",
       "--no-audit",
       "--no-fund",
-      `file:${tarball}`,
-      `file:${platformTarball}`
+      // Keep the scoped package name in npm's process command, as registry
+      // installs do. Bare file: arguments missed the installer self-kill bug.
+      `${pkgName}@file:${tarball}`,
+      `${platformPackageName}@file:${platformTarball}`
     ],
     { cwd: consumerDir }
   );

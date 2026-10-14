@@ -1,0 +1,5 @@
+
+> @mindflight/ghostcrab-personal-mcp@0.7.4 verify:pack /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp
+> node scripts/verify-pack.mjs
+
+[ghostcrab-pack] Installer tarball verified with 692 packaged files.

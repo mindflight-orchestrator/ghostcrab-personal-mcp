@@ -1,0 +1,36 @@
+{
+  "release": "v0.7.4",
+  "date": "2026-10-14",
+  "engine_commit": "facb0afb69b8ae0b83289c6010f1d00bbe5f59da",
+  "native_binaries_unchanged_from": "v0.7.3",
+  "archives": {
+    "mindflight-ghostcrab-personal-mcp-0.7.4.tgz": "6a5517f8f8003f6ed58ba234117a5036ece85a5ba437d6758d38178243b345b6",
+    "mindflight-ghostcrab-personal-mcp-darwin-arm64-0.7.4.tgz": "9967627fdc3fb3b00c9e8d3d56a38c7b723f99f32bd9d8ce6f1548b7227be5dd",
+    "mindflight-ghostcrab-personal-mcp-darwin-x64-0.7.4.tgz": "12d891f0eddbd4ccbba73b067697c9e17d06132420dc16bc98c30e6eed32a4a3",
+    "mindflight-ghostcrab-personal-mcp-linux-arm64-0.7.4.tgz": "886f751431e6d9ec09c6cdba5ef71f9aa4aeb7731173f851a874d16932691659",
+    "mindflight-ghostcrab-personal-mcp-linux-x64-0.7.4.tgz": "2db14543f17ae8589cdbb84f6afb4d526126bbba837b0065854e31ce1cbbf5ef",
+    "mindflight-ghostcrab-personal-mcp-win32-arm64-0.7.4.tgz": "fdd67f8774534223a23877c0c0452963540b04636e32199784cae0006816fff7",
+    "mindflight-ghostcrab-personal-mcp-win32-x64-0.7.4.tgz": "4b670e5051deeb056f79f81886760b8e052280938b8ae5794607adc6a67e96a6"
+  },
+  "binaries": {
+    "prebuilds/darwin-arm64/ghostcrab-backend": "4e738af2d44aadde21b1440fcea2fb16f323a5e45251c093669f096a8300c889",
+    "prebuilds/darwin-arm64/ghostcrab-document": "a67cec9afd1bd415cc47179880454efa3abc3941f6758c200953c67bab3fb702",
+    "prebuilds/darwin-x64/ghostcrab-backend": "e742ff743fd1945872f336a120ce71273085a0ceeba0b9ff3428a83783316bdd",
+    "prebuilds/darwin-x64/ghostcrab-document": "38d25b0a1f1b93a58da90a6ed1985e4ee604d9aa3eeb9dc28d8183b0e8348ca7",
+    "prebuilds/linux-arm64/ghostcrab-backend": "06590bf6040075c065a82a3f0d336a3f2e6e9d636385da6a42e605a65e94f876",
+    "prebuilds/linux-arm64/ghostcrab-document": "98bc8745585e0a81886fe395ca2057abbd57606226166e32cc37b6828cb894de",
+    "prebuilds/linux-x64/ghostcrab-backend": "0a1b9b3925a1be5b56152b344ff5cf43ad7d0b324c9af865efd5a592554cbfa4",
+    "prebuilds/linux-x64/ghostcrab-document": "04cf80b30281c0d632e401268ef2f2637eb34d4e27b8d760efce923d6dbb351e",
+    "prebuilds/win32-arm64/ghostcrab-backend.exe": "c3373876ff164fcc8bf9010a286b4e0aabbd69e44792d0a431a5d6d00fc63c45",
+    "prebuilds/win32-arm64/ghostcrab-document.exe": "411c97963b0fd222b65e5bb222adf362cdcc3a1bb93b653d7cb5bba66c0c2143",
+    "prebuilds/win32-x64/ghostcrab-backend.exe": "b39bb5ebf0e274c2ace4c8a7b6775a2ba9f686d521bb4f3b2509dfc8b48affbd",
+    "prebuilds/win32-x64/ghostcrab-document.exe": "d0f931eff2603bca60bb920b883477fd69f1f66272b64baf892b55b6d988402c"
+  },
+  "validation": {
+    "default_tests": 934,
+    "default_skipped": 16,
+    "install_upgrade_tests": 39,
+    "named_local_install": "passed",
+    "source": "reports/validation/installer-v0.7.4/README.md"
+  }
+}

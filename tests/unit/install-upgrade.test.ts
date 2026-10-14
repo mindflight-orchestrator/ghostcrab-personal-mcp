@@ -15,6 +15,7 @@ import { afterEach, describe, expect, it } from "vitest";
 const require = createRequire(import.meta.url);
 import {
   parseUpgradeArgs,
+  selectGhostcrabProcesses,
   runInstallUpgrade,
   printUpgradeReport,
   diffSchemaMigrations,
@@ -506,5 +507,69 @@ describe("install upgrade", () => {
       }
     ]);
     rmSync(dir, { recursive: true, force: true });
+  });
+});
+
+describe("upgrade process selection", () => {
+  const current = { pid: 900, ppid: 800 };
+  const select = (command: string) =>
+    selectGhostcrabProcesses([{ pid: 100, ppid: 1, command }], current);
+  it.each([
+    "npm install @mindflight/ghostcrab-personal-mcp@0.7.4",
+    "npm exec --package=@mindflight/ghostcrab-personal-mcp gcp brain up",
+    "pnpm add @mindflight/ghostcrab-personal-mcp",
+    "node /usr/bin/npm install @mindflight/ghostcrab-personal-mcp",
+    "sh -c node /x/bin/gcp.mjs brain up",
+    "node /x/node_modules/@mindflight/ghostcrab-personal-mcp/bin/lib/postinstall-prebuilds.mjs",
+    "node /x/bin/gcp.mjs brain upgrade",
+    "node /x/bin/gcp.mjs brain setup cursor",
+    "node /x/bin/gcp.mjs --help",
+    "node --eval 'import(\"/x/bin/gcp.mjs\")'",
+    "rg ghostcrab-backend /tmp/log",
+    "node /unrelated/dist/index.js",
+    "ghostcrab-backend-monitor",
+    ""
+  ])(
+    "preserves installer, wrappers and non-runtime commands: %s",
+    (command) => {
+      expect(select(command)).toEqual([]);
+    }
+  );
+  it.each([
+    "/usr/bin/node /x/bin/gcp.mjs brain up",
+    "node --no-warnings /x/bin/gcp.mjs serve",
+    "node /x/bin/gcp.mjs start",
+    "gcp up",
+    "node /x/bin/ghostcrab.mjs --workspace demo",
+    "/x/ghostcrab-backend --db /tmp/test.sqlite",
+    "node /x/node_modules/@mindflight/ghostcrab-personal-mcp/dist/index.js",
+    '"C:\\Program Files\\nodejs\\node.exe" "C:\\User Files\\ghostcrab-personal-mcp\\bin\\gcp.mjs" brain up',
+    '"C:\\User Files\\ghostcrab-backend.exe" --db test.sqlite'
+  ])("selects an actual GhostCrab runtime: %s", (command) => {
+    expect(select(command).map((row) => row.pid)).toEqual([100]);
+  });
+  it("preserves all ancestors even if they resemble a runtime, and terminates an independent runtime", () => {
+    const rows = [
+      { pid: 900, ppid: 800, command: "gcp brain up" },
+      { pid: 800, ppid: 700, command: "sh -c postinstall" },
+      { pid: 700, ppid: 600, command: "gcp brain up" },
+      { pid: 600, ppid: 1, command: "ghostcrab-backend" },
+      { pid: 901, ppid: 900, command: "ghostcrab-backend" },
+      { pid: 100, ppid: 1, command: "ghostcrab-backend" }
+    ];
+    expect(
+      selectGhostcrabProcesses(rows, current).map((row) => row.pid)
+    ).toEqual([100]);
+  });
+  it("terminates ancestry traversal on a cyclic snapshot", () => {
+    expect(
+      selectGhostcrabProcesses(
+        [
+          { pid: 800, ppid: 700, command: "ghostcrab-backend" },
+          { pid: 700, ppid: 800, command: "ghostcrab-backend" }
+        ],
+        current
+      )
+    ).toEqual([]);
   });
 });
