@@ -1,0 +1,31 @@
+
+> @mindflight/ghostcrab-personal-mcp@0.7.3 prebuild:all /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp
+> sh scripts/prebuilds-all.sh
+
+[vendor] vendor/mindbrain and vendor/ztoon are ready.
+[sqlite3] amalgamation already present in /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/cmd/backend/deps/sqlite3
+[cross] x86_64-linux-gnu → prebuilds/linux-x64/ghostcrab-backend
+[cross] ✓ prebuilds/linux-x64/ghostcrab-backend
+[cross] x86_64-linux-gnu → prebuilds/linux-x64/ghostcrab-document (document CLI)
+[cross] ✓ prebuilds/linux-x64/ghostcrab-document
+[cross] aarch64-linux-gnu → prebuilds/linux-arm64/ghostcrab-backend
+[cross] ✓ prebuilds/linux-arm64/ghostcrab-backend
+[cross] aarch64-linux-gnu → prebuilds/linux-arm64/ghostcrab-document (document CLI)
+[cross] ✓ prebuilds/linux-arm64/ghostcrab-document
+[cross] x86_64-macos → prebuilds/darwin-x64/ghostcrab-backend
+[cross] ✓ prebuilds/darwin-x64/ghostcrab-backend
+[cross] x86_64-macos → prebuilds/darwin-x64/ghostcrab-document (document CLI)
+[cross] ✓ prebuilds/darwin-x64/ghostcrab-document
+[cross] aarch64-macos → prebuilds/darwin-arm64/ghostcrab-backend
+[cross] ✓ prebuilds/darwin-arm64/ghostcrab-backend
+[cross] aarch64-macos → prebuilds/darwin-arm64/ghostcrab-document (document CLI)
+[cross] ✓ prebuilds/darwin-arm64/ghostcrab-document
+[cross] x86_64-windows-gnu → prebuilds/win32-x64/ghostcrab-backend.exe
+[cross] ✓ prebuilds/win32-x64/ghostcrab-backend.exe
+[cross] x86_64-windows-gnu → prebuilds/win32-x64/ghostcrab-document.exe (document CLI)
+[cross] ✓ prebuilds/win32-x64/ghostcrab-document.exe
+[cross] aarch64-windows-gnu → prebuilds/win32-arm64/ghostcrab-backend.exe
+[cross] ✓ prebuilds/win32-arm64/ghostcrab-backend.exe
+[cross] aarch64-windows-gnu → prebuilds/win32-arm64/ghostcrab-document.exe (document CLI)
+[cross] ✓ prebuilds/win32-arm64/ghostcrab-document.exe
+[cross] all platforms built.

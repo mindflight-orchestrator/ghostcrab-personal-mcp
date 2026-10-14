@@ -1,0 +1,44 @@
+
+> @mindflight/ghostcrab-personal-mcp@0.7.3 test:graphrag /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp
+> python3 -m unittest discover -s benchmarks/graphrag/tests -v
+
+test_all_independent_gold_answers_and_evidence (test_eli_temporal.TemporalTests.test_all_independent_gold_answers_and_evidence) ... ok
+test_changing_gold_changes_score_but_not_resolver_output (test_eli_temporal.TemporalTests.test_changing_gold_changes_score_but_not_resolver_output) ... ok
+test_conflicting_coverage_fails (test_eli_temporal.TemporalTests.test_conflicting_coverage_fails) ... ok
+test_conflicting_duplicates_are_rejected (test_eli_temporal.TemporalTests.test_conflicting_duplicates_are_rejected) ... ok
+test_cycle_or_reversed_effective_order (test_eli_temporal.TemporalTests.test_cycle_or_reversed_effective_order) ... ok
+test_empty_partial_or_uncovered_gold_cannot_report_success (test_eli_temporal.TemporalTests.test_empty_partial_or_uncovered_gold_cannot_report_success) ... ok
+test_identity_language_and_missing_subdivision_fail_closed (test_eli_temporal.TemporalTests.test_identity_language_and_missing_subdivision_fail_closed) ... ok
+test_ingestion_order_and_identical_duplicate_records (test_eli_temporal.TemporalTests.test_ingestion_order_and_identical_duplicate_records) ... ok
+test_known_date_cannot_precede_source_publication (test_eli_temporal.TemporalTests.test_known_date_cannot_precede_source_publication) ... ok
+test_malformed_date_operation_or_review_flag_is_rejected (test_eli_temporal.TemporalTests.test_malformed_date_operation_or_review_flag_is_rejected) ... ok
+test_missing_predecessor_even_if_inventory_is_consistent (test_eli_temporal.TemporalTests.test_missing_predecessor_even_if_inventory_is_consistent) ... ok
+test_no_completeness_assumption_for_empty_graph (test_eli_temporal.TemporalTests.test_no_completeness_assumption_for_empty_graph) ... ok
+test_no_gold_or_official_identity_in_resolver_inputs (test_eli_temporal.TemporalTests.test_no_gold_or_official_identity_in_resolver_inputs) ... ok
+test_no_implicit_resurrection_after_repeal (test_eli_temporal.TemporalTests.test_no_implicit_resurrection_after_repeal) ... ok
+test_patch_does_not_apply_to_different_prior_text (test_eli_temporal.TemporalTests.test_patch_does_not_apply_to_different_prior_text) ... ok
+test_patch_requires_unique_word_anchor (test_eli_temporal.TemporalTests.test_patch_requires_unique_word_anchor) ... ok
+test_removed_edge_or_forged_extra_edge_breaks_inventory (test_eli_temporal.TemporalTests.test_removed_edge_or_forged_extra_edge_breaks_inventory) ... ok
+test_same_day_impacts_require_explicit_order (test_eli_temporal.TemporalTests.test_same_day_impacts_require_explicit_order) ... ok
+test_unknown_date_never_defaults_to_publication_date (test_eli_temporal.TemporalTests.test_unknown_date_never_defaults_to_publication_date) ... ok
+test_unreviewed_ambiguous_and_empty_targets (test_eli_temporal.TemporalTests.test_unreviewed_ambiguous_and_empty_targets) ... ok
+test_wrong_relation_type_does_not_silently_keep_old_rule (test_eli_temporal.TemporalTests.test_wrong_relation_type_does_not_silently_keep_old_rule) ... ok
+test_failure_cleans_up_owned_process_and_sqlite (test_personal.NativeTests.test_failure_cleans_up_owned_process_and_sqlite) ... skipped 'set PERSONAL_GRAPHRAG_NATIVE=1 for owned loopback integration'
+test_real_retrieval_graph_and_read_only_receipt (test_personal.NativeTests.test_real_retrieval_graph_and_read_only_receipt) ... skipped 'set PERSONAL_GRAPHRAG_NATIVE=1 for owned loopback integration'
+test_ambiguous_native_predicate_reconstruction_fails_closed (test_personal.ProtocolTests.test_ambiguous_native_predicate_reconstruction_fails_closed) ... ok
+test_context_counts_utf8_headers_and_separators (test_personal.ProtocolTests.test_context_counts_utf8_headers_and_separators) ... ok
+test_gold_changes_scores_only (test_personal.ProtocolTests.test_gold_changes_scores_only) ... ok
+test_manifest_tampering_and_path_escape_rejected (test_personal.ProtocolTests.test_manifest_tampering_and_path_escape_rejected) ... ok
+test_native_query_keeps_unicode_and_escapes_fts_operators (test_personal.ProtocolTests.test_native_query_keeps_unicode_and_escapes_fts_operators) ... ok
+test_numerical_ties_are_reported_but_wrong_scores_rejected (test_personal.ProtocolTests.test_numerical_ties_are_reported_but_wrong_scores_rejected) ... ok
+test_overlapping_chunks_cannot_double_count_evidence (test_personal.ProtocolTests.test_overlapping_chunks_cannot_double_count_evidence) ... ok
+test_pinned_fixtures (test_personal.ProtocolTests.test_pinned_fixtures) ... ok
+test_rrf_missing_channel_has_zero_contribution (test_personal.ProtocolTests.test_rrf_missing_channel_has_zero_contribution) ... ok
+test_unknown_policies_fail_closed (test_personal.ProtocolTests.test_unknown_policies_fail_closed) ... ok
+test_vectors_reject_invalid_or_unrepresentable_values (test_personal.ProtocolTests.test_vectors_reject_invalid_or_unrepresentable_values) ... ok
+test_visibility_precedes_indexing (test_personal.ProtocolTests.test_visibility_precedes_indexing) ... ok
+
+----------------------------------------------------------------------
+Ran 35 tests in 0.019s
+
+OK (skipped=2)

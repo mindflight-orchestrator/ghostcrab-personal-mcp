@@ -1,0 +1,20 @@
+(node:1450339) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: adjacency failure must roll back the node deletion
+
+false !== true
+
+    at file:///home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/scripts/verify-business-graph.mjs:172:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: 'strictEqual'
+}
+
+Node.js v22.17.0

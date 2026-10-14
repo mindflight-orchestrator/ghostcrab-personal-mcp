@@ -1,0 +1,13 @@
+
+> @mindflight/ghostcrab-personal-mcp@0.7.3 test:integrity:native /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp
+> vitest run --config vitest.integrity-native.config.ts
+
+
+ RUN  v4.1.10 /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp
+
+
+ Test Files  5 passed (5)
+      Tests  17 passed (17)
+   Start at  10:41:24
+   Duration  4.25s (transform 113ms, setup 0ms, import 368ms, tests 3.56s, environment 0ms)
+

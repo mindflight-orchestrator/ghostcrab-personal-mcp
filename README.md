@@ -2,7 +2,7 @@
 
 # GhostCrab Personal MCP
 
-**Release candidate:** `@mindflight/ghostcrab-personal-mcp@0.7.2` · MindBrain backend **1.9.0** (commit `500f381`) · MCP tool surface **`2026-09-14`**
+**Release candidate:** `@mindflight/ghostcrab-personal-mcp@0.7.3` · MindBrain backend **1.9.0** (commit `facb0af`) · MCP tool surface **`2026-10-14`**
 
 ### The MCP interface to mindBrain — SQLite edition
 
@@ -355,7 +355,7 @@ Structured knowledge clients can use native-required BM25 search, typed imported
 references and `ghostcrab_evidence_get` to read declared source evidence entirely
 through MCP. See the [native knowledge contract](docs/reference/native-knowledge.md).
 
-The MCP `tools/list` surface exposes the **full catalog (74 tools)** so every tool is directly callable on any MCP client (Cursor, Codex, Claude Code, generic). **13 tools** are flagged as recommended defaults (status, search/count, combined search, remember/upsert, schema get/list/inspect, pack/project, modeling guidance, tool discovery); the other **61** are extended (workspace, graph, loadout, DDL, quality, ontology, and more). Inspect counts and metadata through:
+The MCP `tools/list` surface exposes the **full catalog (80 tools)** so every tool is directly callable on any MCP client (Cursor, Codex, Claude Code, generic). **13 tools** are flagged as recommended defaults (status, search/count, combined search, remember/upsert, schema get/list/inspect, pack/project, modeling guidance, tool discovery); the other **67** are extended (workspace, graph, loadout, DDL, quality, ontology, and more). Inspect counts and metadata through:
 
 ```bash
 gcp tools list

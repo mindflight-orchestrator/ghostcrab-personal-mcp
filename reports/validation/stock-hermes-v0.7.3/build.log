@@ -1,0 +1,5 @@
+
+> @mindflight/ghostcrab-personal-mcp@0.7.3 build /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp
+> node scripts/clean-dist.mjs && tsc --project tsconfig.json && node scripts/copy-sql.mjs && node scripts/sync-ide-skill-bundles.mjs
+
+[sync-ide-skills] Wrote 67 files under bin/ide-skills/

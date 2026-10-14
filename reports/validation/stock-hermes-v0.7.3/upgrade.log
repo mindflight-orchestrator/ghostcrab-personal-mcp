@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "fixture": "/tmp/ghostcrab-v073-upgrade-6t6fc075",
+  "source": "v0.7.2 packaged backend",
+  "checks": [
+    "existing workspace metadata preserved",
+    "facts and custom table unchanged on startup",
+    "foreign keys valid",
+    "new exact delete works on pre-upgrade fact"
+  ]
+}

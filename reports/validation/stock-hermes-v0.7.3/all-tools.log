@@ -1,0 +1,69 @@
+{
+  "ok": true,
+  "expected_count": 80,
+  "listed_count": 80,
+  "called_count": 80,
+  "failures": [],
+  "accepted_domain_errors": [
+    {
+      "tool": "ghostcrab_graph_record_create",
+      "code": "type_not_found",
+      "message": "type_not_found"
+    },
+    {
+      "tool": "ghostcrab_graph_record_update",
+      "code": "not_found",
+      "message": "not_found"
+    },
+    {
+      "tool": "ghostcrab_loadout_apply",
+      "code": "loadout_conflict",
+      "message": "Workspace 'mcp-smoke-245c29ed' already has domain_profile 'mcp'. Use overwrite=true to replace it with 'default-minimal'."
+    },
+    {
+      "tool": "ghostcrab_artifact_get",
+      "code": "artifact_not_found",
+      "message": "Artifact missing was not found."
+    },
+    {
+      "tool": "ghostcrab_live_refresh",
+      "code": "artifact_not_found",
+      "message": "Live answer artifact missing was not found."
+    },
+    {
+      "tool": "ghostcrab_business_query_register",
+      "code": "proposal_required",
+      "message": "A full proposal object is required to register a capability."
+    },
+    {
+      "tool": "ghostcrab_evidence_get",
+      "code": "not_found",
+      "message": "MindBrain request failed (404 Not Found): NotFound (raw: {\"error\":\"NotFound\"})"
+    },
+    {
+      "tool": "ghostcrab_collection_reindex",
+      "code": "collection_not_found",
+      "message": "Collection default was not found in workspace mcp-smoke-245c29ed."
+    },
+    {
+      "tool": "ghostcrab_quality_convergence_get",
+      "code": "quality_run_not_found",
+      "message": "Quality convergence run missing was not found."
+    },
+    {
+      "tool": "ghostcrab_quality_remediation_decide",
+      "code": "backend_not_found",
+      "message": "MindBrain request failed (404 Not Found): NotFound (raw: {\"error\":\"NotFound\"}) (NotFound)"
+    },
+    {
+      "tool": "ghostcrab_quality_remediation_apply",
+      "code": "approved_action_not_found",
+      "message": "Approved remediation action was not found for this run_id."
+    },
+    {
+      "tool": "ghostcrab_ddl_execute",
+      "code": "migration_not_found",
+      "message": "Migration '00000000-0000-0000-0000-000000000000' not found."
+    }
+  ]
+}

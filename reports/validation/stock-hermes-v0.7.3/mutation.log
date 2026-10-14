@@ -1,0 +1,429 @@
+
+> @mindflight/ghostcrab-personal-mcp@0.7.3 test:mutation /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp
+> stryker run && node scripts/verify-mutation-review.mjs
+
+[32m10:33:52 (1517309) INFO ProjectReader[39m Found 4 of 277 file(s) to be mutated.
+[32m10:33:52 (1517309) INFO Instrumenter[39m Instrumented 4 source file(s) with 241 mutant(s)
+[32m10:33:52 (1517309) INFO ConcurrencyTokenProvider[39m Creating 2 test runner process(es).
+[32m10:33:53 (1517309) INFO DryRunExecutor[39m Starting initial test run (vitest test runner with "perTest" coverage analysis). This may take a while.
+[32m10:33:54 (1517309) INFO DryRunExecutor[39m Initial test run succeeded. Ran 42 tests in 1 second (net 919.4085149999994 ms, overhead 381.5914850000006 ms).
+
+All tests
+  graph-storage-sqlite.test.ts
+    ✓ graph storage boundaries on SQLite refuses an existing unbindable id 9007199254740992n without overwriting its data (killed 10)
+    ✓ graph storage boundaries on SQLite refuses an existing unbindable id -9007199254740992n without overwriting its data (killed 2)
+    ✓ graph storage boundaries on SQLite keeps bindable boundary id 9007199254740991n, schema, default scope and aliases (killed 17)
+    ✓ graph storage boundaries on SQLite keeps bindable boundary id -9007199254740991n, schema, default scope and aliases (killed 1)
+    ✓ graph storage boundaries on SQLite refuses an exhausted safe id range instead of allocating an unsafe id (killed 11)
+    ✓ graph storage boundaries on SQLite allocates below legacy large ids and returns the exact relation identity (killed 11)
+  learn-sqlite.test.ts
+    ✓ ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values (killed 77)
+    ✓ ghostcrab_learn on real SQLite rejects a silently ignored graph_entity insert instead of reporting success (killed 8)
+    ✓ ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success (killed 3)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"text","currency":"EUR","value_text":"x"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"text"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"number"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"date_unix"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"doc_ref"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"number","value_number":1,"value_text":"x"} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"text","value_text":"x","value_number":1} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"text","value_text":"x","value_integer":1} before writing (covered 1)
+    ~ ghostcrab_learn on real SQLite rejects incompatible typed property {"value_type":"text","value_text":"x","ref_doc_id":1} before writing (covered 1)
+    ✓ ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails (killed 3)
+    ~ ghostcrab_learn on real SQLite rolls back nodes and relations when writing relations_raw fails (covered 129)
+    ~ ghostcrab_learn on real SQLite rolls back nodes and relations when writing relation_properties_raw fails (covered 147)
+    ✓ ghostcrab_learn on real SQLite reindexes repeatedly without changing canonical data or another workspace (killed 5)
+    ✓ ghostcrab_learn on real SQLite preserves a simple independent state model across generated write/link sequences (killed 1)
+    ✓ ghostcrab_learn on real SQLite preserves both endpoints and metadata filters when updating=false (killed 2)
+    ✓ ghostcrab_learn on real SQLite preserves both endpoints and metadata filters when updating=true (killed 1)
+    ~ ghostcrab_learn on real SQLite creates a missing endpoint and preserves the existing source (covered 130)
+    ~ ghostcrab_learn on real SQLite creates a missing endpoint and preserves the existing target (covered 130)
+    ~ ghostcrab_learn on real SQLite keeps an explicit node write in a combined node/edge call when updating=false (covered 130)
+    ~ ghostcrab_learn on real SQLite keeps an explicit node write in a combined node/edge call when updating=true (covered 137)
+    ~ ghostcrab_learn on real SQLite preserves a node when creating a self-relation (covered 128)
+    ~ ghostcrab_learn on real SQLite creates both absent endpoints in the requested workspace without reusing another workspace's nodes (covered 130)
+  workspace-integrity-sqlite.test.ts
+    ✓ workspace write integrity on real SQLite 'reset' refuses protected, missing and unconfirmed targets without writes (killed 14)
+    ✓ workspace write integrity on real SQLite 'hard delete' refuses protected, missing and unconfirmed targets without writes (killed 14)
+    ~ workspace write integrity on real SQLite 'soft delete' refuses protected, missing and unconfirmed targets without writes (covered 148)
+    ✓ workspace write integrity on real SQLite 'reset' rolls back all earlier deletions on failure (killed 3)
+    ✓ workspace write integrity on real SQLite 'hard delete' rolls back all earlier deletions on failure (killed 3)
+    ~ workspace write integrity on real SQLite 'soft delete' rolls back all earlier deletions on failure (covered 141)
+    ✓ workspace write integrity on real SQLite 'hard delete' rolls back cleanup when the final workspace change fails (killed 2)
+    ✓ workspace write integrity on real SQLite 'soft delete' rolls back cleanup when the final workspace change fails (killed 3)
+    ✓ workspace write integrity on real SQLite 'reset' only clears the requested workspace (killed 3)
+    ✓ workspace write integrity on real SQLite 'hard delete' only clears the requested workspace (killed 6)
+    ✓ workspace write integrity on real SQLite 'soft delete' only clears the requested workspace (killed 5)
+
+[NoCoverage] BlockStatement
+src/db/graph.ts:289:18
+-   ): Promise<void> {
+-     await database.query(
+-       `
+-         UPDATE graph_entity
+-         SET workspace_id = ?
+-         WHERE entity_id = ?
+-       `,
+-       [workspaceId, toSqlIntegerId(entityId, "entity_id")]
+-     );
+-   }
++   ): Promise<void> {}
+
+[NoCoverage] StringLiteral
+src/db/graph.ts:291:5
+-       `
+-         UPDATE graph_entity
+-         SET workspace_id = ?
+-         WHERE entity_id = ?
+-       `,
++       ``,
+
+[NoCoverage] ArrayDeclaration
+src/db/graph.ts:296:5
+-       [workspaceId, toSqlIntegerId(entityId, "entity_id")]
++       []
+
+[NoCoverage] StringLiteral
+src/db/graph.ts:296:44
+-       [workspaceId, toSqlIntegerId(entityId, "entity_id")]
++       [workspaceId, toSqlIntegerId(entityId, "")]
+
+[NoCoverage] BlockStatement
+src/db/graph.ts:485:32
+-     if (properties.length === 0) {
+-       return;
+-     }
++     if (properties.length === 0) {}
+
+[Survived] OptionalChaining
+src/db/graph.ts:38:25
+-     const nextId = Number(row?.next_id ?? 1);
++     const nextId = Number(row.next_id ?? 1);
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_entity insert instead of reporting success
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+  and 26 more tests!
+
+
+[Survived] ConditionalExpression
+src/db/graph.ts:40:5
+-       !Number.isSafeInteger(nextId) ||
+-       nextId < 1 ||
++       false ||
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_entity insert instead of reporting success
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+  and 26 more tests!
+
+
+[Survived] LogicalOperator
+src/db/graph.ts:40:5
+-       !Number.isSafeInteger(nextId) ||
+-       nextId < 1 ||
++       !Number.isSafeInteger(nextId) && nextId < 1 ||
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_entity insert instead of reporting success
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+  and 26 more tests!
+
+
+[Survived] ConditionalExpression
+src/db/graph.ts:41:5
+-       nextId < 1 ||
++       false ||
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_entity insert instead of reporting success
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+  and 26 more tests!
+
+
+[Survived] OptionalChaining
+src/db/graph.ts:45:77
+-         `Could not allocate safe ${tableName}.${columnName}; next_id=${String(row?.next_id)}`
++         `Could not allocate safe ${tableName}.${columnName}; next_id=${String(row.next_id)}`
+Tests ran:
+    graph storage boundaries on SQLite refuses an exhausted safe id range instead of allocating an unsafe id
+
+
+[Survived] StringLiteral
+src/db/graph.ts:139:56
+-       [workspaceId, ontologyId, toSqlIntegerId(entityId, "entity_id")]
++       [workspaceId, ontologyId, toSqlIntegerId(entityId, "")]
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 26 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:185:32
+-         toSqlIntegerId(sourceId, "source_entity_id"),
++         toSqlIntegerId(sourceId, ""),
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relations_raw fails
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relation_properties_raw fails
+  and 22 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:186:32
+-         toSqlIntegerId(targetId, "target_entity_id"),
++         toSqlIntegerId(targetId, ""),
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relations_raw fails
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relation_properties_raw fails
+  and 22 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:228:34
+-           toSqlIntegerId(existing, "entity_id")
++           toSqlIntegerId(existing, "")
+Tests ran:
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relations_raw fails
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relation_properties_raw fails
+  and 7 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:237:48
+-         [params.nodeId, toSqlIntegerId(existing, "entity_id")]
++         [params.nodeId, toSqlIntegerId(existing, "")]
+Tests ran:
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relations_raw fails
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relation_properties_raw fails
+  and 5 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:278:45
+-       [params.nodeId, toSqlIntegerId(created, "entity_id")]
++       [params.nodeId, toSqlIntegerId(created, "")]
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 24 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:361:39
+-         toSqlIntegerId(params.sourceId, "source_id"),
++         toSqlIntegerId(params.sourceId, ""),
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 24 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:362:39
+-         toSqlIntegerId(params.targetId, "target_id"),
++         toSqlIntegerId(params.targetId, ""),
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 24 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:411:39
+-         toSqlIntegerId(params.sourceId, "source_id"),
++         toSqlIntegerId(params.sourceId, ""),
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 24 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:412:39
+-         toSqlIntegerId(params.targetId, "target_id"),
++         toSqlIntegerId(params.targetId, ""),
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 24 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:431:39
+-         toSqlIntegerId(params.sourceId, "source_id"),
++         toSqlIntegerId(params.sourceId, ""),
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relations_raw fails
+  and 23 more tests!
+
+
+[Survived] StringLiteral
+src/db/graph.ts:432:39
+-         toSqlIntegerId(params.targetId, "target_id"),
++         toSqlIntegerId(params.targetId, ""),
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relations_raw fails
+  and 23 more tests!
+
+
+[Survived] ConditionalExpression
+src/db/graph.ts:485:7
+-     if (properties.length === 0) {
++     if (false) {
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relation_properties_raw fails
+
+
+[Survived] LogicalOperator
+src/db/graph.ts:496:5
+-       relation.confidence ?? 1,
++       relation.confidence && 1,
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing relation_properties_raw fails
+
+
+[NoCoverage] BlockStatement
+src/tools/dgraph/learn.ts:270:53
+-           if (sourceId === null || targetId === null) {
+-             throw new Error(
+-               "Could not resolve graph.entity rows for edge endpoints."
+-             );
+-           }
++           if (sourceId === null || targetId === null) {}
+
+[NoCoverage] StringLiteral
+src/tools/dgraph/learn.ts:272:13
+-               "Could not resolve graph.entity rows for edge endpoints."
++               ""
+
+[Survived] ConditionalExpression
+src/tools/dgraph/learn.ts:270:13
+-           if (sourceId === null || targetId === null) {
++           if (false) {
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 23 more tests!
+
+
+[Survived] LogicalOperator
+src/tools/dgraph/learn.ts:270:13
+-           if (sourceId === null || targetId === null) {
++           if (sourceId === null && targetId === null) {
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 23 more tests!
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/learn.ts:270:13
+-           if (sourceId === null || targetId === null) {
++           if (false || targetId === null) {
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 23 more tests!
+
+
+[Survived] ConditionalExpression
+src/tools/dgraph/learn.ts:270:34
+-           if (sourceId === null || targetId === null) {
++           if (sourceId === null || false) {
+Tests ran:
+    ghostcrab_learn on real SQLite uses session scope and preserves node acknowledgements, aliases and typed edge values
+    ghostcrab_learn on real SQLite rejects a silently ignored graph_relation insert instead of reporting success
+    ghostcrab_learn on real SQLite rolls back nodes and relations when writing graph_relation fails
+  and 23 more tests!
+
+
+[Survived] StringLiteral
+src/tools/workspace/delete.ts:59:9
+-           "The default workspace cannot be deleted.",
++           "",
+Tests ran:
+    workspace write integrity on real SQLite 'hard delete' refuses protected, missing and unconfirmed targets without writes
+    workspace write integrity on real SQLite 'soft delete' refuses protected, missing and unconfirmed targets without writes
+
+
+[Survived] StringLiteral
+src/tools/workspace/delete.ts:72:9
+-           `Workspace '${input.workspace_id}' does not exist.`,
++           ``,
+Tests ran:
+    workspace write integrity on real SQLite 'hard delete' refuses protected, missing and unconfirmed targets without writes
+    workspace write integrity on real SQLite 'soft delete' refuses protected, missing and unconfirmed targets without writes
+
+
+[Survived] ConditionalExpression
+src/tools/workspace/delete.ts:99:18
+-           deleted: workspace_rows_deleted > 0,
++           deleted: true,
+Tests ran:
+    workspace write integrity on real SQLite 'hard delete' only clears the requested workspace
+
+
+[Survived] EqualityOperator
+src/tools/workspace/delete.ts:99:18
+-           deleted: workspace_rows_deleted > 0,
++           deleted: workspace_rows_deleted >= 0,
+Tests ran:
+    workspace write integrity on real SQLite 'hard delete' only clears the requested workspace
+
+
+[Survived] StringLiteral
+src/tools/workspace/reset.ts:47:9
+-           "The default workspace cannot be reset.",
++           "",
+Tests ran:
+    workspace write integrity on real SQLite 'reset' refuses protected, missing and unconfirmed targets without writes
+
+
+[Survived] StringLiteral
+src/tools/workspace/reset.ts:60:9
+-           `Workspace '${input.workspace_id}' does not exist.`,
++           ``,
+Tests ran:
+    workspace write integrity on real SQLite 'reset' refuses protected, missing and unconfirmed targets without writes
+
+
+Ran 4.05 tests per mutant on average.
+-------------|------------------|----------|-----------|------------|----------|----------|
+             | % Mutation score |          |           |            |          |          |
+File         |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------|--------|---------|----------|-----------|------------|----------|----------|
+All files    |  85.06 |   87.61 |      205 |         0 |         29 |        7 |        0 |
+ db          |  82.35 |   85.50 |      112 |         0 |         19 |        5 |        0 |
+  graph.ts   |  82.35 |   85.50 |      112 |         0 |         19 |        5 |        0 |
+ tools       |  88.57 |   90.29 |       93 |         0 |         10 |        2 |        0 |
+  dgraph     |  86.96 |   90.91 |       40 |         0 |          4 |        2 |        0 |
+   learn.ts  |  86.96 |   90.91 |       40 |         0 |          4 |        2 |        0 |
+  workspace  |  89.83 |   89.83 |       53 |         0 |          6 |        0 |        0 |
+   delete.ts |  89.19 |   89.19 |       33 |         0 |          4 |        0 |        0 |
+   reset.ts  |  90.91 |   90.91 |       20 |         0 |          2 |        0 |        0 |
+-------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m10:34:23 (1517309) INFO MutationTestReportHelper[39m Final mutation score of 85.06 is greater than or equal to break threshold 80
+[32m10:34:23 (1517309) INFO JsonReporter[39m Your report can be found at: file:///home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/reports/mutation/mutation.json
+[32m10:34:23 (1517309) INFO HtmlReporter[39m Your report can be found at: file:///home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp/reports/mutation/index.html
+[32m10:34:23 (1517309) INFO MutationTestExecutor[39m Done in 30 seconds.
+Mutation review verified: 36 undetected mutations have explicit reviews.

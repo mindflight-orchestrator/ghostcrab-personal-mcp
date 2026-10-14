@@ -1,0 +1,12 @@
+prebuilds/darwin-arm64/ghostcrab-backend:     Mach-O 64-bit arm64 executable, flags:<NOUNDEFS|DYLDLINK|TWOLEVEL|NO_REEXPORTED_DYLIBS|PIE|HAS_TLV_DESCRIPTORS>
+prebuilds/darwin-arm64/ghostcrab-document:    Mach-O 64-bit arm64 executable, flags:<NOUNDEFS|DYLDLINK|TWOLEVEL|NO_REEXPORTED_DYLIBS|PIE|HAS_TLV_DESCRIPTORS>
+prebuilds/darwin-x64/ghostcrab-backend:       Mach-O 64-bit x86_64 executable, flags:<NOUNDEFS|DYLDLINK|TWOLEVEL|NO_REEXPORTED_DYLIBS|PIE|HAS_TLV_DESCRIPTORS>
+prebuilds/darwin-x64/ghostcrab-document:      Mach-O 64-bit x86_64 executable, flags:<NOUNDEFS|DYLDLINK|TWOLEVEL|NO_REEXPORTED_DYLIBS|PIE|HAS_TLV_DESCRIPTORS>
+prebuilds/linux-arm64/ghostcrab-backend:      ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, for GNU/Linux 2.0.0, with debug_info, not stripped
+prebuilds/linux-arm64/ghostcrab-document:     ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, for GNU/Linux 2.0.0, with debug_info, not stripped
+prebuilds/linux-x64/ghostcrab-backend:        ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.0.0, with debug_info, not stripped
+prebuilds/linux-x64/ghostcrab-document:       ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.0.0, with debug_info, not stripped
+prebuilds/win32-arm64/ghostcrab-backend.exe:  PE32+ executable (console) Aarch64, for MS Windows, 7 sections
+prebuilds/win32-arm64/ghostcrab-document.exe: PE32+ executable (console) Aarch64, for MS Windows, 7 sections
+prebuilds/win32-x64/ghostcrab-backend.exe:    PE32+ executable (console) x86-64, for MS Windows, 7 sections
+prebuilds/win32-x64/ghostcrab-document.exe:   PE32+ executable (console) x86-64, for MS Windows, 7 sections

@@ -94,7 +94,7 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 
 ---
 
-## B — MCP tools (74 registered)
+## B — MCP tools (80 registered)
 
 | Tool | Basic | Subsystem | Access | Tables / impact |
 |------|-------|-----------|--------|-----------------|
@@ -121,6 +121,10 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | `ghostcrab_graph_gap_rules_delete` | no | graph | write | gap_rules store |
 | `ghostcrab_graph_gap_rules_import` | no | graph | write | gap_rules store |
 | `ghostcrab_graph_path` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
+| `ghostcrab_graph_record_create` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
+| `ghostcrab_graph_record_delete` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
+| `ghostcrab_graph_record_get` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
+| `ghostcrab_graph_record_update` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_graph_reindex` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_graph_rule_evaluations` | no | graph | read | graph_rule_evaluations |
 | `ghostcrab_graph_rule_evaluations_run` | no | graph | write | graph_rule_evaluations, graph_rule_events; optional quality_remediation_action |
@@ -151,6 +155,8 @@ Glossary: [explanation/glossary.md](../explanation/glossary.md). JTBD overview: 
 | `ghostcrab_quality_remediation_actions` | no | graph | read | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_quality_remediation_apply` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
 | `ghostcrab_quality_remediation_decide` | no | graph | write | entities_raw, relations_raw, graph_entity, graph_relation; facet_assignments_raw (docs) |
+| `ghostcrab_record_delete` | no | facets | write | agent_facts (+ facet_tables FTS when indexed) |
+| `ghostcrab_record_get` | no | facets | read | agent_facts (+ facet_tables FTS when indexed) |
 | `ghostcrab_reindex_all` | no | facets | write | agent_facts (+ facet_tables FTS when indexed) |
 | `ghostcrab_remember` | yes | facets | write | agent_facts (+ facet_tables FTS when indexed) |
 | `ghostcrab_schema_get` | yes | facets | read | schema registry (agent_facts shapes; not LinkML ontology_*) |

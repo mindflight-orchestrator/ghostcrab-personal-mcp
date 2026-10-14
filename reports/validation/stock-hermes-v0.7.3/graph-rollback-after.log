@@ -1,0 +1,15 @@
+(node:1469772) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{
+  "schema": "ghostcrab/business-graph-native-proof/v1",
+  "fixture": "/tmp/ghostcrab-record-crud-yja6MY",
+  "binary": "/tmp/mindbrain-stock-hermes-v073/zig-out/bin/mindbrain-http",
+  "checks": [
+    "concurrent edits with the same version have exactly one winner",
+    "native explicit SQL sessions make create/update/CAS atomic; strict existing identity and type validation",
+    "injected adjacency failure rolls back entity, relations and index changes",
+    "exact deletion removes raw/runtime entity and incident relations/links; adjacency reconciled in own workspace; foreign incident relation prevents deletion",
+    "restart/reindex do not resurrect deleted objects; foreign graph rows/adjacency and ontology/type definitions unchanged"
+  ],
+  "status": "passed"
+}

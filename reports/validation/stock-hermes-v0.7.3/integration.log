@@ -1,0 +1,11 @@
+
+ RUN  v4.1.10 /home/dlamotte/Documents/mindflight/ghostcrab-personal-mcp
+
+(node:1509532) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  15 passed (15)
+      Tests  106 passed (106)
+   Start at  10:33:07
+   Duration  10.34s (transform 385ms, setup 0ms, import 2.23s, tests 7.21s, environment 1ms)
+

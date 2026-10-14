@@ -1,0 +1,42 @@
+test
++- test-standalone
+   +- run sh
+      +- run test w
+CONTEXT_BUDGET_JSON={"input_budget_chars":960000,"system_chars":1406,"fixed_user_chars":145,"per_doc_limits":[60],"truncated_doc_ids":[],"needs_batch":false}
+CONTEXT_BUDGET_JSON={"input_budget_chars":960000,"system_chars":1826,"fixed_user_chars":161,"per_doc_limits":[60],"truncated_doc_ids":[],"needs_batch":false}
+BUSINESS_EXTRACTION_APPLY_FAILURE_JSON={"reason":"apply_failed","error_name":"InvalidArguments","envelope_json":"{\"entities_raw\":[{\"external_id\":\"\",\"entity_type\":\"building\",\"name\":\"Bad\"}],\"relations_raw\":[]}"}
+failed command: ./.zig-cache/o/3daf8cd33d3493762353c421433e1627/test --cache-dir=./.zig-cache --seed=0x65ee1d88 --listen=-
+
+test
++- test-standalone
+   +- run sh
+      +- run test w
+[mindbrain] schema column added: documents_raw.summary
+[default] (warn): answer artifact 'analysis_plan__legacy_exact': backfilled null workspace_id from scope 'ws_fix' -> 'ws_fix'
+[default] (warn): answer artifact 'analysis_plan__legacy_prefixed': backfilled null workspace_id from scope 'ws_fix:production:legacy' -> 'ws_fix'
+[default] (warn): answer artifact 'analysis_plan__orphan' has null workspace_id and scope 'elsewhere:unknown' does not resolve to exactly one workspace (MissingWorkspace)
+[default] (warn): entities_raw upsert: entity_id 900 already belongs to another workspace (attempted workspace 'ws_guard_b')
+[default] (warn): relations_raw upsert: relation_id 950 already belongs to another workspace (attempted workspace 'ws_guard_b')
+[default] (warn): bundle import: entity external_id 'lot:1-bis' is new, but workspace 'ws_strict' already has a 'lot' named 'Lot 1 (updated)' (entity_id 1) under a different identity; refusing to merge them
+[default] (warn): bundle import: entity external_id 'assertion:b' is new, but workspace 'b1' already has a 'Assertion' named 'same text' (entity_id 1) under a different identity; refusing to merge them
+QUALIFICATION_APPLY_FAILURE_JSON={"reason":"facet_not_allowed","assignment_index":0,"allowed_facets":"domain.building,domain.decision,domain.role,domain.scenario,domain.unit,finance.payment_status,source.document_type","row":{"target_kind":"doc","doc_id":1,"chunk_index":null,"ontology_id":null,"namespace":"foo","dimension":"bar","value":"x","value_id":null,"weight":1,"source":null},"envelope_json":"{\"assignments\":[{\"target_kind\":\"doc\",\"doc_id\":1,\"namespace\":\"foo\",\"dimension\":\"bar\",\"value\":\"x\",\"weight\":1}]}"}
+[mindbrain] schema column added: documents_raw.summary
+[mindbrain] schema column added: documents_raw.summary
+[ghostcrab] reindex: skipping relation 101 (works_for) in workspace 'ws_a': target entity 3 is not in this workspace
+failed command: ./.zig-cache/o/0ecdef9c9e73192f14a121bb218db889/test --cache-dir=./.zig-cache --seed=0x65ee1d88 --listen=-
+
+
+All unit tests passed (standalone + tool + BM25).
+For per-step detail and timing:  zig build test --summary all
+
+Build Summary: 9/9 steps succeeded; 469/469 tests passed
+test success
++- test-standalone success
+   +- run sh success 943us
+      +- run test 441 pass (441 total) 9s MaxRSS:33M
+      |  +- compile test Debug native success 1s MaxRSS:372M
+      +- run test 16 pass (16 total) 237ms MaxRSS:16M
+      |  +- compile test Debug native success 425ms MaxRSS:210M
+      +- run test 12 pass (12 total) 5ms MaxRSS:5M
+         +- compile test Debug native cached 6ms MaxRSS:39M
+
