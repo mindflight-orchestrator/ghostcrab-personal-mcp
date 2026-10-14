@@ -58,9 +58,11 @@
     "critical_mutations_total": 10,
     "mutation_break_threshold": 90
   },
-  "npm_staged": false,
-  "npm_published": false,
-  "git_pushed": false,
+  "npm_staged": true,
+  "npm_published": true,
+  "git_pushed": true,
   "reviewed_code_commit": "6062366f3259e078e00b1674b9f9372f844f38d2",
-  "test_hardening_report": "reports/validation/mutation-v073/README.md"
+  "test_hardening_report": "reports/validation/mutation-v073/README.md",
+  "publication_receipt": "reports/validation/publication-v0.7.3/README.md",
+  "published_archives": "reports/validation/publication-v0.7.3/staged-archives.json"
 }
